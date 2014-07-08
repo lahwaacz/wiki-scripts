@@ -5,7 +5,7 @@
 import requests
 import http.cookiejar as cookielib
 
-from exceptions import *
+from .exceptions import *
 
 DEFAULT_UA = "wiki-scripts/0.1 +https://github.com/lahwaacz/wiki-scripts"
 

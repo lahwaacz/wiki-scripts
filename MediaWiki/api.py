@@ -2,8 +2,8 @@
 
 import requests
 
-from connection import Connection
-from exceptions import *
+from .connection import Connection
+from .exceptions import *
 
 __all__ = ["API"]
 
@@ -80,12 +80,11 @@ class API(Connection):
         """
         data = data.copy()
         data["action"] = "query"
-        return self.call(data)
+        result = self.call(data)
 
-if __name__ == "__main__":
-    api = API("https://wiki.archlinux.org/api.php", cookie_file="test.cookie")
-    ui = api.query({"meta": "userinfo", "uiprop": "rights"})
-    if ui["query"]["userinfo"]["id"] == 0:
-        api.login(input("Username: "), input("Password: "))
-        ui = api.query({"meta": "userinfo", "uiprop": "rights"})
-    print(ui)
+        if "error" in result:
+            raise QueryError(result["error"])
+        if "warnings" in result:
+            raise QueryWarnings(result["warnings"])
+
+        return result["query"]
