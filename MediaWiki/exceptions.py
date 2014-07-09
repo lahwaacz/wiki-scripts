@@ -13,12 +13,21 @@ class APIJsonError(BaseMediaWikiException):
     """
     pass
 
-class QueryError(BaseMediaWikiException):
-    """ Raised when API:Query fails (response contains "error" attribute)
+class APIWrongAction(BaseMediaWikiException):
+    """ Raised when a wrong API action is specified
+    """
+    def __init__(self, action, available):
+        self.message = "%s (available actions are: %s)" % (action, available)
+
+    def __str__(self):
+        return self.message
+
+class APIError(BaseMediaWikiException):
+    """ Raised when API response contains ``error`` attribute
     """
     pass
 
-class QueryWarnings(BaseMediaWikiException):
-    """ Raised when response from API:Query contains warnings
+class APIWarnings(BaseMediaWikiException):
+    """ Raised when API response contains ``warnings`` attribute
     """
     pass

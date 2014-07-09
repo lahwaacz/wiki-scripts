@@ -11,6 +11,20 @@ DEFAULT_UA = "wiki-scripts/0.1 +https://github.com/lahwaacz/wiki-scripts"
 
 __all__ = ["Connection"]
 
+api_actions = [
+    "login", "logout", "createaccount", "query", "expandtemplates", "parse",
+    "opensearch", "feedcontributions", "feedwatchlist", "help", "paraminfo", "rsd",
+    "compare", "tokens", "purge", "setnotificationtimestamp", "rollback", "delete",
+    "undelete", "protect", "block", "unblock", "move", "edit", "upload", "filerevert",
+    "emailuser", "watch", "patrol", "import", "userrights", "options", "imagerotate"
+]
+post_actions = [
+    "login", "createaccount", "purge", "setnotificationtimestamp", "rollback",
+    "delete", "undelete", "protect", "block", "unblock", "move", "edit", "upload",
+    "filerevert", "emailuser", "watch", "patrol", "import", "userrights", "options",
+    "imagerotate"
+]
+
 class Connection:
     """
     The base object handling connection between a wiki and scripts.
@@ -32,7 +46,7 @@ class Connection:
                  ssl_verify=None):
         # TODO: document parameters
         self._api_url = api_url
-        
+
         self.session = requests.Session()
 
         if cookiejar is not None:
@@ -54,7 +68,7 @@ class Connection:
         self.session.params.update({"format": "json"})
         self.session.verify = ssl_verify
 
-    def call(self, params, method="GET"):
+    def _call(self, params, method="GET"):
         """
         Basic HTTP request handler.
 
@@ -71,7 +85,42 @@ class Connection:
 
         try:
             return r.json()
-        except ValueError as e:
+        except ValueError:
             raise APIJsonError("Failed to decode server response. Please make sure " +
                                "that the API is enabled on the wiki and that the " +
                                "API URL is correct.")
+
+    def call(self, params=None, **kwargs):
+        """
+        Convenient method to call the API.
+
+        Checks the ``action`` parameter (default is ``"help"`` as in the API),
+        selects correct HTTP request method, handles API errors and warnings.
+
+        Parameters can be passed either as a dict to ``params``, or as keyword
+        arguments.
+        """
+        if params is None:
+            params = kwargs
+        elif not isinstance(params, dict):
+            raise ValueError("params must be dict or None")
+
+        # check if action is valid
+        action = params.get("action", "help")
+        if action not in api_actions:
+            raise APIWrongAction(action, api_actions)
+
+        # select HTTP method and call the API
+        method = "POST" if action in post_actions else "GET"
+        result = self._call(params, method)
+
+        # see if there are errors/warnings
+        if "error" in result:
+            # for some reason action=help is returned inside 'error'
+            if action == "help":
+                return result["error"]["*"]
+            raise APIError(result["error"])
+        if "warnings" in result:
+            raise APIWarnings(result["warnings"])
+
+        return result[action]
