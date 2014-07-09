@@ -60,6 +60,7 @@ class Connection:
                 self.session.cookies.load()
 
         _auth = None
+        # TODO: replace with requests.auth.HTTPBasicAuth
         if http_user is not None and http_password is not None:
             self._auth = (http_user, http_password)
 
@@ -73,7 +74,7 @@ class Connection:
         Basic HTTP request handler.
 
         :param params: dictionary of query string parameters
-
+        :returns: dictionary containing full API response
         """
         r = self.session.request(method=method, url=self._api_url, params=params)
 
@@ -90,15 +91,21 @@ class Connection:
                                "that the API is enabled on the wiki and that the " +
                                "API URL is correct.")
 
-    def call(self, params=None, **kwargs):
+    def call(self, params=None, expand_result=True, **kwargs):
         """
         Convenient method to call the API.
 
         Checks the ``action`` parameter (default is ``"help"`` as in the API),
         selects correct HTTP request method, handles API errors and warnings.
 
-        Parameters can be passed either as a dict to ``params``, or as keyword
-        arguments.
+        Parameters of the call can be passed either as a dict to ``params``, or as
+        keyword arguments.
+
+        :param params: dictionary of API parameters
+        :param expand_result: if True, return only part of the response relevant
+                        to the given action, otherwise full response is returned
+        :param kwargs: API parameters passed as keyword arguments
+        :returns: dictionary containing (part of) the API response
         """
         if params is None:
             params = kwargs
@@ -121,6 +128,9 @@ class Connection:
                 return result["error"]["*"]
             raise APIError(result["error"])
         if "warnings" in result:
+            # FIXME: don't raise on warnings
             raise APIWarnings(result["warnings"])
 
-        return result[action]
+        if expand_result is True:
+            return result[action]
+        return result

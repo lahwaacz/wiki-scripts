@@ -67,3 +67,50 @@ class API(Connection):
         """
         self.call(action="logout")
         return True
+
+
+    def query_continue(self, params=None, **kwargs):
+        """
+        Generator for MediaWiki's query-continue feature.
+        ref: https://www.mediawiki.org/wiki/API:Query#Continuing_queries
+
+        :param params: same as :py:func:`Connection.call`, but ``action``
+                is always set to ``"query"`` and ``"continue"`` to ``""``
+        :param kwargs: same as :py:func:`Connection.call`
+        :yields: "query" part of the API response
+        """
+        if params is None:
+            params = kwargs
+        elif not isinstance(params, dict):
+            raise ValueError("params must be dict or None")
+        else:
+            # we will need to modify the data in dict so let's create copy
+            params = params.copy()
+
+        params["action"] = "query"
+        params["continue"] = ""
+
+        while True:
+            result = self.call(params, expand_result=False)
+            if "query" in result:
+                yield result["query"]
+            if "continue" not in result:
+                break
+            params.update(result["continue"])
+
+    def generator(self, params=None, **kwargs):
+        """
+        Interface to API:Generators, conveniently implemented as Python generator.
+
+        :param params: same as :py:func:`API.query_continue`
+        :param kwargs: same as :py:func:`API.query_continue`
+        :yields: from "pages" part of the API response
+        """
+        # TODO: check if "generator" param is passed?
+        for snippet in self.query_continue(params, **kwargs):
+            # API generator returns dict !!!
+            # for example:  snippet === {"pages":
+            #       {"9693": {"title": "Page title", "ns": 0, "pageid": "9693"},
+            #       {"1165", {"title": ...
+            for _, page in snippet["pages"].items():
+                yield page
