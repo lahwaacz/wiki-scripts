@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-import requests
-
 from .connection import Connection
 from .exceptions import *
 
@@ -48,11 +46,11 @@ class API(Connection):
             }
             if token:
                 data["lgtoken"] = token
-            result = self.call(query, method="POST")
-            if result["login"]["result"] == "Success":
+            result = self.call(data)
+            if result["result"] == "Success":
                 return True
-            elif result["login"]["result"] == "NeedToken" and not token:
-                return do_login(self, username, password, result["login"]["token"])
+            elif result["result"] == "NeedToken" and not token:
+                return do_login(self, username, password, result["token"])
             else:
                 return False
 
@@ -67,24 +65,5 @@ class API(Connection):
 
         .. _`MediaWiki#API:Logout`: https://www.mediawiki.org/wiki/API:Logout
         """
-        data = {"action": "logout"}
-        self.call(data)
+        self.call(action="logout")
         return True
-
-    def query(self, data):
-        """
-        Base method representing `API:Query` module. Several sub-methods are provided
-        for convenience, they will start with *query_*.
-
-        :param data: dictionary of query data, ``"action": "query"`` may not be supplied
-        """
-        data = data.copy()
-        data["action"] = "query"
-        result = self.call(data)
-
-        if "error" in result:
-            raise QueryError(result["error"])
-        if "warnings" in result:
-            raise QueryWarnings(result["warnings"])
-
-        return result["query"]
