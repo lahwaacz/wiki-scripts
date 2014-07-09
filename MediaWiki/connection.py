@@ -24,10 +24,12 @@ class Connection:
     :param cookie_file: path to a :py:class:`cookielib.FileCookieJar` file
     :param cookiejar: an existing :py:class:`cookielib.CookieJar` object
     :param user_agent: string sent as ``User-Agent`` header to the web server
+    :param ssl_verify: if ``True``, the SSL certificate will be verified
     """
 
     def __init__(self, api_url, cookie_file=None, cookiejar=None,
-                 user_agent=DEFAULT_UA, http_user=None, http_password=None):
+                 user_agent=DEFAULT_UA, http_user=None, http_password=None,
+                 ssl_verify=None):
         # TODO: document parameters
         self._api_url = api_url
         
@@ -50,6 +52,7 @@ class Connection:
         self.session.headers.update({"user-agent": user_agent})
         self.session.auth = _auth
         self.session.params.update({"format": "json"})
+        self.session.verify = ssl_verify
 
     def call(self, params, method="GET"):
         """
