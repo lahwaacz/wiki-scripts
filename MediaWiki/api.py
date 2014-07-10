@@ -19,6 +19,7 @@ class API(Connection):
 
     def __init__(self, api_url, **kwargs):
         super().__init__(api_url, **kwargs)
+        self._is_loggedin = None
 
     def login(self, username, password):
         """
@@ -54,7 +55,17 @@ class API(Connection):
             else:
                 return False
 
-        return do_login(self, username, password)
+        self._is_loggedin = do_login(self, username, password)
+        return self._is_loggedin
+
+    def is_loggedin(self):
+        """
+        Checks if the current session is authenticated.
+        """
+        if self._is_loggedin is None:
+            data = self.call(action="query", meta="userinfo")
+            self._is_loggedin = "anon" not in data["userinfo"]
+        return self._is_loggedin
 
     def logout(self):
         """
