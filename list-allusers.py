@@ -28,6 +28,11 @@ users = [user for user in users if user.get("blockid") is None]
 # prepare sorting by avgeditsperday
 now = datetime.utcnow()
 for user in users:
+    # exclude users with no registration date (some weird anomaly)  TODO: investigate
+    if user["registration"] == "":
+        user["avgeditsperday"] = 0
+        continue
+
     delta = now - parse_date(user["registration"])
     user["avgeditsperday"] = user["editcount"] / delta.days if delta.days != 0 else user["editcount"]
 
