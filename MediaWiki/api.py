@@ -20,6 +20,7 @@ class API(Connection):
     def __init__(self, api_url, **kwargs):
         super().__init__(api_url, **kwargs)
         self._is_loggedin = None
+        self._has_high_limits = None
 
     def login(self, username, password):
         """
@@ -61,11 +62,24 @@ class API(Connection):
     def is_loggedin(self):
         """
         Checks if the current session is authenticated.
+
+        :returns: True if the session is authenticated
         """
         if self._is_loggedin is None:
-            data = self.call(action="query", meta="userinfo")
-            self._is_loggedin = "anon" not in data["userinfo"]
+            result = self.call(action="query", meta="userinfo")
+            self._is_loggedin = "anon" not in result["userinfo"]
         return self._is_loggedin
+
+    def has_high_limits(self):
+        """
+        Checks if the current user has the ``apihighlimits`` right.
+
+        :return: True if ``apihighlimits`` is available
+        """
+        if self._has_high_limits is None:
+            result = self.call(action="query", meta="userinfo", uiprop="rights")
+            self._has_high_limits = "apihighlimits" in result["userinfo"]["rights"]
+        return self._has_high_limits
 
     def logout(self):
         """

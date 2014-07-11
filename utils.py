@@ -27,3 +27,7 @@ def flatten_list(iterable):
 # flatten _shallow_ generator
 def flatten_gen(iterable):
     return (inner for outer in iterable for inner in outer)
+
+# split ``list_`` into chunks of fixed length ``bs``
+def list_chunks(list_, bs):
+    return (list_[i:i+bs] for i in range(0, len(list_), bs))

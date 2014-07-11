@@ -3,35 +3,38 @@
 import os.path
 
 from MediaWiki import API
+from utils import *
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
-api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
-#api = API(api_url, ssl_verify=True)
+#api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
+api = API(api_url, ssl_verify=True)
 
-# TODO: it is necessary to respect low/high limits !!!
-#       otherwise we either exceed 50-pageids limit for "action=query&requests"
-#       (yes, this is lower than for generator=allpages), or for high limits we
-#       get '414: request-URI too large' error (gaplimit==5000 for apihighlimits)
 
-redirects = []
-_pageids = []
+
+# first get list of pageids of redirect pages
+pageids = []
 for ns in ["0", "4", "12"]:
-    for snippet in api.query_continue(generator="allpages", gaplimit="500", gapfilterredir="redirects", gapnamespace=ns):
-        snippet = sorted(snippet["pages"].values(), key=lambda d: d["title"])
-        # first get list of pageids of redirect pages
-        pageids = [str(page["pageid"]) for page in snippet]
-        _pageids.extend(pageids)
-#        print(len(pageids), len(list(set(pageids))))
-        # then resolve them (get target titles)
-        result = api.call(action="query", redirects="", pageids="|".join(pageids))
-        redirects.extend(result["redirects"])
-#        print("rl", len(redirects))
+    pages = api.generator(generator="allpages", gaplimit="max", gapfilterredir="redirects", gapnamespace=ns)
+    _pageids = [str(page["pageid"]) for page in pages]
+    pageids.extend(_pageids)
 
-#print(redirects)
-print(len(redirects))
-print(len(_pageids))
+# To resolve the redirects, the list of pageids must be split into chunks to fit
+# the limit for pageids= parameter. This can't be done on snippets returned by
+# API.query_continue(), because the limit for pageids is *lower* than for the
+# generator (for both normal and apihighlimits)
+#
+# See also https://wiki.archlinux.org/index.php/User:Lahwaacz/Notes#API:_resolving_redirects
+
+# check if we have apihighlimits and adjust the limit
+limit = 500 if api.has_high_limits() else 50
+
+# resolve by chunks
+redirects = []
+for snippet in list_chunks(pageids, limit):
+    result = api.call(action="query", redirects="", pageids="|".join(snippet))
+    redirects.extend(result["redirects"])
 
 
 
@@ -40,6 +43,9 @@ print(len(_pageids))
 
 # first limit to redirects whose source and target title differ only in capitalization
 redirects = [r for r in redirects if r["from"].lower() == r["to"].lower()]
+
+# sort by source title
+redirects.sort(key=lambda r: r["from"])
 
 # we will count the number of uppercase letters
 def count_uppercase(text):
