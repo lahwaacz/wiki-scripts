@@ -160,3 +160,38 @@ class API(Connection):
             #       [{"title": "Page title", "ns": 0, "pageid": "9693"},
             #        {"title": ...
             yield from snippet[list_]
+
+    def resolve_redirects(self, pageids):
+        """
+        Resolve redirect titles according to the `MediaWiki's API`. List of redirect
+        pages must be obtained other way (for example by using
+        ``generator=allpages&gapfilterredir=redirects`` query), or just use this
+        method if unsure.
+
+        :param pageids: list of page IDs to resolve
+        :returns: ``redirects`` part of the API response concatenated into one list
+
+        .._`MediaWiki's API`: https://www.mediawiki.org/wiki/API:Query#Resolving_redirects
+        """
+        # To resolve the redirects, the list of pageids must be split into chunks to
+        # fit the limit for pageids= parameter. This can't be done on snippets
+        # returned by API.query_continue(), because the limit for pageids is *lower*
+        # than for the generator (for both normal and apihighlimits)
+        #
+        # See also https://wiki.archlinux.org/index.php/User:Lahwaacz/Notes#API:_resolving_redirects
+
+        def _chunks(list_, bs):
+            """ split ``list_`` into chunks of fixed length ``bs``
+            """
+            return (list_[i:i+bs] for i in range(0, len(list_), bs))
+
+        # check if we have apihighlimits and set the limit accordingly 
+        limit = 500 if self.has_high_limits() else 50
+
+        # resolve by chunks
+        redirects = []
+        for snippet in _chunks(pageids, limit):
+            result = self.call(action="query", redirects="", pageids="|".join(snippet))
+            redirects.extend(result["redirects"])
+
+        return redirects

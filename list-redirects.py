@@ -20,22 +20,8 @@ for ns in ["0", "4", "12"]:
     _pageids = [str(page["pageid"]) for page in pages]
     pageids.extend(_pageids)
 
-# To resolve the redirects, the list of pageids must be split into chunks to fit
-# the limit for pageids= parameter. This can't be done on snippets returned by
-# API.query_continue(), because the limit for pageids is *lower* than for the
-# generator (for both normal and apihighlimits)
-#
-# See also https://wiki.archlinux.org/index.php/User:Lahwaacz/Notes#API:_resolving_redirects
-
-# check if we have apihighlimits and adjust the limit
-limit = 500 if api.has_high_limits() else 50
-
-# resolve by chunks
-redirects = []
-for snippet in list_chunks(pageids, limit):
-    result = api.call(action="query", redirects="", pageids="|".join(snippet))
-    redirects.extend(result["redirects"])
-
+# resolve redirects
+redirects = api.resolve_redirects(pageids)
 
 
 # according to ArchWiki standards, the title must be sentence-case (if it is not an acronym)
