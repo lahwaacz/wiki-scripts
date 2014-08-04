@@ -195,3 +195,16 @@ class API(Connection):
             redirects.extend(result["redirects"])
 
         return redirects
+
+    def edit(self, pageid, text, summary, minor=False, bot=False):
+        def _edit(**kwargs):
+            """
+            Request edittoken and add it to the query
+            """
+            token = self.call(action="tokens", type="edit")["edittoken"]
+            return self.call(action="edit", token=token, **kwargs)
+
+        if not summary:
+            raise Exception("edit summary is mandatory")
+
+        return _edit(pageid=pageid, text=text, summary=summary, minor=minor, bot=bot)
