@@ -5,8 +5,6 @@ from pygments import highlight
 from pygments.lexers.text import DiffLexer
 from pygments.formatters import Terminal256Formatter
 
-__all__ = ["RevisionDiffer"]
-
 def diff_highlighted(old, new, fromfile="", tofile="", fromfiledate="", tofiledate=""):
     """
     Generic wrapper around :py:func:`difflib.unified_diff` with highlighter based
