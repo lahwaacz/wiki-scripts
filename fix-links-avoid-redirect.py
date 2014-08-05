@@ -82,6 +82,6 @@ for page in sorted(pages, key=lambda x: x["title"]):
                 break
 
         if ans == "y":
-            result = api.edit(page["pageid"], text, "update link(s) (avoid redirect if the titles differ only in capitalization) (testing https://github.com/lahwaacz/wiki-scripts/blob/master/fix-links-avoid-redirect.py)")
+            result = api.edit(page["pageid"], text, "update link(s) (avoid redirect if the titles differ only in capitalization) (testing https://github.com/lahwaacz/wiki-scripts/blob/master/fix-links-avoid-redirect.py)", minor="", bot="")
         elif ans == "q":
             break
