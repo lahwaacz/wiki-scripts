@@ -8,7 +8,7 @@ import http.cookiejar as cookielib
 
 from .exceptions import *
 
-DEFAULT_UA = "wiki-scripts/0.1 (+https://github.com/lahwaacz/wiki-scripts)"
+DEFAULT_UA = "wiki-scripts/0.2 (+https://github.com/lahwaacz/wiki-scripts)"
 
 __all__ = ["Connection"]
 
