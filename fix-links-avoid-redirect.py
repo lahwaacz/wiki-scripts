@@ -9,8 +9,7 @@ from utils import *
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
-#api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
-api = API(api_url, ssl_verify=True)
+api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 
 
 # Loop through a list of pages, extract list of wiki links, filter out non-redirect
@@ -22,7 +21,7 @@ api = API(api_url, ssl_verify=True)
 # pages to operate on
 pages = api.generator(generator="backlinks", gbltitle="Bluetooth headset", gbllimit="max", gblnamespace="0|4|12", gblredirect="")
 
-for page in pages:
+for page in sorted(pages, key=lambda x: x["title"]):
     print("Processing page '%s'" % page["title"])
     # get wiki links on the page
     links = api.generator(generator="links", pageids=page["pageid"], gpllimit="max", prop="info")

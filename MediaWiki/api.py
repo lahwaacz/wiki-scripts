@@ -171,7 +171,7 @@ class API(Connection):
         :param pageids: list of page IDs to resolve
         :returns: ``redirects`` part of the API response concatenated into one list
 
-        .._`MediaWiki's API`: https://www.mediawiki.org/wiki/API:Query#Resolving_redirects
+        .. _`MediaWiki's API`: https://www.mediawiki.org/wiki/API:Query#Resolving_redirects
         """
         # To resolve the redirects, the list of pageids must be split into chunks to
         # fit the limit for pageids= parameter. This can't be done on snippets

@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 # FIXME: query string should be normalized, see https://www.mediawiki.org/wiki/API:Main_page#API_etiquette
+#        + 'token' parameter should be specified last, see https://www.mediawiki.org/wiki/API:Edit
 
 import requests
 import http.cookiejar as cookielib
@@ -69,14 +70,20 @@ class Connection:
         self.session.params.update({"format": "json"})
         self.session.verify = ssl_verify
 
-    def _call(self, params, method="GET"):
+    def _call(self, params=None, data=None, method="GET"):
         """
         Basic HTTP request handler.
 
+        At least one of the parameters ``params`` and ``data`` has to be provided,
+        see `Requests documentation` for details.
+
         :param params: dictionary of query string parameters
+        :param data: data for the request (if a dictionary is provided, form-encoding will take place)
         :returns: dictionary containing full API response
+
+        .. _`Requests documentation`: http://docs.python-requests.org/en/latest/api/
         """
-        r = self.session.request(method=method, url=self._api_url, params=params)
+        r = self.session.request(method=method, url=self._api_url, params=params, data=data)
 
         # raise HTTPError for bad requests (4XX client errors and 5XX server errors)
         r.raise_for_status()
@@ -118,8 +125,12 @@ class Connection:
             raise APIWrongAction(action, api_actions)
 
         # select HTTP method and call the API
-        method = "POST" if action in post_actions else "GET"
-        result = self._call(params, method)
+        if action in post_actions:
+            # passing `params` to `data` will cause form-encoding to take place,
+            # which is necessary when editing pages longer than 8000 characters
+            result = self._call(data=params, method="POST")
+        else:
+            result = self._call(params=params, method="GET")
 
         # see if there are errors/warnings
         if "error" in result:
