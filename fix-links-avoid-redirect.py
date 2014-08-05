@@ -7,7 +7,7 @@ from MediaWiki import API, diff_highlighted
 from utils import *
 
 api_url = "https://wiki.archlinux.org/api.php"
-cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
+cookie_path = os.path.expanduser("~/.cache/ArchWiki.bot.cookie")
 
 api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 
@@ -18,8 +18,14 @@ api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 #
 # See also https://wiki.archlinux.org/index.php?title=Help_talk:Style&oldid=328391#Links_to_redirects
 
+# ask url of the page to find backlinks for
+url = input("page url: ")
+title = url.replace("https://wiki.archlinux.org/index.php/", "")
+title = title.split("#")[0]
+print("page title: '%s'" % title)
+
 # pages to operate on
-pages = api.generator(generator="backlinks", gbltitle="Bluetooth headset", gbllimit="max", gblnamespace="0|4|12", gblredirect="")
+pages = api.generator(generator="backlinks", gbltitle=title, gbllimit="max", gblnamespace="0|4|12", gblredirect="")
 
 for page in sorted(pages, key=lambda x: x["title"]):
     print("Processing page '%s'" % page["title"])
