@@ -10,7 +10,7 @@ def diff_highlighted(old, new, fromfile="", tofile="", fromfiledate="", tofileda
     Generic wrapper around :py:func:`difflib.unified_diff` with highlighter based
     on :py:mod:`pygments`.
 
-    See `difflib.unified_diff` for description of optional parameters.
+    See `difflib.unified_diff`_ for description of optional parameters.
 
     :param old: text to compare (old revision)
     :param new: text to compare (new revision)
@@ -34,7 +34,7 @@ class RevisionDiffer:
     """
     Object for comparing revisions.
 
-    :param api: a :py:class:`MediaWiki.API` instance to operate on
+    :param api: a :py:class:`MediaWiki.api.API` instance to operate on
     """
     def __init__(self, api):
         self.api = api

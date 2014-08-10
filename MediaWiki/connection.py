@@ -75,7 +75,7 @@ class Connection:
         Basic HTTP request handler.
 
         At least one of the parameters ``params`` and ``data`` has to be provided,
-        see `Requests documentation` for details.
+        see `Requests documentation`_ for details.
 
         :param params: dictionary of query string parameters
         :param data: data for the request (if a dictionary is provided, form-encoding will take place)

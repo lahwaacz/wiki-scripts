@@ -25,7 +25,7 @@ class API(Connection):
     def login(self, username, password):
         """
         Logs into the wiki with username and password. Returns True on successful login.
-        See `MediaWiki#API:Login` for reference.
+        See `MediaWiki#API:Login`_ for reference.
 
         :param username: username to use
         :param password: password to use
@@ -84,7 +84,7 @@ class API(Connection):
     def logout(self):
         """
         Logs out of the wiki.
-        See `MediaWiki#API:Logout` for reference.
+        See `MediaWiki#API:Logout`_ for reference.
         
         :returns: True
 
@@ -99,9 +99,9 @@ class API(Connection):
         Generator for MediaWiki's query-continue feature.
         ref: https://www.mediawiki.org/wiki/API:Query#Continuing_queries
 
-        :param params: same as :py:func:`Connection.call`, but ``action``
+        :param params: same as :py:meth:`MediaWiki.connection.Connection.call`, but ``action``
                 is always set to ``"query"`` and ``"continue"`` to ``""``
-        :param kwargs: same as :py:func:`Connection.call`
+        :param kwargs: same as :py:meth:`MediaWiki.connection.Connection.call`
         :yields: "query" part of the API response
         """
         if params is None:
@@ -127,8 +127,8 @@ class API(Connection):
         """
         Interface to API:Generators, conveniently implemented as Python generator.
 
-        :param params: same as :py:func:`API.query_continue`
-        :param kwargs: same as :py:func:`API.query_continue`
+        :param params: same as :py:meth:`API.query_continue`
+        :param kwargs: same as :py:meth:`API.query_continue`
         :yields: from "pages" part of the API response
         """
         # TODO: check if "generator" param is passed?
@@ -146,8 +146,8 @@ class API(Connection):
 
         Parameter ``list`` must be supplied.
 
-        :param params: same as :py:func:`API.query_continue`
-        :param kwargs: same as :py:func:`API.query_continue`
+        :param params: same as :py:meth:`API.query_continue`
+        :param kwargs: same as :py:meth:`API.query_continue`
         :yields: from ``list`` part of the API response
         """
         list_ = kwargs.get("list") if params is None else params.get("list")
@@ -163,7 +163,7 @@ class API(Connection):
 
     def resolve_redirects(self, pageids):
         """
-        Resolve redirect titles according to the `MediaWiki's API`. List of redirect
+        Resolve redirect titles according to the `MediaWiki's API`_. List of redirect
         pages must be obtained other way (for example by using
         ``generator=allpages&gapfilterredir=redirects`` query), or just use this
         method if unsure.
