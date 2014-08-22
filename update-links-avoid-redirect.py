@@ -67,7 +67,6 @@ for page in sorted(pages, key=lambda x: x["title"]):
             ("y", "make this edit"),
             ("n", "do not make this edit"),
             ("q", "quit; do not make this edit or any of the following"),
-#            ("e", "manually edit this edit"),
             ("?", "print help"),
         ]
         short_options = [o[0] for o in options]
@@ -82,6 +81,6 @@ for page in sorted(pages, key=lambda x: x["title"]):
                 break
 
         if ans == "y":
-            result = api.edit(page["pageid"], text, "update link(s) (avoid redirect if the titles differ only in capitalization) (testing https://github.com/lahwaacz/wiki-scripts/blob/master/fix-links-avoid-redirect.py)", minor="", bot="")
+            result = api.edit(page["pageid"], text, "update link(s) (avoid redirect if the titles differ only in capitalization) (testing https://github.com/lahwaacz/wiki-scripts/blob/master/update-links-avoid-redirect.py)", minor="", bot="")
         elif ans == "q":
             break
