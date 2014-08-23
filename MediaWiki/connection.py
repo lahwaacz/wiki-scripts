@@ -7,6 +7,7 @@ import requests
 import http.cookiejar as cookielib
 
 from .exceptions import *
+from .rate import RateLimited
 
 DEFAULT_UA = "wiki-scripts/0.2 (+https://github.com/lahwaacz/wiki-scripts)"
 
@@ -70,6 +71,7 @@ class Connection:
         self.session.params.update({"format": "json"})
         self.session.verify = ssl_verify
 
+    @RateLimited(10, 3)
     def _call(self, params=None, data=None, method="GET"):
         """
         Basic HTTP request handler.

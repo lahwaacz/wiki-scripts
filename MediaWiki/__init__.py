@@ -5,5 +5,5 @@ __url__ = "https://github.com/lahwaacz/wiki-scripts"
 __version__ = "0.2"
 
 from .exceptions import *
-from .api import API
+from .api import *
 from .diff import *
