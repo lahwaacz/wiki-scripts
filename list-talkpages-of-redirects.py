@@ -14,14 +14,10 @@ api = API(api_url, ssl_verify=True)
 
 
 # first get list of pageids of redirect pages
-pageids = []
+redirect_titles = []
 for ns in ["0", "4", "12"]:
-    pages = api.generator(generator="allpages", gaplimit="max", gapfilterredir="redirects", gapnamespace=ns)
-    _pageids = [str(page["pageid"]) for page in pages]
-    pageids.extend(_pageids)
-
-# resolve redirects
-redirects = api.resolve_redirects(pageids)
+    _pages = api.generator(generator="allpages", gaplimit="max", gapfilterredir="redirects", gapnamespace=ns)
+    redirect_titles.extend([page["title"] for page in _pages])
 
 # get all titles of talk pages for these namespaces
 talks = []
@@ -50,8 +46,7 @@ def detect_namespace(title):
 #pprint(talks)
 
 # print talk pages associated to a redirect page
-for page in sorted(redirects, key=lambda r: r["from"]):
-    title = page["from"]
+for title in sorted(redirect_titles):
     namespace, pure_title = detect_namespace(title)
     talk_prefix = namespace + " talk:" if namespace != "Main" else "Talk:"
     talk = talk_prefix + pure_title
