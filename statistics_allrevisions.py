@@ -2,7 +2,7 @@
 
 # NOTE:
 # * deleted revisions are not included
-# * only normal edits are included (no deletions, moves, ...)
+# * only diffable changes are recorded (edits and moves, not deletions)
 # * bots vs nobots
 # * different notion of active user ("calendar month" vs "30 days")
 #
@@ -163,7 +163,7 @@ def create_histograms(revisions):
     # list of timestamps for each revision
     timestamps = [parse_date(revision["timestamp"]) for revision in revisions]
     # alternatively exclude bots
-#    timestamps = sorted([parse_date(revision["timestamp"]) for revision in revisions if revision["user"] not in ["Kynikos.bot", "Lahwaacz.bot", "Strcat"]])
+#    timestamps = [parse_date(revision["timestamp"]) for revision in revisions if revision["user"] not in ["Kynikos.bot", "Lahwaacz.bot", "Strcat"]]
 
     # construct an array of bin edges, one bin per calendar month
     bin_edges = datetime_month_range(timestamps[0], timestamps[-1])

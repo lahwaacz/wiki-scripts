@@ -1,5 +1,11 @@
 #! /usr/bin/env python3
 
+# TODO:
+# * solve CamelCase words: 'mplayer' should be 'MPlayer' instead of 'mPlayer'
+#   see also https://wiki.archlinux.org/index.php?title=Lenovo_ThinkPad_X1_Carbon&diff=328677&oldid=328657
+# * count replacements, the regex may not match
+# * refactoring, most of the code should be reusable
+
 import os.path
 import re
 
@@ -67,6 +73,8 @@ for page in sorted(pages, key=lambda x: x["title"]):
             ("y", "make this edit"),
             ("n", "do not make this edit"),
             ("q", "quit; do not make this edit or any of the following"),
+# TODO:
+#            ("e", "manually edit this edit"),
             ("?", "print help"),
         ]
         short_options = [o[0] for o in options]

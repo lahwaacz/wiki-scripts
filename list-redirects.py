@@ -8,9 +8,7 @@ from utils import *
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
-#api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
-api = API(api_url, ssl_verify=True)
-
+api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 
 
 # first get list of pageids of redirect pages
