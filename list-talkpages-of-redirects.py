@@ -22,7 +22,9 @@ for ns in ["0", "4", "12"]:
 # get all titles of talk pages for these namespaces
 talks = []
 for ns in ["1", "5", "13"]:
-    pages = api.generator(generator="allpages", gaplimit="max", gapnamespace=ns)
+    # limiting to talk pages that are not redirects is also useful
+#    pages = api.generator(generator="allpages", gaplimit="max", gapnamespace=ns)
+    pages = api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns)
     talks.extend([page["title"] for page in pages])
 
 # we will need to split the namespace prefix to compare pure titles across namespaces
