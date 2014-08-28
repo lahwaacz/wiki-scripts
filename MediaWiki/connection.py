@@ -6,10 +6,11 @@
 import requests
 import http.cookiejar as cookielib
 
+from . import __version__, __url__
 from .exceptions import *
 from .rate import RateLimited
 
-DEFAULT_UA = "wiki-scripts/0.2 (+https://github.com/lahwaacz/wiki-scripts)"
+DEFAULT_UA = "wiki-scripts/{version} ({url})".format(version=__version__, url=__url__)
 
 __all__ = ["Connection"]
 
