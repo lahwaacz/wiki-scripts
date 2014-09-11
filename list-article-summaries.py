@@ -3,7 +3,8 @@
 import os.path
 
 from MediaWiki import API
-from utils import *
+from utils import flatten_gen
+from ArchWiki.lang import detect_language
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
@@ -17,8 +18,13 @@ as_out = flatten_gen( (api.generator(generator="embeddedin", geilimit="max", gei
 
 titles_out = [p["title"] for p in as_out if p["ns"] == 0]
 
+# print only languages for which "Template:Related articles start (<lang>)" exists
+langs_whitelist = ["English", "Español", "Italiano", "Česky", "Ελληνικά", "Русский", "日本語", "正體中文", "简体中文"]
+
 for page in sorted(as_in , key=lambda d: d["title"]):
     title = page["title"]
     if page["ns"] == 0 and title not in titles_out:
-        print("* [[%s]]" % title)
-#        print("** https://wiki.archlinux.org/index.php/%s" % title.replace(" ", "_"))
+        # detect language, check whitelist
+        if detect_language(title)[1] in langs_whitelist:
+            print("* [[%s]]" % title)
+#            print("** https://wiki.archlinux.org/index.php/%s" % title.replace(" ", "_"))
