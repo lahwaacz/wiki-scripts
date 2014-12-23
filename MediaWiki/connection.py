@@ -10,9 +10,9 @@ from . import __version__, __url__
 from .exceptions import *
 from .rate import RateLimited
 
-DEFAULT_UA = "wiki-scripts/{version} ({url})".format(version=__version__, url=__url__)
+__all__ = ["Connection", "DEFAULT_UA"]
 
-__all__ = ["Connection"]
+DEFAULT_UA = "wiki-scripts/{version} ({url})".format(version=__version__, url=__url__)
 
 api_actions = [
     "login", "logout", "createaccount", "query", "expandtemplates", "parse",
@@ -94,12 +94,7 @@ class Connection:
         if isinstance(self.session.cookies, cookielib.FileCookieJar):
             self.session.cookies.save()
 
-        try:
-            return r.json()
-        except ValueError:
-            raise APIJsonError("Failed to decode server response. Please make sure " +
-                               "that the API is enabled on the wiki and that the " +
-                               "API URL is correct.")
+        return r
 
     def call(self, params=None, expand_result=True, **kwargs):
         """
@@ -134,6 +129,13 @@ class Connection:
             result = self._call(data=params, method="POST")
         else:
             result = self._call(params=params, method="GET")
+
+        try:
+            result = result.json()
+        except ValueError:
+            raise APIJsonError("Failed to decode server response. Please make sure " +
+                               "that the API is enabled on the wiki and that the " +
+                               "API URL is correct.")
 
         # see if there are errors/warnings
         if "error" in result:

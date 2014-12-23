@@ -7,3 +7,4 @@ __version__ = "0.3"
 from .exceptions import *
 from .api import *
 from .diff import *
+from .dump import *
