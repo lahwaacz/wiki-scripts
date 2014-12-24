@@ -8,3 +8,4 @@ from .exceptions import *
 from .api import *
 from .diff import *
 from .dump import *
+from .interactive import *

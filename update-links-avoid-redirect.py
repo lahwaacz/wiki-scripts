@@ -10,13 +10,13 @@ import os.path
 import re
 
 from MediaWiki import API, diff_highlighted
-from utils import *
+from MediaWiki.interactive import *
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.bot.cookie")
 
 api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
-
+require_login(api)
 
 # Loop through a list of pages, extract list of wiki links, filter out non-redirect
 # links and update the links over redirects __if and only if__ the target page and
@@ -68,27 +68,5 @@ for page in sorted(pages, key=lambda x: x["title"]):
                 text = re.sub(regex, r"\1\2%s\3" % new[1:], text)
 
         # interactive
-        diff = diff_highlighted(text_orig, text)
-        options = [
-            ("y", "make this edit"),
-            ("n", "do not make this edit"),
-            ("q", "quit; do not make this edit or any of the following"),
-# TODO:
-#            ("e", "manually edit this edit"),
-            ("?", "print help"),
-        ]
-        short_options = [o[0] for o in options]
-        ans = ""
-        while True:
-            print(diff)
-            ans = input("Make this edit? [%s]? " % ",".join(short_options))
-            if ans == "?" or ans not in short_options:
-                for o in options:
-                    print("%s - %s" % o)
-            else:
-                break
-
-        if ans == "y":
-            result = api.edit(page["pageid"], text, "update link(s) (avoid redirect if the titles differ only in capitalization) (testing https://github.com/lahwaacz/wiki-scripts/blob/master/update-links-avoid-redirect.py)", minor="", bot="")
-        elif ans == "q":
-            break
+        summary = "update link(s) (avoid redirect if the titles differ only in capitalization) (testing https://github.com/lahwaacz/wiki-scripts/blob/master/update-links-avoid-redirect.py)"
+        edit_interactive(api, page["pageid"], text_orig, text, summary)

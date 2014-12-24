@@ -48,7 +48,7 @@ class Connection:
                  user_agent=DEFAULT_UA, http_user=None, http_password=None,
                  ssl_verify=None):
         # TODO: document parameters
-        self._api_url = api_url
+        self.api_url = api_url
 
         self.session = requests.Session()
 
@@ -86,7 +86,7 @@ class Connection:
 
         .. _`Requests documentation`: http://docs.python-requests.org/en/latest/api/
         """
-        r = self.session.request(method=method, url=self._api_url, params=params, data=data)
+        r = self.session.request(method=method, url=self.api_url, params=params, data=data)
 
         # raise HTTPError for bad requests (4XX client errors and 5XX server errors)
         r.raise_for_status()

@@ -11,15 +11,6 @@ index_url = "https://wiki.archlinux.org/index.php"
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
-# check if 'api' session is authenticated, otherwise ask for credentials
-def require_login(api):
-    if not api.is_loggedin():
-        print("You need to log in to use this script. Site: wiki.archlinux.org\nCookies will be saved in '%s'." % cookie_path)
-        api.login(username=input("Username: "), password=input("Password: "))
-        if not api.is_loggedin():
-            print("Login failed.")
-            sys.exit(1)
-
 # return HTML for given wiki title
 def get_html(api, title):
     data = {"title": title.replace(" ", "_")}
