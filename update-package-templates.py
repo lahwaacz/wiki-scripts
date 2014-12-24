@@ -138,8 +138,10 @@ class PkgUpdater:
             if len(template.params) != 1:
                 print("warning: template '%s' takes exactly 1 parameter, got %s" % (template.name, template))
 
+            param = template.get(1).value
             # TODO: warn about uppercase
-            param = str(template.get(1).value).lower()
+            # TODO: force the param to be lowercase + whitespace-stripped?
+            param = param.lower().strip()
             if template.name.matches("Pkg") and not self.find_pkg(param):
                 if self.find_AUR(param):
                     template.name = "AUR"
