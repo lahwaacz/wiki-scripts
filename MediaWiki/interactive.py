@@ -23,7 +23,8 @@ def require_login(api):
             print("Login failed.", file=sys.stderr)
             sys.exit(1)
 
-def edit_interactive(api, pageid, old_text, new_text, basetimestamp, summary):
+def edit_interactive(api, pageid, old_text, new_text, basetimestamp, summary, **kwargs):
+    # TODO: docstring
     diff = diff_highlighted(old_text, new_text)
     options = [
         ("y", "make this edit"),
@@ -46,6 +47,6 @@ def edit_interactive(api, pageid, old_text, new_text, basetimestamp, summary):
             break
 
     if ans == "y":
-        return api.edit(pageid, new_text, basetimestamp, summary, bot="")
+        return api.edit(pageid, new_text, basetimestamp, summary, **kwargs)
     elif ans == "q":
         sys.exit(1)

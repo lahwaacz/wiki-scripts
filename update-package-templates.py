@@ -191,10 +191,9 @@ class PkgUpdater:
             text_old = page["revisions"][0]["*"]
             text_new = self.update_page(title, text_old)
             if text_old != text_new:
-                # TODO: update summary
-                summary = "wiki-scripts: update package templates"
-#                edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, summary)
-                self.api.edit(page["pageid"], text_new, timestamp, summary)
+                summary = "update Pkg/AUR templates (testing https://github.com/lahwaacz/wiki-scripts/blob/master/update-package-templates.py)"
+#                edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, summary, bot="")
+                self.api.edit(page["pageid"], text_new, timestamp, summary, bot="")
 
         return True
 
@@ -208,5 +207,5 @@ if __name__ == "__main__":
     aurpkgs_url = "https://aur.archlinux.org/packages.gz"
     tmpdir = "/tmp/wiki-scripts/"
 
-    updater = PkgUpdater(api_url, cookie_path, aurpkgs_url, tmpdir, ssl_verify=False)
+    updater = PkgUpdater(api_url, cookie_path, aurpkgs_url, tmpdir)
     sys.exit(not updater.check_allpages())

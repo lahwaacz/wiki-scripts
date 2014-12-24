@@ -70,4 +70,4 @@ for page in sorted(pages, key=lambda x: x["title"]):
 
         # interactive
         summary = "update link(s) (avoid redirect if the titles differ only in capitalization) (testing https://github.com/lahwaacz/wiki-scripts/blob/master/update-links-avoid-redirect.py)"
-        edit_interactive(api, page["pageid"], text_orig, text, timestamp, summary)
+        edit_interactive(api, page["pageid"], text_orig, text, timestamp, summary, bot="")
