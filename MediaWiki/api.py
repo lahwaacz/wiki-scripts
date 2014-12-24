@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+import hashlib
+
 from .connection import Connection
 from .exceptions import *
 
@@ -196,10 +198,30 @@ class API(Connection):
 
         return redirects
 
-    def edit(self, pageid, text, summary, **kwargs):
+    def edit(self, pageid, text, basetimestamp, summary, **kwargs):
+        """
+        Interface to `API:Edit`_.
+
+        :param pageid: page ID of the page to be edited
+        :param text: new page content
+        :param basetimestamp: Timestamp of the base revision (obtained through `prop=revisions&rvprop=timestamp`). Used to detect edit conflicts.
+        :param summary: edit summary
+        :param kwargs: Additional query parameters, see `API:Edit`_.
+
+        .. _`API:Edit`: https://www.mediawiki.org/wiki/API:Edit
+        """
         if not summary:
             raise Exception("edit summary is mandatory")
 
+        # send text as utf-8 encoded
+        text = text.encode("utf-8")
+
+        # md5 hash is used to prevent data corruption during transfer
+        h = hashlib.md5()
+        h.update(text)
+        md5 = h.hexdigest()
+
         # request edittoken and add it to the query
         token = self.call(action="tokens", type="edit")["edittoken"]
-        return self.call(action="edit", token=token, pageid=pageid, text=text, summary=summary, **kwargs)
+
+        return self.call(action="edit", token=token, md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, **kwargs)

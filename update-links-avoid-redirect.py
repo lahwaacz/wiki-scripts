@@ -48,8 +48,9 @@ for page in sorted(pages, key=lambda x: x["title"]):
 
     print("Found %d links over redirect (unique)" % len(redirects))
     if len(redirects) > 0:
-        result = api.call(action="query", prop="revisions", rvprop="content", pageids=page["pageid"])
+        result = api.call(action="query", prop="revisions", rvprop="content|timestamp", pageids=page["pageid"])
         _p = list(result["pages"].values())[0]
+        timestamp = _p["revisions"][0]["timestamp"]
         text = _p["revisions"][0]["*"]
         text_orig = text    # save orig for the diff
 
@@ -69,4 +70,4 @@ for page in sorted(pages, key=lambda x: x["title"]):
 
         # interactive
         summary = "update link(s) (avoid redirect if the titles differ only in capitalization) (testing https://github.com/lahwaacz/wiki-scripts/blob/master/update-links-avoid-redirect.py)"
-        edit_interactive(api, page["pageid"], text_orig, text, summary)
+        edit_interactive(api, page["pageid"], text_orig, text, timestamp, summary)
