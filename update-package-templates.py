@@ -1,14 +1,20 @@
 #! /usr/bin/env python3
 
+# TODO:
+#   better logging
+#   retry when edit fails
+
 import bisect
 import os.path
 import sys
+import time
 import requests
 import mwparserfromhell
 import pycman
 import pyalpm
 
 from MediaWiki import API, diff_highlighted
+from MediaWiki.exceptions import *
 from MediaWiki.interactive import *
 
 pacconf32 = """
@@ -68,6 +74,8 @@ class PkgUpdater:
         self.aurpkgs = None
         self.pacdb32 = None
         self.pacdb64 = None
+        
+        self.edit_summary = "update Pkg/AUR templates (testing https://github.com/lahwaacz/wiki-scripts/blob/master/update-package-templates.py)"
 
     def aurpkgs_init(self, aurpkgs_url):
         r = requests.get(aurpkgs_url, verify=self.ssl_verify)
@@ -193,9 +201,13 @@ class PkgUpdater:
             text_old = page["revisions"][0]["*"]
             text_new = self.update_page(title, text_old)
             if text_old != text_new:
-                summary = "update Pkg/AUR templates (testing https://github.com/lahwaacz/wiki-scripts/blob/master/update-package-templates.py)"
-#                edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, summary, bot="")
-                self.api.edit(page["pageid"], text_new, timestamp, summary, bot="")
+                try:
+#                    edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+                    self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+                    print("Edit to page '%s' succesful, sleeping for 1 second..." % title)
+                    time.sleep(1)
+                except (APIError, APIWarning):
+                    print("error: failed to edit page '%s'" % title)
 
         return True
 
