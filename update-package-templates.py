@@ -17,7 +17,7 @@ from MediaWiki import API, diff_highlighted
 from MediaWiki.exceptions import *
 from MediaWiki.interactive import *
 
-pacconf32 = """
+pacconf = """
 [options]
 RootDir     = /
 DBPath      = {pacdbpath}
@@ -25,7 +25,7 @@ CacheDir    = {pacdbpath}
 LogFile     = {pacdbpath}
 # Use system GPGDir so that we don't have to populate it
 GPGDir      = /etc/pacman.d/gnupg/
-Architecture = i686
+Architecture = {arch}
 
 # Repos needed for Template:Pkg checking
 
@@ -39,27 +39,7 @@ Include = /etc/pacman.d/mirrorlist
 Include = /etc/pacman.d/mirrorlist
 """
 
-pacconf64 = """
-[options]
-RootDir     = /
-DBPath      = {pacdbpath}
-CacheDir    = {pacdbpath}
-LogFile     = {pacdbpath}
-# Use system GPGDir so that we don't have to populate it
-GPGDir      = /etc/pacman.d/gnupg/
-Architecture = x86_64
-
-# Repos needed for Template:Pkg checking
-
-[core]
-Include = /etc/pacman.d/mirrorlist
-
-[extra]
-Include = /etc/pacman.d/mirrorlist
-
-[community]
-Include = /etc/pacman.d/mirrorlist
-
+pacconf64_suffix = """
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 """
@@ -82,19 +62,18 @@ class PkgUpdater:
         r.raise_for_status()
         self.aurpkgs = sorted([line for line in r.text.splitlines() if not line.startswith("#")])
 
-    def pacdb_init(self, config, dbpath):
+    def pacdb_init(self, config, dbpath, arch):
         if not os.path.isdir(dbpath):
             os.makedirs(dbpath)
         confpath = os.path.join(dbpath, "pacman.conf")
         if not os.path.isfile(confpath):
             f = open(confpath, "w")
-            f.write(config.format(pacdbpath=dbpath))
+            f.write(config.format(pacdbpath=dbpath, arch=arch))
             f.close()
         return pycman.config.init_with_config(confpath)
 
     # Sync databases like pacman -Sy
     def pacdb_refresh(self, pacdb, force=False):
-        print("Syncing pacman database...")
         for db in pacdb.get_syncdbs():
             # since this is private pacman database, there is no locking
             db.update(force)
@@ -182,11 +161,13 @@ class PkgUpdater:
             print("Failed to download %s" % self.aurpkgs_url)
             return False
 
-        self.pacdb32 = self.pacdb_init(pacconf32, os.path.join(self.tmpdir, "pacdbpath32"))
-        self.pacdb64 = self.pacdb_init(pacconf64, os.path.join(self.tmpdir, "pacdbpath64"))
+        self.pacdb32 = self.pacdb_init(pacconf, os.path.join(self.tmpdir, "pacdbpath32"), arch="i686")
+        self.pacdb64 = self.pacdb_init(pacconf + pacconf64_suffix, os.path.join(self.tmpdir, "pacdbpath64"), arch="x86_64")
 
         try:
+            print("Syncing pacman database (i686)...")
             self.pacdb_refresh(self.pacdb32)
+            print("Syncing pacman database (x86_64)...")
             self.pacdb_refresh(self.pacdb64)
         except pyalpm.error:
             print("Failed to sync pacman database.")
