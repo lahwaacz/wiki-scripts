@@ -1,8 +1,10 @@
 #! /usr/bin/env python3
 
 # TODO:
-#   better logging
+#   the log should be just a JSON file containing all necessary information, this way it is possible to avoid log parsing completely
 #   retry when edit fails
+#   testing repos may contain new packages
+#   is Template:Grp x86_64 only? in that case warn about i686-only groups
 
 import bisect
 import os.path
