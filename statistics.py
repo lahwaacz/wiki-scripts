@@ -100,7 +100,7 @@ class Statistics:
         self.csrftoken = result["tokens"]["csrftoken"]
 
     def _compose_page(self):
-        userstats = _UserStats(self.text, self.cliargs.anonymous,
+        userstats = _UserStats(self.text, 
                     self.cliargs.us_days, self.cliargs.us_mintotedits,
                     self.cliargs.us_minrecedits, self.cliargs.us_rcerrhours)
 
@@ -188,19 +188,14 @@ class _UserStats:
         "bot": "[[ArchWiki:Bots|bot]], ",
     }
 
-    def __init__(self, text, is_anonymous, days, mintotedits, minrecedits,
-                                                                rcerrhours):
+    def __init__(self, text, days, mintotedits, minrecedits, rcerrhours):
         self.text = text.get_sections(matches="User statistics", flat=True,
                                 include_lead=False, include_headings=False)[0]
 
-        if is_anonymous:
-            self.AULIMIT = 500
+        if not api.has_high_limits():
             self.ULIMIT = 50
-            self.RCLIMIT = 500
         else:
-            self.AULIMIT = 5000
             self.ULIMIT = 500
-            self.RCLIMIT = 5000
 
         self.TIMESPAN = days * 86400
         self.CELLSN = len(self. FIELDS)
@@ -212,7 +207,7 @@ class _UserStats:
         self.users = {}
 
         for user in api.list(action="query", list="allusers",
-                            aulimit=self.AULIMIT,
+                            aulimit="max",
                             auprop="groups|editcount|registration",
                             auwitheditsonly="1"):
             if user["editcount"] >= self.MINTOTEDITS:
@@ -279,7 +274,7 @@ class _UserStats:
         firstday = today - self.TIMESPAN
         rc = api.list(action="query", list="recentchanges", rcstart=today,
                         rcend=firstday, rctype="edit",
-                        rcprop="user|timestamp", rclimit=self.RCLIMIT)
+                        rcprop="user|timestamp", rclimit="max")
 
         users = {}
 
