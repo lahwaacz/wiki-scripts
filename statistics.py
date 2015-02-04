@@ -196,10 +196,10 @@ class _UserStats:
     """
     User statistics.
     """
-    INTRO = ("\n\nThis table shows the {} users with at least {} edits in "
+    INTRO = ("\nThis table shows the {} users with at least {} edits in "
             "total, combined with the {} users who made at least {} {} "
             "in the {} days between {} and {} (00:00 UTC), for a total of {} "
-            "users.\n\n")
+            "users.\n")
     FIELDS = ("User", "Recent", "Total", "Registration", "Groups")
     GRPTRANSL = {
         "*": "",
@@ -212,8 +212,29 @@ class _UserStats:
     }
 
     def __init__(self, text, days, mintotedits, minrecedits, rcerrhours):
-        self.text = text.get_sections(matches="User statistics", flat=True,
-                                include_lead=False, include_headings=False)[0]
+        self.introspan = None
+        for span in text.ifilter_tags(matches=lambda node: node.tag == "span"):
+            for attr in span.attributes:
+                if attr.name == "id" and attr.value == "wiki-scripts-userstats-intro":
+                    self.introspan = span
+
+        if self.introspan is None:
+            raise UserstatsError(
+                    "The entry point for an introduction paragraph has not "
+                    "been found. Create the following entry point manually: "
+                    "<span id=\"{}\"></span>".format(self.INTROID))
+
+        self.table = None
+        for table in text.ifilter_tags(matches=lambda node: node.tag == "table"):
+            for attr in table.attributes:
+                if attr.name == "id" and attr.value == "wiki-scripts-userstats-table":
+                    self.table = table
+
+        if self.table is None:
+            raise UserstatsError(
+                    "The entry point for a userstats table has not been found. "
+                    "Create the following entry point manually: "
+                    "{| id=\"{}\"\n|}".format(self.TABLEID))
 
         if not api.has_high_limits():
             self.ULIMIT = 50
@@ -251,7 +272,7 @@ class _UserStats:
         cellre = re.compile("^\|\s*(.*?)$", flags=re.MULTILINE)
         self.users = {}
 
-        for row in re.finditer(rowre, str(self.text)):
+        for row in re.finditer(rowre, str(self.table)):
             cells = re.finditer(cellre, row.group(1))
 
             name = next(cells).group(1)
@@ -371,23 +392,20 @@ class _UserStats:
         return rows
 
     def _compose_table(self, rows, majorusersN, activeusersN, totalusersN):
-        newtext = (self.INTRO).format(majorusersN, self.MINTOTEDITS,
-                                activeusersN, self.MINRECEDITS,
-                                "edits" if self.MINRECEDITS > 1 else "edit",
-                                self.DAYS, self.firstdate.strftime("%Y-%m-%d"),
-                                self.date.strftime("%Y-%m-%d"), totalusersN)
+        self.introspan.contents = (self.INTRO).format(majorusersN,
+                            self.MINTOTEDITS,  activeusersN, self.MINRECEDITS,
+                            "edits" if self.MINRECEDITS > 1 else "edit",
+                            self.DAYS, self.firstdate.strftime("%Y-%m-%d"),
+                            self.date.strftime("%Y-%m-%d"), totalusersN)
 
-        header = '{{| class="wikitable sortable" border=1\n' + "! {}\n" * \
-                                                                    self.CELLSN
-        newtext += header.format(*self.FIELDS)
+        header = "! {}\n" * self.CELLSN
+        newtext = header.format(*self.FIELDS)
         template = "|-\n" + "| {}\n" * self.CELLSN
 
         for row in rows:
             newtext += template.format(*row)
 
-        newtext += "|}\n"
-
-        self.text.replace(self.text, newtext, recursive=False)
+        self.table.contents = newtext
 
 
 class StatisticsError(Exception):
@@ -398,6 +416,12 @@ class MissingPageError(StatisticsError):
 
 class ShortRecentChangesError(StatisticsError):
     pass
+
+class UserstatsError(StatisticsError):
+    def __init__(self, message):
+        self.message = message
+    def __str__(self):
+        return self.message
 
 if __name__ == "__main__":
     Statistics()
