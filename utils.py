@@ -32,6 +32,14 @@ def flatten_list(iterable):
 def flatten_gen(iterable):
     return (inner for outer in iterable for inner in outer)
 
+# test if given string is ASCII
+def is_ascii(text):
+    try:
+        text.encode("ascii")
+        return True
+    except:
+        return False
+
 # split ``list_`` into chunks of fixed length ``bs``
 def list_chunks(list_, bs):
     return (list_[i:i+bs] for i in range(0, len(list_), bs))
