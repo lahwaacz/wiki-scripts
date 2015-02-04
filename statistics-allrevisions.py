@@ -183,9 +183,10 @@ def create_histograms(revisions):
     hist_alledits, _ = np.histogram(bin_indexes, bins=range(len(bin_edges)))
 
     plot_date_bars(hist_alledits, bin_edges, title="ArchWiki edits per month",
-            ylabel="edit count", fname="hist_alledits.png")
-#    plot_date_bars(hist_alledits, bin_edges, title="ArchWiki edits per month",
-#            ylabel="edit count", fname="hist_alledits_nobots.png")
+            ylabel="edit count", fname="stub/hist_alledits.png")
+#    plot_date_bars(hist_alledits, bin_edges,
+#            title="ArchWiki edits per month (without bots)", ylabel="edit count",
+#            fname="stub/hist_alledits_nobots.png")
 
 
     # histogram for active users
@@ -200,12 +201,21 @@ def create_histograms(revisions):
 
     plot_date_bars(hist_active_users, bin_edges,
             title="ArchWiki active users per month", ylabel="active users",
-            fname="hist_active_users.png")
+            fname="stub/hist_active_users.png")
 
 
 if __name__ == "__main__":
-    db = Db("statistics_allrevisions.db.json")
+    # TODO: take command line arguments
+    db = Db("stub/statistics_allrevisions.db.json")
     db.update()
 
 #    db.load()
     create_histograms(db.revisions)
+
+#    import cProfile
+#    import pstats
+#    print("profiling started")
+#    cProfile.run("create_histograms(db.revisions)", "stub/restats.log")
+#    p = pstats.Stats("restats")
+##    p.sort_stats("time").print_stats(10)
+#    p.sort_stats("cumulative").print_stats(10)

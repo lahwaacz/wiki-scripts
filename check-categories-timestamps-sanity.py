@@ -5,6 +5,7 @@ import os.path
 import re
 
 from MediaWiki import API
+from MediaWiki.interactive import require_login
 from utils import *
 
 index_url = "https://wiki.archlinux.org/index.php"
