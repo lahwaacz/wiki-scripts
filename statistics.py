@@ -183,8 +183,8 @@ class _UserStats:
         "autoconfirmed": "",
         "user": "",
         "bureaucrat": "[[ArchWiki:Bureaucrats|bureaucrat]], ",
-        "sysop": "[[ArchWiki:Maintainers|administrator]], ",
-        "maintainer": "[[ArchWiki:Administrators|maintainer]], ",
+        "sysop": "[[ArchWiki:Administrators|administrator]], ",
+        "maintainer": "[[ArchWiki:Maintainers|maintainer]], ",
         "bot": "[[ArchWiki:Bots|bot]], ",
     }
 
