@@ -31,7 +31,6 @@ class Statistics:
     """
     The whole statistics page.
     """
-    PAGE = "ArchWiki:Statistics"
     SUMMARY = "automatic update"
 
     def __init__(self):
@@ -53,8 +52,8 @@ class Statistics:
         sys.exit(self._output_page())
 
     def _parse_cli_args(self):
-        cliparser = argparse.ArgumentParser(description="Update {}".format(
-                                                    self.PAGE), add_help=True)
+        cliparser = argparse.ArgumentParser(description=
+                "Update statistics page on ArchWiki", add_help=True)
 
         actions = cliparser.add_argument_group(title="actions")
         actionsg = actions.add_mutually_exclusive_group(required=True)
@@ -69,8 +68,11 @@ class Statistics:
         output.add_argument('-c', '--clipboard', action='store_true',
                         help='try to store the updated text in the clipboard')
         output.add_argument('-p', '--print', action='store_true',
-                        help='print the updated text in the standard output')
-
+                        help='print the updated text in the standard output '
+                        '(this is the default output method)')
+        output.add_argument('--page', default='ArchWiki:Statistics',
+                        help='the page name on the wiki to fetch and update '
+                        '(default: ArchWiki:Statistics)')
 
         usstats = cliparser.add_argument_group(title="user statistics")
         usstats.add_argument('--us-days-span', action='store', default=30,
@@ -103,8 +105,15 @@ class Statistics:
 
     def _parse_page(self):
         result = api.call(action="query", prop="info|revisions",
-                rvprop="content|timestamp", meta="tokens", titles=self.PAGE)
+                rvprop="content|timestamp", meta="tokens",
+                titles=self.cliargs.page)
         page = tuple(result["pages"].values())[0]
+        if "missing" in page:
+            print("The page '{}' currently does not exist. It must be created "
+                  "manually before the script can update it.".format(
+                                            self.cliargs.page), file=sys.stderr)
+            sys.exit(1)
+
         self.pageid = page["pageid"]
         revision = page["revisions"][0]
         self.text = mwparserfromhell.parse(revision["*"])
