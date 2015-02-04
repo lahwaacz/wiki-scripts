@@ -18,6 +18,7 @@ except ImportError:
 from MediaWiki import API
 from MediaWiki.exceptions import APIError
 from MediaWiki.interactive import require_login
+from utils import list_chunks
 
 api = API(
     "https://wiki.archlinux.org/api.php",
@@ -301,8 +302,7 @@ class _UserStats:
         return users
 
     def _update_users_info(self, rcusers):
-        groupedusers = (tuple(rcusers.keys())[i:i+self.ULIMIT]
-                                for i in range(0, len(rcusers), self.ULIMIT))
+        groupedusers = list_chunks(tuple(rcusers.keys()), self.ULIMIT)
 
         for usersgroup in groupedusers:
             for user in api.list(action="query", list="users",
