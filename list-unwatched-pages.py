@@ -12,12 +12,11 @@ cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
 api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 require_login(api)
-uinfo = api.call(action="query", meta="userinfo", uiprop="rights")["userinfo"]
 
-if "unwatchedpages" not in uinfo["rights"]:
-    print("The user '%s' does not have privileges necessary to view unwatched pages. Sorry." % uinfo["name"])
+# check for necessary rights
+if not api.has_right("unwatchedpages"):
+    print("The current user does not have the 'unwatchedpages' right, which is necessary to use this script. Sorry.")
     sys.exit(1)
-
 
 # get list of unwatched pages
 query_unwatched = {
@@ -27,6 +26,7 @@ query_unwatched = {
     "qplimit": "max",
     "continue": "",
 }
+
 # list flattening, limit to the Main namespace
 unwatched = (page for snippet in api.query_continue(query_unwatched) for page in snippet["querypage"]["results"] if page["ns"] == 0)
 

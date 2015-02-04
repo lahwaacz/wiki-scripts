@@ -22,7 +22,7 @@ class API(Connection):
     def __init__(self, api_url, **kwargs):
         super().__init__(api_url, **kwargs)
         self._is_loggedin = None
-        self._has_high_limits = None
+        self._user_rights = None
 
     def login(self, username, password):
         """
@@ -72,16 +72,25 @@ class API(Connection):
             self._is_loggedin = "anon" not in result["userinfo"]
         return self._is_loggedin
 
+    def has_right(self, right):
+        """
+        Checks if the current user has the specified right.
+
+        :return: True if ``right`` is available
+        """
+        if self._user_rights is None:
+            result = self.call(action="query", meta="userinfo", uiprop="rights")
+            self._user_rights = result["userinfo"]["rights"]
+        return right in self._user_rights
+
     def has_high_limits(self):
         """
         Checks if the current user has the ``apihighlimits`` right.
 
         :return: True if ``apihighlimits`` is available
         """
-        if self._has_high_limits is None:
-            result = self.call(action="query", meta="userinfo", uiprop="rights")
-            self._has_high_limits = "apihighlimits" in result["userinfo"]["rights"]
-        return self._has_high_limits
+        # TODO: deprecate this method?
+        return self.has_right("apihighlimits")
 
     def logout(self):
         """
