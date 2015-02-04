@@ -198,7 +198,7 @@ class API(Connection):
 
         return redirects
 
-    def edit(self, pageid, text, basetimestamp, summary, **kwargs):
+    def edit(self, pageid, text, basetimestamp, summary, token=None, **kwargs):
         """
         Interface to `API:Edit`_.
 
@@ -221,7 +221,7 @@ class API(Connection):
         h.update(text)
         md5 = h.hexdigest()
 
-        # request edittoken and add it to the query
-        token = self.call(action="tokens", type="edit")["edittoken"]
+        if not token:
+            token = self.call(action="query", meta="tokens")["tokens"]["csrftoken"]
 
         return self.call(action="edit", token=token, md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, **kwargs)

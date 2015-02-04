@@ -6,6 +6,7 @@ interactive tasks.
 """
 
 import sys
+import getpass
 from .diff import diff_highlighted
 
 def require_login(api):
@@ -18,7 +19,7 @@ def require_login(api):
     """
     if not api.is_loggedin():
         print("You need to log in to use this script. URL is %s" % api.api_url)
-        api.login(username=input("Username: "), password=input("Password: "))
+        api.login(username=input("Username: "), password=getpass.getpass("Password: "))
         if not api.is_loggedin():
             print("Login failed.", file=sys.stderr)
             sys.exit(1)
