@@ -61,9 +61,9 @@ class Statistics:
         actions = cliparser.add_argument_group(title="actions")
         actionsg = actions.add_mutually_exclusive_group(required=True)
         actionsg.add_argument('-i', '--initialize', action='store_const',
-            const=self.initialize, dest='action', help='initialize the page')
+            const=self._initialize, dest='action', help='initialize the page')
         actionsg.add_argument('-u', '--update', action='store_const',
-            const=self.update, dest='action', help='update the page')
+            const=self._update, dest='action', help='update the page')
 
         output = cliparser.add_argument_group(title="output")
         output.add_argument('-s', '--save', action='store_true',
@@ -121,20 +121,16 @@ class Statistics:
 
         self.cliargs.action(userstats)
 
-    def initialize(self, userstats):
-        """
-        The :py:meth:`update` method relies on the page to already have some
-        values. If the page is empty, this method must be run the first time,
-        which will also execute the first update.
-        """
+    def _initialize(self, userstats):
+        # The methods here are supposed to query all the information they need,
+        # so they can be used to initialize the page; in general this will be
+        # slower than self._update
         userstats.initialize()
 
-    def update(self, userstats):
-        """
-        Update the statistics, assuming that there are already some values
-        that can be parsed if necessary. If this is supposed to be the initial
-        update of the page, you need to use :py:meth:`initialize`.
-        """
+    def _update(self, userstats):
+        # The methods here can assume that there are already some values in the
+        # pagethat can be parsed if necessary, instead of querying them again;
+        # this should be always faster than self._initialize
         userstats.update()
 
     def _output_page(self):
