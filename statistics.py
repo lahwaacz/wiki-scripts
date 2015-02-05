@@ -163,8 +163,8 @@ class Statistics:
                 w.clipboard_append(self.text)
                 # The copied text is lost once the script terminates
                 input("The updated page text has been copied to the "
-                        "clipboard: paste it in the browser, then press any "
-                        "key to continue")
+                        "clipboard: paste it in the browser, then press Enter "
+                        "to continue")
                 w.destroy()
 
                 ret |= 2
