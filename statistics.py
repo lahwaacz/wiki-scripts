@@ -33,6 +33,7 @@ class Statistics:
     """
     PAGE = "ArchWiki:Statistics"
     SUMMARY = "automatic update"
+    MINUPDHOURS = 18
 
     def __init__(self):
         self._parse_cli_args()
@@ -41,6 +42,15 @@ class Statistics:
             require_login(api)
 
         self._parse_page()
+
+
+        if not self.cliargs.force and (datetime.datetime.utcnow() -
+                                datetime.datetime.strptime(
+                                self.timestamp, "%Y-%m-%dT%H:%M:%SZ")
+                                ) < datetime.timedelta(hours=self.MINUPDHOURS):
+            print("The page has been updated too recently", file=sys.stderr)
+            sys.exit(1)
+
         self._compose_page()
         sys.exit(self._output_page())
 
@@ -87,6 +97,10 @@ class Statistics:
         cliparser.add_argument('-a', '--anonymous', action='store_true',
                                     help='do not require logging in: queries '
                                             'may be limited to a lower rate')
+        cliparser.add_argument('-f', '--force', action='store_true',
+                                    help='try to update the page even if it '
+                                    'was last saved less than {} hours ago'
+                                    ''.format(self.MINUPDHOURS))
 
         self.cliargs = cliparser.parse_args()
 
