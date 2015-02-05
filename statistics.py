@@ -33,6 +33,7 @@ class Statistics:
     """
     PAGE = "ArchWiki:Statistics"
     SUMMARY = "automatic update"
+    MINUPDHOURS = 18
 
     def __init__(self):
         self._parse_cli_args()
@@ -41,6 +42,15 @@ class Statistics:
             require_login(api)
 
         self._parse_page()
+
+
+        if not self.cliargs.force and (datetime.datetime.utcnow() -
+                                datetime.datetime.strptime(
+                                self.timestamp, "%Y-%m-%dT%H:%M:%SZ")
+                                ) < datetime.timedelta(hours=self.MINUPDHOURS):
+            print("The page has been updated too recently", file=sys.stderr)
+            sys.exit(1)
+
         self._compose_page()
         sys.exit(self._output_page())
 
@@ -51,9 +61,9 @@ class Statistics:
         actions = cliparser.add_argument_group(title="actions")
         actionsg = actions.add_mutually_exclusive_group(required=True)
         actionsg.add_argument('-i', '--initialize', action='store_const',
-            const=self.initialize, dest='action', help='initialize the page')
+            const=self._initialize, dest='action', help='initialize the page')
         actionsg.add_argument('-u', '--update', action='store_const',
-            const=self.update, dest='action', help='update the page')
+            const=self._update, dest='action', help='update the page')
 
         output = cliparser.add_argument_group(title="output")
         output.add_argument('-s', '--save', action='store_true',
@@ -87,6 +97,10 @@ class Statistics:
         cliparser.add_argument('-a', '--anonymous', action='store_true',
                                     help='do not require logging in: queries '
                                             'may be limited to a lower rate')
+        cliparser.add_argument('-f', '--force', action='store_true',
+                                    help='try to update the page even if it '
+                                    'was last saved less than {} hours ago'
+                                    ''.format(self.MINUPDHOURS))
 
         self.cliargs = cliparser.parse_args()
 
@@ -101,26 +115,22 @@ class Statistics:
         self.csrftoken = result["tokens"]["csrftoken"]
 
     def _compose_page(self):
-        userstats = _UserStats(self.text, 
+        userstats = _UserStats(self.text,
                     self.cliargs.us_days, self.cliargs.us_mintotedits,
                     self.cliargs.us_minrecedits, self.cliargs.us_rcerrhours)
 
         self.cliargs.action(userstats)
 
-    def initialize(self, userstats):
-        """
-        The :py:meth:`update` method relies on the page to already have some
-        values. If the page is empty, this method must be run the first time,
-        which will also execute the first update.
-        """
+    def _initialize(self, userstats):
+        # The methods here are supposed to query all the information they need,
+        # so they can be used to initialize the page; in general this will be
+        # slower than self._update
         userstats.initialize()
 
-    def update(self, userstats):
-        """
-        Update the statistics, assuming that there are already some values
-        that can be parsed if necessary. If this is supposed to be the initial
-        update of the page, you need to use :py:meth:`initialize`.
-        """
+    def _update(self, userstats):
+        # The methods here can assume that there are already some values in the
+        # pagethat can be parsed if necessary, instead of querying them again;
+        # this should be always faster than self._initialize
         userstats.update()
 
     def _output_page(self):
@@ -153,8 +163,8 @@ class Statistics:
                 w.clipboard_append(self.text)
                 # The copied text is lost once the script terminates
                 input("The updated page text has been copied to the "
-                        "clipboard: paste it in the browser, then press any "
-                        "key to continue")
+                        "clipboard: paste it in the browser, then press Enter "
+                        "to continue")
                 w.destroy()
 
                 ret |= 2
