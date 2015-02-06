@@ -5,6 +5,7 @@
 #   testing repos may contain new packages
 #   is Template:Grp x86_64 only? in that case warn about i686-only groups
 
+import argparse
 import bisect
 import os.path
 import sys
@@ -47,8 +48,8 @@ Include = /etc/pacman.d/mirrorlist
 """
 
 class PkgUpdater:
-    def __init__(self, api_url, cookie_path, aurpkgs_url, tmpdir, ssl_verify=True):
-        self.api = API(api_url, cookie_file=cookie_path, ssl_verify=ssl_verify)
+    def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify):
+        self.api = api
         self.aurpkgs_url = aurpkgs_url
         self.tmpdir = tmpdir
         self.ssl_verify = ssl_verify
@@ -74,6 +75,7 @@ class PkgUpdater:
     def pacdb_init(self, config, dbpath, arch):
         if not os.path.isdir(dbpath):
             os.makedirs(dbpath)
+            # TODO: check for success
         confpath = os.path.join(dbpath, "pacman.conf")
         if not os.path.isfile(confpath):
             f = open(confpath, "w")
@@ -228,14 +230,32 @@ class PkgUpdater:
         return report 
 
 
-if __name__ == "__main__":
-    # TODO: take command line arguments
-    api_url = "https://wiki.archlinux.org/api.php"
-    cookie_path = os.path.expanduser("~/.cache/ArchWiki.bot.cookie")
-#    api_url = "https://localhost/mediawiki/api.php"
-#    cookie_path = os.path.expanduser("~/.cache/LocalArchWiki.bot.cookie")
-    aurpkgs_url = "https://aur.archlinux.org/packages.gz"
-    tmpdir = "/tmp/wiki-scripts/"
+def arg_dirname_must_exist(string):
+    dirname = os.path.split(string)[0]
+    if not os.path.isdir(dirname):
+        raise argparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
+    return string
 
-    updater = PkgUpdater(api_url, cookie_path, aurpkgs_url, tmpdir)
+
+if __name__ == "__main__":
+    argparser = argparse.ArgumentParser(description="Update packages linked with Pkg/AUR templates")
+
+    _api = argparser.add_argument_group(title="API parameters")
+    _api.add_argument("--api-url", default="https://wiki.archlinux.org/api.php", metavar="URL",
+            help="the URL to the wiki's api.php (default: %(default)s)")
+    _api.add_argument("--cookie-path", type=arg_dirname_must_exist, default=os.path.expanduser("~/.cache/ArchWiki.bot.cookie"), metavar="PATH",
+            help="path to cookie file (default: %(default)s)")
+    _api.add_argument("--ssl-verify", type=int, default=1, choices=(0,1),
+            help="whether to verify SSL certificates (default: %(default)s)")
+
+    _script = argparser.add_argument_group(title="script parameters")
+    _script.add_argument("--aurpkgs-url", default="https://aur.archlinux.org/packages.gz", metavar="URL",
+            help="the URL to packages.gz file on the AUR (default: %(default)s)")
+    _script.add_argument("--tmp-dir", default="/tmp/wiki-scripts/", metavar="PATH",
+            help="temporary directory path (default: %(default)s)")
+
+    args = argparser.parse_args()
+
+    api = API(args.api_url, cookie_file=args.cookie_path, ssl_verify=args.ssl_verify)
+    updater = PkgUpdater(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify)
     sys.exit(not updater.check_allpages())
