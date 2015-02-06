@@ -8,6 +8,6 @@ Module extending generic MediaWiki interface with stuff specific to `ArchWiki`_.
 
 __author__ = "Jakub Klinkovský <j.l.k@gmx.com>"
 __url__ = "https://github.com/lahwaacz/wiki-scripts"
-__version__ = "0.3"
+__version__ = "0.4"
 
 from . import lang
