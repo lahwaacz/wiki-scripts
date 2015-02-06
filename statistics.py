@@ -274,8 +274,7 @@ class _UserStats:
     def _do_update(self):
         majorusersN = len(self.users)
         rcusers = self._find_active_users()
-        activeusersN = len(rcusers)
-        self._update_users_info(rcusers)
+        activeusersN = self._update_users_info(rcusers)
         rows = self._compose_rows()
         totalusersN = len(rows)
         self._compose_table(rows, majorusersN, activeusersN, totalusersN)
@@ -313,6 +312,7 @@ class _UserStats:
 
     def _update_users_info(self, rcusers):
         groupedusers = list_chunks(tuple(rcusers.keys()), self.ULIMIT)
+        activeusersN = 0
 
         for usersgroup in groupedusers:
             for user in api.list(action="query", list="users",
@@ -321,17 +321,22 @@ class _UserStats:
                 recenteditcount = rcusers[user["name"]]
                 editcount = user["editcount"]
 
+                if recenteditcount >= self.MINRECEDITS:
+                    activeusersN += 1
                 # Test self.MINTOTEDITS also here, because there may be users
                 # who've passed the limit since the last update
-                if recenteditcount >= self.MINRECEDITS or \
-                                                editcount >= self.MINTOTEDITS:
-                    self.users[self._format_name(user["name"])] = {
-                        "recenteditcount": recenteditcount,
-                        "editcount": editcount,
-                        "registration": self._format_registration(
-                                                        user["registration"]),
-                        "groups": self._format_groups(user["groups"]),
-                    }
+                elif editcount < self.MINTOTEDITS:
+                    continue
+
+                self.users[self._format_name(user["name"])] = {
+                    "recenteditcount": recenteditcount,
+                    "editcount": editcount,
+                    "registration": self._format_registration(
+                                                    user["registration"]),
+                    "groups": self._format_groups(user["groups"]),
+                }
+
+        return activeusersN
 
     def _compose_rows(self):
         rows = []
