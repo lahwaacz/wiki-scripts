@@ -10,6 +10,9 @@ import bisect
 import os.path
 import sys
 import time
+import datetime
+import json
+
 import requests
 import mwparserfromhell
 import pycman
@@ -51,7 +54,7 @@ class PkgUpdater:
     def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify):
         self.api = api
         self.aurpkgs_url = aurpkgs_url
-        self.tmpdir = os.path.abspath(tmpdir)
+        self.tmpdir = os.path.abspath(os.path.join(tmpdir, "wiki-scripts"))
         self.ssl_verify = ssl_verify
 
         self.aurpkgs = None
@@ -215,8 +218,7 @@ class PkgUpdater:
         else:
             self.log[lang][title] = [message]
 
-    # TODO: save .mediawiki + .json in `report-directory`
-    def report(self):
+    def get_report_wikitext(self):
         report = ""
         for lang in sorted(self.log.keys()):
             report += "== %s ==\n" % lang
@@ -227,11 +229,30 @@ class PkgUpdater:
                     report += "** %s\n" % message
         return report 
 
+    def save_report(self, directory):
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
+        basename = os.path.join(directory, "update-pkgs-{}.report".format(timestamp))
+        f = open(basename + ".mediawiki", "w")
+        f.write(self.get_report_wikitext())
+        f.close()
+        print("Saved report in '%s.mediawiki'" % basename)
+        f = open(basename + ".json", "w")
+        json.dump(self.log, f, indent=4, sort_keys=True)
+        f.close()
+        print("Saved report in '%s.json'" % basename)
 
+
+# any path, the dirname part must exist (e.g. path to a file that will be created in the future)
 def arg_dirname_must_exist(string):
     dirname = os.path.split(string)[0]
     if not os.path.isdir(dirname):
         raise argparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
+    return string
+
+# path to existing directory
+def arg_existing_dir(string):
+    if not os.path.isdir(string):
+        raise argparse.ArgumentTypeError("directory '%s' does not exist" % string)
     return string
 
 
@@ -249,8 +270,10 @@ if __name__ == "__main__":
     _script = argparser.add_argument_group(title="script parameters")
     _script.add_argument("--aurpkgs-url", default="https://aur.archlinux.org/packages.gz", metavar="URL",
             help="the URL to packages.gz file on the AUR (default: %(default)s)")
-    _script.add_argument("--tmp-dir", default="/tmp/wiki-scripts/", metavar="PATH",
+    _script.add_argument("--tmp-dir", type=arg_existing_dir, default="/tmp/", metavar="PATH",
             help="temporary directory path (default: %(default)s)")
+    _script.add_argument("--report-dir", type=arg_existing_dir, default=".", metavar="PATH",
+            help="directory where the report should be saved")
 
     args = argparser.parse_args()
 
@@ -259,4 +282,13 @@ if __name__ == "__main__":
 
     api = API(args.api_url, cookie_file=args.cookie_path, ssl_verify=args.ssl_verify)
     updater = PkgUpdater(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify)
-    sys.exit(not updater.check_allpages())
+
+    try:
+        ret = updater.check_allpages()
+        if not ret:
+            sys.exit(ret)
+        updater.save_report(args.report_dir)
+    except KeyboardInterrupt:
+        print()
+        updater.save_report(args.report_dir)
+        raise
