@@ -61,7 +61,7 @@ class PkgUpdater:
         self.pacdb32 = None
         self.pacdb64 = None
         
-        self.edit_summary = "update Pkg/AUR templates (testing https://github.com/lahwaacz/wiki-scripts/blob/master/update-package-templates.py)"
+        self.edit_summary = "update Pkg/AUR templates (https://github.com/lahwaacz/wiki-scripts/blob/master/update-package-templates.py)"
 
         # log data for easy report generation
         # the dictionary looks like this:
@@ -221,7 +221,7 @@ class PkgUpdater:
     def get_report_wikitext(self):
         report = ""
         for lang in sorted(self.log.keys()):
-            report += "== %s ==\n" % lang
+            report += "\n== %s ==\n\n" % lang
             pages = self.log[lang]
             for title in sorted(pages.keys()):
                 report += "* [[%s]]\n" % title
@@ -257,7 +257,7 @@ def arg_existing_dir(string):
 
 
 if __name__ == "__main__":
-    argparser = argparse.ArgumentParser(description="Update packages linked with Pkg/AUR templates")
+    argparser = argparse.ArgumentParser(description="Update Pkg/AUR templates")
 
     _api = argparser.add_argument_group(title="API parameters")
     _api.add_argument("--api-url", default="https://wiki.archlinux.org/api.php", metavar="URL",
