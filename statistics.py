@@ -79,7 +79,7 @@ class Statistics:
                         '(this is the default output method)')
         output.add_argument('--page', default='ArchWiki:Statistics',
                         help='the page name on the wiki to fetch and update '
-                        '(default: ArchWiki:Statistics)')
+                        '(default: %(default)s)')
 
         usstats = cliparser.add_argument_group(title="user statistics")
         usstats.add_argument('--us-days-span', action='store', default=30,
