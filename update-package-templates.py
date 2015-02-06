@@ -51,7 +51,7 @@ class PkgUpdater:
     def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify):
         self.api = api
         self.aurpkgs_url = aurpkgs_url
-        self.tmpdir = tmpdir
+        self.tmpdir = os.path.abspath(tmpdir)
         self.ssl_verify = ssl_verify
 
         self.aurpkgs = None
@@ -73,9 +73,7 @@ class PkgUpdater:
         self.aurpkgs = sorted([line for line in r.text.splitlines() if not line.startswith("#")])
 
     def pacdb_init(self, config, dbpath, arch):
-        if not os.path.isdir(dbpath):
-            os.makedirs(dbpath)
-            # TODO: check for success
+        os.makedirs(dbpath, exist_ok=True)
         confpath = os.path.join(dbpath, "pacman.conf")
         if not os.path.isfile(confpath):
             f = open(confpath, "w")
