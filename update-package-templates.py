@@ -202,7 +202,7 @@ class PkgUpdater:
                     self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
                     print("Edit to page '%s' succesful, sleeping for 1 second..." % title)
                     time.sleep(1)
-                except (APIError, APIWarning):
+                except (APIError, APIWarnings):
                     print("error: failed to edit page '%s'" % title)
 
         return True
@@ -245,7 +245,7 @@ if __name__ == "__main__":
             help="the URL to the wiki's api.php (default: %(default)s)")
     _api.add_argument("--cookie-path", type=arg_dirname_must_exist, default=os.path.expanduser("~/.cache/ArchWiki.bot.cookie"), metavar="PATH",
             help="path to cookie file (default: %(default)s)")
-    _api.add_argument("--ssl-verify", type=int, default=1, choices=(0,1),
+    _api.add_argument("--ssl-verify", default=1, choices=(0,1),
             help="whether to verify SSL certificates (default: %(default)s)")
 
     _script = argparser.add_argument_group(title="script parameters")
@@ -255,6 +255,9 @@ if __name__ == "__main__":
             help="temporary directory path (default: %(default)s)")
 
     args = argparser.parse_args()
+
+    # retype from int to bool
+    args.ssl_verify = True if args.ssl_verify == 1 else False
 
     api = API(args.api_url, cookie_file=args.cookie_path, ssl_verify=args.ssl_verify)
     updater = PkgUpdater(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify)
