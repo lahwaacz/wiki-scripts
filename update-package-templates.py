@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 # TODO:
-#   the log should be just a JSON file containing all necessary information, this way it is possible to avoid log parsing completely
 #   retry when edit fails
 #   testing repos may contain new packages
 #   is Template:Grp x86_64 only? in that case warn about i686-only groups
@@ -18,6 +17,7 @@ import pyalpm
 from MediaWiki import API, diff_highlighted
 from MediaWiki.exceptions import *
 from MediaWiki.interactive import *
+from ArchWiki.lang import detect_language
 
 pacconf = """
 [options]
@@ -58,6 +58,13 @@ class PkgUpdater:
         self.pacdb64 = None
         
         self.edit_summary = "update Pkg/AUR templates (testing https://github.com/lahwaacz/wiki-scripts/blob/master/update-package-templates.py)"
+
+        # log data for easy report generation
+        # the dictionary looks like this:
+        # {"English": {"Page title": [_list item_, ...], ...}, ...}
+        # where _list item_ is the text representing the warning/error + hints (formatted
+        # with wiki markup)
+        self.log = {}
 
     def aurpkgs_init(self, aurpkgs_url):
         r = requests.get(aurpkgs_url, verify=self.ssl_verify)
@@ -126,6 +133,7 @@ class PkgUpdater:
             # AUR, Grp, Pkg templates all take exactly 1 parameter
             if len(template.params) != 1:
                 print("warning: template '%s' takes exactly 1 parameter, got %s" % (template.name, template))
+                self.add_report_line(title, template, "invalid number of template parameters")
 
             param = template.get(1).value
             # TODO: warn about uppercase
@@ -138,6 +146,7 @@ class PkgUpdater:
                     template.name = "Grp"
                 else:
                     print("warning: package '%s' does not exist neither in official repositories nor in AUR nor as package group" % param)
+                    self.add_report_line(title, template, "package not found")
             elif template.name.matches("Grp") and not self.find_grp(param):
                 if self.find_pkg(param):
                     template.name = "Pkg"
@@ -145,6 +154,7 @@ class PkgUpdater:
                     template.name = "AUR"
                 else:
                     print("warning: package '%s' does not exist neither in official repositories nor in the AUR nor as package group" % param)
+                    self.add_report_line(title, template, "package not found")
             elif (template.name.matches("Aur") or template.name.matches("AUR")) and not self.find_AUR(param):
                 if self.find_pkg(param):
                     template.name = "Pkg"
@@ -152,6 +162,7 @@ class PkgUpdater:
                     template.name = "Grp"
                 else:
                     print("warning: package '%s' does not exist neither in official repositories nor in the AUR nor as package group" % param)
+                    self.add_report_line(title, template, "package not found")
 
         return wikicode
 
@@ -193,6 +204,28 @@ class PkgUpdater:
                     print("error: failed to edit page '%s'" % title)
 
         return True
+
+    def add_report_line(self, title, template, message):
+        message = "<nowiki>{}</nowiki> ({})".format(template, message)
+        lang = detect_language(title)[1]
+        if lang not in self.log:
+            self.log[lang] = {} 
+        if title in self.log[lang]:
+            self.log[lang][title].append(message)
+        else:
+            self.log[lang][title] = [message]
+
+    # TODO: save .mediawiki + .json in `report-directory`
+    def report(self):
+        report = ""
+        for lang in sorted(self.log.keys()):
+            report += "== %s ==\n" % lang
+            pages = self.log[lang]
+            for title in sorted(pages.keys()):
+                report += "* [[%s]]\n" % title
+                for message in pages[title]:
+                    report += "** %s\n" % message
+        return report 
 
 
 if __name__ == "__main__":
