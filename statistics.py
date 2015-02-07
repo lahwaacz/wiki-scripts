@@ -39,17 +39,24 @@ class Statistics:
         if not self.cliargs.anonymous:
             require_login(api)
 
-        self._parse_page()
+        try:
+            self._parse_page()
 
-        if not self.cliargs.force and datetime.datetime.utcnow().date() <= \
+            if not self.cliargs.force and \
+                                datetime.datetime.utcnow().date() <= \
                                 datetime.datetime.strptime(self.timestamp,
                                 "%Y-%m-%dT%H:%M:%SZ").date():
-            print("The page has already been updated this UTC day",
+                print("The page has already been updated this UTC day",
                                                             file=sys.stderr)
-            sys.exit(1)
+                sys.exit(1)
 
-        self._compose_page()
-        sys.exit(self._output_page())
+            self._compose_page()
+            sys.exit(self._output_page())
+        except MissingPageError:
+            print("The page '{}' currently does not exist. It must be created "
+                  "manually before the script can update it.".format(
+                                            self.cliargs.page), file=sys.stderr)
+        sys.exit(1)
 
     def _parse_cli_args(self):
         cliparser = argparse.ArgumentParser(description=
@@ -109,10 +116,7 @@ class Statistics:
                 titles=self.cliargs.page)
         page = tuple(result["pages"].values())[0]
         if "missing" in page:
-            print("The page '{}' currently does not exist. It must be created "
-                  "manually before the script can update it.".format(
-                                            self.cliargs.page), file=sys.stderr)
-            sys.exit(1)
+            raise MissingPageError
 
         self.pageid = page["pageid"]
         revision = page["revisions"][0]
@@ -388,6 +392,8 @@ class _UserStats:
 class StatisticsError(Exception):
     pass
 
+class MissingPageError(StatisticsError):
+    pass
 
 class ShortRecentChangesError(StatisticsError):
     pass
