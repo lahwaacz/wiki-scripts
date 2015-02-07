@@ -55,7 +55,7 @@ class Statistics:
         except MissingPageError:
             print("The page '{}' currently does not exist. It must be created "
                   "manually before the script can update it.".format(
-                                            self.cliargs.page), file=sys.stderr)
+                                        self.cliargs.page), file=sys.stderr)
         sys.exit(1)
 
     def _parse_cli_args(self):
@@ -115,6 +115,7 @@ class Statistics:
                 rvprop="content|timestamp", meta="tokens",
                 titles=self.cliargs.page)
         page = tuple(result["pages"].values())[0]
+
         if "missing" in page:
             raise MissingPageError
 
