@@ -33,7 +33,6 @@ class Statistics:
     """
     PAGE = "ArchWiki:Statistics"
     SUMMARY = "automatic update"
-    MINUPDHOURS = 18
 
     def __init__(self):
         self._parse_cli_args()
@@ -43,12 +42,11 @@ class Statistics:
 
         self._parse_page()
 
-
-        if not self.cliargs.force and (datetime.datetime.utcnow() -
-                                datetime.datetime.strptime(
-                                self.timestamp, "%Y-%m-%dT%H:%M:%SZ")
-                                ) < datetime.timedelta(hours=self.MINUPDHOURS):
-            print("The page has been updated too recently", file=sys.stderr)
+        if not self.cliargs.force and datetime.datetime.utcnow().date() <= \
+                                datetime.datetime.strptime(self.timestamp,
+                                "%Y-%m-%dT%H:%M:%SZ").date():
+            print("The page has already been updated this UTC day",
+                                                            file=sys.stderr)
             sys.exit(1)
 
         self._compose_page()
@@ -99,8 +97,7 @@ class Statistics:
                                             'may be limited to a lower rate')
         cliparser.add_argument('-f', '--force', action='store_true',
                                     help='try to update the page even if it '
-                                    'was last saved less than {} hours ago'
-                                    ''.format(self.MINUPDHOURS))
+                                    'was last saved in the same UTC day')
 
         self.cliargs = cliparser.parse_args()
 
