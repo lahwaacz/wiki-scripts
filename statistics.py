@@ -77,9 +77,6 @@ class Statistics:
         output.add_argument('-p', '--print', action='store_true',
                         help='print the updated text in the standard output '
                         '(this is the default output method)')
-        output.add_argument('--page', default='ArchWiki:Statistics',
-                        help='the page name on the wiki to fetch and update '
-                        '(default: %(default)s)')
 
         usstats = cliparser.add_argument_group(title="user statistics")
         usstats.add_argument('--us-days-span', action='store', default=30,
@@ -107,6 +104,9 @@ class Statistics:
         cliparser.add_argument('-f', '--force', action='store_true',
                                     help='try to update the page even if it '
                                     'was last saved in the same UTC day')
+        cliparser.add_argument('--page', default='ArchWiki:Statistics',
+                        help='the page name on the wiki to fetch and update '
+                        '(default: %(default)s)')
 
         self.cliargs = cliparser.parse_args()
 
