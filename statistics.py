@@ -187,7 +187,8 @@ class _UserStats:
     """
     INTRO = ("\n\nThis table shows the {} users with at least {} edits in "
             "total, combined with the {} users who made at least {} {} "
-            "between {} and {} (00:00 UTC), for a total of {} users.\n\n")
+            "in the {} days between {} and {} (00:00 UTC), for a total of {} "
+            "users.\n\n")
     FIELDS = ("User", "Recent", "Total", "Registration", "Groups")
     GRPTRANSL = {
         "*": "",
@@ -208,7 +209,7 @@ class _UserStats:
         else:
             self.ULIMIT = 500
 
-        self.TIMESPAN = days * 86400
+        self.DAYS = days
         self.CELLSN = len(self. FIELDS)
         self.MINTOTEDITS = mintotedits
         self.MINRECEDITS = minrecedits
@@ -281,7 +282,7 @@ class _UserStats:
 
     def _find_active_users(self):
         today = int(time.time()) // 86400 * 86400
-        firstday = today - self.TIMESPAN
+        firstday = today - self.DAYS * 86400
         rc = api.list(action="query", list="recentchanges", rcstart=today,
                         rcend=firstday, rctype="edit",
                         rcprop="user|timestamp", rclimit="max")
@@ -362,7 +363,7 @@ class _UserStats:
         newtext = (self.INTRO).format(majorusersN, self.MINTOTEDITS,
                                 activeusersN, self.MINRECEDITS,
                                 "edits" if self.MINRECEDITS > 1 else "edit",
-                                self.firstdate.strftime("%Y-%m-%d"),
+                                self.DAYS, self.firstdate.strftime("%Y-%m-%d"),
                                 self.date.strftime("%Y-%m-%d"), totalusersN)
 
         header = '{{| class="wikitable sortable" border=1\n' + "! {}\n" * \
