@@ -4,6 +4,8 @@
 #   retry when edit fails
 #   testing repos may contain new packages
 #   is Template:Grp x86_64 only? in that case warn about i686-only groups
+#   include some stats in the report
+#   diff-like report showing only new issues since the last report
 
 import argparse
 import bisect
