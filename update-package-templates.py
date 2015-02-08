@@ -137,7 +137,7 @@ class PkgUpdater:
 
             # AUR, Grp, Pkg templates all take exactly 1 parameter
             if len(template.params) != 1:
-                print("warning: template '%s' takes exactly 1 parameter, got %s" % (template.name, template))
+                print("warning: invalid number of template parameters: %s" % template)
                 self.add_report_line(title, template, "invalid number of template parameters")
 
             param = template.get(1).value
@@ -150,7 +150,7 @@ class PkgUpdater:
                 elif self.find_grp(param):
                     template.name = "Grp"
                 else:
-                    print("warning: package '%s' does not exist neither in official repositories nor in AUR nor as package group" % param)
+                    print("warning: package not found: %s" % template)
                     self.add_report_line(title, template, "package not found")
             elif template.name.matches("Grp") and not self.find_grp(param):
                 if self.find_pkg(param):
@@ -158,7 +158,7 @@ class PkgUpdater:
                 elif self.find_AUR(param):
                     template.name = "AUR"
                 else:
-                    print("warning: package '%s' does not exist neither in official repositories nor in the AUR nor as package group" % param)
+                    print("warning: package not found: %s" % template)
                     self.add_report_line(title, template, "package not found")
             elif (template.name.matches("Aur") or template.name.matches("AUR")) and not self.find_AUR(param):
                 if self.find_pkg(param):
@@ -166,7 +166,7 @@ class PkgUpdater:
                 elif self.find_grp(param):
                     template.name = "Grp"
                 else:
-                    print("warning: package '%s' does not exist neither in official repositories nor in the AUR nor as package group" % param)
+                    print("warning: package not found: %s" % template)
                     self.add_report_line(title, template, "package not found")
 
         return wikicode
