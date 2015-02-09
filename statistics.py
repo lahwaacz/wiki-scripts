@@ -31,8 +31,6 @@ class Statistics:
     """
     The whole statistics page.
     """
-    SUMMARY = "automatic update"
-
     def __init__(self):
         self._parse_cli_args()
 
@@ -107,6 +105,9 @@ class Statistics:
         cliparser.add_argument('--page', default='ArchWiki:Statistics',
                         help='the page name on the wiki to fetch and update '
                         '(default: %(default)s)')
+        cliparser.add_argument('--summary', default='automatic update',
+                        help='the edit summary to use when saving the page '
+                        '(default: %(default)s)')
 
         self.cliargs = cliparser.parse_args()
 
@@ -152,7 +153,7 @@ class Statistics:
 
             try:
                 result = api.edit(self.pageid, self.text, self.timestamp,
-                                            self.SUMMARY, token=self.csrftoken)
+                                    self.cliargs.summary, token=self.csrftoken)
             except APIError as err:
                 print("Could not save the page ({})".format(
                                         err.args[0]["info"]), file=sys.stderr)
