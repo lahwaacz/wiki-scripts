@@ -33,7 +33,6 @@ class Statistics:
     """
     PAGE = "ArchWiki:Statistics"
     SUMMARY = "automatic update"
-    MINUPDHOURS = 18
 
     def __init__(self):
         self._parse_cli_args()
@@ -43,12 +42,11 @@ class Statistics:
 
         self._parse_page()
 
-
-        if not self.cliargs.force and (datetime.datetime.utcnow() -
-                                datetime.datetime.strptime(
-                                self.timestamp, "%Y-%m-%dT%H:%M:%SZ")
-                                ) < datetime.timedelta(hours=self.MINUPDHOURS):
-            print("The page has been updated too recently", file=sys.stderr)
+        if not self.cliargs.force and datetime.datetime.utcnow().date() <= \
+                                datetime.datetime.strptime(self.timestamp,
+                                "%Y-%m-%dT%H:%M:%SZ").date():
+            print("The page has already been updated this UTC day",
+                                                            file=sys.stderr)
             sys.exit(1)
 
         self._compose_page()
@@ -99,8 +97,7 @@ class Statistics:
                                             'may be limited to a lower rate')
         cliparser.add_argument('-f', '--force', action='store_true',
                                     help='try to update the page even if it '
-                                    'was last saved less than {} hours ago'
-                                    ''.format(self.MINUPDHOURS))
+                                    'was last saved in the same UTC day')
 
         self.cliargs = cliparser.parse_args()
 
@@ -187,7 +184,8 @@ class _UserStats:
     """
     INTRO = ("\n\nThis table shows the {} users with at least {} edits in "
             "total, combined with the {} users who made at least {} {} "
-            "between {} and {} (00:00 UTC), for a total of {} users.\n\n")
+            "in the {} days between {} and {} (00:00 UTC), for a total of {} "
+            "users.\n\n")
     FIELDS = ("User", "Recent", "Total", "Registration", "Groups")
     GRPTRANSL = {
         "*": "",
@@ -208,7 +206,7 @@ class _UserStats:
         else:
             self.ULIMIT = 500
 
-        self.TIMESPAN = days * 86400
+        self.DAYS = days
         self.CELLSN = len(self. FIELDS)
         self.MINTOTEDITS = mintotedits
         self.MINRECEDITS = minrecedits
@@ -281,7 +279,7 @@ class _UserStats:
 
     def _find_active_users(self):
         today = int(time.time()) // 86400 * 86400
-        firstday = today - self.TIMESPAN
+        firstday = today - self.DAYS * 86400
         rc = api.list(action="query", list="recentchanges", rcstart=today,
                         rcend=firstday, rctype="edit",
                         rcprop="user|timestamp", rclimit="max")
@@ -362,7 +360,7 @@ class _UserStats:
         newtext = (self.INTRO).format(majorusersN, self.MINTOTEDITS,
                                 activeusersN, self.MINRECEDITS,
                                 "edits" if self.MINRECEDITS > 1 else "edit",
-                                self.firstdate.strftime("%Y-%m-%d"),
+                                self.DAYS, self.firstdate.strftime("%Y-%m-%d"),
                                 self.date.strftime("%Y-%m-%d"), totalusersN)
 
         header = '{{| class="wikitable sortable" border=1\n' + "! {}\n" * \
