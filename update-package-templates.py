@@ -141,33 +141,23 @@ class PkgUpdater:
                 self.add_report_line(title, template, "invalid number of template parameters")
 
             param = template.get(1).value
-            # TODO: warn about uppercase
             # TODO: force the param to be lowercase + whitespace-stripped?
             param = param.lower().strip()
-            if template.name.matches("Pkg") and not self.find_pkg(param):
-                if self.find_AUR(param):
-                    template.name = "AUR"
-                elif self.find_grp(param):
-                    template.name = "Grp"
-                else:
-                    print("warning: package not found: %s" % template)
-                    self.add_report_line(title, template, "package not found")
-            elif template.name.matches("Grp") and not self.find_grp(param):
-                if self.find_pkg(param):
-                    template.name = "Pkg"
-                elif self.find_AUR(param):
-                    template.name = "AUR"
-                else:
-                    print("warning: package not found: %s" % template)
-                    self.add_report_line(title, template, "package not found")
-            elif (template.name.matches("Aur") or template.name.matches("AUR")) and not self.find_AUR(param):
-                if self.find_pkg(param):
-                    template.name = "Pkg"
-                elif self.find_grp(param):
-                    template.name = "Grp"
-                else:
-                    print("warning: package not found: %s" % template)
-                    self.add_report_line(title, template, "package not found")
+
+            if self.find_pkg(param):
+                newtemplate = "Pkg"
+            elif self.find_AUR(param):
+                newtemplate = "AUR"
+            elif self.find_grp(param):
+                newtemplate = "Grp"
+            else:
+                newtemplate = template.name
+                print("warning: package not found: %s" % template)
+                self.add_report_line(title, template, "package not found")
+
+            # avoid changing capitalization
+            if template.name.lower() != newtemplate.lower():
+                template.name = newtemplate
 
         return wikicode
 
