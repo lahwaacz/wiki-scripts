@@ -154,7 +154,7 @@ class PkgUpdater:
                 self.add_report_line(title, template, "invalid number of template parameters")
 
             param = template.get(1).value
-            # TODO: force the param to be lowercase + whitespace-stripped?
+            # strip whitespace for searching (spacing is preserved on the wiki)
             param = param.lower().strip()
 
             if self.find_pkg(param):
@@ -173,8 +173,8 @@ class PkgUpdater:
                     print("warning: package not found: %s" % template)
                     self.add_report_line(title, template, "package not found")
 
-            # avoid changing capitalization
-            if template.name.lower() != newtemplate.lower():
+            # avoid changing capitalization and spacing
+            if template.name.lower().strip() != newtemplate.lower():
                 template.name = newtemplate
 
         return wikicode
