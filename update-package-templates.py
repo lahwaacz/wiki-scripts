@@ -125,6 +125,19 @@ class PkgUpdater:
             return True
         return False
 
+    # check if given package is replaced by other package
+    # returns pkgname of the package that has the given pkgname in its `replaces` array (or None when not found)
+    def find_replaces(self, pkgname):
+        for pacdb in (self.pacdb64, self.pacdb32):
+            # search like pacman -Ss
+            for db in pacdb.get_syncdbs():
+                pkgs = db.search(pkgname)
+                # for each matching package check its `replaces` array
+                for pkg in pkgs:
+                    if pkgname in pkg.replaces:
+                        return pkg.name
+        return None
+
     # parse wikitext, try to update all package templates, print warnings
     # returns updated wikitext
     def update_page(self, title, text):
@@ -152,8 +165,13 @@ class PkgUpdater:
                 newtemplate = "Grp"
             else:
                 newtemplate = template.name
-                print("warning: package not found: %s" % template)
-                self.add_report_line(title, template, "package not found")
+                replacedby = self.find_replaces(param)
+                if replacedby:
+                    print("warning: package %s was replaced by %s" % (param, replacedby))
+                    self.add_report_line(title, template, "replaced by {{Pkg|%s}}" % replacedby)
+                else:
+                    print("warning: package not found: %s" % template)
+                    self.add_report_line(title, template, "package not found")
 
             # avoid changing capitalization
             if template.name.lower() != newtemplate.lower():
