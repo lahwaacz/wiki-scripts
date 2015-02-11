@@ -52,30 +52,15 @@ pacconf64_suffix = """
 Include = /etc/pacman.d/mirrorlist
 """
 
-class PkgUpdater:
-    def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify):
-        self.api = api
+class PkgFinder:
+    def __init__(self, aurpkgs_url, tmpdir, ssl_verify):
         self.aurpkgs_url = aurpkgs_url
         self.tmpdir = os.path.abspath(os.path.join(tmpdir, "wiki-scripts"))
         self.ssl_verify = ssl_verify
 
         self.aurpkgs = None
-        self.pacdb32 = None
-        self.pacdb64 = None
-        
-        self.edit_summary = "update Pkg/AUR templates (https://github.com/lahwaacz/wiki-scripts/blob/master/update-package-templates.py)"
-
-        # log data for easy report generation
-        # the dictionary looks like this:
-        # {"English": {"Page title": [_list item_, ...], ...}, ...}
-        # where _list item_ is the text representing the warning/error + hints (formatted
-        # with wiki markup)
-        self.log = {}
-
-    def aurpkgs_init(self, aurpkgs_url):
-        r = requests.get(aurpkgs_url, verify=self.ssl_verify)
-        r.raise_for_status()
-        self.aurpkgs = sorted([line for line in r.text.splitlines() if not line.startswith("#")])
+        self.pacdb32 = self.pacdb_init(pacconf, os.path.join(self.tmpdir, "pacdbpath32"), arch="i686")
+        self.pacdb64 = self.pacdb_init(pacconf + pacconf64_suffix, os.path.join(self.tmpdir, "pacdbpath64"), arch="x86_64")
 
     def pacdb_init(self, config, dbpath, arch):
         os.makedirs(dbpath, exist_ok=True)
@@ -86,11 +71,34 @@ class PkgUpdater:
             f.close()
         return pycman.config.init_with_config(confpath)
 
-    # Sync databases like pacman -Sy
+    # sync database of AUR packages
+    def aurpkgs_refresh(self, aurpkgs_url):
+        r = requests.get(aurpkgs_url, verify=self.ssl_verify)
+        r.raise_for_status()
+        self.aurpkgs = sorted([line for line in r.text.splitlines() if not line.startswith("#")])
+
+    # sync databases like pacman -Sy
     def pacdb_refresh(self, pacdb, force=False):
         for db in pacdb.get_syncdbs():
             # since this is private pacman database, there is no locking
             db.update(force)
+
+    # sync all
+    def refresh(self):
+        try:
+            print("Syncing AUR packages...")
+            self.aurpkgs_refresh(self.aurpkgs_url)
+            print("Syncing pacman database (i686)...")
+            self.pacdb_refresh(self.pacdb32)
+            print("Syncing pacman database (x86_64)...")
+            self.pacdb_refresh(self.pacdb64)
+            return True
+        except requests.exceptions.RequestException:
+            print("Failed to download %s" % self.aurpkgs_url, sys.stderr)
+            return False
+        except pyalpm.error:
+            print("Failed to sync pacman database.", sys.stderr)
+            return False
 
     # check that given package exists in given database
     # like `pacman -Ss`, but exact match only
@@ -138,6 +146,20 @@ class PkgUpdater:
                         return pkg.name
         return None
 
+
+class PkgUpdater:
+    def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify):
+        self.api = api
+        self.finder = PkgFinder(aurpkgs_url, tmpdir, ssl_verify)
+        self.edit_summary = "update Pkg/AUR templates (https://github.com/lahwaacz/wiki-scripts/blob/master/update-package-templates.py)"
+
+        # log data for easy report generation
+        # the dictionary looks like this:
+        # {"English": {"Page title": [_list item_, ...], ...}, ...}
+        # where _list item_ is the text representing the warning/error + hints (formatted
+        # with wiki markup)
+        self.log = {}
+
     # parse wikitext, try to update all package templates, print warnings
     # returns updated wikitext
     def update_page(self, title, text):
@@ -157,15 +179,15 @@ class PkgUpdater:
             # strip whitespace for searching (spacing is preserved on the wiki)
             param = param.lower().strip()
 
-            if self.find_pkg(param):
+            if self.finder.find_pkg(param):
                 newtemplate = "Pkg"
-            elif self.find_AUR(param):
+            elif self.finder.find_AUR(param):
                 newtemplate = "AUR"
-            elif self.find_grp(param):
+            elif self.finder.find_grp(param):
                 newtemplate = "Grp"
             else:
                 newtemplate = template.name
-                replacedby = self.find_replaces(param)
+                replacedby = self.finder.find_replaces(param)
                 if replacedby:
                     print("warning: package %s was replaced by %s" % (param, replacedby))
                     self.add_report_line(title, template, "replaced by {{Pkg|%s}}" % replacedby)
@@ -180,23 +202,7 @@ class PkgUpdater:
         return wikicode
 
     def check_allpages(self):
-        self.aurpkgs_init(self.aurpkgs_url)
-        try:
-            self.aurpkgs_init(self.aurpkgs_url)
-        except requests.exceptions.RequestException:
-            print("Failed to download %s" % self.aurpkgs_url)
-            return False
-
-        self.pacdb32 = self.pacdb_init(pacconf, os.path.join(self.tmpdir, "pacdbpath32"), arch="i686")
-        self.pacdb64 = self.pacdb_init(pacconf + pacconf64_suffix, os.path.join(self.tmpdir, "pacdbpath64"), arch="x86_64")
-
-        try:
-            print("Syncing pacman database (i686)...")
-            self.pacdb_refresh(self.pacdb32)
-            print("Syncing pacman database (x86_64)...")
-            self.pacdb_refresh(self.pacdb64)
-        except pyalpm.error:
-            print("Failed to sync pacman database.")
+        if not self.finder.refresh():
             return False
         
         # ensure that we are authenticated
