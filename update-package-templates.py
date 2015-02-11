@@ -147,6 +147,31 @@ class PkgFinder:
         return None
 
 
+# TODO: write unit test for this function
+def get_adjacent_node(wikicode, node, ignore_whitespace=False):
+    """
+    Get the node immediately following `node` in `wikicode`.
+
+    :param wikicode: a :py:class:`mwparserfromhell.wikicode.Wikicode` object
+    :param node: a :py:class:`mwparserfromhell.nodes.Node` object
+    :param ignore_whitespace: When True, the whitespace between `node` and the
+            node being returned is ignored, i.e. the returned object is
+            guaranteed to not be an all white space text, but it can still be a
+            text with leading space.
+    :returns: a :py:class:`mwparserfromhell.nodes.Node` object or None if `node`
+            is the last object in `wikicode`
+    """
+    i = wikicode.index(node) + 1
+    try:
+        n = wikicode.get(i)
+        while ignore_whitespace and n.isspace():
+            i += 1
+            n = wikicode.get(i)
+        return n
+    except IndexError:
+        return None
+
+
 class PkgUpdater:
     def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify):
         self.api = api
@@ -160,9 +185,14 @@ class PkgUpdater:
         # with wiki markup)
         self.log = {}
 
-    # parse wikitext, try to update all package templates, print warnings
-    # returns updated wikitext
     def update_page(self, title, text):
+        """
+        Parse wikitext, try to update all package templates, handle broken package links:
+            - print warning to console
+            - append message to self.log
+            - mark it with {{Broken package link}} in the wikicode
+        :returns: updated :py:class:`mwparserfromhell.wikicode.Wikicode` object
+        """
         print("Parsing '%s'..." % title)
         wikicode = mwparserfromhell.parse(text)
         for template in wikicode.filter_templates():
@@ -170,10 +200,11 @@ class PkgUpdater:
             if not any(template.name.matches(tmp) for tmp in ["Aur", "AUR", "Grp", "Pkg"]):
                 continue
 
+            hint = None
+
             # AUR, Grp, Pkg templates all take exactly 1 parameter
             if len(template.params) != 1:
-                print("warning: invalid number of template parameters: %s" % template)
-                self.add_report_line(title, template, "invalid number of template parameters")
+                hint = "invalid number of template parameters"
 
             param = template.get(1).value
             # strip whitespace for searching (spacing is preserved on the wiki)
@@ -187,17 +218,30 @@ class PkgUpdater:
                 newtemplate = "Grp"
             else:
                 newtemplate = template.name
-                replacedby = self.finder.find_replaces(param)
+                replacedby = self.finder.find_replaces(pkgname)
                 if replacedby:
-                    print("warning: package %s was replaced by %s" % (param, replacedby))
-                    self.add_report_line(title, template, "replaced by {{Pkg|%s}}" % replacedby)
-                else:
-                    print("warning: package not found: %s" % template)
-                    self.add_report_line(title, template, "package not found")
+                    hint = "replaced by {{Pkg|%s}}" % replacedby
+                hint = "package not found"
 
-            # avoid changing capitalization and spacing
+            # update template name (avoid changing capitalization and spacing)
             if template.name.lower().strip() != newtemplate.lower():
                 template.name = newtemplate
+
+            # add/remove/update {{Broken package link}} flag
+            adjacent = get_adjacent_node(wikicode, template, ignore_whitespace=True)
+            if hint is not None:
+                print("warning: package '{}': {}".format(package, hint))
+                self.add_report_line(title, template, hint)
+                broken_flag = "{{Broken package link|%s}}" % hint
+                if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches("Broken package link"):
+                    # replace since the hint might be different
+                    wikicode.replace(adjacent, broken_flag)
+                else:
+                    wikicode.insert_after(template, broken_flag)
+            else:
+                if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches("Broken package link"):
+                    # package has been found again, remove existing flag
+                    wikicode.remove(adjacent)
 
         return wikicode
 
