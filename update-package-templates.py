@@ -208,20 +208,21 @@ class PkgUpdater:
 
             param = template.get(1).value
             # strip whitespace for searching (spacing is preserved on the wiki)
-            param = param.lower().strip()
+            pkgname = param.lower().strip()
 
-            if self.finder.find_pkg(param):
+            if self.finder.find_pkg(pkgname):
                 newtemplate = "Pkg"
-            elif self.finder.find_AUR(param):
+            elif self.finder.find_AUR(pkgname):
                 newtemplate = "AUR"
-            elif self.finder.find_grp(param):
+            elif self.finder.find_grp(pkgname):
                 newtemplate = "Grp"
             else:
                 newtemplate = template.name
                 replacedby = self.finder.find_replaces(pkgname)
                 if replacedby:
                     hint = "replaced by {{Pkg|%s}}" % replacedby
-                hint = "package not found"
+                else:
+                    hint = "package not found"
 
             # update template name (avoid changing capitalization and spacing)
             if template.name.lower().strip() != newtemplate.lower():
@@ -230,7 +231,7 @@ class PkgUpdater:
             # add/remove/update {{Broken package link}} flag
             adjacent = get_adjacent_node(wikicode, template, ignore_whitespace=True)
             if hint is not None:
-                print("warning: package '{}': {}".format(package, hint))
+                print("warning: package '{}': {}".format(pkgname, hint))
                 self.add_report_line(title, template, hint)
                 broken_flag = "{{Broken package link|%s}}" % hint
                 if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches("Broken package link"):
