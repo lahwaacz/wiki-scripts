@@ -171,6 +171,15 @@ def get_adjacent_node(wikicode, node, ignore_whitespace=False):
     except IndexError:
         return None
 
+# TODO: write unit test for this function
+def get_parent_wikicode(wikicode, node):
+    """
+    Returns the parent of `node` as a `wikicode` object.
+    Raises :exc:`ValueError` if `node` is not a descendant of `wikicode`.
+    """
+    context, index = wikicode._do_strong_search(node, True)
+    return context
+
 
 class PkgUpdater:
     def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify):
@@ -195,9 +204,16 @@ class PkgUpdater:
         """
         print("Parsing '%s'..." % title)
         wikicode = mwparserfromhell.parse(text)
-        for template in wikicode.filter_templates():
+        for template in wikicode.ifilter_templates():
             # skip unrelated templates
             if not any(template.name.matches(tmp) for tmp in ["Aur", "AUR", "Grp", "Pkg"]):
+                continue
+
+            # skip templates no longer under wikicode (templates nested under previously
+            # removed parent template are still detected by ifilter)
+            try:
+                wikicode.index(template, True)
+            except ValueError:
                 continue
 
             hint = None
@@ -229,7 +245,8 @@ class PkgUpdater:
                 template.name = newtemplate
 
             # add/remove/update {{Broken package link}} flag
-            adjacent = get_adjacent_node(wikicode, template, ignore_whitespace=True)
+            parent = get_parent_wikicode(wikicode, template)
+            adjacent = get_adjacent_node(parent, template, ignore_whitespace=True)
             if hint is not None:
                 print("warning: package '{}': {}".format(pkgname, hint))
                 self.add_report_line(title, template, hint)
