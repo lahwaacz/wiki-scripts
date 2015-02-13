@@ -137,11 +137,10 @@ class PkgFinder:
     # returns pkgname of the package that has the given pkgname in its `replaces` array (or None when not found)
     def find_replaces(self, pkgname):
         for pacdb in (self.pacdb64, self.pacdb32):
-            # search like pacman -Ss
             for db in pacdb.get_syncdbs():
-                pkgs = db.search(pkgname)
-                # for each matching package check its `replaces` array
-                for pkg in pkgs:
+                # iterate over all packages (search like pacman -Ss is not enough when
+                # the pkgname is not proper keyword)
+                for pkg in db.pkgcache:
                     if pkgname in pkg.replaces:
                         return pkg.name
         return None
