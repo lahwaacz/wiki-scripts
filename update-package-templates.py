@@ -194,6 +194,13 @@ class PkgUpdater:
         # with wiki markup)
         self.log = {}
 
+        # titles of pages that should not be processed
+        self.blacklist_pages = [
+            "AUR Cleanup Day/2010",
+            "Christmas Cleanup/2011",
+            "Midyear Cleanup/2013",
+        ]
+
     def update_page(self, title, text):
         """
         Parse wikitext, try to update all package templates, handle broken package links:
@@ -272,6 +279,9 @@ class PkgUpdater:
 
         for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", prop="revisions", rvprop="content|timestamp"):
             title = page["title"]
+            if title in self.blacklist_pages:
+                print("skipping blacklisted page '%s'" % title)
+                continue
             timestamp = page["revisions"][0]["timestamp"]
             text_old = page["revisions"][0]["*"]
             text_new = self.update_page(title, text_old)
