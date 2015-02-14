@@ -100,8 +100,7 @@ class PkgFinder:
             print("Failed to sync pacman database.", sys.stderr)
             return False
 
-    # check that given package exists in given database
-    # like `pacman -Ss`, but exact match only
+    # check that given package exists in given database (exact match only)
     def pacdb_find_pkg(self, pacdb, pkgname):
         for db in pacdb.get_syncdbs():
             pkg = db.get_pkg(pkgname)
@@ -109,7 +108,7 @@ class PkgFinder:
                 return True
         return False
 
-    # check that given group exists in given database
+    # check that given group exists in given database (exact match only)
     def pacdb_find_grp(self, pacdb, grpname):
         for db in pacdb.get_syncdbs():
             grp = db.read_grp(grpname)
@@ -121,12 +120,25 @@ class PkgFinder:
     def find_pkg(self, pkgname):
         return self.pacdb_find_pkg(self.pacdb64, pkgname) or self.pacdb_find_pkg(self.pacdb32, pkgname)
 
+    # case-insensitive searching
+    def find_pkg_case_insensitive(self, pkgname):
+        pkgname = pkgname.lower()
+        for pacdb in (self.pacdb64, self.pacdb32):
+            for db in pacdb.get_syncdbs():
+                # iterate over all packages (db.get_pkg does only exact match)
+                for pkg in db.pkgcache:
+                    if pkg.name.lower() == pkgname:
+                        return True
+        return False
+
     # check if given group exists as either 32bit or 64bit package group
     def find_grp(self, grpname):
         return self.pacdb_find_grp(self.pacdb64, grpname) or self.pacdb_find_grp(self.pacdb32, grpname)
 
     # check that given package exists in AUR
     def find_AUR(self, pkgname):
+        # all packages in AUR are strictly lowercase, but queries both via web (links) and helpers are case-insensitive
+        pkgname = pkgname.lower()
         # use bisect instead of 'pkgname in self.aurpkgs' for performance
         i = bisect.bisect_left(self.aurpkgs, pkgname)
         if i != len(self.aurpkgs) and self.aurpkgs[i] == pkgname:
@@ -230,7 +242,7 @@ class PkgUpdater:
 
             param = template.get(1).value
             # strip whitespace for searching (spacing is preserved on the wiki)
-            pkgname = param.lower().strip()
+            pkgname = param.strip()
 
             if self.finder.find_pkg(pkgname):
                 newtemplate = "Pkg"
@@ -243,6 +255,8 @@ class PkgUpdater:
                 replacedby = self.finder.find_replaces(pkgname)
                 if replacedby:
                     hint = "replaced by {{Pkg|%s}}" % replacedby
+                elif self.find_pkg_case_insensitive(pkgname):
+                    hint = "wrong capitalization"
                 else:
                     hint = "package not found"
 
