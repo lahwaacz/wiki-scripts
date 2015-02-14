@@ -100,7 +100,7 @@ class PkgFinder:
             print("Failed to sync pacman database.", sys.stderr)
             return False
 
-    # check that given package exists in either 32bit or 64bit database
+    # try to find given package (in either 32bit or 64bit database)
     def find_pkg(self, pkgname, exact=True):
         for pacdb in (self.pacdb64, self.pacdb32):
             for db in pacdb.get_syncdbs():
@@ -116,7 +116,7 @@ class PkgFinder:
                             return pkg
         return None
 
-    # check that given group exists in either 32bit or 64bit database (exact match only)
+    # try to find given group (in either 32bit or 64bit database)
     def find_grp(self, grpname, exact=True):
         for pacdb in (self.pacdb64, self.pacdb32):
             for db in pacdb.get_syncdbs():
@@ -265,11 +265,17 @@ class PkgUpdater:
 
     def update_page(self, title, text):
         """
+        Update package templates on given page.
+
         Parse wikitext, try to update all package templates, handle broken package links:
             - print warning to console
             - append message to self.log
             - mark it with {{Broken package link}} in the wikicode
-        :returns: updated :py:class:`mwparserfromhell.wikicode.Wikicode` object
+
+        :param title: title of the wiki page
+        :param text: content of the wiki page
+        :returns: a :py:class:`mwparserfromhell.wikicode.Wikicode` object with the updated
+                  content of the page
         """
         print("Parsing '%s'..." % title)
         wikicode = mwparserfromhell.parse(text)
@@ -309,7 +315,7 @@ class PkgUpdater:
     def check_allpages(self):
         if not self.finder.refresh():
             return False
-        
+
         # ensure that we are authenticated
         require_login(self.api)
 
@@ -336,7 +342,7 @@ class PkgUpdater:
         message = "<nowiki>{}</nowiki> ({})".format(template, message)
         lang = detect_language(title)[1]
         if lang not in self.log:
-            self.log[lang] = {} 
+            self.log[lang] = {}
         if title in self.log[lang]:
             self.log[lang][title].append(message)
         else:
@@ -351,7 +357,7 @@ class PkgUpdater:
                 report += "* [[%s]]\n" % title
                 for message in pages[title]:
                     report += "** %s\n" % message
-        return report 
+        return report
 
     def save_report(self, directory):
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
