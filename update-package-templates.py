@@ -141,16 +141,17 @@ class PkgFinder:
             return True
         return False
 
-    # check if given package is replaced by other package
-    # returns pkgname of the package that has the given pkgname in its `replaces` array (or None when not found)
-    def find_replaces(self, pkgname):
+    # try to find a package that has given pkgname in its `replaces` array
+    def find_replaces(self, pkgname, exact=True):
         for pacdb in (self.pacdb64, self.pacdb32):
             for db in pacdb.get_syncdbs():
                 # iterate over all packages (search like pacman -Ss is not enough when
                 # the pkgname is not proper keyword)
                 for pkg in db.pkgcache:
-                    if pkgname in pkg.replaces:
-                        return pkg.name
+                    if exact is True and pkgname in pkg.replaces:
+                        return pkg
+                    elif exact is False and pkgname.lower() in (_pkgname.lower() for _pkgname in pkg.replaces):
+                        return pkg
         return None
 
 
@@ -257,9 +258,9 @@ class PkgUpdater:
             return None
 
         # package not found, select appropriate hint
-        replacedby = self.finder.find_replaces(pkgname)
+        replacedby = self.finder.find_replaces(pkgname, exact=False)
         if replacedby:
-            return "replaced by {{Pkg|%s}}" % replacedby
+            return "replaced by {{Pkg|%s}}" % replacedby.name
 
         return "package not found"
 
