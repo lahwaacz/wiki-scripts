@@ -100,40 +100,36 @@ class PkgFinder:
             print("Failed to sync pacman database.", sys.stderr)
             return False
 
-    # check that given package exists in given database (exact match only)
-    def pacdb_find_pkg(self, pacdb, pkgname):
-        for db in pacdb.get_syncdbs():
-            pkg = db.get_pkg(pkgname)
-            if pkg is not None and pkg.name == pkgname:
-                return True
-        return False
-
-    # check that given group exists in given database (exact match only)
-    def pacdb_find_grp(self, pacdb, grpname):
-        for db in pacdb.get_syncdbs():
-            grp = db.read_grp(grpname)
-            if grp is not None and grp[0] == grpname:
-                return True
-        return False
-
-    # check if given package exists as either 32bit or 64bit package
-    def find_pkg(self, pkgname):
-        return self.pacdb_find_pkg(self.pacdb64, pkgname) or self.pacdb_find_pkg(self.pacdb32, pkgname)
-
-    # case-insensitive searching
-    def find_pkg_case_insensitive(self, pkgname):
-        pkgname = pkgname.lower()
+    # check that given package exists in either 32bit or 64bit database
+    def find_pkg(self, pkgname, exact=True):
         for pacdb in (self.pacdb64, self.pacdb32):
             for db in pacdb.get_syncdbs():
-                # iterate over all packages (db.get_pkg does only exact match)
-                for pkg in db.pkgcache:
-                    if pkg.name.lower() == pkgname:
+                if exact is True:
+                    pkg = db.get_pkg(pkgname)
+                    if pkg is not None and pkg.name == pkgname:
                         return True
+                else:
+                    # iterate over all packages (db.get_pkg does only exact match)
+                    for pkg in db.pkgcache:
+                        # compare pkgnames in lowercase
+                        if pkg.name.lower() == pkgname.lower():
+                            return True
         return False
 
-    # check if given group exists as either 32bit or 64bit package group
-    def find_grp(self, grpname):
-        return self.pacdb_find_grp(self.pacdb64, grpname) or self.pacdb_find_grp(self.pacdb32, grpname)
+    # check that given group exists in either 32bit or 64bit database (exact match only)
+    def find_grp(self, grpname, exact=True):
+        for pacdb in (self.pacdb64, self.pacdb32):
+            for db in pacdb.get_syncdbs():
+                if exact is True:
+                    grp = db.read_grp(grpname)
+                    if grp is not None and grp[0] == grpname:
+                        return True
+                else:
+                    # iterate over all groups (db.read_grp does only exact match)
+                    for grp in db.grpcache:
+                        if grp[0].lower() == grpname.lower():
+                            return True
+        return False
 
     # check that given package exists in AUR
     def find_AUR(self, pkgname):
@@ -255,7 +251,7 @@ class PkgUpdater:
                 replacedby = self.finder.find_replaces(pkgname)
                 if replacedby:
                     hint = "replaced by {{Pkg|%s}}" % replacedby
-                elif self.find_pkg_case_insensitive(pkgname):
+                elif self.find_pkg(pkgname, exact=False):
                     hint = "wrong capitalization"
                 else:
                     hint = "package not found"
