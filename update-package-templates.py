@@ -208,6 +208,51 @@ class PkgUpdater:
             "Midyear Cleanup/2013",
         ]
 
+    def update_package_template(self, template):
+        """
+        Update given package template.
+
+        :param template: A :py:class:`mwparserfromhell.nodes.Template` object; it is assumed
+                         that `template.name` matches either `Aur`, `AUR`, `Grp` or `Pkg`.
+        :returns: A _hint_, which is either `None` if the template was updated succesfully,
+                  or a string uniquely identifying the problem (parseable as wikicode).
+        """
+        hint = None
+        newtemplate = None
+
+        # AUR, Grp, Pkg templates all take exactly 1 parameter
+        if len(template.params) != 1:
+            hint = "invalid number of template parameters"
+
+        param = template.get(1).value
+        # strip whitespace for searching (spacing is preserved on the wiki)
+        pkgname = param.strip()
+
+        if self.finder.find_pkg(pkgname):
+            newtemplate = "Pkg"
+        elif self.finder.find_AUR(pkgname):
+            newtemplate = "AUR"
+        elif self.finder.find_grp(pkgname):
+            newtemplate = "Grp"
+
+        if newtemplate is not None:
+            # update template name (avoid changing capitalization and spacing)
+            if template.name.lower().strip() != newtemplate.lower():
+                template.name = newtemplate
+            return hint  # either None or "invalid number of template parameters"
+
+        # package not found, select appropriate hint
+        replacedby = self.finder.find_replaces(pkgname)
+        if replacedby:
+            return "replaced by {{Pkg|%s}}" % replacedby
+
+        pkg_loose = self.finder.find_pkg(pkgname, exact=False)
+        grp_loose = self.finder.find_grp(pkgname, exact=False)
+        if pkg_loose or grp_loose:
+            return "wrong capitalization"
+
+        return "package not found"
+
     def update_page(self, title, text):
         """
         Parse wikitext, try to update all package templates, handle broken package links:
@@ -230,41 +275,13 @@ class PkgUpdater:
             except ValueError:
                 continue
 
-            hint = None
-
-            # AUR, Grp, Pkg templates all take exactly 1 parameter
-            if len(template.params) != 1:
-                hint = "invalid number of template parameters"
-
-            param = template.get(1).value
-            # strip whitespace for searching (spacing is preserved on the wiki)
-            pkgname = param.strip()
-
-            if self.finder.find_pkg(pkgname):
-                newtemplate = "Pkg"
-            elif self.finder.find_AUR(pkgname):
-                newtemplate = "AUR"
-            elif self.finder.find_grp(pkgname):
-                newtemplate = "Grp"
-            else:
-                newtemplate = template.name
-                replacedby = self.finder.find_replaces(pkgname)
-                if replacedby:
-                    hint = "replaced by {{Pkg|%s}}" % replacedby
-                elif self.find_pkg(pkgname, exact=False):
-                    hint = "wrong capitalization"
-                else:
-                    hint = "package not found"
-
-            # update template name (avoid changing capitalization and spacing)
-            if template.name.lower().strip() != newtemplate.lower():
-                template.name = newtemplate
+            hint = self.update_package_template(template)
 
             # add/remove/update {{Broken package link}} flag
             parent = get_parent_wikicode(wikicode, template)
             adjacent = get_adjacent_node(parent, template, ignore_whitespace=True)
             if hint is not None:
-                print("warning: package '{}': {}".format(pkgname, hint))
+                print("warning: '{}': {}".format(template, hint))
                 self.add_report_line(title, template, hint)
                 broken_flag = "{{Broken package link|%s}}" % hint
                 if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches("Broken package link"):
