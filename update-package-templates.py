@@ -241,15 +241,25 @@ class PkgUpdater:
                 template.name = newtemplate
             return hint  # either None or "invalid number of template parameters"
 
+        # try to find package with different capitalization
+        # (safe to update automatically, uppercase letters in pkgnames are very rare,
+        # two pkgnames differing only in capitalization are even rarer)
+        pkg_loose = self.finder.find_pkg(pkgname, exact=False)
+        if pkg_loose:
+            template.name = "Pkg"
+            template.add(1, pkg_loose.name)
+            return None
+
+        grp_loose = self.finder.find_grp(pkgname, exact=False)
+        if grp_loose:
+            template.name = "Grp"
+            template.add(1, grp_loose[0])
+            return None
+
         # package not found, select appropriate hint
         replacedby = self.finder.find_replaces(pkgname)
         if replacedby:
             return "replaced by {{Pkg|%s}}" % replacedby
-
-        pkg_loose = self.finder.find_pkg(pkgname, exact=False)
-        grp_loose = self.finder.find_grp(pkgname, exact=False)
-        if pkg_loose or grp_loose:
-            return "wrong capitalization"
 
         return "package not found"
 
