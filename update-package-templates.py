@@ -248,13 +248,13 @@ class PkgUpdater:
         pkg_loose = self.finder.find_pkg(pkgname, exact=False)
         if pkg_loose:
             template.name = "Pkg"
-            template.add(1, pkg_loose.name)
+            template.add(1, pkg_loose.name, preserve_spacing=False)
             return None
 
         grp_loose = self.finder.find_grp(pkgname, exact=False)
         if grp_loose:
             template.name = "Grp"
-            template.add(1, grp_loose[0])
+            template.add(1, grp_loose[0], preserve_spacing=False)
             return None
 
         # package not found, select appropriate hint
