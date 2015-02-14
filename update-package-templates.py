@@ -107,14 +107,14 @@ class PkgFinder:
                 if exact is True:
                     pkg = db.get_pkg(pkgname)
                     if pkg is not None and pkg.name == pkgname:
-                        return True
+                        return pkg
                 else:
                     # iterate over all packages (db.get_pkg does only exact match)
                     for pkg in db.pkgcache:
                         # compare pkgnames in lowercase
                         if pkg.name.lower() == pkgname.lower():
-                            return True
-        return False
+                            return pkg
+        return None
 
     # check that given group exists in either 32bit or 64bit database (exact match only)
     def find_grp(self, grpname, exact=True):
@@ -123,13 +123,13 @@ class PkgFinder:
                 if exact is True:
                     grp = db.read_grp(grpname)
                     if grp is not None and grp[0] == grpname:
-                        return True
+                        return grp
                 else:
                     # iterate over all groups (db.read_grp does only exact match)
                     for grp in db.grpcache:
                         if grp[0].lower() == grpname.lower():
-                            return True
-        return False
+                            return grp
+        return None
 
     # check that given package exists in AUR
     def find_AUR(self, pkgname):
