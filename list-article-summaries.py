@@ -19,7 +19,7 @@ as_out = flatten_gen( (api.generator(generator="embeddedin", geilimit="max", gei
 titles_out = [p["title"] for p in as_out if p["ns"] == 0]
 
 # print only languages for which "Template:Related articles start (<lang>)" exists
-langs_whitelist = ["English", "Español", "Italiano", "Česky", "Ελληνικά", "Русский", "日本語", "正體中文", "简体中文"]
+langs_whitelist = ["English", "Español", "Italiano", "Português", "Česky", "Ελληνικά", "Русский", "日本語", "正體中文", "简体中文", "한국어"]
 
 for page in sorted(as_in , key=lambda d: d["title"]):
     title = page["title"]
