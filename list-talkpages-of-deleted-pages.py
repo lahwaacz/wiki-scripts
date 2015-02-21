@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import os.path
-import re
 
 from MediaWiki import API
 from utils import *
@@ -31,16 +30,13 @@ def detect_namespace(title):
     """
     # NOTE: namespaces hardcoded for ArchWiki
     _namespaces = ['Help talk', 'Talk', 'Media', 'File', 'ArchWiki talk', 'MediaWiki', 'File talk', 'Template', 'Category talk', 'User', 'Help', 'Special', 'Category', 'Template talk', 'User talk', 'ArchWiki', 'MediaWiki talk']
-    pure_title = title
-    detected_namespace = "Main"
-    match = re.match("^((.+):)?(.+)$", title)
-    ns = match.group(2)
-    if ns:
-        ns = ns.replace("_", " ")
-        if ns in _namespaces:
-            detected_namespace = ns
-            pure_title = match.group(3)
-    return detected_namespace, pure_title
+    try:
+        _ns, _pure = title.split(":", 1)
+        if _ns in _namespaces:
+            return _ns, _pure
+    except ValueError:
+        pass
+    return "Main", title
 
 # print talk pages of deleted pages
 for title in sorted(talks):
