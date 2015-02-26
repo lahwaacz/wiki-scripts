@@ -45,14 +45,17 @@ def remove_and_squash(wikicode, obj):
     index = parent.index(obj)
     parent.remove(obj)
 
-    try:
-        prev = parent.get(index - 1)
-    except IndexError:
-        prev = None
-    try:
-        next_ = parent.get(index)
-    except IndexError:
-        next_ = None
+    def _get_text(index):
+        try:
+            node = parent.get(index)
+            if not isinstance(node, mwparserfromhell.nodes.text.Text):
+                return None
+            return node
+        except IndexError:
+            return None
+
+    prev = _get_text(index - 1)
+    next_ = _get_text(index)
 
     if prev is None and next_ is not None:
         if next_.startswith(" "):
