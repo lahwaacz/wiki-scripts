@@ -29,13 +29,6 @@ def group_titles_by_families(titles):
 
 # TODO: write some tests
 # TODO: refactoring (move to the same module as get_parent_wikicode to avoid __import__)
-# FIXME: spacing is not preserved in this case:
-"""
-line1
-
-[[category:foo]]
-line2
-"""
 def remove_and_squash(wikicode, obj):
     """
     Remove `obj` from `wikicode` and fix whitespace in the place it was removed from.
@@ -72,8 +65,9 @@ def remove_and_squash(wikicode, obj):
             parent.replace(prev, prev.rstrip(" "))
             parent.replace(next_, " " + next_.lstrip(" "))
         elif prev.endswith("\n") and next_.startswith("\n"):
-            parent.replace(prev, prev.rstrip("\n"))
-            parent.replace(next_, "\n" + next_.lstrip("\n"))
+            if not prev[:-1].endswith("\n") and not next_[1:].startswith("\n"):
+                parent.replace(prev, prev.rstrip("\n"))
+            parent.replace(next_, next_.replace("\n", "", 1))
         elif prev.endswith("\n"):
             parent.replace(next_, next_.lstrip(" "))
         elif next_.startswith("\n"):
@@ -241,6 +235,8 @@ Some text with [[it:interlink]] inside.
 [[Category:foo]]
 This [[category:foo|catlink]] is a typo.
 [[en:bar]]
+
+Some other text
 [[category:bar]]
 [[cs:some page]]
 
@@ -249,4 +245,6 @@ This [[category:foo|catlink]] is a typo.
 """
     wikicode = mwparserfromhell.parse(snippet)
     fix_header(wikicode)
-    print(wikicode)
+    print(snippet, end="")
+    print("=" * 42)
+    print(wikicode, end="")
