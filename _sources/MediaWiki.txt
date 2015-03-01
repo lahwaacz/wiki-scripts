@@ -1,0 +1,70 @@
+MediaWiki package
+=================
+
+Submodules
+----------
+
+MediaWiki.api module
+--------------------
+
+.. automodule:: MediaWiki.api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+MediaWiki.connection module
+---------------------------
+
+.. automodule:: MediaWiki.connection
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+MediaWiki.diff module
+---------------------
+
+.. automodule:: MediaWiki.diff
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+MediaWiki.dump module
+---------------------
+
+.. automodule:: MediaWiki.dump
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+MediaWiki.exceptions module
+---------------------------
+
+.. automodule:: MediaWiki.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+MediaWiki.interactive module
+----------------------------
+
+.. automodule:: MediaWiki.interactive
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+MediaWiki.rate module
+---------------------
+
+.. automodule:: MediaWiki.rate
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: MediaWiki
+    :members:
+    :undoc-members:
+    :show-inheritance:

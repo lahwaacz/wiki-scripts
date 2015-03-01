@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ArchWiki package &mdash; wiki-scripts 0.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="wiki-scripts 0.4 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">wiki-scripts 0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="archwiki-package">
+<h1>ArchWiki package<a class="headerlink" href="#archwiki-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ArchWiki.lang">
+<span id="archwiki-lang-module"></span><h2>ArchWiki.lang module<a class="headerlink" href="#module-ArchWiki.lang" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#module-ArchWiki.lang" title="ArchWiki.lang"><tt class="xref py py-mod docutils literal"><span class="pre">ArchWiki.lang</span></tt></a> submodule contains multiple functions related to
+ArchWiki specific way of setting localized page titles, handling of categories
+for localized pages etc.</p>
+<p>See the documentation on <a class="reference external" href="https://wiki.archlinux.org/index.php/Help:I18n">Help:i18n</a> on ArchWiki for the specification.</p>
+<dl class="function">
+<dt id="ArchWiki.lang.detect_language">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">detect_language</tt><big>(</big><em>title</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.detect_language" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect language of a given title. The matching is case-sensitive and spaces are
+treated the same way as underscores.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> &#8211; page title to work with</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">detected language in long, localized form</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.english_for_langname">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">english_for_langname</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.english_for_langname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.english_for_tag">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">english_for_tag</tt><big>(</big><em>tag</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.english_for_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.get_category_languages">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_category_languages</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_category_languages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.get_english_language_names">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_english_language_names</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_english_language_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.get_external_tags">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_external_tags</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_external_tags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.get_internal_tags">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_internal_tags</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_internal_tags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.get_language_names">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_language_names</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_language_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.get_language_tags">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_language_tags</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_language_tags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.get_local_language">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_local_language</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_local_language" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.is_category_language">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">is_category_language</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.is_category_language" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.is_english_language_name">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">is_english_language_name</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.is_english_language_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.is_external_tag">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">is_external_tag</tt><big>(</big><em>tag</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.is_external_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.is_internal_tag">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">is_internal_tag</tt><big>(</big><em>tag</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.is_internal_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.is_language_name">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">is_language_name</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.is_language_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.is_language_tag">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">is_language_tag</tt><big>(</big><em>tag</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.is_language_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.langname_for_english">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">langname_for_english</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.langname_for_english" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.langname_for_tag">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">langname_for_tag</tt><big>(</big><em>tag</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.langname_for_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.tag_for_english">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">tag_for_english</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.tag_for_english" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ArchWiki.lang.tag_for_langname">
+<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">tag_for_langname</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.tag_for_langname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ArchWiki">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ArchWiki" title="Permalink to this headline">¶</a></h2>
+<p>Module extending generic MediaWiki interface with stuff specific to <a class="reference external" href="https://wiki.archlinux.org/">ArchWiki</a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ArchWiki package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-ArchWiki.lang">ArchWiki.lang module</a></li>
+<li><a class="reference internal" href="#module-ArchWiki">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ArchWiki.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">wiki-scripts 0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, lahwaacz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

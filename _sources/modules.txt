@@ -1,0 +1,7 @@
+MediaWiki
+=========
+
+.. toctree::
+   :maxdepth: 4
+
+   MediaWiki
