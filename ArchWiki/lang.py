@@ -85,9 +85,9 @@ __category_languages = [
     "简体中文",
     "正體中文"
 ]
-__interlanguage_external = ["de", "fa", "fi", "fr", "ro", "sv", "tr"]
+__interlanguage_external = ["de", "fa", "fi", "fr", "ja", "ro", "sv", "tr"]
 __interlanguage_internal = ["ar", "bg", "cs", "da", "el", "en", "es", "he", "hr",
-                          "hu", "id", "it", "ja", "ko", "lt", "nl", "pl", "pt",
+                          "hu", "id", "it", "ko", "lt", "nl", "pl", "pt",
                           "ru", "sk", "sr", "th", "uk", "zh-CN", "zh-TW"]
 
 
