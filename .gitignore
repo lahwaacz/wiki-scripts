@@ -1,2 +1,5 @@
 __pycache__
 /stub/
+/docs/_build/
+/docs/Makefile
+/docs/*.rst

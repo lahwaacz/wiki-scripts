@@ -1,0 +1,4 @@
+[submodule "gh-pages"]
+	path = docs/_build/html
+	url = git@github.com:lahwaacz/wiki-scripts.git
+	branch = gh-pages

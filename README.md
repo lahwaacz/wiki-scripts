@@ -14,3 +14,7 @@ The following are optional dependencies, required only by some scripts:
 - [mwparserfromhell](https://github.com/earwig/mwparserfromhell) (for scripts requiring wikitext parser)
 - [pyalpm](https://projects.archlinux.org/users/remy/pyalpm.git/) (for `update-package-templates.py`)
 - [Tk/Tcl](https://docs.python.org/3.4/library/tk.html) (for copying the output of `statistics.py` to the clipboard)
+
+### Documentation
+
+http://lahwaacz.github.io/wiki-scripts/
