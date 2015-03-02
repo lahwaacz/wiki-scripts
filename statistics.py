@@ -154,7 +154,7 @@ class Statistics:
             try:
                 result = api.edit(self.pageid, self.text, self.timestamp,
                                   self.cliargs.summary, token=self.csrftoken,
-                                  minor="1")
+                                  bot="1", minor="1")
             except APIError as err:
                 print("Could not save the page ({})".format(
                                         err.args[0]["info"]), file=sys.stderr)
