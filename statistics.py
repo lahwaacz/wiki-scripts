@@ -277,7 +277,11 @@ class _UserStats:
 
     @staticmethod
     def _format_registration(registration):
-        return " ".join((registration[:10], registration[11:19]))
+        if registration:
+            return " ".join((registration[:10], registration[11:19]))
+        else:
+            # There seems to be users without registration date (?!?) TODO: investigate
+            return "-"
 
     @classmethod
     def _format_groups(cls, groups):
