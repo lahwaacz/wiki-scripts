@@ -96,7 +96,7 @@ class API(Connection):
         """
         Logs out of the wiki.
         See `MediaWiki#API:Logout`_ for reference.
-        
+
         :returns: True
 
         .. _`MediaWiki#API:Logout`: https://www.mediawiki.org/wiki/API:Logout
@@ -196,7 +196,7 @@ class API(Connection):
             """
             return (list_[i:i+bs] for i in range(0, len(list_), bs))
 
-        # check if we have apihighlimits and set the limit accordingly 
+        # check if we have apihighlimits and set the limit accordingly
         limit = 500 if self.has_high_limits() else 50
 
         # resolve by chunks

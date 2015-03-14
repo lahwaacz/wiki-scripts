@@ -22,7 +22,7 @@ if __name__ == "__main__":
             help="the URL to the wiki's api.php (default: %(default)s)")
     _api.add_argument("--cookie-path", default=os.path.expanduser("~/.cache/ArchWiki.cookie"), metavar="PATH",
             help="path to cookie file (default: %(default)s)")
-    _api.add_argument("--ssl-verify", default=1, choices=(0,1),
+    _api.add_argument("--ssl-verify", default=1, choices=(0, 1),
             help="whether to verify SSL certificates (default: %(default)s)")
 
     _script = argparser.add_argument_group(title="script parameters")

@@ -29,7 +29,7 @@ class DumpGenerator:
             self.session.cookies = cookielib.LWPCookieJar(cookie_file)
             try:
                 self.session.cookies.load()
-            except:
+            except (cookielib.LoadError, OSError):
                 self.session.cookies.save()
                 self.session.cookies.load()
 
@@ -52,14 +52,14 @@ class DumpGenerator:
         }
 
         # this is almost the same as Connection._call() but with stream=True
-        r = self.session.request(method="POST", url=self.index_url, data=data, stream=True)
+        response = self.session.request(method="POST", url=self.index_url, data=data, stream=True)
 
         # raise HTTPError for bad requests (4XX client errors and 5XX server errors)
-        r.raise_for_status()
+        response.raise_for_status()
 
         # handle download stream
         with open(outfile, 'wb') as fd:
-            for chunk in r.iter_content(self.chunk_size):
+            for chunk in response.iter_content(self.chunk_size):
                 fd.write(chunk)
 
         if isinstance(self.session.cookies, cookielib.FileCookieJar):
@@ -74,7 +74,7 @@ class DumpGenerator:
         datetime.strptime(timestamp_start, '%Y-%m-%dT%H:%M:%SZ')
         try:
             datetime.strptime(timestamp_start, '%Y-%m-%dT%H:%M:%SZ')
-        except:
+        except ValueError:
             print("Unable to parse timestamp_start. The format is 'YYYY-MM-DDThh:mm:ssZ'.")
             return False
 

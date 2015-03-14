@@ -60,7 +60,7 @@ for page in sorted(pages, key=lambda x: x["title"]):
             old = r["from"]
             new = r["to"]
             regex = re.compile(r"(\[\[|\{\{Related2?\|)[ _]*([%s%s])%s[ _]*(#|\||\]\]|\}\})" % (old[0].upper(), old[0].lower(), "[ _]".join(old[1:].split())))
-            
+
             # check if the first word of the new title is an acronym
             if all(c.upper() == c for c in new.split()[0]):
                 text = re.sub(regex, r"\1%s\3" % new, text)

@@ -32,7 +32,7 @@ def RateLimited(rate, per):
         # defined as lists to avoid problems with the 'global' keyword
         allowance = [rate]
         last_check = [time.clock()]
-        def rate_limit_func(*args,**kargs):
+        def rate_limit_func(*args, **kargs):
             current = time.clock()
             time_passed = current - last_check[0]
             last_check[0] = current
@@ -45,10 +45,10 @@ def RateLimited(rate, per):
                 to_sleep = (1 - allowance[0]) * per
                 print("rate limit exceeded, sleeping for %0.3f seconds" % to_sleep)
                 time.sleep(to_sleep)
-                ret = func(*args,**kargs)
+                ret = func(*args, **kargs)
                 allowance[0] = rate
             else:
-                ret = func(*args,**kargs)
+                ret = func(*args, **kargs)
                 allowance[0] -= 1.0
             return ret
         return rate_limit_func

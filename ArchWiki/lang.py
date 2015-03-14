@@ -87,8 +87,8 @@ __category_languages = [
 ]
 __interlanguage_external = ["de", "fa", "fi", "fr", "ja", "ro", "sv", "tr"]
 __interlanguage_internal = ["ar", "bg", "cs", "da", "el", "en", "es", "he", "hr",
-                          "hu", "id", "it", "ko", "lt", "nl", "pl", "pt",
-                          "ru", "sk", "sr", "th", "uk", "zh-CN", "zh-TW"]
+                            "hu", "id", "it", "ko", "lt", "nl", "pl", "pt",
+                            "ru", "sk", "sr", "th", "uk", "zh-CN", "zh-TW"]
 
 
 # basic accessors and checkers
@@ -170,7 +170,7 @@ def detect_language(title):
     """
     pure_title = title
     detected_language = get_local_language()
-    match = re.match(r"^(.+?)([ _]\(([^\(]+)\))?$", title);
+    match = re.match(r"^(.+?)([ _]\(([^\(]+)\))?$", title)
     if match:
         lang = match.group(3)
         if lang in get_language_names():

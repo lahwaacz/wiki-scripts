@@ -25,7 +25,7 @@ from MediaWiki.exceptions import *
 from MediaWiki.interactive import *
 from ArchWiki.lang import detect_language
 
-pacconf = """
+PACCONF = """
 [options]
 RootDir     = /
 DBPath      = {pacdbpath}
@@ -47,7 +47,7 @@ Include = /etc/pacman.d/mirrorlist
 Include = /etc/pacman.d/mirrorlist
 """
 
-pacconf64_suffix = """
+PACCONF64_SUFFIX = """
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 """
@@ -59,8 +59,8 @@ class PkgFinder:
         self.ssl_verify = ssl_verify
 
         self.aurpkgs = None
-        self.pacdb32 = self.pacdb_init(pacconf, os.path.join(self.tmpdir, "pacdbpath32"), arch="i686")
-        self.pacdb64 = self.pacdb_init(pacconf + pacconf64_suffix, os.path.join(self.tmpdir, "pacdbpath64"), arch="x86_64")
+        self.pacdb32 = self.pacdb_init(PACCONF, os.path.join(self.tmpdir, "pacdbpath32"), arch="i686")
+        self.pacdb64 = self.pacdb_init(PACCONF + PACCONF64_SUFFIX, os.path.join(self.tmpdir, "pacdbpath64"), arch="x86_64")
 
     def pacdb_init(self, config, dbpath, arch):
         os.makedirs(dbpath, exist_ok=True)
@@ -73,9 +73,9 @@ class PkgFinder:
 
     # sync database of AUR packages
     def aurpkgs_refresh(self, aurpkgs_url):
-        r = requests.get(aurpkgs_url, verify=self.ssl_verify)
-        r.raise_for_status()
-        self.aurpkgs = sorted([line for line in r.text.splitlines() if not line.startswith("#")])
+        response = requests.get(aurpkgs_url, verify=self.ssl_verify)
+        response.raise_for_status()
+        self.aurpkgs = sorted([line for line in response.text.splitlines() if not line.startswith("#")])
 
     # sync databases like pacman -Sy
     def pacdb_refresh(self, pacdb, force=False):
@@ -132,7 +132,7 @@ class PkgFinder:
         return None
 
     # check that given package exists in AUR
-    def find_AUR(self, pkgname):
+    def find_aur(self, pkgname):
         # all packages in AUR are strictly lowercase, but queries both via web (links) and helpers are case-insensitive
         pkgname = pkgname.lower()
         # use bisect instead of 'pkgname in self.aurpkgs' for performance
@@ -231,7 +231,7 @@ class PkgUpdater:
 
         if self.finder.find_pkg(pkgname):
             newtemplate = "Pkg"
-        elif self.finder.find_AUR(pkgname):
+        elif self.finder.find_aur(pkgname):
             newtemplate = "AUR"
         elif self.finder.find_grp(pkgname):
             newtemplate = "Grp"
@@ -395,7 +395,7 @@ if __name__ == "__main__":
             help="the URL to the wiki's api.php (default: %(default)s)")
     _api.add_argument("--cookie-path", type=arg_dirname_must_exist, default=os.path.expanduser("~/.cache/ArchWiki.bot.cookie"), metavar="PATH",
             help="path to cookie file (default: %(default)s)")
-    _api.add_argument("--ssl-verify", default=1, choices=(0,1),
+    _api.add_argument("--ssl-verify", default=1, choices=(0, 1),
             help="whether to verify SSL certificates (default: %(default)s)")
 
     _script = argparser.add_argument_group(title="script parameters")

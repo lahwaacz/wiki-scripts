@@ -14,14 +14,14 @@ __all__ = ["Connection", "DEFAULT_UA"]
 
 DEFAULT_UA = "wiki-scripts/{version} ({url})".format(version=__version__, url=__url__)
 
-api_actions = [
+API_ACTIONS = [
     "login", "logout", "createaccount", "query", "expandtemplates", "parse",
     "opensearch", "feedcontributions", "feedwatchlist", "help", "paraminfo", "rsd",
     "compare", "tokens", "purge", "setnotificationtimestamp", "rollback", "delete",
     "undelete", "protect", "block", "unblock", "move", "edit", "upload", "filerevert",
     "emailuser", "watch", "patrol", "import", "userrights", "options", "imagerotate"
 ]
-post_actions = [
+POST_ACTIONS = [
     "login", "createaccount", "purge", "setnotificationtimestamp", "rollback",
     "delete", "undelete", "protect", "block", "unblock", "move", "edit", "upload",
     "filerevert", "emailuser", "watch", "patrol", "import", "userrights", "options",
@@ -58,7 +58,7 @@ class Connection:
             self.session.cookies = cookielib.LWPCookieJar(cookie_file)
             try:
                 self.session.cookies.load()
-            except:
+            except (cookielib.LoadError, OSError):
                 self.session.cookies.save()
                 self.session.cookies.load()
 
@@ -86,15 +86,15 @@ class Connection:
 
         .. _`Requests documentation`: http://docs.python-requests.org/en/latest/api/
         """
-        r = self.session.request(method=method, url=self.api_url, params=params, data=data)
+        response = self.session.request(method=method, url=self.api_url, params=params, data=data)
 
         # raise HTTPError for bad requests (4XX client errors and 5XX server errors)
-        r.raise_for_status()
+        response.raise_for_status()
 
         if isinstance(self.session.cookies, cookielib.FileCookieJar):
             self.session.cookies.save()
 
-        return r
+        return response
 
     def call(self, params=None, expand_result=True, **kwargs):
         """
@@ -119,11 +119,11 @@ class Connection:
 
         # check if action is valid
         action = params.get("action", "help")
-        if action not in api_actions:
-            raise APIWrongAction(action, api_actions)
+        if action not in API_ACTIONS:
+            raise APIWrongAction(action, API_ACTIONS)
 
         # select HTTP method and call the API
-        if action in post_actions:
+        if action in POST_ACTIONS:
             # passing `params` to `data` will cause form-encoding to take place,
             # which is necessary when editing pages longer than 8000 characters
             result = self._call(data=params, method="POST")

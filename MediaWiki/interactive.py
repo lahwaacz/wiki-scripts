@@ -35,15 +35,15 @@ def edit_interactive(api, pageid, old_text, new_text, basetimestamp, summary, **
 #            ("e", "manually edit this edit"),
         ("?", "print help"),
     ]
-    short_options = [o[0] for o in options]
+    short_options = [opt[0] for opt in options]
     ans = ""
 
     while True:
         print(diff)
         ans = input("Make this edit? [%s]? " % ",".join(short_options))
         if ans == "?" or ans not in short_options:
-            for o in options:
-                print("%s - %s" % o)
+            for opt in options:
+                print("%s - %s" % opt)
         else:
             break
 

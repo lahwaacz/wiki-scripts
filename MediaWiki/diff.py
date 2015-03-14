@@ -18,7 +18,7 @@ def diff_highlighted(old, new, fromfile="", tofile="", fromfiledate="", tofileda
     :param tofile: new file name (used as meta data to format diff header)
     :param fromfiledate: original file timestamp (used as meta data to format diff header)
     :param tofiledate: new file timestamp (used as meta data to format diff header)
-    
+
     .. _`difflib.unified_diff`: https://docs.python.org/3/library/difflib.html#difflib.unified_diff
     """
     # splitlines() omits the '\n' char from each line, so we need to
