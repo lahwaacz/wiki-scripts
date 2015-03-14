@@ -29,6 +29,7 @@ def group_titles_by_families(titles):
 
 # TODO: write some tests
 # TODO: refactoring (move to the same module as get_parent_wikicode to avoid __import__)
+# FIXME: line spacing is broken when a line ends with a non-text node (e.g. template or link)
 def remove_and_squash(wikicode, obj):
     """
     Remove `obj` from `wikicode` and fix whitespace in the place it was removed from.
@@ -123,7 +124,7 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
             magics.append(mwparserfromhell.utils.parse_anything(template))
 
     def _add_to_cats(catlink):
-        # TODO: top-level "typos" are still ignored -- is this important enough to handle it?
+        # TODO: non-duplicate "typos" are still ignored -- is this important enough to handle it?
         if not any(cat.get(0).title.matches(catlink.title) for cat in cats):
             # only remove from wikicode if we actually append to cats (duplicate category
             # links are considered typos, e.g. [[Category:foo]] instead of [[:Category:foo]],
@@ -208,8 +209,30 @@ def update_page(title, family_titles):
         print(diff_highlighted(text_old, text_new))
         input()
 
-# TODO: def update_allpages
 # TODO: fix headers with separate edit summary before any interlanguage links synchronizing !!!
+# TODO: def update_allpages
+# algorithm:
+# 1. fetch list of all pages and redirects (separate from the content dict (see 2.) for quick searching)
+#    (the list of all pages would be used for validating the cache to handle new pages)
+# 2. fetch content of all pages (cached query)
+# 3. group by families
+# 4. transform each group into a Family object:
+#    4.1 denote the set of pages in the family as `titles`, it will be changing as pages are added to the family
+#    4.2 extract interlinks of each page's content, set `titles - {title}` as default
+#    4.3 unify interlinks of all pages in the family and transform interlinks to titles again - denote as `extracted_titles`
+# 5. for each family:
+#    5.1 for each title in `extracted_titles - titles` (titles in `titles` are guaranteed to be existing pages and already members of this family):
+#        5.1.1 resolve redirect, replace with target
+#        5.1.2 if the page exists, merge its family with this one, excluding it from further processing in 5. and making sure that 5.1 is applied to the updated set
+#              (update only `titles` and `extracted_titles`, the interlinks of the pages will be updated in 6.)
+# 6. for each (family, page):
+#    6.1 update interlinks of each page based on the family.titles
+#        (no parsing necessary, just transform titles into interlinks)
+#    6.2 save the page
+# NOTE: Content of all pages is pulled into memory at the same time and not freed until the program exits,
+#       so memory consumption will be huge. If the algorithm is modified to update pages one by one, the
+#       memory consumption would stay at reasonable levels but a page could be edited multiple times as
+#       families are merged, which is probably acceptable cost.
 
 if __name__ == "__main__":
 #    api_url = "https://wiki.archlinux.org/api.php"
