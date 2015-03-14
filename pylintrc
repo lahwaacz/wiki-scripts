@@ -1,0 +1,8 @@
+[BASIC]
+# list of names which should always be accepted (separated by comma)
+good-names = f,i,j,k,n,ex,Run,_,db
+# set the same as class attributes
+const-rgx = ([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$
+
+[FORMAT]
+max-line-length = 256
