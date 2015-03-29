@@ -207,6 +207,8 @@ class PkgUpdater:
             "AUR Cleanup Day/2010",
             "Christmas Cleanup/2011",
             "Midyear Cleanup/2013",
+            "Security Advisories",
+            "CVE",
         ]
 
     def update_package_template(self, template):
