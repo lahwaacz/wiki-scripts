@@ -4,6 +4,7 @@ import hashlib
 
 from .connection import Connection
 from .exceptions import *
+from .rate import RateLimited
 
 __all__ = ["API"]
 
@@ -207,9 +208,11 @@ class API(Connection):
 
         return redirects
 
+    @RateLimited(1, 3)
     def edit(self, pageid, text, basetimestamp, summary, token=None, **kwargs):
         """
-        Interface to `API:Edit`_.
+        Interface to `API:Edit`_. MD5 hash of the new text is computed automatically and
+        added to the query. This method is rate-limited to allow 1 call per 3 seconds.
 
         :param pageid: page ID of the page to be edited
         :param text: new page content

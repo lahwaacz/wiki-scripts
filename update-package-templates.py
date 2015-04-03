@@ -11,7 +11,6 @@ import argparse
 import bisect
 import os.path
 import sys
-import time
 import datetime
 import json
 
@@ -334,8 +333,6 @@ class PkgUpdater:
                 try:
 #                    edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
                     self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
-                    print("Edit to page '%s' succesful, sleeping for 1 second..." % title)
-                    time.sleep(1)
                 except (APIError, APIWarnings):
                     print("error: failed to edit page '%s'" % title)
 
