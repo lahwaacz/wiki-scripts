@@ -226,7 +226,11 @@ class PkgUpdater:
         if len(template.params) != 1:
             hint = "invalid number of template parameters"
 
-        param = template.get(1).value
+        try:
+            param = template.get(1).value
+        except ValueError:
+            raise TemplateParametersError(template)
+
         # strip whitespace for searching (spacing is preserved on the wiki)
         pkgname = param.strip()
 

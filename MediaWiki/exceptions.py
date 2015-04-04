@@ -31,3 +31,15 @@ class APIWarnings(BaseMediaWikiException):
     """ Raised when API response contains ``warnings`` attribute
     """
     pass
+
+class TemplateParametersError(BaseMediaWikiException):
+    """ Raised when parsing a template parameter failed.
+    """
+    def __init__(self, template):
+        self.message = "Failed to parse a template parameter. This likely indicates a " \
+                       "syntax error on the page.\n\n" \
+                       "Template text: '{}'\n\n" \
+                       "Parsed parameters: {}".format(template, template.params)
+
+    def __str__(self):
+        return self.message
