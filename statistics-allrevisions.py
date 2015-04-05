@@ -122,6 +122,47 @@ def create_histograms(revisions):
             fname="stub/hist_active_users.png")
 
 
+# TODO:
+#   consider marking end of current streak by yesterday's edits, in case the script is run just after UTC midnight
+#   record date of longest streak
+def get_streaks(revisions_iterator, today):
+    """
+    :param revisions_iterator: an iterator object yielding revision dictionaries for given user
+    """
+    longest_streak = 0
+    current_streak = 0
+    prev_date = None
+
+    def _date_getter(revision):
+        """ Return `datetime.date` object for given revision dictionary.
+        """
+        ts = parse_date(revision["timestamp"])
+        return datetime.date(ts.year, ts.month, ts.day)
+
+    # group revisions by date
+    date_groups = itertools.groupby(revisions_iterator, key=_date_getter)
+
+    for date, _ in date_groups:
+        # check if we start new streak or expand the current streak
+        if prev_date is not None and date - prev_date > datetime.timedelta(days=1):
+            current_streak = 1
+        else:
+            current_streak += 1
+
+        # continuously update longest streak
+        if current_streak > longest_streak:
+            longest_streak = current_streak
+
+        # save date
+        prev_date = date
+
+    # check if the last edit has been made on this UTC day
+    if today - date > datetime.timedelta(days=1):
+        current_streak = 0
+
+    return longest_streak, current_streak
+
+
 if __name__ == "__main__":
     # TODO: take command line arguments
     api_url = "https://wiki.archlinux.org/api.php"
@@ -130,13 +171,29 @@ if __name__ == "__main__":
     api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 
     db = cache.AllRevisionsProps(api)
-    create_histograms(db["revisions"])
+#    create_histograms(db["revisions"])
 
-#    import cProfile
-#    import pstats
-#    print("profiling started")
-#    cProfile.run("db.filter(GoodRevision, {})", "stub/restats.log")
-##    cProfile.run("db.update()", "stub/restats.log")
-#    p = pstats.Stats("stub/restats.log")
-#    p.sort_stats("time").print_stats(30)
-#    p.sort_stats("cumulative").print_stats(30)
+
+    from pprint import pprint
+    import itertools
+    import datetime
+
+    # current UTC date
+    utcnow = datetime.datetime.utcnow()
+    today = datetime.date(utcnow.year, utcnow.month, utcnow.day)
+
+    # sort revisions by multiple keys: 1. user, 2. timestamp
+    # this way we can group the list by users and iterate through user_revisions to
+    # calculate all streaks, record the longest streak and determine the current streak
+    # at the end (the last calculated streak or 0)
+    revisions = sorted(db["revisions"], key=lambda r: (r["user"], r["timestamp"]))
+    revisions_groups = itertools.groupby(revisions, key=lambda r: r["user"])
+    streaks = []
+    for user, user_revisions in revisions_groups:
+        longest, current = get_streaks(user_revisions, today)
+        # limit the results
+        if longest > 1 or current > 1:
+            streaks.append({"user": user, "longest": longest, "current": current})
+
+#    pprint(sorted(streaks, key=lambda streak: streak["current"]))
+    pprint(sorted(streaks, key=lambda streak: streak["longest"]))
