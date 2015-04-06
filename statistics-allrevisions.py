@@ -136,34 +136,39 @@ def get_streaks(revisions_iterator, today):
     """
     longest_streak = 0
     current_streak = 0
-    prev_date = None
 
-    def _date_getter(revision):
-        """ Return `datetime.date` object for given revision dictionary.
+    def _streak(revision):
+        """ Return streak ID number for given revision.
+            Side effect: revision["timestamp"] is parsed and replaced with `datetime.date` object
         """
         ts = parse_date(revision["timestamp"])
-        return datetime.date(ts.year, ts.month, ts.day)
+        date = datetime.date(ts.year, ts.month, ts.day)
+        revision["timestamp"] = date
 
-    # group revisions by date
-    date_groups = itertools.groupby(revisions_iterator, key=_date_getter)
+        # check if new streak starts
+        if _streak.prev_date is None or date - _streak.prev_date > datetime.timedelta(days=1):
+            _streak.id += 1
 
-    for date, _ in date_groups:
-        # check if we start new streak or expand the current streak
-        if prev_date is not None and date - prev_date > datetime.timedelta(days=1):
-            current_streak = 1
-        else:
-            current_streak += 1
+        _streak.prev_date = date
+        return _streak.id
+
+    _streak.prev_date = None
+    _streak.id = 0
+
+    # group revisions by streaks
+    streak_groups = itertools.groupby(revisions_iterator, key=_streak)
+
+    for _, streak in streak_groups:
+        streak = list(streak)
+        current_streak = (streak[-1]["timestamp"] - streak[0]["timestamp"]).days + 1
 
         # continuously update longest streak
         if current_streak > longest_streak:
             longest_streak = current_streak
 
-        # save date
-        prev_date = date
-
-    # check if the last edit has been made on this UTC day
-    if today - date > datetime.timedelta(days=1):
-        current_streak = 0
+        # check if the last edit has been made on this UTC day
+        if today - streak[-1]["timestamp"] > datetime.timedelta(days=1):
+            current_streak = 0
 
     return longest_streak, current_streak
 
