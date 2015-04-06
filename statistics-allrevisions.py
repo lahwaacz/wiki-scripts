@@ -123,11 +123,16 @@ def create_histograms(revisions):
 
 
 # TODO:
-#   consider marking end of current streak by yesterday's edits, in case the script is run just after UTC midnight
 #   record date of longest streak
 def get_streaks(revisions_iterator, today):
     """
+    Calculate the longest and current streak based on given user's revisions. Streaks are
+    recognized based on UTC day, but edits made UTC-yesterday are counted into the current
+    streak. This way running the script just after UTC midnight will not reset current
+    streaks to 0.
+
     :param revisions_iterator: an iterator object yielding revision dictionaries for given user
+    :returns: (longest, current) tuple of streak values (in days)
     """
     longest_streak = 0
     current_streak = 0
