@@ -217,7 +217,7 @@ class _UserStats:
         self.text = text.get_sections(matches="User statistics", flat=True,
                                 include_lead=False, include_headings=False)[0]
 
-        if not api.has_high_limits():
+        if not api.has_right("apihighlimits"):
             self.ULIMIT = 50
         else:
             self.ULIMIT = 500

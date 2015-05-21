@@ -84,15 +84,6 @@ class API(Connection):
             self._user_rights = result["userinfo"]["rights"]
         return right in self._user_rights
 
-    def has_high_limits(self):
-        """
-        Checks if the current user has the ``apihighlimits`` right.
-
-        :return: True if ``apihighlimits`` is available
-        """
-        # TODO: deprecate this method?
-        return self.has_right("apihighlimits")
-
     def logout(self):
         """
         Logs out of the wiki.
@@ -198,7 +189,7 @@ class API(Connection):
             return (list_[i:i+bs] for i in range(0, len(list_), bs))
 
         # check if we have apihighlimits and set the limit accordingly
-        limit = 500 if self.has_high_limits() else 50
+        limit = 500 if self.has_right("apihighlimits") else 50
 
         # resolve by chunks
         redirects = []

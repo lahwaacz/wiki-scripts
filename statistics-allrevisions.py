@@ -37,7 +37,7 @@ def fetch_revisions(first, last):
     badrevids = []
     revisions = []
 
-    limit = 500 if api.has_high_limits() else 50
+    limit = 500 if api.has_right("apihighlimits") else 50
 
     for snippet in list_chunks(range(first, last+1), limit):
         print("Fetching revids %s-%s" % (snippet[0], snippet[-1]))
