@@ -19,7 +19,7 @@ for ns in ["0", "4", "12"]:
     pageids.extend(_pageids)
 
 # resolve redirects
-redirects = api.resolve_redirects(pageids)
+redirects = api.resolve_redirects(*pageids)
 
 
 # according to ArchWiki standards, the title must be sentence-case (if it is not an acronym)

@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import hashlib
+from functools import lru_cache
 
 from .connection import Connection
 from .exceptions import *
@@ -22,7 +23,6 @@ class API(Connection):
 
     def __init__(self, api_url, **kwargs):
         super().__init__(api_url, **kwargs)
-        self._is_loggedin = None
         self._user_rights = None
 
     def login(self, username, password):
@@ -59,20 +59,23 @@ class API(Connection):
             else:
                 return False
 
-        self._is_loggedin = do_login(self, username, password)
-        return self._is_loggedin
+        # clear cache on self.is_loggedin
+        self.is_loggedin.cache_clear()
+        # TODO: clear self._user_rights
 
+        return do_login(self, username, password)
+
+    @lru_cache(maxsize=None)
     def is_loggedin(self):
         """
         Checks if the current session is authenticated.
 
         :returns: True if the session is authenticated
         """
-        if self._is_loggedin is None:
-            result = self.call(action="query", meta="userinfo")
-            self._is_loggedin = "anon" not in result["userinfo"]
-        return self._is_loggedin
+        result = self.call(action="query", meta="userinfo")
+        return "anon" not in result["userinfo"]
 
+    # TODO: use @lru_cache
     def has_right(self, right):
         """
         Checks if the current user has the specified right.
@@ -164,14 +167,17 @@ class API(Connection):
             #        {"title": ...
             yield from snippet[list_]
 
-    def resolve_redirects(self, pageids):
+    @lru_cache(maxsize=8)
+    def resolve_redirects(self, *pageids):
         """
         Resolve redirect titles according to the `MediaWiki's API`_. List of redirect
         pages must be obtained other way (for example by using
         ``generator=allpages&gapfilterredir=redirects`` query), or just use this
         method if unsure.
 
-        :param pageids: list of page IDs to resolve
+        :param *pageids: unpacked list of page IDs to resolve (i.e. call this method
+                         as ``resolve_redirects(*list)`` or
+                         ``resolve_redirects(pageid1, pageid2, ...)``)
         :returns: ``redirects`` part of the API response concatenated into one list
 
         .. _`MediaWiki's API`: https://www.mediawiki.org/wiki/API:Query#Resolving_redirects

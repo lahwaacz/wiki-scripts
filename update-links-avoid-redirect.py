@@ -41,7 +41,7 @@ for page in sorted(pages, key=lambda x: x["title"]):
     links = [link for link in links if link.get("redirect") is not None]
 
     # resolve redirects
-    redirects = api.resolve_redirects([str(link["pageid"]) for link in links])
+    redirects = api.resolve_redirects(*[str(link["pageid"]) for link in links])
 
     # limit to redirects whose source and target title differ only in capitalization
     redirects = [r for r in redirects if r["from"].lower() == r["to"].lower()]
