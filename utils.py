@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from datetime import datetime
+import datetime
 
 def parse_date(date):
     """
@@ -20,8 +20,8 @@ def parse_date(date):
     # (see $formats in wfTimestamp() in includes/GlobalFunctions.php)
 
     # strptime is slooow!
-    #return datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
-    return datetime(int(date[:4]), int(date[5:7]), int(date[8:10]),
+    #return datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
+    return datetime.datetime(int(date[:4]), int(date[5:7]), int(date[8:10]),
             int(date[11:13]), int(date[14:16]), int(date[17:19]))
 
 # flatten _shallow_ list
