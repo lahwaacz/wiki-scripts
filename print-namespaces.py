@@ -9,10 +9,8 @@ cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
 api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 
-
-meta = api.call(action="query", meta="siteinfo", siprop="namespaces")
-namespaces = meta["namespaces"].values()
-for ns in sorted(namespaces, key=lambda x: x["id"]):
-    if ns["*"] == "":
-        ns["*"] = "Main"
-    print("  %2d -- %s" % (ns["id"], ns["*"]))
+for id_ in sorted(api.namespaces().keys()):
+    ns = api.namespaces()[id_]
+    if ns == "":
+        ns = "Main"
+    print("  %2d -- %s" % (id_, ns))

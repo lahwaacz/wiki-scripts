@@ -25,25 +25,10 @@ for ns in ["1", "5", "13"]:
     pages = api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns)
     talks.extend([page["title"] for page in pages])
 
-# we will need to split the namespace prefix to compare pure titles across namespaces
-# TODO: refactoring (this is a generic function, but needs the list of namespaces)
-def detect_namespace(title):
-    """ Detect namespace of a given title.
-    """
-    # NOTE: namespaces hardcoded for ArchWiki
-    _namespaces = ['Help talk', 'Talk', 'Media', 'File', 'ArchWiki talk', 'MediaWiki', 'File talk', 'Template', 'Category talk', 'User', 'Help', 'Special', 'Category', 'Template talk', 'User talk', 'ArchWiki', 'MediaWiki talk']
-    try:
-        _ns, _pure = title.split(":", 1)
-        if _ns in _namespaces:
-            return _ns, _pure
-    except ValueError:
-        pass
-    return "Main", title
-
 # print talk pages associated to a redirect page
 for title in sorted(redirect_titles):
-    namespace, pure_title = detect_namespace(title)
-    talk_prefix = namespace + " talk:" if namespace != "Main" else "Talk:"
+    namespace, pure_title = api.detect_namespace(title)
+    talk_prefix = namespace + " talk:" if namespace != "" else "Talk:"
     talk = talk_prefix + pure_title
     if talk in talks:
         print("* [[%s]]" % talk)

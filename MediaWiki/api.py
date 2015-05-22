@@ -100,6 +100,40 @@ class API(Connection):
         return True
 
 
+    @lru_cache(maxsize=None)
+    def namespaces(self):
+        """
+        Fetch namespaces for the wiki. The results are cached so subsequent
+        calls are cheap.
+
+        :returns: mapping (dictionary) of namespace IDs to their names
+        """
+        result = self.call(action="query", meta="siteinfo", siprop="namespaces")
+        namespaces = result["namespaces"].values()
+        return dict( (ns["id"], ns["*"]) for ns in namespaces )
+
+    def detect_namespace(self, title):
+        """
+        Detect namespace of a given title, useful to compare pure titles across
+        namespaces.
+
+        :param title: the full title of a wiki page
+        :returns: A `(namespace, pure_title)` tuple. Underscores are replaced with
+                  spaces in `namespace`, but `pure_title` corresponds to the input
+                  (underscores and spaces are preserved). The main namespace is
+                  identified as an empty string.
+        """
+        try:
+            ns, pure = title.split(":", 1)
+            ns = ns.replace("_", " ")
+            if ns in self.namespaces():
+                return ns, pure
+        except ValueError:
+            # ValueError is raised when unpacking fails
+            pass
+        return "", title
+
+
     def query_continue(self, params=None, **kwargs):
         """
         Generator for MediaWiki's query-continue feature.
