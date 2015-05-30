@@ -1,5 +1,9 @@
 #! /usr/bin/env python3
 
+# FIXME:
+#   how hard is skipping code blocks? https://wiki.archlinux.org/index.php?title=Silent_boot&diff=376237&oldid=372833
+#   extra formatting inside links is not handled properly https://wiki.archlinux.org/index.php?title=Window_manager&diff=376305&oldid=375161
+
 import argparse
 import os.path
 import re
