@@ -70,7 +70,10 @@ class LinkChecker:
         try:
             _title, _section = wikilink.title.split("#", maxsplit=1)
             if title.matches(_title):
-                wikilink.title = mwparserfromhell.wikicode.Wikicode("#" + _section)
+                # FIXME: should be Wikicode, parse creates a list
+#                wikilink.title = mwparserfromhell.wikicode.Wikicode("#" + _section)
+                # space before # avoids parsing as list, it is stripped later
+                wikilink.title = mwparserfromhell.parse(" #" + _section)
         except ValueError:
             # raised when unpacking failed
             pass
@@ -161,7 +164,7 @@ class LinkChecker:
         timestamp = page["revisions"][0]["timestamp"]
         text_old = page["revisions"][0]["*"]
         text_new = self.update_page(title, text_old)
-        if text != wikicode:
+        if text_old != text_new:
             try:
                 edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
 #                self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
