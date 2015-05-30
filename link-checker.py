@@ -107,6 +107,34 @@ class LinkChecker:
                 wikilink.title = wikilink.text
                 wikilink.text = None
 
+    def collapse_whitespace(self, wikicode, wikilink):
+        """
+        Attempt to fix spacing around wiki links after the substitutions.
+        """
+        parent, _ = wikicode._do_strong_search(wikilink, True)
+        index = parent.index(wikilink)
+
+        def _get_text(index):
+            try:
+                node = parent.get(index)
+                if not isinstance(node, mwparserfromhell.nodes.text.Text):
+                    return None
+                return node
+            except IndexError:
+                return None
+
+        prev = _get_text(index - 1)
+        next_ = _get_text(index)
+
+        if prev is not None and prev.endswith(" "):
+            if wikilink.title.startswith(" "):
+                wikilink.title = wikilink.title.lstrip()
+        if next_ is not None and next_.startswith(" "):
+            if wikilink.text is not None and wikilink.text.endswith(" "):
+                wikilink.text = wikilink.text.rstrip()
+            elif wikilink.text is None and wikilink.title.endswith(" "):
+                wikilink.title = wikilink.title.rstrip()
+
     def update_page(self, title, text):
         """
         Parse the content of the page and call various methods to update the links.
@@ -122,6 +150,8 @@ class LinkChecker:
             self.check_trivial(wikilink)
             self.check_relative(wikilink, title)
             self.check_redirect_exact(wikilink)
+            # fix spacing, e.g. after substitution '[[foo | bar]]' -> '[[ bar]]'
+            self.collapse_whitespace(wikicode, wikilink)
 
         return str(wikicode)
 
