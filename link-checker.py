@@ -3,12 +3,13 @@
 import argparse
 import os.path
 import re
-from pprint import pprint
 
 import mwparserfromhell
 
 from MediaWiki import API, diff_highlighted
+from MediaWiki.exceptions import *
 from MediaWiki.interactive import *
+import ArchWiki.lang as lang
 
 class LinkChecker:
     def __init__(self, api):
@@ -41,7 +42,16 @@ class LinkChecker:
         :param wikilink: instance of `mwparserfromhell.nodes.wikilink.Wikilink`
                          representing the link to be checked
         """
-        if wikilink.title.matches(wikilink.text):
+        # replace underscores, Wikicode.matches() does not do this
+        _link = mwparserfromhell.parse(wikilink)
+        try:
+            _link.replace("_", " ")
+        except ValueError:
+            # there is no underscore
+            pass
+        _link = _link.nodes[0]
+
+        if _link.title.matches(_link.text):
             # title is mandatory, so the text becomes the title
             wikilink.title = wikilink.text
             wikilink.text = None
@@ -60,7 +70,7 @@ class LinkChecker:
         try:
             _title, _section = wikilink.title.split("#", maxsplit=1)
             if title.matches(_title):
-                wikilink.title = mwparserfromhell.parse("#" + _section)
+                wikilink.title = mwparserfromhell.wikicode.Wikicode("#" + _section)
         except ValueError:
             # raised when unpacking failed
             pass
@@ -76,8 +86,12 @@ class LinkChecker:
         if wikilink.text is None:
             return
 
+        # canonicalize link parts
         _title = wikilink.title[0].upper() + wikilink.title[1:]
         _text = wikilink.text[0].upper() + wikilink.text[1:]
+        _title = _title.replace("_", " ")
+        _text = _text.replace("_", " ")
+
         target1 = self.redirects.get(_title)
         target2 = self.redirects.get(_text)
         if target1 is not None and target2 is not None:
@@ -101,6 +115,7 @@ class LinkChecker:
         :param text: content of the page (as `str`)
         :returns: updated content (as `str`)
         """
+        print("Parsing '%s'..." % title)
         wikicode = mwparserfromhell.parse(text)
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
@@ -124,10 +139,9 @@ class LinkChecker:
                 print("error: failed to edit page '%s'" % title)
 
     def process_allpages(self):
-        for page in self.api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", prop="revisions", rvprop="content|timestamp"):
+        for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", prop="revisions", rvprop="content|timestamp"):
             title = page["title"]
-            if title in self.blacklist_pages:
-                print("skipping blacklisted page '%s'" % title)
+            if lang.detect_language(title)[1] != "English":
                 continue
             timestamp = page["revisions"][0]["timestamp"]
             text_old = page["revisions"][0]["*"]
