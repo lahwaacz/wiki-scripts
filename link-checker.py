@@ -213,7 +213,7 @@ class LinkChecker:
             self.check_redirect_exact(wikilink)
             if self.interactive is True:
                 self.check_redirect_capitalization(wikilink)
-            # fix spacing, e.g. after substitution '[[foo | bar]]' -> '[[ bar]]'
+            # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
             self.collapse_whitespace(wikicode, wikilink)
 
         return str(wikicode)
