@@ -3,6 +3,7 @@
 # FIXME:
 #   how hard is skipping code blocks? https://wiki.archlinux.org/index.php?title=Silent_boot&diff=376237&oldid=372833
 #   extra formatting inside links is not handled properly https://wiki.archlinux.org/index.php?title=Window_manager&diff=376305&oldid=375161
+#   wikilink nodes (title + text) should always be wikicode, we are assigning str, which might cause trouble
 
 import argparse
 import os.path
@@ -33,6 +34,7 @@ class LinkChecker:
         self.backlink_namespaces = ["0", "4", "12"]
 
         # get list of pageids of redirect pages
+        print("Fetching redirects...")
         pageids = []
         for ns in self.backlink_namespaces:
             pages = api.generator(generator="allpages", gaplimit="max", gapfilterredir="redirects", gapnamespace=ns)
@@ -52,26 +54,25 @@ class LinkChecker:
     def check_trivial(self, wikilink):
         """
         Perform trivial simplification, replace `[[Foo|foo]]` with `[[foo]]`.
+        In interactive mode, underscores in the wikilink title are replaced with
+        spaces if there is no alternative text.
 
         :param wikilink: instance of `mwparserfromhell.nodes.wikilink.Wikilink`
                          representing the link to be checked
         """
-        # replace underscores, Wikicode.matches() does not do this
-        _link = mwparserfromhell.parse(wikilink)
-        try:
-            _link.replace("_", " ")
-        except ValueError:
-            # there is no underscore
-            pass
-        _link = _link.nodes[0]
-
         # Replacing underscores is not safe, do it only in interactive mode.
         # Also not replacing if there is an alternative text to avoid largescale edits;
         # underscores in alternative text are likely intentional so replace only the title.
         if self.interactive is True and wikilink.text is None:
-            wikilink.title = _link.title
+            try:
+                wikilink.title = str(wikilink.title).replace("_", " ")
+            except ValueError:
+                pass
 
-        if _link.title.matches(_link.text):
+        # Wikicode.matches() ignores even the '#' character indicating relative links;
+        # hence [[#foo|foo]] would be replaced with [[foo]]
+        # Our canonicalize() function does exactly what we want and need.
+        if wikilink.text is not None and canonicalize(wikilink.title) == canonicalize(wikilink.text):
             # title is mandatory, so the text becomes the title
             wikilink.title = wikilink.text
             wikilink.text = None
@@ -86,14 +87,10 @@ class LinkChecker:
         :param title: instance of `str` representing the title of the page being
                       checked
         """
-        title = mwparserfromhell.parse(title)
         try:
             _title, _section = wikilink.title.split("#", maxsplit=1)
-            if title.matches(_title):
-                # FIXME: should be Wikicode, parse creates a list
-#                wikilink.title = mwparserfromhell.wikicode.Wikicode("#" + _section)
-                # space before # avoids parsing as list, it is stripped later
-                wikilink.title = mwparserfromhell.parse(" #" + _section)
+            if _title and _section and canonicalize(title) == canonicalize(_title):
+                wikilink.title = "#" + _section
         except ValueError:
             # raised when unpacking failed
             pass
@@ -135,10 +132,22 @@ class LinkChecker:
         :param wikilink: instance of `mwparserfromhell.nodes.wikilink.Wikilink`
                          representing the link to be checked
         """
+        # TODO: strip fragment and append it again if replacing
         _title = canonicalize(wikilink.title)
         target = self.redirects.get(_title)
         if target is not None and target.lower() == _title.lower():
-            wikilink.title = mwparserfromhell.parse(target)
+            wikilink.title = target
+
+    def collapse_whitespace_pipe(self, wikilink):
+        """
+        Strip whitespace around the pipe in wikilinks.
+
+        :param wikilink: instance of `mwparserfromhell.nodes.wikilink.Wikilink`
+                         representing the link to be checked
+        """
+        if wikilink.text is not None:
+            wikilink.title = wikilink.title.rstrip()
+            wikilink.text = wikilink.text.lstrip()
 
     def collapse_whitespace(self, wikicode, wikilink):
         """
@@ -164,15 +173,11 @@ class LinkChecker:
         prev = _get_text(index - 1)
         next_ = _get_text(index)
 
-        if prev is not None and prev.endswith(" "):
+        if prev is not None and (prev.endswith(" ") or prev.endswith("\n")):
             wikilink.title = wikilink.title.lstrip()
+        if next_ is not None and (next_.startswith(" ") or next_.endswith("\n")):
             if wikilink.text is not None:
-                wikilink.title = wikilink.title.rstrip()
-                wikilink.text = wikilink.text.lstrip()
-        if next_ is not None and next_.startswith(" "):
-            if wikilink.text is not None:
-                wikilink.title = wikilink.title.rstrip()
-                wikilink.text = wikilink.text.strip()
+                wikilink.text = wikilink.text.rstrip()
             else:
                 wikilink.title = wikilink.title.rstrip()
 
@@ -188,6 +193,7 @@ class LinkChecker:
         wikicode = mwparserfromhell.parse(text)
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
+            self.collapse_whitespace_pipe(wikilink)
             self.check_trivial(wikilink)
             self.check_relative(wikilink, title)
             self.check_redirect_exact(wikilink)
