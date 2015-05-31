@@ -264,7 +264,7 @@ def arg_existing_dir(string):
 
 
 if __name__ == "__main__":
-    argparser = argparse.ArgumentParser(description="Update Pkg/AUR templates")
+    argparser = argparse.ArgumentParser(description="Parse all pages on the wiki and try to fix/simplify/beautify links")
 
     _api = argparser.add_argument_group(title="API parameters")
     _api.add_argument("--api-url", default="https://wiki.archlinux.org/api.php", metavar="URL",
