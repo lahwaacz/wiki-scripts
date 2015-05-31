@@ -15,6 +15,12 @@ from MediaWiki.exceptions import *
 from MediaWiki.interactive import *
 import ArchWiki.lang as lang
 
+def canonicalize(title):
+    title = title.strip()
+    title = title[0].upper() + title[1:]
+    title = title.replace("_", " ")
+    return title
+
 class LinkChecker:
     def __init__(self, api):
         self.api = api
@@ -94,10 +100,8 @@ class LinkChecker:
             return
 
         # canonicalize link parts
-        _title = wikilink.title[0].upper() + wikilink.title[1:]
-        _text = wikilink.text[0].upper() + wikilink.text[1:]
-        _title = _title.replace("_", " ")
-        _text = _text.replace("_", " ")
+        _title = canonicalize(wikilink.title)
+        _text = canonicalize(wikilink.text)
 
         target1 = self.redirects.get(_title)
         target2 = self.redirects.get(_text)
@@ -134,12 +138,15 @@ class LinkChecker:
         next_ = _get_text(index)
 
         if prev is not None and prev.endswith(" "):
-            if wikilink.title.startswith(" "):
-                wikilink.title = wikilink.title.lstrip()
+            wikilink.title = wikilink.title.lstrip()
+            if wikilink.text is not None:
+                wikilink.title = wikilink.title.rstrip()
+                wikilink.text = wikilink.text.lstrip()
         if next_ is not None and next_.startswith(" "):
-            if wikilink.text is not None and wikilink.text.endswith(" "):
-                wikilink.text = wikilink.text.rstrip()
-            elif wikilink.text is None and wikilink.title.endswith(" "):
+            if wikilink.text is not None:
+                wikilink.title = wikilink.title.rstrip()
+                wikilink.text = wikilink.text.strip()
+            else:
                 wikilink.title = wikilink.title.rstrip()
 
     def update_page(self, title, text):
