@@ -5,6 +5,13 @@
 #   extra formatting inside links is not handled properly https://wiki.archlinux.org/index.php?title=Window_manager&diff=376305&oldid=375161
 #   wikilink nodes (title + text) should always be wikicode, we are assigning str, which might cause trouble
 
+# TODO:
+#   extlink -> wikilink conversion should be done first
+#   URL-decoding (for page titles), dot-decoding (for sections)?
+#   skip interwiki links, categories, interlanguage links
+#   look at DISPLAYTITLE of the target page when replacing underscores (needs caching of latest revisions for performance)
+#   capitalization of fragments (needs caching of latest revisions for performance)
+
 import argparse
 import os.path
 import re
