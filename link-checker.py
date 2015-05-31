@@ -22,9 +22,10 @@ def canonicalize(title):
     return title
 
 class LinkChecker:
-    def __init__(self, api):
+    def __init__(self, api, interactive=False):
         self.api = api
-        self.edit_summary = "simplification of wikilinks (testing https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py)"
+        self.interactive = interactive
+        self.edit_summary = "simplification of wikilinks, fixing whitespace and capitalization, removing underscores (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py)"
         # namespaces of the links to be checked
         self.backlink_namespaces = ["0", "4", "12"]
 
@@ -60,6 +61,12 @@ class LinkChecker:
             # there is no underscore
             pass
         _link = _link.nodes[0]
+
+        # Replacing underscores is not safe, do it only in interactive mode.
+        # Also not replacing if there is an alternative text to avoid largescale edits;
+        # underscores in alternative text are likely intentional so replace only the title.
+        if self.interactive is True and wikilink.text is None:
+            wikilink.title = _link.title
 
         if _link.title.matches(_link.text):
             # title is mandatory, so the text becomes the title
@@ -118,9 +125,26 @@ class LinkChecker:
                 wikilink.title = wikilink.text
                 wikilink.text = None
 
+    def check_redirect_capitalization(self, wikilink):
+        """
+        Avoid redirect iff the difference is only in capitalization.
+
+        :param wikilink: instance of `mwparserfromhell.nodes.wikilink.Wikilink`
+                         representing the link to be checked
+        """
+        _title = canonicalize(wikilink.title)
+        target = self.redirects.get(_title)
+        if target is not None and target.lower() == _title.lower():
+            wikilink.title = mwparserfromhell.parse(target)
+
     def collapse_whitespace(self, wikicode, wikilink):
         """
         Attempt to fix spacing around wiki links after the substitutions.
+
+        :param wikicode: instance of `mwparserfromhell.wikicode.Wikicode`
+                         containing the wikilink
+        :param wikilink: instance of `mwparserfromhell.nodes.wikilink.Wikilink`
+                         representing the link to be checked
         """
         parent, _ = wikicode._do_strong_search(wikilink, True)
         index = parent.index(wikilink)
@@ -164,6 +188,8 @@ class LinkChecker:
             self.check_trivial(wikilink)
             self.check_relative(wikilink, title)
             self.check_redirect_exact(wikilink)
+            if self.interactive is True:
+                self.check_redirect_capitalization(wikilink)
             # fix spacing, e.g. after substitution '[[foo | bar]]' -> '[[ bar]]'
             self.collapse_whitespace(wikicode, wikilink)
 
@@ -192,8 +218,10 @@ class LinkChecker:
             text_new = self.update_page(title, text_old)
             if text_old != text_new:
                 try:
-                    edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-#                    self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+                    if self.interactive is False:
+                        self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+                    else:
+                        edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
                 except (APIError, APIWarnings):
                     print("error: failed to edit page '%s'" % title)
 
@@ -223,6 +251,10 @@ if __name__ == "__main__":
     _api.add_argument("--ssl-verify", default=1, choices=(0, 1),
             help="whether to verify SSL certificates (default: %(default)s)")
 
+    _script = argparser.add_argument_group(title="script parameters")
+    _script.add_argument("-i", "--interactive", action="store_true",
+            help="enables interactive mode")
+
     args = argparser.parse_args()
 
     # retype from int to bool
@@ -232,6 +264,6 @@ if __name__ == "__main__":
     # ensure that we are authenticated
     require_login(api)
 
-    checker = LinkChecker(api)
+    checker = LinkChecker(api, args.interactive)
 #    checker.process_page("NVIDIA")
     checker.process_allpages()
