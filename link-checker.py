@@ -132,11 +132,19 @@ class LinkChecker:
         :param wikilink: instance of `mwparserfromhell.nodes.wikilink.Wikilink`
                          representing the link to be checked
         """
-        # TODO: strip fragment and append it again if replacing
-        _title = canonicalize(wikilink.title)
-        target = self.redirects.get(_title)
-        if target is not None and target.lower() == _title.lower():
-            wikilink.title = target
+        try:
+            _title, _section = wikilink.title.split("#", maxsplit=1)
+        except:
+            _title = wikilink.title
+            _section = None
+        # might be only a section, e.g. [[#foo]]
+        if _title:
+            _title = canonicalize(_title)
+            target = self.redirects.get(_title)
+            if target is not None and target.lower() == _title.lower():
+                wikilink.title = target
+                if _section:
+                    wikilink.title = str(wikilink.title) + "#" + _section
 
     def collapse_whitespace_pipe(self, wikilink):
         """
