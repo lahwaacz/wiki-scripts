@@ -225,30 +225,28 @@ class LinkChecker:
         timestamp = page["revisions"][0]["timestamp"]
         text_old = page["revisions"][0]["*"]
         text_new = self.update_page(title, text_old)
-        if text_old != text_new:
-            try:
-                edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-#                self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
-            except (APIError, APIWarnings):
-                print("error: failed to edit page '%s'" % title)
+        self._edit(title, page["pageid"], text_new, text_old, timestamp)
 
-    def process_allpages(self):
-        for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", prop="revisions", rvprop="content|timestamp"):
+    def process_allpages(self, apfrom=None):
+        for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapfrom=apfrom, prop="revisions", rvprop="content|timestamp"):
             title = page["title"]
             if lang.detect_language(title)[1] != "English":
                 continue
             timestamp = page["revisions"][0]["timestamp"]
             text_old = page["revisions"][0]["*"]
             text_new = self.update_page(title, text_old)
-            if text_old != text_new:
-                print("Editing '%s'" % title)
-                try:
-                    if self.interactive is False:
-                        self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
-                    else:
-                        edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-                except (APIError, APIWarnings):
-                    print("error: failed to edit page '%s'" % title)
+            self._edit(title, page["pageid"], text_new, text_old, timestamp)
+
+    def _edit(self, title, pageid, text_new, text_old, timestamp):
+        if text_old != text_new:
+            print("Editing '%s'" % title)
+            try:
+                if self.interactive is False:
+                    self.api.edit(pageid, text_new, timestamp, self.edit_summary, bot="")
+                else:
+                    edit_interactive(self.api, pageid, text_old, text_new, timestamp, self.edit_summary, bot="")
+            except (APIError, APIWarnings):
+                print("error: failed to edit page '%s'" % title)
 
 
 # any path, the dirname part must exist (e.g. path to a file that will be created in the future)
@@ -279,6 +277,11 @@ if __name__ == "__main__":
     _script = argparser.add_argument_group(title="script parameters")
     _script.add_argument("-i", "--interactive", action="store_true",
             help="enables interactive mode")
+    _mode = _script.add_mutually_exclusive_group()
+    _mode.add_argument("--first", default=None, metavar="TITLE",
+            help="the title of the first page to be processed")
+    _mode.add_argument("--title",
+            help="the title of the only page to be processed")
 
     args = argparser.parse_args()
 
@@ -290,5 +293,7 @@ if __name__ == "__main__":
     require_login(api)
 
     checker = LinkChecker(api, args.interactive)
-#    checker.process_page("NVIDIA")
-    checker.process_allpages()
+    if args.title:
+        checker.process_page(args.title)
+    else:
+        checker.process_allpages(apfrom=args.first)
