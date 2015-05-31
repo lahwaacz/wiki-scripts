@@ -25,7 +25,10 @@ class LinkChecker:
     def __init__(self, api, interactive=False):
         self.api = api
         self.interactive = interactive
-        self.edit_summary = "simplification of wikilinks, fixing whitespace and capitalization, removing underscores (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py)"
+        if interactive is True:
+            self.edit_summary = "simplification of wikilinks, fixing whitespace and capitalization, removing underscores (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py (interactive))"
+        else:
+            self.edit_summary = "simplification of wikilinks, fixing whitespace (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py)"
         # namespaces of the links to be checked
         self.backlink_namespaces = ["0", "4", "12"]
 
@@ -217,6 +220,7 @@ class LinkChecker:
             text_old = page["revisions"][0]["*"]
             text_new = self.update_page(title, text_old)
             if text_old != text_new:
+                print("Editing '%s'" % title)
                 try:
                     if self.interactive is False:
                         self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
