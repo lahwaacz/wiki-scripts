@@ -177,8 +177,8 @@ class API(Connection):
             # for example:  snippet === {"pages":
             #       {"9693": {"title": "Page title", "ns": 0, "pageid": "9693"},
             #        "1165", {"title": ...
-            for _, page in snippet["pages"].items():
-                yield page
+            snippet = sorted(snippet["pages"].values(), key=lambda d: d["title"])
+            yield from snippet
 
     def list(self, params=None, **kwargs):
         """
