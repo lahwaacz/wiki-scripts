@@ -31,9 +31,9 @@ def RateLimited(rate, per):
         # globals for the decorator
         # defined as lists to avoid problems with the 'global' keyword
         allowance = [rate]
-        last_check = [time.clock()]
+        last_check = [time.time()]
         def rate_limit_func(*args, **kargs):
-            current = time.clock()
+            current = time.time()
             time_passed = current - last_check[0]
             last_check[0] = current
             allowance[0] += time_passed * (rate / per)
@@ -43,7 +43,7 @@ def RateLimited(rate, per):
                 # the original used    to_sleep = (1 - allowance[0]) * (per / rate)
                 # but we want longer timeout after burst limit is exceeded
                 to_sleep = (1 - allowance[0]) * per
-                print("rate limit exceeded, sleeping for %0.3f seconds" % to_sleep)
+                print("rate limit for function {} exceeded, sleeping for {:0.3f} seconds".format(func, to_sleep))
                 time.sleep(to_sleep)
                 ret = func(*args, **kargs)
                 allowance[0] = rate
