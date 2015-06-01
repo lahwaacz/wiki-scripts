@@ -292,7 +292,10 @@ if __name__ == "__main__":
     require_login(api)
 
     checker = LinkChecker(api, args.interactive)
-    if args.title:
-        checker.process_page(args.title)
-    else:
-        checker.process_allpages(apfrom=args.first)
+    try:
+        if args.title:
+            checker.process_page(args.title)
+        else:
+            checker.process_allpages(apfrom=args.first)
+    except InteractiveQuit:
+        pass
