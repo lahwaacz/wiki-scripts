@@ -94,7 +94,7 @@ class LinkChecker:
                       checked
         """
         try:
-            _title, _section = wikilink.title.split("#", maxsplit=1)
+            _title, _section = wikilink.title.strip().split("#", maxsplit=1)
             if _title and _section and canonicalize(title) == canonicalize(_title):
                 if self.interactive is True:
                     _section = _section.replace("_", " ")
@@ -141,7 +141,7 @@ class LinkChecker:
                          representing the link to be checked
         """
         try:
-            _title, _section = wikilink.title.split("#", maxsplit=1)
+            _title, _section = wikilink.title.strip().split("#", maxsplit=1)
         except:
             _title = wikilink.title
             _section = None
