@@ -209,10 +209,10 @@ class LinkChecker:
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
             self.collapse_whitespace_pipe(wikilink)
             self.check_trivial(wikilink)
-            self.check_relative(wikilink, title)
             self.check_redirect_exact(wikilink)
             if self.interactive is True:
                 self.check_redirect_capitalization(wikilink)
+            self.check_relative(wikilink, title)
             # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
             self.collapse_whitespace(wikicode, wikilink)
 
