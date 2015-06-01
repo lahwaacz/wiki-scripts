@@ -96,6 +96,8 @@ class LinkChecker:
         try:
             _title, _section = wikilink.title.split("#", maxsplit=1)
             if _title and _section and canonicalize(title) == canonicalize(_title):
+                if self.interactive is True:
+                    _section = _section.replace("_", " ")
                 wikilink.title = "#" + _section
         except ValueError:
             # raised when unpacking failed
@@ -150,6 +152,8 @@ class LinkChecker:
             if target is not None and target.lower() == _title.lower():
                 wikilink.title = target
                 if _section:
+                    if self.interactive is True:
+                        _section = _section.replace("_", " ")
                     wikilink.title = str(wikilink.title) + "#" + _section
 
     def collapse_whitespace_pipe(self, wikilink):
