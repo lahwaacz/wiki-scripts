@@ -65,11 +65,6 @@ class DumpGenerator:
         if isinstance(self.session.cookies, cookielib.FileCookieJar):
             self.session.cookies.save()
 
-    def _get_namespaces_ids(self):
-        meta = self.api.call(action="query", meta="siteinfo", siprop="namespaces")
-        namespaces = meta["namespaces"].values()
-        return [ns["id"] for ns in namespaces if ns["id"] >= 0]
-
     def dump(self, outfile, timestamp_start):
         datetime.strptime(timestamp_start, '%Y-%m-%dT%H:%M:%SZ')
         try:
@@ -80,7 +75,8 @@ class DumpGenerator:
 
         print("Fetching list of all pages...")
         pages = []
-        for ns in self._get_namespaces_ids():
+        namespaces = [ns for ns in self.api.namespaces().keys() if ns >= 0]
+        for ns in namespaces:
             pages += list([page["title"] for page in self.api.generator(generator="allpages", gaplimit="max", gapnamespace=ns)])
 
         print("Calling Special:Export...")
