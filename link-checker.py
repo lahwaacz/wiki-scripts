@@ -86,7 +86,8 @@ class LinkChecker:
     def check_relative(self, wikilink, title):
         """
         Use relative links whenever possible. For example, links to sections such as
-        `[[Foo#Bar]]` on a page `Foo` are replaced with `[[#Bar]]`.
+        `[[Foo#Bar]]` on a page `title` are replaced with `[[#Bar]]` whenever `Foo`
+        redirects to or is equivalent to `title`.
 
         :param wikilink: instance of `mwparserfromhell.nodes.wikilink.Wikilink`
                          representing the link to be checked
@@ -95,10 +96,16 @@ class LinkChecker:
         """
         try:
             _title, _section = wikilink.title.strip().split("#", maxsplit=1)
-            if _title and _section and canonicalize(title) == canonicalize(_title):
-                if self.interactive is True:
-                    _section = _section.replace("_", " ")
-                wikilink.title = "#" + _section
+            if _title and _section:
+                # check if _title is a redirect
+                target = self.redirects.get(_title)
+                if target:
+                    _title = target.split("#", maxsplit=1)[0]
+
+                if canonicalize(title) == canonicalize(_title):
+                    if self.interactive is True:
+                        _section = _section.replace("_", " ")
+                    wikilink.title = "#" + _section
         except ValueError:
             # raised when unpacking failed
             pass
@@ -219,10 +226,10 @@ class LinkChecker:
 
             self.collapse_whitespace_pipe(wikilink)
             self.check_trivial(wikilink)
+            self.check_relative(wikilink, title)
             self.check_redirect_exact(wikilink)
             if self.interactive is True:
                 self.check_redirect_capitalization(wikilink)
-            self.check_relative(wikilink, title)
             # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
             self.collapse_whitespace(wikicode, wikilink)
 
