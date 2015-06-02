@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # FIXME:
-#   how hard is skipping code blocks? https://wiki.archlinux.org/index.php?title=Silent_boot&diff=376237&oldid=372833
+#   how hard is skipping code blocks?
 #   wikilink nodes (title + text) should always be wikicode, we are assigning str, which might cause trouble
 
 # TODO:
@@ -211,6 +211,12 @@ class LinkChecker:
         wikicode = mwparserfromhell.parse(text)
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
+            # At least on ArchWiki, '<' and '>' are not allowed in titles per default
+            # $wgLegalTitleChars (see http://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars )
+            # but mwparserfromhell allows them. Skip them manually for now...
+            if "<" in wikilink.title or ">" in wikilink.title:
+                continue
+
             self.collapse_whitespace_pipe(wikilink)
             self.check_trivial(wikilink)
             self.check_redirect_exact(wikilink)
