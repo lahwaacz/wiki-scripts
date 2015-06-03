@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ArchWiki package &mdash; wiki-scripts 0.4 documentation</title>
+    <title>ArchWiki package &mdash; wiki-scripts 0.5 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.4',
+        VERSION:     '0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,10 +23,10 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="wiki-scripts 0.4 documentation" href="index.html" /> 
+    <link rel="top" title="wiki-scripts 0.5 documentation" href="index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -35,14 +35,14 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="index.html">wiki-scripts 0.4 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wiki-scripts 0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="archwiki-package">
 <h1>ArchWiki package<a class="headerlink" href="#archwiki-package" title="Permalink to this headline">¶</a></h1>
@@ -51,13 +51,13 @@
 </div>
 <div class="section" id="module-ArchWiki.lang">
 <span id="archwiki-lang-module"></span><h2>ArchWiki.lang module<a class="headerlink" href="#module-ArchWiki.lang" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="#module-ArchWiki.lang" title="ArchWiki.lang"><tt class="xref py py-mod docutils literal"><span class="pre">ArchWiki.lang</span></tt></a> submodule contains multiple functions related to
+<p>The <a class="reference internal" href="#module-ArchWiki.lang" title="ArchWiki.lang"><code class="xref py py-mod docutils literal"><span class="pre">ArchWiki.lang</span></code></a> submodule contains multiple functions related to
 ArchWiki specific way of setting localized page titles, handling of categories
 for localized pages etc.</p>
 <p>See the documentation on <a class="reference external" href="https://wiki.archlinux.org/index.php/Help:I18n">Help:i18n</a> on ArchWiki for the specification.</p>
 <dl class="function">
 <dt id="ArchWiki.lang.detect_language">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">detect_language</tt><big>(</big><em>title</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.detect_language" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">detect_language</code><span class="sig-paren">(</span><em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.detect_language" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detect language of a given title. The matching is case-sensitive and spaces are
 treated the same way as underscores.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -74,97 +74,97 @@ treated the same way as underscores.</p>
 
 <dl class="function">
 <dt id="ArchWiki.lang.english_for_langname">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">english_for_langname</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.english_for_langname" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">english_for_langname</code><span class="sig-paren">(</span><em>lang</em><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.english_for_langname" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.english_for_tag">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">english_for_tag</tt><big>(</big><em>tag</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.english_for_tag" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">english_for_tag</code><span class="sig-paren">(</span><em>tag</em><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.english_for_tag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.get_category_languages">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_category_languages</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_category_languages" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">get_category_languages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.get_category_languages" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.get_english_language_names">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_english_language_names</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_english_language_names" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">get_english_language_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.get_english_language_names" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.get_external_tags">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_external_tags</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_external_tags" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">get_external_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.get_external_tags" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.get_internal_tags">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_internal_tags</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_internal_tags" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">get_internal_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.get_internal_tags" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.get_language_names">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_language_names</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_language_names" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">get_language_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.get_language_names" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.get_language_tags">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_language_tags</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_language_tags" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">get_language_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.get_language_tags" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.get_local_language">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">get_local_language</tt><big>(</big><big>)</big><a class="headerlink" href="#ArchWiki.lang.get_local_language" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">get_local_language</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.get_local_language" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.is_category_language">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">is_category_language</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.is_category_language" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">is_category_language</code><span class="sig-paren">(</span><em>lang</em><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.is_category_language" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.is_english_language_name">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">is_english_language_name</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.is_english_language_name" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">is_english_language_name</code><span class="sig-paren">(</span><em>lang</em><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.is_english_language_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.is_external_tag">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">is_external_tag</tt><big>(</big><em>tag</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.is_external_tag" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">is_external_tag</code><span class="sig-paren">(</span><em>tag</em><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.is_external_tag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.is_internal_tag">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">is_internal_tag</tt><big>(</big><em>tag</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.is_internal_tag" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">is_internal_tag</code><span class="sig-paren">(</span><em>tag</em><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.is_internal_tag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.is_language_name">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">is_language_name</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.is_language_name" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">is_language_name</code><span class="sig-paren">(</span><em>lang</em><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.is_language_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.is_language_tag">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">is_language_tag</tt><big>(</big><em>tag</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.is_language_tag" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">is_language_tag</code><span class="sig-paren">(</span><em>tag</em><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.is_language_tag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.langname_for_english">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">langname_for_english</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.langname_for_english" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">langname_for_english</code><span class="sig-paren">(</span><em>lang</em><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.langname_for_english" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.langname_for_tag">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">langname_for_tag</tt><big>(</big><em>tag</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.langname_for_tag" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">langname_for_tag</code><span class="sig-paren">(</span><em>tag</em><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.langname_for_tag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.tag_for_english">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">tag_for_english</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.tag_for_english" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">tag_for_english</code><span class="sig-paren">(</span><em>lang</em><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.tag_for_english" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ArchWiki.lang.tag_for_langname">
-<tt class="descclassname">ArchWiki.lang.</tt><tt class="descname">tag_for_langname</tt><big>(</big><em>lang</em><big>)</big><a class="headerlink" href="#ArchWiki.lang.tag_for_langname" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ArchWiki.lang.</code><code class="descname">tag_for_langname</code><span class="sig-paren">(</span><em>lang</em><span class="sig-paren">)</span><a class="headerlink" href="#ArchWiki.lang.tag_for_langname" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -178,7 +178,7 @@ treated the same way as underscores.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
@@ -190,12 +190,14 @@ treated the same way as underscores.</p>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/ArchWiki.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ArchWiki.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -212,7 +214,7 @@ treated the same way as underscores.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -221,12 +223,12 @@ treated the same way as underscores.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="index.html">wiki-scripts 0.4 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wiki-scripts 0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2014, lahwaacz.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>MediaWiki package &mdash; wiki-scripts 0.4 documentation</title>
+    <title>MediaWiki package &mdash; wiki-scripts 0.5 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.4',
+        VERSION:     '0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,11 +23,11 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="wiki-scripts 0.4 documentation" href="index.html" />
+    <link rel="top" title="wiki-scripts 0.5 documentation" href="index.html" />
     <link rel="prev" title="Welcome to wiki-scripts’ documentation!" href="index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -39,14 +39,14 @@
         <li class="right" >
           <a href="index.html" title="Welcome to wiki-scripts’ documentation!"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">wiki-scripts 0.4 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wiki-scripts 0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="mediawiki-package">
 <h1>MediaWiki package<a class="headerlink" href="#mediawiki-package" title="Permalink to this headline">¶</a></h1>
@@ -57,8 +57,8 @@
 <span id="mediawiki-api-module"></span><h2>MediaWiki.api module<a class="headerlink" href="#module-MediaWiki.api" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="MediaWiki.api.API">
-<em class="property">class </em><tt class="descclassname">MediaWiki.api.</tt><tt class="descname">API</tt><big>(</big><em>api_url</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#MediaWiki.api.API" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#MediaWiki.connection.Connection" title="MediaWiki.connection.Connection"><tt class="xref py py-class docutils literal"><span class="pre">MediaWiki.connection.Connection</span></tt></a></p>
+<em class="property">class </em><code class="descclassname">MediaWiki.api.</code><code class="descname">API</code><span class="sig-paren">(</span><em>api_url</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.api.API" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#MediaWiki.connection.Connection" title="MediaWiki.connection.Connection"><code class="xref py py-class docutils literal"><span class="pre">MediaWiki.connection.Connection</span></code></a></p>
 <p>Simple interface to MediaWiki&#8217;s API.</p>
 <p>This object should implement wrappers around the &#8216;action&#8217; parameter,
 the &#8220;public&#8221; methods are named as its possible values (login, query,
@@ -76,37 +76,41 @@ edit, ...) and helper methods start with an underscore (&#8216;_&#8217;).</p>
 </tbody>
 </table>
 <dl class="method">
-<dt id="MediaWiki.api.API.edit">
-<tt class="descname">edit</tt><big>(</big><em>pageid</em>, <em>text</em>, <em>basetimestamp</em>, <em>summary</em>, <em>token=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#MediaWiki.api.API.edit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Interface to <a class="reference external" href="https://www.mediawiki.org/wiki/API:Edit">API:Edit</a>.</p>
+<dt id="MediaWiki.api.API.detect_namespace">
+<code class="descname">detect_namespace</code><span class="sig-paren">(</span><em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.api.API.detect_namespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect namespace of a given title, useful to compare pure titles across
+namespaces.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pageid</strong> &#8211; page ID of the page to be edited</li>
-<li><strong>text</strong> &#8211; new page content</li>
-<li><strong>basetimestamp</strong> &#8211; Timestamp of the base revision (obtained through <cite>prop=revisions&amp;rvprop=timestamp</cite>). Used to detect edit conflicts.</li>
-<li><strong>summary</strong> &#8211; edit summary</li>
-<li><strong>kwargs</strong> &#8211; Additional query parameters, see <a class="reference external" href="https://www.mediawiki.org/wiki/API:Edit">API:Edit</a>.</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> &#8211; the full title of a wiki page</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <cite>(namespace, pure_title)</cite> tuple. Underscores are replaced with
+spaces in <cite>namespace</cite>, but <cite>pure_title</cite> corresponds to the input
+(underscores and spaces are preserved). The main namespace is
+identified as an empty string.</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="method">
+<dt id="MediaWiki.api.API.edit">
+<code class="descname">edit</code><span class="sig-paren">(</span><em>*args</em>, <em>**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.api.API.edit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="MediaWiki.api.API.generator">
-<tt class="descname">generator</tt><big>(</big><em>params=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#MediaWiki.api.API.generator" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generator</code><span class="sig-paren">(</span><em>params=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.api.API.generator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interface to API:Generators, conveniently implemented as Python generator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>params</strong> &#8211; same as <a class="reference internal" href="#MediaWiki.api.API.query_continue" title="MediaWiki.api.API.query_continue"><tt class="xref py py-meth docutils literal"><span class="pre">API.query_continue()</span></tt></a></li>
-<li><strong>kwargs</strong> &#8211; same as <a class="reference internal" href="#MediaWiki.api.API.query_continue" title="MediaWiki.api.API.query_continue"><tt class="xref py py-meth docutils literal"><span class="pre">API.query_continue()</span></tt></a></li>
+<li><strong>params</strong> &#8211; same as <a class="reference internal" href="#MediaWiki.api.API.query_continue" title="MediaWiki.api.API.query_continue"><code class="xref py py-meth docutils literal"><span class="pre">API.query_continue()</span></code></a></li>
+<li><strong>kwargs</strong> &#8211; same as <a class="reference internal" href="#MediaWiki.api.API.query_continue" title="MediaWiki.api.API.query_continue"><code class="xref py py-meth docutils literal"><span class="pre">API.query_continue()</span></code></a></li>
 </ul>
 </td>
 </tr>
@@ -118,28 +122,14 @@ edit, ...) and helper methods start with an underscore (&#8216;_&#8217;).</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="MediaWiki.api.API.has_high_limits">
-<tt class="descname">has_high_limits</tt><big>(</big><big>)</big><a class="headerlink" href="#MediaWiki.api.API.has_high_limits" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if the current user has the <tt class="docutils literal"><span class="pre">apihighlimits</span></tt> right.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if <tt class="docutils literal"><span class="pre">apihighlimits</span></tt> is available</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="MediaWiki.api.API.has_right">
-<tt class="descname">has_right</tt><big>(</big><em>right</em><big>)</big><a class="headerlink" href="#MediaWiki.api.API.has_right" title="Permalink to this definition">¶</a></dt>
+<code class="descname">has_right</code><span class="sig-paren">(</span><em>right</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.api.API.has_right" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the current user has the specified right.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if <tt class="docutils literal"><span class="pre">right</span></tt> is available</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if <code class="docutils literal"><span class="pre">right</span></code> is available</td>
 </tr>
 </tbody>
 </table>
@@ -147,7 +137,7 @@ edit, ...) and helper methods start with an underscore (&#8216;_&#8217;).</p>
 
 <dl class="method">
 <dt id="MediaWiki.api.API.is_loggedin">
-<tt class="descname">is_loggedin</tt><big>(</big><big>)</big><a class="headerlink" href="#MediaWiki.api.API.is_loggedin" title="Permalink to this definition">¶</a></dt>
+<code class="descname">is_loggedin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.api.API.is_loggedin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the current session is authenticated.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -161,20 +151,20 @@ edit, ...) and helper methods start with an underscore (&#8216;_&#8217;).</p>
 
 <dl class="method">
 <dt id="MediaWiki.api.API.list">
-<tt class="descname">list</tt><big>(</big><em>params=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#MediaWiki.api.API.list" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list</code><span class="sig-paren">(</span><em>params=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.api.API.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interface to API:Lists, implemented as Python generator.</p>
-<p>Parameter <tt class="docutils literal"><span class="pre">list</span></tt> must be supplied.</p>
+<p>Parameter <code class="docutils literal"><span class="pre">list</span></code> must be supplied.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>params</strong> &#8211; same as <a class="reference internal" href="#MediaWiki.api.API.query_continue" title="MediaWiki.api.API.query_continue"><tt class="xref py py-meth docutils literal"><span class="pre">API.query_continue()</span></tt></a></li>
-<li><strong>kwargs</strong> &#8211; same as <a class="reference internal" href="#MediaWiki.api.API.query_continue" title="MediaWiki.api.API.query_continue"><tt class="xref py py-meth docutils literal"><span class="pre">API.query_continue()</span></tt></a></li>
+<li><strong>params</strong> &#8211; same as <a class="reference internal" href="#MediaWiki.api.API.query_continue" title="MediaWiki.api.API.query_continue"><code class="xref py py-meth docutils literal"><span class="pre">API.query_continue()</span></code></a></li>
+<li><strong>kwargs</strong> &#8211; same as <a class="reference internal" href="#MediaWiki.api.API.query_continue" title="MediaWiki.api.API.query_continue"><code class="xref py py-meth docutils literal"><span class="pre">API.query_continue()</span></code></a></li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last">from <tt class="docutils literal"><span class="pre">list</span></tt> part of the API response</p>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last">from <code class="docutils literal"><span class="pre">list</span></code> part of the API response</p>
 </td>
 </tr>
 </tbody>
@@ -183,7 +173,7 @@ edit, ...) and helper methods start with an underscore (&#8216;_&#8217;).</p>
 
 <dl class="method">
 <dt id="MediaWiki.api.API.login">
-<tt class="descname">login</tt><big>(</big><em>username</em>, <em>password</em><big>)</big><a class="headerlink" href="#MediaWiki.api.API.login" title="Permalink to this definition">¶</a></dt>
+<code class="descname">login</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.api.API.login" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs into the wiki with username and password. Returns True on successful login.
 See <a class="reference external" href="https://www.mediawiki.org/wiki/API:Login">MediaWiki#API:Login</a> for reference.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -205,7 +195,7 @@ See <a class="reference external" href="https://www.mediawiki.org/wiki/API:Login
 
 <dl class="method">
 <dt id="MediaWiki.api.API.logout">
-<tt class="descname">logout</tt><big>(</big><big>)</big><a class="headerlink" href="#MediaWiki.api.API.logout" title="Permalink to this definition">¶</a></dt>
+<code class="descname">logout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.api.API.logout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs out of the wiki.
 See <a class="reference external" href="https://www.mediawiki.org/wiki/API:Logout">MediaWiki#API:Logout</a> for reference.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -219,8 +209,23 @@ See <a class="reference external" href="https://www.mediawiki.org/wiki/API:Logou
 </dd></dl>
 
 <dl class="method">
+<dt id="MediaWiki.api.API.namespaces">
+<code class="descname">namespaces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.api.API.namespaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch namespaces for the wiki. The results are cached so subsequent
+calls are cheap.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">mapping (dictionary) of namespace IDs to their names</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="MediaWiki.api.API.query_continue">
-<tt class="descname">query_continue</tt><big>(</big><em>params=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#MediaWiki.api.API.query_continue" title="Permalink to this definition">¶</a></dt>
+<code class="descname">query_continue</code><span class="sig-paren">(</span><em>params=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.api.API.query_continue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator for MediaWiki&#8217;s query-continue feature.
 ref: <a class="reference external" href="https://www.mediawiki.org/wiki/API:Query#Continuing_queries">https://www.mediawiki.org/wiki/API:Query#Continuing_queries</a></p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -228,9 +233,9 @@ ref: <a class="reference external" href="https://www.mediawiki.org/wiki/API:Quer
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>params</strong> &#8211; same as <a class="reference internal" href="#MediaWiki.connection.Connection.call" title="MediaWiki.connection.Connection.call"><tt class="xref py py-meth docutils literal"><span class="pre">MediaWiki.connection.Connection.call()</span></tt></a>, but <tt class="docutils literal"><span class="pre">action</span></tt>
-is always set to <tt class="docutils literal"><span class="pre">&quot;query&quot;</span></tt> and <tt class="docutils literal"><span class="pre">&quot;continue&quot;</span></tt> to <tt class="docutils literal"><span class="pre">&quot;&quot;</span></tt></li>
-<li><strong>kwargs</strong> &#8211; same as <a class="reference internal" href="#MediaWiki.connection.Connection.call" title="MediaWiki.connection.Connection.call"><tt class="xref py py-meth docutils literal"><span class="pre">MediaWiki.connection.Connection.call()</span></tt></a></li>
+<li><strong>params</strong> &#8211; same as <a class="reference internal" href="#MediaWiki.connection.Connection.call" title="MediaWiki.connection.Connection.call"><code class="xref py py-meth docutils literal"><span class="pre">MediaWiki.connection.Connection.call()</span></code></a>, but <code class="docutils literal"><span class="pre">action</span></code>
+is always set to <code class="docutils literal"><span class="pre">&quot;query&quot;</span></code> and <code class="docutils literal"><span class="pre">&quot;continue&quot;</span></code> to <code class="docutils literal"><span class="pre">&quot;&quot;</span></code></li>
+<li><strong>kwargs</strong> &#8211; same as <a class="reference internal" href="#MediaWiki.connection.Connection.call" title="MediaWiki.connection.Connection.call"><code class="xref py py-meth docutils literal"><span class="pre">MediaWiki.connection.Connection.call()</span></code></a></li>
 </ul>
 </td>
 </tr>
@@ -243,18 +248,21 @@ is always set to <tt class="docutils literal"><span class="pre">&quot;query&quot
 
 <dl class="method">
 <dt id="MediaWiki.api.API.resolve_redirects">
-<tt class="descname">resolve_redirects</tt><big>(</big><em>pageids</em><big>)</big><a class="headerlink" href="#MediaWiki.api.API.resolve_redirects" title="Permalink to this definition">¶</a></dt>
+<code class="descname">resolve_redirects</code><span class="sig-paren">(</span><em>*pageids</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.api.API.resolve_redirects" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resolve redirect titles according to the <a class="reference external" href="https://www.mediawiki.org/wiki/API:Query#Resolving_redirects">MediaWiki&#8217;s API</a>. List of redirect
 pages must be obtained other way (for example by using
-<tt class="docutils literal"><span class="pre">generator=allpages&amp;gapfilterredir=redirects</span></tt> query), or just use this
+<code class="docutils literal"><span class="pre">generator=allpages&amp;gapfilterredir=redirects</span></code> query), or just use this
 method if unsure.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pageids</strong> &#8211; list of page IDs to resolve</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*pageids</strong> &#8211; <p>unpacked list of page IDs to resolve (i.e. call this method
+as <code class="docutils literal"><span class="pre">resolve_redirects(*list)</span></code> or
+<code class="docutils literal"><span class="pre">resolve_redirects(pageid1,</span> <span class="pre">pageid2,</span> <span class="pre">...)</span></code>)</p>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><tt class="docutils literal"><span class="pre">redirects</span></tt> part of the API response concatenated into one list</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">redirects</span></code> part of the API response concatenated into one list</td>
 </tr>
 </tbody>
 </table>
@@ -267,12 +275,12 @@ method if unsure.</p>
 <span id="mediawiki-connection-module"></span><h2>MediaWiki.connection module<a class="headerlink" href="#module-MediaWiki.connection" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="MediaWiki.connection.Connection">
-<em class="property">class </em><tt class="descclassname">MediaWiki.connection.</tt><tt class="descname">Connection</tt><big>(</big><em>api_url</em>, <em>cookie_file=None</em>, <em>cookiejar=None</em>, <em>user_agent='wiki-scripts/0.4 (https://github.com/lahwaacz/wiki-scripts)'</em>, <em>http_user=None</em>, <em>http_password=None</em>, <em>ssl_verify=None</em><big>)</big><a class="headerlink" href="#MediaWiki.connection.Connection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<em class="property">class </em><code class="descclassname">MediaWiki.connection.</code><code class="descname">Connection</code><span class="sig-paren">(</span><em>api_url</em>, <em>cookie_file=None</em>, <em>cookiejar=None</em>, <em>user_agent='wiki-scripts/0.5 (https://github.com/lahwaacz/wiki-scripts)'</em>, <em>http_user=None</em>, <em>http_password=None</em>, <em>ssl_verify=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.connection.Connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>The base object handling connection between a wiki and scripts.</p>
 <p>It is possible to save the session data by specifying either <em>cookiejar</em>
 or <em>cookie_file</em> arguments. This way cookies can be saved permanently to
-the disk or shared between multiple <a class="reference internal" href="#MediaWiki.connection.Connection" title="MediaWiki.connection.Connection"><tt class="xref py py-class docutils literal"><span class="pre">Connection</span></tt></a> objects.
+the disk or shared between multiple <a class="reference internal" href="#MediaWiki.connection.Connection" title="MediaWiki.connection.Connection"><code class="xref py py-class docutils literal"><span class="pre">Connection</span></code></a> objects.
 If <em>cookiejar</em> is present <em>cookie_file</em> is ignored.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -280,10 +288,10 @@ If <em>cookiejar</em> is present <em>cookie_file</em> is ignored.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>api_url</strong> &#8211; URL path to the wiki API endpoint</li>
-<li><strong>cookie_file</strong> &#8211; path to a <tt class="xref py py-class docutils literal"><span class="pre">cookielib.FileCookieJar</span></tt> file</li>
-<li><strong>cookiejar</strong> &#8211; an existing <tt class="xref py py-class docutils literal"><span class="pre">cookielib.CookieJar</span></tt> object</li>
-<li><strong>user_agent</strong> &#8211; string sent as <tt class="docutils literal"><span class="pre">User-Agent</span></tt> header to the web server</li>
-<li><strong>ssl_verify</strong> &#8211; if <tt class="docutils literal"><span class="pre">True</span></tt>, the SSL certificate will be verified</li>
+<li><strong>cookie_file</strong> &#8211; path to a <code class="xref py py-class docutils literal"><span class="pre">cookielib.FileCookieJar</span></code> file</li>
+<li><strong>cookiejar</strong> &#8211; an existing <code class="xref py py-class docutils literal"><span class="pre">cookielib.CookieJar</span></code> object</li>
+<li><strong>user_agent</strong> &#8211; string sent as <code class="docutils literal"><span class="pre">User-Agent</span></code> header to the web server</li>
+<li><strong>ssl_verify</strong> &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, the SSL certificate will be verified</li>
 </ul>
 </td>
 </tr>
@@ -291,11 +299,11 @@ If <em>cookiejar</em> is present <em>cookie_file</em> is ignored.</p>
 </table>
 <dl class="method">
 <dt id="MediaWiki.connection.Connection.call">
-<tt class="descname">call</tt><big>(</big><em>params=None</em>, <em>expand_result=True</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#MediaWiki.connection.Connection.call" title="Permalink to this definition">¶</a></dt>
+<code class="descname">call</code><span class="sig-paren">(</span><em>params=None</em>, <em>expand_result=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.connection.Connection.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient method to call the API.</p>
-<p>Checks the <tt class="docutils literal"><span class="pre">action</span></tt> parameter (default is <tt class="docutils literal"><span class="pre">&quot;help&quot;</span></tt> as in the API),
+<p>Checks the <code class="docutils literal"><span class="pre">action</span></code> parameter (default is <code class="docutils literal"><span class="pre">&quot;help&quot;</span></code> as in the API),
 selects correct HTTP request method, handles API errors and warnings.</p>
-<p>Parameters of the call can be passed either as a dict to <tt class="docutils literal"><span class="pre">params</span></tt>, or as
+<p>Parameters of the call can be passed either as a dict to <code class="docutils literal"><span class="pre">params</span></code>, or as
 keyword arguments.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -323,20 +331,20 @@ to the given action, otherwise full response is returned</li>
 <span id="mediawiki-diff-module"></span><h2>MediaWiki.diff module<a class="headerlink" href="#module-MediaWiki.diff" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="MediaWiki.diff.RevisionDiffer">
-<em class="property">class </em><tt class="descclassname">MediaWiki.diff.</tt><tt class="descname">RevisionDiffer</tt><big>(</big><em>api</em><big>)</big><a class="headerlink" href="#MediaWiki.diff.RevisionDiffer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<em class="property">class </em><code class="descclassname">MediaWiki.diff.</code><code class="descname">RevisionDiffer</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.diff.RevisionDiffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Object for comparing revisions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>api</strong> &#8211; a <a class="reference internal" href="#MediaWiki.api.API" title="MediaWiki.api.API"><tt class="xref py py-class docutils literal"><span class="pre">MediaWiki.api.API</span></tt></a> instance to operate on</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>api</strong> &#8211; a <a class="reference internal" href="#MediaWiki.api.API" title="MediaWiki.api.API"><code class="xref py py-class docutils literal"><span class="pre">MediaWiki.api.API</span></code></a> instance to operate on</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="MediaWiki.diff.RevisionDiffer.diff">
-<tt class="descname">diff</tt><big>(</big><em>oldrevid</em>, <em>newrevid</em><big>)</big><a class="headerlink" href="#MediaWiki.diff.RevisionDiffer.diff" title="Permalink to this definition">¶</a></dt>
+<code class="descname">diff</code><span class="sig-paren">(</span><em>oldrevid</em>, <em>newrevid</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.diff.RevisionDiffer.diff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to get highlighted diff of two revisions. Uses ANSI color sequences
 for output in a 256-color terminal.</p>
 <p>Basic meta data (title, username, timestamp and comment) is included in the
@@ -360,9 +368,9 @@ timestamp fields, we show more.</p>
 
 <dl class="function">
 <dt id="MediaWiki.diff.diff_highlighted">
-<tt class="descclassname">MediaWiki.diff.</tt><tt class="descname">diff_highlighted</tt><big>(</big><em>old</em>, <em>new</em>, <em>fromfile=''</em>, <em>tofile=''</em>, <em>fromfiledate=''</em>, <em>tofiledate=''</em><big>)</big><a class="headerlink" href="#MediaWiki.diff.diff_highlighted" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generic wrapper around <tt class="xref py py-func docutils literal"><span class="pre">difflib.unified_diff()</span></tt> with highlighter based
-on <tt class="xref py py-mod docutils literal"><span class="pre">pygments</span></tt>.</p>
+<code class="descclassname">MediaWiki.diff.</code><code class="descname">diff_highlighted</code><span class="sig-paren">(</span><em>old</em>, <em>new</em>, <em>fromfile=''</em>, <em>tofile=''</em>, <em>fromfiledate=''</em>, <em>tofiledate=''</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.diff.diff_highlighted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic wrapper around <code class="xref py py-func docutils literal"><span class="pre">difflib.unified_diff()</span></code> with highlighter based
+on <code class="xref py py-mod docutils literal"><span class="pre">pygments</span></code>.</p>
 <p>See <a class="reference external" href="https://docs.python.org/3/library/difflib.html#difflib.unified_diff">difflib.unified_diff</a> for description of optional parameters.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -387,11 +395,11 @@ on <tt class="xref py py-mod docutils literal"><span class="pre">pygments</span>
 <span id="mediawiki-dump-module"></span><h2>MediaWiki.dump module<a class="headerlink" href="#module-MediaWiki.dump" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="MediaWiki.dump.DumpGenerator">
-<em class="property">class </em><tt class="descclassname">MediaWiki.dump.</tt><tt class="descname">DumpGenerator</tt><big>(</big><em>api</em>, <em>index_url</em>, <em>cookie_file=None</em>, <em>cookiejar=None</em>, <em>user_agent='wiki-scripts/0.4 (https://github.com/lahwaacz/wiki-scripts)'</em>, <em>http_user=None</em>, <em>http_password=None</em>, <em>ssl_verify=None</em><big>)</big><a class="headerlink" href="#MediaWiki.dump.DumpGenerator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<em class="property">class </em><code class="descclassname">MediaWiki.dump.</code><code class="descname">DumpGenerator</code><span class="sig-paren">(</span><em>api</em>, <em>index_url</em>, <em>cookie_file=None</em>, <em>cookiejar=None</em>, <em>user_agent='wiki-scripts/0.5 (https://github.com/lahwaacz/wiki-scripts)'</em>, <em>http_user=None</em>, <em>http_password=None</em>, <em>ssl_verify=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.dump.DumpGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="MediaWiki.dump.DumpGenerator.dump">
-<tt class="descname">dump</tt><big>(</big><em>outfile</em>, <em>timestamp_start</em><big>)</big><a class="headerlink" href="#MediaWiki.dump.DumpGenerator.dump" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dump</code><span class="sig-paren">(</span><em>outfile</em>, <em>timestamp_start</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.dump.DumpGenerator.dump" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -402,75 +410,89 @@ on <tt class="xref py py-mod docutils literal"><span class="pre">pygments</span>
 <p>Exceptions used throughout the MediaWiki module</p>
 <dl class="exception">
 <dt id="MediaWiki.exceptions.APIError">
-<em class="property">exception </em><tt class="descclassname">MediaWiki.exceptions.</tt><tt class="descname">APIError</tt><a class="headerlink" href="#MediaWiki.exceptions.APIError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#MediaWiki.exceptions.BaseMediaWikiException" title="MediaWiki.exceptions.BaseMediaWikiException"><tt class="xref py py-class docutils literal"><span class="pre">MediaWiki.exceptions.BaseMediaWikiException</span></tt></a></p>
-<p>Raised when API response contains <tt class="docutils literal"><span class="pre">error</span></tt> attribute</p>
+<em class="property">exception </em><code class="descclassname">MediaWiki.exceptions.</code><code class="descname">APIError</code><a class="headerlink" href="#MediaWiki.exceptions.APIError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#MediaWiki.exceptions.BaseMediaWikiException" title="MediaWiki.exceptions.BaseMediaWikiException"><code class="xref py py-class docutils literal"><span class="pre">MediaWiki.exceptions.BaseMediaWikiException</span></code></a></p>
+<p>Raised when API response contains <code class="docutils literal"><span class="pre">error</span></code> attribute</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="MediaWiki.exceptions.APIJsonError">
-<em class="property">exception </em><tt class="descclassname">MediaWiki.exceptions.</tt><tt class="descname">APIJsonError</tt><a class="headerlink" href="#MediaWiki.exceptions.APIJsonError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#MediaWiki.exceptions.BaseMediaWikiException" title="MediaWiki.exceptions.BaseMediaWikiException"><tt class="xref py py-class docutils literal"><span class="pre">MediaWiki.exceptions.BaseMediaWikiException</span></tt></a></p>
+<em class="property">exception </em><code class="descclassname">MediaWiki.exceptions.</code><code class="descname">APIJsonError</code><a class="headerlink" href="#MediaWiki.exceptions.APIJsonError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#MediaWiki.exceptions.BaseMediaWikiException" title="MediaWiki.exceptions.BaseMediaWikiException"><code class="xref py py-class docutils literal"><span class="pre">MediaWiki.exceptions.BaseMediaWikiException</span></code></a></p>
 <p>Raised when json-decoding of server response failed</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="MediaWiki.exceptions.APIWarnings">
-<em class="property">exception </em><tt class="descclassname">MediaWiki.exceptions.</tt><tt class="descname">APIWarnings</tt><a class="headerlink" href="#MediaWiki.exceptions.APIWarnings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#MediaWiki.exceptions.BaseMediaWikiException" title="MediaWiki.exceptions.BaseMediaWikiException"><tt class="xref py py-class docutils literal"><span class="pre">MediaWiki.exceptions.BaseMediaWikiException</span></tt></a></p>
-<p>Raised when API response contains <tt class="docutils literal"><span class="pre">warnings</span></tt> attribute</p>
+<em class="property">exception </em><code class="descclassname">MediaWiki.exceptions.</code><code class="descname">APIWarnings</code><a class="headerlink" href="#MediaWiki.exceptions.APIWarnings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#MediaWiki.exceptions.BaseMediaWikiException" title="MediaWiki.exceptions.BaseMediaWikiException"><code class="xref py py-class docutils literal"><span class="pre">MediaWiki.exceptions.BaseMediaWikiException</span></code></a></p>
+<p>Raised when API response contains <code class="docutils literal"><span class="pre">warnings</span></code> attribute</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="MediaWiki.exceptions.APIWrongAction">
-<em class="property">exception </em><tt class="descclassname">MediaWiki.exceptions.</tt><tt class="descname">APIWrongAction</tt><big>(</big><em>action</em>, <em>available</em><big>)</big><a class="headerlink" href="#MediaWiki.exceptions.APIWrongAction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#MediaWiki.exceptions.BaseMediaWikiException" title="MediaWiki.exceptions.BaseMediaWikiException"><tt class="xref py py-class docutils literal"><span class="pre">MediaWiki.exceptions.BaseMediaWikiException</span></tt></a></p>
+<em class="property">exception </em><code class="descclassname">MediaWiki.exceptions.</code><code class="descname">APIWrongAction</code><span class="sig-paren">(</span><em>action</em>, <em>available</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.exceptions.APIWrongAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#MediaWiki.exceptions.BaseMediaWikiException" title="MediaWiki.exceptions.BaseMediaWikiException"><code class="xref py py-class docutils literal"><span class="pre">MediaWiki.exceptions.BaseMediaWikiException</span></code></a></p>
 <p>Raised when a wrong API action is specified</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="MediaWiki.exceptions.BaseMediaWikiException">
-<em class="property">exception </em><tt class="descclassname">MediaWiki.exceptions.</tt><tt class="descname">BaseMediaWikiException</tt><a class="headerlink" href="#MediaWiki.exceptions.BaseMediaWikiException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
+<em class="property">exception </em><code class="descclassname">MediaWiki.exceptions.</code><code class="descname">BaseMediaWikiException</code><a class="headerlink" href="#MediaWiki.exceptions.BaseMediaWikiException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
 <p>Base exception for all following exceptions</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="MediaWiki.exceptions.TemplateParametersError">
+<em class="property">exception </em><code class="descclassname">MediaWiki.exceptions.</code><code class="descname">TemplateParametersError</code><span class="sig-paren">(</span><em>template</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.exceptions.TemplateParametersError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#MediaWiki.exceptions.BaseMediaWikiException" title="MediaWiki.exceptions.BaseMediaWikiException"><code class="xref py py-class docutils literal"><span class="pre">MediaWiki.exceptions.BaseMediaWikiException</span></code></a></p>
+<p>Raised when parsing a template parameter failed.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="module-MediaWiki.interactive">
 <span id="mediawiki-interactive-module"></span><h2>MediaWiki.interactive module<a class="headerlink" href="#module-MediaWiki.interactive" title="Permalink to this headline">¶</a></h2>
-<p>Collection of functions extending <a class="reference internal" href="#MediaWiki.api.API" title="MediaWiki.api.API"><tt class="xref py py-class docutils literal"><span class="pre">MediaWiki.api.API</span></tt></a> with various
+<p>Collection of functions extending <a class="reference internal" href="#MediaWiki.api.API" title="MediaWiki.api.API"><code class="xref py py-class docutils literal"><span class="pre">MediaWiki.api.API</span></code></a> with various
 interactive tasks.</p>
 <dl class="function">
-<dt id="MediaWiki.interactive.edit_interactive">
-<tt class="descclassname">MediaWiki.interactive.</tt><tt class="descname">edit_interactive</tt><big>(</big><em>api</em>, <em>pageid</em>, <em>old_text</em>, <em>new_text</em>, <em>basetimestamp</em>, <em>summary</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#MediaWiki.interactive.edit_interactive" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
 <dt id="MediaWiki.interactive.require_login">
-<tt class="descclassname">MediaWiki.interactive.</tt><tt class="descname">require_login</tt><big>(</big><em>api</em><big>)</big><a class="headerlink" href="#MediaWiki.interactive.require_login" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if <tt class="docutils literal"><span class="pre">&quot;api&quot;</span></tt> session is authenticated, otherwise ask for credentials.</p>
-<p>Calls <tt class="xref py py-meth docutils literal"><span class="pre">sys.exit(1)()</span></tt> if login failed.</p>
+<code class="descclassname">MediaWiki.interactive.</code><code class="descname">require_login</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.interactive.require_login" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if <code class="docutils literal"><span class="pre">&quot;api&quot;</span></code> session is authenticated, otherwise ask for credentials.</p>
+<p>Calls <code class="xref py py-meth docutils literal"><span class="pre">sys.exit(1)()</span></code> if login failed.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>api</strong> &#8211; an <a class="reference internal" href="#MediaWiki.api.API" title="MediaWiki.api.API"><tt class="xref py py-class docutils literal"><span class="pre">MediaWiki.api.API</span></tt></a> instance</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>api</strong> &#8211; an <a class="reference internal" href="#MediaWiki.api.API" title="MediaWiki.api.API"><code class="xref py py-class docutils literal"><span class="pre">MediaWiki.api.API</span></code></a> instance</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
+<dl class="function">
+<dt id="MediaWiki.interactive.edit_interactive">
+<code class="descclassname">MediaWiki.interactive.</code><code class="descname">edit_interactive</code><span class="sig-paren">(</span><em>api</em>, <em>pageid</em>, <em>text_old</em>, <em>text_new</em>, <em>basetimestamp</em>, <em>summary</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.interactive.edit_interactive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="MediaWiki.interactive.InteractiveQuit">
+<em class="property">exception </em><code class="descclassname">MediaWiki.interactive.</code><code class="descname">InteractiveQuit</code><a class="headerlink" href="#MediaWiki.interactive.InteractiveQuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>Raised when the user specified <cite>quit</cite> on the interactive prompt.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-MediaWiki.rate">
 <span id="mediawiki-rate-module"></span><h2>MediaWiki.rate module<a class="headerlink" href="#module-MediaWiki.rate" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference internal" href="#MediaWiki.rate.RateLimited" title="MediaWiki.rate.RateLimited"><tt class="xref py py-func docutils literal"><span class="pre">RateLimited()</span></tt></a> is a rate limiting algorithm implemented as Python decorator.</p>
+<p><a class="reference internal" href="#MediaWiki.rate.RateLimited" title="MediaWiki.rate.RateLimited"><code class="xref py py-func docutils literal"><span class="pre">RateLimited()</span></code></a> is a rate limiting algorithm implemented as Python decorator.</p>
 <p>The original algorithm comes from this <a class="reference external" href="http://stackoverflow.com/a/6415181">StackOverflow answer</a> and has been modified
 to apply longer timeout when the rate limit is exceeded.</p>
 <p>Usage as Python decorator:</p>
 <p>Or at runtime by wrapping the function call:</p>
 <dl class="function">
 <dt id="MediaWiki.rate.RateLimited">
-<tt class="descclassname">MediaWiki.rate.</tt><tt class="descname">RateLimited</tt><big>(</big><em>rate</em>, <em>per</em><big>)</big><a class="headerlink" href="#MediaWiki.rate.RateLimited" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">MediaWiki.rate.</code><code class="descname">RateLimited</code><span class="sig-paren">(</span><em>rate</em>, <em>per</em><span class="sig-paren">)</span><a class="headerlink" href="#MediaWiki.rate.RateLimited" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -483,7 +505,7 @@ to apply longer timeout when the rate limit is exceeded.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
@@ -504,12 +526,14 @@ to apply longer timeout when the rate limit is exceeded.</p>
   <h4>Previous topic</h4>
   <p class="topless"><a href="index.html"
                         title="previous chapter">Welcome to wiki-scripts&#8217; documentation!</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/MediaWiki.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/MediaWiki.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -526,7 +550,7 @@ to apply longer timeout when the rate limit is exceeded.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -538,12 +562,12 @@ to apply longer timeout when the rate limit is exceeded.</p>
         <li class="right" >
           <a href="index.html" title="Welcome to wiki-scripts’ documentation!"
              >previous</a> |</li>
-        <li><a href="index.html">wiki-scripts 0.4 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wiki-scripts 0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2014, lahwaacz.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>
