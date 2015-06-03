@@ -2,7 +2,7 @@
 
 __author__ = "Jakub Klinkovský <j.l.k@gmx.com>"
 __url__ = "https://github.com/lahwaacz/wiki-scripts"
-__version__ = "0.4"
+__version__ = "0.5"
 
 from .exceptions import *
 from .api import *
