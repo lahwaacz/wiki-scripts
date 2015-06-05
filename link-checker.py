@@ -225,12 +225,6 @@ class LinkChecker:
         wikicode = mwparserfromhell.parse(text)
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
-            # At least on ArchWiki, '<' and '>' are not allowed in titles per default
-            # $wgLegalTitleChars (see http://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars )
-            # but mwparserfromhell allows them. Skip them manually for now...
-            if "<" in wikilink.title or ">" in wikilink.title:
-                continue
-
             self.collapse_whitespace_pipe(wikilink)
             self.check_trivial(wikilink)
             self.check_relative(wikilink, title)
