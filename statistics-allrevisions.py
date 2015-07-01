@@ -47,7 +47,9 @@ def fetch_revisions(first, last):
         if "badrevids" in result:
             badrevids.extend(result["badrevids"].keys())
         for _, page in result["pages"].items():
-            revisions.extend(page["revisions"])
+            # FIXME: workaround for deleted pages, probably should be solved differently
+            if "revisions" in page:
+                revisions.extend(page["revisions"])
 
     return badrevids, revisions
 
