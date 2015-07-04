@@ -337,7 +337,7 @@ class PkgUpdater:
                 try:
 #                    edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
                     self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
-                except (APIError, APIWarnings):
+                except APIError:
                     print("error: failed to edit page '%s'" % title)
 
         return True

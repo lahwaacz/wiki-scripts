@@ -27,11 +27,6 @@ class APIError(BaseMediaWikiException):
     """
     pass
 
-class APIWarnings(BaseMediaWikiException):
-    """ Raised when API response contains ``warnings`` attribute
-    """
-    pass
-
 class TemplateParametersError(BaseMediaWikiException):
     """ Raised when parsing a template parameter failed.
     """

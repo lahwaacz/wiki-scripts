@@ -5,6 +5,7 @@
 
 import requests
 import http.cookiejar as cookielib
+import sys
 
 from . import __version__, __url__
 from .exceptions import *
@@ -144,8 +145,10 @@ class Connection:
                 return result["error"]["*"]
             raise APIError(result["error"])
         if "warnings" in result:
-            # FIXME: don't raise on warnings
-            raise APIWarnings(result["warnings"])
+            print("API warning(s) for query {}:".format(params), file=sys.stderr)
+            for warning in result["warnings"].values():
+                print("* {}".format(warning["*"]), file=sys.stderr)
+            print(file=sys.stderr)
 
         if expand_result is True:
             return result[action]

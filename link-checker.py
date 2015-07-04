@@ -262,7 +262,7 @@ class LinkChecker:
                     self.api.edit(pageid, text_new, timestamp, self.edit_summary, bot="")
                 else:
                     edit_interactive(self.api, pageid, text_old, text_new, timestamp, self.edit_summary, bot="")
-            except (APIError, APIWarnings):
+            except APIError:
                 print("error: failed to edit page '%s'" % title)
 
 
