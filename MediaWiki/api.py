@@ -173,11 +173,16 @@ class API(Connection):
         """
         Interface to API:Generators, conveniently implemented as Python generator.
 
+        Parameter ``generator`` must be supplied.
+
         :param params: same as :py:meth:`API.query_continue`
         :param kwargs: same as :py:meth:`API.query_continue`
         :yields: from "pages" part of the API response
         """
-        # TODO: check if "generator" param is passed?
+        generator_ = kwargs.get("generator") if params is None else params.get("generator")
+        if generator_ is None:
+            raise ValueError("param 'generator' must be supplied")
+
         for snippet in self.query_continue(params, **kwargs):
             # API generator returns dict !!!
             # for example:  snippet === {"pages":
