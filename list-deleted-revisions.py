@@ -17,5 +17,5 @@ if "deletedhistory" not in api.user_rights():
     print("The current user does not have the 'deletedhistory' right, which is necessary to use this script. Sorry.")
     sys.exit(1)
 
-for page in api.list(list="deletedrevs", drunique="", drlimit="max"):
+for page in api.list(list="alldeletedrevisions", adrlimit="max"):
     print(page["title"])
