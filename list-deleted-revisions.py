@@ -13,7 +13,7 @@ api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 require_login(api)
 
 # check for necessary rights
-if not api.has_right("deletedhistory"):
+if "deletedhistory" not in api.user_rights():
     print("The current user does not have the 'deletedhistory' right, which is necessary to use this script. Sorry.")
     sys.exit(1)
 

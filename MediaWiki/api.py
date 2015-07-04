@@ -23,7 +23,6 @@ class API(Connection):
 
     def __init__(self, api_url, **kwargs):
         super().__init__(api_url, **kwargs)
-        self._user_rights = None
 
     def login(self, username, password):
         """
@@ -61,7 +60,7 @@ class API(Connection):
 
         # clear cache on self.is_loggedin
         self.is_loggedin.cache_clear()
-        # TODO: clear self._user_rights
+        self.user_rights.cache_clear()
 
         return do_login(self, username, password)
 
@@ -75,17 +74,15 @@ class API(Connection):
         result = self.call(action="query", meta="userinfo")
         return "anon" not in result["userinfo"]
 
-    # TODO: use @lru_cache
-    def has_right(self, right):
+    @lru_cache(maxsize=None)
+    def user_rights(self):
         """
-        Checks if the current user has the specified right.
+        Returns a list of rights for the current user.
 
-        :return: True if ``right`` is available
+        :returns: a list of strings
         """
-        if self._user_rights is None:
-            result = self.call(action="query", meta="userinfo", uiprop="rights")
-            self._user_rights = result["userinfo"]["rights"]
-        return right in self._user_rights
+        result = self.call(action="query", meta="userinfo", uiprop="rights")
+        return result["userinfo"]["rights"]
 
     def logout(self):
         """
@@ -229,7 +226,7 @@ class API(Connection):
             return (list_[i:i+bs] for i in range(0, len(list_), bs))
 
         # check if we have apihighlimits and set the limit accordingly
-        limit = 500 if self.has_right("apihighlimits") else 50
+        limit = 500 if "apihighlimits" in self.user_rights() else 50
 
         # resolve by chunks
         redirects = []

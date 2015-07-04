@@ -97,7 +97,7 @@ class Downloader:
         # sort by title (first item in tuple)
         to_be_updated.sort()
 
-        limit = 500 if api.has_right("apihighlimits") else 50
+        limit = 500 if "apihighlimits" in api.user_rights() else 50
 
         for snippet in list_chunks(to_be_updated, limit):
             # unzip the list of tuples
