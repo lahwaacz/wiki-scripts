@@ -7,7 +7,13 @@ from .connection import Connection
 from .exceptions import *
 from .rate import RateLimited
 
-__all__ = ["API"]
+__all__ = ["API", "LoginFailed"]
+
+class LoginFailed(Exception):
+    """
+    Raised when the :py:meth:`API.login` call failed.
+    """
+    pass
 
 class API(Connection):
     """
@@ -31,7 +37,7 @@ class API(Connection):
 
         :param username: username to use
         :param password: password to use
-        :returns: True on successful login, otherwise False
+        :returns: True on successful login, otherwise raises :py:class:`LoginFailed`
 
         .. _`MediaWiki#API:Login`: https://www.mediawiki.org/wiki/API:Login
         """
@@ -62,7 +68,10 @@ class API(Connection):
         self.is_loggedin.cache_clear()
         self.user_rights.cache_clear()
 
-        return do_login(self, username, password)
+        status = do_login(self, username, password)
+        if status is True and self.is_loggedin():
+            return True
+        raise LoginFailed
 
     @lru_cache(maxsize=None)
     def is_loggedin(self):

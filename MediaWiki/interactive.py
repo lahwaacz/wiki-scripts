@@ -18,16 +18,11 @@ def require_login(api):
     """
     Check if ``"api"`` session is authenticated, otherwise ask for credentials.
 
-    Calls :py:meth:`sys.exit(1)` if login failed.
-
     :param api: an :py:class:`MediaWiki.api.API` instance
     """
     if not api.is_loggedin():
         print("You need to log in to use this script. URL is %s" % api.api_url)
         api.login(username=input("Username: "), password=getpass.getpass("Password: "))
-        if not api.is_loggedin():
-            print("Login failed.", file=sys.stderr)
-            sys.exit(1)
 
 class TmpFileSeries:
     """
