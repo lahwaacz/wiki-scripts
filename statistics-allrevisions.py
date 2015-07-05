@@ -15,6 +15,7 @@ import json
 from MediaWiki import API
 import cache
 from utils import parse_date
+from MediaWiki.wikitable import *
 
 
 # return list of datetime.date objects with items jumped by 1 month
@@ -184,8 +185,8 @@ if __name__ == "__main__":
 #    create_histograms(db["revisions"])
 
 
-    from pprint import pprint
     import itertools
+    import operator
     import datetime
 
     # current UTC date
@@ -205,5 +206,10 @@ if __name__ == "__main__":
         if longest > 1 or current > 1:
             streaks.append({"user": user, "longest": longest, "current": current})
 
-#    pprint(sorted(streaks, key=lambda streak: streak["current"]))
-    pprint(sorted(streaks, key=lambda streak: streak["longest"]))
+    streaks.sort(key=lambda streak: streak["longest"])
+
+    igetter = operator.itemgetter("user", "current", "longest")
+    fields = ["User", "Current streak", "Longest streak"]
+    rows = [igetter(r) for r in streaks]
+
+    print(Wikitable.assemble(fields, rows))
