@@ -201,10 +201,10 @@ class _UserStats:
         "*": "",
         "autoconfirmed": "",
         "user": "",
-        "bureaucrat": "[[ArchWiki:Bureaucrats|bureaucrat]], ",
-        "sysop": "[[ArchWiki:Administrators|administrator]], ",
-        "maintainer": "[[ArchWiki:Maintainers|maintainer]], ",
-        "bot": "[[ArchWiki:Bots|bot]], ",
+        "bureaucrat": "[[ArchWiki:Bureaucrats|bureaucrat]]",
+        "sysop": "[[ArchWiki:Administrators|administrator]]",
+        "maintainer": "[[ArchWiki:Maintainers|maintainer]]",
+        "bot": "[[ArchWiki:Bots|bot]]",
     }
 
     def __init__(self, api, text, days, mintotedits, minrecedits, rcerrhours):
@@ -281,8 +281,10 @@ class _UserStats:
     @classmethod
     def _format_groups(cls, groups):
         fgroups = [cls.GRPTRANSL[group] for group in groups]
+        # drop empty strings
+        fgroups = list(filter(bool, fgroups))
         fgroups.sort()
-        return "".join(fgroups)[:-2]
+        return ", ".join(fgroups)
 
     def _do_update(self):
         majorusersN = len(self.users)
