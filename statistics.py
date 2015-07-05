@@ -19,22 +19,17 @@ from MediaWiki import API, APIError
 from MediaWiki.interactive import require_login
 from utils import list_chunks
 
-api = API(
-    "https://wiki.archlinux.org/api.php",
-    cookie_file=os.path.expanduser("~/.cache/ArchWiki.cookie"),
-    ssl_verify=True
-)
-
 
 class Statistics:
     """
     The whole statistics page.
     """
-    def __init__(self):
+    def __init__(self, api):
+        self.api = api
         self._parse_cli_args()
 
         if not self.cliargs.anonymous:
-            require_login(api)
+            require_login(self.api)
 
         try:
             self._parse_page()
@@ -111,7 +106,7 @@ class Statistics:
         self.cliargs = cliparser.parse_args()
 
     def _parse_page(self):
-        result = api.call(action="query", prop="info|revisions",
+        result = self.api.call(action="query", prop="info|revisions",
                 rvprop="content|timestamp", meta="tokens",
                 titles=self.cliargs.page)
         page = tuple(result["pages"].values())[0]
@@ -126,7 +121,7 @@ class Statistics:
         self.csrftoken = result["tokens"]["csrftoken"]
 
     def _compose_page(self):
-        userstats = _UserStats(self.text,
+        userstats = _UserStats(self.api, self.text,
                     self.cliargs.us_days, self.cliargs.us_mintotedits,
                     self.cliargs.us_minrecedits, self.cliargs.us_rcerrhours)
 
@@ -148,10 +143,10 @@ class Statistics:
         ret = 0
 
         if self.cliargs.save:
-            require_login(api)
+            require_login(self.api)
 
             try:
-                result = api.edit(self.pageid, self.text, self.timestamp,
+                result = self.api.edit(self.pageid, self.text, self.timestamp,
                                   self.cliargs.summary, token=self.csrftoken,
                                   bot="1", minor="1")
             except APIError as err:
@@ -212,11 +207,12 @@ class _UserStats:
         "bot": "[[ArchWiki:Bots|bot]], ",
     }
 
-    def __init__(self, text, days, mintotedits, minrecedits, rcerrhours):
+    def __init__(self, api, text, days, mintotedits, minrecedits, rcerrhours):
+        self.api = api
         self.text = text.get_sections(matches="User statistics", flat=True,
                                 include_lead=False, include_headings=False)[0]
 
-        if "apihighlimits" not in api.user_rights():
+        if "apihighlimits" not in self.api.user_rights():
             self.ULIMIT = 50
         else:
             self.ULIMIT = 500
@@ -230,10 +226,10 @@ class _UserStats:
     def initialize(self):
         self.users = {}
 
-        for user in api.list(action="query", list="allusers",
-                            aulimit="max",
-                            auprop="groups|editcount|registration",
-                            auwitheditsonly="1"):
+        for user in self.api.list(action="query", list="allusers",
+                                  aulimit="max",
+                                  auprop="groups|editcount|registration",
+                                  auwitheditsonly="1"):
             if user["editcount"] >= self.MINTOTEDITS:
                 name = self._format_name(user["name"])
                 self.users[name] = {}
@@ -299,9 +295,9 @@ class _UserStats:
     def _find_active_users(self):
         today = int(time.time()) // 86400 * 86400
         firstday = today - self.DAYS * 86400
-        rc = api.list(action="query", list="recentchanges", rcstart=today,
-                        rcend=firstday, rctype="edit",
-                        rcprop="user|timestamp", rclimit="max")
+        rc = self.api.list(action="query", list="recentchanges", rcstart=today,
+                           rcend=firstday, rctype="edit",
+                           rcprop="user|timestamp", rclimit="max")
 
         users = {}
 
@@ -332,9 +328,9 @@ class _UserStats:
         activeusersN = 0
 
         for usersgroup in groupedusers:
-            for user in api.list(action="query", list="users",
-                                    usprop="groups|editcount|registration",
-                                    ususers="|".join(usersgroup)):
+            for user in self.api.list(action="query", list="users",
+                                      usprop="groups|editcount|registration",
+                                      ususers="|".join(usersgroup)):
                 recenteditcount = rcusers[user["name"]]
                 editcount = user["editcount"]
 
@@ -405,4 +401,10 @@ class ShortRecentChangesError(StatisticsError):
     pass
 
 if __name__ == "__main__":
-    Statistics()
+    api = API(
+        "https://wiki.archlinux.org/api.php",
+        cookie_file=os.path.expanduser("~/.cache/ArchWiki.cookie"),
+        ssl_verify=True
+    )
+
+    Statistics(api)
