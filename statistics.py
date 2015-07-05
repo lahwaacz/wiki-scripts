@@ -17,7 +17,7 @@ except ImportError:
 
 from MediaWiki import API, APIError
 from MediaWiki.interactive import require_login
-from utils import list_chunks
+from utils import parse_date, list_chunks
 
 
 class Statistics:
@@ -36,8 +36,7 @@ class Statistics:
 
             if not self.cliargs.force and \
                                 datetime.datetime.utcnow().date() <= \
-                                datetime.datetime.strptime(self.timestamp,
-                                "%Y-%m-%dT%H:%M:%SZ").date():
+                                parse_date(self.timestamp).date():
                 print("The page has already been updated this UTC day",
                                                             file=sys.stderr)
                 sys.exit(1)
@@ -310,8 +309,7 @@ class _UserStats:
                 users[change["user"]] = 1
 
         # Oldest retrieved timestamp
-        oldestchange = datetime.datetime.strptime(change["timestamp"],
-                                                        "%Y-%m-%dT%H:%M:%SZ")
+        oldestchange = parse_date(change["timestamp"])
         self.date = datetime.datetime.utcfromtimestamp(today)
         self.firstdate = datetime.datetime.utcfromtimestamp(firstday)
         hours = datetime.timedelta(hours=self.RCERRORHOURS)
