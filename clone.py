@@ -174,6 +174,8 @@ if __name__ == "__main__":
             help="Output directory path, will be created if needed.")
     _script.add_argument("--force", action="store_true",
             help="Ignore timestamp, always download the latest revision from the wiki.")
+    _script.add_argument("--talks", action="store_true",
+            help="Also clone talk namespaces.")
     _script.add_argument("--clean", action="store_true",
             help="Clean the output directory after cloning, useful for removing pages deleted/moved on the wiki. Warning: any unknown files found in the output directory will be deleted!")
     _script.add_argument("--safe-filenames", action="store_true",
@@ -194,7 +196,11 @@ if __name__ == "__main__":
 
     downloader = Downloader(api, args.output_directory, epoch, args.safe_filenames)
 
-    for ns in ["0", "4", "12", "14"]:
+    namespaces = ["0", "4", "10", "12", "14"]
+    if args.talks:
+        namespaces += ["1", "5", "11", "13", "15"]
+
+    for ns in namespaces:
         downloader.process_namespace(ns)
 
     if args.clean:
