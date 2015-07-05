@@ -39,17 +39,19 @@ class LinkChecker:
     def __init__(self, api, interactive=False):
         self.api = api
         self.interactive = interactive
+
         if interactive is True:
             self.edit_summary = "simplification of wikilinks, fixing whitespace and capitalization, removing underscores (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py (interactive))"
         else:
             self.edit_summary = "simplification of wikilinks, fixing whitespace (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py)"
-        # namespaces of the links to be checked
-        self.backlink_namespaces = ["0", "4", "12"]
+
+        # resolve redirects in these namespacess
+        self.redirects_namespaces = ["0", "4", "12"]
 
         # get list of pageids of redirect pages
         print("Fetching redirects...")
         pageids = []
-        for ns in self.backlink_namespaces:
+        for ns in self.redirects_namespaces:
             pages = api.generator(generator="allpages", gaplimit="max", gapfilterredir="redirects", gapnamespace=ns)
             _pageids = [str(page["pageid"]) for page in pages]
             pageids.extend(_pageids)
