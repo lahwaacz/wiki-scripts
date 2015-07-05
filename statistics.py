@@ -3,7 +3,6 @@
 import os.path
 import time
 import datetime
-import re
 import sys
 import argparse
 
@@ -17,6 +16,7 @@ except ImportError:
 
 from MediaWiki import API, APIError
 from MediaWiki.interactive import require_login
+from MediaWiki.wikitable import Wikitable
 from utils import parse_date, list_chunks
 
 
@@ -242,26 +242,19 @@ class _UserStats:
         self._do_update()
 
     def update(self):
-        rowre = re.compile("^\|\-+\s*\n((?:.+\n){" +
-                                str(self.CELLSN) + "})", flags=re.MULTILINE)
-        cellre = re.compile("^\|\s*(.*?)$", flags=re.MULTILINE)
         self.users = {}
-
-        for row in re.finditer(rowre, str(self.text)):
-            cells = re.finditer(cellre, row.group(1))
-
-            name = next(cells).group(1)
-            # Ignore the recent edits
-            next(cells)
-            editcount = int(next(cells).group(1))
+        
+        for cells in Wikitable.parse(self.text):
+            name = cells[0]
+            editcount = int(cells[2])
 
             if editcount >= self.MINTOTEDITS:
                 self.users[name] = {}
                 # The recent edits must be reset in any case
                 self.users[name]["recenteditcount"] = 0
                 self.users[name]["editcount"] = editcount
-                self.users[name]["registration"] = next(cells).group(1)
-                self.users[name]["groups"] = next(cells).group(1)
+                self.users[name]["registration"] = cells[3]
+                self.users[name]["groups"] = cells[4]
 
         self._do_update()
 
@@ -377,17 +370,7 @@ class _UserStats:
                                 "edits" if self.MINRECEDITS > 1 else "edit",
                                 self.DAYS, self.firstdate.strftime("%Y-%m-%d"),
                                 self.date.strftime("%Y-%m-%d"), totalusersN)
-
-        header = '{{| class="wikitable sortable" border=1\n' + "! {}\n" * \
-                                                                    self.CELLSN
-        newtext += header.format(*self.FIELDS)
-        template = "|-\n" + "| {}\n" * self.CELLSN
-
-        for row in rows:
-            newtext += template.format(*row)
-
-        newtext += "|}\n"
-
+        newtext += Wikitable.assemble(self.FIELDS, rows)
         self.text.replace(self.text, newtext, recursive=False)
 
 

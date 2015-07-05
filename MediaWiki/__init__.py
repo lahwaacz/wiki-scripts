@@ -9,3 +9,4 @@ from .api import *
 from .diff import *
 from .dump import *
 from .interactive import *
+from .wikitable import *
