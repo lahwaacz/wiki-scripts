@@ -8,10 +8,9 @@ import http.cookiejar as cookielib
 import sys
 
 from . import __version__, __url__
-from .exceptions import *
 from .rate import RateLimited
 
-__all__ = ["Connection", "DEFAULT_UA"]
+__all__ = ["DEFAULT_UA", "Connection", "APIWrongAction", "ConnectionError", "APIJsonError", "APIError"]
 
 DEFAULT_UA = "wiki-scripts/{version} ({url})".format(version=__version__, url=__url__)
 
@@ -143,7 +142,7 @@ class Connection:
             # for some reason action=help is returned inside 'error'
             if action == "help":
                 return result["error"]["*"]
-            raise APIError(result["error"])
+            raise APIError(params, result["error"])
         if "warnings" in result:
             print("API warning(s) for query {}:".format(params), file=sys.stderr)
             for warning in result["warnings"].values():
@@ -159,3 +158,30 @@ class Connection:
         :returns: the hostname part of `self.api_url`
         """
         return requests.packages.urllib3.util.url.parse_url(self.api_url).hostname
+
+class APIWrongAction(Exception):
+    """ Raised when a wrong API action is specified
+    """
+    def __init__(self, action, available):
+        self.message = "%s (available actions are: %s)" % (action, available)
+
+    def __str__(self):
+        return self.message
+
+class ConnectionError(Exception):
+    """ Base connection exception
+    """
+    pass
+
+class APIJsonError(ConnectionError):
+    """ Raised when json-decoding of server response failed
+    """
+    pass
+
+class APIError(ConnectionError):
+    """ Raised when API response contains ``error`` attribute
+    """
+    def __init__(self, params, server_response):
+        self.message = "\nquery parameters: {}\nserver response: {}".format(params, server_response)
+    def __str__(self):
+        return self.message

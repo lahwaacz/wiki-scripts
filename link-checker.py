@@ -17,8 +17,7 @@ import re
 
 import mwparserfromhell
 
-from MediaWiki import API, diff_highlighted
-from MediaWiki.exceptions import *
+from MediaWiki import API, APIError, diff_highlighted
 from MediaWiki.interactive import *
 import ArchWiki.lang as lang
 

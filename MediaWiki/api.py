@@ -4,7 +4,6 @@ import hashlib
 from functools import lru_cache
 
 from .connection import Connection
-from .exceptions import *
 from .rate import RateLimited
 
 __all__ = ["API", "LoginFailed"]

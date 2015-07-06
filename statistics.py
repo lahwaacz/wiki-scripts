@@ -15,8 +15,7 @@ try:
 except ImportError:
     Tk = False
 
-from MediaWiki import API
-from MediaWiki.exceptions import APIError
+from MediaWiki import API, APIError
 from MediaWiki.interactive import require_login
 from utils import list_chunks
 

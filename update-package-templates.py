@@ -19,8 +19,7 @@ import mwparserfromhell
 import pycman
 import pyalpm
 
-from MediaWiki import API, diff_highlighted
-from MediaWiki.exceptions import *
+from MediaWiki import API, APIError, diff_highlighted
 from MediaWiki.interactive import *
 from ArchWiki.lang import detect_language
 
@@ -374,6 +373,19 @@ class PkgUpdater:
         json.dump(self.log, f, indent=4, sort_keys=True)
         f.close()
         print("Saved report in '%s.json'" % basename)
+
+
+class TemplateParametersError(Exception):
+    """ Raised when parsing a template parameter failed.
+    """
+    def __init__(self, template):
+        self.message = "Failed to parse a template parameter. This likely indicates a " \
+                       "syntax error on the page.\n\n" \
+                       "Template text: '{}'\n\n" \
+                       "Parsed parameters: {}".format(template, template.params)
+
+    def __str__(self):
+        return self.message
 
 
 # any path, the dirname part must exist (e.g. path to a file that will be created in the future)
