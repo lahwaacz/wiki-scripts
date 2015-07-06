@@ -11,19 +11,25 @@ from utils import list_chunks
 __all__ = ["AllRevisionsProps"]
 
 class AllRevisionsProps(CacheDb):
-    def __init__(self, api):
+    def __init__(self, api, autocommit=True):
         # needed for database initialization
         self.limit = 500 if "apihighlimits" in api.user_rights() else 50
 
-        super().__init__(api, "AllRevisionsProps")
+        super().__init__(api, "AllRevisionsProps", autocommit)
 
-    def init(self):
+    def init(self, key=None):
+        """
+        :param key: ignored
+        """
         self.data = {}
         self.data["badrevids"] = []
         self.data["revisions"] = []
         self.update()
 
-    def update(self):
+    def update(self, key=None):
+        """
+        :param key: ignored
+        """
         # get revision IDs of first and last revision to fetch
         firstrevid = self._get_last_revid_db() + 1
         lastrevid = self._get_last_revid_api()
@@ -37,7 +43,8 @@ class AllRevisionsProps(CacheDb):
             self.data["badrevids"].sort(key=lambda x: int(x))
             self.data["revisions"].sort(key=lambda x: x["revid"])
 
-            self.dump()
+            if self.autocommit is True:
+                self.dump()
 
     def _get_last_revid_db(self):
         """

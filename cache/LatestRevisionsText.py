@@ -13,16 +13,24 @@ from utils import list_chunks, parse_date
 __all__ = ["LatestRevisionsText"]
 
 class LatestRevisionsText(CacheDb):
-    def __init__(self, api):
+    def __init__(self, api, autocommit=True):
         # needed for database initialization
         self.limit = 500 if "apihighlimits" in api.user_rights() else 50
 
-        super().__init__(api, "LatestRevisionsText")
+        super().__init__(api, "LatestRevisionsText", autocommit)
 
     def init(self, ns="0"):
-        print("Running LatestRevisionsText.init()")
-        self.data = {}
+        """
+        :param ns: namespace index where the revisions are taken from.
+                   Internally functions as the database key.
+        """
+        ns = ns if ns is not None else "0"
+
+        print("Running LatestRevisionsText.init(ns=\"{}\")".format(ns))
+        if self.data is None:
+            self.data = {}
         self.data[ns] = []
+
         allpages = self.api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, prop="info|revisions", rvprop="content")
         for page in allpages:
             try:
@@ -30,17 +38,31 @@ class LatestRevisionsText(CacheDb):
                 db_page.update(page)
             except IndexError:
                 self._db_bisect_insert(ns, page)
-        self.dump()
 
-    def update(self, ns="0"):
-        print("Running LatestRevisionsText.update()")
+        if self.autocommit is True:
+            self.dump()
+
+    def update(self, ns=None):
+        """
+        :param ns: namespace index where the revisions are taken from.
+                   Internally functions as the database key.
+        """
+        ns = ns if ns is not None else "0"
+
+        if ns not in self.data:
+            self.init(ns)
+
+        print("Running LatestRevisionsText.update(ns=\"{}\")".format(ns))
         for_update = self._get_for_update(ns)
         if len(for_update) > 0:
             print("Fetching {} new revisions...".format(len(for_update)))
-        for snippet in list_chunks(for_update, self.limit):
-            result = self.api.call(action="query", pageids="|".join(str(pageid) for pageid in snippet), prop="info|revisions", rvprop="content")
-            for page in result["pages"].values():
-                self._db_bisect_insert(ns, page)
+            for snippet in list_chunks(for_update, self.limit):
+                result = self.api.call(action="query", pageids="|".join(str(pageid) for pageid in snippet), prop="info|revisions", rvprop="content")
+                for page in result["pages"].values():
+                    self._db_bisect_insert(ns, page)
+
+            if self.autocommit is True:
+                self.dump()
 
     def _get_for_update(self, ns):
         allpages = self.api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, prop="info")
