@@ -8,7 +8,7 @@
 #   extlink -> wikilink conversion should be done first
 #   URL-decoding (for page titles), dot-decoding (for sections)?
 #   skip interwiki links, categories, interlanguage links
-#   look at DISPLAYTITLE of the target page when replacing underscores (inprop=displaytitle)
+#   look at DISPLAYTITLE of the target page when replacing underscores and checking capitalization (handle first-letter case and CamelCase words properly!)    (inprop=displaytitle)
 #   capitalization of fragments (needs caching of latest revisions for performance)
 
 import argparse
