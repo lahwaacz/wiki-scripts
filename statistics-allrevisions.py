@@ -14,7 +14,7 @@ import json
 
 from MediaWiki import API
 import cache
-from utils import list_chunks, parse_date
+from utils import parse_date
 
 
 # return list of datetime.date objects with items jumped by 1 month

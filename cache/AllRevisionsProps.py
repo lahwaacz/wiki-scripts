@@ -1,6 +1,12 @@
 #! /usr/bin/env python3
 
+# FIXME: should be done by reorganizin the entire project
+import sys
+import os
+sys.path.append(os.path.abspath(".."))
+
 from . import *
+from utils import list_chunks
 
 __all__ = ["AllRevisionsProps"]
 
