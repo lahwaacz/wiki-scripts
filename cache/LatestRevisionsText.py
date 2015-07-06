@@ -19,7 +19,7 @@ class LatestRevisionsText(CacheDb):
 
         super().__init__(api, "LatestRevisionsText", autocommit)
 
-    def init(self, ns="0"):
+    def init(self, ns=None):
         """
         :param ns: namespace index where the revisions are taken from.
                    Internally functions as the database key.
