@@ -1,5 +1,10 @@
 #! /usr/bin/env python3
 
+# TODO:
+#   duplicated sections, e.g. fragments like #foo and #foo_2
+#   dot-decoding of fragments
+#   finally merge into link-checker.py, broken stuff should be just reported
+
 import os.path
 import re
 
@@ -12,23 +17,13 @@ cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 
 
-# first get list of pageids of redirect pages
-pageids = []
-for ns in ["0", "4", "12"]:
-    pages = api.generator(generator="allpages", gaplimit="max", gapfilterredir="redirects", gapnamespace=ns)
-    _pageids = [str(page["pageid"]) for page in pages]
-    pageids.extend(_pageids)
-
-# resolve redirects
-redirects = api.resolve_redirects(*pageids)
-
-
-# first limit to redirects with fragments
-redirects = [r for r in redirects if r.get("tofragment") is not None]
+# limit to redirects pointing to the content namespaces
+redirects = api.redirects_map(target_namespaces=["0", "4", "12"])
 
 # function to check if 'page' has 'section'
 def has_section(page, section):
-    result = api.call(action="query", prop="revisions", rvprop="content", titles=page)
+    # TODO: pulling revisions from cache would be much faster, but cache.LatestRevisionsText does not contain redirects (yet?) and does not expand templates (transclusions like on List of applications)
+    result = api.call(action="query", prop="revisions", rvprop="content", rvexpandtemplates="", titles=page)
     _p = list(result["pages"].values())[0]
     text = _p["revisions"][0]["*"]
 
@@ -39,11 +34,16 @@ def has_section(page, section):
 #        print("page '%s' does not have section '%s'" % (page, section))
         return False
 
-# limit to redirects with broken fragment
-redirects = [r for r in redirects if has_section(r["to"], r["tofragment"]) is False]
+for source in sorted(redirects.keys()):
+    target = redirects[source]
 
-# sort by source title
-redirects.sort(key=lambda r: r["from"])
+    # first limit to redirects with fragments
+    if len(target.split("#", maxsplit=1)) == 1:
+        continue
 
-for r in redirects:
-    print("* [[%s]] --> [[%s#%s]]" % (r["from"], r["to"], r["tofragment"]))
+    # limit to redirects with broken fragment
+    target, fragment = target.split("#", maxsplit=1)
+    if has_section(target, fragment):
+        continue
+
+    print("* [[{}]] --> [[{}#{}]]".format(source, target, fragment))
