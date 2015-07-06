@@ -231,9 +231,15 @@ class API(Connection):
     def resolve_redirects(self, *pageids):
         """
         Resolve redirect titles according to the `MediaWiki's API`_. List of redirect
-        pages must be obtained other way (for example by using
-        ``generator=allpages&gapfilterredir=redirects`` query), or just use this
-        method if unsure.
+        pages must be obtained other way, for example:
+
+        >>> pageids = []
+        >>> for ns in ["0", "4", "12"]:
+        >>>     pages = api.generator(generator="allpages", gaplimit="max", gapfilterredir="redirects", gapnamespace=ns)
+        >>>     _pageids = [str(page["pageid"]) for page in pages]
+        >>>     pageids.extend(_pageids)
+
+        Or just use this method when not sure if given title is a redirect or not.
 
         :param *pageids: unpacked list of page IDs to resolve (i.e. call this method
                          as ``resolve_redirects(*list)`` or
@@ -263,6 +269,49 @@ class API(Connection):
             result = self.call(action="query", redirects="", pageids="|".join(snippet))
             redirects.extend(result["redirects"])
 
+        return redirects
+
+    # TODO: solve caching of methods with unhashable parameters somehow
+#    @lru_cache(maxsize=8)
+    def redirects_map(self, source_namespaces=None, target_namespaces="all"):
+        """
+        Build a mapping of redirects in given namespaces. Interwiki redirects are
+        not included in the mapping.
+
+        :param source_namespaces: the namespace ID of the source title must be in this
+                                  list in order to be included in the mapping (default
+                                  is ["0"], the magic word "all" will select all
+                                  available namespaces)
+        :param target_namespaces: the namespace ID of the target title must be in this
+                                  list in order to be included in the mapping (default
+                                  is "all", which will select all available namespaces)
+        :returns: a dictionary where the keys are source titles and values are the
+                  redirect targets, including the link fragments (e.g.
+                  ``Page title#Section title``).
+        """
+        source_namespaces = source_namespaces if source_namespaces is not None else ["0"]
+        if source_namespaces == "all":
+            source_namespaces = [ns for ns in self.namespaces() if int(ns) >= 0]
+        if target_namespaces == "all":
+            target_namespaces = [ns for ns in self.namespaces() if int(ns) >= 0]
+
+        redirects = {}
+        for ns in target_namespaces:
+            # FIXME: adding the rdnamespace parameter causes an internal API error,
+            # see https://wiki.archlinux.org/index.php/User:Lahwaacz/Notes#API:_resolving_redirects
+            # removing it for now, all namespaces are included by default anyway...
+#            allpages = self.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max", prop="redirects", rdprop="title|fragment", rdnamespace="|".join(source_namespaces), rdlimit="max")
+            allpages = self.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max", prop="redirects", rdprop="title|fragment", rdlimit="max")
+            for page in allpages:
+                # construct the mapping, the query result is somewhat reversed...
+                target_title = page["title"]
+                for redirect in page.get("redirects", []):
+                    source_title = redirect["title"]
+                    target_fragment = redirect.get("fragment")
+                    if target_fragment:
+                        redirects[source_title] = "{}#{}".format(target_title, target_fragment)
+                    else:
+                        redirects[source_title] = target_title
         return redirects
 
     @RateLimited(1, 3)

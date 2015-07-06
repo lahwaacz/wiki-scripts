@@ -45,26 +45,8 @@ class LinkChecker:
         else:
             self.edit_summary = "simplification of wikilinks, fixing whitespace (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py)"
 
-        # resolve redirects in these namespacess
-        self.redirects_namespaces = ["0", "4", "12"]
-
-        # get list of pageids of redirect pages
-        print("Fetching redirects...")
-        pageids = []
-        for ns in self.redirects_namespaces:
-            pages = api.generator(generator="allpages", gaplimit="max", gapfilterredir="redirects", gapnamespace=ns)
-            _pageids = [str(page["pageid"]) for page in pages]
-            pageids.extend(_pageids)
-
-        # resolve redirects
-        redirects = api.resolve_redirects(*pageids)
-
-        # build dictionary
-        self.redirects = {}
-        for r in redirects:
-            origin = r["from"]
-            target = "{}#{}".format(r["to"], r["tofragment"]) if "tofragment" in r else r["to"]
-            self.redirects[origin] = target
+        # redirects only to the Main, ArchWiki and Help namespaces, others deserve special treatment
+        self.redirects = api.redirects_map(target_namespaces=["0", "4", "12"])
 
     def check_trivial(self, wikilink):
         """
