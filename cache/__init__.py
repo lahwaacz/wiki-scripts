@@ -112,3 +112,8 @@ class CacheDb:
     def __contains__(self, item):
         self._load_and_update()
         return self.data.__contains__(item)
+
+
+from .AllRevisionsProps import *
+
+__all__ = ["CacheDb", "AllRevisionsProps"]
