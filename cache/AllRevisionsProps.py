@@ -18,6 +18,7 @@ class AllRevisionsProps(CacheDb):
         super().__init__(api, "AllRevisionsProps")
 
     def init(self):
+        self.data = {}
         self.data["badrevids"] = []
         self.data["revisions"] = []
         self.update()

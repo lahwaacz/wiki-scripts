@@ -115,5 +115,6 @@ class CacheDb:
 
 
 from .AllRevisionsProps import *
+from .LatestRevisionsText import *
 
-__all__ = ["CacheDb", "AllRevisionsProps"]
+__all__ = ["CacheDb", "AllRevisionsProps", "LatestRevisionsText"]
