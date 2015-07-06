@@ -153,3 +153,9 @@ class Connection:
         if expand_result is True:
             return result[action]
         return result
+
+    def get_hostname(self):
+        """
+        :returns: the hostname part of `self.api_url`
+        """
+        return requests.packages.urllib3.util.url.parse_url(self.api_url).hostname

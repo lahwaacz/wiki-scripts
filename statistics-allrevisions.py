@@ -13,93 +13,9 @@ import os.path
 import json
 
 from MediaWiki import API
-from utils import list_chunks, parse_date
+import cache
+from utils import parse_date
 
-api_url = "https://wiki.archlinux.org/api.php"
-cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
-
-api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
-
-
-def get_last_revision_id():
-    result = api.call(action="query", list="recentchanges", rcprop="ids", rctype="edit", rclimit="1")
-    return result["recentchanges"][0]["revid"]
-
-def fetch_revisions(first, last):
-    """
-    Function to fetch properties of revisions in given numeric range.
-
-    :param first: (int) revision ID to start fetching from
-    :param last: (int) revision ID to end fetching
-    :returns: ``(badrevids, revisions)`` tuple, where ``revisions`` is list of
-    dictionaries holding revision properties as returned by the MediaWiki API.
-    """
-    badrevids = []
-    revisions = []
-
-    limit = 500 if "apihighlimits" in api.user_rights() else 50
-
-    for snippet in list_chunks(range(first, last+1), limit):
-        print("Fetching revids %s-%s" % (snippet[0], snippet[-1]))
-        revids = "|".join(str(x) for x in snippet)
-        result = api.call(action="query", revids=revids, prop="revisions")
-
-        if "badrevids" in result:
-            badrevids.extend(result["badrevids"].keys())
-        for _, page in result["pages"].items():
-            # FIXME: workaround for deleted pages, probably should be solved differently
-            if "revisions" in page:
-                revisions.extend(page["revisions"])
-
-    return badrevids, revisions
-
-class Db:
-    def __init__(self, fname):
-        self.fname = fname
-        self.badrevids = []
-        self.revisions = []
-
-    def load(self):
-        if os.path.isfile(self.fname):
-            db = open(self.fname, "r")
-            data = json.loads(db.read())
-            self.badrevids = data["badrevids"]
-            self.revisions = data["revisions"]
-        else:
-            print("Database '%s' does not exist")
-
-    def dump(self):
-        # sort the data by revid before dumping
-        self.badrevids.sort(key=lambda x: int(x))
-        self.revisions.sort(key=lambda x: x["revid"])
-
-        # dump the data into file
-        db = open(self.fname, "w")
-        data = {"badrevids": self.badrevids, "revisions": self.revisions}
-        db.write(json.dumps(data))
-
-    def update(self):
-        # try to read database
-        self.load()
-
-        # get revision IDs of first and last revision to fetch
-        if len(self.revisions) == 0:
-            firstrevid = 0
-        else:
-            firstrevid = self.revisions[-1]["revid"] + 1
-        lastrevid = get_last_revision_id()
-
-        if lastrevid >= firstrevid:
-            # update
-            badrevids, revisions = fetch_revisions(firstrevid, lastrevid)
-            self.badrevids.extend(badrevids)
-            self.revisions.extend(revisions)
-
-            self.dump()
-            return True
-        else:
-            print("The database is up to date")
-            return False
 
 # return list of datetime.date objects with items jumped by 1 month
 def datetime_month_range(first, last):
@@ -208,16 +124,19 @@ def create_histograms(revisions):
 
 if __name__ == "__main__":
     # TODO: take command line arguments
-    db = Db("stub/statistics_allrevisions.db.json")
-    db.update()
+    api_url = "https://wiki.archlinux.org/api.php"
+    cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
-#    db.load()
-    create_histograms(db.revisions)
+    api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
+
+    db = cache.AllRevisionsProps(api)
+    create_histograms(db["revisions"])
 
 #    import cProfile
 #    import pstats
 #    print("profiling started")
-#    cProfile.run("create_histograms(db.revisions)", "stub/restats.log")
-#    p = pstats.Stats("restats")
-##    p.sort_stats("time").print_stats(10)
-#    p.sort_stats("cumulative").print_stats(10)
+#    cProfile.run("db.filter(GoodRevision, {})", "stub/restats.log")
+##    cProfile.run("db.update()", "stub/restats.log")
+#    p = pstats.Stats("stub/restats.log")
+#    p.sort_stats("time").print_stats(30)
+#    p.sort_stats("cumulative").print_stats(30)

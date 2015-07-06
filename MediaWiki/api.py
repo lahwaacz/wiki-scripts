@@ -178,10 +178,25 @@ class API(Connection):
         :param params: same as :py:meth:`API.query_continue`
         :param kwargs: same as :py:meth:`API.query_continue`
         :yields: from "pages" part of the API response
+
+        When a generator is combined with props, results are split into multiple
+        chunks, each providing piece of information. For exmample queries with
+        "prop=revisions" and "rvprop=content" have a limit lower than the
+        generator's maximum and specifying multiple props generally results in
+        exceeding the value of ``$wgAPIMaxResultSize``.
+
+        Although there is an automated query continuation via
+        :py:meth:`self.query_continue`, the overlapping overlapping data is not
+        squashed automatically in order to avoid keeping big data in memory
+        (this is the point of API:Generators). As a result, a page may be
+        yielded multiple times. See :py:meth:`cache.LatestRevisionsText.init()`
+        for an example of proper handling of this case.
         """
         generator_ = kwargs.get("generator") if params is None else params.get("generator")
         if generator_ is None:
             raise ValueError("param 'generator' must be supplied")
+
+        prop = kwargs.get("prop") if params is None else params.get("prop")
 
         for snippet in self.query_continue(params, **kwargs):
             # API generator returns dict !!!
