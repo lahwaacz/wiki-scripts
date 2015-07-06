@@ -18,8 +18,8 @@ class AllRevisionsProps(CacheDb):
 
     def update(self):
         # get revision IDs of first and last revision to fetch
-        firstrevid = self._get_first_revision_id()
-        lastrevid = self._get_last_revision_id()
+        firstrevid = self._get_last_revid_db() + 1
+        lastrevid = self._get_last_revid_api()
 
         if lastrevid >= firstrevid:
             badrevids, revisions = self._fetch_revisions(firstrevid, lastrevid)
@@ -32,19 +32,19 @@ class AllRevisionsProps(CacheDb):
 
             self.dump()
 
-    def _get_first_revision_id(self):
+    def _get_last_revid_db(self):
         """
-        Get first revision for the update query.
+        Get ID of the last revision stored in the cache database.
         """
         try:
-            return self.data["revisions"][-1]["revid"] + 1
+            return self.data["revisions"][-1]["revid"]
         except IndexError:
             # empty database
-            return 0
+            return -1
 
-    def _get_last_revision_id(self):
+    def _get_last_revid_api(self):
         """
-        Get last revision for the update query.
+        Get ID of the last revision on the wiki.
         """
         result = self.api.call(action="query", list="recentchanges", rcprop="ids", rctype="edit", rclimit="1")
         return result["recentchanges"][0]["revid"]

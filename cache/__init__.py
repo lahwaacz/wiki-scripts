@@ -31,6 +31,7 @@ class CacheDb:
         Called automatically from :py:meth:`self.__init__()`, it is not necessary to call it manually.
         """
         if os.path.isfile(self.dbpath):
+            print("Loading data from {} ...".format(self.dbpath))
             db = gzip.open(self.dbpath, mode="rt", encoding="utf-8")
             self.data = json.loads(db.read())
         else:
@@ -51,6 +52,7 @@ class CacheDb:
             if e.errno != 17:
                 raise e
 
+        print("Saving data to {} ...".format(self.dbpath))
         db = gzip.open(self.dbpath, mode="wt", encoding="utf-8")
         db.write(json.dumps(self.data))
 
@@ -74,8 +76,6 @@ class CacheDb:
 
         Responsible for calling :py:meth:`self.dump()` after the query.
         
-        TODO: note on decorator for time-based caching
-
         Has to be defined in subclasses.
         """
         pass
