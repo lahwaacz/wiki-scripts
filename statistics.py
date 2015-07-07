@@ -197,7 +197,8 @@ class _UserStats:
             "total, combined with the {} users who made at least {} {} "
             "in the {} days between {} and {} (00:00 UTC), for a total of {} "
             "users.\n\n")
-    FIELDS = ("User", "Registration", "Groups", "Recent", "Total", "Longest streak", "Current streak")
+    FIELDS = ("user", "registration", "groups", "recent", "total", "longest streak", "current streak")
+    FIELDS_FORMAT = ("User", "Registration", "Groups", "Recent", "Total", "Longest streak<br>(days)", "Current streak<br>(days)")
     GRPTRANSL = {
         "*": "",
         "autoconfirmed": "",
@@ -361,21 +362,21 @@ class _UserStats:
             # compose row with cells ordered based on self.FIELDS
             # TODO: perhaps it would be best if Wikitable.assemble could handle list of dicts
             cells = [None] * len(self.FIELDS)
-            cells[self.FIELDS.index("User")]           = self._format_name(name)
-            cells[self.FIELDS.index("Recent")]         = info["recenteditcount"]
-            cells[self.FIELDS.index("Total")]          = info["editcount"]
-            cells[self.FIELDS.index("Registration")]   = info["registration"]
-            cells[self.FIELDS.index("Groups")]         = info["groups"]
-            cells[self.FIELDS.index("Longest streak")] = longest_streak
-            cells[self.FIELDS.index("Current streak")] = current_streak
+            cells[self.FIELDS.index("user")]           = self._format_name(name)
+            cells[self.FIELDS.index("recent")]         = info["recenteditcount"]
+            cells[self.FIELDS.index("total")]          = info["editcount"]
+            cells[self.FIELDS.index("registration")]   = info["registration"]
+            cells[self.FIELDS.index("groups")]         = info["groups"]
+            cells[self.FIELDS.index("longest streak")] = longest_streak
+            cells[self.FIELDS.index("current streak")] = current_streak
             rows.append(cells)
 
         # Tertiary key (registration date, ascending)
-        rows.sort(key=lambda item: item[self.FIELDS.index("Registration")])
+        rows.sort(key=lambda item: item[self.FIELDS.index("registration")])
         # Secondary key (edit count, descending)
-        rows.sort(key=lambda item: item[self.FIELDS.index("Total")], reverse=True)
+        rows.sort(key=lambda item: item[self.FIELDS.index("total")], reverse=True)
         # Primary key (recent edits, descending)
-        rows.sort(key=lambda item: item[self.FIELDS.index("Recent")], reverse=True)
+        rows.sort(key=lambda item: item[self.FIELDS.index("recent")], reverse=True)
 
         return rows
 
@@ -385,7 +386,7 @@ class _UserStats:
                                 "edits" if self.MINRECEDITS > 1 else "edit",
                                 self.DAYS, self.firstdate.strftime("%Y-%m-%d"),
                                 self.date.strftime("%Y-%m-%d"), totalusersN)
-        newtext += Wikitable.assemble(self.FIELDS, rows)
+        newtext += Wikitable.assemble(self.FIELDS_FORMAT, rows)
         self.text.replace(self.text, newtext, recursive=False)
 
 
