@@ -132,8 +132,19 @@ class CacheDb:
         self._load_and_update(item)
         return self.data.__contains__(item)
 
+class ListOfDictsAttrWrapper(object):
+    """ A list-like wrapper around list of dicts, operating on a given attribute.
+    """
+    def __init__(self, dict_list, attr):
+        self.dict_list = dict_list
+        self.attr = attr
+    def __getitem__(self, index):
+        return self.dict_list[index][self.attr]
+    def __len__(self):
+        return self.dict_list.__len__()
+
 
 from .AllRevisionsProps import *
 from .LatestRevisionsText import *
 
-__all__ = ["CacheDb", "AllRevisionsProps", "LatestRevisionsText"]
+__all__ = ["CacheDb", "ListOfDictsAttrWrapper", "AllRevisionsProps", "LatestRevisionsText"]

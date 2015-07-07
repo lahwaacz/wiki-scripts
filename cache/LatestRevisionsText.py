@@ -101,13 +101,3 @@ class LatestRevisionsText(CacheDb):
             self.data[ns][i] = page
         else:
             self.data[ns].insert(i, page)
-
-# a list-like wrapper around list of dicts, operating on a given attribute
-class ListOfDictsAttrWrapper(object):
-    def __init__(self, dict_list, attr):
-        self.dict_list = dict_list
-        self.attr = attr
-    def __getitem__(self, index):
-        return self.dict_list[index][self.attr]
-    def __len__(self):
-        return self.dict_list.__len__()
