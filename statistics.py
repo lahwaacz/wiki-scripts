@@ -400,9 +400,10 @@ class ShortRecentChangesError(StatisticsError):
     pass
 
 if __name__ == "__main__":
+    cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
     api = API(
         "https://wiki.archlinux.org/api.php",
-        cookie_file=os.path.expanduser("~/.cache/ArchWiki.cookie"),
+        cookie_file=os.path.join(cache_dir, "ArchWiki.bot.cookie"),
         ssl_verify=True
     )
 
