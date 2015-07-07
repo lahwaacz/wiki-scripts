@@ -8,8 +8,11 @@ from utils import parse_date
 import cache
 
 class Streaks:
-    def __init__(self, api):
-        self.db = cache.AllRevisionsProps(api)
+    def __init__(self, db_allrevprops):
+        """
+        :param db_allrevprops: an instance of :py:class:`cache.AllRevisionsProps`
+        """
+        self.db = db_allrevprops
         self.streaks = None
 
     def recalculate(self):
@@ -21,14 +24,12 @@ class Streaks:
         utcnow = datetime.datetime.utcnow()
         today = datetime.date(utcnow.year, utcnow.month, utcnow.day)
 
-        # access to database triggers an update
-        revisions = self.db["revisions"]
-
         # sort revisions by multiple keys: 1. user, 2. timestamp
         # this way we can group the list by users and iterate through user_revisions to
         # calculate all streaks, record the longest streak and determine the current streak
         # at the end (the last calculated streak or 0)
-        revisions = sorted(revisions, key=lambda r: (r["user"], r["timestamp"]))
+        # NOTE: access to database triggers an update, sorted() creates a shallow copy
+        revisions = sorted(self.db["revisions"], key=lambda r: (r["user"], r["timestamp"]))
         revisions_groups = itertools.groupby(revisions, key=lambda r: r["user"])
         self.streaks = []
         for user, user_revisions in revisions_groups:
@@ -110,11 +111,12 @@ if __name__ == "__main__":
     cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
     api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
+    db = cache.AllRevisionsProps(api)
 
     import operator
     from MediaWiki.wikitable import *
 
-    s = Streaks(api)
+    s = Streaks(db)
     s.recalculate()
 
     igetter = operator.itemgetter("user", "current", "longest")
