@@ -18,6 +18,8 @@ from MediaWiki import API, APIError
 from MediaWiki.interactive import require_login
 from MediaWiki.wikitable import Wikitable
 from utils import parse_date, list_chunks
+import cache
+from statistics_modules import Streaks
 
 
 class Statistics:
@@ -195,7 +197,7 @@ class _UserStats:
             "total, combined with the {} users who made at least {} {} "
             "in the {} days between {} and {} (00:00 UTC), for a total of {} "
             "users.\n\n")
-    FIELDS = ("User", "Recent", "Total", "Registration", "Groups")
+    FIELDS = ("User", "Recent", "Total", "Registration", "Groups", "Longest streak", "Current streak")
     GRPTRANSL = {
         "*": "",
         "autoconfirmed": "",
@@ -222,6 +224,10 @@ class _UserStats:
         self.MINRECEDITS = minrecedits
         self.RCERRORHOURS = rcerrhours
 
+        self.db_allrevsprops = cache.AllRevisionsProps(api)
+        self.streaks = Streaks(self.db_allrevsprops)
+        self.streaks.recalculate()
+
     def initialize(self):
         self.users = {}
 
@@ -230,7 +236,7 @@ class _UserStats:
                                   auprop="groups|editcount|registration",
                                   auwitheditsonly="1"):
             if user["editcount"] >= self.MINTOTEDITS:
-                name = self._format_name(user["name"])
+                name = user["name"]
                 self.users[name] = {}
                 self.users[name]["recenteditcount"] = 0
                 self.users[name]["editcount"] = user["editcount"]
@@ -246,6 +252,8 @@ class _UserStats:
         
         for cells in Wikitable.parse(self.text):
             name = cells[0]
+            # extract the pure name, e.g. [[User:Lahwaacz|Lahwaacz]] --> Lahwaacz
+            name = name.strip("[]").split("|")[1].strip()
             editcount = int(cells[2])
 
             if editcount >= self.MINTOTEDITS:
@@ -334,7 +342,7 @@ class _UserStats:
                 elif editcount < self.MINTOTEDITS:
                     continue
 
-                self.users[self._format_name(user["name"])] = {
+                self.users[user["name"]] = {
                     "recenteditcount": recenteditcount,
                     "editcount": editcount,
                     "registration": self._format_registration(
@@ -347,13 +355,15 @@ class _UserStats:
     def _compose_rows(self):
         rows = []
 
-        for name in self.users:
-            info = self.users[name]
-            rows.append((name,
+        for name, info in self.users.items():
+            longest_streak, current_streak = self.streaks.get_streaks(name)
+            rows.append((self._format_name(name),
                         info["recenteditcount"],
                         info["editcount"],
                         info["registration"],
-                        info["groups"]))
+                        info["groups"],
+                        longest_streak,
+                        current_streak))
 
         # Tertiary key (registration date, ascending)
         rows.sort(key=lambda item: item[3])
