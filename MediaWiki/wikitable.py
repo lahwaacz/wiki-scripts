@@ -46,7 +46,7 @@ class Wikitable:
         # rows are separated by |-
         rowre = re.compile("^\|\-(.*?)(?=(\|\-|\|\}))", flags=re.MULTILINE | re.DOTALL)
         # TODO: parse single-line rows
-        cellre = re.compile("^\|\s*(.*?)$", flags=re.MULTILINE)
+        cellre = re.compile("^\|\s*(.*?)(?=$|^\|)", flags=re.MULTILINE)
 
         table = re.search(tablere, str(text))
         if not table:
