@@ -5,12 +5,8 @@
 # * only diffable changes are recorded (edits and moves, not deletions)
 # * bots vs nobots
 # * different notion of active user ("calendar month" vs "30 days")
-#
-# TODO:
-# * refactoring
 
 import os.path
-import json
 
 from MediaWiki import API
 import cache
@@ -131,12 +127,3 @@ if __name__ == "__main__":
 
     db = cache.AllRevisionsProps(api)
     create_histograms(db["revisions"])
-
-#    import cProfile
-#    import pstats
-#    print("profiling started")
-#    cProfile.run("db.filter(GoodRevision, {})", "stub/restats.log")
-##    cProfile.run("db.update()", "stub/restats.log")
-#    p = pstats.Stats("stub/restats.log")
-#    p.sort_stats("time").print_stats(30)
-#    p.sort_stats("cumulative").print_stats(30)

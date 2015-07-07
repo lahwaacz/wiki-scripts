@@ -3,7 +3,6 @@
 import os.path
 import time
 import datetime
-import re
 import sys
 import argparse
 
@@ -17,32 +16,29 @@ except ImportError:
 
 from MediaWiki import API, APIError
 from MediaWiki.interactive import require_login
-from utils import list_chunks
-
-api = API(
-    "https://wiki.archlinux.org/api.php",
-    cookie_file=os.path.expanduser("~/.cache/ArchWiki.cookie"),
-    ssl_verify=True
-)
+from MediaWiki.wikitable import Wikitable
+from utils import parse_date, list_chunks
+import cache
+from statistics_modules import Streaks
 
 
 class Statistics:
     """
     The whole statistics page.
     """
-    def __init__(self):
+    def __init__(self, api):
+        self.api = api
         self._parse_cli_args()
 
         if not self.cliargs.anonymous:
-            require_login(api)
+            require_login(self.api)
 
         try:
             self._parse_page()
 
             if not self.cliargs.force and \
                                 datetime.datetime.utcnow().date() <= \
-                                datetime.datetime.strptime(self.timestamp,
-                                "%Y-%m-%dT%H:%M:%SZ").date():
+                                parse_date(self.timestamp).date():
                 print("The page has already been updated this UTC day",
                                                             file=sys.stderr)
                 sys.exit(1)
@@ -111,7 +107,7 @@ class Statistics:
         self.cliargs = cliparser.parse_args()
 
     def _parse_page(self):
-        result = api.call(action="query", prop="info|revisions",
+        result = self.api.call(action="query", prop="info|revisions",
                 rvprop="content|timestamp", meta="tokens",
                 titles=self.cliargs.page)
         page = tuple(result["pages"].values())[0]
@@ -126,7 +122,7 @@ class Statistics:
         self.csrftoken = result["tokens"]["csrftoken"]
 
     def _compose_page(self):
-        userstats = _UserStats(self.text,
+        userstats = _UserStats(self.api, self.text,
                     self.cliargs.us_days, self.cliargs.us_mintotedits,
                     self.cliargs.us_minrecedits, self.cliargs.us_rcerrhours)
 
@@ -148,10 +144,10 @@ class Statistics:
         ret = 0
 
         if self.cliargs.save:
-            require_login(api)
+            require_login(self.api)
 
             try:
-                result = api.edit(self.pageid, self.text, self.timestamp,
+                result = self.api.edit(self.pageid, self.text, self.timestamp,
                                   self.cliargs.summary, token=self.csrftoken,
                                   bot="1", minor="1")
             except APIError as err:
@@ -201,22 +197,24 @@ class _UserStats:
             "total, combined with the {} users who made at least {} {} "
             "in the {} days between {} and {} (00:00 UTC), for a total of {} "
             "users.\n\n")
-    FIELDS = ("User", "Recent", "Total", "Registration", "Groups")
+    FIELDS = ("user", "registration", "groups", "recent", "total", "longest streak", "current streak")
+    FIELDS_FORMAT = ("User", "Registration", "Groups", "Recent", "Total", "Longest streak<br>(days)", "Current streak<br>(days)")
     GRPTRANSL = {
         "*": "",
         "autoconfirmed": "",
         "user": "",
-        "bureaucrat": "[[ArchWiki:Bureaucrats|bureaucrat]], ",
-        "sysop": "[[ArchWiki:Administrators|administrator]], ",
-        "maintainer": "[[ArchWiki:Maintainers|maintainer]], ",
-        "bot": "[[ArchWiki:Bots|bot]], ",
+        "bureaucrat": "[[ArchWiki:Bureaucrats|bureaucrat]]",
+        "sysop": "[[ArchWiki:Administrators|administrator]]",
+        "maintainer": "[[ArchWiki:Maintainers|maintainer]]",
+        "bot": "[[ArchWiki:Bots|bot]]",
     }
 
-    def __init__(self, text, days, mintotedits, minrecedits, rcerrhours):
+    def __init__(self, api, text, days, mintotedits, minrecedits, rcerrhours):
+        self.api = api
         self.text = text.get_sections(matches="User statistics", flat=True,
                                 include_lead=False, include_headings=False)[0]
 
-        if "apihighlimits" not in api.user_rights():
+        if "apihighlimits" not in self.api.user_rights():
             self.ULIMIT = 50
         else:
             self.ULIMIT = 500
@@ -227,15 +225,19 @@ class _UserStats:
         self.MINRECEDITS = minrecedits
         self.RCERRORHOURS = rcerrhours
 
+        self.db_allrevsprops = cache.AllRevisionsProps(api)
+        self.streaks = Streaks(self.db_allrevsprops)
+        self.streaks.recalculate()
+
     def initialize(self):
         self.users = {}
 
-        for user in api.list(action="query", list="allusers",
-                            aulimit="max",
-                            auprop="groups|editcount|registration",
-                            auwitheditsonly="1"):
+        for user in self.api.list(action="query", list="allusers",
+                                  aulimit="max",
+                                  auprop="groups|editcount|registration",
+                                  auwitheditsonly="1"):
             if user["editcount"] >= self.MINTOTEDITS:
-                name = self._format_name(user["name"])
+                name = user["name"]
                 self.users[name] = {}
                 self.users[name]["recenteditcount"] = 0
                 self.users[name]["editcount"] = user["editcount"]
@@ -247,26 +249,22 @@ class _UserStats:
         self._do_update()
 
     def update(self):
-        rowre = re.compile("^\|\-+\s*\n((?:.+\n){" +
-                                str(self.CELLSN) + "})", flags=re.MULTILINE)
-        cellre = re.compile("^\|\s*(.*?)$", flags=re.MULTILINE)
         self.users = {}
-
-        for row in re.finditer(rowre, str(self.text)):
-            cells = re.finditer(cellre, row.group(1))
-
-            name = next(cells).group(1)
-            # Ignore the recent edits
-            next(cells)
-            editcount = int(next(cells).group(1))
+        
+        fields, rows = Wikitable.parse(self.text)
+        for row in rows:
+            name = row[fields.index("User")]
+            # extract the pure name, e.g. [[User:Lahwaacz|Lahwaacz]] --> Lahwaacz
+            name = name.strip("[]").split("|")[1].strip()
+            editcount = int(row[fields.index("Total")])
 
             if editcount >= self.MINTOTEDITS:
                 self.users[name] = {}
                 # The recent edits must be reset in any case
                 self.users[name]["recenteditcount"] = 0
                 self.users[name]["editcount"] = editcount
-                self.users[name]["registration"] = next(cells).group(1)
-                self.users[name]["groups"] = next(cells).group(1)
+                self.users[name]["registration"] = row[fields.index("Registration")]
+                self.users[name]["groups"] = row[fields.index("Groups")]
 
         self._do_update()
 
@@ -285,8 +283,10 @@ class _UserStats:
     @classmethod
     def _format_groups(cls, groups):
         fgroups = [cls.GRPTRANSL[group] for group in groups]
+        # drop empty strings
+        fgroups = list(filter(bool, fgroups))
         fgroups.sort()
-        return "".join(fgroups)[:-2]
+        return ", ".join(fgroups)
 
     def _do_update(self):
         majorusersN = len(self.users)
@@ -299,9 +299,9 @@ class _UserStats:
     def _find_active_users(self):
         today = int(time.time()) // 86400 * 86400
         firstday = today - self.DAYS * 86400
-        rc = api.list(action="query", list="recentchanges", rcstart=today,
-                        rcend=firstday, rctype="edit",
-                        rcprop="user|timestamp", rclimit="max")
+        rc = self.api.list(action="query", list="recentchanges", rcstart=today,
+                           rcend=firstday, rctype="edit",
+                           rcprop="user|timestamp", rclimit="max")
 
         users = {}
 
@@ -312,8 +312,7 @@ class _UserStats:
                 users[change["user"]] = 1
 
         # Oldest retrieved timestamp
-        oldestchange = datetime.datetime.strptime(change["timestamp"],
-                                                        "%Y-%m-%dT%H:%M:%SZ")
+        oldestchange = parse_date(change["timestamp"])
         self.date = datetime.datetime.utcfromtimestamp(today)
         self.firstdate = datetime.datetime.utcfromtimestamp(firstday)
         hours = datetime.timedelta(hours=self.RCERRORHOURS)
@@ -332,9 +331,9 @@ class _UserStats:
         activeusersN = 0
 
         for usersgroup in groupedusers:
-            for user in api.list(action="query", list="users",
-                                    usprop="groups|editcount|registration",
-                                    ususers="|".join(usersgroup)):
+            for user in self.api.list(action="query", list="users",
+                                      usprop="groups|editcount|registration",
+                                      ususers="|".join(usersgroup)):
                 recenteditcount = rcusers[user["name"]]
                 editcount = user["editcount"]
 
@@ -345,7 +344,7 @@ class _UserStats:
                 elif editcount < self.MINTOTEDITS:
                     continue
 
-                self.users[self._format_name(user["name"])] = {
+                self.users[user["name"]] = {
                     "recenteditcount": recenteditcount,
                     "editcount": editcount,
                     "registration": self._format_registration(
@@ -358,20 +357,26 @@ class _UserStats:
     def _compose_rows(self):
         rows = []
 
-        for name in self.users:
-            info = self.users[name]
-            rows.append((name,
-                        info["recenteditcount"],
-                        info["editcount"],
-                        info["registration"],
-                        info["groups"]))
+        for name, info in self.users.items():
+            longest_streak, current_streak = self.streaks.get_streaks(name)
+            # compose row with cells ordered based on self.FIELDS
+            # TODO: perhaps it would be best if Wikitable.assemble could handle list of dicts
+            cells = [None] * len(self.FIELDS)
+            cells[self.FIELDS.index("user")]           = self._format_name(name)
+            cells[self.FIELDS.index("recent")]         = info["recenteditcount"]
+            cells[self.FIELDS.index("total")]          = info["editcount"]
+            cells[self.FIELDS.index("registration")]   = info["registration"]
+            cells[self.FIELDS.index("groups")]         = info["groups"]
+            cells[self.FIELDS.index("longest streak")] = longest_streak
+            cells[self.FIELDS.index("current streak")] = current_streak
+            rows.append(cells)
 
         # Tertiary key (registration date, ascending)
-        rows.sort(key=lambda item: item[3])
+        rows.sort(key=lambda item: item[self.FIELDS.index("registration")])
         # Secondary key (edit count, descending)
-        rows.sort(key=lambda item: item[2], reverse=True)
+        rows.sort(key=lambda item: item[self.FIELDS.index("total")], reverse=True)
         # Primary key (recent edits, descending)
-        rows.sort(key=lambda item: item[1], reverse=True)
+        rows.sort(key=lambda item: item[self.FIELDS.index("recent")], reverse=True)
 
         return rows
 
@@ -381,17 +386,7 @@ class _UserStats:
                                 "edits" if self.MINRECEDITS > 1 else "edit",
                                 self.DAYS, self.firstdate.strftime("%Y-%m-%d"),
                                 self.date.strftime("%Y-%m-%d"), totalusersN)
-
-        header = '{{| class="wikitable sortable" border=1\n' + "! {}\n" * \
-                                                                    self.CELLSN
-        newtext += header.format(*self.FIELDS)
-        template = "|-\n" + "| {}\n" * self.CELLSN
-
-        for row in rows:
-            newtext += template.format(*row)
-
-        newtext += "|}\n"
-
+        newtext += Wikitable.assemble(self.FIELDS_FORMAT, rows)
         self.text.replace(self.text, newtext, recursive=False)
 
 
@@ -405,4 +400,11 @@ class ShortRecentChangesError(StatisticsError):
     pass
 
 if __name__ == "__main__":
-    Statistics()
+    cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
+    api = API(
+        "https://wiki.archlinux.org/api.php",
+        cookie_file=os.path.join(cache_dir, "ArchWiki.bot.cookie"),
+        ssl_verify=True
+    )
+
+    Statistics(api)
