@@ -206,10 +206,10 @@ if __name__ == "__main__":
         if longest > 1 or current > 1:
             streaks.append({"user": user, "longest": longest, "current": current})
 
-    streaks.sort(key=lambda streak: streak["longest"])
+    streaks.sort(key=lambda streak: streak["current"], reverse=True)
 
     igetter = operator.itemgetter("user", "current", "longest")
     fields = ["User", "Current streak", "Longest streak"]
     rows = [igetter(r) for r in streaks]
 
-    print(Wikitable.assemble(fields, rows))
+    print(Wikitable.assemble(fields, rows, single_line_rows=True))
