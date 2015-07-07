@@ -197,7 +197,7 @@ class _UserStats:
             "total, combined with the {} users who made at least {} {} "
             "in the {} days between {} and {} (00:00 UTC), for a total of {} "
             "users.\n\n")
-    FIELDS = ("User", "Recent", "Total", "Registration", "Groups", "Longest streak", "Current streak")
+    FIELDS = ("User", "Registration", "Groups", "Recent", "Total", "Longest streak", "Current streak")
     GRPTRANSL = {
         "*": "",
         "autoconfirmed": "",
@@ -250,19 +250,20 @@ class _UserStats:
     def update(self):
         self.users = {}
         
-        for cells in Wikitable.parse(self.text):
-            name = cells[0]
+        fields, rows = Wikitable.parse(self.text)
+        for row in rows:
+            name = row[fields.index("User")]
             # extract the pure name, e.g. [[User:Lahwaacz|Lahwaacz]] --> Lahwaacz
             name = name.strip("[]").split("|")[1].strip()
-            editcount = int(cells[2])
+            editcount = int(row[fields.index("Total")])
 
             if editcount >= self.MINTOTEDITS:
                 self.users[name] = {}
                 # The recent edits must be reset in any case
                 self.users[name]["recenteditcount"] = 0
                 self.users[name]["editcount"] = editcount
-                self.users[name]["registration"] = cells[3]
-                self.users[name]["groups"] = cells[4]
+                self.users[name]["registration"] = row[fields.index("Registration")]
+                self.users[name]["groups"] = row[fields.index("Groups")]
 
         self._do_update()
 
@@ -357,20 +358,24 @@ class _UserStats:
 
         for name, info in self.users.items():
             longest_streak, current_streak = self.streaks.get_streaks(name)
-            rows.append((self._format_name(name),
-                        info["recenteditcount"],
-                        info["editcount"],
-                        info["registration"],
-                        info["groups"],
-                        longest_streak,
-                        current_streak))
+            # compose row with cells ordered based on self.FIELDS
+            # TODO: perhaps it would be best if Wikitable.assemble could handle list of dicts
+            cells = [None] * len(self.FIELDS)
+            cells[self.FIELDS.index("User")]           = self._format_name(name)
+            cells[self.FIELDS.index("Recent")]         = info["recenteditcount"]
+            cells[self.FIELDS.index("Total")]          = info["editcount"]
+            cells[self.FIELDS.index("Registration")]   = info["registration"]
+            cells[self.FIELDS.index("Groups")]         = info["groups"]
+            cells[self.FIELDS.index("Longest streak")] = longest_streak
+            cells[self.FIELDS.index("Current streak")] = current_streak
+            rows.append(cells)
 
         # Tertiary key (registration date, ascending)
-        rows.sort(key=lambda item: item[3])
+        rows.sort(key=lambda item: item[self.FIELDS.index("Registration")])
         # Secondary key (edit count, descending)
-        rows.sort(key=lambda item: item[2], reverse=True)
+        rows.sort(key=lambda item: item[self.FIELDS.index("Total")], reverse=True)
         # Primary key (recent edits, descending)
-        rows.sort(key=lambda item: item[1], reverse=True)
+        rows.sort(key=lambda item: item[self.FIELDS.index("Recent")], reverse=True)
 
         return rows
 

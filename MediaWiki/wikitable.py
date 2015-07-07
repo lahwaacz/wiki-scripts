@@ -34,22 +34,34 @@ class Wikitable:
         """
         :param text: string or a :py:class:`mwparserfromhell.wikicode.Wikicode`
                      object containing a table in MediaWiki format
-        :returns: list of tuples representing the table cells in a matrix-like
-                  row-major format
+        :returns: a ``(fields, rows)`` tuple, where ``fields`` is a list of column fields
+                  and ``rows`` is a list of tuples representing the table cells in a
+                  matrix-like row-major format
         """
+        # 1st group = header, 2nd group = rows
+        tablere = re.compile("^\{\|.*?(^.*?(?=\|\-))(.*?)^\|\}", flags=re.MULTILINE | re.DOTALL)
+        # fields are the same as cells, but separated with ! instead of |
+        # TODO: parse single-line field row
+        fieldre = re.compile("^\!\s*(.*?)$", flags=re.MULTILINE)
+        # rows are separated by |-
         rowre = re.compile("^\|\-(.*?)(?=(\|\-|\|\}))", flags=re.MULTILINE | re.DOTALL)
         # TODO: parse single-line rows
         cellre = re.compile("^\|\s*(.*?)$", flags=re.MULTILINE)
 
+        table = re.search(tablere, str(text))
+        if not table:
+            raise WikitableParseError
+        fields = tuple(re.findall(fieldre, table.group(1)))
+
         rows = []
-        for row in re.finditer(rowre, str(text)):
+        for row in re.finditer(rowre, table.group(2)):
             cells = re.findall(cellre, row.group(1))
             rows.append(tuple(cells))
 
         if len(rows) == 0:
             raise WikitableParseError
 
-        return rows
+        return fields, rows
 
 class WikitableParseError(Exception):
     pass
