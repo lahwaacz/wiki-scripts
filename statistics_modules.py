@@ -2,10 +2,8 @@
 
 import itertools
 import datetime
-import bisect
 
-from utils import parse_date
-import cache
+import utils
 
 class Streaks:
     def __init__(self, db_allrevprops):
@@ -55,7 +53,7 @@ class Streaks:
             """ Return streak ID number for given revision.
                 Side effect: revision["timestamp"] is parsed and replaced with `datetime.date` object
             """
-            ts = parse_date(revision["timestamp"])
+            ts = utils.parse_date(revision["timestamp"])
             date = datetime.date(ts.year, ts.month, ts.day)
             revision["timestamp"] = date
 
@@ -96,25 +94,24 @@ class Streaks:
         :raises IndexError: when an entry for ``user`` is not found in :py:attribute:`streaks`
         """
         # use bisect for performance
-        wrapped = cache.ListOfDictsAttrWrapper(self.streaks, "user")
-        i = bisect.bisect_left(wrapped, user)
-        if i != len(user) and wrapped[i] == user:
-            entry = self.streaks[i]
-            return entry["longest"], entry["current"]
-        raise IndexError
+        wrapped_user = utils.ListOfDictsAttrWrapper(self.streaks, "user")
+        entry = utils.bisect_find(self.streaks, user, index_list=wrapped_user)
+        return entry["longest"], entry["current"]
 
 if __name__ == "__main__":
     # this is only for testing...
     import os.path
+    import operator
+
     from MediaWiki import API
+    import cache
+    from MediaWiki.wikitable import *
+
     api_url = "https://wiki.archlinux.org/api.php"
     cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
     api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
     db = cache.AllRevisionsProps(api)
-
-    import operator
-    from MediaWiki.wikitable import *
 
     s = Streaks(db)
     s.recalculate()
