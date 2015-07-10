@@ -13,14 +13,9 @@ class Streaks:
         self.db = db_allrevprops
         self.streaks = None
 
-    def recalculate(self):
-        """
-        Update the :py:attribute:`self.streaks` list holding information about streaks of
-        each user.
-        """
         # current UTC date
         utcnow = datetime.datetime.utcnow()
-        today = datetime.date(utcnow.year, utcnow.month, utcnow.day)
+        self.today = datetime.date(utcnow.year, utcnow.month, utcnow.day)
 
         # sort revisions by multiple keys: 1. user, 2. timestamp
         # this way we can group the list by users and iterate through user_revisions to
@@ -29,19 +24,22 @@ class Streaks:
         # NOTE: access to database triggers an update, sorted() creates a shallow copy
         revisions = sorted(self.db["revisions"], key=lambda r: (r["user"], r["timestamp"]))
         revisions_groups = itertools.groupby(revisions, key=lambda r: r["user"])
-        self.streaks = []
-        for user, user_revisions in revisions_groups:
-            longest, current = self._calculate_streaks(user_revisions, today)
-            self.streaks.append({"user": user, "longest": longest, "current": current})
 
-    def _calculate_streaks(self, revisions_iterator, today):
+        # a list containing revisions made by given user, sorted by timestamp
+        self.user_groups = {}
+        for user, user_revisions in revisions_groups:
+            self.user_groups[user] = list(user_revisions)
+
+    def get_streaks(self, user):
         """
+        Get the longest and current streaks for given user.
+
         Calculate the longest and current streak based on given user's revisions. Streaks are
         recognized based on UTC day, but edits made UTC-yesterday are counted into the current
         streak. This way running the script just after UTC midnight will not reset current
         streaks to 0.
 
-        :param revisions_iterator: an iterator object yielding revision dictionaries for given user
+        :param user: the user name
         :returns: ``(longest, current)`` tuple, where ``longest`` and ``current`` are dictionaries
                   representing the corresponding streaks. Provided information are "length" (in days),
                   "start", "end" (both as ``datetime.date`` object) and "editcount". If the last
@@ -67,7 +65,7 @@ class Streaks:
         _streak.id = 0
 
         # group revisions by streaks
-        streak_groups = itertools.groupby(revisions_iterator, key=_streak)
+        streak_groups = itertools.groupby(self.user_groups[user], key=_streak)
 
         def _length(streak):
             """ Return the length of given streak in days.
@@ -102,7 +100,7 @@ class Streaks:
             longest = None
 
         # check if the last edit has been made on this UTC day
-        if today - current_streak[-1]["timestamp"] <= datetime.timedelta(days=1):
+        if self.today - current_streak[-1]["timestamp"] <= datetime.timedelta(days=1):
             current = {
                 "length": current_length,
                 "start": current_streak[0]["timestamp"],
@@ -113,20 +111,6 @@ class Streaks:
             current = None
 
         return longest, current
-
-    def get_streaks(self, user):
-        """
-        Get the longest and current streaks for given user.
-
-        :param user: the user name
-        :returns: a ``(longest, current)`` tuple, where the ``int``s ``longest`` and ``current``
-                  stand for the longest and current streak of the given user
-        :raises IndexError: when an entry for ``user`` is not found in :py:attribute:`streaks`
-        """
-        # use bisect for performance
-        wrapped_user = utils.ListOfDictsAttrWrapper(self.streaks, "user")
-        entry = utils.bisect_find(self.streaks, user, index_list=wrapped_user)
-        return entry["longest"], entry["current"]
 
 if __name__ == "__main__":
     # this is only for testing...

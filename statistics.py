@@ -228,7 +228,6 @@ class _UserStats:
 
         self.db_allrevsprops = cache.AllRevisionsProps(api)
         self.streaks = Streaks(self.db_allrevsprops)
-        self.streaks.recalculate()
 
     def initialize(self):
         self.users = {}
