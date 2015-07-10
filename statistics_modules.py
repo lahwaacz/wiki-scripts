@@ -34,8 +34,6 @@ class Streaks:
             longest, current = self._calculate_streaks(user_revisions, today)
             self.streaks.append({"user": user, "longest": longest, "current": current})
 
-    # TODO:
-    #   record date of longest streak
     def _calculate_streaks(self, revisions_iterator, today):
         """
         Calculate the longest and current streak based on given user's revisions. Streaks are
@@ -44,11 +42,12 @@ class Streaks:
         streaks to 0.
 
         :param revisions_iterator: an iterator object yielding revision dictionaries for given user
-        :returns: (longest, current) tuple of streak values (in days)
+        :returns: ``(longest, current)`` tuple, where ``longest`` and ``current`` are dictionaries
+                  representing the corresponding streaks. Provided information are "length" (in days),
+                  "start", "end" (both as ``datetime.date`` object) and "editcount". If the last
+                  recorded streak ended more than a day ago, ``current`` is ``None``. When there is
+                  no streak recorded, both ``longest`` and ``current`` are ``None``.
         """
-        longest_streak = 0
-        current_streak = 0
-
         def _streak(revision):
             """ Return streak ID number for given revision.
                 Side effect: revision["timestamp"] is parsed and replaced with `datetime.date` object
@@ -70,19 +69,50 @@ class Streaks:
         # group revisions by streaks
         streak_groups = itertools.groupby(revisions_iterator, key=_streak)
 
+        def _length(streak):
+            """ Return the length of given streak in days.
+            """
+            return (streak[-1]["timestamp"] - streak[0]["timestamp"]).days + 1
+
+        # objects holding the revisions in the streak
+        longest_streak = None
+        current_streak = None
+        # lengths
+        longest_length = 0
+        current_length = 0
+
         for _, streak in streak_groups:
-            streak = list(streak)
-            current_streak = (streak[-1]["timestamp"] - streak[0]["timestamp"]).days + 1
+            current_streak = list(streak)
+            current_length = _length(current_streak)
 
             # continuously update longest streak
-            if current_streak > longest_streak:
+            if current_length > longest_length:
                 longest_streak = current_streak
+                longest_length = current_length
 
-            # check if the last edit has been made on this UTC day
-            if today - streak[-1]["timestamp"] > datetime.timedelta(days=1):
-                current_streak = 0
+        # format information
+        if longest_length > 0:
+            longest = {
+                "length": longest_length,
+                "start": longest_streak[0]["timestamp"],
+                "end": longest_streak[-1]["timestamp"],
+                "editcount": len(longest_streak),
+            }
+        else:
+            longest = None
 
-        return longest_streak, current_streak
+        # check if the last edit has been made on this UTC day
+        if today - current_streak[-1]["timestamp"] <= datetime.timedelta(days=1):
+            current = {
+                "length": current_length,
+                "start": current_streak[0]["timestamp"],
+                "end": current_streak[-1]["timestamp"],
+                "editcount": len(current_streak),
+            }
+        else:
+            current = None
+
+        return longest, current
 
     def get_streaks(self, user):
         """

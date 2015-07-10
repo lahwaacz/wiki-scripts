@@ -208,6 +208,7 @@ class _UserStats:
         "maintainer": "[[ArchWiki:Maintainers|maintainer]]",
         "bot": "[[ArchWiki:Bots|bot]]",
     }
+    STREAK_FORMAT = '<span title="{length} days, from {start} to {end} ({editcount} edits)">{length}</span>'
 
     def __init__(self, api, text, days, mintotedits, minrecedits, rcerrhours):
         self.api = api
@@ -367,8 +368,8 @@ class _UserStats:
             cells[self.FIELDS.index("total")]          = info["editcount"]
             cells[self.FIELDS.index("registration")]   = info["registration"]
             cells[self.FIELDS.index("groups")]         = info["groups"]
-            cells[self.FIELDS.index("longest streak")] = longest_streak
-            cells[self.FIELDS.index("current streak")] = current_streak
+            cells[self.FIELDS.index("longest streak")] = "0" if longest_streak is None else self.STREAK_FORMAT.format(**longest_streak)
+            cells[self.FIELDS.index("current streak")] = "0" if current_streak is None else self.STREAK_FORMAT.format(**current_streak)
             rows.append(cells)
 
         # Tertiary key (registration date, ascending)
