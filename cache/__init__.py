@@ -1,5 +1,10 @@
 #! /usr/bin/env python3
 
+# TODO:
+#   hash the JSON before writing to disk, verify when loading
+#   also timestamp should be included for in all databases
+#   compression level should be configurable, as well as compression format (e.g. optional dependency on python-lz4)
+
 import os
 import gzip
 import json
@@ -64,7 +69,7 @@ class CacheDb:
                 raise e
 
         print("Saving data to {} ...".format(self.dbpath))
-        db = gzip.open(self.dbpath, mode="wt", encoding="utf-8")
+        db = gzip.open(self.dbpath, mode="wt", encoding="utf-8", compresslevel=3)
         db.write(json.dumps(self.data))
 
     def init(self, key=None):
@@ -81,7 +86,7 @@ class CacheDb:
         :param key: database key determining which part of the database should be
                     initialized. Can be ignored in case of single-key databases.
         """
-        pass
+        raise NotImplementedError
 
     def update(self, key=None):
         """
@@ -97,7 +102,7 @@ class CacheDb:
         :param key: database key determining which part of the database should be
                     initialized. Can be ignored in case of single-key databases.
         """
-        pass
+        raise NotImplementedError
 
 
     # TODO: make some decorator to actually run the code only every minute or so
