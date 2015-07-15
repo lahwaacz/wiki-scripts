@@ -5,13 +5,12 @@ import datetime
 
 import utils
 
-class Streaks:
+class UserStatsModules:
     def __init__(self, db_allrevprops):
         """
         :param db_allrevprops: an instance of :py:class:`cache.AllRevisionsProps`
         """
         self.db = db_allrevprops
-        self.streaks = None
 
         # current UTC date
         utcnow = datetime.datetime.utcnow()
@@ -19,16 +18,15 @@ class Streaks:
 
         # sort revisions by multiple keys: 1. user, 2. timestamp
         # this way we can group the list by users and iterate through user_revisions to
-        # calculate all streaks, record the longest streak and determine the current streak
-        # at the end (the last calculated streak or 0)
+        # calculate just about everything
         # NOTE: access to database triggers an update, sorted() creates a shallow copy
         revisions = sorted(self.db["revisions"], key=lambda r: (r["user"], r["timestamp"]))
-        revisions_groups = itertools.groupby(revisions, key=lambda r: r["user"])
+        revisions_grouper = itertools.groupby(revisions, key=lambda r: r["user"])
 
         # a list containing revisions made by given user, sorted by timestamp
-        self.user_groups = {}
-        for user, user_revisions in revisions_groups:
-            self.user_groups[user] = list(user_revisions)
+        self.revisions_groups = {}
+        for user, user_revisions in revisions_grouper:
+            self.revisions_groups[user] = list(user_revisions)
 
     def get_streaks(self, user):
         """
@@ -62,7 +60,7 @@ class Streaks:
         _streak.id = 0
 
         # group revisions by streaks
-        streak_groups = itertools.groupby(self.user_groups[user], key=_streak)
+        streak_groups = itertools.groupby(self.revisions_groups[user], key=_streak)
 
         def _length(streak):
             """ Return the length of given streak in days.
@@ -110,6 +108,36 @@ class Streaks:
 
         return longest, current
 
+    def edits_per_day(self, user, registration_timestamp):
+        """
+        :param user: the user name
+        :param registration_timestamp:
+            a :py:class`datetime.datetime` object representing the user's registration time
+            or ``None`` if the registration date is not available for some reason
+        :returns:
+            a ``float`` value of the average edits per day since registration until today,
+            or ``float('nan')`` if ``registration_timestamp`` is ``None``
+        """
+        if registration_timestamp is None:
+            return float('nan')
+        revisions = self.revisions_groups[user]
+        delta = self.today - registration_timestamp.date()
+        if delta.days == 0:
+            return len(revisions)
+        return len(revisions) / delta.days
+
+    def active_edits_per_day(self, user):
+        """
+        :param user: the user name
+        :returns:
+            a ``float`` value of the average edits per day between the first and last edit dates
+        """
+        revisions = self.revisions_groups[user]
+        delta = utils.parse_date(revisions[-1]["timestamp"]) - utils.parse_date(revisions[0]["timestamp"])
+        if delta.days == 0:
+            return len(revisions)
+        return len(revisions) / delta.days
+
 if __name__ == "__main__":
     # this is only for testing...
     import os.path
@@ -125,14 +153,25 @@ if __name__ == "__main__":
     api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
     db = cache.AllRevisionsProps(api)
 
-    s = Streaks(db)
-    s.recalculate()
+    usm = UserStatsModules(db)
 
-    igetter = operator.itemgetter("user", "current", "longest")
-    fields = ["User", "Current streak", "Longest streak"]
-    rows = [igetter(r) for r in s.streaks if r["longest"] > 1 or r["current"] > 1]
+    fields = ["User", "Current streak", "Longest streak", "Total avg.", "Active avg."]
+    rows = []
+    for user in usm.revisions_groups.keys():
+        longest, current = usm.get_streaks(user)
+        if longest is not None:
+            longest = longest["length"]
+        else:
+            longest = 0
+        if current is not None:
+            current = current["length"]
+        else:
+            current = 0
 
-    # sort by 2nd column (current streak)
-    rows.sort(key=lambda row: row[1], reverse=True)
+        if longest > 1 or current > 1:
+            rows.append((user, current, longest, usm.edits_per_day(user, None), usm.active_edits_per_day(user)))
+
+    # sort by 2nd column (current streak), then by 3rd column (longest streak)
+    rows.sort(key=lambda row: (row[1], row[2]), reverse=True)
 
     print(Wikitable.assemble(fields, rows, single_line_rows=True))

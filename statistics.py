@@ -12,14 +12,14 @@ try:
     # Optional for copying the text to the clipboard
     from tkinter import Tk
 except ImportError:
-    Tk = False
+    Tk = None
 
 from MediaWiki import API, APIError
 from MediaWiki.interactive import require_login
 from MediaWiki.wikitable import Wikitable
 from utils import parse_date, list_chunks
 import cache
-from statistics_modules import Streaks
+from statistics_modules import UserStatsModules
 
 
 class Statistics:
@@ -197,8 +197,8 @@ class _UserStats:
             "total, combined with the {} users who made at least {} {} "
             "in the {} days between {} and {} (00:00 UTC), for a total of {} "
             "users.\n\n")
-    FIELDS = ("user", "registration", "groups", "recent", "total", "longest streak", "current streak")
-    FIELDS_FORMAT = ("User", "Registration", "Groups", "Recent", "Total", "Longest streak<br>(days)", "Current streak<br>(days)")
+    FIELDS = ("user", "registration", "groups", "recent", "total", "longest streak", "current streak", "totaleditsperday", "activeeditsperday")
+    FIELDS_FORMAT = ("User", "Registration", "Groups", "Recent", "Total", "Longest streak<br>(days)", "Current streak<br>(days)", "Avg.<br>(total)", "Avg.<br>(active)")
     GRPTRANSL = {
         "*": "",
         "autoconfirmed": "",
@@ -227,7 +227,7 @@ class _UserStats:
         self.RCERRORHOURS = rcerrhours
 
         self.db_allrevsprops = cache.AllRevisionsProps(api)
-        self.streaks = Streaks(self.db_allrevsprops)
+        self.modules = UserStatsModules(self.db_allrevsprops)
 
     def initialize(self):
         self.users = {}
@@ -358,7 +358,7 @@ class _UserStats:
         rows = []
 
         for name, info in self.users.items():
-            longest_streak, current_streak = self.streaks.get_streaks(name)
+            longest_streak, current_streak = self.modules.get_streaks(name)
             # compose row with cells ordered based on self.FIELDS
             # TODO: perhaps it would be best if Wikitable.assemble could handle list of dicts
             cells = [None] * len(self.FIELDS)
@@ -369,6 +369,10 @@ class _UserStats:
             cells[self.FIELDS.index("groups")]         = info["groups"]
             cells[self.FIELDS.index("longest streak")] = "0" if longest_streak is None else self.STREAK_FORMAT.format(**longest_streak)
             cells[self.FIELDS.index("current streak")] = "0" if current_streak is None else self.STREAK_FORMAT.format(**current_streak)
+            # TODO: fix this when caching of user properties (issue #17) is implemented
+            registration = datetime.datetime.strptime(info["registration"], "%Y-%m-%d %H:%M:%S")
+            cells[self.FIELDS.index("totaleditsperday")] = "{:.2f}".format(self.modules.edits_per_day(name, registration))
+            cells[self.FIELDS.index("activeeditsperday")] = "{:.2f}".format(self.modules.active_edits_per_day(name))
             rows.append(cells)
 
         # Tertiary key (registration date, ascending)
