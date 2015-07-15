@@ -193,12 +193,27 @@ class _UserStats:
     """
     User statistics.
     """
-    INTRO = ("\n\nThis table shows the {} users with at least {} edits in "
-            "total, combined with the {} users who made at least {} {} "
-            "in the {} days between {} and {} (00:00 UTC), for a total of {} "
-            "users.\n\n")
+    INTRO = """\n
+This table shows the {} users with at least {} edits in total, combined with
+the {} users who made at least {} {} in the {} days between {} and {} (00:00
+UTC), for a total of {} users.
+
+The meaning of the additional columns is:
+
+* '''Longest streak''' &mdash; the length of the longest recorded streak in \
+days. The details for the streak are provided as tooltips.
+* '''Current streak''' &mdash; the length of the last recorded streak in days. \
+The details for the streak are provided as tooltips.
+* '''Avg. (total)''' &mdash; the average of edits per day since the user's \
+registration, calculated as the total number of edits divided by the number of \
+days since the registration date until today.
+* '''Avg. (active)''' &mdash; the ''active'' average of edits per day between \
+the user's first and last edits, calculated as the total number of edits \
+divided by the number of days between the user's first and last edits.
+
+"""
     FIELDS = ("user", "registration", "groups", "recent", "total", "longest streak", "current streak", "totaleditsperday", "activeeditsperday")
-    FIELDS_FORMAT = ("User", "Registration", "Groups", "Recent", "Total", "Longest streak<br>(days)", "Current streak<br>(days)", "Avg.<br>(total)", "Avg.<br>(active)")
+    FIELDS_FORMAT = ("User", "Registration", "Groups", "Recent", "Total", "Longest<br>streak", "Current<br>streak", "Avg.<br>(total)", "Avg.<br>(active)")
     GRPTRANSL = {
         "*": "",
         "autoconfirmed": "",
