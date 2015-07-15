@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 import os.path
-from datetime import datetime
+import datetime
 
 from MediaWiki import API
 from utils import *
@@ -26,7 +26,7 @@ users = list(api.list(list="allusers", aulimit="max", auprop="blockinfo|editcoun
 users = [user for user in users if user.get("blockid") is None]
 
 # prepare sorting by avgeditsperday
-now = datetime.utcnow()
+now = datetime.datetime.utcnow()
 for user in users:
     # exclude users with no registration date (some weird anomaly)  TODO: investigate
     if user["registration"] == "":
