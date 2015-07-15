@@ -122,9 +122,7 @@ class UserStatsModules:
             return float('nan')
         revisions = self.revisions_groups[user]
         delta = self.today - registration_timestamp.date()
-        if delta.days == 0:
-            return len(revisions)
-        return len(revisions) / delta.days
+        return len(revisions) / (delta.days + 1)
 
     def active_edits_per_day(self, user):
         """
@@ -134,9 +132,7 @@ class UserStatsModules:
         """
         revisions = self.revisions_groups[user]
         delta = utils.parse_date(revisions[-1]["timestamp"]) - utils.parse_date(revisions[0]["timestamp"])
-        if delta.days == 0:
-            return len(revisions)
-        return len(revisions) / delta.days
+        return len(revisions) / (delta.days + 1)
 
 if __name__ == "__main__":
     # this is only for testing...
