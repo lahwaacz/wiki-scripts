@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 
 # TODO:
+#   include timestamp in all databases (updated transparently in CacheDb.dump, could be just the modification timestamp on the file)
 #   hash the JSON before writing to disk, verify when loading
-#   also timestamp should be included for in all databases
 #   compression level should be configurable, as well as compression format (e.g. optional dependency on python-lz4)
 
 import os

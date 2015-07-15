@@ -194,8 +194,8 @@ class _UserStats:
     User statistics.
     """
     INTRO = """\n
-This table shows the {} users with at least {} edits in total, combined with
-the {} users who made at least {} {} in the {} days between {} and {} (00:00
+This table shows the {} users with at least {} edits in total, combined with \
+the {} users who made at least {} {} in the {} days between {} and {} (00:00 \
 UTC), for a total of {} users.
 
 The meaning of the additional columns is:

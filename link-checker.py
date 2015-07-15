@@ -9,7 +9,10 @@
 #   URL-decoding (for page titles), dot-decoding (for sections)?
 #   skip interwiki links, categories, interlanguage links
 #   look at DISPLAYTITLE of the target page when replacing underscores and checking capitalization (handle first-letter case and CamelCase words properly!)    (inprop=displaytitle)
-#   capitalization of fragments (needs caching of latest revisions for performance)
+#   handle broken fragments
+#       check capitalization (needs caching of latest revisions for performance)
+#       check N older revisions, section might have been renamed    (must be interactive!)
+#                            -- || --                     moved to other page: warn the user (or just mark with {{Broken fragment}} ?)
 
 import argparse
 import os.path
