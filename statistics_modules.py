@@ -48,11 +48,8 @@ class Streaks:
         """
         def _streak(revision):
             """ Return streak ID number for given revision.
-                Side effect: revision["timestamp"] is parsed and replaced with `datetime.date` object
             """
-            ts = utils.parse_date(revision["timestamp"])
-            date = datetime.date(ts.year, ts.month, ts.day)
-            revision["timestamp"] = date
+            date = utils.parse_date(revision["timestamp"]).date()
 
             # check if new streak starts
             if _streak.prev_date is None or date - _streak.prev_date > datetime.timedelta(days=1):
@@ -70,7 +67,8 @@ class Streaks:
         def _length(streak):
             """ Return the length of given streak in days.
             """
-            return (streak[-1]["timestamp"] - streak[0]["timestamp"]).days + 1
+            delta = utils.parse_date(streak[-1]["timestamp"]) - utils.parse_date(streak[0]["timestamp"])
+            return delta.days + 1
 
         # objects holding the revisions in the streak
         longest_streak = None
@@ -100,7 +98,7 @@ class Streaks:
             longest = None
 
         # check if the last edit has been made on this UTC day
-        if self.today - current_streak[-1]["timestamp"] <= datetime.timedelta(days=1):
+        if self.today - utils.parse_date(current_streak[-1]["timestamp"]).date() <= datetime.timedelta(days=1):
             current = {
                 "length": current_length,
                 "start": current_streak[0]["timestamp"],
