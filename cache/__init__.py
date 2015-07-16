@@ -8,6 +8,12 @@
 import os
 import gzip
 import json
+import hashlib
+
+def md5sum(bytes_):
+    h = hashlib.md5()
+    h.update(bytes_)
+    return h.hexdigest()
 
 class CacheDb:
     """
@@ -32,7 +38,10 @@ class CacheDb:
         self.autocommit = autocommit
 
         cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
-        self.dbpath = os.path.join(cache_dir, "wiki-scripts", self.api.get_hostname(), self.dbname + ".db.json.gz")
+        dbdir = os.path.join(cache_dir, "wiki-scripts", self.api.get_hostname())
+        self.dbpath = os.path.join(dbdir, self.dbname + ".db.json.gz")
+        self.hashpath = os.path.join(dbdir, self.dbname + ".md5sum")
+
         self.data = None
 
     def load(self, key=None):
@@ -48,8 +57,18 @@ class CacheDb:
         """
         if os.path.isfile(self.dbpath):
             print("Loading data from {} ...".format(self.dbpath))
-            db = gzip.open(self.dbpath, mode="rt", encoding="utf-8")
-            self.data = json.loads(db.read())
+            db = gzip.open(self.dbpath, mode="rb")
+            s = db.read()
+
+            if os.path.isfile(self.hashpath):
+                # TODO: make md5 hash mandatory at some point
+                md5_new = md5sum(s)
+                # assumes there is only one md5sum in the file
+                md5_old = open(self.hashpath, mode="rt", encoding="utf-8").read().split()[0]
+                if md5_new != md5_old:
+                    raise CacheDbError("md5sums of the database {} differ. Please investigate...".format(self.dbpath))
+
+            self.data = json.loads(s.decode("utf-8"))
         else:
             self.init(key)
 
@@ -61,6 +80,8 @@ class CacheDb:
         After manual modification of the ``self.data`` structure it is necessary to
         call it manually if the change is to be persistent.
         """
+        print("Saving data to {} ...".format(self.dbpath))
+
         # create leading directories
         try:
             os.makedirs(os.path.split(self.dbpath)[0])
@@ -68,9 +89,12 @@ class CacheDb:
             if e.errno != 17:
                 raise e
 
-        print("Saving data to {} ...".format(self.dbpath))
-        db = gzip.open(self.dbpath, mode="wt", encoding="utf-8", compresslevel=3)
-        db.write(json.dumps(self.data))
+        s = json.dumps(self.data).encode("utf-8")
+        md5 = md5sum(s)
+        db = gzip.open(self.dbpath, mode="wb", compresslevel=3)
+        db.write(s)
+        hashf = open(self.hashpath, mode="wt", encoding="utf-8")
+        hashf.write("{}  {}\n".format(md5, self.dbname + ".db.json"))
 
     def init(self, key=None):
         """
@@ -137,8 +161,13 @@ class CacheDb:
         self._load_and_update(item)
         return self.data.__contains__(item)
 
+class CacheDbError(Exception):
+    """ Raised on database errors, e.g. when loading from disk failed.
+    """
+    pass
+
 
 from .AllRevisionsProps import *
 from .LatestRevisionsText import *
 
-__all__ = ["CacheDb", "AllRevisionsProps", "LatestRevisionsText"]
+__all__ = ["CacheDb", "CacheDbError", "AllRevisionsProps", "LatestRevisionsText"]
