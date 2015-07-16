@@ -1,14 +1,14 @@
 #! /usr/bin/env python3
 
 # TODO:
-#   include timestamp in all databases (updated transparently in CacheDb.dump, could be just the modification timestamp on the file)
-#   hash the JSON before writing to disk, verify when loading
 #   compression level should be configurable, as well as compression format (e.g. optional dependency on python-lz4)
+#   improve definition of meta data keys with respect to (de)serialization
 
 import os
 import gzip
 import json
 import hashlib
+import datetime
 
 def md5sum(bytes_):
     h = hashlib.md5()
@@ -20,11 +20,13 @@ class CacheDb:
     Base class for caching databases. The database is saved on disk in the
     gzipped JSON format. The data is represented by the ``self.data`` structure,
     whose type depends on the implementation in each subclass (generally a
-    ``list`` or ``dict``).
+    ``list`` or ``dict``). There is also a ``self.meta`` structure keeping the
+    meta data such as timestamp of the last update.
 
-    The database is initialized lazily from the accessors
-    :py:meth:`self.__getitem__()`, :py:meth:`self.__iter__()`,
-    :py:meth:`self.__reversed__()` and :py:meth:`self.__contains__()`.
+    The data elements can be accessed using the subscript syntax ``db["key"]``,
+    which triggers a lazy update/initialization of the database. The meta data
+    can be accessed as attributes (e.g. ``db.attribute``), which does not
+    trigger an update.
 
     :param api: an :py:class:`MediaWiki.API` instance
     :param dbname: a name of the database (``str``), usually the name of the
@@ -32,6 +34,13 @@ class CacheDb:
     :param autocommit: whether to automatically call :py:meth:`self.dump()`
                        after each update of the database
     """
+
+    meta = {}
+    data = None
+
+    # format for JSON (de)serialization of datetime.datetime timestamps
+    ts_format = "%Y-%m-%dT%H:%M:%S.%f"
+
     def __init__(self, api, dbname, autocommit=True):
         self.api = api
         self.dbname = dbname
@@ -40,9 +49,7 @@ class CacheDb:
         cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
         dbdir = os.path.join(cache_dir, "wiki-scripts", self.api.get_hostname())
         self.dbpath = os.path.join(dbdir, self.dbname + ".db.json.gz")
-        self.hashpath = os.path.join(dbdir, self.dbname + ".md5sum")
-
-        self.data = None
+        self.metapath = os.path.join(dbdir, self.dbname + ".meta")
 
     def load(self, key=None):
         """
@@ -59,14 +66,21 @@ class CacheDb:
             print("Loading data from {} ...".format(self.dbpath))
             db = gzip.open(self.dbpath, mode="rb")
             s = db.read()
+            md5_new = md5sum(s)
 
-            if os.path.isfile(self.hashpath):
-                # TODO: make md5 hash mandatory at some point
-                md5_new = md5sum(s)
-                # assumes there is only one md5sum in the file
-                md5_old = open(self.hashpath, mode="rt", encoding="utf-8").read().split()[0]
-                if md5_new != md5_old:
+            # TODO: make meta file mandatory at some point
+            if os.path.isfile(self.metapath):
+                meta = open(self.metapath, mode="rt", encoding="utf-8")
+                self.meta.update(json.loads(meta.read()))
+
+                # parse timestamp
+                if "timestamp" in self.meta:
+                    self.meta["timestamp"] = datetime.datetime.strptime(self.meta["timestamp"], self.ts_format)
+
+                if md5_new != self.md5:
                     raise CacheDbError("md5sums of the database {} differ. Please investigate...".format(self.dbpath))
+            else:
+                self.meta["md5"] = md5_new
 
             self.data = json.loads(s.decode("utf-8"))
         else:
@@ -89,21 +103,28 @@ class CacheDb:
             if e.errno != 17:
                 raise e
 
+        # update hashes
         s = json.dumps(self.data).encode("utf-8")
-        md5 = md5sum(s)
+        self.meta["md5"] = md5sum(s)
+
+        # serialize timestamp
+        if "timestamp" in self.meta:
+            self.meta["timestamp"] = self.meta["timestamp"].strftime(self.ts_format)
+
         db = gzip.open(self.dbpath, mode="wb", compresslevel=3)
         db.write(s)
-        hashf = open(self.hashpath, mode="wt", encoding="utf-8")
-        hashf.write("{}  {}\n".format(md5, self.dbname + ".db.json"))
+        meta = open(self.metapath, mode="wt", encoding="utf-8")
+        meta.write(json.dumps(self.meta, indent=4, sort_keys=True))
 
     def init(self, key=None):
         """
         Called by :py:meth:`self.load()` when data does not exist on disk yet.
-        Responsible for initializing ``self.data`` structure and performing
-        the initial API query.
-
-        Responsible for calling :py:meth:`self.dump()` after the query depending
-        on the value of :py:attribute:`self.autocommit`.
+        Responsible for:
+          - initializing ``self.data`` structure and performing the initial API
+            query,
+          - calling :py:meth:`self.dump()` after the query depending on the
+            value of :py:attribute:`self.autocommit`,
+          - updating ``self.meta["timestamp"]``.
         
         Has to be defined in subclasses.
 
@@ -114,12 +135,12 @@ class CacheDb:
 
     def update(self, key=None):
         """
-        Method responsible for updating the cached data, called from all accessors
-        :py:meth:`self.__getitem__()`, :py:meth:`self.__iter__()`,
-        :py:meth:`self.__reversed__()` and :py:meth:`self.__contains__()`.
-
-        Responsible for calling :py:meth:`self.dump()` after the query depending
-        on the value of :py:attribute:`self.autocommit`.
+        Called from accessors like :py:meth:`self.__getitem__()` a cache update.
+        Responsible for:
+          - performing an API query to update the cached data, 
+          - calling :py:meth:`self.dump()` after the query depending on the
+            value of :py:attribute:`self.autocommit`,
+          - updating ``self.meta["timestamp"]``.
         
         Has to be defined in subclasses.
 
@@ -144,11 +165,6 @@ class CacheDb:
         self._load_and_update(key)
         return self.data.__getitem__(key)
 
-    # TODO: write access to top-level items should never be necessary, might compromise the database
-#    def __setitem__(self, key, value):
-#        self._load_and_update()
-#        return self.data.__setitem__(key, value)
-
     def __iter__(self):
         self._load_and_update()
         return self.data.__iter__()
@@ -160,6 +176,16 @@ class CacheDb:
     def __contains__(self, item):
         self._load_and_update(item)
         return self.data.__contains__(item)
+
+
+    def __getattr__(self, name):
+        """
+        Access a meta data element.
+
+        :returns: ``self.meta[name]`` if available, otherwise ``None``
+        """
+        return self.meta.get(name)
+
 
 class CacheDbError(Exception):
     """ Raised on database errors, e.g. when loading from disk failed.
