@@ -166,7 +166,8 @@ def detect_language(title):
     treated the same way as underscores.
 
     :param title: page title to work with
-    :returns: detected language in long, localized form
+    :returns: a ``(pure, lang)`` tuple, where ``pure`` is the pure page title without
+        the language suffix and ``lang`` is the detected language in long, localized form
     """
     pure_title = title
     detected_language = get_local_language()
