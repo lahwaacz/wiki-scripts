@@ -201,6 +201,7 @@ class CacheDbError(Exception):
 
 
 from .AllRevisionsProps import *
+from .AllUsersProps import *
 from .LatestRevisionsText import *
 
-__all__ = ["CacheDb", "CacheDbError", "AllRevisionsProps", "LatestRevisionsText"]
+__all__ = ["CacheDb", "CacheDbError", "AllRevisionsProps", "AllUsersProps", "LatestRevisionsText"]
