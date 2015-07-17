@@ -5,8 +5,6 @@ import sys
 import os
 sys.path.append(os.path.abspath(".."))
 
-import datetime
-
 from . import *
 import utils
 
@@ -44,7 +42,7 @@ class LatestRevisionsText(CacheDb):
             except IndexError:
                 utils.bisect_insert_or_replace(self.data[ns], page["title"], data_element=page, index_list=wrapped_titles)
 
-        self.meta["timestamp"] = datetime.datetime.utcnow()
+        self._update_timestamp()
 
         if self.autocommit is True:
             self.dump()
@@ -73,7 +71,7 @@ class LatestRevisionsText(CacheDb):
                 for page in result["pages"].values():
                     utils.bisect_insert_or_replace(self.data[ns], page["title"], data_element=page, index_list=wrapped_titles)
 
-            self.meta["timestamp"] = datetime.datetime.utcnow()
+            self._update_timestamp()
 
             if self.autocommit is True:
                 self.dump()

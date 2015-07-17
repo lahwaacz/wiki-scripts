@@ -126,8 +126,9 @@ class CacheDb:
             query,
           - calling :py:meth:`self.dump()` after the query depending on the
             value of :py:attribute:`self.autocommit`,
-          - updating ``self.meta["timestamp"]``.
-        
+          - updating ``self.meta["timestamp"]``, either manually or via
+            :py:meth:`self._update_timestamp`.
+
         Has to be defined in subclasses.
 
         :param key: database key determining which part of the database should be
@@ -139,11 +140,12 @@ class CacheDb:
         """
         Called from accessors like :py:meth:`self.__getitem__()` a cache update.
         Responsible for:
-          - performing an API query to update the cached data, 
+          - performing an API query to update the cached data,
           - calling :py:meth:`self.dump()` after the query depending on the
             value of :py:attribute:`self.autocommit`,
-          - updating ``self.meta["timestamp"]``.
-        
+          - updating ``self.meta["timestamp"]``, either manually or via
+            :py:meth:`self._update_timestamp`.
+
         Has to be defined in subclasses.
 
         :param key: database key determining which part of the database should be
@@ -151,6 +153,9 @@ class CacheDb:
         """
         raise NotImplementedError
 
+
+    def _update_timestamp(self):
+        self.meta["timestamp"] = datetime.datetime.utcnow()
 
     # TODO: make some decorator to actually run the code only every minute or so
     #       ...or maybe not necessary. The accessed data is mutable anyway, so

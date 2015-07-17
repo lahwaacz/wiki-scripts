@@ -5,8 +5,6 @@ import sys
 import os
 sys.path.append(os.path.abspath(".."))
 
-import datetime
-
 from . import *
 from utils import list_chunks
 
@@ -45,7 +43,7 @@ class AllRevisionsProps(CacheDb):
             self.data["badrevids"].sort(key=lambda x: int(x))
             self.data["revisions"].sort(key=lambda x: x["revid"])
 
-            self.meta["timestamp"] = datetime.datetime.utcnow()
+            self._update_timestamp()
 
             if self.autocommit is True:
                 self.dump()
