@@ -318,9 +318,6 @@ class StatisticsError(Exception):
 class MissingPageError(StatisticsError):
     pass
 
-class ShortRecentChangesError(StatisticsError):
-    pass
-
 if __name__ == "__main__":
     cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
     api = API(

@@ -132,8 +132,8 @@ class AllUsersProps(CacheDb):
         # save as meta data, only when not raising
         # TODO: figure out a way to transparently (de)serialize datetime.datetime objects in JSON format
         # FIXME: time is dropped when self.round_to_midnight is False (depends on the above)
-        self.meta["firstday"] = firstday.strftime("%Y-%m-%d")
-        self.meta["lastday"] = today.strftime("%Y-%m-%d")
+        self.meta["firstdate"] = firstday.strftime("%Y-%m-%d")
+        self.meta["lastdate"] = today.strftime("%Y-%m-%d")
         self.meta["activeuserscount"] = len(rcusers)
 
         return rcusers
