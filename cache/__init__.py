@@ -107,14 +107,16 @@ class CacheDb:
         s = json.dumps(self.data).encode("utf-8")
         self.meta["md5"] = md5sum(s)
 
-        # serialize timestamp
-        if "timestamp" in self.meta:
-            self.meta["timestamp"] = self.meta["timestamp"].strftime(self.ts_format)
+        # create copy and serialize timestamp (the type of the "real" timestamp
+        # in self.meta should always be datetime.datetime)
+        m = self.meta.copy()
+        if "timestamp" in m:
+            m["timestamp"] = m["timestamp"].strftime(self.ts_format)
 
         db = gzip.open(self.dbpath, mode="wb", compresslevel=3)
         db.write(s)
         meta = open(self.metapath, mode="wt", encoding="utf-8")
-        meta.write(json.dumps(self.meta, indent=4, sort_keys=True))
+        meta.write(json.dumps(m, indent=4, sort_keys=True))
 
     def init(self, key=None):
         """
