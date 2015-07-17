@@ -224,73 +224,41 @@ divided by the number of days between the user's first and last edits.
         "bot": "[[ArchWiki:Bots|bot]]",
     }
     STREAK_FORMAT = '<span title="{length} days, from {start} to {end} ({editcount} edits)">{length}</span>'
+    REGISTRATION_FORMAT = "%Y-%m-%d %H:%M:%S"
 
     def __init__(self, api, text, days, mintotedits, minrecedits, rcerrhours):
         self.api = api
         self.text = text.get_sections(matches="User statistics", flat=True,
                                 include_lead=False, include_headings=False)[0]
 
-        if "apihighlimits" not in self.api.user_rights():
-            self.ULIMIT = 50
-        else:
-            self.ULIMIT = 500
-
         self.DAYS = days
         self.CELLSN = len(self. FIELDS)
         self.MINTOTEDITS = mintotedits
         self.MINRECEDITS = minrecedits
-        self.RCERRORHOURS = rcerrhours
 
+        self.db_userprops = cache.AllUsersProps(api, active_days=days, round_to_midnight=True, rc_err_hours=rcerrhours)
         self.db_allrevsprops = cache.AllRevisionsProps(api)
         self.modules = UserStatsModules(self.db_allrevsprops)
 
     def initialize(self):
-        self.users = {}
-
-        for user in self.api.list(action="query", list="allusers",
-                                  aulimit="max",
-                                  auprop="groups|editcount|registration",
-                                  auwitheditsonly="1"):
-            if user["editcount"] >= self.MINTOTEDITS:
-                name = user["name"]
-                self.users[name] = {}
-                self.users[name]["recenteditcount"] = 0
-                self.users[name]["editcount"] = user["editcount"]
-                self.users[name]["registration"] = self._format_registration(
-                                                        user["registration"])
-                self.users[name]["groups"] = self._format_groups(
-                                                        user["groups"])
-
-        self._do_update()
+        # TODO: either force initialization of the cache or remove this method completely
+        self.update()
 
     def update(self):
-        self.users = {}
-        
-        fields, rows = Wikitable.parse(self.text)
-        for row in rows:
-            name = row[fields.index("User")]
-            # extract the pure name, e.g. [[User:Lahwaacz|Lahwaacz]] --> Lahwaacz
-            name = name.strip("[]").split("|")[1].strip()
-            editcount = int(row[fields.index("Total")])
-
-            if editcount >= self.MINTOTEDITS:
-                self.users[name] = {}
-                # The recent edits must be reset in any case
-                self.users[name]["recenteditcount"] = 0
-                self.users[name]["editcount"] = editcount
-                self.users[name]["registration"] = row[fields.index("Registration")]
-                self.users[name]["groups"] = row[fields.index("Groups")]
-
-        self._do_update()
+        rows = self._compose_rows()
+        majorusersN = len([1 for row in rows if row[self.FIELDS.index("total")] > self.MINTOTEDITS])
+        activeusersN = self.db_userprops.activeuserscount
+        totalusersN = len(rows)
+        self._compose_table(rows, majorusersN, activeusersN, totalusersN)
 
     @staticmethod
     def _format_name(name):
         return "[[User:{}|{}]]".format(name, name)
 
-    @staticmethod
-    def _format_registration(registration):
+    @classmethod
+    def _format_registration(cls, registration):
         if registration:
-            return " ".join((registration[:10], registration[11:19]))
+            return registration.strftime(cls.REGISTRATION_FORMAT)
         else:
             # There seems to be users without registration date (?!?) TODO: investigate
             return "-"
@@ -303,92 +271,27 @@ divided by the number of days between the user's first and last edits.
         fgroups.sort()
         return ", ".join(fgroups)
 
-    def _do_update(self):
-        majorusersN = len(self.users)
-        rcusers = self._find_active_users()
-        activeusersN = self._update_users_info(rcusers)
-        rows = self._compose_rows()
-        totalusersN = len(rows)
-        self._compose_table(rows, majorusersN, activeusersN, totalusersN)
-
-    def _find_active_users(self):
-        today = int(time.time()) // 86400 * 86400
-        firstday = today - self.DAYS * 86400
-        rc = self.api.list(action="query", list="recentchanges", rcstart=today,
-                           rcend=firstday, rctype="edit",
-                           rcprop="user|timestamp", rclimit="max")
-
-        users = {}
-
-        for change in rc:
-            try:
-                users[change["user"]] += 1
-            except KeyError:
-                users[change["user"]] = 1
-
-        # Oldest retrieved timestamp
-        oldestchange = parse_date(change["timestamp"])
-        self.date = datetime.datetime.utcfromtimestamp(today)
-        self.firstdate = datetime.datetime.utcfromtimestamp(firstday)
-        hours = datetime.timedelta(hours=self.RCERRORHOURS)
-
-        # Items in the recentchanges table are periodically purged according to
-        # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
-        # By default the max age is 13 weeks: if a larger timespan is requested
-        # here, it's very important to warn that the changes are not available
-        if oldestchange - self.firstdate > hours:
-            raise ShortRecentChangesError()
-
-        return users
-
-    def _update_users_info(self, rcusers):
-        groupedusers = list_chunks(tuple(rcusers.keys()), self.ULIMIT)
-        activeusersN = 0
-
-        for usersgroup in groupedusers:
-            for user in self.api.list(action="query", list="users",
-                                      usprop="groups|editcount|registration",
-                                      ususers="|".join(usersgroup)):
-                recenteditcount = rcusers[user["name"]]
-                editcount = user["editcount"]
-
-                if recenteditcount >= self.MINRECEDITS:
-                    activeusersN += 1
-                # Test self.MINTOTEDITS also here, because there may be users
-                # who've passed the limit since the last update
-                elif editcount < self.MINTOTEDITS:
-                    continue
-
-                self.users[user["name"]] = {
-                    "recenteditcount": recenteditcount,
-                    "editcount": editcount,
-                    "registration": self._format_registration(
-                                                    user["registration"]),
-                    "groups": self._format_groups(user["groups"]),
-                }
-
-        return activeusersN
-
     def _compose_rows(self):
         rows = []
 
-        for name, info in self.users.items():
-            longest_streak, current_streak = self.modules.get_streaks(name)
-            # compose row with cells ordered based on self.FIELDS
-            # TODO: perhaps it would be best if Wikitable.assemble could handle list of dicts
-            cells = [None] * len(self.FIELDS)
-            cells[self.FIELDS.index("user")]           = self._format_name(name)
-            cells[self.FIELDS.index("recent")]         = info["recenteditcount"]
-            cells[self.FIELDS.index("total")]          = info["editcount"]
-            cells[self.FIELDS.index("registration")]   = info["registration"]
-            cells[self.FIELDS.index("groups")]         = info["groups"]
-            cells[self.FIELDS.index("longest streak")] = "0" if longest_streak is None else self.STREAK_FORMAT.format(**longest_streak)
-            cells[self.FIELDS.index("current streak")] = "0" if current_streak is None else self.STREAK_FORMAT.format(**current_streak)
-            # TODO: fix this when caching of user properties (issue #17) is implemented
-            registration = datetime.datetime.strptime(info["registration"], "%Y-%m-%d %H:%M:%S")
-            cells[self.FIELDS.index("totaleditsperday")] = "{:.2f}".format(self.modules.edits_per_day(name, registration))
-            cells[self.FIELDS.index("activeeditsperday")] = "{:.2f}".format(self.modules.active_edits_per_day(name))
-            rows.append(cells)
+        for user in self.db_userprops:
+            if user["editcount"] >= self.MINTOTEDITS or user["recenteditcount"] >= self.MINRECEDITS:
+                name = user["name"]
+                registration = parse_date(user["registration"])
+                longest_streak, current_streak = self.modules.get_streaks(name)
+                # compose row with cells ordered based on self.FIELDS
+                # TODO: perhaps it would be best if Wikitable.assemble could handle list of dicts
+                cells = [None] * len(self.FIELDS)
+                cells[self.FIELDS.index("user")]           = self._format_name(name)
+                cells[self.FIELDS.index("recent")]         = user["recenteditcount"]
+                cells[self.FIELDS.index("total")]          = user["editcount"]
+                cells[self.FIELDS.index("registration")]   = self._format_registration(registration)
+                cells[self.FIELDS.index("groups")]         = self._format_groups(user["groups"])
+                cells[self.FIELDS.index("longest streak")] = "0" if longest_streak is None else self.STREAK_FORMAT.format(**longest_streak)
+                cells[self.FIELDS.index("current streak")] = "0" if current_streak is None else self.STREAK_FORMAT.format(**current_streak)
+                cells[self.FIELDS.index("totaleditsperday")] = "{:.2f}".format(self.modules.edits_per_day(name, registration))
+                cells[self.FIELDS.index("activeeditsperday")] = "{:.2f}".format(self.modules.active_edits_per_day(name))
+                rows.append(cells)
 
         # Tertiary key (registration date, ascending)
         rows.sort(key=lambda item: item[self.FIELDS.index("registration")])
@@ -403,8 +306,8 @@ divided by the number of days between the user's first and last edits.
         newtext = (self.INTRO).format(majorusersN, self.MINTOTEDITS,
                                 activeusersN, self.MINRECEDITS,
                                 "edits" if self.MINRECEDITS > 1 else "edit",
-                                self.DAYS, self.firstdate.strftime("%Y-%m-%d"),
-                                self.date.strftime("%Y-%m-%d"), totalusersN)
+                                self.DAYS, self.db_userprops.firstdate,
+                                self.db_userprops.lastdate, totalusersN)
         newtext += Wikitable.assemble(self.FIELDS_FORMAT, rows)
         self.text.replace(self.text, newtext, recursive=False)
 

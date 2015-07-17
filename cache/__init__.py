@@ -184,6 +184,9 @@ class CacheDb:
         self._load_and_update(item)
         return self.data.__contains__(item)
 
+    def __len__(self):
+        return self.data.__len__()
+
 
     def __getattr__(self, name):
         """

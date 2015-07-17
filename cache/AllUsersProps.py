@@ -129,6 +129,13 @@ class AllUsersProps(CacheDb):
         if oldestchange - firstday > self.rc_err_threshold:
             raise ShortRecentChangesError()
 
+        # save as meta data, only when not raising
+        # TODO: figure out a way to transparently (de)serialize datetime.datetime objects in JSON format
+        # FIXME: time is dropped when self.round_to_midnight is False (depends on the above)
+        self.meta["firstday"] = firstday.strftime("%Y-%m-%d")
+        self.meta["lastday"] = today.strftime("%Y-%m-%d")
+        self.meta["activeuserscount"] = len(rcusers)
+
         return rcusers
 
     def _update_recent_edit_counts(self, rcusers):

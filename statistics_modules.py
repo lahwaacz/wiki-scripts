@@ -13,8 +13,7 @@ class UserStatsModules:
         self.db = db_allrevprops
 
         # current UTC date
-        utcnow = datetime.datetime.utcnow()
-        self.today = datetime.date(utcnow.year, utcnow.month, utcnow.day)
+        self.today = datetime.datetime.utcnow().date()
 
         # sort revisions by multiple keys: 1. user, 2. timestamp
         # this way we can group the list by users and iterate through user_revisions to
