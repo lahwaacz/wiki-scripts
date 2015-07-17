@@ -212,8 +212,12 @@ the user's first and last edits, calculated as the total number of edits \
 divided by the number of days between the user's first and last edits.
 
 """
-    FIELDS = ("user", "registration", "groups", "recent", "total", "longest streak", "current streak", "totaleditsperday", "activeeditsperday")
-    FIELDS_FORMAT = ("User", "Registration", "Groups", "Recent", "Total", "Longest<br>streak", "Current<br>streak", "Avg.<br>(total)", "Avg.<br>(active)")
+    FIELDS = ("user", "registration", "groups", "recenteditcount", "editcount",
+              "longest streak", "current streak", "totaleditsperday",
+              "activeeditsperday")
+    FIELDS_FORMAT = ("User", "Registration", "Groups", "Recent", "Total",
+                     "Longest<br>streak", "Current<br>streak",
+                     "Avg.<br>(total)", "Avg.<br>(active)")
     GRPTRANSL = {
         "*": "",
         "autoconfirmed": "",
@@ -246,7 +250,7 @@ divided by the number of days between the user's first and last edits.
 
     def update(self):
         rows = self._compose_rows()
-        majorusersN = len([1 for row in rows if row[self.FIELDS.index("total")] > self.MINTOTEDITS])
+        majorusersN = len([1 for row in rows if row[self.FIELDS.index("editcount")] > self.MINTOTEDITS])
         activeusersN = self.db_userprops.activeuserscount
         totalusersN = len(rows)
         self._compose_table(rows, majorusersN, activeusersN, totalusersN)
@@ -283,8 +287,8 @@ divided by the number of days between the user's first and last edits.
                 # TODO: perhaps it would be best if Wikitable.assemble could handle list of dicts
                 cells = [None] * len(self.FIELDS)
                 cells[self.FIELDS.index("user")]           = self._format_name(name)
-                cells[self.FIELDS.index("recent")]         = user["recenteditcount"]
-                cells[self.FIELDS.index("total")]          = user["editcount"]
+                cells[self.FIELDS.index("recenteditcount")] = user["recenteditcount"]
+                cells[self.FIELDS.index("editcount")]      = user["editcount"]
                 cells[self.FIELDS.index("registration")]   = self._format_registration(registration)
                 cells[self.FIELDS.index("groups")]         = self._format_groups(user["groups"])
                 cells[self.FIELDS.index("longest streak")] = "0" if longest_streak is None else self.STREAK_FORMAT.format(**longest_streak)
@@ -296,9 +300,9 @@ divided by the number of days between the user's first and last edits.
         # Tertiary key (registration date, ascending)
         rows.sort(key=lambda item: item[self.FIELDS.index("registration")])
         # Secondary key (edit count, descending)
-        rows.sort(key=lambda item: item[self.FIELDS.index("total")], reverse=True)
+        rows.sort(key=lambda item: item[self.FIELDS.index("editcount")], reverse=True)
         # Primary key (recent edits, descending)
-        rows.sort(key=lambda item: item[self.FIELDS.index("recent")], reverse=True)
+        rows.sort(key=lambda item: item[self.FIELDS.index("recenteditcount")], reverse=True)
 
         return rows
 
