@@ -44,7 +44,11 @@ class AllUsersProps(CacheDb):
         # the generator yields data sorted by user name
         self.data = list(allusers)
 
-        self._update_recent_edit_counts(rcusers)
+        try:
+            rcusers = self._find_active_users()
+            self._update_recent_edit_counts(rcusers)
+        except ShortRecentChangesError:
+            pass
 
         self._update_timestamp()
 
@@ -61,7 +65,7 @@ class AllUsersProps(CacheDb):
             # extend the list to update editcount for active users
             users += list(rcusers)
         except ShortRecentChangesError:
-            print("The recent changes table on the wiki has been recently purged, starting from scratch.")
+            print("The recent changes table on the wiki has been recently purged, starting from scratch. The recent edit count will not be available.", file=sys.stderr)
             self.init()
             return
 
