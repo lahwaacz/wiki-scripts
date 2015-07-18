@@ -54,6 +54,8 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
     interlinks = [mwparserfromhell.utils.parse_anything(item) for item in interlinks]
 
     def _prefix(title):
+        if ":" not in title:
+            return ""
         return title.split(":", 1)[0]
 
     def _add_to_magics(template):
