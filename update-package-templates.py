@@ -22,6 +22,7 @@ import pyalpm
 from MediaWiki import API, APIError, diff_highlighted
 from MediaWiki.interactive import *
 from ArchWiki.lang import detect_language
+from parser_helpers import get_parent_wikicode, get_adjacent_node
 
 PACCONF = """
 [options]
@@ -151,40 +152,6 @@ class PkgFinder:
                     elif exact is False and pkgname.lower() in (_pkgname.lower() for _pkgname in pkg.replaces):
                         return pkg
         return None
-
-
-# TODO: write unit test for this function
-def get_adjacent_node(wikicode, node, ignore_whitespace=False):
-    """
-    Get the node immediately following `node` in `wikicode`.
-
-    :param wikicode: a :py:class:`mwparserfromhell.wikicode.Wikicode` object
-    :param node: a :py:class:`mwparserfromhell.nodes.Node` object
-    :param ignore_whitespace: When True, the whitespace between `node` and the
-            node being returned is ignored, i.e. the returned object is
-            guaranteed to not be an all white space text, but it can still be a
-            text with leading space.
-    :returns: a :py:class:`mwparserfromhell.nodes.Node` object or None if `node`
-            is the last object in `wikicode`
-    """
-    i = wikicode.index(node) + 1
-    try:
-        n = wikicode.get(i)
-        while ignore_whitespace and n.isspace():
-            i += 1
-            n = wikicode.get(i)
-        return n
-    except IndexError:
-        return None
-
-# TODO: write unit test for this function
-def get_parent_wikicode(wikicode, node):
-    """
-    Returns the parent of `node` as a `wikicode` object.
-    Raises :exc:`ValueError` if `node` is not a descendant of `wikicode`.
-    """
-    context, index = wikicode._do_strong_search(node, True)
-    return context
 
 
 class PkgUpdater:

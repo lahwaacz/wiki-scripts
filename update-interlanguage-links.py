@@ -10,50 +10,7 @@ from MediaWiki.interactive import *
 from MediaWiki.diff import diff_highlighted
 import ArchWiki.lang as lang
 import utils
-
-# TODO: write some tests
-# TODO: refactoring (move to the same module as get_parent_wikicode to avoid __import__)
-def remove_and_squash(wikicode, obj):
-    """
-    Remove `obj` from `wikicode` and fix whitespace in the place it was removed from.
-    """
-    get_parent_wikicode = __import__("update-package-templates").get_parent_wikicode
-    parent = get_parent_wikicode(wikicode, obj)
-    index = parent.index(obj)
-    parent.remove(obj)
-
-    def _get_text(index):
-        try:
-            return parent.get(index)
-        except IndexError:
-            return None
-
-    prev = _get_text(index - 1)
-    next_ = _get_text(index)
-
-    if prev is None and next_ is not None:
-        if next_.startswith(" "):
-            parent.replace(next_, next_.lstrip(" "))
-        elif next_.startswith("\n"):
-            parent.replace(next_, next_.lstrip("\n"))
-    elif prev is not None and next_ is None:
-        if prev.endswith(" "):
-            parent.replace(prev, prev.rstrip(" "))
-        elif prev.endswith("\n"):
-            parent.replace(prev, prev.rstrip("\n"))
-    elif prev is not None and next_ is not None:
-        if prev.endswith(" ") and next_.startswith(" "):
-            parent.replace(prev, prev.rstrip(" "))
-            parent.replace(next_, " " + next_.lstrip(" "))
-        elif prev.endswith("\n") and next_.startswith("\n"):
-            if not prev[:-1].endswith("\n") and not next_[1:].startswith("\n"):
-                # leave one linebreak
-                parent.replace(prev, prev.rstrip("\n") + "\n")
-            parent.replace(next_, next_.replace("\n", "", 1))
-        elif prev.endswith("\n"):
-            parent.replace(next_, next_.lstrip(" "))
-        elif next_.startswith("\n"):
-            parent.replace(prev, prev.rstrip(" "))
+from parser_helpers import remove_and_squash
 
 def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
     """
