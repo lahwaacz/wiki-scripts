@@ -84,6 +84,10 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
     # all of magic words, catlinks and interlinks have effect even when nested
     # in other nodes, but let's ignore this case for now
     for template in wikicode.filter_templates(recursive=False):
+        # TODO: temporary workaround for a bug in parser:
+        #       https://github.com/earwig/mwparserfromhell/issues/111
+        if not template.name:
+            continue
         if canonicalize(template.name) == "Lowercase title" or _prefix(template.name) == "DISPLAYTITLE":
             _add_to_magics(template)
 
@@ -116,7 +120,6 @@ def fix_header(wikicode):
 
 
 class Interlanguage:
-# TODO: fix headers with separate edit summary before any interlanguage links synchronizing !!!
 # TODO: make this a docstring (perhaps for the module rather than the class)
 # algorithm:
 # 1. fetch list of all pages with prop=langlinks to be able to build a langlink
@@ -139,12 +142,13 @@ class Interlanguage:
 #       families are merged, which is probably acceptable cost.
 
     namespaces = [0, 4, 10, 12, 14]
-    edit_summary = "update interlanguage links (https://github.com/lahwaacz/wiki-scripts/blob/master/update-interlanguage-links.py)"
+    edit_summary = "fix header, update interlanguage links (https://github.com/lahwaacz/wiki-scripts/blob/master/update-interlanguage-links.py)"
 
     def __init__(self, api):
         self.api = api
 
     def _get_allpages(self):
+        print("Fetching langlinks property of all pages...")
         allpages = []
         # not necessary to wrap in each iteration since lists are mutable
         wrapped_titles = utils.ListOfDictsAttrWrapper(allpages, "title")
@@ -299,6 +303,8 @@ class Interlanguage:
                 # are already available
                 if "revisions" in page:
                     title = page["title"]
+                    print("Processing page '{}'".format(title))
+
                     text_old = page["revisions"][0]["*"]
                     timestamp = page["revisions"][0]["timestamp"]
 
@@ -308,7 +314,6 @@ class Interlanguage:
                     text_new = self._update_interlanguage_links(text_old, title, family_titles - {title})
 
                     if text_old != text_new:
-                        print(title)
                         print("    pages in family:", family_titles)
 #                        edit_interactive(api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
                         self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
