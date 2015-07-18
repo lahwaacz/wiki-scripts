@@ -55,13 +55,6 @@ class Statistics:
         cliparser = argparse.ArgumentParser(description=
                 "Update statistics page on ArchWiki", add_help=True)
 
-        actions = cliparser.add_argument_group(title="actions")
-        actionsg = actions.add_mutually_exclusive_group(required=True)
-        actionsg.add_argument('-i', '--initialize', action='store_const',
-            const=self._initialize, dest='action', help='initialize the page')
-        actionsg.add_argument('-u', '--update', action='store_const',
-            const=self._update, dest='action', help='update the page')
-
         output = cliparser.add_argument_group(title="output")
         output.add_argument('-s', '--save', action='store_true',
                         help='try to save the page (requires being logged in)')
@@ -78,9 +71,7 @@ class Statistics:
         usstats.add_argument('--us-min-tot-edits', action='store',
                     default=1000, type=int, dest='us_mintotedits', metavar='N',
                     help='minimum total edits for users with not enough '
-                    'recent changes; if lowering the value from the previous '
-                    'updates, the page must be re-initialized! '
-                    '(default: %(default)s)')
+                    'recent changes (default: %(default)s)')
         usstats.add_argument('--us-min-rec-edits', action='store',
                     default=1, type=int, dest='us_minrecedits', metavar='N',
                     help='minimum recent changes for users with not enough '
@@ -125,19 +116,6 @@ class Statistics:
         userstats = _UserStats(self.api, self.text,
                     self.cliargs.us_days, self.cliargs.us_mintotedits,
                     self.cliargs.us_minrecedits, self.cliargs.us_rcerrhours)
-
-        self.cliargs.action(userstats)
-
-    def _initialize(self, userstats):
-        # The methods here are supposed to query all the information they need,
-        # so they can be used to initialize the page; in general this will be
-        # slower than self._update
-        userstats.initialize()
-
-    def _update(self, userstats):
-        # The methods here can assume that there are already some values in the
-        # pagethat can be parsed if necessary, instead of querying them again;
-        # this should be always faster than self._initialize
         userstats.update()
 
     def _output_page(self):
@@ -243,10 +221,6 @@ divided by the number of days between the user's first and last edits.
         self.db_userprops = cache.AllUsersProps(api, active_days=days, round_to_midnight=True, rc_err_hours=rcerrhours)
         self.db_allrevsprops = cache.AllRevisionsProps(api)
         self.modules = UserStatsModules(self.db_allrevsprops)
-
-    def initialize(self):
-        # TODO: either force initialization of the cache or remove this method completely
-        self.update()
 
     def update(self):
         rows = self._compose_rows()
