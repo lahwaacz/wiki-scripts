@@ -10,7 +10,7 @@ from MediaWiki.interactive import *
 from MediaWiki.diff import diff_highlighted
 import ArchWiki.lang as lang
 import utils
-from parser_helpers import remove_and_squash
+from parser_helpers import canonicalize, remove_and_squash
 
 def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
     """
@@ -82,7 +82,7 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
     # all of magic words, catlinks and interlinks have effect even when nested
     # in other nodes, but let's ignore this case for now
     for template in wikicode.filter_templates(recursive=False):
-        if template.name.matches("Lowercase title") or _prefix(template.name) == "DISPLAYTITLE":
+        if canonicalize(template.name) == "Lowercase title" or _prefix(template.name) == "DISPLAYTITLE":
             _add_to_magics(template)
 
     for link in wikicode.filter_wikilinks(recursive=False):
