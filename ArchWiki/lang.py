@@ -50,8 +50,8 @@ __languages = [
     {"name": "Türkçe", "subtag": "tr", "english": "Turkish"},
     {"name": "Українська", "subtag": "uk", "english": "Ukrainian"},
     {"name": "Tiếng Việt", "subtag": "vi", "english": "Vietnamese"},
-    {"name": "简体中文", "subtag": "zh-CN", "english": "Chinese (Simplified)"},
-    {"name": "正體中文", "subtag": "zh-TW", "english": "Chinese (Traditional)"},
+    {"name": "简体中文", "subtag": "zh-cn", "english": "Chinese (Simplified)"},
+    {"name": "正體中文", "subtag": "zh-tw", "english": "Chinese (Traditional)"},
 ]
 # languages that have a category "Category:<lang>" on ArchWiki
 __category_languages = [
@@ -88,7 +88,7 @@ __category_languages = [
 __interlanguage_external = ["de", "fa", "fi", "fr", "ja", "ro", "sv", "tr"]
 __interlanguage_internal = ["ar", "bg", "cs", "da", "el", "en", "es", "he", "hr",
                             "hu", "id", "it", "ko", "lt", "nl", "pl", "pt",
-                            "ru", "sk", "sr", "th", "uk", "zh-CN", "zh-TW"]
+                            "ru", "sk", "sr", "th", "uk", "zh-cn", "zh-tw"]
 
 
 # basic accessors and checkers
@@ -111,7 +111,7 @@ def get_language_tags():
     return [lang["subtag"] for lang in __languages]
 
 def is_language_tag(tag):
-    return tag in get_language_tags()
+    return tag.lower() in get_language_tags()
 
 
 def get_category_languages():
@@ -125,13 +125,13 @@ def get_external_tags():
     return __interlanguage_external
 
 def is_external_tag(tag):
-    return tag in get_external_tags()
+    return tag.lower() in get_external_tags()
 
 def get_internal_tags():
     return __interlanguage_internal
 
 def is_internal_tag(tag):
-    return tag in get_internal_tags()
+    return tag.lower() in get_internal_tags()
 
 
 # conversion between (local) language names, English language names and subtags
@@ -140,7 +140,7 @@ def langname_for_english(lang):
     return language["name"]
 
 def langname_for_tag(tag):
-    language = [language for language in __languages if language["subtag"] == tag][0]
+    language = [language for language in __languages if language["subtag"] == tag.lower()][0]
     return language["name"]
 
 def english_for_langname(lang):
@@ -148,7 +148,7 @@ def english_for_langname(lang):
     return language["english"]
 
 def english_for_tag(tag):
-    language = [language for language in __languages if language["subtag"] == tag][0]
+    language = [language for language in __languages if language["subtag"] == tag.lower()][0]
     return language["english"]
 
 def tag_for_langname(lang):

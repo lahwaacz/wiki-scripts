@@ -96,7 +96,7 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
     interlinks = [mwparserfromhell.utils.parse_anything(item) for item in interlinks]
 
     def _prefix(title):
-        return title.split(":", 1)[0]
+        return title.split(":", 1)[0].lower()
 
     def _add_to_magics(template):
         remove_and_squash(wikicode, template)
@@ -127,7 +127,7 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
 
     for link in wikicode.filter_wikilinks(recursive=False):
         prefix = _prefix(link.title)
-        if prefix.lower() == "category":
+        if prefix == "category":
             _add_to_cats(link)
         elif prefix in lang.get_language_tags():
             _add_to_interlinks(link)
@@ -214,6 +214,13 @@ class Interlanguage:
         def _transform_title(title):
             pure, langname = lang.detect_language(title)
             tag = lang.tag_for_langname(langname)
+            # FIXME: ``tag`` is always lowercase, but ArchWiki uses strictly capitalized
+            # versions for zh-CN and zh-TW, even though MediaWiki recognizes language
+            # tags case insensitively
+            if tag == "zh-cn":
+                tag = "zh-CN"
+            if tag == "zh-tw":
+                tag = "zh-TW"
             return "[[{}:{}]]".format(tag, pure)
 
         interlinks = sorted(_transform_title(title) for title in family_titles)
