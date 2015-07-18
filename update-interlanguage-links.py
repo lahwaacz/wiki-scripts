@@ -9,6 +9,7 @@ from MediaWiki import API
 from MediaWiki.interactive import *
 from MediaWiki.diff import diff_highlighted
 import ArchWiki.lang as lang
+import utils
 
 # TODO: write some tests
 # TODO: refactoring (move to the same module as get_parent_wikicode to avoid __import__)
@@ -157,23 +158,20 @@ class Interlanguage:
 # TODO: fix headers with separate edit summary before any interlanguage links synchronizing !!!
 # TODO: make this a docstring (perhaps for the module rather than the class)
 # algorithm:
-# 1. fetch list of all pages and redirects (separate from the content dict (see 2.) for quick searching)
-#    (the list of all pages would be used for validating the cache to handle new pages)
-# 2. fetch content of all pages (cached query)
-# 3. group by families
-# 4. transform each group into a Family object:
-#    4.1 denote the set of pages in the family as `titles`, it will be changing as pages are added to the family
-#    4.2 extract interlinks of each page's content, set `titles - {title}` as default
-#    4.3 unify interlinks of all pages in the family and transform interlinks to titles again - denote as `extracted_titles`
-# 5. for each family:
-#    5.1 for each title in `extracted_titles - titles` (titles in `titles` are guaranteed to be existing pages and already members of this family):
-#        5.1.1 resolve redirect, replace with target
-#        5.1.2 if the page exists, merge its family with this one, excluding it from further processing in 5. and making sure that 5.1 is applied to the updated set
-#              (update only `titles` and `extracted_titles`, the interlinks of the pages will be updated in 6.)
-# 6. for each (family, page):
-#    6.1 update interlinks of each page based on the family.titles
-#        (no parsing necessary, just transform titles into interlinks)
-#    6.2 save the page
+# 1. fetch list of all pages with prop=langlinks to be able to build a langlink
+#    graph (separate from the content dict for quick searching)
+# 2. group pages into families based on their title, transform each group into
+#    a Family object (The set of pages in the family will be denoted as
+#    `titles`, it will change as pages are added to the family. The family name
+#    corresponds to the only English page in the family.)
+# 3. merge families based on the langlink graph queried from the wiki API
+# 4. for each (family, page):
+#    4.1 fetch content of the page
+#    4.2 extract interlanguage links from the page
+#    4.4 update the langlinks of the page as `family.titles - {title}`
+#    4.5 save the page
+#
+# TODO: should be obsolete by the langlink map
 # NOTE: Content of all pages is pulled into memory at the same time and not freed until the program exits,
 #       so memory consumption will be huge. If the algorithm is modified to update pages one by one, the
 #       memory consumption would stay at reasonable levels but a page could be edited multiple times as
@@ -182,11 +180,25 @@ class Interlanguage:
     def __init__(self, api):
         self.api = api
 
-    def _get_titles_in_namespace(self, ns):
-        return [page["title"] for page in self.api.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max")]
+    def _get_allpages(self):
+        allpages = []
+        # not necessary to wrap in each iteration since lists are mutable
+        wrapped_titles = utils.ListOfDictsAttrWrapper(allpages, "title")
+
+        for ns in [0, 4, 10, 12, 14]:
+            g = self.api.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max", prop="langlinks", lllimit="max")
+            for page in g:
+                # the same page may be yielded multiple times with different pieces
+                # of the information, hence the db_page.update()
+                try:
+                    db_page = utils.bisect_find(allpages, page["title"], index_list=wrapped_titles)
+                    db_page.update(page)
+                except IndexError:
+                    utils.bisect_insert_or_replace(allpages, page["title"], data_element=page, index_list=wrapped_titles)
+        return allpages
 
     @staticmethod
-    def _group_titles_by_families(titles):
+    def _group_into_families(pages):
         """
         Takes list of page titles, returns an iterator (itertools object) yielding
         a tuple of 2 elements: `family_key` and `family_iter`, where `family_key`
@@ -194,10 +206,71 @@ class Interlanguage:
         "Some title (Česky)") and `family_iter` is an iterator yielding the titles
         of pages that belong to the family (have the same `family_key`).
         """
-        _family_key = lambda title: lang.detect_language(title)[0]
-        titles = sorted(titles, key=_family_key)
-        families = itertools.groupby(titles, key=_family_key)
+        _family_key = lambda page: lang.detect_language(page["title"])[0]
+        families_groups = itertools.groupby(pages, key=_family_key)
+        families = {}
+        for family, pages in families_groups:
+            families[family] = list(pages)
         return families
+
+    @staticmethod
+    def _merge_families(families):
+        """
+        Merges the families based on the "langlinks" property of the pages.
+        """
+        def _title_from_langlink(langlink):
+            return "{} ({})".format(langlink["*"], lang.langname_for_tag(langlink["lang"]))
+
+        def _merge(family1, family2):
+            assert(family1 != family2)
+            try:
+                pages1 = families[family1]
+                pages2 = families[family2]
+            except KeyError:
+                return
+            langs1 = set(lang.detect_language(page["title"])[1] for page in pages1)
+            langs2 = set(lang.detect_language(page["title"])[1] for page in pages2)
+
+            # merge only if the intersection is an empty set
+            if langs1 & langs2 == set():
+                # swap the corresponding objects to have the English page in the
+                # 1st family (if present)
+                if "English" in langs2:
+                    family1, family2 = family2, family1
+                    pages1, pages2 = pages2, pages1
+                    langs1, langs2 = langs2, langs1
+
+                # merge the 2nd family into the 1st
+                pages1 += pages2
+                families.pop(family2)
+            # TODO: figure out what to do else
+#            else:
+#                print("merging families would result in multiple pages of the same language in the family")
+#                print("Family", family1)
+#                print(pages1)
+#                print(langs1)
+#                print("Family", family2)
+#                print(pages2)
+#                print(langs2)
+#                input()
+
+        for family in list(families.keys()):
+            # We need to iterate from copy of the keys because the size of the
+            # main dict changes during iteration. Then we need to check if the
+            # key is still valid.
+            try:
+                pages = families[family]
+            except KeyError:
+                continue
+
+            for page in pages:
+                # default to empty tuple
+                for langlink in page.get("langlinks", ()):
+                    title = _title_from_langlink(langlink)
+                    if title not in [page["title"] for page in pages]:
+                        newfamily = langlink["*"]
+                        if family != newfamily:
+                            _merge(family, newfamily)
 
     @staticmethod
     def _update_interlanguage_links(text, title, family_titles):
@@ -231,6 +304,7 @@ class Interlanguage:
         build_header(wikicode, magics, cats, interlinks)
         return wikicode
 
+    # TODO: optimize query
     def _update_page(self, title, family_titles):
         result = api.call(action="query", prop="revisions", rvprop="content|timestamp", titles=title)
         page = list(result["pages"].values())[0]
@@ -244,15 +318,19 @@ class Interlanguage:
             print(diff_highlighted(text_old, text_new))
             input()
 
-    # TODO: fix according to the algorithm
     def update_allpages(self, ns=0):
-        titles = self._get_titles_in_namespace(ns)
-        families = self._group_titles_by_families(titles)
-        for family, titles in families:
-            titles = set(titles)
-            print(family)
-            print("   ", titles)
+        allpages = self._get_allpages()
+        allpages.sort(key=lambda page: page["title"])
+        families = self._group_into_families(allpages)
+        self._merge_families(families)
+
+        for family in sorted(families):
+            print("Family '{}'".format(family))
+            pages = families[family]
+            titles = set(page["title"] for page in pages)
+
             for title in titles:
+                print(">>> {}".format(title))
                 self._update_page(title, titles - {title})
 
 
