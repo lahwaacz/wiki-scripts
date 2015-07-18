@@ -179,13 +179,14 @@ class Interlanguage:
 
     def __init__(self, api):
         self.api = api
+        self.namespaces = [0, 4, 10, 12, 14]
 
     def _get_allpages(self):
         allpages = []
         # not necessary to wrap in each iteration since lists are mutable
         wrapped_titles = utils.ListOfDictsAttrWrapper(allpages, "title")
 
-        for ns in [0, 4, 10, 12, 14]:
+        for ns in self.namespaces:
             g = self.api.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max", prop="langlinks", lllimit="max")
             for page in g:
                 # the same page may be yielded multiple times with different pieces
@@ -304,34 +305,42 @@ class Interlanguage:
         build_header(wikicode, magics, cats, interlinks)
         return wikicode
 
-    # TODO: optimize query
-    def _update_page(self, title, family_titles):
-        result = api.call(action="query", prop="revisions", rvprop="content|timestamp", titles=title)
-        page = list(result["pages"].values())[0]
-        text_old = page["revisions"][0]["*"]
-        timestamp = page["revisions"][0]["timestamp"]
-
-        text_new = self._update_interlanguage_links(text_old, title, family_titles)
-
-        if text_old != text_new:
-#            edit_interactive(api, page["pageid"], text_old, text_new, timestamp, "updated interlanguage links", bot="")
-            print(diff_highlighted(text_old, text_new))
-            input()
-
     def update_allpages(self, ns=0):
         allpages = self._get_allpages()
         allpages.sort(key=lambda page: page["title"])
         families = self._group_into_families(allpages)
         self._merge_families(families)
 
-        for family in sorted(families):
-            print("Family '{}'".format(family))
-            pages = families[family]
-            titles = set(page["title"] for page in pages)
+        # TODO: it should be theoretically possible to determine which pages need
+        #       to be changed from the langlink graph and families groups
+        # create inverse mapping for fast searching
+        family_index = {}
+        for family, pages in families.items():
+            for page in pages:
+                family_index[page["title"]] = family
 
-            for title in titles:
-                print(">>> {}".format(title))
-                self._update_page(title, titles - {title})
+        for ns in self.namespaces:
+            g = self.api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, prop="revisions", rvprop="content|timestamp")
+            for page in g:
+                # the same page may be yielded multiple times with different pieces
+                # of the information, so we need to check if the expected properties
+                # are already available
+                if "revisions" in page:
+                    title = page["title"]
+                    text_old = page["revisions"][0]["*"]
+                    timestamp = page["revisions"][0]["timestamp"]
+
+                    family_pages = families[family_index[title]]
+                    family_titles = set(page["title"] for page in family_pages)
+                    assert(title in family_titles)
+                    text_new = self._update_interlanguage_links(text_old, title, family_titles - {title})
+
+                    if text_old != text_new:
+                        print(title)
+                        print("    pages in family:", family_titles)
+#                        edit_interactive(api, page["pageid"], text_old, text_new, timestamp, "updated interlanguage links", bot="")
+                        print(diff_highlighted(text_old, text_new))
+                        input()
 
 
 if __name__ == "__main__":
