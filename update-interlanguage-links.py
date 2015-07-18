@@ -179,9 +179,11 @@ class Interlanguage:
 #       memory consumption would stay at reasonable levels but a page could be edited multiple times as
 #       families are merged, which is probably acceptable cost.
 
+    namespaces = [0, 4, 10, 12, 14]
+    edit_summary = "update interlanguage links (https://github.com/lahwaacz/wiki-scripts/blob/master/update-interlanguage-links.py)"
+
     def __init__(self, api):
         self.api = api
-        self.namespaces = [0, 4, 10, 12, 14]
 
     def _get_allpages(self):
         allpages = []
@@ -349,9 +351,10 @@ class Interlanguage:
                     if text_old != text_new:
                         print(title)
                         print("    pages in family:", family_titles)
-#                        edit_interactive(api, page["pageid"], text_old, text_new, timestamp, "updated interlanguage links", bot="")
-                        print(diff_highlighted(text_old, text_new))
-                        input()
+#                        edit_interactive(api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+                        self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+#                        print(diff_highlighted(text_old, text_new))
+#                        input()
 
 
 if __name__ == "__main__":
