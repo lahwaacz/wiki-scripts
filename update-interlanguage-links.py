@@ -29,7 +29,6 @@ def group_titles_by_families(titles):
 
 # TODO: write some tests
 # TODO: refactoring (move to the same module as get_parent_wikicode to avoid __import__)
-# FIXME: line spacing is broken when a line ends with a non-text node (e.g. template or link)
 def remove_and_squash(wikicode, obj):
     """
     Remove `obj` from `wikicode` and fix whitespace in the place it was removed from.
@@ -41,10 +40,7 @@ def remove_and_squash(wikicode, obj):
 
     def _get_text(index):
         try:
-            node = parent.get(index)
-            if not isinstance(node, mwparserfromhell.nodes.text.Text):
-                return None
-            return node
+            return parent.get(index)
         except IndexError:
             return None
 
@@ -67,7 +63,8 @@ def remove_and_squash(wikicode, obj):
             parent.replace(next_, " " + next_.lstrip(" "))
         elif prev.endswith("\n") and next_.startswith("\n"):
             if not prev[:-1].endswith("\n") and not next_[1:].startswith("\n"):
-                parent.replace(prev, prev.rstrip("\n"))
+                # leave one linebreak
+                parent.replace(prev, prev.rstrip("\n") + "\n")
             parent.replace(next_, next_.replace("\n", "", 1))
         elif prev.endswith("\n"):
             parent.replace(next_, next_.lstrip(" "))
@@ -259,13 +256,20 @@ Some text with [[it:interlink]] inside.
 This [[category:foo|catlink]] is a typo.
 [[en:bar]]
 
-Some other text
+Some other text [[link]]
 [[category:bar]]
 [[cs:some page]]
 
 {{DISPLAYTITLE:lowercase title}}
 {{Lowercase title}}
 """
+
+    snippet = """
+{{out of date}}
+[[Category:ASUS]]
+==Hardware==
+"""
+
     wikicode = mwparserfromhell.parse(snippet)
     fix_header(wikicode)
     print(snippet, end="")
