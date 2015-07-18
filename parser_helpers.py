@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+import mwparserfromhell
+
 # TODO: write unit tests
 
 def canonicalize(title):
@@ -56,7 +58,14 @@ def remove_and_squash(wikicode, obj):
 
     def _get_text(index):
         try:
-            return parent.get(index)
+            node = parent.get(index)
+            # don't EVER remove whitespace from non-Text nodes (it would
+            # modify the objects by converting to str, making the operation
+            # and replacing the object with str, but we keep references to
+            # the old nodes)
+            if not isinstance(node, mwparserfromhell.nodes.text.Text):
+                return None
+            return node
         except IndexError:
             return None
 
