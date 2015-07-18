@@ -97,7 +97,7 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
     interlinks = [mwparserfromhell.utils.parse_anything(item) for item in interlinks]
 
     def _prefix(title):
-        return title.split(":", 1)[0].lower()
+        return title.split(":", 1)[0]
 
     def _add_to_magics(template):
         remove_and_squash(wikicode, template)
@@ -117,9 +117,9 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
         # always remove interlinks to handle renaming of pages
         # (typos such as [[en:Main page]] in text are quite rare)
         remove_and_squash(wikicode, interlink)
-        if not any(_prefix(link.get(0).title) == _prefix(interlink.title) for link in interlinks):
+        if not any(_prefix(link.get(0).title).lower() == _prefix(interlink.title).lower() for link in interlinks):
             # not all tags work as interlanguage links
-            if lang.is_interlanguage_tag(_prefix(interlink.title)):
+            if lang.is_interlanguage_tag(_prefix(interlink.title).lower()):
                 interlinks.append(mwparserfromhell.utils.parse_anything(interlink))
 
     # all of magic words, catlinks and interlinks have effect even when nested
@@ -129,7 +129,7 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
             _add_to_magics(template)
 
     for link in wikicode.filter_wikilinks(recursive=False):
-        prefix = _prefix(link.title)
+        prefix = _prefix(link.title).lower()
         if prefix == "category":
             _add_to_cats(link)
         elif prefix in lang.get_language_tags():
