@@ -5,27 +5,10 @@ import itertools
 
 import mwparserfromhell
 
-from MediaWiki import API, diff_highlighted
-from MediaWiki.exceptions import *
+from MediaWiki import API
 from MediaWiki.interactive import *
 from MediaWiki.diff import diff_highlighted
-from ArchWiki.lang import detect_language, tag_for_langname, get_language_tags
-
-def get_titles_in_namespace(ns):
-    return [page["title"] for page in api.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max")]
-
-def group_titles_by_families(titles):
-    """
-    Takes list of page titles, returns an iterator (itertools object) yielding
-    a tuple of 2 elements: `family_key` and `family_iter`, where `family_key`
-    is the base title without the language suffix (i.e. "Some title" for
-    "Some title (Česky)") and `family_iter` is an iterator yielding the titles
-    of pages that belong to the family (have the same `family_key`).
-    """
-    _family_key = lambda title: detect_language(title)[0]
-    titles = sorted(titles, key=_family_key)
-    families = itertools.groupby(titles, key=_family_key)
-    return families
+import ArchWiki.lang as lang
 
 # TODO: write some tests
 # TODO: refactoring (move to the same module as get_parent_wikicode to avoid __import__)
@@ -146,7 +129,7 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
         prefix = _prefix(link.title)
         if prefix.lower() == "category":
             _add_to_cats(link)
-        elif prefix in get_language_tags():
+        elif prefix in lang.get_language_tags():
             _add_to_interlinks(link)
 
     magics.sort()
@@ -169,45 +152,10 @@ def fix_header(wikicode):
     magics, cats, interlinks = extract_header_parts(wikicode)
     build_header(wikicode, magics, cats, interlinks)
 
-def update_interlanguage_links(text, title, family_titles):
-    """
-    :param title: title of the page to update (str)
-    :param family_titles: titles of the family to appear on the page (set)
-    :returns: updated wikicode
-    """
-    # the page should not have a link to itself
-    assert title not in family_titles
 
-    # transform suffix into prefix and construct interlanguage links
-    # e.g. "Some title (Česky)" into "cs:Some title"
-    def _transform_title(title):
-        pure, lang = detect_language(title)
-        tag = tag_for_langname(lang)
-        return "[[{}:{}]]".format(tag, pure)
-
-    interlinks = sorted(_transform_title(title) for title in family_titles)
-
-    wikicode = mwparserfromhell.parse(text)
-    magics, cats, interlinks = extract_header_parts(wikicode, interlinks=interlinks)
-    # TODO: check if the interlinks are valid, handle redirects etc.
-    build_header(wikicode, magics, cats, interlinks)
-    return wikicode
-
-def update_page(title, family_titles):
-    result = api.call(action="query", prop="revisions", rvprop="content|timestamp", titles=title)
-    page = list(result["pages"].values())[0]
-    text_old = page["revisions"][0]["*"]
-    timestamp = page["revisions"][0]["timestamp"]
-
-    text_new = update_interlanguage_links(text_old, title, family_titles)
-
-    if text_old != text_new:
-#        edit_interactive(api, page["pageid"], text_old, text_new, timestamp, "updated interlanguage links", bot="")
-        print(diff_highlighted(text_old, text_new))
-        input()
-
+class Interlanguage:
 # TODO: fix headers with separate edit summary before any interlanguage links synchronizing !!!
-# TODO: def update_allpages
+# TODO: make this a docstring (perhaps for the module rather than the class)
 # algorithm:
 # 1. fetch list of all pages and redirects (separate from the content dict (see 2.) for quick searching)
 #    (the list of all pages would be used for validating the cache to handle new pages)
@@ -231,21 +179,84 @@ def update_page(title, family_titles):
 #       memory consumption would stay at reasonable levels but a page could be edited multiple times as
 #       families are merged, which is probably acceptable cost.
 
+    def __init__(self, api):
+        self.api = api
+
+    def _get_titles_in_namespace(self, ns):
+        return [page["title"] for page in self.api.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max")]
+
+    @staticmethod
+    def _group_titles_by_families(titles):
+        """
+        Takes list of page titles, returns an iterator (itertools object) yielding
+        a tuple of 2 elements: `family_key` and `family_iter`, where `family_key`
+        is the base title without the language suffix (i.e. "Some title" for
+        "Some title (Česky)") and `family_iter` is an iterator yielding the titles
+        of pages that belong to the family (have the same `family_key`).
+        """
+        _family_key = lambda title: lang.detect_language(title)[0]
+        titles = sorted(titles, key=_family_key)
+        families = itertools.groupby(titles, key=_family_key)
+        return families
+
+    @staticmethod
+    def _update_interlanguage_links(text, title, family_titles):
+        """
+        :param title: title of the page to update (str)
+        :param family_titles: titles of the family to appear on the page (set)
+        :returns: updated wikicode
+        """
+        # the page should not have a link to itself
+        assert title not in family_titles
+
+        # transform suffix into prefix and construct interlanguage links
+        # e.g. "Some title (Česky)" into "cs:Some title"
+        def _transform_title(title):
+            pure, langname = lang.detect_language(title)
+            tag = lang.tag_for_langname(langname)
+            return "[[{}:{}]]".format(tag, pure)
+
+        interlinks = sorted(_transform_title(title) for title in family_titles)
+
+        wikicode = mwparserfromhell.parse(text)
+        magics, cats, interlinks = extract_header_parts(wikicode, interlinks=interlinks)
+        # TODO: check if the interlinks are valid, handle redirects etc.
+        build_header(wikicode, magics, cats, interlinks)
+        return wikicode
+
+    def _update_page(self, title, family_titles):
+        result = api.call(action="query", prop="revisions", rvprop="content|timestamp", titles=title)
+        page = list(result["pages"].values())[0]
+        text_old = page["revisions"][0]["*"]
+        timestamp = page["revisions"][0]["timestamp"]
+
+        text_new = self._update_interlanguage_links(text_old, title, family_titles)
+
+        if text_old != text_new:
+#            edit_interactive(api, page["pageid"], text_old, text_new, timestamp, "updated interlanguage links", bot="")
+            print(diff_highlighted(text_old, text_new))
+            input()
+
+    # TODO: fix according to the algorithm
+    def update_allpages(self, ns=0):
+        titles = self._get_titles_in_namespace(ns)
+        families = self._group_titles_by_families(titles)
+        for family, titles in families:
+            titles = set(titles)
+            print(family)
+            print("   ", titles)
+            for title in titles:
+                self._update_page(title, titles - {title})
+
+
 if __name__ == "__main__":
-#    api_url = "https://wiki.archlinux.org/api.php"
-#    cookie_path = os.path.expanduser("~/.cache/ArchWiki.bot.cookie")
+    api_url = "https://wiki.archlinux.org/api.php"
+    cookie_path = os.path.expanduser("~/.cache/ArchWiki.bot.cookie")
 
-#    api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
+    api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 
-#    titles = get_titles_in_namespace(0)
-#    families = group_titles_by_families(titles)
-#    for family, titles in families:
-#        titles = set(titles)
-#        print(family)
-#        print("   ", titles)
-#        for title in titles:
-#            update_page(title, titles - {title})
-
+    il = Interlanguage(api)
+    il.update_allpages()
 
     snippet = """
 __TOC__
@@ -270,8 +281,8 @@ Some other text [[link]]
 ==Hardware==
 """
 
-    wikicode = mwparserfromhell.parse(snippet)
-    fix_header(wikicode)
-    print(snippet, end="")
-    print("=" * 42)
-    print(wikicode, end="")
+#    wikicode = mwparserfromhell.parse(snippet)
+#    fix_header(wikicode)
+#    print(snippet, end="")
+#    print("=" * 42)
+#    print(wikicode, end="")
