@@ -121,6 +121,12 @@ def is_category_language(lang):
     return lang in get_category_languages()
 
 
+def get_interlanguage_tags():
+    return __interlanguage_external + __interlanguage_internal
+
+def is_interlanguage_tag(tag):
+    return tag.lower() in get_interlanguage_tags()
+
 def get_external_tags():
     return __interlanguage_external
 

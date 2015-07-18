@@ -118,7 +118,9 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
         # (typos such as [[en:Main page]] in text are quite rare)
         remove_and_squash(wikicode, interlink)
         if not any(_prefix(link.get(0).title) == _prefix(interlink.title) for link in interlinks):
-            interlinks.append(mwparserfromhell.utils.parse_anything(interlink))
+            # not all tags work as interlanguage links
+            if lang.is_interlanguage_tag(_prefix(interlink.title)):
+                interlinks.append(mwparserfromhell.utils.parse_anything(interlink))
 
     # all of magic words, catlinks and interlinks have effect even when nested
     # in other nodes, but let's ignore this case for now
@@ -207,8 +209,17 @@ class Interlanguage:
         "Some title (Česky)") and `family_iter` is an iterator yielding the titles
         of pages that belong to the family (have the same `family_key`).
         """
+        # interlanguage links are not valid for all languages, the invalid
+        # need to be dropped now
+        def _valid_interlanguage_pages():
+            for page in pages:
+                langname = lang.detect_language(page["title"])[1]
+                tag = lang.tag_for_langname(langname)
+                if lang.is_interlanguage_tag(tag):
+                    yield page
+
         _family_key = lambda page: lang.detect_language(page["title"])[0]
-        families_groups = itertools.groupby(pages, key=_family_key)
+        families_groups = itertools.groupby(_valid_interlanguage_pages(), key=_family_key)
         families = {}
         for family, pages in families_groups:
             families[family] = list(pages)
