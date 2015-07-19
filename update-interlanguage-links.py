@@ -108,12 +108,17 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
 
     return magics, cats, interlinks
 
-# FIXME: trailing space after the removed header part is left out, creating a gap between the header and following text
 def build_header(wikicode, magics, cats, interlinks):
     # first remove starting newline
-    if wikicode.startswith("\n"):
-        first = wikicode.get(0)
-        wikicode.replace(first, first.lstrip("\n"))
+    first = wikicode.get(0)
+    if isinstance(first, mwparserfromhell.nodes.text.Text):
+        # strip blank lines
+        firstline = first.value.splitlines(keepends=True)[0]
+        while firstline.strip() == "":
+            first.value = first.value.replace(firstline, "", 1)
+            if first.value == "":
+                break
+            firstline = first.value.splitlines(keepends=True)[0]
     count = 0
     for item in magics + cats + interlinks:
         wikicode.insert(count, item)
