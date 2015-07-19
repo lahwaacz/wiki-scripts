@@ -355,14 +355,19 @@ class Interlanguage:
                     # temporarily skip main pages until the behavior switches
                     # (__NOTOC__ etc.) can be parsed by mwparserfromhell
                     if re.search("__NOTOC__|__NOEDITSECTION__", text_old):
-                        print("Skipping page '{}'".format(title))
+                        print("Skipping page '{}' (contains behavior switch(es))".format(title))
                         continue
 
                     # temporarily skip Beginners' guides until mwparserfromhell (or
                     # maybe just extract_header_parts() function?) is fixed -- content
                     # in <noinclude> tags is not parsed
                     if re.search("<noinclude>", text_old):
-                        print("Skipping page '{}'".format(title))
+                        print("Skipping page '{}' (contains <noinclude>)".format(title))
+                        continue
+
+                    # skip unsupported languages
+                    if title not in family_index:
+                        print("Skipping page '{}' (unsupported language)".format(title))
                         continue
 
                     print("Processing page '{}'".format(title))
