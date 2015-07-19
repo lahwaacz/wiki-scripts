@@ -1,12 +1,12 @@
 #! /usr/bin/env python3
 
 # TODO:
-#   blank line at the top is sometimes removed, sometimes added
 #   redirects are not handled properly
 #   links to external wiki are not propagated to all other pages in the family
 
 import os.path
 import itertools
+import re
 
 import mwparserfromhell
 
@@ -108,6 +108,7 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
 
     return magics, cats, interlinks
 
+# FIXME: trailing space after the removed header part is left out, creating a gap between the header and following text
 def build_header(wikicode, magics, cats, interlinks):
     # first remove starting newline
     if wikicode.startswith("\n"):
@@ -343,18 +344,23 @@ class Interlanguage:
                 # are already available
                 if "revisions" in page:
                     title = page["title"]
+                    text_old = page["revisions"][0]["*"]
+                    timestamp = page["revisions"][0]["timestamp"]
 
                     # temporarily skip main pages until the behavior switches
                     # (__NOTOC__ etc.) can be parsed by mwparserfromhell
-                    # FIXME: the switches might be also on other pages...
-                    if title.lower().startswith("main page"):
+                    if re.search("__NOTOC__|__NOEDITSECTION__", text_old):
+                        print("Skipping page '{}'".format(title))
+                        continue
+
+                    # temporarily skip Beginners' guides until mwparserfromhell (or
+                    # maybe just extract_header_parts() function?) is fixed -- content
+                    # in <noinclude> tags is not parsed
+                    if re.search("<noinclude>", text_old):
                         print("Skipping page '{}'".format(title))
                         continue
 
                     print("Processing page '{}'".format(title))
-
-                    text_old = page["revisions"][0]["*"]
-                    timestamp = page["revisions"][0]["timestamp"]
 
                     family_pages = families[family_index[title]]
                     family_titles, family_tags = self._titles_in_family(family_pages)
