@@ -151,6 +151,7 @@ class Interlanguage:
 
     def __init__(self, api):
         self.api = api
+        self.redirects = self.api.redirects_map()
 
     def _get_allpages(self):
         print("Fetching langlinks property of all pages...")
@@ -195,14 +196,40 @@ class Interlanguage:
             families[family] = list(pages)
         return families
 
-    @staticmethod
-    def _merge_families(families):
+    def _title_from_langlink(self, langlink):
+        langname = lang.langname_for_tag(langlink["lang"])
+        if langname == "English":
+            title = langlink["*"]
+        else:
+            title = "{} ({})".format(langlink["*"], langname)
+        # resolve redirects
+        if title in self.redirects:
+            title = self.redirects[title].split("#", maxsplit=1)[0]
+        return title
+
+    def _titles_in_family(self, family_pages):
+        tags = set()
+        titles = set()
+
+        for page in family_pages:
+            title = page["title"]
+            tag = lang.tag_for_langname(lang.detect_language(title)[1])
+            tags.add(tag)
+            titles.add(title)
+
+            # default to empty tuple
+            for langlink in page.get("langlinks", ()):
+                title = self._title_from_langlink(langlink)
+                tag = langlink["lang"]
+                tags.add(tag)
+                titles.add(title)
+
+        return titles, tags
+
+    def _merge_families(self, families):
         """
         Merges the families based on the "langlinks" property of the pages.
         """
-        def _title_from_langlink(langlink):
-            return "{} ({})".format(langlink["*"], lang.langname_for_tag(langlink["lang"]))
-
         def _merge(family1, family2):
             assert(family1 != family2)
             try:
@@ -227,12 +254,12 @@ class Interlanguage:
                 families.pop(family2)
             # TODO: figure out what to do else
 #            else:
-#                print("merging families would result in multiple pages of the same language in the family")
+#                print("Attempted to merge families with multiple pages of the same language")
 #                print("Family", family1)
-#                print(pages1)
+#                print([page["title"] for page in pages1])
 #                print(langs1)
 #                print("Family", family2)
-#                print(pages2)
+#                print([page["title"] for page in pages2])
 #                print(langs2)
 #                input()
 
@@ -245,20 +272,25 @@ class Interlanguage:
             except KeyError:
                 continue
 
-            for page in pages:
-                # default to empty tuple
-                for langlink in page.get("langlinks", ()):
-                    title = _title_from_langlink(langlink)
-                    if title not in [page["title"] for page in pages]:
-                        newfamily = langlink["*"]
-                        if family != newfamily:
-                            _merge(family, newfamily)
+            titles, _ = self._titles_in_family(pages)
+            # enumerate titles of possible new families to be merged in
+            for title in titles:
+                if title not in [page["title"] for page in pages]:
+                    if family != title:
+                        _merge(family, title)
+                        # update the set of titles
+                        titles = self._titles_in_family(pages)
 
     @staticmethod
-    def _update_interlanguage_links(text, title, family_titles):
+    def _update_interlanguage_links(text, title, family_titles, weak_update=True):
         """
         :param title: title of the page to update (str)
         :param family_titles: titles of the family to appear on the page (set)
+        :param weak_update:
+            When ``True``, the interlinks present on the page are mixed with those
+            suggested by ``family_titles``. This is necessary only when there are
+            multiple "intersecting" families, in which case the intersection should
+            be preserved and solved manually. This is reported in _merge_families.
         :returns: updated wikicode
         """
         # the page should not have a link to itself
@@ -281,8 +313,11 @@ class Interlanguage:
         interlinks = sorted(_transform_title(title) for title in family_titles)
 
         wikicode = mwparserfromhell.parse(text)
-        magics, cats, interlinks = extract_header_parts(wikicode, interlinks=interlinks)
-        # TODO: check if the interlinks are valid, handle redirects etc.
+        if weak_update is True:
+            magics, cats, interlinks = extract_header_parts(wikicode, interlinks=interlinks)
+        else:
+            # drop the extracted interlinks
+            magics, cats, _ = extract_header_parts(wikicode)
         build_header(wikicode, magics, cats, interlinks)
         return wikicode
 
@@ -322,10 +357,15 @@ class Interlanguage:
                     timestamp = page["revisions"][0]["timestamp"]
 
                     family_pages = families[family_index[title]]
-                    # TODO: include titles from langlinks (e.g. external wikis)
-                    family_titles = set(page["title"] for page in family_pages)
-                    assert(title in family_titles)
-                    text_new = self._update_interlanguage_links(text_old, title, family_titles - {title})
+                    family_titles, family_tags = self._titles_in_family(family_pages)
+                    if len(family_titles) == len(family_tags):
+                        assert(title in family_titles)
+                        text_new = self._update_interlanguage_links(text_old, title, family_titles - {title}, weak_update=False)
+                    else:
+                        print("warning: multiple pages of the same language in a family:", family_titles)
+                        family_titles = set(page["title"] for page in family_pages)
+                        assert(title in family_titles)
+                        text_new = self._update_interlanguage_links(text_old, title, family_titles - {title}, weak_update=True)
 
                     if text_old != text_new:
                         print("    pages in family:", family_titles)
@@ -365,6 +405,23 @@ Some other text [[link]]
 {{out of date}}
 [[Category:ASUS]]
 ==Hardware==
+"""
+
+    snippet = """
+{{Lowercase_title}}
+[[en:Main page]]
+text
+"""
+
+    snippet = """
+The [[vi]] editor.
+"""
+
+# TODO
+    snippet = """
+__NOTOC__
+[[es:Main page]]
+Text of the first paragraph...
 """
 
 #    wikicode = mwparserfromhell.parse(snippet)
