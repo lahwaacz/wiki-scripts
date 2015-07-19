@@ -109,16 +109,16 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
     return magics, cats, interlinks
 
 def build_header(wikicode, magics, cats, interlinks):
-    # first remove starting newline
-    first = wikicode.get(0)
-    if isinstance(first, mwparserfromhell.nodes.text.Text):
-        # strip blank lines
-        firstline = first.value.splitlines(keepends=True)[0]
-        while firstline.strip() == "":
-            first.value = first.value.replace(firstline, "", 1)
-            if first.value == "":
-                break
+    # first strip blank lines if there is some text
+    if len(wikicode.nodes) > 0:
+        first = wikicode.get(0)
+        if isinstance(first, mwparserfromhell.nodes.text.Text):
             firstline = first.value.splitlines(keepends=True)[0]
+            while firstline.strip() == "":
+                first.value = first.value.replace(firstline, "", 1)
+                if first.value == "":
+                    break
+                firstline = first.value.splitlines(keepends=True)[0]
     count = 0
     for item in magics + cats + interlinks:
         wikicode.insert(count, item)
