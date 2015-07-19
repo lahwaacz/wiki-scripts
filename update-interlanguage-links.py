@@ -61,7 +61,7 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
     def _prefix(title):
         if ":" not in title:
             return ""
-        return title.split(":", 1)[0]
+        return title.split(":", 1)[0].strip()
 
     def _add_to_magics(template):
         remove_and_squash(wikicode, template)
