@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 # TODO:
-#   placement of __NOTOC__, __NOEDITSECTION__
 #   blank line at the top is sometimes removed, sometimes added
 #   redirects are not handled properly
 #   links to external wiki are not propagated to all other pages in the family
@@ -309,6 +308,14 @@ class Interlanguage:
                 # are already available
                 if "revisions" in page:
                     title = page["title"]
+
+                    # temporarily skip main pages until the behavior switches
+                    # (__NOTOC__ etc.) can be parsed by mwparserfromhell
+                    # FIXME: the switches might be also on other pages...
+                    if title.lower().startswith("main page"):
+                        print("Skipping page '{}'".format(title))
+                        continue
+
                     print("Processing page '{}'".format(title))
 
                     text_old = page["revisions"][0]["*"]
