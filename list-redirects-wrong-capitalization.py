@@ -17,7 +17,7 @@ api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 # sentence-case title redirects to title-case.
 
 # limit to redirects pointing to the main namespace, others deserve special treatment
-redirects = api.redirects_map(source_namespaces=["0", "4", "12"], target_namespaces=["0"])
+redirects = api.redirects_map(source_namespaces=[0, 4, 12], target_namespaces=[0])
 
 # we will count the number of uppercase letters starting each word
 def count_uppercase(text):

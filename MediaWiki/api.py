@@ -279,7 +279,7 @@ class API(Connection):
 
         :param source_namespaces: the namespace ID of the source title must be in this
                                   list in order to be included in the mapping (default
-                                  is ["0"], the magic word "all" will select all
+                                  is [0], the magic word "all" will select all
                                   available namespaces)
         :param target_namespaces: the namespace ID of the target title must be in this
                                   list in order to be included in the mapping (default
@@ -288,7 +288,7 @@ class API(Connection):
                   redirect targets, including the link fragments (e.g.
                   ``Page title#Section title``).
         """
-        source_namespaces = source_namespaces if source_namespaces is not None else ["0"]
+        source_namespaces = source_namespaces if source_namespaces is not None else [0]
         if source_namespaces == "all":
             source_namespaces = [ns for ns in self.namespaces() if int(ns) >= 0]
         if target_namespaces == "all":

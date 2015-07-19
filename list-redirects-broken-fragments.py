@@ -18,7 +18,7 @@ api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 
 
 # limit to redirects pointing to the content namespaces
-redirects = api.redirects_map(target_namespaces=["0", "4", "12"])
+redirects = api.redirects_map(target_namespaces=[0, 4, 12])
 
 # function to check if 'page' has 'section'
 def has_section(page, section):

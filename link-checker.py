@@ -36,7 +36,7 @@ class LinkChecker:
             self.edit_summary = "simplification of wikilinks, fixing whitespace (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py)"
 
         # redirects only to the Main, ArchWiki and Help namespaces, others deserve special treatment
-        self.redirects = api.redirects_map(target_namespaces=["0", "4", "12"])
+        self.redirects = api.redirects_map(target_namespaces=[0, 4, 12])
 
     def check_trivial(self, wikilink):
         """
