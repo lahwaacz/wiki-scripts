@@ -1,5 +1,11 @@
 #! /usr/bin/env python3
 
+# TODO:
+#   placement of __NOTOC__, __NOEDITSECTION__
+#   blank line at the top is sometimes removed, sometimes added
+#   redirects are not handled properly
+#   links to external wiki are not propagated to all other pages in the family
+
 import os.path
 import itertools
 
@@ -309,14 +315,15 @@ class Interlanguage:
                     timestamp = page["revisions"][0]["timestamp"]
 
                     family_pages = families[family_index[title]]
+                    # TODO: include titles from langlinks (e.g. external wikis)
                     family_titles = set(page["title"] for page in family_pages)
                     assert(title in family_titles)
                     text_new = self._update_interlanguage_links(text_old, title, family_titles - {title})
 
                     if text_old != text_new:
                         print("    pages in family:", family_titles)
-#                        edit_interactive(api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-                        self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+                        edit_interactive(api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+#                        self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 #                        print(diff_highlighted(text_old, text_new))
 #                        input()
 
