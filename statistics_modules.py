@@ -6,20 +6,32 @@ import datetime
 import utils
 
 class UserStatsModules:
-    def __init__(self, db_allrevprops):
+    def __init__(self, db_allrevprops, round_to_midnight=False):
         """
-        :param db_allrevprops: an instance of :py:class:`cache.AllRevisionsProps`
+        :param db_allrevprops:
+            an instance of :py:class:`cache.AllRevisionsProps`
+        :param round_to_midnight:
+            whether to ignore revisions made after the past UTC midnight
         """
         self.db = db_allrevprops
+        self.round_to_midnight = round_to_midnight
 
         # current UTC date
-        self.today = datetime.datetime.utcnow().date()
+        self.today = datetime.datetime.utcnow()
+        if self.round_to_midnight:
+            # round to midnight, keep the datetime.datetime type
+            self.today = datetime.datetime(*(self.today.timetuple()[:3]))
+
+        if self.round_to_midnight is True:
+            revisions_generator = (r for r in self.db["revisions"] if utils.parse_date(r["timestamp"]) <= self.today)
+        else:
+            revisions_generator = (r for r in self.db["revisions"])
 
         # sort revisions by multiple keys: 1. user, 2. timestamp
         # this way we can group the list by users and iterate through user_revisions to
         # calculate just about everything
         # NOTE: access to database triggers an update, sorted() creates a shallow copy
-        revisions = sorted(self.db["revisions"], key=lambda r: (r["user"], r["timestamp"]))
+        revisions = sorted(revisions_generator, key=lambda r: (r["user"], r["timestamp"]))
         revisions_grouper = itertools.groupby(revisions, key=lambda r: r["user"])
 
         # a list containing revisions made by given user, sorted by timestamp
@@ -94,8 +106,9 @@ class UserStatsModules:
         else:
             longest = None
 
-        # check if the last edit has been made on this UTC day
-        if self.today - utils.parse_date(current_streak[-1]["timestamp"]).date() <= datetime.timedelta(days=1):
+        # check if the last edit has been made at most 24 hours ago (or, when
+        # round_to_midnight is True, at most on the previous UTC day)
+        if self.today - utils.parse_date(current_streak[-1]["timestamp"]) <= datetime.timedelta(days=1):
             current = {
                 "length": current_length,
                 "start": current_streak[0]["timestamp"],
@@ -120,7 +133,7 @@ class UserStatsModules:
         if registration_timestamp is None:
             return float('nan')
         revisions = self.revisions_groups[user]
-        delta = self.today - registration_timestamp.date()
+        delta = self.today - registration_timestamp
         return len(revisions) / (delta.days + 1)
 
     def active_edits_per_day(self, user):

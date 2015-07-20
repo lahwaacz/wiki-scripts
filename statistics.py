@@ -220,7 +220,7 @@ divided by the number of days between the user's first and last edits.
 
         self.db_userprops = cache.AllUsersProps(api, active_days=days, round_to_midnight=True, rc_err_hours=rcerrhours)
         self.db_allrevsprops = cache.AllRevisionsProps(api)
-        self.modules = UserStatsModules(self.db_allrevsprops)
+        self.modules = UserStatsModules(self.db_allrevsprops, round_to_midnight=True)
 
     def update(self):
         rows = self._compose_rows()
