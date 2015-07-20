@@ -178,23 +178,23 @@ class Interlanguage:
     @staticmethod
     def _group_into_families(pages):
         """
-        Takes list of page titles, returns an iterator (itertools object) yielding
-        a tuple of 2 elements: `family_key` and `family_iter`, where `family_key`
-        is the base title without the language suffix (i.e. "Some title" for
-        "Some title (Česky)") and `family_iter` is an iterator yielding the titles
-        of pages that belong to the family (have the same `family_key`).
+        Takes list of pages and groups them based on their title. Returns a
+        mapping of `family_key` to `family_pages`, where `family_key` is the
+        base title without the language suffix (e.g. "Some title" for
+        "Some title (Česky)") and `family_pages` is a list of pages belonging
+        to the family (have the same `family_key`).
         """
         # interlanguage links are not valid for all languages, the invalid
         # need to be dropped now
-        def _valid_interlanguage_pages():
+        def _valid_interlanguage_pages(pages):
             for page in pages:
                 langname = lang.detect_language(page["title"])[1]
                 tag = lang.tag_for_langname(langname)
                 if lang.is_interlanguage_tag(tag):
                     yield page
 
-        _family_key = lambda page: lang.detect_language(page["title"])[0]
-        families_groups = itertools.groupby(_valid_interlanguage_pages(), key=_family_key)
+        _family_key = lambda page: lang.detect_language(page["title"])[0].lower()
+        families_groups = itertools.groupby(_valid_interlanguage_pages(pages), key=_family_key)
         families = {}
         for family, pages in families_groups:
             families[family] = list(pages)
