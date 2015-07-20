@@ -136,15 +136,26 @@ class Interlanguage:
      1. Fetch list of all pages with prop=langlinks to be able to build a langlink
         graph (separate from the content dict for quick searching).
      2. Group pages into families based on their title, which is the primary key to
-        denote a family. This will include even pages without any interlanguage links.
-        The family name corresponds to the only English page in the family (or when
-        not present, to the English base of the localized title).
+        denote a family. The grouping is case-insensitive and includes even pages
+        without any interlanguage links. The family name corresponds to the only
+        English page in the family (or when not present, to the English base of the
+        localized title).
      3. For every page on the wiki:
-        3.1 fetch content of the page
-        3.2 determine the family of the page
-        3.3 assemble a set of pages in the family
-        3.4 update the langlinks of the page as `family.titles - {title}`
-        3.5 save the page
+        3.1 Fetch content of the page.
+        3.2 Determine the family of the page.
+        3.3 Assemble a set of pages in the family. This is done by first including
+            the pages in the group from step 2., then pulling any internal langlinks
+            from the pages in the set (in unspecified order), and finally based on
+            the presence of an English page in the family:
+              - If there is an English page, its external langlinks are pulled in.
+                As a result, external langlinks removed from the English page are
+                assumed to be invalid and removed also from other pages. For
+                consistency, also internal langlinks are pulled from the English page.
+              - If there is not an English page, external langlinks are pulled from
+                the other pages (in unspecified order), which completes the previous
+                inclusion of internal langlinks.
+        3.4 Update the langlinks of the page as ``family.titles - {title}``.
+        3.5 If there is a difference, save the page.
     """
 
     namespaces = [0, 4, 10, 12, 14]
