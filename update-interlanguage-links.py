@@ -1,8 +1,7 @@
 #! /usr/bin/env python3
 
 # TODO:
-#   redirects are not handled properly
-#   links to external wiki are not propagated to all other pages in the family
+#   take the final title from "displaytitle" property (available from API)
 
 import os.path
 import itertools
@@ -153,11 +152,14 @@ class Interlanguage:
 #       families are merged, which is probably acceptable cost.
 
     namespaces = [0, 4, 10, 12, 14]
-    edit_summary = "fix header, update interlanguage links (https://github.com/lahwaacz/wiki-scripts/blob/master/update-interlanguage-links.py)"
+    edit_summary = "update interlanguage links (https://github.com/lahwaacz/wiki-scripts/blob/master/update-interlanguage-links.py)"
 
     def __init__(self, api):
         self.api = api
         self.redirects = self.api.redirects_map()
+
+        self.allpages = None
+        self.families = None
 
     def _get_allpages(self):
         print("Fetching langlinks property of all pages...")
@@ -208,30 +210,59 @@ class Interlanguage:
             title = langlink["*"]
         else:
             title = "{} ({})".format(langlink["*"], langname)
-        # resolve redirects
-        if title in self.redirects:
-            title = self.redirects[title].split("#", maxsplit=1)[0]
+        if lang.is_internal_tag(langlink["lang"]):
+            title = canonicalize(title)
+            # resolve redirects
+            if title in self.redirects:
+                title = self.redirects[title].split("#", maxsplit=1)[0]
         return title
 
     def _titles_in_family(self, family_pages):
         tags = set()
         titles = set()
 
+        # populate titles/tags with the already present pages
         for page in family_pages:
             title = page["title"]
             tag = lang.tag_for_langname(lang.detect_language(title)[1])
             tags.add(tag)
             titles.add(title)
 
+        wrapped_titles = utils.ListOfDictsAttrWrapper(self.allpages, "title")
+
+        def _pull_from_page(page, condition=lambda title, tag: True):
             # default to empty tuple
             for langlink in page.get("langlinks", ()):
                 title = self._title_from_langlink(langlink)
                 tag = langlink["lang"]
-                tags.add(tag)
-                titles.add(title)
+                if tag not in tags and condition(title, tag):
+                    tags.add(tag)
+                    titles.add(title)
+
+        # Pull in internal langlinks from any page. This will pull in English page
+        # if there is any.
+        for page in family_pages:
+            _pull_from_page(page, condition=lambda title, tag: lang.is_internal_tag(tag) and title in wrapped_titles)
+
+        # FIXME: still needs some work...
+        # Make sure that external langlinks are pulled in only from the English page
+        # if there is any. For consistency, pull in also internal langlinks from the
+        # English page.
+        if "en" in tags:
+            title = [title for title in titles if lang.detect_language(title)[1] == "English"][0]
+            page = utils.bisect_find(self.allpages, title, index_list=wrapped_titles)
+            _pull_from_page(page, condition=lambda title, tag: lang.is_external_tag(tag) or title in wrapped_titles)#, condition=lambda tag: lang.is_external_tag(tag))
+        else:
+            # Pull in external langlinks from any page. This completes the
+            # inclusion in case there is no English page.
+            for page in family_pages:
+                _pull_from_page(page, condition=lambda title, tag: lang.is_external_tag(tag))
+
+        assert(len(tags) == len(titles))
 
         return titles, tags
 
+    # TODO: unused method
     def _merge_families(self, families):
         """
         Merges the families based on the "langlinks" property of the pages.
@@ -262,13 +293,14 @@ class Interlanguage:
 #            else:
 #                print("Attempted to merge families with multiple pages of the same language")
 #                print("Family", family1)
-#                print([page["title"] for page in pages1])
-#                print(langs1)
+#                pprint([page["title"] for page in pages1])
+#                pprint(langs1)
 #                print("Family", family2)
-#                print([page["title"] for page in pages2])
-#                print(langs2)
+#                pprint([page["title"] for page in pages2])
+#                pprint(langs2)
 #                input()
 
+        # FIXME: change priority of pulling the interlinks, the current random approach is not good
         for family in list(families.keys()):
             # We need to iterate from copy of the keys because the size of the
             # main dict changes during iteration. Then we need to check if the
@@ -287,6 +319,12 @@ class Interlanguage:
                         # update the set of titles
                         titles = self._titles_in_family(pages)
 
+    def build_graph(self):
+        self.allpages = self._get_allpages()
+        self.allpages.sort(key=lambda page: page["title"])
+        self.families = self._group_into_families(self.allpages)
+#        self._merge_families(self.families)
+
     @staticmethod
     def _update_interlanguage_links(text, title, family_titles, weak_update=True):
         """
@@ -300,6 +338,7 @@ class Interlanguage:
         :returns: updated wikicode
         """
         # the page should not have a link to itself
+        # FIXME: check tag, not the title!
         assert title not in family_titles
 
         # transform suffix into prefix and construct interlanguage links
@@ -327,17 +366,13 @@ class Interlanguage:
         build_header(wikicode, magics, cats, interlinks)
         return wikicode
 
-    def update_allpages(self, ns=0):
-        allpages = self._get_allpages()
-        allpages.sort(key=lambda page: page["title"])
-        families = self._group_into_families(allpages)
-        self._merge_families(families)
-
+    def update_allpages(self):
+        self.build_graph()
         # TODO: it should be theoretically possible to determine which pages need
         #       to be changed from the langlink graph and families groups
         # create inverse mapping for fast searching
         family_index = {}
-        for family, pages in families.items():
+        for family, pages in self.families.items():
             for page in pages:
                 family_index[page["title"]] = family
 
@@ -372,19 +407,20 @@ class Interlanguage:
 
                     print("Processing page '{}'".format(title))
 
-                    family_pages = families[family_index[title]]
+                    family_pages = self.families[family_index[title]]
                     family_titles, family_tags = self._titles_in_family(family_pages)
                     if len(family_titles) == len(family_tags):
                         assert(title in family_titles)
                         text_new = self._update_interlanguage_links(text_old, title, family_titles - {title}, weak_update=False)
                     else:
+                        # TODO: unused branch
                         print("warning: multiple pages of the same language in a family:", family_titles)
                         family_titles = set(page["title"] for page in family_pages)
                         assert(title in family_titles)
                         text_new = self._update_interlanguage_links(text_old, title, family_titles - {title}, weak_update=True)
 
                     if text_old != text_new:
-                        print("    pages in family:", family_titles)
+                        print("    pages in family:", sorted(family_titles))
                         edit_interactive(api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
 #                        self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 #                        print(diff_highlighted(text_old, text_new))
