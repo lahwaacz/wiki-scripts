@@ -130,26 +130,22 @@ def fix_header(wikicode):
 
 
 class Interlanguage:
-# TODO: make this a docstring (perhaps for the module rather than the class)
-# algorithm:
-# 1. fetch list of all pages with prop=langlinks to be able to build a langlink
-#    graph (separate from the content dict for quick searching)
-# 2. group pages into families based on their title, transform each group into
-#    a Family object (The set of pages in the family will be denoted as
-#    `titles`, it will change as pages are added to the family. The family name
-#    corresponds to the only English page in the family.)
-# 3. merge families based on the langlink graph queried from the wiki API
-# 4. for each (family, page):
-#    4.1 fetch content of the page
-#    4.2 extract interlanguage links from the page
-#    4.4 update the langlinks of the page as `family.titles - {title}`
-#    4.5 save the page
-#
-# TODO: should be obsolete by the langlink map
-# NOTE: Content of all pages is pulled into memory at the same time and not freed until the program exits,
-#       so memory consumption will be huge. If the algorithm is modified to update pages one by one, the
-#       memory consumption would stay at reasonable levels but a page could be edited multiple times as
-#       families are merged, which is probably acceptable cost.
+    """
+    Update interlanguage links on ArchWiki based on the following algorithm:
+
+     1. Fetch list of all pages with prop=langlinks to be able to build a langlink
+        graph (separate from the content dict for quick searching).
+     2. Group pages into families based on their title, which is the primary key to
+        denote a family. This will include even pages without any interlanguage links.
+        The family name corresponds to the only English page in the family (or when
+        not present, to the English base of the localized title).
+     3. For every page on the wiki:
+        3.1 fetch content of the page
+        3.2 determine the family of the page
+        3.3 assemble a set of pages in the family
+        3.4 update the langlinks of the page as `family.titles - {title}`
+        3.5 save the page
+    """
 
     namespaces = [0, 4, 10, 12, 14]
     edit_summary = "update interlanguage links (https://github.com/lahwaacz/wiki-scripts/blob/master/update-interlanguage-links.py)"
