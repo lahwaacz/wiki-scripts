@@ -347,13 +347,6 @@ class Interlanguage:
         def _transform_title(title):
             pure, langname = lang.detect_language(title)
             tag = lang.tag_for_langname(langname)
-            # FIXME: ``tag`` is always lowercase, but ArchWiki uses strictly capitalized
-            # versions for zh-CN and zh-TW, even though MediaWiki recognizes language
-            # tags case insensitively
-            if tag == "zh-cn":
-                tag = "zh-CN"
-            if tag == "zh-tw":
-                tag = "zh-TW"
             return "[[{}:{}]]".format(tag, pure)
 
         interlinks = sorted(_transform_title(title) for title in family_titles)
