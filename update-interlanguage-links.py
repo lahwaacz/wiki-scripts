@@ -2,6 +2,7 @@
 
 # TODO:
 #   take the final title from "displaytitle" property (available from API)
+#   it should be theoretically possible to determine which pages need to be changed from the langlink graph and families groups
 
 import os.path
 import itertools
@@ -147,13 +148,16 @@ class Interlanguage:
             the pages in the group from step 2., then pulling any internal langlinks
             from the pages in the set (in unspecified order), and finally based on
             the presence of an English page in the family:
-              - If there is an English page, its external langlinks are pulled in.
-                As a result, external langlinks removed from the English page are
-                assumed to be invalid and removed also from other pages. For
-                consistency, also internal langlinks are pulled from the English page.
-              - If there is not an English page, external langlinks are pulled from
-                the other pages (in unspecified order), which completes the previous
-                inclusion of internal langlinks.
+              - If there is an English page directly in the group from step 2. or if
+                other pages link to an English page whose group can be merged with
+                the current group without causing a conflict, its external langlinks
+                are pulled in. As a result, external langlinks removed from the
+                English page are assumed to be invalid and removed also from other
+                pages in the family. For consistency, also internal langlinks are
+                pulled from the English page.
+              - If the pulling from an English page was not done, external langlinks
+                are pulled from the other pages (in unspecified order), which
+                completes the previous inclusion of internal langlinks.
         3.4 Update the langlinks of the page as ``family.titles - {title}``.
         3.5 If there is a difference, save the page.
     """
@@ -239,7 +243,18 @@ class Interlanguage:
                 title = self.redirects[title].split("#", maxsplit=1)[0]
         return title
 
-    def _titles_in_family(self, family_pages):
+    def _titles_in_family(self, master_title):
+        """
+        Get the titles in the family corresponding to ``title``.
+
+        :returns: a ``(titles, tags)`` tuple, where ``titles`` is the set of titles
+                  in the family (including ``title``) and ``tags`` is the set of
+                  corresponding language tags
+        """
+        master_tag = lang.tag_for_langname(lang.detect_language(master_title)[1])
+        family = self.family_index[master_title]
+        family_pages = self.families[family]
+
         tags = set()
         titles = set()
 
@@ -249,6 +264,7 @@ class Interlanguage:
             tag = lang.tag_for_langname(lang.detect_language(title)[1])
             tags.add(tag)
             titles.add(title)
+        had_english_early = "en" in tags
 
         wrapped_titles = utils.ListOfDictsAttrWrapper(self.allpages, "title")
 
@@ -266,17 +282,30 @@ class Interlanguage:
         for page in family_pages:
             _pull_from_page(page, condition=lambda title, tag: lang.is_internal_tag(tag) and title in wrapped_titles)
 
-        # FIXME: still needs some work...
         # Make sure that external langlinks are pulled in only from the English page
-        # if there is any. For consistency, pull in also internal langlinks from the
+        # when appropriate. For consistency, pull in also internal langlinks from the
         # English page.
+        _pulled_from_english = False
         if "en" in tags:
-            title = [title for title in titles if lang.detect_language(title)[1] == "English"][0]
-            page = utils.bisect_find(self.allpages, title, index_list=wrapped_titles)
-            _pull_from_page(page, condition=lambda title, tag: lang.is_external_tag(tag) or title in wrapped_titles)#, condition=lambda tag: lang.is_external_tag(tag))
-        else:
+            en_title = [title for title in titles if lang.detect_language(title)[1] == "English"][0]
+            en_page = utils.bisect_find(self.allpages, en_title, index_list=wrapped_titles)
+            # If the English page is present from the beginning, pull its langlinks.
+            # This will take priority over other pages in the family.
+            if master_tag == "en" or had_english_early:
+                _pull_from_page(en_page, condition=lambda title, tag: lang.is_external_tag(tag) or title in wrapped_titles)#, condition=lambda tag: lang.is_external_tag(tag))
+                _pulled_from_english = True
+            else:
+                # Otherwise check if the family of the English page is the same as
+                # this one or if it does not contain master_tag. This will effectively
+                # merge the families.
+                en_titles, en_tags = self._titles_in_family(en_title)
+                if master_title in en_titles or master_tag not in en_tags:
+                    _pull_from_page(en_page, condition=lambda title, tag: lang.is_external_tag(tag) or title in wrapped_titles)
+                    _pulled_from_english = True
+
+        if not _pulled_from_english:
             # Pull in external langlinks from any page. This completes the
-            # inclusion in case there is no English page.
+            # inclusion in case pulling from English page was not done.
             for page in family_pages:
                 _pull_from_page(page, condition=lambda title, tag: lang.is_external_tag(tag))
 
@@ -347,6 +376,14 @@ class Interlanguage:
         # sort again, this time by title (self._group_into_families sorted it by
         # the family key)
         self.allpages.sort(key=lambda page: page["title"])
+
+        # create inverse mapping for fast searching
+        self.family_index = {}
+        for family, pages in self.families.items():
+            for page in pages:
+                self.family_index[page["title"]] = family
+
+        # FIXME: merging breaks family_index
 #        self._merge_families(self.families)
 
     @staticmethod
@@ -392,14 +429,6 @@ class Interlanguage:
 
     def update_allpages(self):
         self.build_graph()
-        # TODO: it should be theoretically possible to determine which pages need
-        #       to be changed from the langlink graph and families groups
-        # create inverse mapping for fast searching
-        family_index = {}
-        for family, pages in self.families.items():
-            for page in pages:
-                family_index[page["title"]] = family
-
         for ns in self.namespaces:
             g = self.api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, prop="revisions", rvprop="content|timestamp")
             for page in g:
@@ -431,17 +460,9 @@ class Interlanguage:
 
                     print("Processing page '{}'".format(title))
 
-                    family_pages = self.families[family_index[title]]
-                    family_titles, family_tags = self._titles_in_family(family_pages)
-                    if len(family_titles) == len(family_tags):
-                        assert(title in family_titles)
-                        text_new = self._update_interlanguage_links(text_old, title, family_titles - {title}, weak_update=False)
-                    else:
-                        # TODO: unused branch
-                        print("warning: multiple pages of the same language in a family:", family_titles)
-                        family_titles = set(page["title"] for page in family_pages)
-                        assert(title in family_titles)
-                        text_new = self._update_interlanguage_links(text_old, title, family_titles - {title}, weak_update=True)
+                    family_titles, family_tags = self._titles_in_family(title)
+                    assert(title in family_titles)
+                    text_new = self._update_interlanguage_links(text_old, title, family_titles - {title}, weak_update=False)
 
                     if text_old != text_new:
                         print("    pages in family:", sorted(family_titles))
