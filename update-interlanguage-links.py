@@ -313,63 +313,6 @@ class Interlanguage:
 
         return titles, tags
 
-    # TODO: unused method
-    def _merge_families(self, families):
-        """
-        Merges the families based on the "langlinks" property of the pages.
-        """
-        def _merge(family1, family2):
-            assert(family1 != family2)
-            try:
-                pages1 = families[family1]
-                pages2 = families[family2]
-            except KeyError:
-                return
-            langs1 = set(lang.detect_language(page["title"])[1] for page in pages1)
-            langs2 = set(lang.detect_language(page["title"])[1] for page in pages2)
-
-            # merge only if the intersection is an empty set
-            if langs1 & langs2 == set():
-                # swap the corresponding objects to have the English page in the
-                # 1st family (if present)
-                if "English" in langs2:
-                    family1, family2 = family2, family1
-                    pages1, pages2 = pages2, pages1
-                    langs1, langs2 = langs2, langs1
-
-                # merge the 2nd family into the 1st
-                pages1 += pages2
-                families.pop(family2)
-            # TODO: figure out what to do else
-#            else:
-#                print("Attempted to merge families with multiple pages of the same language")
-#                print("Family", family1)
-#                pprint([page["title"] for page in pages1])
-#                pprint(langs1)
-#                print("Family", family2)
-#                pprint([page["title"] for page in pages2])
-#                pprint(langs2)
-#                input()
-
-        # FIXME: change priority of pulling the interlinks, the current random approach is not good
-        for family in list(families.keys()):
-            # We need to iterate from copy of the keys because the size of the
-            # main dict changes during iteration. Then we need to check if the
-            # key is still valid.
-            try:
-                pages = families[family]
-            except KeyError:
-                continue
-
-            titles, _ = self._titles_in_family(pages)
-            # enumerate titles of possible new families to be merged in
-            for title in titles:
-                if title not in [page["title"] for page in pages]:
-                    if family != title:
-                        _merge(family, title)
-                        # update the set of titles
-                        titles = self._titles_in_family(pages)
-
     def build_graph(self):
         self.allpages = self._get_allpages()
         self.families = self._group_into_families(self.allpages)
@@ -382,9 +325,6 @@ class Interlanguage:
         for family, pages in self.families.items():
             for page in pages:
                 self.family_index[page["title"]] = family
-
-        # FIXME: merging breaks family_index
-#        self._merge_families(self.families)
 
     @staticmethod
     def _update_interlanguage_links(text, title, family_titles, weak_update=True):
