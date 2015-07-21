@@ -360,6 +360,42 @@ class Interlanguage:
         build_header(wikicode, magics, cats, interlinks)
         return wikicode
 
+    def _update_page(self, page):
+        title = page["title"]
+        text_old = page["revisions"][0]["*"]
+        timestamp = page["revisions"][0]["timestamp"]
+
+        # temporarily skip main pages until the behavior switches
+        # (__NOTOC__ etc.) can be parsed by mwparserfromhell
+        if re.search("__NOTOC__|__NOEDITSECTION__", text_old):
+            print("Skipping page '{}' (contains behavior switch(es))".format(title))
+            return
+
+        # temporarily skip Beginners' guides until mwparserfromhell (or
+        # maybe just extract_header_parts() function?) is fixed -- content
+        # in <noinclude> tags is not parsed
+        if re.search("<noinclude>", text_old):
+            print("Skipping page '{}' (contains <noinclude>)".format(title))
+            return
+
+        # skip unsupported languages
+        if not lang.is_interlanguage_tag(lang.tag_for_langname(lang.detect_language(title)[1])):
+            print("Skipping page '{}' (unsupported language)".format(title))
+            return
+
+        print("Processing page '{}'".format(title))
+
+        family_titles, family_tags = self._titles_in_family(title)
+        assert(title in family_titles)
+        text_new = self._update_interlanguage_links(text_old, title, family_titles - {title}, weak_update=False)
+
+        if text_old != text_new:
+            print("    pages in family:", sorted(family_titles))
+            edit_interactive(api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+#            self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+#            print(diff_highlighted(text_old, text_new))
+#            input()
+
     def update_allpages(self):
         self.build_graph()
         for ns in self.namespaces:
@@ -369,40 +405,7 @@ class Interlanguage:
                 # of the information, so we need to check if the expected properties
                 # are already available
                 if "revisions" in page:
-                    title = page["title"]
-                    text_old = page["revisions"][0]["*"]
-                    timestamp = page["revisions"][0]["timestamp"]
-
-                    # temporarily skip main pages until the behavior switches
-                    # (__NOTOC__ etc.) can be parsed by mwparserfromhell
-                    if re.search("__NOTOC__|__NOEDITSECTION__", text_old):
-                        print("Skipping page '{}' (contains behavior switch(es))".format(title))
-                        continue
-
-                    # temporarily skip Beginners' guides until mwparserfromhell (or
-                    # maybe just extract_header_parts() function?) is fixed -- content
-                    # in <noinclude> tags is not parsed
-                    if re.search("<noinclude>", text_old):
-                        print("Skipping page '{}' (contains <noinclude>)".format(title))
-                        continue
-
-                    # skip unsupported languages
-                    if not lang.is_interlanguage_tag(lang.tag_for_langname(lang.detect_language(title)[1])):
-                        print("Skipping page '{}' (unsupported language)".format(title))
-                        continue
-
-                    print("Processing page '{}'".format(title))
-
-                    family_titles, family_tags = self._titles_in_family(title)
-                    assert(title in family_titles)
-                    text_new = self._update_interlanguage_links(text_old, title, family_titles - {title}, weak_update=False)
-
-                    if text_old != text_new:
-                        print("    pages in family:", sorted(family_titles))
-                        edit_interactive(api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-#                        self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
-#                        print(diff_highlighted(text_old, text_new))
-#                        input()
+                    self._update_page(page)
 
 
 if __name__ == "__main__":
