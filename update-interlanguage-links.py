@@ -187,7 +187,7 @@ class Interlanguage:
         return allpages
 
     @staticmethod
-    def _group_into_families(pages):
+    def _group_into_families(pages, case_sensitive=False):
         """
         Takes list of pages and groups them based on their title. Returns a
         mapping of `family_key` to `family_pages`, where `family_key` is the
@@ -204,11 +204,26 @@ class Interlanguage:
                 if lang.is_interlanguage_tag(tag):
                     yield page
 
-        _family_key = lambda page: lang.detect_language(page["title"])[0].lower()
+        if case_sensitive is True:
+            _family_key = lambda page: lang.detect_language(page["title"])[0]
+        else:
+            _family_key = lambda page: lang.detect_language(page["title"])[0].lower()
+        pages.sort(key=_family_key)
         families_groups = itertools.groupby(_valid_interlanguage_pages(pages), key=_family_key)
+
         families = {}
         for family, pages in families_groups:
-            families[family] = list(pages)
+            pages = list(pages)
+            tags = set(lang.tag_for_langname(lang.detect_language(page["title"])[1]) for page in pages)
+            if len(tags) == len(pages):
+                families[family] = pages
+            elif case_sensitive is False:
+                # sometimes case-insensitive matching is not enough, e.g. [[fish]] is
+                # not [[FiSH]] (and neither is redirect)
+                families.update(Interlanguage._group_into_families(pages, case_sensitive=True))
+            else:
+                # this should never happen
+                raise Exception
         return families
 
     def _title_from_langlink(self, langlink):
@@ -328,8 +343,10 @@ class Interlanguage:
 
     def build_graph(self):
         self.allpages = self._get_allpages()
-        self.allpages.sort(key=lambda page: page["title"])
         self.families = self._group_into_families(self.allpages)
+        # sort again, this time by title (self._group_into_families sorted it by
+        # the family key)
+        self.allpages.sort(key=lambda page: page["title"])
 #        self._merge_families(self.families)
 
     @staticmethod
@@ -408,7 +425,7 @@ class Interlanguage:
                         continue
 
                     # skip unsupported languages
-                    if title not in family_index:
+                    if not lang.is_interlanguage_tag(lang.tag_for_langname(lang.detect_language(title)[1])):
                         print("Skipping page '{}' (unsupported language)".format(title))
                         continue
 
