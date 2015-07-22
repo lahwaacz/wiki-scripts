@@ -16,7 +16,7 @@ import ArchWiki.lang as lang
 import utils
 from parser_helpers import canonicalize, remove_and_squash
 
-def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
+def extract_header_parts(wikicode, magics=None, cats=None, langlinks=None):
     """
     According to Help:Style, the layout of the page should be as follows:
         1. Magic words (optional)
@@ -30,7 +30,7 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
         8. Article-specific sections
 
     Only 1-3 are safe to be updated automatically. This function will extract the
-    header parts and return them as tuple (magics, cats, interlinks). All returned
+    header parts and return them as tuple (magics, cats, langlinks). All returned
     objects are removed from the wikicode. Call `build_header` to insert them back
     into the wikicode.
 
@@ -43,19 +43,19 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
           language tag (i.e. there can be only one interlanguage link for each
           language)
 
-    The lists of magics and interlinks are sorted, the order of catlinks is preserved.
+    The lists of magics and langlinks are sorted, the order of catlinks is preserved.
     """
     if magics is None:
         magics = []
     if cats is None:
         cats = []
-    if interlinks is None:
-        interlinks = []
+    if langlinks is None:
+        langlinks = []
 
     # make sure that we work with `Wikicode` objects
     magics = [mwparserfromhell.utils.parse_anything(item) for item in magics]
     cats = [mwparserfromhell.utils.parse_anything(item) for item in cats]
-    interlinks = [mwparserfromhell.utils.parse_anything(item) for item in interlinks]
+    langlinks = [mwparserfromhell.utils.parse_anything(item) for item in langlinks]
 
     def _prefix(title):
         if ":" not in title:
@@ -76,14 +76,14 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
             remove_and_squash(wikicode, catlink)
             cats.append(mwparserfromhell.utils.parse_anything(catlink))
 
-    def _add_to_interlinks(interlink):
-        # always remove interlinks to handle renaming of pages
+    def _add_to_langlinks(langlinks):
+        # always remove langlinks to handle renaming of pages
         # (typos such as [[en:Main page]] in text are quite rare)
-        remove_and_squash(wikicode, interlink)
-        if not any(_prefix(link.get(0).title).lower() == _prefix(interlink.title).lower() for link in interlinks):
+        remove_and_squash(wikicode, langlinks)
+        if not any(_prefix(link.get(0).title).lower() == _prefix(langlinks.title).lower() for link in langlinks):
             # not all tags work as interlanguage links
-            if lang.is_interlanguage_tag(_prefix(interlink.title).lower()):
-                interlinks.append(mwparserfromhell.utils.parse_anything(interlink))
+            if lang.is_interlanguage_tag(_prefix(langlinks.title).lower()):
+                langlinks.append(mwparserfromhell.utils.parse_anything(langlinks))
 
     # all of magic words, catlinks and interlinks have effect even when nested
     # in other nodes, but let's ignore this case for now
@@ -100,14 +100,14 @@ def extract_header_parts(wikicode, magics=None, cats=None, interlinks=None):
         if prefix == "category":
             _add_to_cats(link)
         elif prefix in lang.get_language_tags():
-            _add_to_interlinks(link)
+            _add_to_langlinks(link)
 
     magics.sort()
-    interlinks.sort()
+    langlinks.sort()
 
-    return magics, cats, interlinks
+    return magics, cats, langlinks
 
-def build_header(wikicode, magics, cats, interlinks):
+def build_header(wikicode, magics, cats, langlinks):
     # first strip blank lines if there is some text
     if len(wikicode.nodes) > 0:
         first = wikicode.get(0)
@@ -119,14 +119,14 @@ def build_header(wikicode, magics, cats, interlinks):
                     break
                 firstline = first.value.splitlines(keepends=True)[0]
     count = 0
-    for item in magics + cats + interlinks:
+    for item in magics + cats + langlinks:
         wikicode.insert(count, item)
         wikicode.insert(count + 1, "\n")
         count += 2
 
 def fix_header(wikicode):
-    magics, cats, interlinks = extract_header_parts(wikicode)
-    build_header(wikicode, magics, cats, interlinks)
+    magics, cats, langlinks = extract_header_parts(wikicode)
+    build_header(wikicode, magics, cats, langlinks)
 
 
 class Interlanguage:
@@ -350,14 +350,14 @@ class Interlanguage:
         """
         # get all titles in the family
         tags, titles = self._titles_in_family(full_title)
-        interlinks = set(zip(tags, titles))
+        langlinks = set(zip(tags, titles))
         # remove title of the page to be updated
         title, langname = lang.detect_language(full_title)
         tag = lang.tag_for_langname(langname)
-        interlinks.remove((tag, title))
+        langlinks.remove((tag, title))
         # transform to list, sort by the language tag
-        interlinks = sorted(interlinks, key=lambda t: t[0])
-        return interlinks
+        langlinks = sorted(langlinks, key=lambda t: t[0])
+        return langlinks
 
     def build_graph(self):
         self.allpages = self._get_allpages()
@@ -381,7 +381,7 @@ class Interlanguage:
         :param langlinks: a sorted list of ``(tag, title)`` tuples as obtained
                           from :py:meth:`self._get_langlinks`
         :param weak_update:
-            When ``True``, the interlinks present on the page are mixed with those
+            When ``True``, the langlinks present on the page are mixed with those
             suggested by ``family_titles``. This is necessary only when there are
             multiple "intersecting" families, in which case the intersection should
             be preserved and solved manually. This is reported in _merge_families.
@@ -401,16 +401,16 @@ class Interlanguage:
             print("Skipping page '{}' (contains <noinclude>)".format(title))
             return text
 
-        # format interlinks, in the prefix form
+        # format langlinks, in the prefix form
         # (e.g. "cs:Some title" for title="Some title" and tag="cs")
         langlinks = ["[[{}:{}]]".format(tag, title) for tag, title in langlinks]
 
         print("Parsing '{}'...".format(title))
         wikicode = mwparserfromhell.parse(text)
         if weak_update is True:
-            magics, cats, interlinks = extract_header_parts(wikicode, interlinks=langlinks)
+            magics, cats, langlinks = extract_header_parts(wikicode, langlinks=langlinks)
         else:
-            # drop the extracted interlinks
+            # drop the extracted langlinks
             magics, cats, _ = extract_header_parts(wikicode)
         build_header(wikicode, magics, cats, langlinks)
         return wikicode
@@ -474,7 +474,7 @@ if __name__ == "__main__":
     snippet = """
 __TOC__
 
-Some text with [[it:interlink]] inside.
+Some text with [[it:langlinks]] inside.
 
 [[Category:foo]]
 This [[category:foo|catlink]] is a typo.
