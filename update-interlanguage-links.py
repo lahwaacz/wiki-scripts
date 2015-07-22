@@ -1,8 +1,7 @@
 #! /usr/bin/env python3
 
 # TODO:
-#   take the final title from "displaytitle" property (available from API)
-#   it should be theoretically possible to determine which pages need to be changed from the langlink graph and families groups
+#   take the final title from "displaytitle" property (available from API) (would be necessary to check if it is valid)
 
 import os.path
 import itertools
@@ -170,6 +169,7 @@ class Interlanguage:
         self.redirects = self.api.redirects_map()
 
         self.allpages = None
+        self.wrapped_titles = None
         self.families = None
 
     def _get_allpages(self):
@@ -251,70 +251,107 @@ class Interlanguage:
                   in the family (including ``title``) and ``tags`` is the set of
                   corresponding language tags
         """
-        master_tag = lang.tag_for_langname(lang.detect_language(master_title)[1])
         family = self.family_index[master_title]
         family_pages = self.families[family]
+        # we don't need the full title any more
+        master_title, master_lang = lang.detect_language(master_title)
+        master_tag = lang.tag_for_langname(master_lang)
 
-        tags = set()
-        titles = set()
+        tags = []
+        titles = []
 
         # populate titles/tags with the already present pages
         for page in family_pages:
-            title = page["title"]
-            tag = lang.tag_for_langname(lang.detect_language(title)[1])
-            tags.add(tag)
-            titles.add(title)
+            title, langname = lang.detect_language(page["title"])
+            tag = lang.tag_for_langname(langname)
+            if tag not in tags:
+                tags.append(tag)
+                titles.append(title)
         had_english_early = "en" in tags
 
-        wrapped_titles = utils.ListOfDictsAttrWrapper(self.allpages, "title")
-
-        def _pull_from_page(page, condition=lambda title, tag: True):
+        def _pull_from_page(page, condition=lambda tag, title: True):
             # default to empty tuple
             for langlink in page.get("langlinks", ()):
-                title = self._title_from_langlink(langlink)
                 tag = langlink["lang"]
-                if tag not in tags and condition(title, tag):
-                    tags.add(tag)
-                    titles.add(title)
+                # conversion back and forth is necessary to resolve redirect
+                full_title = self._title_from_langlink(langlink)
+                title, langname = lang.detect_language(full_title)
+                # TODO: check if the resulting tag is equal to the original?
+#                tag = lang.tag_for_langname(langname)
+                if tag not in tags and condition(tag, title):
+                    tags.append(tag)
+                    titles.append(title)
+
+        # check if given (tag, title) form a valid internal langlink
+        def _is_valid_internal(tag, title):
+            if not lang.is_internal_tag(tag):
+                return False
+            if tag == "en":
+                full_title = title
+            else:
+                full_title = "{} ({})".format(title, lang.langname_for_tag(tag))
+            return full_title in self.wrapped_titles
 
         # Pull in internal langlinks from any page. This will pull in English page
         # if there is any.
         for page in family_pages:
-            _pull_from_page(page, condition=lambda title, tag: lang.is_internal_tag(tag) and title in wrapped_titles)
+            _pull_from_page(page, condition=lambda tag, title: _is_valid_internal(tag, title))
 
         # Make sure that external langlinks are pulled in only from the English page
         # when appropriate. For consistency, pull in also internal langlinks from the
         # English page.
         _pulled_from_english = False
         if "en" in tags:
-            en_title = [title for title in titles if lang.detect_language(title)[1] == "English"][0]
-            en_page = utils.bisect_find(self.allpages, en_title, index_list=wrapped_titles)
+            en_title = titles[tags.index("en")]
+            en_page = utils.bisect_find(self.allpages, en_title, index_list=self.wrapped_titles)
             # If the English page is present from the beginning, pull its langlinks.
             # This will take priority over other pages in the family.
             if master_tag == "en" or had_english_early:
-                _pull_from_page(en_page, condition=lambda title, tag: lang.is_external_tag(tag) or title in wrapped_titles)#, condition=lambda tag: lang.is_external_tag(tag))
+                _pull_from_page(en_page, condition=lambda tag, title: lang.is_external_tag(tag) or _is_valid_internal(tag, title))
                 _pulled_from_english = True
             else:
                 # Otherwise check if the family of the English page is the same as
                 # this one or if it does not contain master_tag. This will effectively
                 # merge the families.
-                en_titles, en_tags = self._titles_in_family(en_title)
+                en_tags, en_titles = self._titles_in_family(en_title)
                 if master_title in en_titles or master_tag not in en_tags:
-                    _pull_from_page(en_page, condition=lambda title, tag: lang.is_external_tag(tag) or title in wrapped_titles)
+                    _pull_from_page(en_page, condition=lambda tag, title: lang.is_external_tag(tag) or _is_valid_internal(tag, title))
                     _pulled_from_english = True
 
         if not _pulled_from_english:
             # Pull in external langlinks from any page. This completes the
             # inclusion in case pulling from English page was not done.
             for page in family_pages:
-                _pull_from_page(page, condition=lambda title, tag: lang.is_external_tag(tag))
+                _pull_from_page(page, condition=lambda tag, title: lang.is_external_tag(tag))
 
+        assert(master_tag in tags)
+        assert(master_title in titles)
         assert(len(tags) == len(titles))
 
-        return titles, tags
+        return tags, titles
+
+    def _get_langlinks(self, full_title):
+        """
+        Uses :py:meth:`self._titles_in_family` to get the titles of all pages in
+        the family, removes the link to the passed title and sorts the list by
+        the language subtag.
+
+        :returns: a list of ``(tag, title)`` tuples
+        """
+        # get all titles in the family
+        tags, titles = self._titles_in_family(full_title)
+        interlinks = set(zip(tags, titles))
+        # remove title of the page to be updated
+        title, langname = lang.detect_language(full_title)
+        tag = lang.tag_for_langname(langname)
+        interlinks.remove((tag, title))
+        # transform to list, sort by the language tag
+        interlinks = sorted(interlinks, key=lambda t: t[0])
+        return interlinks
 
     def build_graph(self):
         self.allpages = self._get_allpages()
+        self.wrapped_titles = utils.ListOfDictsAttrWrapper(self.allpages, "title")
         self.families = self._group_into_families(self.allpages)
         # sort again, this time by title (self._group_into_families sorted it by
         # the family key)
@@ -327,10 +364,10 @@ class Interlanguage:
                 self.family_index[page["title"]] = family
 
     @staticmethod
-    def _update_interlanguage_links(text, title, family_titles, weak_update=True):
+    def _update_interlanguage_links(text, langlinks, weak_update=True):
         """
-        :param title: title of the page to update (str)
-        :param family_titles: titles of the family to appear on the page (set)
+        :param langlinks: a sorted list of ``(tag, title)`` tuples as obtained
+                          from :py:meth:`self._get_langlinks`
         :param weak_update:
             When ``True``, the interlinks present on the page are mixed with those
             suggested by ``family_titles``. This is necessary only when there are
@@ -338,27 +375,28 @@ class Interlanguage:
             be preserved and solved manually. This is reported in _merge_families.
         :returns: updated wikicode
         """
-        # the page should not have a link to itself
-        # FIXME: check tag, not the title!
-        assert title not in family_titles
-
-        # transform suffix into prefix and construct interlanguage links
-        # e.g. "Some title (Česky)" into "cs:Some title"
-        def _transform_title(title):
-            pure, langname = lang.detect_language(title)
-            tag = lang.tag_for_langname(langname)
-            return "[[{}:{}]]".format(tag, pure)
-
-        interlinks = sorted(_transform_title(title) for title in family_titles)
+        # format interlinks, in the prefix form
+        # (e.g. "cs:Some title" for title="Some title" and tag="cs")
+        langlinks = ["[[{}:{}]]".format(tag, title) for tag, title in langlinks]
 
         wikicode = mwparserfromhell.parse(text)
         if weak_update is True:
-            magics, cats, interlinks = extract_header_parts(wikicode, interlinks=interlinks)
+            magics, cats, interlinks = extract_header_parts(wikicode, interlinks=langlinks)
         else:
             # drop the extracted interlinks
             magics, cats, _ = extract_header_parts(wikicode)
-        build_header(wikicode, magics, cats, interlinks)
+        build_header(wikicode, magics, cats, langlinks)
         return wikicode
+
+    @staticmethod
+    def _needs_update(page, langlinks_new):
+        langlinks_old = []
+        try:
+            for langlink in page["langlinks"]:
+                langlinks_old.append((langlink["lang"], langlink["*"]))
+        except KeyError:
+            pass
+        return set(langlinks_new) != set(langlinks_old)
 
     def _update_page(self, page):
         title = page["title"]
@@ -383,14 +421,16 @@ class Interlanguage:
             print("Skipping page '{}' (unsupported language)".format(title))
             return
 
-        print("Processing page '{}'".format(title))
+        langlinks = self._get_langlinks(title)
+        page_props = utils.bisect_find(self.allpages, title, index_list=self.wrapped_titles)
+        if not self._needs_update(page_props, langlinks):
+            print("Page '{}' is up to date".format(title))
+            return
 
-        family_titles, family_tags = self._titles_in_family(title)
-        assert(title in family_titles)
-        text_new = self._update_interlanguage_links(text_old, title, family_titles - {title}, weak_update=False)
+        print("Processing page '{}'".format(title))
+        text_new = self._update_interlanguage_links(text_old, langlinks, weak_update=False)
 
         if text_old != text_new:
-            print("    pages in family:", sorted(family_titles))
             edit_interactive(api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
 #            self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 #            print(diff_highlighted(text_old, text_new))
