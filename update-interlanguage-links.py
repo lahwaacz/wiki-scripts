@@ -230,6 +230,21 @@ class Interlanguage:
                 raise Exception
         return families
 
+    @staticmethod
+    # check if interlanguage links are supported for the language of the given title
+    def _is_valid_interlanguage(full_title):
+        return lang.is_interlanguage_tag(lang.tag_for_langname(lang.detect_language(full_title)[1]))
+
+    # check if given (tag, title) form a valid internal langlink
+    def _is_valid_internal(self, tag, title):
+        if not lang.is_internal_tag(tag):
+            return False
+        if tag == "en":
+            full_title = title
+        else:
+            full_title = "{} ({})".format(title, lang.langname_for_tag(tag))
+        return full_title in self.wrapped_titles
+
     def _title_from_langlink(self, langlink):
         langname = lang.langname_for_tag(langlink["lang"])
         if langname == "English":
@@ -282,20 +297,10 @@ class Interlanguage:
                     tags.append(tag)
                     titles.append(title)
 
-        # check if given (tag, title) form a valid internal langlink
-        def _is_valid_internal(tag, title):
-            if not lang.is_internal_tag(tag):
-                return False
-            if tag == "en":
-                full_title = title
-            else:
-                full_title = "{} ({})".format(title, lang.langname_for_tag(tag))
-            return full_title in self.wrapped_titles
-
         # Pull in internal langlinks from any page. This will pull in English page
         # if there is any.
         for page in family_pages:
-            _pull_from_page(page, condition=lambda tag, title: _is_valid_internal(tag, title))
+            _pull_from_page(page, condition=lambda tag, title: self._is_valid_internal(tag, title))
 
         # Make sure that external langlinks are pulled in only from the English page
         # when appropriate. For consistency, pull in also internal langlinks from the
@@ -307,7 +312,7 @@ class Interlanguage:
             # If the English page is present from the beginning, pull its langlinks.
             # This will take priority over other pages in the family.
             if master_tag == "en" or had_english_early:
-                _pull_from_page(en_page, condition=lambda tag, title: lang.is_external_tag(tag) or _is_valid_internal(tag, title))
+                _pull_from_page(en_page, condition=lambda tag, title: lang.is_external_tag(tag) or self._is_valid_internal(tag, title))
                 _pulled_from_english = True
             else:
                 # Otherwise check if the family of the English page is the same as
@@ -315,7 +320,7 @@ class Interlanguage:
                 # merge the families.
                 en_tags, en_titles = self._titles_in_family(en_title)
                 if master_title in en_titles or master_tag not in en_tags:
-                    _pull_from_page(en_page, condition=lambda tag, title: lang.is_external_tag(tag) or _is_valid_internal(tag, title))
+                    _pull_from_page(en_page, condition=lambda tag, title: lang.is_external_tag(tag) or self._is_valid_internal(tag, title))
                     _pulled_from_english = True
 
         if not _pulled_from_english:
