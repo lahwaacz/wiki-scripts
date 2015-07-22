@@ -182,10 +182,10 @@ class Interlanguage:
             g = self.api.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max", prop="langlinks", lllimit="max")
             for page in g:
                 # the same page may be yielded multiple times with different pieces
-                # of the information, hence the db_page.update()
+                # of the information, hence the utils.dmerge
                 try:
                     db_page = utils.bisect_find(allpages, page["title"], index_list=wrapped_titles)
-                    db_page.update(page)
+                    utils.dmerge(page, db_page)
                 except IndexError:
                     utils.bisect_insert_or_replace(allpages, page["title"], data_element=page, index_list=wrapped_titles)
         return allpages

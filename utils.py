@@ -91,3 +91,21 @@ def bisect_insert_or_replace(data_list, key, data_element=None, index_list=None)
         data_list[i] = data_element
     else:
         data_list.insert(i, data_element)
+
+def dmerge(source, destination):
+    """
+    Deep merging of dictionaries.
+    """
+    if not isinstance(source, dict) or not isinstance(destination, dict):
+        raise TypeError("both 'source' and 'destination' must be of type 'dict'")
+    for key, value in source.items():
+        if isinstance(value, dict):
+            node = destination.setdefault(key, {})
+            dmerge(value, node)
+        elif isinstance(value, list):
+            node = destination.setdefault(key, [])
+            node.extend(value)
+        else:
+            destination[key] = value
+
+    return destination

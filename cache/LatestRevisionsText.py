@@ -35,10 +35,10 @@ class LatestRevisionsText(CacheDb):
         allpages = self.api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, prop="info|revisions", rvprop="content")
         for page in allpages:
             # the same page may be yielded multiple times with different pieces
-            # of the information, hence the db_page.update()
+            # of the information, hence the utils.dmerge
             try:
                 db_page = utils.bisect_find(self.data[ns], page["title"], index_list=wrapped_titles)
-                db_page.update(page)
+                utils.dmerge(page, db_page)
             except IndexError:
                 utils.bisect_insert_or_replace(self.data[ns], page["title"], data_element=page, index_list=wrapped_titles)
 
