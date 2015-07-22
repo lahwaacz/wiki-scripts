@@ -141,9 +141,8 @@ class Interlanguage:
         English page in the family (or when not present, to the English base of the
         localized title).
      3. For every page on the wiki:
-        3.1 Fetch content of the page.
-        3.2 Determine the family of the page.
-        3.3 Assemble a set of pages in the family. This is done by first including
+        3.1 Determine the family of the page.
+        3.2 Assemble a set of pages in the family. This is done by first including
             the pages in the group from step 2., then pulling any internal langlinks
             from the pages in the set (in unspecified order), and finally based on
             the presence of an English page in the family:
@@ -157,8 +156,12 @@ class Interlanguage:
               - If the pulling from an English page was not done, external langlinks
                 are pulled from the other pages (in unspecified order), which
                 completes the previous inclusion of internal langlinks.
-        3.4 Update the langlinks of the page as ``family.titles - {title}``.
-        3.5 If there is a difference, save the page.
+        3.3 Check if it is necessary to update the page by comparing the new set of
+            langlinks for a page (i.e. ``family.titles - {title}``) with the old set
+            obtained from the wiki's API. If an update is needed:
+              - Fetch content of the page.
+              - Update the langlinks of the page.
+              - If there is a difference, save the page.
     """
 
     namespaces = [0, 4, 10, 12, 14]
@@ -167,6 +170,8 @@ class Interlanguage:
     def __init__(self, api):
         self.api = api
         self.redirects = self.api.redirects_map()
+
+        self.limit = 500 if "apihighlimits" in self.api.user_rights() else 50
 
         self.allpages = None
         self.wrapped_titles = None
@@ -369,8 +374,10 @@ class Interlanguage:
                 self.family_index[page["title"]] = family
 
     @staticmethod
-    def _update_interlanguage_links(text, langlinks, weak_update=True):
+    def _update_interlanguage_links(page, langlinks, weak_update=True):
         """
+        :param page: a dictionary with page properties obtained from the wiki API.
+                     Must contain the content under the ``revisions`` key.
         :param langlinks: a sorted list of ``(tag, title)`` tuples as obtained
                           from :py:meth:`self._get_langlinks`
         :param weak_update:
@@ -380,10 +387,25 @@ class Interlanguage:
             be preserved and solved manually. This is reported in _merge_families.
         :returns: updated wikicode
         """
+        title = page["title"]
+        text = page["revisions"][0]["*"]
+
+        # temporarily skip main pages until the behavior switches
+        # (__NOTOC__ etc.) can be parsed by mwparserfromhell
+        if re.search("__NOTOC__|__NOEDITSECTION__", text):
+            print("Skipping page '{}' (contains behavior switch(es))".format(title))
+            return text
+
+        # temporarily skip in <noinclude> tags (extract_header_parts() needs to be fixed)
+        if re.search("<noinclude>", text):
+            print("Skipping page '{}' (contains <noinclude>)".format(title))
+            return text
+
         # format interlinks, in the prefix form
         # (e.g. "cs:Some title" for title="Some title" and tag="cs")
         langlinks = ["[[{}:{}]]".format(tag, title) for tag, title in langlinks]
 
+        print("Parsing '{}'...".format(title))
         wikicode = mwparserfromhell.parse(text)
         if weak_update is True:
             magics, cats, interlinks = extract_header_parts(wikicode, interlinks=langlinks)
@@ -403,54 +425,41 @@ class Interlanguage:
             pass
         return set(langlinks_new) != set(langlinks_old)
 
-    def _update_page(self, page):
-        title = page["title"]
-        text_old = page["revisions"][0]["*"]
-        timestamp = page["revisions"][0]["timestamp"]
-
-        # temporarily skip main pages until the behavior switches
-        # (__NOTOC__ etc.) can be parsed by mwparserfromhell
-        if re.search("__NOTOC__|__NOEDITSECTION__", text_old):
-            print("Skipping page '{}' (contains behavior switch(es))".format(title))
-            return
-
-        # temporarily skip Beginners' guides until mwparserfromhell (or
-        # maybe just extract_header_parts() function?) is fixed -- content
-        # in <noinclude> tags is not parsed
-        if re.search("<noinclude>", text_old):
-            print("Skipping page '{}' (contains <noinclude>)".format(title))
-            return
-
-        # skip unsupported languages
-        if not lang.is_interlanguage_tag(lang.tag_for_langname(lang.detect_language(title)[1])):
-            print("Skipping page '{}' (unsupported language)".format(title))
-            return
-
-        langlinks = self._get_langlinks(title)
-        page_props = utils.bisect_find(self.allpages, title, index_list=self.wrapped_titles)
-        if not self._needs_update(page_props, langlinks):
-            print("Page '{}' is up to date".format(title))
-            return
-
-        print("Processing page '{}'".format(title))
-        text_new = self._update_interlanguage_links(text_old, langlinks, weak_update=False)
-
-        if text_old != text_new:
-            edit_interactive(api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-#            self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
-#            print(diff_highlighted(text_old, text_new))
-#            input()
-
     def update_allpages(self):
         self.build_graph()
-        for ns in self.namespaces:
-            g = self.api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, prop="revisions", rvprop="content|timestamp")
-            for page in g:
-                # the same page may be yielded multiple times with different pieces
-                # of the information, so we need to check if the expected properties
-                # are already available
-                if "revisions" in page:
-                    self._update_page(page)
+
+        def _updates_gen(pages_gen):
+            for page in pages_gen:
+                title = page["title"]
+                # unsupported languages need to be skipped now
+                if not self._is_valid_interlanguage(title):
+                    print("Skipping page '{}' (unsupported language)".format(title))
+                    continue
+                langlinks = self._get_langlinks(title)
+                if self._needs_update(page, langlinks):
+                    yield page, langlinks
+                else:
+                    print("Page '{}' is up to date".format(title))
+
+        for chunk in utils.iter_chunks(_updates_gen(self.allpages), self.limit):
+            pages_props, pages_langlinks = zip(*list(chunk))
+            pageids = "|".join(str(page["pageid"]) for page in pages_props)
+            result = self.api.call(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp")
+            pages = result["pages"]
+
+            for page, langlinks in zip(pages_props, pages_langlinks):
+                # substitute the dictionary with langlinks with the dictionary with content
+                page = pages[str(page["pageid"])]
+
+                timestamp = page["revisions"][0]["timestamp"]
+                text_old = page["revisions"][0]["*"]
+                text_new = self._update_interlanguage_links(page, langlinks, weak_update=False)
+
+                if text_old != text_new:
+                    edit_interactive(api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+#                    self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+#                    print(diff_highlighted(text_old, text_new))
+#                    input()
 
 
 if __name__ == "__main__":
