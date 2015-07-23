@@ -50,7 +50,7 @@ class AllRevisionsProps(CacheDb):
             return self.data["revisions"][-1]["revid"]
         except IndexError:
             # empty database
-            return -1
+            return 0
 
     def _get_last_revid_api(self):
         """
