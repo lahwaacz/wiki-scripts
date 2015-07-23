@@ -6,7 +6,7 @@ import os
 sys.path.append(os.path.abspath(".."))
 
 from . import *
-from utils import list_chunks
+import utils
 
 __all__ = ["AllRevisionsProps"]
 
@@ -35,13 +35,7 @@ class AllRevisionsProps(CacheDb):
         lastrevid = self._get_last_revid_api()
 
         if lastrevid >= firstrevid:
-            badrevids, revisions = self._fetch_revisions(firstrevid, lastrevid)
-            self.data["badrevids"].extend(badrevids)
-            self.data["revisions"].extend(revisions)
-
-            # sort the data by revid
-            self.data["badrevids"].sort(key=lambda x: int(x))
-            self.data["revisions"].sort(key=lambda x: x["revid"])
+            self._fetch_revisions(firstrevid, lastrevid)
 
             self._update_timestamp()
 
@@ -73,20 +67,22 @@ class AllRevisionsProps(CacheDb):
         :param first: (int) revision ID to start fetching from
         :param last: (int) revision ID to end fetching
         """
-        badrevids = []
-        revisions = []
+        # not necessary to wrap in each iteration since lists are mutable
+        wrapped_revids = utils.ListOfDictsAttrWrapper(self.data["revisions"], "revid")
 
-        for snippet in list_chunks(range(first, last+1), self.limit):
+        for snippet in utils.list_chunks(range(first, last+1), self.limit):
             print("Fetching revids %s-%s" % (snippet[0], snippet[-1]))
             revids = "|".join(str(x) for x in snippet)
             result = self.api.call(action="query", revids=revids, prop="revisions")
 
-            if "badrevids" in result:
-                badrevids.extend(result["badrevids"].keys())
-            for _, page in result["pages"].items():
-                # FIXME: workaround for deleted pages, probably should be solved differently
-                if "revisions" in page:
-                    revisions.extend(page["revisions"])
+            badrevids = result.get("badrevids", {})
+            for _, badrev in badrevids.items():
+                utils.bisect_insert_or_replace(self.data["badrevids"], badrev["revid"])
 
-        return badrevids, revisions
-
+            pages = result.get("pages", {})
+            for _, page in pages.items():
+                # Deleted pages are yielded without the "revisions" key. Deleted revisions
+                # will be handled later using the badrevids.
+                revisions = page.get("revisions", [])
+                for r in revisions:
+                    utils.bisect_insert_or_replace(self.data["revisions"], r["revid"], data_element=r, index_list=wrapped_revids)
