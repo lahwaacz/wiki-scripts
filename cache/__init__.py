@@ -3,6 +3,7 @@
 # TODO:
 #   compression level should be configurable, as well as compression format (e.g. optional dependency on python-lz4)
 #   improve definition of meta data keys with respect to (de)serialization
+#   implement some database versioning: either epoch, version number or timestamp of the database initialization
 
 import os
 import gzip

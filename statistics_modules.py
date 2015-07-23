@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
-import itertools
 import datetime
+import itertools
+import heapq
 
 import utils
 
@@ -22,10 +23,24 @@ class UserStatsModules:
             # round to midnight, keep the datetime.datetime type
             self.today = datetime.datetime(*(self.today.timetuple()[:3]))
 
+        rev_condition = lambda r: True
         if self.round_to_midnight is True:
-            revisions_generator = (r for r in self.db["revisions"] if utils.parse_date(r["timestamp"]) <= self.today)
-        else:
-            revisions_generator = (r for r in self.db["revisions"])
+            rev_condition = lambda r: utils.parse_date(r["timestamp"]) <= self.today
+
+        def _inner_generator(revisions):
+            return (r for r in revisions if rev_condition(r))
+
+        # merge revisions from multiple lists, preserve sorting by revision ID
+        # (the lists are already sorted)
+        # TODO: since Python 3.5, heapq.merge takes a key= parameter, which would greatly
+        #       simplify this: https://docs.python.org/3.5/library/heapq.html#heapq.merge
+        sortkey = lambda revision: (revision["revid"], revision)
+        unwrap = lambda sortkey, revision: revision
+        # first wrapping: to yield only revisions meeting the rev_condition
+        # second wrapping: to specify sorting order for heapq.merge
+        wrapped_input = [map(sortkey, _inner_generator(self.db["revisions"])), map(sortkey, _inner_generator(self.db["deletedrevisions"]))]
+        # unwrap to get the final generator
+        revisions_generator = itertools.starmap(unwrap, heapq.merge(*wrapped_input))
 
         # sort revisions by multiple keys: 1. user, 2. timestamp
         # this way we can group the list by users and iterate through user_revisions to
