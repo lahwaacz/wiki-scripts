@@ -161,6 +161,20 @@ class UserStatsModules:
         delta = utils.parse_date(revisions[-1]["timestamp"]) - utils.parse_date(revisions[0]["timestamp"])
         return len(revisions) / (delta.days + 1)
 
+    def total_edit_count(self, user):
+        """
+        Return the count of all revisions made by the given user. When
+        :py:attribute:`self.round_to_midnight` is ``True``, only edits made before the
+        past UTC midnight are taken into account. This is the main difference over the
+        ``"editcount"`` property in :py:class:`cache.AllUsersProps`, which reflects the
+        state as of the last update of the cache. Other difference is that the
+        ``"editcount"`` property in MediaWiki includes also log actions such as moving
+        a page and does not include deleted revisions, whereas this method includes
+        only normal revisions, including deleted ones.
+        """
+        revisions = self.revisions_groups[user]
+        return len(revisions)
+
 if __name__ == "__main__":
     # this is only for testing...
     import os.path

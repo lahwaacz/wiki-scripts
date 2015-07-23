@@ -262,7 +262,7 @@ divided by the number of days between the user's first and last edits.
                 cells = [None] * len(self.FIELDS)
                 cells[self.FIELDS.index("user")]           = self._format_name(name)
                 cells[self.FIELDS.index("recenteditcount")] = user["recenteditcount"]
-                cells[self.FIELDS.index("editcount")]      = user["editcount"]
+                cells[self.FIELDS.index("editcount")]      = self.modules.total_edit_count(name)
                 cells[self.FIELDS.index("registration")]   = self._format_registration(registration)
                 cells[self.FIELDS.index("groups")]         = self._format_groups(user["groups"])
                 cells[self.FIELDS.index("longest streak")] = "0" if longest_streak is None else self.STREAK_FORMAT.format(**longest_streak)

@@ -21,7 +21,9 @@ class AllUsersProps(CacheDb):
         :param active_days:
             the time span in days to consider users as active
         :param round_to_midnight:
-            whether to round timestamps to midnight when fetching recent changes
+            Whether to round timestamps to midnight when fetching recent changes. This
+            affects the ``"recenteditcount"`` property, but not the total ``"editcount"``,
+            which reflects the state as of the last update of the cache.
         :param rc_err_hours:
             the maximum difference in hours allowed between the oldest retrieved
             recent change and the old end of the time span
