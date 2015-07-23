@@ -9,12 +9,12 @@ import re
 
 import mwparserfromhell
 
-from MediaWiki import API
-from MediaWiki.interactive import *
-from MediaWiki.diff import diff_highlighted
-import ArchWiki.lang as lang
-import utils
-from parser_helpers import canonicalize, remove_and_squash
+from ws.core import API
+from ws.interactive import *
+from ws.diff import diff_highlighted
+import ws.ArchWiki.lang as lang
+import ws.utils as utils
+from ws.parser_helpers import canonicalize, remove_and_squash
 
 def extract_header_parts(wikicode, magics=None, cats=None, langlinks=None):
     """

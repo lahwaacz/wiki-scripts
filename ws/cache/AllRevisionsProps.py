@@ -1,12 +1,7 @@
 #! /usr/bin/env python3
 
-# FIXME: should be done by reorganizin the entire project
-import sys
-import os
-sys.path.append(os.path.abspath(".."))
-
 from . import *
-import utils
+from .. import utils
 
 __all__ = ["AllRevisionsProps"]
 

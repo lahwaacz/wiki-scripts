@@ -20,10 +20,11 @@ import re
 
 import mwparserfromhell
 
-from MediaWiki import API, APIError, diff_highlighted
-from MediaWiki.interactive import *
-import ArchWiki.lang as lang
-from parser_helpers import canonicalize
+from ws.core import API, APIError
+from ws.diff import diff_highlighted
+from ws.interactive import *
+import ws.ArchWiki.lang as lang
+from ws.parser_helpers import canonicalize
 
 class LinkChecker:
     def __init__(self, api, interactive=False):

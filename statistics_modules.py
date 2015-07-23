@@ -4,7 +4,7 @@ import datetime
 import itertools
 import heapq
 
-import utils
+import ws.utils as utils
 
 class UserStatsModules:
     def __init__(self, db_allrevprops, round_to_midnight=False):

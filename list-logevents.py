@@ -3,8 +3,7 @@
 import os.path
 from pprint import pprint
 
-from MediaWiki import API
-from utils import *
+from ws.core import API
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")

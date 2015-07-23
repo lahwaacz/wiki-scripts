@@ -14,11 +14,12 @@ try:
 except ImportError:
     Tk = None
 
-from MediaWiki import API, APIError
-from MediaWiki.interactive import require_login
-from MediaWiki.wikitable import Wikitable
-from utils import parse_date, list_chunks
-import cache
+from ws.core import API, APIError
+from ws.interactive import require_login
+from ws.wikitable import Wikitable
+from ws.utils import parse_date, list_chunks
+import ws.cache
+
 from statistics_modules import UserStatsModules
 
 
@@ -218,8 +219,8 @@ divided by the number of days between the user's first and last edits.
         self.MINTOTEDITS = mintotedits
         self.MINRECEDITS = minrecedits
 
-        self.db_userprops = cache.AllUsersProps(api, active_days=days, round_to_midnight=True, rc_err_hours=rcerrhours)
-        self.db_allrevsprops = cache.AllRevisionsProps(api)
+        self.db_userprops = ws.cache.AllUsersProps(api, active_days=days, round_to_midnight=True, rc_err_hours=rcerrhours)
+        self.db_allrevsprops = ws.cache.AllRevisionsProps(api)
         self.modules = UserStatsModules(self.db_allrevsprops, round_to_midnight=True)
 
     def update(self):

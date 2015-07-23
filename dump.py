@@ -3,8 +3,8 @@
 import os.path
 import sys
 
-from MediaWiki import API
-from MediaWiki import DumpGenerator
+from ws.core import API
+from ws.dump import DumpGenerator
 
 api_url = "https://wiki.archlinux.org/api.php"
 index_url = "https://wiki.archlinux.org/index.php"

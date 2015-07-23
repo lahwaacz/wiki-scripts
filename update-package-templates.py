@@ -19,10 +19,11 @@ import mwparserfromhell
 import pycman
 import pyalpm
 
-from MediaWiki import API, APIError, diff_highlighted
-from MediaWiki.interactive import *
-from ArchWiki.lang import detect_language
-from parser_helpers import get_parent_wikicode, get_adjacent_node
+from ws.core import API, APIError
+from ws.diff import diff_highlighted
+from ws.interactive import *
+from ws.ArchWiki.lang import detect_language
+from ws.parser_helpers import get_parent_wikicode, get_adjacent_node
 
 PACCONF = """
 [options]

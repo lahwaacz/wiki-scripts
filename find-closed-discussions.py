@@ -3,14 +3,14 @@
 import os
 import re
 
-from MediaWiki import API
-import cache
+from ws.core import API
+import ws.cache
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
 api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
-db = cache.LatestRevisionsText(api, autocommit=False)
+db = ws.cache.LatestRevisionsText(api, autocommit=False)
 
 namespaces = ["1", "5", "11", "13", "15"]
 talks = []

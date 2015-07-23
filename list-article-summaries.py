@@ -2,9 +2,9 @@
 
 import os.path
 
-from MediaWiki import API
-from utils import flatten_gen
-from ArchWiki.lang import detect_language
+from ws.core import API
+from ws.utils import flatten_gen
+from ws.ArchWiki.lang import detect_language
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")

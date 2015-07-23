@@ -9,9 +9,9 @@ import argparse
 import datetime
 import hashlib
 
-from MediaWiki import API
-import ArchWiki.lang
-from utils import *
+from ws.core import API
+import ws.ArchWiki.lang
+from ws.utils import *
 
 class Downloader:
     extension = "mediawiki"
@@ -33,7 +33,7 @@ class Downloader:
         """
         Return file name where the given page should be stored, relative to `basepath`.
         """
-        title, lang = ArchWiki.lang.detect_language(title)
+        title, lang = ws.ArchWiki.lang.detect_language(title)
         namespace, title = api.detect_namespace(title)
 
         # be safe and use '_' instead of ' ' in filenames (MediaWiki style)
@@ -58,7 +58,7 @@ class Downloader:
 
         path = pattern.format(
             base=basepath,
-            langsubtag=ArchWiki.lang.tag_for_langname(lang),
+            langsubtag=ws.ArchWiki.lang.tag_for_langname(lang),
             namespace=namespace,
             title=title,
             ext=self.extension

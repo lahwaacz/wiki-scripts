@@ -3,8 +3,8 @@
 import argparse
 import os.path
 
-from MediaWiki import API
-from ArchWiki import lang
+from ws.core import API
+from ws.ArchWiki import lang
 
 # return list of page titles transcluding 'title'
 def get_transclusions(api, title):

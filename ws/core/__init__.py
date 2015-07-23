@@ -6,7 +6,3 @@ __version__ = "0.6"
 
 from .connection import *
 from .api import *
-from .diff import *
-from .dump import *
-from .interactive import *
-from .wikitable import *

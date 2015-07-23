@@ -8,9 +8,9 @@
 
 import os.path
 
-from MediaWiki import API
-import cache
-from utils import parse_date
+from ws.core import API
+import ws.cache
+from ws.utils import parse_date
 
 
 # return list of datetime.date objects with items jumped by 1 month
@@ -125,5 +125,5 @@ if __name__ == "__main__":
 
     api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 
-    db = cache.AllRevisionsProps(api)
+    db = ws.cache.AllRevisionsProps(api)
     create_histograms(db["revisions"])

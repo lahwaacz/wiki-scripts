@@ -2,7 +2,7 @@
 
 import os.path
 
-from MediaWiki import API
+from ws.core import API
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
