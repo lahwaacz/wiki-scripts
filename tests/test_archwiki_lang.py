@@ -4,15 +4,15 @@
 # https://docs.python.org/3.4/library/unittest.html#assert-methods
 from nose.tools import assert_equals, assert_count_equal, assert_true, assert_false
 
-from ArchWiki.lang import *
+from ws.ArchWiki.lang import *
 
 # data for testing (expected values)
 language_names = ["العربية", "Български", "Català", "Česky", "Dansk", "Deutsch", "Ελληνικά", "English", "Esperanto", "Español", "فارسی", "Suomi", "Français", "עברית", "Hrvatski", "Magyar", "Indonesia", "Italiano", "日本語", "한국어", "Lietuviškai", "Norsk Bokmål", "Nederlands", "Polski", "Português", "Română", "Русский", "Slovenský", "Српски", "Svenska", "ไทย", "Türkçe", "Українська", "Tiếng Việt", "简体中文", "正體中文"]
 english_language_names = ["Arabic", "Bulgarian", "Catalan", "Czech", "Danish", "German", "Greek", "English", "Esperanto", "Spanish", "Persian", "Finnish", "French", "Hebrew", "Croatian", "Hungarian", "Indonesian", "Italian", "Japanese", "Korean", "Lithuanian", "Norwegian (Bokmål)", "Dutch", "Polish", "Portuguese", "Romanian", "Russian", "Slovak", "Serbian", "Swedish", "Thai", "Turkish", "Ukrainian", "Vietnamese", "Chinese (Simplified)", "Chinese (Traditional)"]
-language_tags = ["ar", "bg", "ca", "cs", "da", "de", "el", "en", "eo", "es", "fa", "fi", "fr", "he", "hr", "hu", "id", "it", "ja", "ko", "lt", "nb", "nl", "pl", "pt", "ro", "ru", "sk", "sr", "sv", "th", "tr", "uk", "vi", "zh-CN", "zh-TW"]
+language_tags = ["ar", "bg", "ca", "cs", "da", "de", "el", "en", "eo", "es", "fa", "fi", "fr", "he", "hr", "hu", "id", "it", "ja", "ko", "lt", "nb", "nl", "pl", "pt", "ro", "ru", "sk", "sr", "sv", "th", "tr", "uk", "vi", "zh-cn", "zh-tw"]
 category_languages = ["العربية", "Български", "Català", "Česky", "Dansk", "Ελληνικά", "English", "Esperanto", "Español", "Suomi", "עברית", "Hrvatski", "Magyar", "Indonesia", "Italiano", "日本語", "한국어", "Lietuviškai", "Norsk Bokmål", "Nederlands", "Polski", "Português", "Русский", "Slovenský", "Српски", "ไทย", "Українська", "简体中文", "正體中文"]
-external_tags = ["de", "fa", "fi", "fr", "ro", "sv", "tr"]
-internal_tags = ["ar", "bg", "cs", "da", "el", "en", "es", "he", "hr", "hu", "id", "it", "ja", "ko", "lt", "nl", "pl", "pt", "ru", "sk", "sr", "th", "uk", "zh-CN", "zh-TW"]
+external_tags = ["de", "fa", "fi", "fr", "ja", "ro", "sv", "tr"]
+internal_tags = ["ar", "bg", "cs", "da", "el", "en", "es", "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt", "ru", "sk", "sr", "th", "uk", "zh-cn", "zh-tw"]
 
 class test_getters():
     def _test(self, values, getter):

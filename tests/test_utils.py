@@ -2,7 +2,7 @@
 
 from nose.tools import assert_equals, assert_true, assert_false
 
-from utils import *
+from ws.utils import *
 
 class test_is_ascii():
     """ test for utils.is_ascii() function
