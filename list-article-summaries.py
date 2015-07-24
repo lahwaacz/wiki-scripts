@@ -11,20 +11,23 @@ cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
 api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 
-# print only easy-to-fix pages
-as_in = api.generator(generator="embeddedin", geilimit="max", geititle="Template:Article summary wiki")
-#as_out = flatten_gen( (api.generator(generator="embeddedin", geilimit="max", geititle=title) for title in ["Template:Article summary heading", "Template:Article summary link", "Template:Article summary text"]) )
-as_out = flatten_gen( (api.generator(generator="embeddedin", geilimit="max", geititle=title) for title in ["Template:Article summary link"]) )
-
-titles_out = [p["title"] for p in as_out if p["ns"] == 0]
+templates = [
+    "Template:Article summary start",
+    "Template:Article summary heading",
+    "Template:Article summary link",
+    "Template:Article summary text",
+    "Template:Article summary wiki",
+    "Template:Article summary end"
+]
+pages = flatten_gen( (api.generator(generator="embeddedin", geilimit="max", geititle=title) for title in templates) )
+titles = set(page["title"] for page in pages)
 
 # print only languages for which "Template:Related articles start (<lang>)" exists
 langs_whitelist = ["English", "Español", "Italiano", "Português", "Česky", "Ελληνικά", "Русский", "正體中文", "简体中文", "한국어"]
 
-for page in sorted(as_in , key=lambda d: d["title"]):
-    title = page["title"]
-    if page["ns"] == 0 and title not in titles_out:
-        # detect language, check whitelist
-        if detect_language(title)[1] in langs_whitelist:
-            print("* [[%s]]" % title)
-#            print("** https://wiki.archlinux.org/index.php/%s" % title.replace(" ", "_"))
+for title in sorted(titles):
+    # detect language, check whitelist
+    _, lang = detect_language(title)
+    if lang in langs_whitelist:
+        print("* [[%s]]" % title)
+#        print("** https://wiki.archlinux.org/index.php/%s" % title.replace(" ", "_"))
