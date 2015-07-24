@@ -131,7 +131,7 @@ class API(Connection):
         try:
             ns, pure = title.split(":", 1)
             ns = ns.replace("_", " ")
-            if ns in self.namespaces():
+            if ns in self.namespaces().values():
                 return ns, pure
         except ValueError:
             # ValueError is raised when unpacking fails
