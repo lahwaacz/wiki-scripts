@@ -448,6 +448,7 @@ class Interlanguage:
 
         # temporarily skip main pages until the behavior switches
         # (__NOTOC__ etc.) can be parsed by mwparserfromhell
+        # NOTE: handling whitespace right will be hard: https://wiki.archlinux.org/index.php?title=Main_page&diff=383144&oldid=382787
         if re.search("__NOTOC__|__NOEDITSECTION__", text):
             print("Skipping page '{}' (contains behavior switch(es))".format(title))
             return text
