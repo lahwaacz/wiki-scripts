@@ -179,6 +179,11 @@ UTC), for a total of {} users.
 
 The meaning of the additional columns is:
 
+* '''Recent''' &mdash; the number of edits made in the past 30 days. Includes \
+only normal edits, not special actions such as moving a page.
+* '''Total''' &mdash; the total number of edits made since the registration. \
+Includes only normal edits (including deleted ones), special actions are not \
+counted.
 * '''Longest streak''' &mdash; the length of the longest recorded streak in \
 days. The details for the streak are provided as tooltips.
 * '''Current streak''' &mdash; the length of the last recorded streak in days. \
