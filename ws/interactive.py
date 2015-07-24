@@ -34,7 +34,8 @@ class TmpFileSeries:
     def __init__(self, basename, text_new, text_old, suffix="mediawiki", dir="/tmp"):
         self.fname_new = "{}/{}.new.{}".format(dir, basename, suffix)
         self.file_new = open(self.fname_new, "w+")
-        self.file_new.write(text_new)
+        # text_new might be Wikicode object, but file.write() checks the type
+        self.file_new.write(str(text_new))
         self.file_new.flush()
 
         self.fname_old = "{}/{}.old.{}".format(dir, basename, suffix)
