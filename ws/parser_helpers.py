@@ -74,24 +74,24 @@ def remove_and_squash(wikicode, obj):
 
     if prev is None and next_ is not None:
         if next_.startswith(" "):
-            parent.replace(next_, next_.lstrip(" "))
+            next_.value = next_.lstrip(" ")
         elif next_.startswith("\n"):
-            parent.replace(next_, next_.lstrip("\n"))
+            next_.value = next_.lstrip("\n")
     elif prev is not None and next_ is None:
         if prev.endswith(" "):
-            parent.replace(prev, prev.rstrip(" "))
+            prev.value = prev.rstrip(" ")
         elif prev.endswith("\n"):
-            parent.replace(prev, prev.rstrip("\n"))
+            prev.value = prev.rstrip("\n")
     elif prev is not None and next_ is not None:
         if prev.endswith(" ") and next_.startswith(" "):
-            parent.replace(prev, prev.rstrip(" "))
-            parent.replace(next_, " " + next_.lstrip(" "))
+            prev.value = prev.rstrip(" ")
+            next_.value = " " + next_.lstrip(" ")
         elif prev.endswith("\n") and next_.startswith("\n"):
             if not prev[:-1].endswith("\n") and not next_[1:].startswith("\n"):
                 # leave one linebreak
-                parent.replace(prev, prev.rstrip("\n") + "\n")
-            parent.replace(next_, next_.replace("\n", "", 1))
+                prev.value = prev.rstrip("\n") + "\n"
+            next_.value = next_.replace("\n", "", 1)
         elif prev.endswith("\n"):
-            parent.replace(next_, next_.lstrip(" "))
+            next_.value = next_.lstrip(" ")
         elif next_.startswith("\n"):
-            parent.replace(prev, prev.rstrip(" "))
+            prev.value = prev.rstrip(" ")

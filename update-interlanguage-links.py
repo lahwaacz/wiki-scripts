@@ -151,15 +151,17 @@ def build_header(wikicode, parent, magics, cats, langlinks):
     while i < len(parent.nodes):
         node = parent.get(i)
         if isinstance(node, mwparserfromhell.nodes.text.Text):
-            firstline = node.value.splitlines(keepends=True)[0]
-            while firstline.strip() == "":
-                node.value = node.value.replace(firstline, "", 1)
-                if node.value == "":
-                    break
-                firstline = node.value.splitlines(keepends=True)[0]
-            # not an empty string, don't process any following Text nodes
             if node.value:
-                break
+                firstline = node.value.splitlines(keepends=True)[0]
+                while firstline.strip() == "":
+                    node.value = node.value.replace(firstline, "", 1)
+                    if node.value == "":
+                        break
+                    firstline = node.value.splitlines(keepends=True)[0]
+                # not an empty string after stripping, don't process any
+                # following Text nodes
+                if node.value:
+                    break
         else:
             break
         i += 1
