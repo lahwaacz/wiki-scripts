@@ -118,7 +118,8 @@ def get_header_parts(wikicode, magics=None, cats=None, langlinks=None, remove_fr
         #       https://github.com/earwig/mwparserfromhell/issues/111
         if not template.name:
             continue
-        if canonicalize(template.name) in ["Lowercase title", "Template", "Template:Template"] or _prefix(template.name) == "DISPLAYTITLE":
+        _pure, _ = lang.detect_language(str(template.name))
+        if canonicalize(template.name) == "Lowercase title" or _prefix(template.name) == "DISPLAYTITLE" or _pure in ["Template", "Template:Template"]:
             _add_to_magics(template)
             _extracted_count += 1
 
