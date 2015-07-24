@@ -114,8 +114,8 @@ class UserStatsModules:
         if longest_length > 0:
             longest = {
                 "length": longest_length,
-                "start": longest_streak[0]["timestamp"],
-                "end": longest_streak[-1]["timestamp"],
+                "start": utils.parse_date(longest_streak[0]["timestamp"]).date(),
+                "end": utils.parse_date(longest_streak[-1]["timestamp"]).date(),
                 "editcount": len(longest_streak),
             }
         else:
@@ -126,8 +126,8 @@ class UserStatsModules:
         if self.today - utils.parse_date(current_streak[-1]["timestamp"]) <= datetime.timedelta(days=1):
             current = {
                 "length": current_length,
-                "start": current_streak[0]["timestamp"],
-                "end": current_streak[-1]["timestamp"],
+                "start": utils.parse_date(current_streak[0]["timestamp"]).date(),
+                "end": utils.parse_date(current_streak[-1]["timestamp"]).date(),
                 "editcount": len(current_streak),
             }
         else:
