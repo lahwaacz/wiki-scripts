@@ -8,7 +8,7 @@ from ws.parser_helpers import canonicalize
 from ws.interactive import edit_interactive, ask_yesno
 
 class Recategorize:
-    edit_summary = "recategorize to avoid redirect (https://github.com/lahwaacz/wiki-scripts/blob/master/recategorize-over-redirect.py)"
+    edit_summary = "recategorize to avoid redirect after the old category has been renamed (https://github.com/lahwaacz/wiki-scripts/blob/master/recategorize-over-redirect.py)"
     flag_for_deletion_summary = "unused category, flagging for deletion (https://github.com/lahwaacz/wiki-scripts/blob/master/recategorize-over-redirect.py)"
 
     def __init__(self, api):
