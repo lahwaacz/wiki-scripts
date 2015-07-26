@@ -6,7 +6,7 @@ import requests
 import http.cookiejar as cookielib
 from datetime import datetime
 
-from .connection import DEFAULT_UA
+from .core.connection import DEFAULT_UA
 
 class DumpGenerator:
 

@@ -3,8 +3,8 @@
 import os.path
 import datetime
 
-from MediaWiki import API
-from utils import *
+from ws.core import API
+from ws.utils import *
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")

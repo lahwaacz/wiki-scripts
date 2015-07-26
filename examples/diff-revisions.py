@@ -2,7 +2,8 @@
 
 import os.path
 
-from MediaWiki import API, RevisionDiffer
+from ws.core import API
+from ws.diff import RevisionDiffer
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")

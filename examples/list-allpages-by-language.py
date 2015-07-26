@@ -4,8 +4,8 @@ import os.path
 from collections import namedtuple
 import itertools
 
-from MediaWiki import API
-import ArchWiki.lang as lang
+from ws.core import API
+import ws.ArchWiki.lang as lang
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
