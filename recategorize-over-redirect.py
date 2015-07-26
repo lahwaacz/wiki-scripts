@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 
 import os
+import re
+
 import mwparserfromhell
 
 from ws.core import API
@@ -40,7 +42,9 @@ class Recategorize:
         text_old = page["revisions"][0]["*"]
         timestamp = page["revisions"][0]["timestamp"]
 
-        text_new = "{{Deletion|unused category}}"
+        text_new = text_old
+        if not re.search("{{deletion\|", text_old, flags=re.IGNORECASE):
+            text_new += "\n{{Deletion|unused category}}"
         if text_old != text_new:
             print("Flagging for deletion: '{}'".format(title))
             api.edit(page["pageid"], text_new, timestamp, self.flag_for_deletion_summary, bot="")
@@ -67,6 +71,12 @@ class Recategorize:
             else:
                 print("Warning: '{}' is still not empty:".format(source), sorted(page["title"] for page in catmembers))
                 input("Press Enter to continue...")
+        print("""
+Recategorization complete. Before deleting the unused categories, make sure to \
+update interlanguage links. The unused categories are still redirects and are \
+not listed under Special:UnusedCategories, but they can be found in \
+Special:WhatLinksHere/Template:Deletion.
+""")
 
 if __name__ == "__main__":
     api_url = "https://wiki.archlinux.org/api.php"
