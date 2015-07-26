@@ -5,7 +5,7 @@ import mwparserfromhell
 
 from ws.core import API
 from ws.parser_helpers import canonicalize
-from ws.interactive import edit_interactive
+from ws.interactive import edit_interactive, ask_yesno
 
 class Recategorize:
     edit_summary = "recategorize to avoid redirect (https://github.com/lahwaacz/wiki-scripts/blob/master/recategorize-over-redirect.py)"
@@ -28,7 +28,8 @@ class Recategorize:
 
         if text_old != text_new:
             print("Editing '{}'".format(title))
-            edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+#            edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+            api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 
     def flag_for_deletion(self, title):
         namespace, pure = self.api.detect_namespace(title)
@@ -50,6 +51,10 @@ class Recategorize:
         redirects = self.api.redirects_map()
         catredirs = dict((key, value) for key, value in redirects.items() if api.detect_namespace(key)[0] == "Category")
         for source, target in catredirs.items():
+            ans = ask_yesno("Recategorize pages from '{}' to '{}'?".format(source, target))
+            if ans is False:
+                continue
+
             catmembers = self.api.generator(generator="categorymembers", gcmtitle=source, gcmlimit="max", prop="revisions", rvprop="content|timestamp")
             for page in catmembers:
                 # the same page might be yielded multiple times

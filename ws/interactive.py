@@ -94,3 +94,12 @@ def edit_interactive(api, pageid, text_old, text_new, basetimestamp, summary, **
                     print("Command '{}' exited succesfully.".format(cmd))
                 except subprocess.CalledProcessError as e:
                     print("Failed command: '{}' (return code {})".format(cmd, e.returncode), file=sys.stderr)
+
+def ask_yesno(question):
+    ans = ""
+    while True:
+        ans = input(question + " [y/n] ")
+        if ans == "y":
+            return True
+        elif ans == "n":
+            return False
