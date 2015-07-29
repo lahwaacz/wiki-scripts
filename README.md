@@ -9,6 +9,7 @@ Collection of scripts to query wikis powered by MediaWiki
 
 The following are optional dependencies, required only by some scripts:
 
+- [nosetests](https://github.com/nose-devs/nose) (for running tests)
 - [Pygments](http://pygments.org/) (for highlighting differences between revisions in interactive mode)
 - [mwparserfromhell](https://github.com/earwig/mwparserfromhell) (for `link-checker.py`, `update-interlanguage-links.py` and `update-package-templates.py`)
 - [pyalpm](https://projects.archlinux.org/users/remy/pyalpm.git/) (for `update-package-templates.py`)
