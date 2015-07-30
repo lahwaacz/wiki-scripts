@@ -6,3 +6,7 @@ __pycache__
 
 # line-profiler's files
 *.lprof
+
+# coverage reports
+/.coverage
+/cover/
