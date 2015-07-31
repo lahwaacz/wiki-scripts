@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import os.path
+import itertools
 
 from ws.core import API
 
@@ -9,19 +10,22 @@ cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
 api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
 
-def get_titles_in_namespace(ns):
-    return [page["title"] for page in api.generator(generator="allpages", gapnamespace=ns, gaplimit="max")]
+def pages_in_namespace(ns):
+    return api.generator(generator="allpages", gapnamespace=ns, gaplimit="max", prop="categories")
 
 def get_user_names():
     return [user["name"] for user in api.list(list="allusers", aulimit="max")]
 
-user_pages = get_titles_in_namespace(2)
-user_pages.extend(get_titles_in_namespace(3))
-user_pages.sort()
+user_pages = itertools.chain(pages_in_namespace(2), pages_in_namespace(3))
 users = get_user_names()
 
 for page in user_pages:
-    basepage = page.split("/", 1)[0]
+    # check if corresponding user exists
+    basepage = page["title"].split("/", 1)[0]
     user = basepage.split(":", 1)[1]
     if user not in users:
-        print("* Page [[{}]] exists but username '{}' does not".format(page, user))
+        print("* Page [[{}]] exists but username '{}' does not".format(page["title"], user))
+
+    # user pages shall not be categorized
+    if "categories" in page:
+        print("* Page [[{}]] is categorized: {}".format(page["title"], list(cat["title"] for cat in page["categories"])))
