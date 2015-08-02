@@ -154,19 +154,25 @@ class API(Connection):
         elif not isinstance(params, dict):
             raise ValueError("params must be dict or None")
         else:
-            # we will need to modify the data in dict so let's create copy
+            # create copy before adding action=query
             params = params.copy()
-
         params["action"] = "query"
-        params["continue"] = ""
+
+        last_continue = {"continue": ""}
 
         while True:
-            result = self.call(params, expand_result=False)
+            # clone the original params to clean up old continue params
+            params_copy = params.copy()
+            # and update with the last continue -- it may involve multiple params,
+            # hence the clean up with params.copy()
+            params_copy.update(last_continue)
+            # call the API and handle the result
+            result = self.call(params_copy, expand_result=False)
             if "query" in result:
                 yield result["query"]
             if "continue" not in result:
                 break
-            params.update(result["continue"])
+            last_continue = result["continue"]
 
     def generator(self, params=None, **kwargs):
         """
