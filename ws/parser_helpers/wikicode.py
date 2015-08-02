@@ -4,18 +4,7 @@ import mwparserfromhell
 
 # TODO: write unit tests
 
-def canonicalize(title):
-    """
-    Return a canonical form of the title, that is with underscores replaced with
-    spaces, leading and trailing whitespace stripped and first letter
-    capitalized.
-
-    :param title: a `str` or `mwparserfromhell.nodes.wikicode.Wikicode` object
-    :returns: a `str` object
-    """
-    title = str(title).replace("_", " ").strip()
-    title = title[0].upper() + title[1:]
-    return title
+__all__ = ["get_adjacent_node", "get_parent_wikicode", "remove_and_squash"]
 
 def get_adjacent_node(wikicode, node, ignore_whitespace=False):
     """
