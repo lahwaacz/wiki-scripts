@@ -1,8 +1,6 @@
 #! /usr/bin/env python3
 
-# for list of assert methods see:
-# https://docs.python.org/3.4/library/unittest.html#assert-methods
-from nose.tools import assert_equals, assert_count_equal, assert_true, assert_false
+from nose.tools import assert_equals, assert_count_equal, assert_true
 
 from ws.ArchWiki.lang import *
 

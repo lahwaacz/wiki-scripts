@@ -1,8 +1,6 @@
 #! /usr/bin/env python3
 
-# for list of assert methods see:
-# https://docs.python.org/3.4/library/unittest.html#assert-methods
-from nose.tools import assert_equals, assert_count_equal, assert_true, assert_false
+from nose.tools import assert_equals, raises
 from nose.plugins.skip import SkipTest
 
 import mwparserfromhell
@@ -149,3 +147,31 @@ Some other text [[link]]
 
 """
         self._do_test(snippet, expected)
+
+    def test_noinclude(self):
+        snippet = """\
+<noinclude>{{Template}}
+[[en:Template:Foo]]
+</noinclude>
+<includeonly>Template content...</includeonly>
+"""
+        expected = """\
+<noinclude>
+{{Template}}
+[[en:Template:Foo]]
+</noinclude>
+<includeonly>Template content...</includeonly>
+"""
+        self._do_test(snippet, expected)
+
+    @raises(HeaderError)
+    def test_noinclude_error(self):
+        snippet = """\
+[[cs:Template:Foo]]
+<noinclude>{{Template}}
+[[en:Template:Foo]]
+</noinclude>
+<includeonly>Template content...</includeonly>
+"""
+        wikicode = mwparserfromhell.parse(snippet)
+        fix_header(wikicode)
