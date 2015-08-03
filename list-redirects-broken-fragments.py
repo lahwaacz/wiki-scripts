@@ -1,37 +1,76 @@
 #! /usr/bin/env python3
 
 # TODO:
-#   duplicated sections, e.g. fragments like #foo and #foo_2
-#   dot-decoding of fragments
+#   pulling revisions from cache does not expand templates (transclusions like on List of applications)
 #   finally merge into link-checker.py, broken stuff should be just reported
 
 import os.path
 import re
+import collections
 
 from ws.core import API
+import ws.cache
+import ws.utils
+from ws.parser_helpers.encodings import dotencode
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
 api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
+db = ws.cache.LatestRevisionsText(api)
 
 
 # limit to redirects pointing to the content namespaces
 redirects = api.redirects_map(target_namespaces=[0, 4, 12])
 
-# function to check if 'page' has 'section'
-def has_section(page, section):
-    # TODO: pulling revisions from cache would be much faster, but cache.LatestRevisionsText does not contain redirects (yet?) and does not expand templates (transclusions like on List of applications)
-    result = api.call(action="query", prop="revisions", rvprop="content", rvexpandtemplates="", titles=page)
-    _p = list(result["pages"].values())[0]
-    text = _p["revisions"][0]["*"]
+# reference to the list of pages to avoid update of the cache for each lookup
+pages = db["0"]
+wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
 
-    if re.search(r"^(\=+)( *)%s( *)\1$" % re.escape(section), text, re.MULTILINE):
-#        print("page '%s' has section '%s'" % (page, section))
+# TODO: move to ws.parser_helpers
+def valid_anchor(title, anchor):
+    """
+    Checks if given anchor is valid, i.e. if a corresponding section exists on
+    a page with given title.
+
+    NOTE: validation is limited to pages in the Main namespace for easier
+          access to the cache; anchors on other pages are considered to be
+          always valid.
+
+    :param title: title of the target page
+    :param anchor: the section link anchor (without the ``#`` delimiter); may or
+                   may not be dot-encoded
+    :returns: ``True`` if the anchor corresponds to an existing section
+    """
+    namespace, _ = api.detect_namespace(title)
+    if namespace != "":
+        # not really, but causes to take no action
         return True
-    else:
-#        print("page '%s' does not have section '%s'" % (page, section))
-        return False
+    page = ws.utils.bisect_find(pages, title, index_list=wrapped_titles)
+    text = page["revisions"][0]["*"]
+
+    # TODO: split to separate function
+    # re.findall returns a list of tuples of the matched groups
+    matches = re.findall(r"^((\=+)\s*)(.*?)(\s*(\2))$", text, flags=re.MULTILINE | re.DOTALL)
+    headings = [match[2] for match in matches]
+
+    # we need to encode the headings for comparison with the given anchor
+    # because decoding the given anchor is ambiguous due to whitespace squashing
+    # and the fact that the escape character itself (i.e. the dot) is not
+    # encoded even when followed by two hex characters
+    encoded = [dotencode(heading) for heading in headings]
+
+    # handle equivalent headings duplicated on the page
+    _counts = collections.Counter(encoded)
+    for i in range(-1, -len(encoded), -1):
+        enc = encoded[i]
+        if _counts[enc] > 1:
+            encoded[i] = enc + "_{}".format(_counts[enc])
+        _counts[enc] -= 1
+
+    # encode the given anchor and validate
+    anchor = dotencode(anchor)
+    return anchor in encoded
 
 for source in sorted(redirects.keys()):
     target = redirects[source]
@@ -42,7 +81,7 @@ for source in sorted(redirects.keys()):
 
     # limit to redirects with broken fragment
     target, fragment = target.split("#", maxsplit=1)
-    if has_section(target, fragment):
+    if valid_anchor(target, fragment):
         continue
 
     print("* [[{}]] --> [[{}#{}]]".format(source, target, fragment))
