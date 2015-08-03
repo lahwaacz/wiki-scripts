@@ -34,3 +34,20 @@ class test_get_adjacent_node():
         wikicode.remove("[[link]]")
         last = get_adjacent_node(wikicode, first, ignore_whitespace=True)
         assert_equals(str(last), " is the best!")
+
+class test_get_parent_wikicode():
+    snippet = """\
+{{Note|This [[wikipedia:reference]] is to be noted.}}
+Some other text.
+"""
+    wikicode = mwparserfromhell.parse(snippet)
+
+    def test_toplevel(self):
+        parent = get_parent_wikicode(self.wikicode, self.wikicode.get(0))
+        assert_equals(str(parent), self.snippet)
+
+    def test_nested(self):
+        note = self.wikicode.filter_templates()[0]
+        link = self.wikicode.filter_wikilinks()[0]
+        parent = get_parent_wikicode(self.wikicode, link)
+        assert_equals(str(parent), str(note.params[0]))
