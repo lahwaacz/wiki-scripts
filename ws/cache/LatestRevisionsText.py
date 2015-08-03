@@ -17,7 +17,8 @@ class LatestRevisionsText(CacheDb):
         :param ns: namespace index where the revisions are taken from.
                    Internally functions as the database key.
         """
-        ns = ns if ns is not None else "0"
+        # make sure we work with string keys (needed for JSON serialization)
+        ns = str(ns) if ns is not None else "0"
 
         print("Running LatestRevisionsText.init(ns=\"{}\")".format(ns))
         if self.data is None:
@@ -47,7 +48,8 @@ class LatestRevisionsText(CacheDb):
         :param ns: namespace index where the revisions are taken from.
                    Internally functions as the database key.
         """
-        ns = ns if ns is not None else "0"
+        # make sure we work with string keys (needed for JSON serialization)
+        ns = str(ns) if ns is not None else "0"
 
         if ns not in self.data:
             self.init(ns)
