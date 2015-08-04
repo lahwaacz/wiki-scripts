@@ -133,11 +133,9 @@ def get_header_parts(wikicode, magics=None, cats=None, langlinks=None, remove_fr
     return parent, magics, cats, langlinks
 
 def build_header(wikicode, parent, magics, cats, langlinks):
-    # First strip blank lines if there is some text. Note that there can be multiple
-    # succesive Text nodes as the result of removing header elements.
-    i = 0
-    while i < len(parent.nodes):
-        node = parent.get(i)
+    # first strip blank lines if there is some text
+    if len(wikicode.nodes) > 0:
+        node = parent.get(0)
         if isinstance(node, mwparserfromhell.nodes.text.Text):
             if node.value:
                 firstline = node.value.splitlines(keepends=True)[0]
@@ -146,13 +144,6 @@ def build_header(wikicode, parent, magics, cats, langlinks):
                     if node.value == "":
                         break
                     firstline = node.value.splitlines(keepends=True)[0]
-                # not an empty string after stripping, don't process any
-                # following Text nodes
-                if node.value:
-                    break
-        else:
-            break
-        i += 1
 
     count = 0
     # If the parent is not the top-level wikicode object (i.e. nested wikicode inside

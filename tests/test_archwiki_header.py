@@ -115,7 +115,6 @@ Text of the first paragraph...
 """
         self._do_test(snippet, expected)
 
-    # FIXME: remove_and_squash is broken
     def test_full(self):
         snippet = """\
 Some text with [[it:langlinks]] inside.

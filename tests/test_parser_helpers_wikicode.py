@@ -67,13 +67,17 @@ class test_remove_and_squash():
 
     def test_around(self):
         snippet = """\
+First paragraph
+
 [[link1]]
 Second paragraph
 [[link2]]
+
+Third paragraph
 """
         wikicode = mwparserfromhell.parse(snippet)
-        self._do_test(wikicode, "[[link1]]", "Second paragraph\n[[link2]]\n")
-        self._do_test(wikicode, "[[link2]]", "Second paragraph\n")
+        self._do_test(wikicode, "[[link1]]", "First paragraph\n\nSecond paragraph\n[[link2]]\n\nThird paragraph\n")
+        self._do_test(wikicode, "[[link2]]", "First paragraph\n\nSecond paragraph\n\nThird paragraph\n")
 
     def test_lineend(self):
         snippet = """\

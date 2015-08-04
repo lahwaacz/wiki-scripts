@@ -2,8 +2,6 @@
 
 import mwparserfromhell
 
-# TODO: write unit tests
-
 __all__ = ["get_adjacent_node", "get_parent_wikicode", "remove_and_squash"]
 
 def get_adjacent_node(wikicode, node, ignore_whitespace=False):
@@ -46,6 +44,9 @@ def remove_and_squash(wikicode, obj):
     parent.remove(obj)
 
     def _get_text(index):
+        # the first node has no previous node, especially not the last node
+        if index < 0:
+            return None
         try:
             node = parent.get(index)
             # don't EVER remove whitespace from non-Text nodes (it would
@@ -76,11 +77,22 @@ def remove_and_squash(wikicode, obj):
             prev.value = prev.rstrip(" ")
             next_.value = " " + next_.lstrip(" ")
         elif prev.endswith("\n") and next_.startswith("\n"):
-            if not prev[:-1].endswith("\n") and not next_[1:].startswith("\n"):
+            if prev[:-1].endswith("\n"):
+                # preserve preceding blank line
+                prev.value = prev.rstrip("\n") + "\n\n"
+                next_.value = next_.lstrip("\n")
+            elif next_[1:].startswith("\n"):
+                # preserve following blank line
+                prev.value = prev.rstrip("\n")
+                next_.value = "\n\n" + next_.lstrip("\n")
+            else:
                 # leave one linebreak
                 prev.value = prev.rstrip("\n") + "\n"
-            next_.value = next_.replace("\n", "", 1)
+                next_.value = next_.lstrip("\n")
         elif prev.endswith("\n"):
             next_.value = next_.lstrip(" ")
         elif next_.startswith("\n"):
             prev.value = prev.rstrip(" ")
+        # merge successive Text nodes
+        prev.value += next_.value
+        parent.remove(next_)
