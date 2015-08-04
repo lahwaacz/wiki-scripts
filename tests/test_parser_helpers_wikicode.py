@@ -51,3 +51,91 @@ Some other text.
         link = self.wikicode.filter_wikilinks()[0]
         parent = get_parent_wikicode(self.wikicode, link)
         assert_equals(str(parent), str(note.params[0]))
+
+class test_remove_and_squash():
+    @staticmethod
+    def _do_test(wikicode, remove, expected):
+        node = wikicode.get(wikicode.index(remove))
+        remove_and_squash(wikicode, node)
+        assert_equals(str(wikicode), expected)
+
+    def test_inside(self):
+        snippet = "Some text with a [[link]] inside."
+        expected = "Some text with a inside."
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link]]", expected)
+
+    def test_around(self):
+        snippet = """\
+[[link1]]
+Second paragraph
+[[link2]]
+"""
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link1]]", "Second paragraph\n[[link2]]\n")
+        self._do_test(wikicode, "[[link2]]", "Second paragraph\n")
+
+    def test_lineend(self):
+        snippet = """\
+Some other text [[link]]
+Following sentence.
+"""
+        expected = """\
+Some other text
+Following sentence.
+"""
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link]]", expected)
+
+    def test_linestart(self):
+        snippet = """\
+Another paragraph.
+[[link]] some other text.
+"""
+        expected = """\
+Another paragraph.
+some other text.
+"""
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link]]", expected)
+
+    def test_multiple_nodes(self):
+        snippet = "[[link1]][[link2]][[link3]]"
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link1]]", "[[link2]][[link3]]")
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link2]]", "[[link1]][[link3]]")
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link3]]", "[[link1]][[link2]]")
+
+    def test_multiple_nodes_spaces(self):
+        snippet = "[[link1]] [[link2]] [[link3]]"
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link1]]", "[[link2]] [[link3]]")
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link2]]", "[[link1]] [[link3]]")
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link3]]", "[[link1]] [[link2]]")
+
+    def test_multiple_nodes_newlines(self):
+        snippet = "[[link1]]\n[[link2]]\n[[link3]]"
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link1]]", "[[link2]]\n[[link3]]")
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link2]]", "[[link1]]\n[[link3]]")
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link3]]", "[[link1]]\n[[link2]]")
+
+    def test_multiple_newlines(self):
+        snippet = """\
+First paragraph
+
+[[link]]
+
+"""
+        expected = """\
+First paragraph
+
+"""
+        wikicode = mwparserfromhell.parse(snippet)
+        self._do_test(wikicode, "[[link]]", expected)
