@@ -31,12 +31,12 @@ class API(Connection):
 
     def login(self, username, password):
         """
-        Logs into the wiki with username and password. Returns True on successful login.
-        See `MediaWiki#API:Login`_ for reference.
+        Logs into the wiki with username and password. See `MediaWiki#API:Login`_
+        for reference.
 
         :param username: username to use
         :param password: password to use
-        :returns: True on successful login, otherwise raises :py:class:`LoginFailed`
+        :returns: ``True`` on successful login, otherwise raises :py:class:`LoginFailed`
 
         .. _`MediaWiki#API:Login`: https://www.mediawiki.org/wiki/API:Login
         """
@@ -45,8 +45,7 @@ class API(Connection):
             Login function that handles CSRF protection, see MediaWiki bug 23076:
             https://bugzilla.wikimedia.org/show_bug.cgi?id=23076
 
-            Returns True on successful login.
-
+            :returns: ``True`` on successful login, otherwise ``False``
             """
             data = {
                 "action": "login",
@@ -77,7 +76,7 @@ class API(Connection):
         """
         Checks if the current session is authenticated.
 
-        :returns: True if the session is authenticated
+        :returns: ``True`` if the session is authenticated
         """
         result = self.call_api(action="query", meta="userinfo")
         return "anon" not in result["userinfo"]
@@ -97,7 +96,7 @@ class API(Connection):
         Logs out of the wiki.
         See `MediaWiki#API:Logout`_ for reference.
 
-        :returns: True
+        :returns: ``True``
 
         .. _`MediaWiki#API:Logout`: https://www.mediawiki.org/wiki/API:Logout
         """
@@ -123,10 +122,11 @@ class API(Connection):
         namespaces.
 
         :param title: the full title of a wiki page
-        :returns: A `(namespace, pure_title)` tuple. Underscores are replaced with
-                  spaces in `namespace`, but `pure_title` corresponds to the input
-                  (underscores and spaces are preserved). The main namespace is
-                  identified as an empty string.
+        :returns:
+            A ``(namespace, pure_title)`` tuple. Underscores are replaced with
+            spaces in `namespace`, but `pure_title` corresponds to the input
+            (underscores and spaces are preserved). The main namespace is
+            identified as an empty string.
         """
         try:
             ns, pure = title.split(":", 1)
@@ -142,12 +142,14 @@ class API(Connection):
     def query_continue(self, params=None, **kwargs):
         """
         Generator for MediaWiki's query-continue feature.
-        ref: https://www.mediawiki.org/wiki/API:Query#Continuing_queries
+        Reference: https://www.mediawiki.org/wiki/API:Query#Continuing_queries
 
-        :param params: same as :py:meth:`MediaWiki.connection.Connection.call`, but ``action``
-                is always set to ``"query"`` and ``"continue"`` to ``""``
-        :param kwargs: same as :py:meth:`MediaWiki.connection.Connection.call`
-        :yields: "query" part of the API response
+        :param params:
+            same as :py:meth:`MediaWiki.connection.Connection.call`, but
+            ``action`` is always set to ``"query"`` and ``"continue"`` to ``""``
+        :param kwargs:
+            same as :py:meth:`MediaWiki.connection.Connection.call`
+        :yields: ``"query"`` part of the API response
         """
         if params is None:
             params = kwargs
@@ -176,13 +178,14 @@ class API(Connection):
 
     def generator(self, params=None, **kwargs):
         """
-        Interface to API:Generators, conveniently implemented as Python generator.
+        Interface to API:Generators, conveniently implemented as Python
+        generator.
 
         Parameter ``generator`` must be supplied.
 
         :param params: same as :py:meth:`API.query_continue`
         :param kwargs: same as :py:meth:`API.query_continue`
-        :yields: from "pages" part of the API response
+        :yields: from ``"pages"`` part of the API response
 
         When a generator is combined with props, results are split into multiple
         chunks, each providing piece of information. For exmample queries with
@@ -235,8 +238,8 @@ class API(Connection):
     @lru_cache(maxsize=8)
     def resolve_redirects(self, *pageids):
         """
-        Resolve redirect titles according to the `MediaWiki's API`_. List of redirect
-        pages must be obtained other way, for example:
+        Resolve redirect titles according to the `MediaWiki's API`_. List of
+        redirect pages must be obtained other way, for example:
 
         >>> pageids = []
         >>> for ns in ["0", "4", "12"]:
@@ -244,12 +247,14 @@ class API(Connection):
         >>>     _pageids = [str(page["pageid"]) for page in pages]
         >>>     pageids.extend(_pageids)
 
-        Or just use this method when not sure if given title is a redirect or not.
+        Or just use this method when not sure if given title is a redirect or
+        not.
 
-        :param *pageids: unpacked list of page IDs to resolve (i.e. call this method
-                         as ``resolve_redirects(*list)`` or
-                         ``resolve_redirects(pageid1, pageid2, ...)``)
-        :returns: ``redirects`` part of the API response concatenated into one list
+        :param *pageids:
+            unpacked list of page IDs to resolve (i.e. call this method as
+            ``resolve_redirects(*list)`` or ``resolve_redirects(pageid1, pageid2, ...)``)
+        :returns:
+            ``redirects`` part of the API response concatenated into one list
 
         .. _`MediaWiki's API`: https://www.mediawiki.org/wiki/API:Query#Resolving_redirects
         """
@@ -283,16 +288,18 @@ class API(Connection):
         Build a mapping of redirects in given namespaces. Interwiki redirects are
         not included in the mapping.
 
-        :param source_namespaces: the namespace ID of the source title must be in this
-                                  list in order to be included in the mapping (default
-                                  is [0], the magic word "all" will select all
-                                  available namespaces)
-        :param target_namespaces: the namespace ID of the target title must be in this
-                                  list in order to be included in the mapping (default
-                                  is "all", which will select all available namespaces)
-        :returns: a dictionary where the keys are source titles and values are the
-                  redirect targets, including the link fragments (e.g.
-                  ``Page title#Section title``).
+        :param source_namespaces:
+            the namespace ID of the source title must be in this list in order
+            to be included in the mapping (default is ``[0]``, the magic word
+            ``"all"`` will select all available namespaces)
+        :param target_namespaces:
+            the namespace ID of the target title must be in this list in order
+            to be included in the mapping (default is ``"all"``, which will
+            select all available namespaces)
+        :returns:
+            a dictionary where the keys are source titles and values are the
+            redirect targets, including the link fragments (e.g.
+            ``"Page title#Section title"``).
         """
         source_namespaces = source_namespaces if source_namespaces is not None else [0]
         if source_namespaces == "all":
@@ -322,12 +329,15 @@ class API(Connection):
     @RateLimited(1, 3)
     def edit(self, pageid, text, basetimestamp, summary, token=None, **kwargs):
         """
-        Interface to `API:Edit`_. MD5 hash of the new text is computed automatically and
-        added to the query. This method is rate-limited to allow 1 call per 3 seconds.
+        Interface to `API:Edit`_. MD5 hash of the new text is computed
+        automatically and added to the query. This method is rate-limited to
+        allow 1 call per 3 seconds.
 
         :param pageid: page ID of the page to be edited
         :param text: new page content
-        :param basetimestamp: Timestamp of the base revision (obtained through `prop=revisions&rvprop=timestamp`). Used to detect edit conflicts.
+        :param basetimestamp:
+            Timestamp of the base revision (obtained through
+            `prop=revisions&rvprop=timestamp`). Used to detect edit conflicts.
         :param summary: edit summary
         :param kwargs: Additional query parameters, see `API:Edit`_.
 

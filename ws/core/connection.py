@@ -108,10 +108,11 @@ class Connection:
         as keyword arguments.
 
         :param params: dictionary of API parameters
-        :param expand_result: if True, return only part of the response relevant
-                        to the given action, otherwise full response is returned
+        :param expand_result:
+            if ``True``, return only part of the response relevant to the given
+            action, otherwise full response is returned
         :param kwargs: API parameters passed as keyword arguments
-        :returns: dictionary containing (part of) the API response
+        :returns: a dictionary containing (part of) the API response
         """
         if params is None:
             params = kwargs
