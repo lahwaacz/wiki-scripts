@@ -17,10 +17,10 @@ __all__ = ["AllRevisionsProps"]
 class AllRevisionsProps(CacheDb):
     def __init__(self, api, autocommit=True):
         # needed for database initialization
-        self.limit = 500 if "apihighlimits" in api.user_rights() else 50
+        self.limit = 500 if "apihighlimits" in api.user_rights else 50
 
         # check for necessary rights
-        if "deletedhistory" in api.user_rights():
+        if "deletedhistory" in api.user_rights:
             self.deletedrevisions = True
         else:
             print("The current user does not have the 'deletedhistory' right. Properties of deleted revisions will not be available.", sys.stderr)

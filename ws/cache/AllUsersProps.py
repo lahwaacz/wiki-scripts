@@ -28,7 +28,7 @@ class AllUsersProps(CacheDb):
         self.rc_err_threshold = datetime.timedelta(hours=rc_err_hours)
 
         # TODO: this had better be specified as attribute of CacheDb, named chunk_size
-        self.limit = 500 if "apihighlimits" in api.user_rights() else 50
+        self.limit = 500 if "apihighlimits" in api.user_rights else 50
 
         super().__init__(api, "AllUsersProps", autocommit)
 

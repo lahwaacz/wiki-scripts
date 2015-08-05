@@ -59,7 +59,7 @@ class Interlanguage:
         self.api = api
         self.redirects = self.api.redirects_map()
 
-        self.limit = 500 if "apihighlimits" in self.api.user_rights() else 50
+        self.limit = 500 if "apihighlimits" in self.api.user_rights else 50
 
         self.allpages = None
         self.wrapped_titles = None

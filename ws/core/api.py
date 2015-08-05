@@ -5,6 +5,7 @@ from functools import lru_cache
 
 from .connection import Connection
 from .rate import RateLimited
+from .lazy import LazyProperty
 
 __all__ = ["API", "LoginFailed"]
 
@@ -62,34 +63,14 @@ class API(Connection):
             else:
                 return False
 
-        # clear cache on self.is_loggedin
-        self.is_loggedin.cache_clear()
-        self.user_rights.cache_clear()
+        # reset the properties related to login
+        del self.is_loggedin
+        del self.user_rights
 
         status = do_login(self, username, password)
-        if status is True and self.is_loggedin():
+        if status is True and self.is_loggedin:
             return True
         raise LoginFailed
-
-    @lru_cache(maxsize=None)
-    def is_loggedin(self):
-        """
-        Checks if the current session is authenticated.
-
-        :returns: ``True`` if the session is authenticated
-        """
-        result = self.call_api(action="query", meta="userinfo")
-        return "anon" not in result["userinfo"]
-
-    @lru_cache(maxsize=None)
-    def user_rights(self):
-        """
-        Returns a list of rights for the current user.
-
-        :returns: a list of strings
-        """
-        result = self.call_api(action="query", meta="userinfo", uiprop="rights")
-        return result["userinfo"]["rights"]
 
     def logout(self):
         """
@@ -103,14 +84,37 @@ class API(Connection):
         self.call_api(action="logout")
         return True
 
+    @LazyProperty
+    def is_loggedin(self):
+        """
+        Indicates whether the current session is authenticated (``True``) or
+        not (``False``).
 
-    @lru_cache(maxsize=None)
+        The property is evaluated lazily and cached with the ``@LazyProperty``
+        decorator.
+        """
+        result = self.call_api(action="query", meta="userinfo")
+        return "anon" not in result["userinfo"]
+
+    @LazyProperty
+    def user_rights(self):
+        """
+        A list of rights for the current user.
+
+        The property is evaluated lazily and cached with the ``@LazyProperty``
+        decorator.
+        """
+        result = self.call_api(action="query", meta="userinfo", uiprop="rights")
+        return result["userinfo"]["rights"]
+
+    @LazyProperty
     def namespaces(self):
         """
-        Fetch namespaces for the wiki. The results are cached so subsequent
-        calls are cheap.
+        Namespaces present on the wiki as mapping (dictionary) of namespace IDs
+        to their names.
 
-        :returns: mapping (dictionary) of namespace IDs to their names
+        The property is evaluated lazily and cached with the ``@LazyProperty``
+        decorator.
         """
         result = self.call_api(action="query", meta="siteinfo", siprop="namespaces")
         namespaces = result["namespaces"].values()
@@ -131,7 +135,7 @@ class API(Connection):
         try:
             ns, pure = title.split(":", 1)
             ns = ns.replace("_", " ")
-            if ns in self.namespaces().values():
+            if ns in self.namespaces.values():
                 return ns, pure
         except ValueError:
             # ValueError is raised when unpacking fails
@@ -271,7 +275,7 @@ class API(Connection):
             return (list_[i:i+bs] for i in range(0, len(list_), bs))
 
         # check if we have apihighlimits and set the limit accordingly
-        limit = 500 if "apihighlimits" in self.user_rights() else 50
+        limit = 500 if "apihighlimits" in self.user_rights else 50
 
         # resolve by chunks
         redirects = []
@@ -303,9 +307,9 @@ class API(Connection):
         """
         source_namespaces = source_namespaces if source_namespaces is not None else [0]
         if source_namespaces == "all":
-            source_namespaces = [ns for ns in self.namespaces() if int(ns) >= 0]
+            source_namespaces = [ns for ns in self.namespaces if int(ns) >= 0]
         if target_namespaces == "all":
-            target_namespaces = [ns for ns in self.namespaces() if int(ns) >= 0]
+            target_namespaces = [ns for ns in self.namespaces if int(ns) >= 0]
 
         redirects = {}
         for ns in target_namespaces:

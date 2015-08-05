@@ -41,7 +41,7 @@ class DumpGenerator:
 
         print("Fetching list of all pages...")
         pages = []
-        namespaces = [ns for ns in self.api.namespaces().keys() if ns >= 0]
+        namespaces = [ns for ns in self.api.namespaces.keys() if ns >= 0]
         for ns in namespaces:
             pages += list([page["title"] for page in self.api.generator(generator="allpages", gaplimit="max", gapnamespace=ns)])
 
