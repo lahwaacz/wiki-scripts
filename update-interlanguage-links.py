@@ -328,7 +328,7 @@ class Interlanguage:
         for chunk in utils.iter_chunks(_updates_gen(self.allpages), self.limit):
             pages_props, pages_langlinks = zip(*list(chunk))
             pageids = "|".join(str(page["pageid"]) for page in pages_props)
-            result = self.api.call(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp")
+            result = self.api.call_api(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp")
             pages = result["pages"]
 
             for page, langlinks in zip(pages_props, pages_langlinks):

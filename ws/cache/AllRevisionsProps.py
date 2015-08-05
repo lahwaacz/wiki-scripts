@@ -68,11 +68,14 @@ class AllRevisionsProps(CacheDb):
             # empty database
             return 0
 
+    # TODO: total edit count is available in global statistics:
+    #           https://wiki.archlinux.org/api.php?action=query&meta=siteinfo&siprop=statistics
+    #       but it is different from the last revision ID obtained from recentchanges !!!
     def _get_last_revid_api(self):
         """
         Get ID of the last revision on the wiki.
         """
-        result = self.api.call(action="query", list="recentchanges", rcprop="ids", rctype="edit", rclimit="1")
+        result = self.api.call_api(action="query", list="recentchanges", rcprop="ids", rctype="edit", rclimit="1")
         return result["recentchanges"][0]["revid"]
 
     def _fetch_revisions(self, first, last):
@@ -93,7 +96,7 @@ class AllRevisionsProps(CacheDb):
             if self.deletedrevisions is True:
                 result = next(self.api.query_continue(action="query", revids=revids, prop="revisions|deletedrevisions", drvlimit="max"))
             else:
-                result = self.api.call(action="query", revids=revids, prop="revisions")
+                result = self.api.call_api(action="query", revids=revids, prop="revisions")
 
             # TODO: what is the meaning of badrevids?
             badrevids = result.get("badrevids", {})

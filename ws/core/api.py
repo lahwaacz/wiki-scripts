@@ -26,8 +26,8 @@ class API(Connection):
     :param kwargs: any keyword arguments of the Connection object
     """
 
-    def __init__(self, api_url, **kwargs):
-        super().__init__(api_url, **kwargs)
+    def __init__(self, api_url, index_url=None, **kwargs):
+        super().__init__(api_url, index_url, **kwargs)
 
     def login(self, username, password):
         """
@@ -55,7 +55,7 @@ class API(Connection):
             }
             if token:
                 data["lgtoken"] = token
-            result = self.call(data)
+            result = self.call_api(data)
             if result["result"] == "Success":
                 return True
             elif result["result"] == "NeedToken" and not token:
@@ -79,7 +79,7 @@ class API(Connection):
 
         :returns: True if the session is authenticated
         """
-        result = self.call(action="query", meta="userinfo")
+        result = self.call_api(action="query", meta="userinfo")
         return "anon" not in result["userinfo"]
 
     @lru_cache(maxsize=None)
@@ -89,7 +89,7 @@ class API(Connection):
 
         :returns: a list of strings
         """
-        result = self.call(action="query", meta="userinfo", uiprop="rights")
+        result = self.call_api(action="query", meta="userinfo", uiprop="rights")
         return result["userinfo"]["rights"]
 
     def logout(self):
@@ -101,7 +101,7 @@ class API(Connection):
 
         .. _`MediaWiki#API:Logout`: https://www.mediawiki.org/wiki/API:Logout
         """
-        self.call(action="logout")
+        self.call_api(action="logout")
         return True
 
 
@@ -113,7 +113,7 @@ class API(Connection):
 
         :returns: mapping (dictionary) of namespace IDs to their names
         """
-        result = self.call(action="query", meta="siteinfo", siprop="namespaces")
+        result = self.call_api(action="query", meta="siteinfo", siprop="namespaces")
         namespaces = result["namespaces"].values()
         return dict( (ns["id"], ns["*"]) for ns in namespaces )
 
@@ -167,7 +167,7 @@ class API(Connection):
             # hence the clean up with params.copy()
             params_copy.update(last_continue)
             # call the API and handle the result
-            result = self.call(params_copy, expand_result=False)
+            result = self.call_api(params_copy, expand_result=False)
             if "query" in result:
                 yield result["query"]
             if "continue" not in result:
@@ -271,7 +271,7 @@ class API(Connection):
         # resolve by chunks
         redirects = []
         for snippet in _chunks(pageids, limit):
-            result = self.call(action="query", redirects="", pageids="|".join(snippet))
+            result = self.call_api(action="query", redirects="", pageids="|".join(snippet))
             redirects.extend(result["redirects"])
 
         return redirects
@@ -345,6 +345,6 @@ class API(Connection):
         md5 = h.hexdigest()
 
         if not token:
-            token = self.call(action="query", meta="tokens")["tokens"]["csrftoken"]
+            token = self.call_api(action="query", meta="tokens")["tokens"]["csrftoken"]
 
-        return self.call(action="edit", token=token, md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, **kwargs)
+        return self.call_api(action="edit", token=token, md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, **kwargs)

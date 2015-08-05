@@ -64,7 +64,7 @@ class LatestRevisionsText(CacheDb):
             wrapped_titles = utils.ListOfDictsAttrWrapper(self.data[ns], "title")
 
             for snippet in utils.list_chunks(for_update, self.limit):
-                result = self.api.call(action="query", pageids="|".join(str(pageid) for pageid in snippet), prop="info|revisions", rvprop="content")
+                result = self.api.call_api(action="query", pageids="|".join(str(pageid) for pageid in snippet), prop="info|revisions", rvprop="content")
                 for page in result["pages"].values():
                     utils.bisect_insert_or_replace(self.data[ns], page["title"], data_element=page, index_list=wrapped_titles)
 

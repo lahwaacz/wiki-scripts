@@ -99,7 +99,7 @@ class Statistics:
         self.cliargs = cliparser.parse_args()
 
     def _parse_page(self):
-        result = self.api.call(action="query", prop="info|revisions",
+        result = self.api.call_api(action="query", prop="info|revisions",
                 rvprop="content|timestamp", meta="tokens",
                 titles=self.cliargs.page)
         page = tuple(result["pages"].values())[0]

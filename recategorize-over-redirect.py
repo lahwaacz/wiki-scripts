@@ -37,7 +37,7 @@ class Recategorize:
         namespace, pure = self.api.detect_namespace(title)
         assert(namespace == "Category")
 
-        result = self.api.call(action="query", prop="revisions", rvprop="content|timestamp", titles=title)
+        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", titles=title)
         page = list(result["pages"].values())[0]
         text_old = page["revisions"][0]["*"]
         timestamp = page["revisions"][0]["timestamp"]

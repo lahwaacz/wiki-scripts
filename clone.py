@@ -104,7 +104,7 @@ class Downloader:
             # unzip the list of tuples
             titles, pageids, fnames = zip(*snippet)
             print("  [downloading]   '{}' ... '{}'".format(titles[0], titles[-1]))
-            result = api.call(action="query", pageids="|".join(str(pid) for pid in pageids), prop="revisions", rvprop="content")
+            result = api.call_api(action="query", pageids="|".join(str(pid) for pid in pageids), prop="revisions", rvprop="content")
 
             for page in result["pages"].values():
                 pageid = page["pageid"]

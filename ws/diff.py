@@ -52,7 +52,7 @@ class RevisionDiffer:
         :param newrevid: revision ID for new revision
         """
         # query content + meta data for each revision
-        result = self.api.call(action="query", prop="revisions", rvprop="content|timestamp|user|comment", revids="%s|%s" % (oldrevid, newrevid))
+        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp|user|comment", revids="%s|%s" % (oldrevid, newrevid))
         page = list(result["pages"].values())[0]    # returned structure is the same as for generators
 
         title = page["title"]

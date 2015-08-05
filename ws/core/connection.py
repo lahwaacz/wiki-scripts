@@ -32,23 +32,25 @@ class Connection:
     """
     The base object handling connection between a wiki and scripts.
 
-    It is possible to save the session data by specifying either *cookiejar*
-    or *cookie_file* arguments. This way cookies can be saved permanently to
+    It is possible to save the session data by specifying either ``cookiejar``
+    or ``cookie_file`` arguments. This way cookies can be saved permanently to
     the disk or shared between multiple :py:class:`Connection` objects.
-    If *cookiejar* is present *cookie_file* is ignored.
+    If ``cookiejar`` is present ``cookie_file`` is ignored.
 
-    :param api_url: URL path to the wiki API endpoint
-    :param cookie_file: path to a :py:class:`cookielib.FileCookieJar` file
-    :param cookiejar: an existing :py:class:`cookielib.CookieJar` object
+    :param api_url: URL path to the wiki's ``api.php`` entry point
+    :param index_url: URL path to the wiki's ``index.php`` entry point
     :param user_agent: string sent as ``User-Agent`` header to the web server
     :param ssl_verify: if ``True``, the SSL certificate will be verified
+    :param cookie_file: path to a :py:class:`cookielib.FileCookieJar` file
+    :param cookiejar: an existing :py:class:`cookielib.CookieJar` object
     """
 
-    def __init__(self, api_url, cookie_file=None, cookiejar=None,
-                 user_agent=DEFAULT_UA, http_user=None, http_password=None,
-                 ssl_verify=None):
-        # TODO: document parameters
+    # TODO: when #3 is implemented, make index_url mandatory
+    def __init__(self, api_url, index_url=None, user_agent=DEFAULT_UA,
+                 ssl_verify=None, cookie_file=None, cookiejar=None,
+                 http_user=None, http_password=None):
         self.api_url = api_url
+        self.index_url = index_url
 
         self.session = requests.Session()
 
@@ -73,20 +75,19 @@ class Connection:
         self.session.verify = ssl_verify
 
     @RateLimited(10, 3)
-    def _call(self, params=None, data=None, method="GET"):
+    def request(self, method, url, **kwargs):
         """
-        Basic HTTP request handler.
+        Simple HTTP request handler. It is basically a wrapper around
+        :py:func:`requests.request()` using the established session including
+        cookies, so it should be used only for connections with ``url`` leading
+        to the same site.
 
-        At least one of the parameters ``params`` and ``data`` has to be provided,
-        see `Requests documentation`_ for details.
-
-        :param params: dictionary of query string parameters
-        :param data: data for the request (if a dictionary is provided, form-encoding will take place)
-        :returns: dictionary containing full API response
+        The parameters are the same as for :py:func:`requests.request()`, see
+        `Requests documentation`_ for details.
 
         .. _`Requests documentation`: http://docs.python-requests.org/en/latest/api/
         """
-        response = self.session.request(method=method, url=self.api_url, params=params, data=data)
+        response = self.session.request(method, url, **kwargs)
 
         # raise HTTPError for bad requests (4XX client errors and 5XX server errors)
         response.raise_for_status()
@@ -96,15 +97,15 @@ class Connection:
 
         return response
 
-    def call(self, params=None, expand_result=True, **kwargs):
+    def call_api(self, params=None, expand_result=True, **kwargs):
         """
-        Convenient method to call the API.
+        Convenient method to call the ``api.php`` entry point.
 
         Checks the ``action`` parameter (default is ``"help"`` as in the API),
         selects correct HTTP request method, handles API errors and warnings.
 
-        Parameters of the call can be passed either as a dict to ``params``, or as
-        keyword arguments.
+        Parameters of the call can be passed either as a dict to ``params``, or
+        as keyword arguments.
 
         :param params: dictionary of API parameters
         :param expand_result: if True, return only part of the response relevant
@@ -118,7 +119,7 @@ class Connection:
             raise ValueError("params must be dict or None")
 
         # check if action is valid
-        action = params.get("action", "help")
+        action = params.setdefault("action", "help")
         if action not in API_ACTIONS:
             raise APIWrongAction(action, API_ACTIONS)
 
@@ -126,9 +127,9 @@ class Connection:
         if action in POST_ACTIONS:
             # passing `params` to `data` will cause form-encoding to take place,
             # which is necessary when editing pages longer than 8000 characters
-            result = self._call(data=params, method="POST")
+            result = self.request("POST", self.api_url, data=params)
         else:
-            result = self._call(params=params, method="GET")
+            result = self.request("GET", self.api_url, params=params)
 
         try:
             result = result.json()
@@ -152,6 +153,19 @@ class Connection:
         if expand_result is True:
             return result[action]
         return result
+
+    def call_index(self, method="GET", **kwargs):
+        """
+        Convenient method to call the ``index.php`` entry point.
+
+        Currently it only calls :py:meth:`self.request()` with specific URL and
+        sets default method to ``"GET"``.
+
+        See `MediaWiki`_ for possible parameters to ``index.php``.
+
+        .. _`MediaWiki`: https://www.mediawiki.org/wiki/Manual:Parameters_to_index.php
+        """
+        return self.request(method, self.index_url, **kwargs)
 
     def get_hostname(self):
         """
