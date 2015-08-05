@@ -77,14 +77,10 @@ def remove_and_squash(wikicode, obj):
             prev.value = prev.rstrip(" ")
             next_.value = " " + next_.lstrip(" ")
         elif prev.endswith("\n") and next_.startswith("\n"):
-            if prev[:-1].endswith("\n"):
+            if prev[:-1].endswith("\n") or next_[1:].startswith("\n"):
                 # preserve preceding blank line
                 prev.value = prev.rstrip("\n") + "\n\n"
                 next_.value = next_.lstrip("\n")
-            elif next_[1:].startswith("\n"):
-                # preserve following blank line
-                prev.value = prev.rstrip("\n")
-                next_.value = "\n\n" + next_.lstrip("\n")
             else:
                 # leave one linebreak
                 prev.value = prev.rstrip("\n") + "\n"
