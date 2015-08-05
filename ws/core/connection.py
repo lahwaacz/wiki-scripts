@@ -7,7 +7,7 @@ import requests
 import http.cookiejar as cookielib
 import sys
 
-from . import __version__, __url__
+from ws import __version__, __url__
 from .rate import RateLimited
 
 __all__ = ["DEFAULT_UA", "Connection", "APIWrongAction", "ConnectionError", "APIJsonError", "APIError"]
@@ -58,7 +58,7 @@ class Connection:
             self.session.cookies = cookielib.LWPCookieJar(cookie_file)
             try:
                 self.session.cookies.load()
-            except (cookielib.LoadError, OSError):
+            except cookielib.LoadError:
                 self.session.cookies.save()
                 self.session.cookies.load()
 
