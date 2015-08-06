@@ -15,6 +15,7 @@ The following are optional dependencies, required only by some scripts:
 - [pyalpm](https://projects.archlinux.org/users/remy/pyalpm.git/) (for `update-package-templates.py`)
 - [NumPy](http://www.numpy.org/) and [matplotlib](http://matplotlib.org/) (for statistics scripts)
 - [Tk/Tcl](https://docs.python.org/3.4/library/tk.html) (for copying the output of `statistics.py` to the clipboard)
+- [colorlog](https://github.com/borntyping/python-colorlog) (for colorized logging output)
 
 ### Documentation
 

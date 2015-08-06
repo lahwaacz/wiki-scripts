@@ -10,6 +10,7 @@ import datetime
 import hashlib
 
 from ws.core import API
+from ws.logging import setTerminalLogging
 import ws.ArchWiki.lang
 from ws.utils import *
 
@@ -160,6 +161,8 @@ def arg_existing_dir(string):
 
 
 if __name__ == "__main__":
+    setTerminalLogging()
+
     argparser = argparse.ArgumentParser(description="Clone latest revisions of pages on the wiki")
 
     _api = argparser.add_argument_group(title="API parameters")

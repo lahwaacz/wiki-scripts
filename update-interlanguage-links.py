@@ -6,6 +6,7 @@
 import os.path
 import itertools
 import re
+import logging
 
 import mwparserfromhell
 
@@ -16,6 +17,9 @@ import ws.ArchWiki.lang as lang
 import ws.ArchWiki.header as header
 import ws.utils as utils
 from ws.parser_helpers import canonicalize
+from ws.logging import setTerminalLogging
+
+logger = logging.getLogger(__name__)
 
 class Interlanguage:
     """
@@ -66,7 +70,7 @@ class Interlanguage:
         self.families = None
 
     def _get_allpages(self):
-        print("Fetching langlinks property of all pages...")
+        logger.info("Fetching langlinks property of all pages...")
         allpages = []
         # not necessary to wrap in each iteration since lists are mutable
         wrapped_titles = utils.ListOfDictsAttrWrapper(allpages, "title")
@@ -282,14 +286,14 @@ class Interlanguage:
         # (__NOTOC__ etc.) can be parsed by mwparserfromhell
         # NOTE: handling whitespace right will be hard: https://wiki.archlinux.org/index.php?title=Main_page&diff=383144&oldid=382787
         if re.search("__NOTOC__|__NOEDITSECTION__", text):
-            print("Skipping page '{}' (contains behavior switch(es))".format(title))
+            logger.warning("Skipping page '{}' (contains behavior switch(es))".format(title))
             return text
 
         # format langlinks, in the prefix form
         # (e.g. "cs:Some title" for title="Some title" and tag="cs")
         langlinks = ["[[{}:{}]]".format(tag, title) for tag, title in langlinks]
 
-        print("Parsing '{}'...".format(title))
+        logger.info("Parsing '{}'...".format(title))
         wikicode = mwparserfromhell.parse(text)
         if weak_update is True:
             parent, magics, cats, langlinks = header.get_header_parts(wikicode, langlinks=langlinks, remove_from_parent=True)
@@ -317,13 +321,13 @@ class Interlanguage:
                 title = page["title"]
                 # unsupported languages need to be skipped now
                 if not self._is_valid_interlanguage(title):
-                    print("Skipping page '{}' (unsupported language)".format(title))
+                    logger.warning("Skipping page '{}' (unsupported language)".format(title))
                     continue
                 langlinks = self._get_langlinks(title)
                 if self._needs_update(page, langlinks):
                     yield page, langlinks
                 else:
-                    print("Page '{}' is up to date".format(title))
+                    logger.info("Page '{}' is up to date".format(title))
 
         for chunk in utils.iter_chunks(_updates_gen(self.allpages), self.limit):
             pages_props, pages_langlinks = zip(*list(chunk))
@@ -340,7 +344,7 @@ class Interlanguage:
                 try:
                     text_new = self._update_interlanguage_links(page, langlinks, weak_update=False)
                 except HeaderError:
-                    print("Error: failed to extract header elements. Please investigate.")
+                    logger.error("Error: failed to extract header elements. Please investigate.")
                     continue
 
                 if text_old != text_new:
@@ -351,6 +355,8 @@ class Interlanguage:
 
 
 if __name__ == "__main__":
+    setTerminalLogging()
+
     api_url = "https://wiki.archlinux.org/api.php"
     cookie_path = os.path.expanduser("~/.cache/ArchWiki.bot.cookie")
 

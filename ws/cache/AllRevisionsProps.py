@@ -1,7 +1,11 @@
 #! /usr/bin/env python3
 
+import logging
+
 from . import *
 from .. import utils
+
+logger = logging.getLogger(__name__)
 
 __all__ = ["AllRevisionsProps"]
 
@@ -23,7 +27,7 @@ class AllRevisionsProps(CacheDb):
         if "deletedhistory" in api.user_rights:
             self.deletedrevisions = True
         else:
-            print("The current user does not have the 'deletedhistory' right. Properties of deleted revisions will not be available.", sys.stderr)
+            logger.warning("The current user does not have the 'deletedhistory' right. Properties of deleted revisions will not be available.")
             self.deletedrevisions = False
 
         super().__init__(api, "AllRevisionsProps", autocommit)
@@ -91,7 +95,7 @@ class AllRevisionsProps(CacheDb):
         wrapped_deletedrevids = utils.ListOfDictsAttrWrapper(self.data["deletedrevisions"], "revid")
 
         for chunk in utils.list_chunks(range(first, last+1), self.limit):
-            print("Fetching revids %s-%s" % (chunk[0], chunk[-1]))
+            logger.info("Fetching revids %s-%s" % (chunk[0], chunk[-1]))
             revids = "|".join(str(x) for x in chunk)
             if self.deletedrevisions is True:
                 result = next(self.api.query_continue(action="query", revids=revids, prop="revisions|deletedrevisions", drvlimit="max"))

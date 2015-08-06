@@ -9,8 +9,11 @@ import os
 import sys
 import getpass
 import subprocess
+import logging
 
 from .diff import diff_highlighted
+
+logger = logging.getLogger(__name__)
 
 __all__ = ["require_login", "edit_interactive", "InteractiveQuit"]
 
@@ -91,9 +94,9 @@ def edit_interactive(api, pageid, text_old, text_new, basetimestamp, summary, **
                     subprocess.check_call(cmd, shell=True)
                     wrapper.file_new.seek(0)
                     text_new = wrapper.file_new.read()
-                    print("Command '{}' exited succesfully.".format(cmd))
-                except subprocess.CalledProcessError as e:
-                    print("Failed command: '{}' (return code {})".format(cmd, e.returncode), file=sys.stderr)
+                    logger.info("Command '{}' exited succesfully.".format(cmd))
+                except subprocess.CalledProcessError:
+                    logger.exception("Command '{}' failed.")
 
 def ask_yesno(question):
     ans = ""

@@ -6,6 +6,9 @@ import os.path
 from ws.core import API
 from ws.interactive import require_login
 from ws.ArchWiki.lang import detect_language
+from ws.logging import setTerminalLogging
+
+setTerminalLogging()
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")

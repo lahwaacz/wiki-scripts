@@ -2,12 +2,16 @@
 
 import os
 import re
+import logging
 
 import mwparserfromhell
 
 from ws.core import API
 from ws.parser_helpers import canonicalize
 from ws.interactive import edit_interactive, ask_yesno
+from ws.logging import setTerminalLogging
+
+logger = logging.getLogger(__name__)
 
 class Recategorize:
     edit_summary = "recategorize to avoid redirect after the old category has been renamed (https://github.com/lahwaacz/wiki-scripts/blob/master/recategorize-over-redirect.py)"
@@ -21,7 +25,7 @@ class Recategorize:
         text_old = page["revisions"][0]["*"]
         timestamp = page["revisions"][0]["timestamp"]
 
-        print("Parsing '{}'...".format(title))
+        logger.info("Parsing '{}'...".format(title))
         wikicode = mwparserfromhell.parse(text_old)
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
             if canonicalize(wikilink.title) == source:
@@ -29,7 +33,7 @@ class Recategorize:
         text_new = str(wikicode)
 
         if text_old != text_new:
-            print("Editing '{}'".format(title))
+            logger.info("Editing '{}'".format(title))
 #            edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
             api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 
@@ -46,7 +50,7 @@ class Recategorize:
         if not re.search("{{deletion\|", text_old, flags=re.IGNORECASE):
             text_new += "\n{{Deletion|unused category}}"
         if text_old != text_new:
-            print("Flagging for deletion: '{}'".format(title))
+            logger.info("Flagging for deletion: '{}'".format(title))
             api.edit(page["pageid"], text_new, timestamp, self.flag_for_deletion_summary, bot="")
 
     def recategorize_over_redirect(self, category_namespace=14):
@@ -69,7 +73,7 @@ class Recategorize:
             if len(catmembers) == 0:
                 self.flag_for_deletion(source)
             else:
-                print("Warning: '{}' is still not empty:".format(source), sorted(page["title"] for page in catmembers))
+                logger.warning("'{}' is still not empty:".format(source), sorted(page["title"] for page in catmembers))
                 input("Press Enter to continue...")
         print("""
 Recategorization complete. Before deleting the unused categories, make sure to \
@@ -79,6 +83,8 @@ Special:WhatLinksHere/Template:Deletion.
 """)
 
 if __name__ == "__main__":
+    setTerminalLogging()
+
     api_url = "https://wiki.archlinux.org/api.php"
     cookie_path = os.path.expanduser("~/.cache/ArchWiki.bot.cookie")
 

@@ -13,17 +13,21 @@ import os.path
 import sys
 import datetime
 import json
+import logging
 
 import requests
 import mwparserfromhell
 import pycman
 import pyalpm
 
+from ws.logging import setTerminalLogging
 from ws.core import API, APIError
 from ws.diff import diff_highlighted
 from ws.interactive import *
 from ws.ArchWiki.lang import detect_language
 from ws.parser_helpers import get_parent_wikicode, get_adjacent_node
+
+logger = logging.getLogger(__name__)
 
 PACCONF = """
 [options]
@@ -86,18 +90,18 @@ class PkgFinder:
     # sync all
     def refresh(self):
         try:
-            print("Syncing AUR packages...")
+            logger.info("Syncing AUR packages...")
             self.aurpkgs_refresh(self.aurpkgs_url)
-            print("Syncing pacman database (i686)...")
+            logger.info("Syncing pacman database (i686)...")
             self.pacdb_refresh(self.pacdb32)
-            print("Syncing pacman database (x86_64)...")
+            logger.info("Syncing pacman database (x86_64)...")
             self.pacdb_refresh(self.pacdb64)
             return True
         except requests.exceptions.RequestException:
-            print("Failed to download %s" % self.aurpkgs_url, sys.stderr)
+            logger.exception("Failed to download %s" % self.aurpkgs_url)
             return False
         except pyalpm.error:
-            print("Failed to sync pacman database.", sys.stderr)
+            logger.exception("Failed to sync pacman database.")
             return False
 
     # try to find given package (in either 32bit or 64bit database)
@@ -250,7 +254,7 @@ class PkgUpdater:
         :returns: a :py:class:`mwparserfromhell.wikicode.Wikicode` object with the updated
                   content of the page
         """
-        print("Parsing '%s'..." % title)
+        logger.info("Parsing '%s'..." % title)
         wikicode = mwparserfromhell.parse(text)
         for template in wikicode.ifilter_templates():
             # skip unrelated templates
@@ -270,7 +274,7 @@ class PkgUpdater:
             parent = get_parent_wikicode(wikicode, template)
             adjacent = get_adjacent_node(parent, template, ignore_whitespace=True)
             if hint is not None:
-                print("warning: '{}': {}".format(template, hint))
+                logger.warning("broken package link: '{}': {}".format(template, hint))
                 self.add_report_line(title, template, hint)
                 broken_flag = "{{Broken package link|%s}}" % hint
                 if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches("Broken package link"):
@@ -295,7 +299,7 @@ class PkgUpdater:
         for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", prop="revisions", rvprop="content|timestamp"):
             title = page["title"]
             if title in self.blacklist_pages:
-                print("skipping blacklisted page '%s'" % title)
+                logger.info("skipping blacklisted page '%s'" % title)
                 continue
             timestamp = page["revisions"][0]["timestamp"]
             text_old = page["revisions"][0]["*"]
@@ -305,7 +309,7 @@ class PkgUpdater:
 #                    edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
                     self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
                 except APIError:
-                    print("error: failed to edit page '%s'" % title)
+                    logger.exception("failed to edit page '%s'" % title)
 
         return True
 
@@ -336,11 +340,11 @@ class PkgUpdater:
         f = open(basename + ".mediawiki", "w")
         f.write(self.get_report_wikitext())
         f.close()
-        print("Saved report in '%s.mediawiki'" % basename)
+        logger.info("Saved report in '%s.mediawiki'" % basename)
         f = open(basename + ".json", "w")
         json.dump(self.log, f, indent=4, sort_keys=True)
         f.close()
-        print("Saved report in '%s.json'" % basename)
+        logger.info("Saved report in '%s.json'" % basename)
 
 
 class TemplateParametersError(Exception):
@@ -371,6 +375,8 @@ def arg_existing_dir(string):
 
 
 if __name__ == "__main__":
+    setTerminalLogging()
+
     argparser = argparse.ArgumentParser(description="Update Pkg/AUR templates")
 
     _api = argparser.add_argument_group(title="API parameters")

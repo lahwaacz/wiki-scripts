@@ -25,6 +25,11 @@ Or at runtime by wrapping the function call:
 """
 
 import time
+import logging
+
+logger = logging.getLogger(__name__)
+
+__all__ = ["RateLimited"]
 
 def RateLimited(rate, per):
     def decorate(func):
@@ -43,7 +48,7 @@ def RateLimited(rate, per):
                 # the original used    to_sleep = (1 - allowance[0]) * (per / rate)
                 # but we want longer timeout after burst limit is exceeded
                 to_sleep = (1 - allowance[0]) * per
-                print("rate limit for function {} exceeded, sleeping for {:0.3f} seconds".format(func, to_sleep))
+                logger.info("rate limit for function {} exceeded, sleeping for {:0.3f} seconds".format(func, to_sleep))
                 time.sleep(to_sleep)
                 ret = func(*args, **kargs)
                 allowance[0] = rate

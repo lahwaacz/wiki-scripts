@@ -7,11 +7,14 @@
 # * different notion of active user ("calendar month" vs "30 days")
 
 import os.path
+import logging
 
 from ws.core import API
 import ws.cache
 from ws.utils import parse_date
+from ws.logging import setTerminalLogging
 
+logger = logging.getLogger(__name__)
 
 # return list of datetime.date objects with items jumped by 1 month
 def datetime_month_range(first, last):
@@ -91,7 +94,7 @@ def create_histograms(revisions):
 
 
     # histogram for all edits
-    print("Plotting hist_alledits.png")
+    logger.info("Plotting hist_alledits.png")
     # since it is calculated by counting revisions in each bin, it is enough to count
     # the indexes
     hist_alledits, _ = np.histogram(bin_indexes, bins=range(len(bin_edges)))
@@ -104,7 +107,7 @@ def create_histograms(revisions):
 
 
     # histogram for active users
-    print("Plotting hist_active_users.png")
+    logger.info("Plotting hist_active_users.png")
     hist_active_users = []
     num_bins = len(bin_edges) - 1
     for i in range(num_bins):
@@ -119,6 +122,8 @@ def create_histograms(revisions):
 
 
 if __name__ == "__main__":
+    setTerminalLogging()
+
     # TODO: take command line arguments
     api_url = "https://wiki.archlinux.org/api.php"
     cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")

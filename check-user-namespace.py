@@ -4,6 +4,9 @@ import os.path
 import itertools
 
 from ws.core import API
+from ws.logging import setTerminalLogging
+
+setTerminalLogging()
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")

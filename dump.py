@@ -5,6 +5,9 @@ import sys
 
 from ws.core import API
 from ws.dump import DumpGenerator
+from ws.logging import setTerminalLogging
+
+setTerminalLogging()
 
 api_url = "https://wiki.archlinux.org/api.php"
 index_url = "https://wiki.archlinux.org/index.php"

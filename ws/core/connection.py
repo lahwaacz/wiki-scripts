@@ -3,12 +3,16 @@
 # FIXME: query string should be normalized, see https://www.mediawiki.org/wiki/API:Main_page#API_etiquette
 #        + 'token' parameter should be specified last, see https://www.mediawiki.org/wiki/API:Edit
 
+# TODO: logging of every query parameters (and response?) as debug level
+
 import requests
 import http.cookiejar as cookielib
-import sys
+import logging
 
 from ws import __version__, __url__
 from .rate import RateLimited
+
+logger = logging.getLogger(__name__)
 
 __all__ = ["DEFAULT_UA", "Connection", "APIWrongAction", "ConnectionError", "APIJsonError", "APIError"]
 
@@ -146,10 +150,10 @@ class Connection:
                 return result["error"]["*"]
             raise APIError(params, result["error"])
         if "warnings" in result:
-            print("API warning(s) for query {}:".format(params), file=sys.stderr)
+            msg = "API warning(s) for query {}:".format(params)
             for warning in result["warnings"].values():
-                print("* {}".format(warning["*"]), file=sys.stderr)
-            print(file=sys.stderr)
+                msg += "\n* {}".format(warning["*"])
+            logger.warning(msg)
 
         if expand_result is True:
             return result[action]

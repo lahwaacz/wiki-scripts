@@ -17,6 +17,7 @@
 import argparse
 import os.path
 import re
+import logging
 
 import mwparserfromhell
 
@@ -25,6 +26,9 @@ from ws.diff import diff_highlighted
 from ws.interactive import *
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers import canonicalize
+from ws.logging import setTerminalLogging
+
+logger = logging.getLogger(__name__)
 
 class LinkChecker:
     def __init__(self, api, interactive=False):
@@ -196,7 +200,7 @@ class LinkChecker:
         :param text: content of the page (as `str`)
         :returns: updated content (as `str`)
         """
-        print("Parsing '%s'..." % title)
+        logger.info("Parsing '%s'..." % title)
         wikicode = mwparserfromhell.parse(text)
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
@@ -231,14 +235,14 @@ class LinkChecker:
 
     def _edit(self, title, pageid, text_new, text_old, timestamp):
         if text_old != text_new:
-            print("Editing '%s'" % title)
+            logger.info("Editing '%s'" % title)
             try:
                 if self.interactive is False:
                     self.api.edit(pageid, text_new, timestamp, self.edit_summary, bot="")
                 else:
                     edit_interactive(self.api, pageid, text_old, text_new, timestamp, self.edit_summary, bot="")
             except APIError:
-                print("error: failed to edit page '%s'" % title)
+                logger.exception("failed to edit page '%s'" % title)
 
 
 # any path, the dirname part must exist (e.g. path to a file that will be created in the future)
@@ -256,6 +260,8 @@ def arg_existing_dir(string):
 
 
 if __name__ == "__main__":
+    setTerminalLogging()
+
     argparser = argparse.ArgumentParser(description="Parse all pages on the wiki and try to fix/simplify/beautify links")
 
     _api = argparser.add_argument_group(title="API parameters")

@@ -1,9 +1,12 @@
 #! /usr/bin/env python3
 
 import datetime
+import logging
 
 from . import *
 from .. import utils
+
+logger = logging.getLogger(__name__)
 
 __all__ = ["AllUsersProps"]
 
@@ -36,7 +39,7 @@ class AllUsersProps(CacheDb):
         """
         :param key: ignored
         """
-        print("Initializing AllUsersProps cache...")
+        logger.info("Initializing AllUsersProps cache...")
         allusers = self.api.list(list="allusers", aulimit="max", auprop="blockinfo|groups|editcount|registration")
         # the generator yields data sorted by user name
         self.data = list(allusers)
@@ -62,12 +65,12 @@ class AllUsersProps(CacheDb):
             # extend the list to update editcount for active users
             users += list(rcusers)
         except ShortRecentChangesError:
-            print("The recent changes table on the wiki has been recently purged, starting from scratch. The recent edit count will not be available.", file=sys.stderr)
+            logger.warning("The recent changes table on the wiki has been recently purged, starting from scratch. The recent edit count will not be available.")
             self.init()
             return
 
         if len(users) > 0:
-            print("Fetching properties of {} possibly modified user accounts...".format(len(users)))
+            logger.info("Fetching properties of {} possibly modified user accounts...".format(len(users)))
             wrapped_names = utils.ListOfDictsAttrWrapper(self.data, "name")
 
             for snippet in utils.list_chunks(users, self.limit):

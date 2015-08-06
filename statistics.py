@@ -5,6 +5,7 @@ import time
 import datetime
 import sys
 import argparse
+import logging
 
 import mwparserfromhell
 
@@ -19,9 +20,12 @@ from ws.interactive import require_login
 from ws.wikitable import Wikitable
 from ws.utils import parse_date, list_chunks
 import ws.cache
+from ws.logging import setTerminalLogging
 
 from statistics_modules import UserStatsModules
 
+
+logger = logging.getLogger(__name__)
 
 class Statistics:
     """
@@ -47,9 +51,9 @@ class Statistics:
             self._compose_page()
             sys.exit(self._output_page())
         except MissingPageError:
-            print("The page '{}' currently does not exist. It must be created "
-                  "manually before the script can update it.".format(
-                                        self.cliargs.page), file=sys.stderr)
+            logger.error("The page '{}' currently does not exist. It must be "
+                  "created manually before the script can update it.".format(
+                                        self.cliargs.page))
         sys.exit(1)
 
     def _parse_cli_args(self):
@@ -130,15 +134,15 @@ class Statistics:
                                   self.cliargs.summary, token=self.csrftoken,
                                   bot="1", minor="1")
             except APIError as err:
-                print("Could not save the page ({})".format(
-                                        err.args[0]["info"]), file=sys.stderr)
+                logger.error("Could not save the page ({})".format(
+                                                        err.args[0]["info"]))
                 ret |= 1
             else:
                 if result["result"].lower() != "success":
-                    print("The page was not saved correctly", file=sys.stderr)
+                    logger.exception("The page was not saved correctly")
                     ret |= 1
                 else:
-                    print("The page has been saved: do not forget to "
+                    logger.info("The page has been saved: do not forget to "
                                                     "double-check the diff")
                     ret |= 2
 
@@ -156,8 +160,8 @@ class Statistics:
 
                 ret |= 2
             else:
-                print("It has not been possible to copy the updated text to "
-                                            "the clipboard", file=sys.stderr)
+                logger.error("It has not been possible to copy the updated "
+                             "text to the clipboard")
                 ret |= 1
 
         # If no other action was chosen, always print the output, so that all
@@ -303,6 +307,8 @@ class MissingPageError(StatisticsError):
     pass
 
 if __name__ == "__main__":
+    setTerminalLogging()
+
     cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
     api = API(
         "https://wiki.archlinux.org/api.php",

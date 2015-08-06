@@ -5,8 +5,13 @@
 import requests
 import http.cookiejar as cookielib
 from datetime import datetime
+import logging
 
 from .core.connection import DEFAULT_UA
+
+logger = logging.getLogger(__name__)
+
+__all__ = ["DumpGenerator"]
 
 class DumpGenerator:
 
@@ -36,15 +41,15 @@ class DumpGenerator:
         try:
             datetime.strptime(timestamp_start, '%Y-%m-%dT%H:%M:%SZ')
         except ValueError:
-            print("Unable to parse timestamp_start. The format is 'YYYY-MM-DDThh:mm:ssZ'.")
+            logger.exception("Unable to parse timestamp_start. The format is 'YYYY-MM-DDThh:mm:ssZ'.")
             return False
 
-        print("Fetching list of all pages...")
+        logger.info("Fetching list of all pages...")
         pages = []
         namespaces = [ns for ns in self.api.namespaces.keys() if ns >= 0]
         for ns in namespaces:
             pages += list([page["title"] for page in self.api.generator(generator="allpages", gaplimit="max", gapnamespace=ns)])
 
-        print("Calling Special:Export...")
+        logger.info("Calling Special:Export...")
         self._export(pages, timestamp_start, outfile)
         return True

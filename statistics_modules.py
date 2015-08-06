@@ -180,15 +180,18 @@ if __name__ == "__main__":
     import os.path
     import operator
 
-    from MediaWiki import API
-    import cache
-    from MediaWiki.wikitable import *
+    from ws.core import API
+    import ws.cache
+    from ws.wikitable import *
+    from ws.logging import setTerminalLogging
+
+    setTerminalLogging()
 
     api_url = "https://wiki.archlinux.org/api.php"
     cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 
     api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
-    db = cache.AllRevisionsProps(api)
+    db = ws.cache.AllRevisionsProps(api)
 
     usm = UserStatsModules(db)
 

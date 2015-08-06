@@ -10,6 +10,9 @@ import gzip
 import json
 import hashlib
 import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 def md5sum(bytes_):
     h = hashlib.md5()
@@ -64,7 +67,7 @@ class CacheDb:
                     initialization in case of multi-key database
         """
         if os.path.isfile(self.dbpath):
-            print("Loading data from {} ...".format(self.dbpath))
+            logger.info("Loading data from {} ...".format(self.dbpath))
             db = gzip.open(self.dbpath, mode="rb")
             s = db.read()
             md5_new = md5sum(s)
@@ -95,7 +98,7 @@ class CacheDb:
         After manual modification of the ``self.data`` structure it is necessary to
         call it manually if the change is to be persistent.
         """
-        print("Saving data to {} ...".format(self.dbpath))
+        logger.info("Saving data to {} ...".format(self.dbpath))
 
         # create leading directories
         try:

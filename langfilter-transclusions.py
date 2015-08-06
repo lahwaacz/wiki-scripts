@@ -5,6 +5,7 @@ import os.path
 
 from ws.core import API
 from ws.ArchWiki import lang
+from ws.logging import setTerminalLogging
 
 # return list of page titles transcluding 'title'
 def get_transclusions(api, title):
@@ -15,6 +16,8 @@ def filter_titles(titles, lang_subtag):
     return [title for title in titles if lang.detect_language(title)[1] == lang.langname_for_tag(lang_subtag)]
 
 if __name__ == "__main__":
+    setTerminalLogging()
+
     argparser = argparse.ArgumentParser(description="Filter list of pages transcluding a page by language")
 
     _api = argparser.add_argument_group(title="API parameters")

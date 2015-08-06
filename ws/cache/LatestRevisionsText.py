@@ -1,7 +1,11 @@
 #! /usr/bin/env python3
 
+import logging
+
 from . import *
 from .. import utils
+
+logger = logging.getLogger(__name__)
 
 __all__ = ["LatestRevisionsText"]
 
@@ -20,7 +24,7 @@ class LatestRevisionsText(CacheDb):
         # make sure we work with string keys (needed for JSON serialization)
         ns = str(ns) if ns is not None else "0"
 
-        print("Running LatestRevisionsText.init(ns=\"{}\")".format(ns))
+        logger.info("Running LatestRevisionsText.init(ns=\"{}\")".format(ns))
         if self.data is None:
             self.data = {}
         self.data[ns] = []
@@ -55,10 +59,10 @@ class LatestRevisionsText(CacheDb):
             self.init(ns)
             return
 
-        print("Running LatestRevisionsText.update(ns=\"{}\")".format(ns))
+        logger.info("Running LatestRevisionsText.update(ns=\"{}\")".format(ns))
         for_update = self._get_for_update(ns)
         if len(for_update) > 0:
-            print("Fetching {} new revisions...".format(len(for_update)))
+            logger.info("Fetching {} new revisions...".format(len(for_update)))
 
             # not necessary to wrap in each iteration since lists are mutable
             wrapped_titles = utils.ListOfDictsAttrWrapper(self.data[ns], "title")

@@ -12,6 +12,9 @@ from ws.core import API
 import ws.cache
 import ws.utils
 from ws.parser_helpers.encodings import dotencode
+from ws.logging import setTerminalLogging
+
+setTerminalLogging()
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
