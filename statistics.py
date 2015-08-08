@@ -146,7 +146,7 @@ class Statistics:
                                   bot="1", minor="1")
             except APIError as err:
                 logger.error("Could not save the page ({})".format(
-                                                        err.args[0]["info"]))
+                                                        err.server_response["info"]))
                 ret |= 1
             else:
                 if result["result"].lower() != "success":

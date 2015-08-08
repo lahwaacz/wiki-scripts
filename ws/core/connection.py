@@ -246,6 +246,7 @@ class APIError(ConnectionError):
     """ Raised when API response contains ``error`` attribute
     """
     def __init__(self, params, server_response):
-        self.message = "\nquery parameters: {}\nserver response: {}".format(params, server_response)
+        self.params = params
+        self.server_response = server_response
     def __str__(self):
-        return self.message
+        return "\nquery parameters: {}\nserver response: {}".format(self.params, self.server_response)
