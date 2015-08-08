@@ -20,7 +20,7 @@ class ConfigFileParser:
         """
         Parses a config file and returns a dictionary of settings
         """
-        cf = configfile.ConfigFile(stream, inherit_options=True, safe_calls=True)
+        cf = configfile.ConfigFile(stream, inherit_options=True, safe_calls=True, interpolation=True)
 
         try:
             _arg = "--" + self.top_level_arg
@@ -73,13 +73,15 @@ class Defaults(collections.UserDict):
 
 # any path, the dirname part must exist (e.g. path to a file that will be created in the future)
 def argtype_dirname_must_exist(string):
-    dirname, _ = os.path.split(os.path.abspath(string))
+    string = os.path.abspath(os.path.expanduser(string))
+    dirname, _ = os.path.split(string)
     if not os.path.isdir(dirname):
         raise configargparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
     return string
 
 # path to existing directory
 def argtype_existing_dir(string):
+    string = os.path.abspath(os.path.expanduser(string))
     if not os.path.isdir(string):
         raise configargparse.ArgumentTypeError("directory '%s' does not exist" % string)
     return string
