@@ -64,26 +64,34 @@ class Defaults(collections.UserDict):
 
         # ArchWiki specifics
         self.data["site"] = "ArchWiki"
+        # NOTE: These depend on site=ArchWiki, but (config)argparse does not support conditional defaults
+        # TODO: document the behaviour properly; also emphasize that --help does not
+        #       take defaults from the config file (which is just right)
         self.data["api_url"] = "https://wiki.archlinux.org/api.php"
         self.data["index_url"] = "https://wiki.archlinux.org/index.php"
 
 # any path, the dirname part must exist (e.g. path to a file that will be created in the future)
 def argtype_dirname_must_exist(string):
-    dirname = os.path.split(string)[0]
+    dirname, _ = os.path.split(os.path.abspath(string))
     if not os.path.isdir(dirname):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
+        raise configargparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
     return string
 
 # path to existing directory
 def argtype_existing_dir(string):
     if not os.path.isdir(string):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % string)
+        raise configargparse.ArgumentTypeError("directory '%s' does not exist" % string)
     return string
 
 def getArgParser(name, *args, **kwargs):
     # create config file parser
     cfp = ConfigFileParser("site", name)
     kwargs["config_file_parser"] = cfp
+    kwargs["ignore_unknown_config_file_keys"] = True
+
+    # set brief usage parameter by default
+    kwargs.setdefault("usage", "%(prog)s [options]")
+    # TODO: the supplied description is merged with the one from configargparse, which looks very ugly
 
     ap = configargparse.ArgParser(*args, **kwargs)
 
