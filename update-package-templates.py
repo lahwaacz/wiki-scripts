@@ -365,7 +365,7 @@ if __name__ == "__main__":
 
     ws.logging.setTerminalLogging()
 
-    argparser = ws.config.getArgParser(name="update-pkg-templates", description="Update Pkg/AUR templates")
+    argparser = ws.config.getArgParser(description="Update Pkg/AUR templates")
 
     API.set_argparser(argparser)
 

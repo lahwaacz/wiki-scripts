@@ -12,26 +12,9 @@ from ws.core import API
 import ws.cache
 import ws.utils
 from ws.parser_helpers.encodings import dotencode
-from ws.logging import setTerminalLogging
-
-setTerminalLogging()
-
-api_url = "https://wiki.archlinux.org/api.php"
-cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
-
-api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
-db = ws.cache.LatestRevisionsText(api)
-
-
-# limit to redirects pointing to the content namespaces
-redirects = api.redirects_map(target_namespaces=[0, 4, 12])
-
-# reference to the list of pages to avoid update of the cache for each lookup
-pages = db["0"]
-wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
 
 # TODO: move to ws.parser_helpers
-def valid_anchor(title, anchor):
+def valid_anchor(title, anchor, pages, wrapped_titles):
     """
     Checks if given anchor is valid, i.e. if a corresponding section exists on
     a page with given title.
@@ -75,16 +58,39 @@ def valid_anchor(title, anchor):
     anchor = dotencode(anchor)
     return anchor in encoded
 
-for source in sorted(redirects.keys()):
-    target = redirects[source]
+def main(api, db):
+    # limit to redirects pointing to the content namespaces
+    redirects = api.redirects_map(target_namespaces=[0, 4, 12])
 
-    # first limit to redirects with fragments
-    if len(target.split("#", maxsplit=1)) == 1:
-        continue
+    # reference to the list of pages to avoid update of the cache for each lookup
+    pages = db["0"]
+    wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
 
-    # limit to redirects with broken fragment
-    target, fragment = target.split("#", maxsplit=1)
-    if valid_anchor(target, fragment):
-        continue
+    for source in sorted(redirects.keys()):
+        target = redirects[source]
 
-    print("* [[{}]] --> [[{}#{}]]".format(source, target, fragment))
+        # first limit to redirects with fragments
+        if len(target.split("#", maxsplit=1)) == 1:
+            continue
+
+        # limit to redirects with broken fragment
+        target, fragment = target.split("#", maxsplit=1)
+        if valid_anchor(target, fragment, pages, wrapped_titles):
+            continue
+
+        print("* [[{}]] --> [[{}#{}]]".format(source, target, fragment))
+
+if __name__ == "__main__":
+    import ws.config
+    import ws.logging
+
+    ws.logging.setTerminalLogging()
+
+    argparser = ws.config.getArgParser(description="List redirects with broken fragments")
+    API.set_argparser(argparser)
+    args = argparser.parse_args()
+
+    api = API.from_argparser(args)
+    db = ws.cache.LatestRevisionsText(api, args.cache_dir)
+
+    main(api, db)

@@ -19,7 +19,7 @@ __all__ = ["AllRevisionsProps"]
 # to also check the merge log.
 
 class AllRevisionsProps(CacheDb):
-    def __init__(self, api, autocommit=True):
+    def __init__(self, api, cache_dir, autocommit=True):
         # needed for database initialization
         self.limit = 500 if "apihighlimits" in api.user_rights else 50
 
@@ -30,7 +30,7 @@ class AllRevisionsProps(CacheDb):
             logger.warning("The current user does not have the 'deletedhistory' right. Properties of deleted revisions will not be available.")
             self.deletedrevisions = False
 
-        super().__init__(api, "AllRevisionsProps", autocommit)
+        super().__init__(api, cache_dir, "AllRevisionsProps", autocommit)
 
     def init(self, key=None):
         """

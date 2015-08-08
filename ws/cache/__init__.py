@@ -45,13 +45,12 @@ class CacheDb:
     # format for JSON (de)serialization of datetime.datetime timestamps
     ts_format = "%Y-%m-%dT%H:%M:%S.%f"
 
-    def __init__(self, api, dbname, autocommit=True):
+    def __init__(self, api, cache_dir, dbname, autocommit=True):
         self.api = api
         self.dbname = dbname
         self.autocommit = autocommit
 
-        cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
-        dbdir = os.path.join(cache_dir, "wiki-scripts", self.api.get_hostname())
+        dbdir = os.path.join(cache_dir, self.api.get_hostname())
         self.dbpath = os.path.join(dbdir, self.dbname + ".db.json.gz")
         self.metapath = os.path.join(dbdir, self.dbname + ".meta")
 

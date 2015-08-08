@@ -14,7 +14,7 @@ class AllUsersProps(CacheDb):
 
     mw_ts_format = "%Y-%m-%dT%H:%M:%SZ"
 
-    def __init__(self, api, autocommit=True, active_days=30, round_to_midnight=False, rc_err_hours=6):
+    def __init__(self, api, cache_dir, autocommit=True, active_days=30, round_to_midnight=False, rc_err_hours=6):
         """
         :param active_days:
             the time span in days to consider users as active
@@ -33,7 +33,7 @@ class AllUsersProps(CacheDb):
         # TODO: this had better be specified as attribute of CacheDb, named chunk_size
         self.limit = 500 if "apihighlimits" in api.user_rights else 50
 
-        super().__init__(api, "AllUsersProps", autocommit)
+        super().__init__(api, cache_dir, "AllUsersProps", autocommit)
 
     def init(self, key=None):
         """

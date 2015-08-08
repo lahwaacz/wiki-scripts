@@ -4,6 +4,7 @@
 #   fix handling of dashes/underscores in config keys
 
 import os
+import sys
 import collections
 
 import configargparse
@@ -83,7 +84,11 @@ def argtype_existing_dir(string):
         raise configargparse.ArgumentTypeError("directory '%s' does not exist" % string)
     return string
 
-def getArgParser(name, *args, **kwargs):
+def getArgParser(name=None, *args, **kwargs):
+    if name is None:
+        _, _script = os.path.split(sys.argv[0])
+        name, _ = os.path.splitext(_script)
+
     # create config file parser
     cfp = ConfigFileParser("site", name)
     kwargs["config_file_parser"] = cfp
