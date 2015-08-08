@@ -19,8 +19,15 @@ class ConfigFileParser:
         """
         Parses a config file and returns a dictionary of settings
         """
-        cf = configfile.ConfigFile(stream, inherit_options=True)
-        top_level = getattr(context, self.top_level_arg, None)
+        cf = configfile.ConfigFile(stream, inherit_options=True, section_fallback=True)
+
+        try:
+            _arg = "--" + self.top_level_arg
+            _i = context.index(_arg)
+            top_level = context[_i]
+        except (ValueError, IndexError):
+            top_level = None
+
         if top_level is None:
             top_level = cf[self.top_level_arg]
             if not top_level:
