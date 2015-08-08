@@ -20,7 +20,7 @@ class ConfigFileParser:
         """
         Parses a config file and returns a dictionary of settings
         """
-        cf = configfile.ConfigFile(stream, inherit_options=True, section_fallback=True)
+        cf = configfile.ConfigFile(stream, inherit_options=True, safe_calls=True)
 
         try:
             _arg = "--" + self.top_level_arg
@@ -33,7 +33,7 @@ class ConfigFileParser:
             top_level = cf[self.top_level_arg]
             if not top_level:
                 raise coonfigargparse.ConfigFileParserException("top-level parameter '{}' not found")
-        return cf(top_level)(self.subname).get_options()
+        return cf(top_level, self.subname).get_options()
 
     def serialize(self, items):
         """Does the inverse of config parsing by taking parsed values and
