@@ -20,7 +20,6 @@ import mwparserfromhell
 import pycman
 import pyalpm
 
-from ws.logging import setTerminalLogging
 from ws.core import API, APIError
 from ws.diff import diff_highlighted
 from ws.interactive import *
@@ -360,47 +359,25 @@ class TemplateParametersError(Exception):
         return self.message
 
 
-# any path, the dirname part must exist (e.g. path to a file that will be created in the future)
-def arg_dirname_must_exist(string):
-    dirname = os.path.split(string)[0]
-    if not os.path.isdir(dirname):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
-    return string
-
-# path to existing directory
-def arg_existing_dir(string):
-    if not os.path.isdir(string):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % string)
-    return string
-
-
 if __name__ == "__main__":
-    setTerminalLogging()
+    import ws.config
+    import ws.logging
 
-    argparser = argparse.ArgumentParser(description="Update Pkg/AUR templates")
+    ws.logging.setTerminalLogging()
 
-    _api = argparser.add_argument_group(title="API parameters")
-    _api.add_argument("--api-url", default="https://wiki.archlinux.org/api.php", metavar="URL",
-            help="the URL to the wiki's api.php (default: %(default)s)")
-    _api.add_argument("--cookie-path", type=arg_dirname_must_exist, default=os.path.expanduser("~/.cache/ArchWiki.bot.cookie"), metavar="PATH",
-            help="path to cookie file (default: %(default)s)")
-    _api.add_argument("--ssl-verify", default=1, choices=(0, 1),
-            help="whether to verify SSL certificates (default: %(default)s)")
+    argparser = ws.config.getArgParser(name="update-pkg-templates", description="Update Pkg/AUR templates")
+
+    API.set_argparser(argparser)
 
     _script = argparser.add_argument_group(title="script parameters")
     _script.add_argument("--aurpkgs-url", default="https://aur.archlinux.org/packages.gz", metavar="URL",
             help="the URL to packages.gz file on the AUR (default: %(default)s)")
-    _script.add_argument("--tmp-dir", type=arg_existing_dir, default="/tmp/", metavar="PATH",
-            help="temporary directory path (default: %(default)s)")
-    _script.add_argument("--report-dir", type=arg_existing_dir, default=".", metavar="PATH",
+    _script.add_argument("--report-dir", type=ws.config.argtype_existing_dir, default=".", metavar="PATH",
             help="directory where the report should be saved")
 
     args = argparser.parse_args()
 
-    # retype from int to bool
-    args.ssl_verify = True if args.ssl_verify == 1 else False
-
-    api = API(args.api_url, cookie_file=args.cookie_path, ssl_verify=args.ssl_verify)
+    api = API.from_argparser(args)
     updater = PkgUpdater(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify)
 
     try:
