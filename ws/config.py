@@ -7,7 +7,7 @@ import os
 import sys
 import collections
 
-import configargparse
+import ConfigArgParse.configargparse as configargparse
 import configfile
 
 class ConfigFileParser:
