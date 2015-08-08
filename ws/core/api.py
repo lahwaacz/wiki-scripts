@@ -27,8 +27,8 @@ class API(Connection):
     :param kwargs: any keyword arguments of the Connection object
     """
 
-    def __init__(self, api_url, index_url=None, **kwargs):
-        super().__init__(api_url, index_url, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def login(self, username, password):
         """
