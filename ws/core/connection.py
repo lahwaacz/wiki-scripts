@@ -64,7 +64,7 @@ class Connection:
             self.session.cookies = cookielib.LWPCookieJar(cookie_file)
             try:
                 self.session.cookies.load()
-            except cookielib.LoadError:
+            except (cookielib.LoadError, FileNotFoundError):
                 self.session.cookies.save()
                 self.session.cookies.load()
 
