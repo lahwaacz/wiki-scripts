@@ -25,13 +25,7 @@ class ConfigFileParser:
             top_level = cf[self.top_level_arg]
             if not top_level:
                 raise coonfigargparse.ConfigFileParserException("top-level parameter '{}' not found")
-        try:
-            return cf(top_level)(self.subname).get_options()
-        except KeyError:
-            try:
-                return cf(top_level).get_options()
-            except KeyError:
-                return collections.OrderedDict()
+        return cf(top_level)(self.subname).get_options()
 
     def serialize(self, items):
         """Does the inverse of config parsing by taking parsed values and
