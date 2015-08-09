@@ -70,18 +70,22 @@ class Statistics:
                     'oldest retrieved change and the old end of the time span '
                     '(default: %(default)s)')
 
-        argparser.add_argument('-a', '--anonymous', action='store_true',
+        # TODO: main group for "script parameters" would be most logical, but
+        #       but argparse does not display nested groups in the help page
+        group = argparser.add_argument_group(title="other parameters")
+
+        group.add_argument('-a', '--anonymous', action='store_true',
                                     help='do not require logging in: queries '
                                             'may be limited to a lower rate')
         # TODO: maybe leave only the short option to forbid configurability in config file
-        argparser.add_argument('-f', '--force', action='store_true',
+        group.add_argument('-f', '--force', action='store_true',
                                     help='try to update the page even if it '
                                     'was last saved in the same UTC day')
-        argparser.add_argument('--statistics-page', default='ArchWiki:Statistics',
+        group.add_argument('--statistics-page', default='ArchWiki:Statistics',
                         help='the page name on the wiki to fetch and update '
                         '(default: %(default)s)')
         # TODO: no idea how to forbid setting this globally in the config...
-        argparser.add_argument('--summary', default='automatic update',
+        group.add_argument('--summary', default='automatic update',
                         help='the edit summary to use when saving the page '
                         '(default: %(default)s)')
 
