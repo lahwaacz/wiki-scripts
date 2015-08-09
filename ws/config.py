@@ -94,13 +94,13 @@ def argtype_existing_dir(string):
         raise configargparse.ArgumentTypeError("directory '%s' does not exist" % string)
     return string
 
-def getArgParser(name=None, *args, **kwargs):
-    if name is None:
+def getArgParser(subname=None, *args, **kwargs):
+    if subname is None:
         _, _script = os.path.split(sys.argv[0])
-        name, _ = os.path.splitext(_script)
+        subname, _ = os.path.splitext(_script)
 
     # create config file parser
-    cfp = ConfigFileParser("site", name)
+    cfp = ConfigFileParser("site", subname)
     kwargs["config_file_parser"] = cfp
     kwargs["ignore_unknown_config_file_keys"] = True
 
@@ -126,13 +126,17 @@ def getArgParser(name=None, *args, **kwargs):
 
     return ap
 
-def object_from_argparser(klass, *args, **kwargs):
+def object_from_argparser(klass, subname=None, *args, **kwargs):
     """
     Create an instance of ``klass`` using its :py:meth:`klass.from_argparser()`
     factory and a clean instance of :py:class:`argparse.ArgumentParser`. On top
     of that, logging interface is set up using the :py:module:`ws.logging`
     module.
 
+    :param klass: the class to instantiate
+    :param subname:
+        The name of the subsection to be read from the configuration file
+        (usually the name of the script). By default ``sys.argv[0]`` is taken.
     :param *args: passed to :py:class:`argparse.ArgumentParser()` constructor
     :param **kwargs: passed to :py:class:`argparse.ArgumentParser()` constructor
     :returns: an instance of :py:class:`klass`
