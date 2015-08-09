@@ -7,7 +7,6 @@
 #   include some stats in the report
 #   diff-like report showing only new issues since the last report
 
-import argparse
 import bisect
 import os.path
 import sys
@@ -159,9 +158,11 @@ class PkgFinder:
 
 
 class PkgUpdater:
-    def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify):
+    def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify, report_dir):
         self.api = api
         self.finder = PkgFinder(aurpkgs_url, tmpdir, ssl_verify)
+        self.report_dir = report_dir
+
         self.edit_summary = "update Pkg/AUR templates (https://github.com/lahwaacz/wiki-scripts/blob/master/update-package-templates.py)"
 
         # log data for easy report generation
@@ -179,6 +180,25 @@ class PkgUpdater:
             "Security Advisories",
             "CVE",
         ]
+
+    @staticmethod
+    def set_argparser(argparser):
+        # first try to set options for objects we depend on
+        present_groups = [group.title for group in argparser._action_groups]
+        if "Connection parameters" not in present_groups:
+            API.set_argparser(argparser)
+
+        group = argparser.add_argument_group(title="script parameters")
+        group.add_argument("--aurpkgs-url", default="https://aur.archlinux.org/packages.gz", metavar="URL",
+                help="the URL to packages.gz file on the AUR (default: %(default)s)")
+        group.add_argument("--report-dir", type=ws.config.argtype_existing_dir, default=".", metavar="PATH",
+                help="directory where the report should be saved")
+
+    @classmethod
+    def from_argparser(klass, args, api=None):
+        if api is None:
+            api = API.from_argparser(args)
+        return klass(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify, args.report_dir)
 
     def update_package_template(self, template):
         """
@@ -333,9 +353,9 @@ class PkgUpdater:
                     report += "** %s\n" % message
         return report
 
-    def save_report(self, directory):
+    def save_report(self):
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
-        basename = os.path.join(directory, "update-pkgs-{}.report".format(timestamp))
+        basename = os.path.join(self.report_dir, "update-pkgs-{}.report".format(timestamp))
         f = open(basename + ".mediawiki", "w")
         f.write(self.get_report_wikitext())
         f.close()
@@ -361,31 +381,15 @@ class TemplateParametersError(Exception):
 
 if __name__ == "__main__":
     import ws.config
-    import ws.logging
 
-    ws.logging.setTerminalLogging()
-
-    argparser = ws.config.getArgParser(description="Update Pkg/AUR templates")
-
-    API.set_argparser(argparser)
-
-    _script = argparser.add_argument_group(title="script parameters")
-    _script.add_argument("--aurpkgs-url", default="https://aur.archlinux.org/packages.gz", metavar="URL",
-            help="the URL to packages.gz file on the AUR (default: %(default)s)")
-    _script.add_argument("--report-dir", type=ws.config.argtype_existing_dir, default=".", metavar="PATH",
-            help="directory where the report should be saved")
-
-    args = argparser.parse_args()
-
-    api = API.from_argparser(args)
-    updater = PkgUpdater(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify)
+    updater = ws.config.object_from_argparser(PkgUpdater, description="Update Pkg/AUR templates")
 
     try:
         ret = updater.check_allpages()
         if not ret:
             sys.exit(ret)
-        updater.save_report(args.report_dir)
+        updater.save_report()
     except KeyboardInterrupt:
         print()
-        updater.save_report(args.report_dir)
+        updater.save_report()
         raise

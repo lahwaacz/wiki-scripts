@@ -1,14 +1,21 @@
 #! /usr/bin/env python3
 
-# TODO:
-#   fix handling of dashes/underscores in config keys
-
 import os
 import sys
 import collections
+import logging
 
+# TODO: make this an optional dependency, the from_argparser factory should work with plain argparse
 import ConfigArgParse.configargparse as configargparse
 import configfile
+# allow '-' in config keys and section names
+configfile.Section._OPTION = r'^[a-zA-Z_]+[a-zA-Z0-9_-]*$'
+configfile.Section._SECTION_SUB = r'^[a-zA-Z_]+(?:\.?[a-zA-Z0-9_-]+)*$'
+configfile.Section._SECTION_PLAIN = r'^[a-zA-Z_]+[a-zA-Z0-9_-]*$'
+
+import ws.logging
+
+logger = logging.getLogger(__name__)
 
 class ConfigFileParser:
 
@@ -20,6 +27,7 @@ class ConfigFileParser:
         """
         Parses a config file and returns a dictionary of settings
         """
+        # TODO: convert (all?) exceptions to configargparse.ConfigFileParserException
         cf = configfile.ConfigFile(stream, inherit_options=True, safe_calls=True, interpolation=True)
 
         try:
@@ -117,3 +125,23 @@ def getArgParser(name=None, *args, **kwargs):
     ap.set_defaults(**Defaults())
 
     return ap
+
+def object_from_argparser(klass, *args, **kwargs):
+    """
+    Create an instance of ``klass`` using its :py:meth:`klass.from_argparser()`
+    factory and a clean instance of :py:class:`argparse.ArgumentParser`. On top
+    of that, logging interface is set up using the :py:module:`ws.logging`
+    module.
+
+    :param *args: passed to :py:class:`argparse.ArgumentParser()` constructor
+    :param **kwargs: passed to :py:class:`argparse.ArgumentParser()` constructor
+    :returns: an instance of :py:class:`klass`
+    """
+    argparser = getArgParser(*args, **kwargs)
+    klass.set_argparser(argparser)
+    args = argparser.parse_args()
+    # TODO: handle future configuration of ws.logging
+    ws.logging.setTerminalLogging()
+    # TODO: depends on ConfigArgParse, in case of argparse just log the Namespace
+    logger.debug("Parsed arguments:\n" + argparser.format_values())
+    return klass.from_argparser(args)

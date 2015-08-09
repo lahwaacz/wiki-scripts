@@ -5,6 +5,7 @@
 #       document how the ws module uses logging - Logger names, verbosity levels etc.
 #       document how scripts should use the ws.logging submodule
 #   make default options configurable (depends on issue #3)
+#   check if stdout is actually attached to terminal
 
 import logging
 

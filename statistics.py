@@ -319,13 +319,5 @@ class MissingPageError(StatisticsError):
 
 if __name__ == "__main__":
     import ws.config
-    import ws.logging
-
-    ws.logging.setTerminalLogging()
-
-    argparser = ws.config.getArgParser(description="Update the statistics page on ArchWiki")
-    Statistics.set_argparser(argparser)
-    args = argparser.parse_args()
-
-    s = Statistics.from_argparser(args)
-    sys.exit(s.run())
+    statistics = ws.config.object_from_argparser(Statistics, description="Update the statistics page on ArchWiki")
+    sys.exit(statistics.run())
