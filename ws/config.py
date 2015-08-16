@@ -17,6 +17,8 @@ import ws.logging
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["ConfigFileParser", "argtype_existing_dir", "argtype_dirname_must_exist", "getArgParser", "object_from_argparser"]
+
 class ConfigFileParser:
 
     def __init__(self, top_level_arg, subname=None):
@@ -116,6 +118,9 @@ def getArgParser(subname=None, *args, **kwargs):
     ap.add_argument("--site",
             help="sets the top-level section to be read from config files (default: %(default)s)")
 
+    # include logging arguments into the global group
+    ws.logging.set_argparser(ap)
+
     # add other global arguments
     ap.add_argument("--tmp-dir", type=argtype_dirname_must_exist, metavar="PATH",
             help="temporary directory path (will be created if necessary, but parent directory must exist) (default: %(default)s)")
@@ -144,8 +149,12 @@ def object_from_argparser(klass, subname=None, *args, **kwargs):
     argparser = getArgParser(*args, **kwargs)
     klass.set_argparser(argparser)
     args = argparser.parse_args()
-    # TODO: handle future configuration of ws.logging
+
+    # set up logging
+    ws.logging.init_from_argparser(args)
     ws.logging.setTerminalLogging()
+
     # TODO: depends on ConfigArgParse, in case of argparse just log the Namespace
     logger.debug("Parsed arguments:\n" + argparser.format_values())
+
     return klass.from_argparser(args)
