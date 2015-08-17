@@ -26,6 +26,7 @@ def setTerminalLogging():
     # create formatter
     try:
         import colorlog
+        # TODO: make this configurable
         formatter = colorlog.ColoredFormatter(
             "{log_color}{levelname}{reset:8} {message_log_color}{message}",
             datefmt=None,
@@ -72,8 +73,7 @@ def set_argparser(argparser):
             help="shorthand for '--log-level warning'")
     # TODO: --log-file
 
-# TODO: call setTerminalLogging from here?
-def init_from_argparser(args):
+def init(args):
     """
     Initialize the :py:module:`logging` module with the arguments parsed by
     :py:class:`argparse.ArgumentParser`.
@@ -85,3 +85,5 @@ def init_from_argparser(args):
     """
     logger = logging.getLogger()
     logger.setLevel(LOG_LEVELS[args.log_level])
+
+    setTerminalLogging()

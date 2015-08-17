@@ -165,8 +165,7 @@ if __name__ == "__main__":
     args = argparser.parse_args()
 
     # set up logging
-    ws.logging.init_from_argparser(args)
-    ws.logging.setTerminalLogging()
+    ws.logging.init(args)
 
     api = API.from_argparser(args)
 

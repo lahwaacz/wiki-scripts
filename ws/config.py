@@ -151,8 +151,7 @@ def object_from_argparser(klass, subname=None, *args, **kwargs):
     args = argparser.parse_args()
 
     # set up logging
-    ws.logging.init_from_argparser(args)
-    ws.logging.setTerminalLogging()
+    ws.logging.init(args)
 
     # TODO: depends on ConfigArgParse, in case of argparse just log the Namespace
     logger.debug("Parsed arguments:\n" + argparser.format_values())
