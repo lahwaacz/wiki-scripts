@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import os.path
 import time
 import datetime
 import sys

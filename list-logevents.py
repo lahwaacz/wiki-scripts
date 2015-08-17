@@ -1,25 +1,21 @@
 #! /usr/bin/env python3
 
-import os.path
 from pprint import pprint
 
 from ws.core import API
-from ws.logging import setTerminalLogging
 
-setTerminalLogging()
+def main(api):
+    logs = api.list(list="logevents", letype="newusers", lelimit="max", ledir="newer")
+    logs = list(logs)
 
-api_url = "https://wiki.archlinux.org/api.php"
-cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
+    pprint(logs)
 
-api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
+    # these should be interesting
+    #pprint([i for i in logs if i["action"] != "create"])
 
+    print(len(logs))
 
-logs = api.list(list="logevents", letype="newusers", lelimit="max", ledir="newer")
-logs = list(logs)
-
-pprint(logs)
-
-# these should be interesting
-#pprint([i for i in logs if i["action"] != "create"])
-
-print(len(logs))
+if __name__ == "__main__":
+    import ws.config
+    api = ws.config.object_from_argparser(API, description="Print wiki log entries")
+    main(api)

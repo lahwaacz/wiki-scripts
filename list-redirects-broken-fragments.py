@@ -84,11 +84,13 @@ if __name__ == "__main__":
     import ws.config
     import ws.logging
 
-    ws.logging.setTerminalLogging()
-
     argparser = ws.config.getArgParser(description="List redirects with broken fragments")
     API.set_argparser(argparser)
     args = argparser.parse_args()
+
+    # set up logging
+    ws.logging.init_from_argparser(args)
+    ws.logging.setTerminalLogging()
 
     api = API.from_argparser(args)
     db = ws.cache.LatestRevisionsText(api, args.cache_dir)

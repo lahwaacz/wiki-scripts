@@ -3,7 +3,6 @@
 # TODO:
 #   take the final title from "displaytitle" property (available from API) (would be necessary to check if it is valid)
 
-import os.path
 import itertools
 import re
 import logging
@@ -17,7 +16,6 @@ import ws.ArchWiki.lang as lang
 import ws.ArchWiki.header as header
 import ws.utils as utils
 from ws.parser_helpers import canonicalize
-from ws.logging import setTerminalLogging
 
 logger = logging.getLogger(__name__)
 
@@ -355,12 +353,7 @@ class Interlanguage:
 
 
 if __name__ == "__main__":
-    setTerminalLogging()
-
-    api_url = "https://wiki.archlinux.org/api.php"
-    cookie_path = os.path.expanduser("~/.cache/ArchWiki.bot.cookie")
-
-    api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
-
+    import ws.config
+    api = ws.config.object_from_argparser(API, description="Update interlanguage links")
     il = Interlanguage(api)
     il.update_allpages()

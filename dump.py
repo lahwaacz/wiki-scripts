@@ -1,22 +1,16 @@
 #! /usr/bin/env python3
 
-import os.path
 import sys
 
 from ws.core import API
 from ws.dump import DumpGenerator
-from ws.logging import setTerminalLogging
 
-setTerminalLogging()
+if __name__ == "__main__":
+    import ws.config
+    api = ws.config.object_from_argparser(API, description="Check pages in the user namespace")
 
-api_url = "https://wiki.archlinux.org/api.php"
-index_url = "https://wiki.archlinux.org/index.php"
-cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
+    dg = DumpGenerator(api)
 
-api = API(api_url, index_url, cookie_file=cookie_path, ssl_verify=True)
-dg = DumpGenerator(api)
-
-# TODO: take parameters from command line
-r = dg.dump("stub/dump-test.xml", "2014-07-01T00:00:00Z")
-sys.exit(not r)
-
+    # TODO: take parameters from command line
+    r = dg.dump("stub/dump-test.xml", "2014-07-01T00:00:00Z")
+    sys.exit(not r)

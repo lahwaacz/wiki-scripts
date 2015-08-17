@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import os
 import re
 
 from ws.core import API
@@ -29,13 +28,16 @@ if __name__ == "__main__":
     import ws.config
     import ws.logging
 
-    ws.logging.setTerminalLogging()
-
     argparser = ws.config.getArgParser(description="Find closed discussions")
     API.set_argparser(argparser)
     args = argparser.parse_args()
 
+    # set up logging
+    ws.logging.init_from_argparser(args)
+    ws.logging.setTerminalLogging()
+
     api = API.from_argparser(args)
+    # FIXME: except for this part, object_from_argparser could be used
     db = ws.cache.LatestRevisionsText(api, args.cache_dir, autocommit=False)
 
     main(api, db)

@@ -1,16 +1,8 @@
 #! /usr/bin/env python3
 
-import os.path
-
 from ws.core import API
-from ws.logging import setTerminalLogging
-
-setTerminalLogging()
-
-api_url = "https://wiki.archlinux.org/api.php"
-cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
-
-api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
+import ws.config
+api = ws.config.object_from_argparser(API, description="Print namespace IDs and names")
 
 for id_ in sorted(api.namespaces.keys()):
     ns = api.namespaces[id_]

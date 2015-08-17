@@ -1,12 +1,10 @@
 #! /usr/bin/env python3
 
 # NOTE:
-# * deleted revisions are not included
 # * only diffable changes are recorded (edits and moves, not deletions)
 # * bots vs nobots
 # * different notion of active user ("calendar month" vs "30 days")
 
-import os.path
 import logging
 
 from ws.core import API
@@ -124,12 +122,14 @@ if __name__ == "__main__":
     import ws.config
     import ws.logging
 
-    ws.logging.setTerminalLogging()
-
     argparser = ws.config.getArgParser(description="Create histogram charts for the statistics page")
     API.set_argparser(argparser)
     # TODO: script-specific arguments (e.g. output path)
     args = argparser.parse_args()
+
+    # set up logging
+    ws.logging.init_from_argparser(args)
+    ws.logging.setTerminalLogging()
 
     api = API.from_argparser(args)
     db = ws.cache.AllRevisionsProps(api, args.cache_dir)
