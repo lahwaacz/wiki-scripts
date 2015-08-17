@@ -20,7 +20,6 @@ import pycman
 import pyalpm
 
 from ws.core import API, APIError
-from ws.diff import diff_highlighted
 from ws.interactive import *
 from ws.ArchWiki.lang import detect_language
 from ws.parser_helpers import get_parent_wikicode, get_adjacent_node

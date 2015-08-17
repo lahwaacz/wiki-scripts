@@ -20,7 +20,6 @@ import logging
 import mwparserfromhell
 
 from ws.core import API, APIError
-from ws.diff import diff_highlighted
 from ws.interactive import *
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers import canonicalize

@@ -11,7 +11,6 @@ import mwparserfromhell
 
 from ws.core import API
 from ws.interactive import *
-from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
 import ws.ArchWiki.header as header
 import ws.utils as utils
@@ -348,8 +347,6 @@ class Interlanguage:
                 if text_old != text_new:
                     edit_interactive(api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
 #                    self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
-#                    print(diff_highlighted(text_old, text_new))
-#                    input()
 
 
 if __name__ == "__main__":
