@@ -1,11 +1,5 @@
 #! /usr/bin/env python3
 
-# TODO:
-#   might do something similar for validation of page names (aka {{PAGENAME}} or {{PAGENAMEE}})
-#   use this to validate {{DISPLAYTITLE}}
-#   plus a wrapper class for its {{DISPLAYTITLE}}, {{PAGENAME}}, {{FULLPAGENAMEE}}, {{BASEPAGENAMEE}}, {{SUBPAGENAMEE}}, {{SUBJECTPAGENAMEE}}, {{TALKPAGENAMEE}}, {{ROOTPAGENAME}}
-#       see https://www.mediawiki.org/wiki/Help:Magic_words#Page_names
-
 import string
 import re
 
