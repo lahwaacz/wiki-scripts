@@ -212,18 +212,22 @@ Writing new scripts
 
 :TODO:
 
-    - examples are in `./examples/`
+    - examples are in ``./examples/``
     - reference manual for the ``ws`` module at http://lahwaacz.github.io/wiki-scripts/
 
-Similar software
-----------------
+Acknowledgement
+---------------
 
-There is a `list of client software` maintained on mediawiki.org.
+There is a `list of client software`_ maintained on mediawiki.org, many of them
+are quite inspirational.
 
-- `simplemediawiki` is the original inspiration for the ``ws.core.connection``
+- `simplemediawiki`_ is the original inspiration for the ``ws.core.connection``
   and (partially) ``ws.core.api`` modules.
-- Some scripts are inspired by the `Wiki Monkey`'s plugins, but (obviously) were
+- Some scripts are inspired by the `Wiki Monkey`_'s plugins, but (obviously) were
   written from scratch.
 
 .. _list of client software: https://www.mediawiki.org/wiki/API:Client_code#Python
 .. _simplemediawiki: https://github.com/ianweller/python-simplemediawiki
+.. _Wiki Monkey: https://github.com/kynikos/wiki-monkey
+
+.. vim: tw=80
