@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+# FIXME: sphinx does not recognize the wrapped method as 'property', i.e. it adds () to the name
+
 class LazyProperty(property):
     """
     A `descriptor`_ wrapping a class method and exposing it as a lazily
@@ -11,7 +13,7 @@ class LazyProperty(property):
     ``del object.attribute``, which will cause the wrapped method to be called
     again on the next access.
 
-    .._ `descriptor`: https://docs.python.org/3/howto/descriptor.html
+    .. _`descriptor`: https://docs.python.org/3/howto/descriptor.html
     """
 
     def __init__(self, func):
@@ -21,8 +23,13 @@ class LazyProperty(property):
         self._cache = {}
 
     def __get__(self, instance, owner):
-        if instance is None:
+        if instance is None and owner is not None:
+            # static access, e.g. by sphinx
+            return self.func
+        elif instance is None:
+            # TODO: can this even happen?
             raise AttributeError
+
         if instance not in self._cache:
             self._cache[instance] = self.func(instance)
         return self._cache[instance]

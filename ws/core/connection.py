@@ -1,5 +1,12 @@
 #! /usr/bin/env python3
 
+"""
+The :py:mod:`ws.core.connection` module provides a low-level interface for
+connections to the wiki. The :py:class:`requests.Session` class from the
+:py:mod:`requests` library is used to manage the cookies, authentication
+and making requests.
+"""
+
 # FIXME: query string should be normalized, see https://www.mediawiki.org/wiki/API:Main_page#API_etiquette
 #        + 'token' parameter should be specified last, see https://www.mediawiki.org/wiki/API:Edit
 
@@ -84,7 +91,7 @@ class Connection:
         Add arguments for constructing a :py:class:`Connection` object to an
         instance of :py:class:`argparse.ArgumentParser`.
 
-        See also the :py:module:`ws.config` module.
+        See also the :py:mod:`ws.config` module.
 
         :param argparser: an instance of :py:class:`argparse.ArgumentParser`
         """
@@ -108,7 +115,7 @@ class Connection:
 
         :param args:
             an instance of :py:class:`argparse.Namespace`. In addition to the
-            arguments set by :py:method:`Connection.set_argparser`,
+            arguments set by :py:meth:`Connection.set_argparser`,
             it is expected to also contain ``site`` and ``cache_dir`` arguments.
         :returns: an instance of :py:class:`Connection`
         """
@@ -248,5 +255,6 @@ class APIError(ConnectionError):
     def __init__(self, params, server_response):
         self.params = params
         self.server_response = server_response
+
     def __str__(self):
         return "\nquery parameters: {}\nserver response: {}".format(self.params, self.server_response)

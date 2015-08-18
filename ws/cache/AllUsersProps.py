@@ -12,6 +12,7 @@ __all__ = ["AllUsersProps"]
 
 class AllUsersProps(CacheDb):
 
+    #: format for MediaWiki timestamps
     mw_ts_format = "%Y-%m-%dT%H:%M:%SZ"
 
     def __init__(self, api, cache_dir, autocommit=True, active_days=30, round_to_midnight=False, rc_err_hours=6):
@@ -103,8 +104,8 @@ class AllUsersProps(CacheDb):
 
     def _find_active_users(self):
         """
-        Find the users who were active in the last :py:attribute:`self.active_days`
-        days and count their recent edits.
+        Find the users who were active in the last :py:attr:`active_days` days
+        and count their recent edits.
 
         :returns: a mapping of user names to their recenteditcount
         """

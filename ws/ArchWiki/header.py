@@ -13,6 +13,7 @@ class HeaderError(Exception):
 def get_header_parts(wikicode, magics=None, cats=None, langlinks=None, remove_from_parent=False):
     """
     According to Help:Style, the layout of the page should be as follows:
+
      1. Magic words (optional)
         (includes only {{DISPLAYTITLE:...}} and {{Lowercase title}})
      2. Categories
@@ -37,6 +38,7 @@ def get_header_parts(wikicode, magics=None, cats=None, langlinks=None, remove_fr
     The parameters ``magics``, ``cats`` and ``langlinks`` can be lists of
     objects (either string, wikicode or node) to be added to the header if not
     already present. These deduplication rules are applied:
+
       - supplied magic words take precedence over those present in wikicode
       - category links are considered duplicate when they point to the same
         category (e.g. [[Category:Foo]] is equivalent to [[category:foo]])

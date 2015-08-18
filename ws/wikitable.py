@@ -24,7 +24,7 @@ class Wikitable:
         for row in rows:
             text += rowtemplate.format(*row)
         text += "|}\n"
-        
+
         return text
 
     # TODO: this is not general at all, it is able to parse only the table

@@ -254,7 +254,7 @@ class API(Connection):
         Or just use this method when not sure if given title is a redirect or
         not.
 
-        :param *pageids:
+        :param pageids:
             unpacked list of page IDs to resolve (i.e. call this method as
             ``resolve_redirects(*list)`` or ``resolve_redirects(pageid1, pageid2, ...)``)
         :returns:

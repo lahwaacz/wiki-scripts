@@ -46,15 +46,14 @@ class ConfigFileParser:
         return cf(top_level, self.subname).get_options()
 
     def serialize(self, items):
-        """Does the inverse of config parsing by taking parsed values and
+        """
+        Does the inverse of config parsing by taking parsed values and
         converting them back to a string representing config file contents.
 
-        Args:
-            items: an OrderedDict with items to be written to the config file
-        Returns:
-            contents of config file as a string
+        :param items: an ``OrderedDict`` with items to be written to the config file
+        :returns: contents of config file as a string
         """
-        pass
+        raise NotImplementedError
 
     def get_syntax_description(self):
         return ""
@@ -135,15 +134,14 @@ def object_from_argparser(klass, subname=None, *args, **kwargs):
     """
     Create an instance of ``klass`` using its :py:meth:`klass.from_argparser()`
     factory and a clean instance of :py:class:`argparse.ArgumentParser`. On top
-    of that, logging interface is set up using the :py:module:`ws.logging`
-    module.
+    of that, logging interface is set up using the :py:mod:`ws.logging` module.
 
     :param klass: the class to instantiate
     :param subname:
         The name of the subsection to be read from the configuration file
         (usually the name of the script). By default ``sys.argv[0]`` is taken.
-    :param *args: passed to :py:class:`argparse.ArgumentParser()` constructor
-    :param **kwargs: passed to :py:class:`argparse.ArgumentParser()` constructor
+    :param args: passed to :py:class:`argparse.ArgumentParser()` constructor
+    :param kwargs: passed to :py:class:`argparse.ArgumentParser()` constructor
     :returns: an instance of :py:class:`klass`
     """
     argparser = getArgParser(*args, **kwargs)

@@ -12,6 +12,7 @@ to apply longer timeout when the rate limit is exceeded.
 Usage as Python decorator:
 
 .. code-block:: python
+
     # allow at most 10 calls in 2 seconds
     @RateLimited(10, 2)
     def PrintNumber(num):
@@ -20,6 +21,7 @@ Usage as Python decorator:
 Or at runtime by wrapping the function call:
 
 .. code-block:: python
+
     # allow at most 10 calls in 2 seconds
     wrapped = RateLimited(10, 2)(PrintNumber)
 """

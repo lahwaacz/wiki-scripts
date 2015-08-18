@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 """
-Collection of functions extending :py:class:`MediaWiki.api.API` with various
+Collection of functions extending :py:class:`ws.core.api.API` with various
 interactive tasks.
 """
 
@@ -19,9 +19,10 @@ __all__ = ["require_login", "edit_interactive", "InteractiveQuit"]
 
 def require_login(api):
     """
-    Check if ``"api"`` session is authenticated, otherwise ask for credentials.
+    Check if the current ``api`` session is authenticated, otherwise ask for
+    credentials.
 
-    :param api: an :py:class:`MediaWiki.api.API` instance
+    :param api: an :py:class:`ws.core.api.API` instance
     """
     if not api.is_loggedin:
         print("You need to log in to use this script. URL is %s" % api.api_url)
@@ -29,8 +30,8 @@ def require_login(api):
 
 class TmpFileSeries:
     """
-    Resource management wrapper around a series of temporary files. Use it with the
-    `with` statement.
+    Resource management wrapper around a series of temporary files. Use it with
+    the `with` statement.
 
     Reference: http://stackoverflow.com/questions/865115/how-do-i-correctly-clean-up-a-python-object/865272#865272
     """
@@ -55,7 +56,7 @@ class TmpFileSeries:
 
 class InteractiveQuit(Exception):
     """
-    Raised when the user specified `quit` on the interactive prompt.
+    Raised when the user specified ``quit`` on the interactive prompt.
     """
     pass
 

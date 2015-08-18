@@ -22,32 +22,36 @@ def md5sum(bytes_):
 class CacheDb:
     """
     Base class for caching databases. The database is saved on disk in the
-    gzipped JSON format. The data is represented by the ``self.data`` structure,
-    whose type depends on the implementation in each subclass (generally a
-    ``list`` or ``dict``). There is also a ``self.meta`` structure keeping the
-    meta data such as timestamp of the last update.
+    gzipped JSON format. The data is represented by the :py:attr:`data`
+    structure, whose type depends on the implementation in each subclass
+    (generally a :py:class:`list` or :py:class:`dict`). There is also a
+    :py:attr:`meta` structure holding the meta data such as timestamp of the
+    last update.
 
     The data elements can be accessed using the subscript syntax ``db["key"]``,
     which triggers a lazy update/initialization of the database. The meta data
     can be accessed as attributes (e.g. ``db.attribute``), which does not
     trigger an update.
 
-    :param api: an :py:class:`MediaWiki.API` instance
-    :param dbname: a name of the database (``str``), usually the name of the
-                   subclass
-    :param autocommit: whether to automatically call :py:meth:`self.dump()`
-                       after each update of the database
+    :param ws.core.api.API api:
+        an instance of the API to work with
+    :param str dbname:
+        a name of the database, usually the name of the subclass
+    :param bool autocommit:
+        whether to automatically call :py:meth:`dump()` after each update of
+        the database
     """
 
     meta = {}
     data = None
 
-    # format for JSON (de)serialization of datetime.datetime timestamps
+    #: format for JSON (de)serialization of datetime.datetime timestamps
     ts_format = "%Y-%m-%dT%H:%M:%S.%f"
 
     def __init__(self, api, cache_dir, dbname, autocommit=True):
         self.api = api
         self.dbname = dbname
+        #: period for automatic database commits
         self.autocommit = autocommit
 
         dbdir = os.path.join(cache_dir, self.api.get_hostname())
@@ -57,12 +61,13 @@ class CacheDb:
     def load(self, key=None):
         """
         Try to load data from disk. When data on disk does not exist yet, calls
-        :py:meth:`self.init()` to initialize the database and :py:meth:`self.dump()`
+        :py:meth:`init()` to initialize the database and :py:meth:`dump()`
         immediately after to save the initial state to disk.
 
-        Called automatically from :py:meth:`self.__init__()`, it is not necessary to call it manually.
+        Called automatically from :py:meth:`__init__()`, it is not necessary to
+        call it manually.
 
-        :param key: passed to :py:meth:`self.init()`, necessary for proper lazy
+        :param key: passed to :py:meth:`init()`, necessary for proper lazy
                     initialization in case of multi-key database
         """
         if os.path.isfile(self.dbpath):
@@ -91,8 +96,8 @@ class CacheDb:
 
     def dump(self):
         """
-        Save data to disk. When :py:attribute:`self.autocommit` is ``True``, it is
-        called automatically from :py:meth:`self.init()` and :py:meth:`self.update()`.
+        Save data to disk. When :py:attr:`autocommit` is ``True``, it is
+        called automatically from :py:meth:`init()` and :py:meth:`update()`.
 
         After manual modification of the ``self.data`` structure it is necessary to
         call it manually if the change is to be persistent.
@@ -123,14 +128,15 @@ class CacheDb:
 
     def init(self, key=None):
         """
-        Called by :py:meth:`self.load()` when data does not exist on disk yet.
+        Called by :py:meth:`load()` when data does not exist on disk yet.
         Responsible for:
-          - initializing ``self.data`` structure and performing the initial API
-            query,
-          - calling :py:meth:`self.dump()` after the query depending on the
-            value of :py:attribute:`self.autocommit`,
+
+          - initializing :py:attr:`data` structure and performing the initial
+            API query,
+          - calling :py:meth:`dump()` after the query depending on the
+            value of :py:attr:`autocommit`,
           - updating ``self.meta["timestamp"]``, either manually or via
-            :py:meth:`self._update_timestamp`.
+            :py:meth:`_update_timestamp`.
 
         Has to be defined in subclasses.
 
@@ -141,13 +147,14 @@ class CacheDb:
 
     def update(self, key=None):
         """
-        Called from accessors like :py:meth:`self.__getitem__()` a cache update.
+        Called from accessors like :py:meth:`__getitem__()` a cache update.
         Responsible for:
+
           - performing an API query to update the cached data,
-          - calling :py:meth:`self.dump()` after the query depending on the
-            value of :py:attribute:`self.autocommit`,
+          - calling :py:meth:`dump()` after the query depending on the
+            value of :py:attr:`autocommit`,
           - updating ``self.meta["timestamp"]``, either manually or via
-            :py:meth:`self._update_timestamp`.
+            :py:meth:`_update_timestamp`.
 
         Has to be defined in subclasses.
 

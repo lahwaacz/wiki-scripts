@@ -9,7 +9,7 @@
 import logging
 import collections
 
-__all__ = ["setTerminalLogging", "set_argparser", "init_from_argparser"]
+__all__ = ["setTerminalLogging", "set_argparser", "init"]
 
 LOG_LEVELS = collections.OrderedDict((
     ("debug", logging.DEBUG),
@@ -61,7 +61,7 @@ def set_argparser(argparser):
     Add arguments for configuring global logging values to an instance of
     :py:class:`argparse.ArgumentParser`.
 
-    This function is called internally from the :py:module:`ws.config` module.
+    This function is called internally from the :py:mod:`ws.config` module.
 
     :param argparser: an instance of :py:class:`argparse.ArgumentParser`
     """
@@ -75,13 +75,14 @@ def set_argparser(argparser):
 
 def init(args):
     """
-    Initialize the :py:module:`logging` module with the arguments parsed by
+    Initialize the :py:mod:`logging` module with the arguments parsed by
     :py:class:`argparse.ArgumentParser`.
 
-    This function is called internally from the :py:module:`ws.config` module.
+    This function is called internally from the :py:mod:`ws.config` module.
 
-    :param args: an instance of :py:class:`argparse.Namespace`. It is expected
-    that :py:func:`set_argparser()` was called prior to parsing the arguments.
+    :param args:
+        an instance of :py:class:`argparse.Namespace`. It is expected that
+        :py:func:`set_argparser()` was called prior to parsing the arguments.
     """
     logger = logging.getLogger()
     logger.setLevel(LOG_LEVELS[args.log_level])
