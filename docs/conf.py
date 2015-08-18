@@ -117,12 +117,20 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'classic'
+html_theme = 'alabaster'
 
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#html_theme_options = {}
+# alabaster options: https://pypi.python.org/pypi/alabaster
+html_theme_options = {
+    # show "Fork me on github" banner in the top-right corner
+    "github_user": "lahwaacz",
+    "github_repo": "wiki-scripts",
+    "github_banner": True,
+    # wide layout
+    "page_width": "95%",
+    # use standard font families
+    "font_family": "serif",
+    "code_font_family": "monospace",
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
