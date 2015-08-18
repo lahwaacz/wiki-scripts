@@ -1,10 +1,8 @@
 #! /usr/bin/env python3
 
-import os.path
 import time
 import datetime
 import sys
-import argparse
 import logging
 
 import mwparserfromhell
@@ -20,7 +18,6 @@ from ws.interactive import require_login
 from ws.wikitable import Wikitable
 from ws.utils import parse_date, list_chunks
 import ws.cache
-from ws.logging import setTerminalLogging
 
 from statistics_modules import UserStatsModules
 
@@ -31,45 +28,30 @@ class Statistics:
     """
     The whole statistics page.
     """
-    def __init__(self, api):
+    def __init__(self, api, cliargs):
         self.api = api
-        self._parse_cli_args()
+        self.cliargs = cliargs
 
-        if not self.cliargs.anonymous:
-            require_login(self.api)
+    @staticmethod
+    def set_argparser(argparser):
+        # first try to set options for objects we depend on
+        present_groups = [group.title for group in argparser._action_groups]
+        if "Connection parameters" not in present_groups:
+            API.set_argparser(argparser)
 
-        try:
-            self._parse_page()
-
-            if not self.cliargs.force and \
-                                datetime.datetime.utcnow().date() <= \
-                                parse_date(self.timestamp).date():
-                print("The page has already been updated this UTC day",
-                                                            file=sys.stderr)
-                sys.exit(1)
-
-            self._compose_page()
-            sys.exit(self._output_page())
-        except MissingPageError:
-            logger.error("The page '{}' currently does not exist. It must be "
-                  "created manually before the script can update it.".format(
-                                        self.cliargs.page))
-        sys.exit(1)
-
-    def _parse_cli_args(self):
-        cliparser = argparse.ArgumentParser(description=
-                "Update statistics page on ArchWiki", add_help=True)
-
-        output = cliparser.add_argument_group(title="output")
+        output = argparser.add_argument_group(title="output")
+        # TODO: maybe leave only the short option to forbid configurability in config file
         output.add_argument('-s', '--save', action='store_true',
                         help='try to save the page (requires being logged in)')
-        output.add_argument('-c', '--clipboard', action='store_true',
+        # FIXME: -c conflicts with -c/--config
+#        output.add_argument('-c', '--clipboard', action='store_true',
+        output.add_argument('--clipboard', action='store_true',
                         help='try to store the updated text in the clipboard')
         output.add_argument('-p', '--print', action='store_true',
                         help='print the updated text in the standard output '
                         '(this is the default output method)')
 
-        usstats = cliparser.add_argument_group(title="user statistics")
+        usstats = argparser.add_argument_group(title="user statistics")
         usstats.add_argument('--us-days-span', action='store', default=30,
                     type=int, dest='us_days', metavar='N',
                     help='the time span in days (default: %(default)s)')
@@ -87,25 +69,57 @@ class Statistics:
                     'oldest retrieved change and the old end of the time span '
                     '(default: %(default)s)')
 
-        cliparser.add_argument('-a', '--anonymous', action='store_true',
+        # TODO: main group for "script parameters" would be most logical, but
+        #       but argparse does not display nested groups in the help page
+        group = argparser.add_argument_group(title="other parameters")
+
+        group.add_argument('-a', '--anonymous', action='store_true',
                                     help='do not require logging in: queries '
                                             'may be limited to a lower rate')
-        cliparser.add_argument('-f', '--force', action='store_true',
+        # TODO: maybe leave only the short option to forbid configurability in config file
+        group.add_argument('-f', '--force', action='store_true',
                                     help='try to update the page even if it '
                                     'was last saved in the same UTC day')
-        cliparser.add_argument('--page', default='ArchWiki:Statistics',
+        group.add_argument('--statistics-page', default='ArchWiki:Statistics',
                         help='the page name on the wiki to fetch and update '
                         '(default: %(default)s)')
-        cliparser.add_argument('--summary', default='automatic update',
+        # TODO: no idea how to forbid setting this globally in the config...
+        group.add_argument('--summary', default='automatic update',
                         help='the edit summary to use when saving the page '
                         '(default: %(default)s)')
 
-        self.cliargs = cliparser.parse_args()
+    @classmethod
+    def from_argparser(klass, args, api=None):
+        if api is None:
+            api = API.from_argparser(args)
+        return klass(api, args)
+
+    def run(self):
+        if not self.cliargs.anonymous:
+            require_login(self.api)
+
+        try:
+            self._parse_page()
+
+            if not self.cliargs.force and \
+                                datetime.datetime.utcnow().date() <= \
+                                parse_date(self.timestamp).date():
+                print("The page has already been updated this UTC day",
+                                                            file=sys.stderr)
+                return 1
+
+            self._compose_page()
+            return self._output_page()
+        except MissingPageError:
+            logger.error("The page '{}' currently does not exist. It must be "
+                  "created manually before the script can update it.".format(
+                                        self.cliargs.statistics_page))
+        return 1
 
     def _parse_page(self):
         result = self.api.call_api(action="query", prop="info|revisions",
                 rvprop="content|timestamp", meta="tokens",
-                titles=self.cliargs.page)
+                titles=self.cliargs.statistics_page)
         page = tuple(result["pages"].values())[0]
 
         if "missing" in page:
@@ -118,7 +132,7 @@ class Statistics:
         self.csrftoken = result["tokens"]["csrftoken"]
 
     def _compose_page(self):
-        userstats = _UserStats(self.api, self.text,
+        userstats = _UserStats(self.api, self.cliargs.cache_dir, self.text,
                     self.cliargs.us_days, self.cliargs.us_mintotedits,
                     self.cliargs.us_minrecedits, self.cliargs.us_rcerrhours)
         userstats.update()
@@ -135,7 +149,7 @@ class Statistics:
                                   bot="1", minor="1")
             except APIError as err:
                 logger.error("Could not save the page ({})".format(
-                                                        err.args[0]["info"]))
+                                                        err.server_response["info"]))
                 ret |= 1
             else:
                 if result["result"].lower() != "success":
@@ -218,7 +232,7 @@ divided by the number of days between the user's first and last edits.
     STREAK_FORMAT = '<span title="{length} days, from {start} to {end} ({editcount} edits)">{length}</span>'
     REGISTRATION_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-    def __init__(self, api, text, days, mintotedits, minrecedits, rcerrhours):
+    def __init__(self, api, cache_dir, text, days, mintotedits, minrecedits, rcerrhours):
         self.api = api
         self.text = text.get_sections(matches="User statistics", flat=True,
                                 include_lead=False, include_headings=False)[0]
@@ -228,8 +242,8 @@ divided by the number of days between the user's first and last edits.
         self.MINTOTEDITS = mintotedits
         self.MINRECEDITS = minrecedits
 
-        self.db_userprops = ws.cache.AllUsersProps(api, active_days=days, round_to_midnight=True, rc_err_hours=rcerrhours)
-        self.db_allrevsprops = ws.cache.AllRevisionsProps(api)
+        self.db_userprops = ws.cache.AllUsersProps(api, cache_dir, active_days=days, round_to_midnight=True, rc_err_hours=rcerrhours)
+        self.db_allrevsprops = ws.cache.AllRevisionsProps(api, cache_dir)
         self.modules = UserStatsModules(self.db_allrevsprops, round_to_midnight=True)
 
     def update(self):
@@ -307,13 +321,6 @@ class MissingPageError(StatisticsError):
     pass
 
 if __name__ == "__main__":
-    setTerminalLogging()
-
-    cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
-    api = API(
-        "https://wiki.archlinux.org/api.php",
-        cookie_file=os.path.join(cache_dir, "ArchWiki.bot.cookie"),
-        ssl_verify=True
-    )
-
-    Statistics(api)
+    import ws.config
+    statistics = ws.config.object_from_argparser(Statistics, description="Update the statistics page on ArchWiki")
+    sys.exit(statistics.run())

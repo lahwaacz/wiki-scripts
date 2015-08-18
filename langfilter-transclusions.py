@@ -1,11 +1,7 @@
 #! /usr/bin/env python3
 
-import argparse
-import os.path
-
 from ws.core import API
 from ws.ArchWiki import lang
-from ws.logging import setTerminalLogging
 
 # return list of page titles transcluding 'title'
 def get_transclusions(api, title):
@@ -16,17 +12,11 @@ def filter_titles(titles, lang_subtag):
     return [title for title in titles if lang.detect_language(title)[1] == lang.langname_for_tag(lang_subtag)]
 
 if __name__ == "__main__":
-    setTerminalLogging()
+    import ws.config
+    import ws.logging
 
-    argparser = argparse.ArgumentParser(description="Filter list of pages transcluding a page by language")
-
-    _api = argparser.add_argument_group(title="API parameters")
-    _api.add_argument("--api-url", default="https://wiki.archlinux.org/api.php", metavar="URL",
-            help="the URL to the wiki's api.php (default: %(default)s)")
-    _api.add_argument("--cookie-path", default=os.path.expanduser("~/.cache/ArchWiki.cookie"), metavar="PATH",
-            help="path to cookie file (default: %(default)s)")
-    _api.add_argument("--ssl-verify", default=1, choices=(0, 1),
-            help="whether to verify SSL certificates (default: %(default)s)")
+    argparser = ws.config.getArgParser(description="Filter list of pages transcluding a page by language")
+    API.set_argparser(argparser)
 
     _script = argparser.add_argument_group(title="script parameters")
     _script.add_argument("--title", required=True,
@@ -40,10 +30,10 @@ if __name__ == "__main__":
 
     args = argparser.parse_args()
 
-    # retype from int to bool
-    args.ssl_verify = True if args.ssl_verify == 1 else False
+    # set up logging
+    ws.logging.init(args)
 
-    api = API(args.api_url, cookie_file=args.cookie_path, ssl_verify=args.ssl_verify)
+    api = API.from_argparser(args)
 
     titles = get_transclusions(api, args.title)
     titles.sort()

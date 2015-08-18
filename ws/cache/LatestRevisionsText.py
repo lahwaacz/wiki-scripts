@@ -10,11 +10,11 @@ logger = logging.getLogger(__name__)
 __all__ = ["LatestRevisionsText"]
 
 class LatestRevisionsText(CacheDb):
-    def __init__(self, api, autocommit=True):
+    def __init__(self, api, cache_dir, autocommit=True):
         # needed for database initialization
         self.limit = 500 if "apihighlimits" in api.user_rights else 50
 
-        super().__init__(api, "LatestRevisionsText", autocommit)
+        super().__init__(api, cache_dir, "LatestRevisionsText", autocommit)
 
     def init(self, ns=None):
         """

@@ -2,3 +2,7 @@
 	path = docs/_build/html
 	url = git@github.com:lahwaacz/wiki-scripts.git
 	branch = gh-pages
+[submodule "ConfigArgParse"]
+	path = ConfigArgParse
+	url = git@github.com:lahwaacz/ConfigArgParse.git
+	branch = config_files_without_merging

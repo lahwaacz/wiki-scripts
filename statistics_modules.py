@@ -177,21 +177,22 @@ class UserStatsModules:
 
 if __name__ == "__main__":
     # this is only for testing...
-    import os.path
-    import operator
-
     from ws.core import API
     import ws.cache
     from ws.wikitable import *
-    from ws.logging import setTerminalLogging
 
-    setTerminalLogging()
+    import ws.config
+    import ws.logging
 
-    api_url = "https://wiki.archlinux.org/api.php"
-    cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
+    argparser = ws.config.getArgParser()
+    API.set_argparser(argparser)
+    args = argparser.parse_args()
 
-    api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
-    db = ws.cache.AllRevisionsProps(api)
+    # set up logging
+    ws.logging.init(args)
+
+    api = API.from_argparser(args)
+    db = ws.cache.AllRevisionsProps(api, args.cache_dir)
 
     usm = UserStatsModules(db)
 

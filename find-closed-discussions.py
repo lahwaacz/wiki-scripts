@@ -1,34 +1,42 @@
 #! /usr/bin/env python3
 
-import os
 import re
 
 from ws.core import API
 import ws.cache
-from ws.logging import setTerminalLogging
 
-setTerminalLogging()
+def main(api, db):
+    namespaces = ["1", "5", "11", "13", "15"]
+    talks = []
+    closed_talk_re = re.compile("^[=]+[ ]*<s>", flags=re.MULTILINE)
+    for ns in namespaces:
+        pages = db[ns]
+        for page in pages:
+            title = page["title"]
+            text = page["revisions"][0]["*"]
+            if re.search(closed_talk_re, text):
+                talks.append(page)
 
-api_url = "https://wiki.archlinux.org/api.php"
-cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
+    # commit data to disk in case there were lazy updates
+    # TODO: check if there were actually some updates...
+    db.dump()
 
-api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
-db = ws.cache.LatestRevisionsText(api, autocommit=False)
+    for page in talks:
+        print("* [[{}]]".format(page["title"]))
 
-namespaces = ["1", "5", "11", "13", "15"]
-talks = []
-closed_talk_re = re.compile("^[=]+[ ]*<s>", flags=re.MULTILINE)
-for ns in namespaces:
-    pages = db[ns]
-    for page in pages:
-        title = page["title"]
-        text = page["revisions"][0]["*"]
-        if re.search(closed_talk_re, text):
-            talks.append(page)
+if __name__ == "__main__":
+    import ws.config
+    import ws.logging
 
-# commit data to disk in case there were lazy updates
-# TODO: check if there were actually some updates...
-db.dump()
+    argparser = ws.config.getArgParser(description="Find closed discussions")
+    API.set_argparser(argparser)
+    args = argparser.parse_args()
 
-for page in talks:
-    print("* [[{}]]".format(page["title"]))
+    # set up logging
+    ws.logging.init(args)
+
+    api = API.from_argparser(args)
+    # FIXME: except for this part, object_from_argparser could be used
+    db = ws.cache.LatestRevisionsText(api, args.cache_dir, autocommit=False)
+
+    main(api, db)

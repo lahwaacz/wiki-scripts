@@ -1,18 +1,15 @@
 #! /usr/bin/env python3
 
 # NOTE:
-# * deleted revisions are not included
 # * only diffable changes are recorded (edits and moves, not deletions)
 # * bots vs nobots
 # * different notion of active user ("calendar month" vs "30 days")
 
-import os.path
 import logging
 
 from ws.core import API
 import ws.cache
 from ws.utils import parse_date
-from ws.logging import setTerminalLogging
 
 logger = logging.getLogger(__name__)
 
@@ -122,13 +119,18 @@ def create_histograms(revisions):
 
 
 if __name__ == "__main__":
-    setTerminalLogging()
+    import ws.config
+    import ws.logging
 
-    # TODO: take command line arguments
-    api_url = "https://wiki.archlinux.org/api.php"
-    cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
+    argparser = ws.config.getArgParser(description="Create histogram charts for the statistics page")
+    API.set_argparser(argparser)
+    # TODO: script-specific arguments (e.g. output path)
+    args = argparser.parse_args()
 
-    api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
+    # set up logging
+    ws.logging.init(args)
 
-    db = ws.cache.AllRevisionsProps(api)
+    api = API.from_argparser(args)
+    db = ws.cache.AllRevisionsProps(api, args.cache_dir)
+
     create_histograms(db["revisions"])

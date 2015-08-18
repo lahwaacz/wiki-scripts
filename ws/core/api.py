@@ -27,8 +27,8 @@ class API(Connection):
     :param kwargs: any keyword arguments of the Connection object
     """
 
-    def __init__(self, api_url, index_url=None, **kwargs):
-        super().__init__(api_url, index_url, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def login(self, username, password):
         """
@@ -360,5 +360,9 @@ class API(Connection):
 
         if not token:
             token = self.call_api(action="query", meta="tokens")["tokens"]["csrftoken"]
+
+        # if bot= is passed, also pass an assertion
+        if "bot" in kwargs:
+            kwargs["assert"] = "bot"
 
         return self.call_api(action="edit", token=token, md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, **kwargs)

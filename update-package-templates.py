@@ -7,7 +7,6 @@
 #   include some stats in the report
 #   diff-like report showing only new issues since the last report
 
-import argparse
 import bisect
 import os.path
 import sys
@@ -20,9 +19,7 @@ import mwparserfromhell
 import pycman
 import pyalpm
 
-from ws.logging import setTerminalLogging
 from ws.core import API, APIError
-from ws.diff import diff_highlighted
 from ws.interactive import *
 from ws.ArchWiki.lang import detect_language
 from ws.parser_helpers import get_parent_wikicode, get_adjacent_node
@@ -160,9 +157,11 @@ class PkgFinder:
 
 
 class PkgUpdater:
-    def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify):
+    def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify, report_dir):
         self.api = api
         self.finder = PkgFinder(aurpkgs_url, tmpdir, ssl_verify)
+        self.report_dir = report_dir
+
         self.edit_summary = "update Pkg/AUR templates (https://github.com/lahwaacz/wiki-scripts/blob/master/update-package-templates.py)"
 
         # log data for easy report generation
@@ -180,6 +179,25 @@ class PkgUpdater:
             "Security Advisories",
             "CVE",
         ]
+
+    @staticmethod
+    def set_argparser(argparser):
+        # first try to set options for objects we depend on
+        present_groups = [group.title for group in argparser._action_groups]
+        if "Connection parameters" not in present_groups:
+            API.set_argparser(argparser)
+
+        group = argparser.add_argument_group(title="script parameters")
+        group.add_argument("--aurpkgs-url", default="https://aur.archlinux.org/packages.gz", metavar="URL",
+                help="the URL to packages.gz file on the AUR (default: %(default)s)")
+        group.add_argument("--report-dir", type=ws.config.argtype_existing_dir, default=".", metavar="PATH",
+                help="directory where the report should be saved")
+
+    @classmethod
+    def from_argparser(klass, args, api=None):
+        if api is None:
+            api = API.from_argparser(args)
+        return klass(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify, args.report_dir)
 
     def update_package_template(self, template):
         """
@@ -334,9 +352,9 @@ class PkgUpdater:
                     report += "** %s\n" % message
         return report
 
-    def save_report(self, directory):
+    def save_report(self):
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
-        basename = os.path.join(directory, "update-pkgs-{}.report".format(timestamp))
+        basename = os.path.join(self.report_dir, "update-pkgs-{}.report".format(timestamp))
         f = open(basename + ".mediawiki", "w")
         f.write(self.get_report_wikitext())
         f.close()
@@ -360,55 +378,17 @@ class TemplateParametersError(Exception):
         return self.message
 
 
-# any path, the dirname part must exist (e.g. path to a file that will be created in the future)
-def arg_dirname_must_exist(string):
-    dirname = os.path.split(string)[0]
-    if not os.path.isdir(dirname):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
-    return string
-
-# path to existing directory
-def arg_existing_dir(string):
-    if not os.path.isdir(string):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % string)
-    return string
-
-
 if __name__ == "__main__":
-    setTerminalLogging()
+    import ws.config
 
-    argparser = argparse.ArgumentParser(description="Update Pkg/AUR templates")
-
-    _api = argparser.add_argument_group(title="API parameters")
-    _api.add_argument("--api-url", default="https://wiki.archlinux.org/api.php", metavar="URL",
-            help="the URL to the wiki's api.php (default: %(default)s)")
-    _api.add_argument("--cookie-path", type=arg_dirname_must_exist, default=os.path.expanduser("~/.cache/ArchWiki.bot.cookie"), metavar="PATH",
-            help="path to cookie file (default: %(default)s)")
-    _api.add_argument("--ssl-verify", default=1, choices=(0, 1),
-            help="whether to verify SSL certificates (default: %(default)s)")
-
-    _script = argparser.add_argument_group(title="script parameters")
-    _script.add_argument("--aurpkgs-url", default="https://aur.archlinux.org/packages.gz", metavar="URL",
-            help="the URL to packages.gz file on the AUR (default: %(default)s)")
-    _script.add_argument("--tmp-dir", type=arg_existing_dir, default="/tmp/", metavar="PATH",
-            help="temporary directory path (default: %(default)s)")
-    _script.add_argument("--report-dir", type=arg_existing_dir, default=".", metavar="PATH",
-            help="directory where the report should be saved")
-
-    args = argparser.parse_args()
-
-    # retype from int to bool
-    args.ssl_verify = True if args.ssl_verify == 1 else False
-
-    api = API(args.api_url, cookie_file=args.cookie_path, ssl_verify=args.ssl_verify)
-    updater = PkgUpdater(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify)
+    updater = ws.config.object_from_argparser(PkgUpdater, description="Update Pkg/AUR templates")
 
     try:
         ret = updater.check_allpages()
         if not ret:
             sys.exit(ret)
-        updater.save_report(args.report_dir)
+        updater.save_report()
     except KeyboardInterrupt:
         print()
-        updater.save_report(args.report_dir)
+        updater.save_report()
         raise

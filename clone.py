@@ -5,12 +5,10 @@
 # * merge arch-wiki-docs.py here, make selecting between "html" and "mediawiki" formats possible
 
 import os
-import argparse
 import datetime
 import hashlib
 
 from ws.core import API
-from ws.logging import setTerminalLogging
 import ws.ArchWiki.lang
 from ws.utils import *
 
@@ -144,41 +142,20 @@ class Downloader:
                 os.rmdir(path)
 
 
-# TODO: refactoring
-# any path, the dirname part must exist (e.g. path to a file that will be created in the future)
-def arg_dirname_must_exist(string):
-    dirname = os.path.split(string)[0]
-    if not os.path.isdir(dirname):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
-    return string
-
-# TODO: refactoring
-# path to existing directory
-def arg_existing_dir(string):
-    if not os.path.isdir(string):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % string)
-    return string
-
-
 if __name__ == "__main__":
-    setTerminalLogging()
+    import ws.config
+    import ws.logging
 
-    argparser = argparse.ArgumentParser(description="Clone latest revisions of pages on the wiki")
+    argparser = ws.config.getArgParser(description="Clone latest revisions of pages on the wiki")
+    API.set_argparser(argparser)
 
-    _api = argparser.add_argument_group(title="API parameters")
-    _api.add_argument("--api-url", default="https://wiki.archlinux.org/api.php", metavar="URL",
-            help="the URL to the wiki's api.php (default: %(default)s)")
-    _api.add_argument("--cookie-path", type=arg_dirname_must_exist, default=os.path.expanduser("~/.cache/ArchWiki.cookie"), metavar="PATH",
-            help="path to cookie file (default: %(default)s)")
-    _api.add_argument("--ssl-verify", default=1, choices=(0, 1),
-            help="whether to verify SSL certificates (default: %(default)s)")
-
+    # TODO: move to Dowloader.set_argparser()
     _script = argparser.add_argument_group(title="script parameters")
-    _script.add_argument("--output-directory", metavar="PATH", required=True,
+    _script.add_argument("--output-directory", metavar="PATH", required=True, type=ws.config.argtype_existing_dir,
             help="Output directory path, will be created if needed.")
     _script.add_argument("--force", action="store_true",
             help="Ignore timestamp, always download the latest revision from the wiki.")
-    _script.add_argument("--talks", action="store_true",
+    _script.add_argument("--clone-talks", action="store_true",
             help="Also clone talk namespaces.")
     _script.add_argument("--clean", action="store_true",
             help="Clean the output directory after cloning, useful for removing pages deleted/moved on the wiki. Warning: any unknown files found in the output directory will be deleted!")
@@ -187,11 +164,12 @@ if __name__ == "__main__":
 
     args = argparser.parse_args()
 
-    # retype from int to bool
-    args.ssl_verify = True if args.ssl_verify == 1 else False
+    # set up logging
+    ws.logging.init(args)
 
-    api = API(args.api_url, cookie_file=args.cookie_path, ssl_verify=args.ssl_verify)
+    api = API.from_argparser(args)
 
+    # TODO: simplify for Downloader.from_argparser()
     if args.force:
         epoch = datetime.datetime.utcnow()
     else:
@@ -201,7 +179,7 @@ if __name__ == "__main__":
     downloader = Downloader(api, args.output_directory, epoch, args.safe_filenames)
 
     namespaces = ["0", "4", "10", "12", "14"]
-    if args.talks:
+    if args.clone_talks:
         namespaces += ["1", "5", "11", "13", "15"]
 
     for ns in namespaces:

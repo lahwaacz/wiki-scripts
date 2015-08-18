@@ -7,26 +7,22 @@
 # TODO:
 #   extlink -> wikilink conversion should be done first
 #   URL-decoding (for page titles), dot-decoding (for sections)?
-#   skip interwiki links, categories, interlanguage links
+#   skip interwiki links, categories, interlanguage links (at least [[fr:mod_wsgi]]), article status templates
 #   look at DISPLAYTITLE of the target page when replacing underscores and checking capitalization (handle first-letter case and CamelCase words properly!)    (inprop=displaytitle)
 #   handle broken fragments
 #       check capitalization (needs caching of latest revisions for performance)
 #       check N older revisions, section might have been renamed    (must be interactive!)
 #                            -- || --                     moved to other page: warn the user (or just mark with {{Broken fragment}} ?)
 
-import argparse
-import os.path
 import re
 import logging
 
 import mwparserfromhell
 
 from ws.core import API, APIError
-from ws.diff import diff_highlighted
 from ws.interactive import *
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers import canonicalize
-from ws.logging import setTerminalLogging
 
 logger = logging.getLogger(__name__)
 
@@ -241,37 +237,18 @@ class LinkChecker:
                     self.api.edit(pageid, text_new, timestamp, self.edit_summary, bot="")
                 else:
                     edit_interactive(self.api, pageid, text_old, text_new, timestamp, self.edit_summary, bot="")
-            except APIError:
-                logger.exception("failed to edit page '%s'" % title)
-
-
-# any path, the dirname part must exist (e.g. path to a file that will be created in the future)
-def arg_dirname_must_exist(string):
-    dirname = os.path.split(string)[0]
-    if not os.path.isdir(dirname):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
-    return string
-
-# path to existing directory
-def arg_existing_dir(string):
-    if not os.path.isdir(string):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % string)
-    return string
+            except APIError as e:
+                logger.error("failed to edit page '{}' ({})".format(title, e.server_response["info"]))
 
 
 if __name__ == "__main__":
-    setTerminalLogging()
+    import ws.config
+    import ws.logging
 
-    argparser = argparse.ArgumentParser(description="Parse all pages on the wiki and try to fix/simplify/beautify links")
+    argparser = ws.config.getArgParser(description="Parse all pages on the wiki and try to fix/simplify/beautify links")
+    API.set_argparser(argparser)
 
-    _api = argparser.add_argument_group(title="API parameters")
-    _api.add_argument("--api-url", default="https://wiki.archlinux.org/api.php", metavar="URL",
-            help="the URL to the wiki's api.php (default: %(default)s)")
-    _api.add_argument("--cookie-path", type=arg_dirname_must_exist, default=os.path.expanduser("~/.cache/ArchWiki.bot.cookie"), metavar="PATH",
-            help="path to cookie file (default: %(default)s)")
-    _api.add_argument("--ssl-verify", default=1, choices=(0, 1),
-            help="whether to verify SSL certificates (default: %(default)s)")
-
+    # TODO: move to LinkChecker.set_argparser()
     _script = argparser.add_argument_group(title="script parameters")
     _script.add_argument("-i", "--interactive", action="store_true",
             help="enables interactive mode")
@@ -283,15 +260,17 @@ if __name__ == "__main__":
 
     args = argparser.parse_args()
 
-    # retype from int to bool
-    args.ssl_verify = True if args.ssl_verify == 1 else False
+    # set up logging
+    ws.logging.init(args)
 
-    api = API(args.api_url, cookie_file=args.cookie_path, ssl_verify=args.ssl_verify)
+    api = API.from_argparser(args)
+
     # ensure that we are authenticated
     require_login(api)
 
     checker = LinkChecker(api, args.interactive)
     try:
+        # TODO: simplify for the LinkChecker.from_argparser factory
         if args.title:
             checker.process_page(args.title)
         else:

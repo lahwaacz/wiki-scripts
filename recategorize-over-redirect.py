@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import os
 import re
 import logging
 
@@ -9,7 +8,6 @@ import mwparserfromhell
 from ws.core import API
 from ws.parser_helpers import canonicalize
 from ws.interactive import edit_interactive, ask_yesno
-from ws.logging import setTerminalLogging
 
 logger = logging.getLogger(__name__)
 
@@ -83,12 +81,7 @@ Special:WhatLinksHere/Template:Deletion.
 """)
 
 if __name__ == "__main__":
-    setTerminalLogging()
-
-    api_url = "https://wiki.archlinux.org/api.php"
-    cookie_path = os.path.expanduser("~/.cache/ArchWiki.bot.cookie")
-
-    api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
-
+    import ws.config
+    api = ws.config.object_from_argparser(API, description="Recategorize pages to avoid redirect after the old category has been renamed")
     r = Recategorize(api)
     r.recategorize_over_redirect()

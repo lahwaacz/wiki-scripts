@@ -4,18 +4,29 @@
 #   global docstring
 #       document how the ws module uses logging - Logger names, verbosity levels etc.
 #       document how scripts should use the ws.logging submodule
-#   make default options configurable (depends on issue #3)
+#   check if stdout is actually attached to terminal
 
 import logging
+import collections
 
-def setTerminalLogging(level=logging.INFO):
+__all__ = ["setTerminalLogging", "set_argparser", "init_from_argparser"]
+
+LOG_LEVELS = collections.OrderedDict((
+    ("debug", logging.DEBUG),
+    ("info", logging.INFO),
+    ("warning", logging.WARNING),
+    ("error", logging.ERROR),
+    ("critical", logging.CRITICAL),
+))
+
+def setTerminalLogging():
     # create console handler and set level
     handler = logging.StreamHandler()
-    handler.setLevel(level)
 
     # create formatter
     try:
         import colorlog
+        # TODO: make this configurable
         formatter = colorlog.ColoredFormatter(
             "{log_color}{levelname}{reset:8} {message_log_color}{message}",
             datefmt=None,
@@ -42,6 +53,37 @@ def setTerminalLogging(level=logging.INFO):
     # add the handler to the root logger
     logger = logging.getLogger()
     logger.addHandler(handler)
-    logger.setLevel(level)
 
     return logger
+
+def set_argparser(argparser):
+    """
+    Add arguments for configuring global logging values to an instance of
+    :py:class:`argparse.ArgumentParser`.
+
+    This function is called internally from the :py:module:`ws.config` module.
+
+    :param argparser: an instance of :py:class:`argparse.ArgumentParser`
+    """
+    argparser.add_argument("--log-level", action="store", choices=LOG_LEVELS.keys(), default="info",
+            help="the verbosity level for terminal logging (default: %(default)s)")
+    argparser.add_argument("-d", "--debug", action="store_const", const="debug", dest="log_level",
+            help="shorthand for '--log-level debug'")
+    argparser.add_argument("-q", "--quiet", action="store_const", const="warning", dest="log_level",
+            help="shorthand for '--log-level warning'")
+    # TODO: --log-file
+
+def init(args):
+    """
+    Initialize the :py:module:`logging` module with the arguments parsed by
+    :py:class:`argparse.ArgumentParser`.
+
+    This function is called internally from the :py:module:`ws.config` module.
+
+    :param args: an instance of :py:class:`argparse.Namespace`. It is expected
+    that :py:func:`set_argparser()` was called prior to parsing the arguments.
+    """
+    logger = logging.getLogger()
+    logger.setLevel(LOG_LEVELS[args.log_level])
+
+    setTerminalLogging()
