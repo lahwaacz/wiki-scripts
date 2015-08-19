@@ -35,16 +35,16 @@ Version 1.0
 - Added also ``assert=bot`` to all bot editing queries.
 - Fixed bugs:
   
-  - formatting of streak timestamps in the ``statistic.py`` script,
-  - namespace prefix parsing in :py:meth:`ws.core.api.API.detect_namespace`,
+  - formatting of streak timestamps in the ``statistic.py`` script
+  - namespace prefix parsing in :py:meth:`ws.core.api.API.detect_namespace`
   - extraction of header elements in case they are nested inside e.g.
-    ``<noinclude>`` tags,
+    ``<noinclude>`` tags
   - whitespace squashing in the
-    :py:func:`ws.parser_helpers.wikicode.remove_and_squash` function,
+    :py:func:`ws.parser_helpers.wikicode.remove_and_squash` function
   - query-continuation algorithm (used to fail with generator queries with
-    multiple values in the ``prop`` query parameter),
-  - JSON serialization of non-str keys,
-  - exception catching for opening cookies,
+    multiple values in the ``prop`` query parameter)
+  - JSON serialization of non-str keys
+  - exception catching for opening cookies
   
 - Improved scripts:
 
