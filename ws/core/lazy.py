@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-# FIXME: sphinx does not recognize the wrapped method as 'property', i.e. it adds () to the name
-
 class LazyProperty(property):
     """
     A `descriptor`_ wrapping a class method and exposing it as a lazily
@@ -22,13 +20,13 @@ class LazyProperty(property):
         # of the memoized values per instance
         self._cache = {}
 
+        # pass along the decorated function's docstring
+        self.__doc__ = func.__doc__
+
     def __get__(self, instance, owner):
-        if instance is None and owner is not None:
-            # static access, e.g. by sphinx
-            return self.func
-        elif instance is None:
-            # TODO: can this even happen?
-            raise AttributeError
+        if instance is None:
+            # static access, e.g. introspection
+            return self
 
         if instance not in self._cache:
             self._cache[instance] = self.func(instance)
