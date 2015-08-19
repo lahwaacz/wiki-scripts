@@ -13,18 +13,18 @@ The underlying ``ws`` module is general and reusable on any wiki powered by
 Featured scripts
 ----------------
 
- - ``link-checker.py``
-   parses all pages on the wiki and tries to fix broken wikilinks, simplify
-   links over redirects and relative links, and to beautify them based on
-   ArchWiki's `style recommendations`_.
- - ``statistics.py``
-   generates automatic updates to the `ArchWiki:Statistics`_ page.
- - ``update-interlanguage-links.py``
-   updates the interlanguage links based on the ArchWiki's `interlanguage map`_.
- - ``update-package-templates.py``
-   finds broken links using the `AUR`_/`Grp`_/`Pkg`_ templates and tries to
-   update them (for example when a package has been moved from the AUR to the
-   official repositories).
+- ``link-checker.py``
+  parses all pages on the wiki and tries to fix broken wikilinks, simplify
+  links over redirects and relative links, and to beautify them based on
+  ArchWiki's `style recommendations`_.
+- ``statistics.py``
+  generates automatic updates to the `ArchWiki:Statistics`_ page.
+- ``update-interlanguage-links.py``
+  updates the interlanguage links based on the ArchWiki's `interlanguage map`_.
+- ``update-package-templates.py``
+  finds broken links using the `AUR`_/`Grp`_/`Pkg`_ templates and tries to
+  update them (for example when a package has been moved from the AUR to the
+  official repositories).
 
 For a full list of available scripts see the root directory of the
 `git repository`_.
