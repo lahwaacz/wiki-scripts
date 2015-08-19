@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Changelog &mdash; wiki-scripts 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="wiki-scripts 1.0 documentation" href="index.html" />
+    <link rel="next" title="API reference" href="modules.html" />
+    <link rel="prev" title="Writing new scripts" href="tutorial.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="version-1-0">
+<h2>Version 1.0<a class="headerlink" href="#version-1-0" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/tree/1.0">Released August 19, 2015</a>
+(<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/compare/0.6...1.0">changes</a>)</p>
+<ul class="simple">
+<li>Major reorganization of the project structure: common code shared between the
+scripts has been moved to the <a class="reference internal" href="ws/ws.html#module-ws" title="ws"><code class="xref py py-mod docutils literal"><span class="pre">ws</span></code></a> module and the original
+<code class="xref py py-mod docutils literal"><span class="pre">MediaWiki</span></code> module has been renamed to <a class="reference internal" href="ws/ws.core.html#module-ws.core" title="ws.core"><code class="xref py py-mod docutils literal"><span class="pre">ws.core</span></code></a>, some of its
+parts were moved directly to <a class="reference internal" href="ws/ws.html#module-ws" title="ws"><code class="xref py py-mod docutils literal"><span class="pre">ws</span></code></a>.</li>
+<li>Reorganization of the <a class="reference internal" href="ws/ws.parser_helpers.html#module-ws.parser_helpers" title="ws.parser_helpers"><code class="xref py py-mod docutils literal"><span class="pre">ws.parser_helpers</span></code></a> submodule, added
+<a class="reference internal" href="ws/ws.parser_helpers.encodings.html#module-ws.parser_helpers.encodings" title="ws.parser_helpers.encodings"><code class="xref py py-mod docutils literal"><span class="pre">ws.parser_helpers.encodings</span></code></a>.</li>
+<li>Expanded documentation, fixed many typos in docstrings.</li>
+<li>Expanded test suite, at least for parts not depending on the MediaWiki API.</li>
+<li>Generalized the <a class="reference internal" href="ws/ws.core.connection.html#ws.core.connection.Connection" title="ws.core.connection.Connection"><code class="xref py py-class docutils literal"><span class="pre">ws.core.connection.Connection</span></code></a> class to handle also
+the <code class="docutils literal"><span class="pre">index.php</span></code> entry point.</li>
+<li>Created the <a class="reference internal" href="ws/ws.core.lazy.html#ws.core.lazy.LazyProperty" title="ws.core.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">ws.core.lazy.LazyProperty</span></code></a> decorator and made
+<a class="reference internal" href="ws/ws.core.api.html#ws.core.api.API.is_loggedin" title="ws.core.api.API.is_loggedin"><code class="xref py py-attr docutils literal"><span class="pre">ws.core.api.API.is_loggedin</span></code></a>, <a class="reference internal" href="ws/ws.core.api.html#ws.core.api.API.user_rights" title="ws.core.api.API.user_rights"><code class="xref py py-attr docutils literal"><span class="pre">ws.core.api.API.user_rights</span></code></a>
+and <a class="reference internal" href="ws/ws.core.api.html#ws.core.api.API.namespaces" title="ws.core.api.API.namespaces"><code class="xref py py-attr docutils literal"><span class="pre">ws.core.api.API.namespaces</span></code></a> proper properties.</li>
+<li>Started using the <a class="reference external" href="https://docs.python.org/3/library/logging.html#module-logging" title="(in Python v3.4)"><code class="xref py py-mod docutils literal"><span class="pre">logging</span></code></a> module for messages.</li>
+<li>New unified configuration interface for all scripts, using the
+<a class="reference internal" href="ws/ws.config.html#module-ws.config" title="ws.config"><code class="xref py py-mod docutils literal"><span class="pre">ws.config</span></code></a> submodule. See <a class="reference external" href="configuration">Configuration</a> for
+details.<ul>
+<li>Basically all scripts were modified to use the <a class="reference internal" href="ws/ws.config.html#module-ws.config" title="ws.config"><code class="xref py py-mod docutils literal"><span class="pre">ws.config</span></code></a>
+interface.</li>
+<li>Default cookie path was changed from <code class="docutils literal"><span class="pre">$XDG_CACHE_HOME</span></code> to
+<code class="docutils literal"><span class="pre">$XDG_CACHE_HOME/wiki-scripts</span></code>.</li>
+<li>Some command line arguments were renamed because of global configuration in
+a config file.</li>
+</ul>
+</li>
+<li>Added also <code class="docutils literal"><span class="pre">assert=bot</span></code> to all bot editing queries.</li>
+<li>Fixed bugs:<ul>
+<li>formatting of streak timestamps in the <code class="docutils literal"><span class="pre">statistic.py</span></code> script</li>
+<li>namespace prefix parsing in <a class="reference internal" href="ws/ws.core.api.html#ws.core.api.API.detect_namespace" title="ws.core.api.API.detect_namespace"><code class="xref py py-meth docutils literal"><span class="pre">ws.core.api.API.detect_namespace()</span></code></a></li>
+<li>extraction of header elements in case they are nested inside e.g.
+<code class="docutils literal"><span class="pre">&lt;noinclude&gt;</span></code> tags</li>
+<li>whitespace squashing in the
+<a class="reference internal" href="ws/ws.parser_helpers.wikicode.html#ws.parser_helpers.wikicode.remove_and_squash" title="ws.parser_helpers.wikicode.remove_and_squash"><code class="xref py py-func docutils literal"><span class="pre">ws.parser_helpers.wikicode.remove_and_squash()</span></code></a> function</li>
+<li>query-continuation algorithm (used to fail with generator queries with
+multiple values in the <code class="docutils literal"><span class="pre">prop</span></code> query parameter)</li>
+<li>JSON serialization of non-str keys</li>
+<li>exception catching for opening cookies</li>
+</ul>
+</li>
+<li>Improved scripts:<ul>
+<li><code class="docutils literal"><span class="pre">statistics.py</span></code> (minor bug fixes)</li>
+<li><code class="docutils literal"><span class="pre">update-interlanguage-links.py</span></code> (heavy refactoring)</li>
+<li><code class="docutils literal"><span class="pre">check-user-namespace.py</span></code> (warn if user pages are categorized)</li>
+<li><code class="docutils literal"><span class="pre">list-redirects-broken-fragments.py</span></code> (improved detection of redirects with
+broken fragments by comparing dot-encoded fragments)</li>
+<li><code class="docutils literal"><span class="pre">dump.py</span></code> (deduplicated against <a class="reference internal" href="ws/ws.core.connection.html#ws.core.connection.Connection" title="ws.core.connection.Connection"><code class="xref py py-class docutils literal"><span class="pre">ws.core.connection.Connection</span></code></a>)</li>
+</ul>
+</li>
+<li>New scripts:<ul>
+<li><code class="docutils literal"><span class="pre">recategorize-over-redirect.py</span></code></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Changelog</a><ul>
+<li><a class="reference internal" href="#version-1-0">Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="tutorial.html" title="previous chapter">Writing new scripts</a></li>
+      <li>Next: <a href="modules.html" title="next chapter">API reference</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/changelog.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014-2015, Jakub Klinkovský.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/changelog.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/lahwaacz/wiki-scripts" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

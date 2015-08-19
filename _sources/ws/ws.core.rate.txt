@@ -1,0 +1,7 @@
+ws.core.rate module
+===================
+
+.. automodule:: ws.core.rate
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,18 @@
+ws.core package
+===============
+
+.. automodule:: ws.core
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   ws.core.api
+   ws.core.connection
+   ws.core.lazy
+   ws.core.rate
+

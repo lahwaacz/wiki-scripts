@@ -1,0 +1,7 @@
+ws.core.connection module
+=========================
+
+.. automodule:: ws.core.connection
+    :members:
+    :undoc-members:
+    :show-inheritance:

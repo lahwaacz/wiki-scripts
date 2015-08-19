@@ -1,0 +1,7 @@
+ws.utils module
+===============
+
+.. automodule:: ws.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:

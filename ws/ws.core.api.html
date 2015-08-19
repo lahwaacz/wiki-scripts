@@ -1,0 +1,361 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ws.core.api module &mdash; wiki-scripts 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="wiki-scripts 1.0 documentation" href="../index.html" />
+    <link rel="up" title="ws.core package" href="ws.core.html" />
+    <link rel="next" title="ws.core.connection module" href="ws.core.connection.html" />
+    <link rel="prev" title="ws.core package" href="ws.core.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ws.core.api">
+<span id="ws-core-api-module"></span><h1>ws.core.api module<a class="headerlink" href="#module-ws.core.api" title="Permalink to this headline">¶</a></h1>
+<dl class="exception">
+<dt id="ws.core.api.LoginFailed">
+<em class="property">exception </em><code class="descclassname">ws.core.api.</code><code class="descname">LoginFailed</code><a class="headerlink" href="#ws.core.api.LoginFailed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
+<p>Raised when the <a class="reference internal" href="#ws.core.api.API.login" title="ws.core.api.API.login"><code class="xref py py-meth docutils literal"><span class="pre">API.login()</span></code></a> call failed.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ws.core.api.API">
+<em class="property">class </em><code class="descclassname">ws.core.api.</code><code class="descname">API</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ws.core.connection.html#ws.core.connection.Connection" title="ws.core.connection.Connection"><code class="xref py py-class docutils literal"><span class="pre">ws.core.connection.Connection</span></code></a></p>
+<p>Simple interface to MediaWiki&#8217;s API.</p>
+<p>This object should implement wrappers around the &#8216;action&#8217; parameter,
+the &#8220;public&#8221; methods are named as its possible values (login, query,
+edit, ...) and helper methods start with an underscore (&#8216;_&#8217;).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>api_url</strong> &#8211; URL path to wiki API interface</li>
+<li><strong>kwargs</strong> &#8211; any keyword arguments of the Connection object</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ws.core.api.API.login">
+<code class="descname">login</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API.login" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs into the wiki with username and password. See <a class="reference external" href="https://www.mediawiki.org/wiki/API:Login">MediaWiki#API:Login</a>
+for reference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> &#8211; username to use</li>
+<li><strong>password</strong> &#8211; password to use</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">True</span></code> on successful login, otherwise raises <a class="reference internal" href="#ws.core.api.LoginFailed" title="ws.core.api.LoginFailed"><code class="xref py py-class docutils literal"><span class="pre">LoginFailed</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.core.api.API.logout">
+<code class="descname">logout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API.logout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs out of the wiki.
+See <a class="reference external" href="https://www.mediawiki.org/wiki/API:Logout">MediaWiki#API:Logout</a> for reference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.core.api.API.is_loggedin">
+<code class="descname">is_loggedin</code><a class="headerlink" href="#ws.core.api.API.is_loggedin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates whether the current session is authenticated (<code class="docutils literal"><span class="pre">True</span></code>) or
+not (<code class="docutils literal"><span class="pre">False</span></code>).</p>
+<p>The property is evaluated lazily and cached with the <code class="docutils literal"><span class="pre">&#64;LazyProperty</span></code>
+decorator.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.core.api.API.user_rights">
+<code class="descname">user_rights</code><a class="headerlink" href="#ws.core.api.API.user_rights" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of rights for the current user.</p>
+<p>The property is evaluated lazily and cached with the <code class="docutils literal"><span class="pre">&#64;LazyProperty</span></code>
+decorator.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.core.api.API.namespaces">
+<code class="descname">namespaces</code><a class="headerlink" href="#ws.core.api.API.namespaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Namespaces present on the wiki as mapping (dictionary) of namespace IDs
+to their names.</p>
+<p>The property is evaluated lazily and cached with the <code class="docutils literal"><span class="pre">&#64;LazyProperty</span></code>
+decorator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.core.api.API.detect_namespace">
+<code class="descname">detect_namespace</code><span class="sig-paren">(</span><em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API.detect_namespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect namespace of a given title, useful to compare pure titles across
+namespaces.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> &#8211; the full title of a wiki page</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <code class="docutils literal"><span class="pre">(namespace,</span> <span class="pre">pure_title)</span></code> tuple. Underscores are replaced with
+spaces in <cite>namespace</cite>, but <cite>pure_title</cite> corresponds to the input
+(underscores and spaces are preserved). The main namespace is
+identified as an empty string.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.core.api.API.query_continue">
+<code class="descname">query_continue</code><span class="sig-paren">(</span><em>params=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API.query_continue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator for MediaWiki&#8217;s query-continue feature.
+Reference: <a class="reference external" href="https://www.mediawiki.org/wiki/API:Query#Continuing_queries">https://www.mediawiki.org/wiki/API:Query#Continuing_queries</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>params</strong> &#8211; same as <code class="xref py py-meth docutils literal"><span class="pre">MediaWiki.connection.Connection.call()</span></code>, but
+<code class="docutils literal"><span class="pre">action</span></code> is always set to <code class="docutils literal"><span class="pre">&quot;query&quot;</span></code> and <code class="docutils literal"><span class="pre">&quot;continue&quot;</span></code> to <code class="docutils literal"><span class="pre">&quot;&quot;</span></code></li>
+<li><strong>kwargs</strong> &#8211; same as <code class="xref py py-meth docutils literal"><span class="pre">MediaWiki.connection.Connection.call()</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">&quot;query&quot;</span></code> part of the API response</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.core.api.API.generator">
+<code class="descname">generator</code><span class="sig-paren">(</span><em>params=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API.generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface to API:Generators, conveniently implemented as Python
+generator.</p>
+<p>Parameter <code class="docutils literal"><span class="pre">generator</span></code> must be supplied.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>params</strong> &#8211; same as <a class="reference internal" href="#ws.core.api.API.query_continue" title="ws.core.api.API.query_continue"><code class="xref py py-meth docutils literal"><span class="pre">API.query_continue()</span></code></a></li>
+<li><strong>kwargs</strong> &#8211; same as <a class="reference internal" href="#ws.core.api.API.query_continue" title="ws.core.api.API.query_continue"><code class="xref py py-meth docutils literal"><span class="pre">API.query_continue()</span></code></a></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last">from <code class="docutils literal"><span class="pre">&quot;pages&quot;</span></code> part of the API response</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>When a generator is combined with props, results are split into multiple
+chunks, each providing piece of information. For exmample queries with
+&#8220;prop=revisions&#8221; and &#8220;rvprop=content&#8221; have a limit lower than the
+generator&#8217;s maximum and specifying multiple props generally results in
+exceeding the value of <code class="docutils literal"><span class="pre">$wgAPIMaxResultSize</span></code>.</p>
+<p>Although there is an automated query continuation via
+<code class="xref py py-meth docutils literal"><span class="pre">self.query_continue()</span></code>, the overlapping overlapping data is not
+squashed automatically in order to avoid keeping big data in memory
+(this is the point of API:Generators). As a result, a page may be
+yielded multiple times. See <code class="xref py py-meth docutils literal"><span class="pre">cache.LatestRevisionsText.init()</span></code>
+for an example of proper handling of this case.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.core.api.API.list">
+<code class="descname">list</code><span class="sig-paren">(</span><em>params=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface to API:Lists, implemented as Python generator.</p>
+<p>Parameter <code class="docutils literal"><span class="pre">list</span></code> must be supplied.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>params</strong> &#8211; same as <a class="reference internal" href="#ws.core.api.API.query_continue" title="ws.core.api.API.query_continue"><code class="xref py py-meth docutils literal"><span class="pre">API.query_continue()</span></code></a></li>
+<li><strong>kwargs</strong> &#8211; same as <a class="reference internal" href="#ws.core.api.API.query_continue" title="ws.core.api.API.query_continue"><code class="xref py py-meth docutils literal"><span class="pre">API.query_continue()</span></code></a></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last">from <code class="docutils literal"><span class="pre">list</span></code> part of the API response</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.core.api.API.resolve_redirects">
+<code class="descname">resolve_redirects</code><span class="sig-paren">(</span><em>*pageids</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API.resolve_redirects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolve redirect titles according to the <a class="reference external" href="https://www.mediawiki.org/wiki/API:Query#Resolving_redirects">MediaWiki&#8217;s API</a>. List of
+redirect pages must be obtained other way, for example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">pageids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">ns</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;0&quot;</span><span class="p">,</span> <span class="s">&quot;4&quot;</span><span class="p">,</span> <span class="s">&quot;12&quot;</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">pages</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">generator</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s">&quot;allpages&quot;</span><span class="p">,</span> <span class="n">gaplimit</span><span class="o">=</span><span class="s">&quot;max&quot;</span><span class="p">,</span> <span class="n">gapfilterredir</span><span class="o">=</span><span class="s">&quot;redirects&quot;</span><span class="p">,</span> <span class="n">gapnamespace</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">_pageids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">page</span><span class="p">[</span><span class="s">&quot;pageid&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">pages</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">pageids</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_pageids</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or just use this method when not sure if given title is a redirect or
+not.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pageids</strong> &#8211; unpacked list of page IDs to resolve (i.e. call this method as
+<code class="docutils literal"><span class="pre">resolve_redirects(*list)</span></code> or <code class="docutils literal"><span class="pre">resolve_redirects(pageid1,</span> <span class="pre">pageid2,</span> <span class="pre">...)</span></code>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">redirects</span></code> part of the API response concatenated into one list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.core.api.API.redirects_map">
+<code class="descname">redirects_map</code><span class="sig-paren">(</span><em>source_namespaces=None</em>, <em>target_namespaces='all'</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API.redirects_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a mapping of redirects in given namespaces. Interwiki redirects are
+not included in the mapping.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>source_namespaces</strong> &#8211; the namespace ID of the source title must be in this list in order
+to be included in the mapping (default is <code class="docutils literal"><span class="pre">[0]</span></code>, the magic word
+<code class="docutils literal"><span class="pre">&quot;all&quot;</span></code> will select all available namespaces)</li>
+<li><strong>target_namespaces</strong> &#8211; the namespace ID of the target title must be in this list in order
+to be included in the mapping (default is <code class="docutils literal"><span class="pre">&quot;all&quot;</span></code>, which will
+select all available namespaces)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a dictionary where the keys are source titles and values are the
+redirect targets, including the link fragments (e.g.
+<code class="docutils literal"><span class="pre">&quot;Page</span> <span class="pre">title#Section</span> <span class="pre">title&quot;</span></code>).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.core.api.API.edit">
+<code class="descname">edit</code><span class="sig-paren">(</span><em>*args</em>, <em>**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API.edit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../modules.html">API reference</a><ul>
+  <li><a href="ws.html">ws package</a><ul>
+  <li><a href="ws.core.html">ws.core package</a><ul>
+      <li>Previous: <a href="ws.core.html" title="previous chapter">ws.core package</a></li>
+      <li>Next: <a href="ws.core.connection.html" title="next chapter">ws.core.connection module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/ws/ws.core.api.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014-2015, Jakub Klinkovský.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="../_sources/ws/ws.core.api.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/lahwaacz/wiki-scripts" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

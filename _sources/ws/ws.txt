@@ -1,0 +1,31 @@
+ws package
+==========
+
+.. automodule:: ws
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    ws.ArchWiki
+    ws.cache
+    ws.core
+    ws.parser_helpers
+
+Submodules
+----------
+
+.. toctree::
+
+   ws.config
+   ws.diff
+   ws.dump
+   ws.interactive
+   ws.logging
+   ws.utils
+   ws.wikitable
+

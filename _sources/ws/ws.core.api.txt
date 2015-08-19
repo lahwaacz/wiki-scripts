@@ -1,0 +1,7 @@
+ws.core.api module
+==================
+
+.. automodule:: ws.core.api
+    :members:
+    :undoc-members:
+    :show-inheritance:

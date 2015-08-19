@@ -1,0 +1,7 @@
+ws.core.lazy module
+===================
+
+.. automodule:: ws.core.lazy
+    :members:
+    :undoc-members:
+    :show-inheritance:

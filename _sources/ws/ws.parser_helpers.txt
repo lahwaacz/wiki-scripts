@@ -1,0 +1,16 @@
+ws.parser_helpers package
+=========================
+
+.. automodule:: ws.parser_helpers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   ws.parser_helpers.encodings
+   ws.parser_helpers.wikicode
+
