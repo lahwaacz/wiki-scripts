@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import time
 import datetime
 import sys
 import logging
@@ -16,7 +15,7 @@ except ImportError:
 from ws.core import API, APIError
 from ws.interactive import require_login
 from ws.wikitable import Wikitable
-from ws.utils import parse_date, list_chunks
+from ws.utils import parse_date
 import ws.cache
 
 from statistics_modules import UserStatsModules

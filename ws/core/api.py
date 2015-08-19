@@ -208,8 +208,6 @@ class API(Connection):
         if generator_ is None:
             raise ValueError("param 'generator' must be supplied")
 
-        prop = kwargs.get("prop") if params is None else params.get("prop")
-
         for snippet in self.query_continue(params, **kwargs):
             # API generator returns dict !!!
             # for example:  snippet === {"pages":

@@ -2,12 +2,8 @@
 
 # TODO: save+restore log events https://www.mediawiki.org/wiki/API:Logevents
 
-import requests
-import http.cookiejar as cookielib
 from datetime import datetime
 import logging
-
-from .core.connection import DEFAULT_UA
 
 logger = logging.getLogger(__name__)
 

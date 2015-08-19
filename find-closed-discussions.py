@@ -12,7 +12,6 @@ def main(api, db):
     for ns in namespaces:
         pages = db[ns]
         for page in pages:
-            title = page["title"]
             text = page["revisions"][0]["*"]
             if re.search(closed_talk_re, text):
                 talks.append(page)

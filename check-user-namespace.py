@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import os.path
 import itertools
 
 from ws.core import API

@@ -6,7 +6,6 @@ interactive tasks.
 """
 
 import os
-import sys
 import getpass
 import subprocess
 import logging

@@ -4,7 +4,6 @@
 #   pulling revisions from cache does not expand templates (transclusions like on List of applications)
 #   finally merge into link-checker.py, broken stuff should be just reported
 
-import os.path
 import re
 import collections
 

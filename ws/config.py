@@ -42,7 +42,7 @@ class ConfigFileParser:
         if top_level is None:
             top_level = cf[self.top_level_arg]
             if not top_level:
-                raise coonfigargparse.ConfigFileParserException("top-level parameter '{}' not found")
+                raise configargparse.ConfigFileParserException("top-level parameter '{}' not found")
         return cf(top_level, self.subname).get_options()
 
     def serialize(self, items):

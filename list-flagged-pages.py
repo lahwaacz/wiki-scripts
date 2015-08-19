@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-import os.path
-
 from ws.core import API
 import ws.ArchWiki.lang as lang
 
