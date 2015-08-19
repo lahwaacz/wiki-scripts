@@ -10,3 +10,15 @@ def build_docs():
     with lcd("./docs/"):
         local("make clean")
         local("make html")
+    # recreate the git submodule files (deleted with make clean)
+    git = open("./docs/_build/html/.git", "w")
+    git.write("gitdir: ../../../.git/modules/gh-pages\n")
+    local("touch ./docs/_build/html/.nojekyll")
+
+@task
+def deploy_docs():
+    with lcd("./docs/_build/html/"):
+        local("git add .")
+        msg = raw_input("Enter commit message: ")
+        local("git commit -m '%s'" % msg)
+        local("git push")
