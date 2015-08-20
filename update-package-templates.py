@@ -62,6 +62,7 @@ class PkgFinder:
         self.aurpkgs = None
         self.pacdb32 = self.pacdb_init(PACCONF, os.path.join(self.tmpdir, "pacdbpath32"), arch="i686")
         self.pacdb64 = self.pacdb_init(PACCONF + PACCONF64_SUFFIX, os.path.join(self.tmpdir, "pacdbpath64"), arch="x86_64")
+        self.aur_archived_pkgs = open("./static/aur3-archive.pkglist").read().split()
 
     def pacdb_init(self, config, dbpath, arch):
         os.makedirs(dbpath, exist_ok=True)
@@ -139,6 +140,15 @@ class PkgFinder:
         # use bisect instead of 'pkgname in self.aurpkgs' for performance
         i = bisect.bisect_left(self.aurpkgs, pkgname)
         if i != len(self.aurpkgs) and self.aurpkgs[i] == pkgname:
+            return True
+        return False
+
+    # check that given package exists in AUR3 archive (aur-mirror.git)
+    def find_aur3_archive(self, pkgname):
+        pkgname = pkgname.lower()
+        # use bisect instead of 'pkgname in self.aur_archived_pkgs' for performance
+        i = bisect.bisect_left(self.aur_archived_pkgs, pkgname)
+        if i != len(self.aur_archived_pkgs) and self.aur_archived_pkgs[i] == pkgname:
             return True
         return False
 
@@ -256,6 +266,10 @@ class PkgUpdater:
         if replacedby:
             return "replaced by {{Pkg|%s}}" % replacedby.name
 
+        # check AUR3 archive (aur-mirror.git)
+        if self.finder.find_aur3_archive(pkgname):
+            return "{{aur-mirror|%s}}" % pkgname.lower()
+
         return "package not found"
 
     def update_page(self, title, text):
@@ -292,7 +306,7 @@ class PkgUpdater:
             parent = get_parent_wikicode(wikicode, template)
             adjacent = get_adjacent_node(parent, template, ignore_whitespace=True)
             if hint is not None:
-                logger.warning("broken package link: '{}': {}".format(template, hint))
+                logger.warning("broken package link: {}: {}".format(template, hint))
                 self.add_report_line(title, template, hint)
                 broken_flag = "{{Broken package link|%s}}" % hint
                 if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches("Broken package link"):
