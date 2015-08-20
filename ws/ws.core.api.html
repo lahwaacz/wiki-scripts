@@ -42,13 +42,6 @@
             
   <div class="section" id="module-ws.core.api">
 <span id="ws-core-api-module"></span><h1>ws.core.api module<a class="headerlink" href="#module-ws.core.api" title="Permalink to this headline">¶</a></h1>
-<dl class="exception">
-<dt id="ws.core.api.LoginFailed">
-<em class="property">exception </em><code class="descclassname">ws.core.api.</code><code class="descname">LoginFailed</code><a class="headerlink" href="#ws.core.api.LoginFailed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
-<p>Raised when the <a class="reference internal" href="#ws.core.api.API.login" title="ws.core.api.API.login"><code class="xref py py-meth docutils literal"><span class="pre">API.login()</span></code></a> call failed.</p>
-</dd></dl>
-
 <dl class="class">
 <dt id="ws.core.api.API">
 <em class="property">class </em><code class="descclassname">ws.core.api.</code><code class="descname">API</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API" title="Permalink to this definition">¶</a></dt>
@@ -111,16 +104,16 @@ See <a class="reference external" href="https://www.mediawiki.org/wiki/API:Logou
 <code class="descname">is_loggedin</code><a class="headerlink" href="#ws.core.api.API.is_loggedin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indicates whether the current session is authenticated (<code class="docutils literal"><span class="pre">True</span></code>) or
 not (<code class="docutils literal"><span class="pre">False</span></code>).</p>
-<p>The property is evaluated lazily and cached with the <code class="docutils literal"><span class="pre">&#64;LazyProperty</span></code>
-decorator.</p>
+<p>The property is evaluated lazily and cached with the
+<a class="reference internal" href="ws.core.lazy.html#ws.core.lazy.LazyProperty" title="ws.core.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">&#64;LazyProperty</span></code></a> decorator.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="ws.core.api.API.user_rights">
 <code class="descname">user_rights</code><a class="headerlink" href="#ws.core.api.API.user_rights" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list of rights for the current user.</p>
-<p>The property is evaluated lazily and cached with the <code class="docutils literal"><span class="pre">&#64;LazyProperty</span></code>
-decorator.</p>
+<p>The property is evaluated lazily and cached with the
+<a class="reference internal" href="ws.core.lazy.html#ws.core.lazy.LazyProperty" title="ws.core.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">&#64;LazyProperty</span></code></a> decorator.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -128,8 +121,8 @@ decorator.</p>
 <code class="descname">namespaces</code><a class="headerlink" href="#ws.core.api.API.namespaces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Namespaces present on the wiki as mapping (dictionary) of namespace IDs
 to their names.</p>
-<p>The property is evaluated lazily and cached with the <code class="docutils literal"><span class="pre">&#64;LazyProperty</span></code>
-decorator.</p>
+<p>The property is evaluated lazily and cached with the
+<a class="reference internal" href="ws.core.lazy.html#ws.core.lazy.LazyProperty" title="ws.core.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">&#64;LazyProperty</span></code></a> decorator.</p>
 </dd></dl>
 
 <dl class="method">
@@ -202,10 +195,10 @@ chunks, each providing piece of information. For exmample queries with
 generator&#8217;s maximum and specifying multiple props generally results in
 exceeding the value of <code class="docutils literal"><span class="pre">$wgAPIMaxResultSize</span></code>.</p>
 <p>Although there is an automated query continuation via
-<code class="xref py py-meth docutils literal"><span class="pre">self.query_continue()</span></code>, the overlapping overlapping data is not
+<a class="reference internal" href="#ws.core.api.API.query_continue" title="ws.core.api.API.query_continue"><code class="xref py py-meth docutils literal"><span class="pre">query_continue()</span></code></a>, the overlapping overlapping data is not
 squashed automatically in order to avoid keeping big data in memory
 (this is the point of API:Generators). As a result, a page may be
-yielded multiple times. See <code class="xref py py-meth docutils literal"><span class="pre">cache.LatestRevisionsText.init()</span></code>
+yielded multiple times. See <a class="reference internal" href="ws.cache.html#ws.cache.LatestRevisionsText.init" title="ws.cache.LatestRevisionsText.init"><code class="xref py py-meth docutils literal"><span class="pre">ws.cache.LatestRevisionsText.init()</span></code></a>
 for an example of proper handling of this case.</p>
 </dd></dl>
 
@@ -286,11 +279,43 @@ redirect targets, including the link fragments (e.g.
 </table>
 </dd></dl>
 
-<dl class="method">
-<dt id="ws.core.api.API.edit">
-<code class="descname">edit</code><span class="sig-paren">(</span><em>*args</em>, <em>**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API.edit" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="ws.core.api.API._csrftoken">
+<code class="descname">_csrftoken</code><a class="headerlink" href="#ws.core.api.API._csrftoken" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="ws.core.api.API.edit">
+<code class="descname">edit</code><span class="sig-paren">(</span><em>pageid</em>, <em>text</em>, <em>basetimestamp</em>, <em>summary</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API.edit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface to <a class="reference external" href="https://www.mediawiki.org/wiki/API:Edit">API:Edit</a>. MD5 hash of the new text is computed
+automatically and added to the query. This method is rate-limited with
+the <a class="reference internal" href="ws.core.rate.html#ws.core.rate.RateLimited" title="ws.core.rate.RateLimited"><code class="xref py py-class docutils literal"><span class="pre">&#64;RateLimited</span></code></a> decorator to
+allow 1 call per 3 seconds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>pageid</strong> &#8211; page ID of the page to be edited</li>
+<li><strong>text</strong> &#8211; new page content</li>
+<li><strong>basetimestamp</strong> &#8211; Timestamp of the base revision (obtained through
+<cite>prop=revisions&amp;rvprop=timestamp</cite>). Used to detect edit conflicts.</li>
+<li><strong>summary</strong> &#8211; edit summary</li>
+<li><strong>kwargs</strong> &#8211; Additional query parameters, see <a class="reference external" href="https://www.mediawiki.org/wiki/API:Edit">API:Edit</a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="ws.core.api.LoginFailed">
+<em class="property">exception </em><code class="descclassname">ws.core.api.</code><code class="descname">LoginFailed</code><a class="headerlink" href="#ws.core.api.LoginFailed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
+<p>Raised when the <a class="reference internal" href="#ws.core.api.API.login" title="ws.core.api.API.login"><code class="xref py py-meth docutils literal"><span class="pre">API.login()</span></code></a> call failed.</p>
 </dd></dl>
 
 </div>
