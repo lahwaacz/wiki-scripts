@@ -26,6 +26,7 @@ Or at runtime by wrapping the function call:
     wrapped = RateLimited(10, 2)(PrintNumber)
 """
 
+from functools import wraps
 import time
 import logging
 
@@ -34,11 +35,13 @@ logger = logging.getLogger(__name__)
 __all__ = ["RateLimited"]
 
 def RateLimited(rate, per):
-    def decorate(func):
+    def decorator(func):
         # globals for the decorator
         # defined as lists to avoid problems with the 'global' keyword
         allowance = [rate]
         last_check = [time.time()]
+
+        @wraps(func)
         def rate_limit_func(*args, **kargs):
             current = time.time()
             time_passed = current - last_check[0]
@@ -58,8 +61,10 @@ def RateLimited(rate, per):
                 ret = func(*args, **kargs)
                 allowance[0] -= 1.0
             return ret
+
         return rate_limit_func
-    return decorate
+
+    return decorator
 
 
 if __name__ == "__main__":

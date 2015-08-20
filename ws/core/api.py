@@ -12,12 +12,6 @@ logger = logging.getLogger(__name__)
 
 __all__ = ["API", "LoginFailed"]
 
-class LoginFailed(Exception):
-    """
-    Raised when the :py:meth:`API.login` call failed.
-    """
-    pass
-
 # TODO: rename as "Site"?
 class API(Connection):
     """
@@ -94,8 +88,8 @@ class API(Connection):
         Indicates whether the current session is authenticated (``True``) or
         not (``False``).
 
-        The property is evaluated lazily and cached with the ``@LazyProperty``
-        decorator.
+        The property is evaluated lazily and cached with the
+        :py:class:`@LazyProperty <ws.core.lazy.LazyProperty>` decorator.
         """
         result = self.call_api(action="query", meta="userinfo")
         return "anon" not in result["userinfo"]
@@ -105,8 +99,8 @@ class API(Connection):
         """
         A list of rights for the current user.
 
-        The property is evaluated lazily and cached with the ``@LazyProperty``
-        decorator.
+        The property is evaluated lazily and cached with the
+        :py:class:`@LazyProperty <ws.core.lazy.LazyProperty>` decorator.
         """
         result = self.call_api(action="query", meta="userinfo", uiprop="rights")
         return result["userinfo"]["rights"]
@@ -117,8 +111,8 @@ class API(Connection):
         Namespaces present on the wiki as mapping (dictionary) of namespace IDs
         to their names.
 
-        The property is evaluated lazily and cached with the ``@LazyProperty``
-        decorator.
+        The property is evaluated lazily and cached with the
+        :py:class:`@LazyProperty <ws.core.lazy.LazyProperty>` decorator.
         """
         result = self.call_api(action="query", meta="siteinfo", siprop="namespaces")
         namespaces = result["namespaces"].values()
@@ -202,10 +196,10 @@ class API(Connection):
         exceeding the value of ``$wgAPIMaxResultSize``.
 
         Although there is an automated query continuation via
-        :py:meth:`self.query_continue`, the overlapping overlapping data is not
+        :py:meth:`query_continue`, the overlapping overlapping data is not
         squashed automatically in order to avoid keeping big data in memory
         (this is the point of API:Generators). As a result, a page may be
-        yielded multiple times. See :py:meth:`cache.LatestRevisionsText.init()`
+        yielded multiple times. See :py:meth:`ws.cache.LatestRevisionsText.init`
         for an example of proper handling of this case.
         """
         generator_ = kwargs.get("generator") if params is None else params.get("generator")
@@ -341,7 +335,8 @@ class API(Connection):
     def edit(self, pageid, text, basetimestamp, summary, **kwargs):
         """
         Interface to `API:Edit`_. MD5 hash of the new text is computed
-        automatically and added to the query. This method is rate-limited to
+        automatically and added to the query. This method is rate-limited with
+        the :py:class:`@RateLimited <ws.core.rate.RateLimited>` decorator to
         allow 1 call per 3 seconds.
 
         :param pageid: page ID of the page to be edited
@@ -383,3 +378,9 @@ class API(Connection):
                 del self._csrftoken
                 return _make_edit()
             raise
+
+class LoginFailed(Exception):
+    """
+    Raised when the :py:meth:`API.login` call failed.
+    """
+    pass
