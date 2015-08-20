@@ -12,7 +12,8 @@ import ws.cache
 import ws.utils
 from ws.parser_helpers.encodings import dotencode
 
-# TODO: move to ws.parser_helpers
+# TODO: split to get_section_headings() and get_anchors() and move to
+# ws.parser_helpers (without caching, title -> text)
 def valid_anchor(title, anchor, pages, wrapped_titles):
     """
     Checks if given anchor is valid, i.e. if a corresponding section exists on

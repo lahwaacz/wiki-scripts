@@ -15,6 +15,7 @@ class LoginFailed(Exception):
     """
     pass
 
+# TODO: rename as "Site"?
 class API(Connection):
     """
     Simple interface to MediaWiki's API.

@@ -13,6 +13,7 @@
 #       check capitalization (needs caching of latest revisions for performance)
 #       check N older revisions, section might have been renamed    (must be interactive!)
 #                            -- || --                     moved to other page: warn the user (or just mark with {{Broken fragment}} ?)
+#   detect self-redirects (definitely interactive only)
 
 import re
 import logging
@@ -31,6 +32,10 @@ class LinkChecker:
         self.api = api
         self.interactive = interactive
 
+        # TODO: when there are many different changes, create a page on ArchWiki
+        # describing the changes, link it with wikilink syntax using a generic
+        # alternative text (e.g. "semi-automatic style fixes") (path should be
+        # configurable, as well as the URL fallback)
         if interactive is True:
             self.edit_summary = "simplification of wikilinks, fixing whitespace and capitalization, removing underscores (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py (interactive))"
         else:
