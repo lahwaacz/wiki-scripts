@@ -28,7 +28,7 @@ def setTerminalLogging():
         import colorlog
         # TODO: make this configurable
         formatter = colorlog.ColoredFormatter(
-            "{log_color}{levelname}{reset:8} {message_log_color}{message}",
+            "{log_color}{levelname:8}{reset} {message_log_color}{message}",
             datefmt=None,
             reset=True,
             log_colors={
