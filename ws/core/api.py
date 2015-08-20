@@ -2,10 +2,13 @@
 
 import hashlib
 from functools import lru_cache
+import logging
 
-from .connection import Connection
+from .connection import Connection, APIError
 from .rate import RateLimited
 from .lazy import LazyProperty
+
+logger = logging.getLogger(__name__)
 
 __all__ = ["API", "LoginFailed"]
 
@@ -329,8 +332,13 @@ class API(Connection):
                         redirects[source_title] = target_title
         return redirects
 
+    @LazyProperty
+    def _csrftoken(self):
+        logger.debug("Requesting new csrftoken...")
+        return self.call_api(action="query", meta="tokens")["tokens"]["csrftoken"]
+
     @RateLimited(1, 3)
-    def edit(self, pageid, text, basetimestamp, summary, token=None, **kwargs):
+    def edit(self, pageid, text, basetimestamp, summary, **kwargs):
         """
         Interface to `API:Edit`_. MD5 hash of the new text is computed
         automatically and added to the query. This method is rate-limited to
@@ -357,11 +365,21 @@ class API(Connection):
         h.update(text)
         md5 = h.hexdigest()
 
-        if not token:
-            token = self.call_api(action="query", meta="tokens")["tokens"]["csrftoken"]
-
         # if bot= is passed, also pass an assertion
         if "bot" in kwargs:
             kwargs["assert"] = "bot"
 
-        return self.call_api(action="edit", token=token, md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, **kwargs)
+        # helper to actually make the edit, can be used to retry
+        def _make_edit():
+            return self.call_api(action="edit", token=self._csrftoken, md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, **kwargs)
+
+        try:
+            return _make_edit()
+        except APIError as e:
+            # csrftoken can be used multiple times, but expires after some time,
+            # so try to get a new one *once*
+            if e.server_response["code"] == "badtoken":
+                # reset the cached csrftoken and try again
+                del self._csrftoken
+                return _make_edit()
+            raise

@@ -117,8 +117,7 @@ class Statistics:
 
     def _parse_page(self):
         result = self.api.call_api(action="query", prop="info|revisions",
-                rvprop="content|timestamp", meta="tokens",
-                titles=self.cliargs.statistics_page)
+                rvprop="content|timestamp", titles=self.cliargs.statistics_page)
         page = tuple(result["pages"].values())[0]
 
         if "missing" in page:
@@ -128,7 +127,6 @@ class Statistics:
         revision = page["revisions"][0]
         self.text = mwparserfromhell.parse(revision["*"])
         self.timestamp = revision["timestamp"]
-        self.csrftoken = result["tokens"]["csrftoken"]
 
     def _compose_page(self):
         userstats = _UserStats(self.api, self.cliargs.cache_dir, self.text,
@@ -144,8 +142,7 @@ class Statistics:
 
             try:
                 result = self.api.edit(self.pageid, self.text, self.timestamp,
-                                  self.cliargs.summary, token=self.csrftoken,
-                                  bot="1", minor="1")
+                                  self.cliargs.summary, bot="1", minor="1")
             except APIError as err:
                 logger.error("Could not save the page ({})".format(
                                                         err.server_response["info"]))
