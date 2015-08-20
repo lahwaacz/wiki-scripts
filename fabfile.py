@@ -17,6 +17,7 @@ def build_docs():
 
 @task
 def deploy_docs():
+    build_docs()
     with lcd("./docs/_build/html/"):
         local("git add .")
         msg = raw_input("Enter commit message: ")
