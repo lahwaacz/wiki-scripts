@@ -23,10 +23,16 @@ class Recategorize:
         text_old = page["revisions"][0]["*"]
         timestamp = page["revisions"][0]["timestamp"]
 
+        source_ns, source = self.api.detect_namespace(source)
+        assert(source_ns == "Category")
+
         logger.info("Parsing '{}'...".format(title))
         wikicode = mwparserfromhell.parse(text_old)
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
-            if canonicalize(wikilink.title) == source:
+            # strip whitespace around namespace separator (':')
+            # TODO: do this universally, see #25
+            ns, pure_title = self.api.detect_namespace(wikilink.title)
+            if ns == "Category" and canonicalize(pure_title) == source:
                 wikilink.title = target
         text_new = str(wikicode)
 
