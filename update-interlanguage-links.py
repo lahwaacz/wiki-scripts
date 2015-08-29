@@ -348,9 +348,23 @@ class Interlanguage:
                     edit_interactive(api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
 #                    self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 
+    def find_orphans(self):
+        if self.allpages is None:
+            self.build_graph()
+
+        for page in self.allpages:
+            title = page["title"]
+            # unsupported languages need to be skipped now
+            if not self._is_valid_interlanguage(title):
+                continue
+            langlinks = self._get_langlinks(title)
+            if lang.detect_language(title)[1] != "English" and len(langlinks) == 0:
+                print("* [[{}]]".format(title))
+
 
 if __name__ == "__main__":
     import ws.config
     api = ws.config.object_from_argparser(API, description="Update interlanguage links")
     il = Interlanguage(api)
     il.update_allpages()
+#    il.find_orphans()
