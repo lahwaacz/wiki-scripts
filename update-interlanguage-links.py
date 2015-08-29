@@ -340,7 +340,7 @@ class Interlanguage:
                 text_old = page["revisions"][0]["*"]
                 try:
                     text_new = self._update_interlanguage_links(page, langlinks, weak_update=False)
-                except HeaderError:
+                except header.HeaderError:
                     logger.error("Error: failed to extract header elements. Please investigate.")
                     continue
 

@@ -14,7 +14,7 @@ from .diff import diff_highlighted
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["require_login", "edit_interactive", "InteractiveQuit"]
+__all__ = ["require_login", "edit_interactive", "InteractiveQuit", "ask_yesno"]
 
 def require_login(api):
     """
