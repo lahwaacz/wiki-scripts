@@ -71,7 +71,7 @@ class Recategorize:
             if len(catmembers) == 0:
                 self.flag_for_deletion(source)
             else:
-                logger.warning("'{}' is still not empty:".format(source), sorted(page["title"] for page in catmembers))
+                logger.warning("'{}' is still not empty: {}".format(source, sorted(page["title"] for page in catmembers)))
                 input("Press Enter to continue...")
         print("""
 Recategorization complete. Before deleting the unused categories, make sure to \
