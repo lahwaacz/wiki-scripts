@@ -363,6 +363,9 @@ class API(Connection):
         # if bot= is passed, also pass an assertion
         if "bot" in kwargs:
             kwargs["assert"] = "bot"
+        else:
+            # require being logged in, either as regular user or bot
+            kwargs["assert"] = "user"
 
         # helper to actually make the edit, can be used to retry
         def _make_edit():
