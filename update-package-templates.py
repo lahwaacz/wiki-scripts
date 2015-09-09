@@ -20,9 +20,10 @@ import pycman
 import pyalpm
 
 from ws.core import API, APIError
+from ws.core.lazy import LazyProperty
 from ws.interactive import *
 from ws.ArchWiki.lang import detect_language
-from ws.parser_helpers import get_parent_wikicode, get_adjacent_node
+from ws.parser_helpers import canonicalize, get_parent_wikicode, get_adjacent_node
 
 logger = logging.getLogger(__name__)
 
@@ -209,7 +210,20 @@ class PkgUpdater:
             api = API.from_argparser(args)
         return klass(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify, args.report_dir)
 
-    def update_package_template(self, template):
+    @LazyProperty
+    def _templates_list(self):
+        result = self.api.generator(generator="allpages", gapnamespace=10, gaplimit="max", gapfilterredir="nonredirects")
+        return [page["title"].split(":", maxsplit=1)[1] for page in result]
+
+    def _localized_template(self, template, lang="English"):
+        assert(canonicalize(template) in self._templates_list)
+        localized = "{} ({})".format(template, lang) if lang != "English" else template
+        if canonicalize(localized) in self._templates_list:
+            return localized
+        # fall back to English
+        return template
+
+    def update_package_template(self, template, lang="English"):
         """
         Update given package template.
 
@@ -268,7 +282,7 @@ class PkgUpdater:
 
         # check AUR3 archive (aur-mirror.git)
         if self.finder.find_aur3_archive(pkgname):
-            return "{{aur-mirror|%s}}" % pkgname.lower()
+            return "{{%s|%s}}" % (self._localized_template("aur-mirror", lang), pkgname.lower())
 
         return "package not found"
 
@@ -287,6 +301,7 @@ class PkgUpdater:
                   content of the page
         """
         logger.info("Parsing '%s'..." % title)
+        lang = detect_language(title)[1]
         wikicode = mwparserfromhell.parse(text)
         for template in wikicode.ifilter_templates():
             # skip unrelated templates
@@ -300,7 +315,7 @@ class PkgUpdater:
             except ValueError:
                 continue
 
-            hint = self.update_package_template(template)
+            hint = self.update_package_template(template, lang)
 
             # add/remove/update {{Broken package link}} flag
             parent = get_parent_wikicode(wikicode, template)
@@ -308,14 +323,14 @@ class PkgUpdater:
             if hint is not None:
                 logger.warning("broken package link: {}: {}".format(template, hint))
                 self.add_report_line(title, template, hint)
-                broken_flag = "{{Broken package link|%s}}" % hint
-                if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches("Broken package link"):
+                broken_flag = "{{%s|%s}}" % (self._localized_template("Broken package link", lang), hint)
+                if isinstance(adjacent, mwparserfromhell.nodes.Template) and canonicalize(adjacent.name).startswith("Broken package link"):
                     # replace since the hint might be different
                     wikicode.replace(adjacent, broken_flag)
                 else:
                     wikicode.insert_after(template, broken_flag)
             else:
-                if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches("Broken package link"):
+                if isinstance(adjacent, mwparserfromhell.nodes.Template) and canonicalize(adjacent.name).startswith("Broken package link"):
                     # package has been found again, remove existing flag
                     wikicode.remove(adjacent)
 
