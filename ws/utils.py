@@ -26,14 +26,6 @@ def parse_date(date):
     return datetime.datetime(int(date[:4]), int(date[5:7]), int(date[8:10]),
             int(date[11:13]), int(date[14:16]), int(date[17:19]))
 
-# flatten _shallow_ list
-def flatten_list(iterable):
-    return [inner for outer in iterable for inner in outer]
-
-# flatten _shallow_ generator
-def flatten_gen(iterable):
-    return (inner for outer in iterable for inner in outer)
-
 # test if given string is ASCII
 def is_ascii(text):
     try:

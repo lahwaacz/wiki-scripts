@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
+import itertools
+
 from ws.core import API
-from ws.utils import flatten_gen
 from ws.ArchWiki.lang import detect_language
 
 def main(api):
@@ -13,7 +14,8 @@ def main(api):
         "Template:Article summary wiki",
         "Template:Article summary end"
     ]
-    pages = flatten_gen( (api.generator(generator="embeddedin", geilimit="max", geititle=title) for title in templates) )
+    pages_gen = (api.generator(generator="embeddedin", geilimit="max", geititle=title) for title in templates)
+    pages = itertools.chain.from_iterable(pages_gen)
     titles = set(page["title"] for page in pages)
 
     # print only languages for which "Template:Related articles start (<lang>)" exists
