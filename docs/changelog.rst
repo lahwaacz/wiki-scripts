@@ -9,6 +9,8 @@ Unreleased
 
 - Fixed handling of ``csrftoken``, it is now cached and automatically renewed as
   indicated by the server responses.
+- Partial interlanguage support for ``update-package-templates.py``: localized
+  templates "Broken package link" and "aur-mirror" are respected.
 
 Version 1.0
 -----------
