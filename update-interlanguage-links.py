@@ -14,7 +14,7 @@ from ws.interactive import *
 import ws.ArchWiki.lang as lang
 import ws.ArchWiki.header as header
 import ws.utils as utils
-from ws.parser_helpers import canonicalize
+from ws.parser_helpers.title import canonicalize
 
 logger = logging.getLogger(__name__)
 

@@ -1,11 +1,13 @@
 #! /usr/bin/env python3
 
 from nose.tools import assert_equals, assert_false, raises
+from nose.plugins.attrib import attr
 
 from . import fixtures
 
 from ws.core.api import LoginFailed
 
+@attr(speed="slow")
 class test_api():
     """
     Some basic sanity checks, intended mostly for detecting changes in the
@@ -16,10 +18,11 @@ class test_api():
     def test_hostname(self):
         assert_equals(fixtures.api.get_hostname(), "wiki.archlinux.org")
 
-    # test LoginFailed exception
-    @raises(LoginFailed)
-    def test_login_failed(self):
-        fixtures.api.login("wiki-scripts testing invalid user", "invalid password")
+# TODO: not sure if this is such a good idea...
+#    # test LoginFailed exception
+#    @raises(LoginFailed)
+#    def test_login_failed(self):
+#        fixtures.api.login("wiki-scripts testing invalid user", "invalid password")
 
     # this is anonymous test
     def test_is_loggedin(self):

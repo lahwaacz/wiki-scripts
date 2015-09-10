@@ -23,7 +23,8 @@ from ws.core import API, APIError
 from ws.core.lazy import LazyProperty
 from ws.interactive import *
 from ws.ArchWiki.lang import detect_language
-from ws.parser_helpers import canonicalize, get_parent_wikicode, get_adjacent_node
+from ws.parser_helpers.wikicode import get_parent_wikicode, get_adjacent_node
+from ws.parser_helpers.title import canonicalize
 
 logger = logging.getLogger(__name__)
 

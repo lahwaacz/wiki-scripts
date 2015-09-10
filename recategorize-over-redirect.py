@@ -6,7 +6,7 @@ import logging
 import mwparserfromhell
 
 from ws.core import API
-from ws.parser_helpers import canonicalize
+from ws.parser_helpers.title import canonicalize
 from ws.interactive import edit_interactive, ask_yesno
 
 logger = logging.getLogger(__name__)

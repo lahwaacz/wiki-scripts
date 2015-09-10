@@ -3,7 +3,8 @@
 import mwparserfromhell
 
 from . import lang
-from ws.parser_helpers import canonicalize, remove_and_squash, get_parent_wikicode
+from ws.parser_helpers.wikicode import remove_and_squash, get_parent_wikicode
+from ws.parser_helpers.title import canonicalize
 
 __all__ = ["HeaderError", "get_header_parts", "build_header", "fix_header"]
 

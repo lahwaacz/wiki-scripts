@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 from nose.tools import assert_equals
+from nose.plugins.attrib import attr
 
 from . import fixtures
 from ws.parser_helpers.title import *
@@ -24,6 +25,7 @@ class test_canonicalize():
         result = canonicalize(src)
         assert_equals(result, expected)
 
+@attr(speed="slow")
 class test_title():
     # keys: input, values: dictionary of expected attributes of the Title object
     titles = {
