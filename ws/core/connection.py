@@ -10,8 +10,6 @@ and making requests.
 # FIXME: query string should be normalized, see https://www.mediawiki.org/wiki/API:Main_page#API_etiquette
 #        + 'token' parameter should be specified last, see https://www.mediawiki.org/wiki/API:Edit
 
-# TODO: logging of every query parameters (and response?) as debug level
-
 import requests
 import http.cookiejar as cookielib
 import logging

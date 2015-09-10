@@ -106,10 +106,35 @@ class API(Connection):
         return result["userinfo"]["rights"]
 
     @LazyProperty
+    def interwikimap(self):
+        """
+        Interwiki prefixes on the wiki, represented as a dictionary where
+        keys are the available prefixes and additional information (as returned
+        by the `siteinfo/interwikimap` query, see `API:siteinfo`_).
+
+        The property is evaluated lazily and cached with the
+        :py:class:`@LazyProperty <ws.core.lazy.LazyProperty>` decorator.
+
+        .. _`API:siteinfo`: https://www.mediawiki.org/wiki/API:Siteinfo
+        """
+        result = self.call_api(action="query", meta="siteinfo", siprop="interwikimap")
+        interwikis = result["interwikimap"]
+        return dict( (d["prefix"], d) for d in interwikis )
+
+    @property
+    def interlanguagemap(self):
+        """
+        Interlanguage prefixes on the wiki, filtered from the general
+        :py:attr:`interwikimap <ws.core.API.interwikimap>` property.
+        """
+        return dict( (prefix, info) for prefix, info in self.interwikimap.items() if "local" in info )
+
+# TODO: namespace aliases are not considered
+    @LazyProperty
     def namespaces(self):
         """
-        Namespaces present on the wiki as mapping (dictionary) of namespace IDs
-        to their names.
+        Namespaces present on the wiki as a mapping (dictionary) of namespace
+        IDs to their names.
 
         The property is evaluated lazily and cached with the
         :py:class:`@LazyProperty <ws.core.lazy.LazyProperty>` decorator.
