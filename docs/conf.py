@@ -47,6 +47,7 @@ autodoc_default_flags = ["members", "undoc-members", "private-members"]
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'requests': ('http://docs.python-requests.org/en/latest/', None),
+    'mwparserfromhell': ('https://mwparserfromhell.readthedocs.org/en/latest/', None),
 }
 
 # Add any paths that contain templates here, relative to this directory.
