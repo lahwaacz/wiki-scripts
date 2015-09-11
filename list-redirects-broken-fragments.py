@@ -11,6 +11,7 @@ from ws.core import API
 import ws.cache
 import ws.utils
 from ws.parser_helpers.encodings import dotencode
+from ws.parser_helpers.title import Title
 
 # TODO: split to get_section_headings() and get_anchors() and move to
 # ws.parser_helpers (without caching, title -> text)
@@ -19,17 +20,17 @@ def valid_anchor(title, anchor, pages, wrapped_titles):
     Checks if given anchor is valid, i.e. if a corresponding section exists on
     a page with given title.
 
-    NOTE: validation is limited to pages in the Main namespace for easier
-          access to the cache; anchors on other pages are considered to be
-          always valid.
+    .. note::
+        validation is limited to pages in the Main namespace for easier access
+        to the cache; anchors on other pages are considered to be always valid.
 
     :param title: title of the target page
     :param anchor: the section link anchor (without the ``#`` delimiter); may or
                    may not be dot-encoded
     :returns: ``True`` if the anchor corresponds to an existing section
     """
-    namespace, _ = api.detect_namespace(title)
-    if namespace != "":
+    _title = Title(api, title)
+    if _title.namespace != "":
         # not really, but causes to take no action
         return True
     page = ws.utils.bisect_find(pages, title, index_list=wrapped_titles)

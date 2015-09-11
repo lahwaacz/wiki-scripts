@@ -143,28 +143,6 @@ class API(Connection):
         namespaces = result["namespaces"].values()
         return dict( (ns["id"], ns["*"]) for ns in namespaces )
 
-    def detect_namespace(self, title):
-        """
-        Detect namespace of a given title, useful to compare pure titles across
-        namespaces.
-
-        :param title: the full title of a wiki page
-        :returns:
-            A ``(namespace, pure_title)`` tuple. Underscores are replaced with
-            spaces in `namespace`, but `pure_title` corresponds to the input
-            (underscores and spaces are preserved). The main namespace is
-            identified as an empty string.
-        """
-        try:
-            ns, pure = title.split(":", 1)
-            ns = ns.replace("_", " ")
-            if ns in self.namespaces.values():
-                return ns, pure
-        except ValueError:
-            # ValueError is raised when unpacking fails
-            pass
-        return "", title
-
 
     def query_continue(self, params=None, **kwargs):
         """

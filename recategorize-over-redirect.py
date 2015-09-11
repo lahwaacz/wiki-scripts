@@ -6,7 +6,7 @@ import logging
 import mwparserfromhell
 
 from ws.core import API
-from ws.parser_helpers.title import canonicalize
+from ws.parser_helpers.title import Title
 from ws.interactive import edit_interactive, ask_yesno
 
 logger = logging.getLogger(__name__)
@@ -23,27 +23,25 @@ class Recategorize:
         text_old = page["revisions"][0]["*"]
         timestamp = page["revisions"][0]["timestamp"]
 
-        source_ns, source = self.api.detect_namespace(source)
-        assert(source_ns == "Category")
+        source = Title(self.api, source)
+        assert(source.namespace == "Category")
 
         logger.info("Parsing '{}'...".format(title))
         wikicode = mwparserfromhell.parse(text_old)
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
-            # strip whitespace around namespace separator (':')
-            # TODO: do this universally, see #25
-            ns, pure_title = self.api.detect_namespace(wikilink.title)
-            if ns == "Category" and canonicalize(pure_title) == source:
+            wl_title = Title(self.api, wikilink.title)
+            if wl_title.namespace == "Category" and wl_title.pagename == source.pagename:
                 wikilink.title = target
         text_new = str(wikicode)
 
         if text_old != text_new:
             logger.info("Editing '{}'".format(title))
 #            edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-            api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+            self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 
     def flag_for_deletion(self, title):
-        namespace, pure = self.api.detect_namespace(title)
-        assert(namespace == "Category")
+        _title = Title(self.api, title)
+        assert(_title.namespace == "Category")
 
         result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", titles=title)
         page = list(result["pages"].values())[0]
@@ -55,13 +53,13 @@ class Recategorize:
             text_new += "\n{{Deletion|unused category}}"
         if text_old != text_new:
             logger.info("Flagging for deletion: '{}'".format(title))
-            api.edit(page["pageid"], text_new, timestamp, self.flag_for_deletion_summary, bot="")
+            self.api.edit(page["pageid"], text_new, timestamp, self.flag_for_deletion_summary, bot="")
 
     def recategorize_over_redirect(self, category_namespace=14):
         # FIXME: the source_namespace parameter of redirects_map does not work,
         #        so we need to do manual filtering
         redirects = self.api.redirects_map()
-        catredirs = dict((key, value) for key, value in redirects.items() if api.detect_namespace(key)[0] == "Category")
+        catredirs = dict((key, value) for key, value in redirects.items() if Title(self.api, key).namespace == "Category")
         for source, target in catredirs.items():
             ans = ask_yesno("Recategorize pages from '{}' to '{}'?".format(source, target))
             if ans is False:

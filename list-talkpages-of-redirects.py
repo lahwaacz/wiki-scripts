@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 from ws.core import API
+from ws.parser_helpers.title import Title
 
 def main(api):
     # get titles of all redirect pages in 'Main', 'ArchWiki' and 'Help' namespaces
@@ -19,11 +20,9 @@ def main(api):
 
     # print talk pages associated to a redirect page
     for title in sorted(redirect_titles):
-        namespace, pure_title = api.detect_namespace(title)
-        talk_prefix = namespace + " talk:" if namespace != "" else "Talk:"
-        talk = talk_prefix + pure_title
-        if talk in talks:
-            print("* [[%s]]" % talk)
+        _title = Title(api, title)
+        if _title.talkpagename in talks:
+            print("* [[%s]]" % _title.talkpagename)
 
 if __name__ == "__main__":
     import ws.config
