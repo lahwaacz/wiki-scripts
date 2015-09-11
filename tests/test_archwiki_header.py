@@ -7,7 +7,7 @@ import mwparserfromhell
 
 from ws.ArchWiki.header import *
 
-class test_fix_header():
+class test_fix_header:
     @staticmethod
     def _do_test(snippet, expected):
         wikicode = mwparserfromhell.parse(snippet)

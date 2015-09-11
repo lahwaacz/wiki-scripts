@@ -10,7 +10,7 @@ def test_parse_date():
     expected = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
     assert_equals(parse_date(timestamp), expected)
 
-class test_is_ascii():
+class test_is_ascii:
     """ test for utils.is_ascii() function
     """
 
@@ -48,7 +48,7 @@ def test_wrapper():
     assert_equals(list(wrapped_names), ["Betty", "Anne", "Cecilia"])
     assert_equals(list(wrapped_ids), [0, 2, 1])
 
-class test_bisect_find():
+class test_bisect_find:
     def test_id(self):
         l = [
             {"name": "Betty", "id": 0},

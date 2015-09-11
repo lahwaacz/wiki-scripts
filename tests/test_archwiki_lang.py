@@ -12,7 +12,7 @@ category_languages = ["العربية", "Български", "Català", "Česky
 external_tags = ["de", "fa", "fi", "fr", "ja", "ro", "sv", "tr"]
 internal_tags = ["ar", "bg", "cs", "da", "el", "en", "es", "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt", "ru", "sk", "sr", "th", "uk", "zh-cn", "zh-tw"]
 
-class test_getters():
+class test_getters:
     def _test(self, values, getter):
         result = getter()
         assert_equals(values, result)
@@ -35,7 +35,7 @@ class test_getters():
     def test_get_internal_tags(self):
         self._test(internal_tags, get_internal_tags)
 
-class test_checkers():
+class test_checkers:
     def _test(self, values, checker):
         for value in values:
             assert_true(checker(value))
@@ -58,7 +58,7 @@ class test_checkers():
     def test_is_internal_tags(self):
         self._test(internal_tags, is_internal_tag)
 
-class test_languages_data_sanity():
+class test_languages_data_sanity:
     """
     Tests sanity of the languages' data.
     """
@@ -73,7 +73,7 @@ class test_languages_data_sanity():
         for lang in get_category_languages():
             assert_true(is_language_name(lang))
 
-class test_conversion():
+class test_conversion:
     # list of (targetlist, srclist, target_for_src_function) tuples
     # the lists must be sorted so that the values with same indexes correspond
     testsuite = [
@@ -91,7 +91,7 @@ class test_conversion():
                 expected = targetlist[srclist.index(lang)]
                 assert_equals(conversion_func(lang), expected)
 
-class test_detect_language():
+class test_detect_language:
     default = get_local_language()
 
     # mapping of input to expected result

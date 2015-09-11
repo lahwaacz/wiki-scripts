@@ -6,7 +6,7 @@ from nose.plugins.attrib import attr
 from . import fixtures
 from ws.parser_helpers.title import *
 
-class test_canonicalize():
+class test_canonicalize:
     # keys: input, values: expected result
     titles = {
         "": "",

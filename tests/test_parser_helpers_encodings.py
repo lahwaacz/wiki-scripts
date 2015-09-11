@@ -7,7 +7,7 @@ import string
 
 from ws.parser_helpers.encodings import *
 
-class test_encodings():
+class test_encodings:
     ascii_all = "".join(chr(i) for i in range(128))
     url_unreserved = string.ascii_letters + string.digits + "-_.~"
     unicode_sample = "ěščřžýáíéúů,.-§€¶ŧ→øþłŁ°ΩŁE®Ŧ¥↑ıØÞŁ&̛ĦŊªÐ§Æ<>©‘’Nº×÷˙ß˝"

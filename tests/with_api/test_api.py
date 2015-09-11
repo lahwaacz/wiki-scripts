@@ -8,7 +8,7 @@ from . import fixtures
 from ws.core.api import LoginFailed
 
 @attr(speed="slow")
-class test_api():
+class test_api:
     """
     Some basic sanity checks, intended mostly for detecting changes in the
     ArchWiki configuration.

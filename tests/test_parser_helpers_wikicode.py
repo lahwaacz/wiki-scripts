@@ -6,7 +6,7 @@ import mwparserfromhell
 
 from ws.parser_helpers.wikicode import *
 
-class test_get_adjacent_node():
+class test_get_adjacent_node:
     def test_basic(self):
         snippet = "[[Arch Linux]] is the best!"
         wikicode = mwparserfromhell.parse(snippet)
@@ -35,7 +35,7 @@ class test_get_adjacent_node():
         last = get_adjacent_node(wikicode, first, ignore_whitespace=True)
         assert_equals(str(last), " is the best!")
 
-class test_get_parent_wikicode():
+class test_get_parent_wikicode:
     snippet = """\
 {{Note|This [[wikipedia:reference]] is to be noted.}}
 Some other text.
@@ -52,7 +52,7 @@ Some other text.
         parent = get_parent_wikicode(self.wikicode, link)
         assert_equals(str(parent), str(note.params[0]))
 
-class test_remove_and_squash():
+class test_remove_and_squash:
     @staticmethod
     def _do_test(wikicode, remove, expected):
         node = wikicode.get(wikicode.index(remove))

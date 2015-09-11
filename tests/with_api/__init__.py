@@ -2,7 +2,7 @@
 
 from ws.core.api import API
 
-class fixtures():
+class fixtures:
     api = None
 
 def setup_package():
