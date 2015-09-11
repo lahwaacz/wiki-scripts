@@ -2,7 +2,6 @@
 
 # FIXME:
 #   how hard is skipping code blocks?
-#   wikilink nodes (title + text) should always be wikicode, we are assigning str, which might cause trouble
 
 # TODO:
 #   extlink -> wikilink conversion should be done first
@@ -23,7 +22,7 @@ import mwparserfromhell
 from ws.core import API, APIError
 from ws.interactive import *
 import ws.ArchWiki.lang as lang
-from ws.parser_helpers.title import canonicalize
+from ws.parser_helpers.title import canonicalize, Title
 
 logger = logging.getLogger(__name__)
 
@@ -70,33 +69,35 @@ class LinkChecker:
             wikilink.title = wikilink.text
             wikilink.text = None
 
-    def check_relative(self, wikilink, title):
+    def check_relative(self, wikilink, title, srcpage):
         """
         Use relative links whenever possible. For example, links to sections such as
         `[[Foo#Bar]]` on a page `title` are replaced with `[[#Bar]]` whenever `Foo`
         redirects to or is equivalent to `title`.
 
-        :param wikilink: instance of `mwparserfromhell.nodes.wikilink.Wikilink`
-                         representing the link to be checked
-        :param title: instance of `str` representing the title of the page being
-                      checked
+        :param wikilink:
+            instance of :py:class:`mwparserfromhell.nodes.wikilink.Wikilink`
+            representing the link to be checked
+        :param title:
+            instance of :py:class:`mw.parser_helpers.title.Title` representing
+            the wikilink's title
+        :param src srcpage: the title of the page being checked
         """
-        try:
-            _title, _section = wikilink.title.strip().split("#", maxsplit=1)
-            if _title and _section:
-                # check if _title is a redirect
-                target = self.redirects.get(_title)
-                if target:
-                    _title = target.split("#", maxsplit=1)[0]
+        if title.iwprefix or not title.sectionname:
+            return
+        # check if title is a redirect
+        target = self.redirects.get(title.fullpagename)
+        if target:
+            _title = Title(self.api, target)
+            _title.sectionname = title.sectionname
+        else:
+            _title = title
 
-                if canonicalize(title) == canonicalize(_title):
-                    if self.interactive is True:
-                        _section = _section.replace("_", " ")
-                    wikilink.title = "#" + _section
-        except ValueError:
-            # raised when unpacking failed
-            pass
+        if canonicalize(srcpage) == _title.fullpagename:
+            wikilink.title = "#" + _title.sectionname
+            title.parse(wikilink.title)
 
+# TODO: does not consider null iwprefix (e.g. [[:Category:foo]]
     def check_redirect_exact(self, wikilink):
         """
         Replace `[[foo|bar]]` with `[[bar]]` if `foo` and `bar` point to the same page
@@ -205,12 +206,18 @@ class LinkChecker:
         wikicode = mwparserfromhell.parse(text)
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
+            wl_title = Title(self.api, wikilink.title)
+            # skip interlanguage links (handled by update-interlanguage-links.py)
+            if wl_title.iw in self.api.interlanguagemap.keys():
+                continue
+
             self.collapse_whitespace_pipe(wikilink)
             self.check_trivial(wikilink)
-            self.check_relative(wikilink, title)
+            self.check_relative(wikilink, wl_title, title)
             self.check_redirect_exact(wikilink)
             if self.interactive is True:
                 self.check_redirect_capitalization(wikilink)
+
             # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
             self.collapse_whitespace(wikicode, wikilink)
 
