@@ -9,6 +9,8 @@ from ws.parser_helpers.title import *
 class test_canonicalize():
     # keys: input, values: expected result
     titles = {
+        "": "",
+        " _  ": "",
         "Foo_bar": "Foo bar",
         " Foo_bar__": "Foo bar",
         " foo   _ bar__": "Foo bar",

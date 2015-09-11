@@ -24,6 +24,8 @@ def canonicalize(title):
     """
     title = str(title).replace("_", " ").strip()
     title = re.sub("( )+", "\g<1>", title)
+    if title == "":
+        return ""
     title = title[0].upper() + title[1:]
     return title
 
