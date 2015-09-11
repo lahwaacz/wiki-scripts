@@ -177,10 +177,9 @@ def detect_language(title):
     """
     pure_title = title
     detected_language = get_local_language()
-    match = re.match(r"^(.+?)([ _]\(([^\(]+)\))?$", title)
-    if match:
-        lang = match.group(3)
-        if lang in get_language_names():
-            detected_language = lang
-            pure_title = match.group(1)
+    match = re.match(r"^(.*?)([ _]\(([^\(]+)\))?$", title)
+    lang = match.group(3)
+    if lang in get_language_names():
+        detected_language = lang
+        pure_title = match.group(1)
     return pure_title, detected_language

@@ -94,30 +94,35 @@ class test_conversion():
 class test_detect_language():
     default = get_local_language()
 
-    # list of (title, pure, langname) pairs
-    testsuite = [
-        ("foo", "foo", default),
-        ("foo (bar)", "foo (bar)", default),
-        ("foo (Česky)", "foo", "Česky"),
-        ("foo_bar", "foo_bar", default),
-        ("foo_(Česky)", "foo", "Česky"),
-        ("foo(Česky)", "foo(Česky)", default),
-        ("foo/bar", "foo/bar", default),
+    # mapping of input to expected result
+    testsuite = {
+        "": ("", default),
+        "foo": ("foo", default),
+        "foo (bar)": ("foo (bar)", default),
+        "foo (Česky)": ("foo", "Česky"),
+        "foo_bar": ("foo_bar", default),
+        "foo_(Česky)": ("foo", "Česky"),
+        "foo(Česky)": ("foo(Česky)", default),
+        "foo/bar": ("foo/bar", default),
 
         # the logic for these two should be switched after FS#39668 is implemented
         # https://bugs.archlinux.org/task/39668
-        ("foo/bar (Česky)", "foo/bar", "Česky"),
-        ("foo (Česky)/bar", "foo (Česky)/bar", default),
+        "foo/bar (Česky)": ("foo/bar", "Česky"),
+        "foo (Česky)/bar": ("foo (Česky)/bar", default),
 
         # this case used to be for old pages, the suffix for English pages is not used
         # nevertheless it is useful to keep the algorithm simple
-        ("foo (English)", "foo", "English"),
-    ]
+        "foo (English)": ("foo", "English"),
+    }
 
-    def test(self):
-        for title, pure, lang in self.testsuite:
-            assert_equals(detect_language(title), (pure, lang))
+    @staticmethod
+    def _do_test(title, expected):
+        assert_equals(detect_language(title), expected)
+
+    def test_suite(self):
+        for title, expected in self.testsuite.items():
+            yield self._do_test, title, expected
 
     def test_all_langs(self):
         for lang in language_names:
-            assert_equals(detect_language("foo (%s)" % lang), ("foo", lang))
+            yield self._do_test, "foo ({})".format(lang), ("foo", lang)
