@@ -38,9 +38,10 @@ def encode(str_, escape_char="%", encode_chars="", skip_chars="", special_map=No
             output += char
     return output
 
-def _dot_preprocess(str_):
+def _anchor_preprocess(str_):
     """
-    Context-sensitive pre-processing for anchor-encoding. See `MediaWiki`_ for details.
+    Context-sensitive pre-processing for anchor-encoding. See `MediaWiki`_ for
+    details.
 
     .. _`MediaWiki`: https://www.mediawiki.org/wiki/Manual:PAGENAMEE_encoding
     """
@@ -64,7 +65,7 @@ def dotencode(str_):
     """
     skipped = string.ascii_letters + string.digits + "-_.:"
     special = {" ": "_"}
-    return encode(_dot_preprocess(str_), escape_char=".", skip_chars=skipped, special_map=special)
+    return encode(_anchor_preprocess(str_), escape_char=".", skip_chars=skipped, special_map=special)
 
 def urlencode(str_):
     """

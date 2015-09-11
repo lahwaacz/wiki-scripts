@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals
+from nose.tools import assert_equals, raises
 from nose.plugins.attrib import attr
 
 from . import fixtures
@@ -66,18 +66,18 @@ class test_title():
             "iwprefix": "en",
             "namespace": "Help",
             "pagename": "Style",
-            "sectionname": " section",
+            "sectionname": "section",
             "fullpagename": "en:Help:Style",
         },
 
         # test anchor canonicalization
         "Main page #  _foo_  ": {
             "pagename": "Main page",
-            "sectionname": " _foo_",
+            "sectionname": "foo",
         },
         "#  _foo_  ": {
             "pagename": "",
-            "sectionname": " _foo_",
+            "sectionname": "foo",
         },
 
         # test MediaWiki-like properties
@@ -140,3 +140,98 @@ class test_title():
         title = Title(fixtures.api, src)
         for attr, value in expected.items():
             assert_equals(getattr(title, attr), value)
+
+@attr(speed="slow")
+class test_title_setters():
+    attributes = ["iwprefix", "namespace", "pagename", "sectionname"]
+
+    @classmethod
+    def setup_class(klass):
+        klass.api = fixtures.api
+
+    def setup(self):
+        self.title = Title(self.api, "en:Help:Style#section")
+
+
+    @raises(TypeError)
+    def _do_type_test(self, attr, value):
+        setattr(self.title, attr, value)
+
+    def test_invalid_type(self):
+        for attr in self.attributes:
+            yield self._do_type_test, attr, None
+
+
+    def test_iwprefix(self):
+        assert_equals(self.title.iwprefix, "en")
+        assert_equals(str(self.title), "en:Help:Style#section")
+        # test internal tag
+        self.title.iwprefix = "cs"
+        assert_equals(self.title.iwprefix, "cs")
+        assert_equals(str(self.title), "cs:Help:Style#section")
+        # test external tag
+        self.title.iwprefix = "de"
+        assert_equals(self.title.iwprefix, "de")
+        assert_equals(str(self.title), "de:Help:Style#section")
+        # test empty
+        self.title.iwprefix = ""
+        assert_equals(self.title.iwprefix, "")
+        assert_equals(str(self.title), "Help:Style#section")
+
+    def test_namespace(self):
+        assert_equals(self.title.namespace, "Help")
+        assert_equals(str(self.title), "en:Help:Style#section")
+        # test talkspace
+        self.title.namespace = self.title.talkspace
+        assert_equals(self.title.namespace, "Help talk")
+        assert_equals(str(self.title), "en:Help talk:Style#section")
+        # test namespace canonicalization
+        self.title.namespace = "helP_ Talk"
+        assert_equals(self.title.namespace, "Help talk")
+        assert_equals(str(self.title), "en:Help talk:Style#section")
+        # test empty
+        self.title.namespace = ""
+        assert_equals(self.title.namespace, "")
+        assert_equals(str(self.title), "en:Style#section")
+
+    def test_pagename(self):
+        assert_equals(self.title.pagename, "Style")
+        assert_equals(str(self.title), "en:Help:Style#section")
+        # test simple
+        self.title.pagename = "Main page"
+        assert_equals(self.title.pagename, "Main page")
+        assert_equals(str(self.title), "en:Help:Main page#section")
+        # test canonicalize
+        self.title.pagename = " foo  _Bar_"
+        assert_equals(self.title.pagename, "Foo Bar")
+        assert_equals(str(self.title), "en:Help:Foo Bar#section")
+
+    def test_sectionname(self):
+        assert_equals(self.title.sectionname, "section")
+        assert_equals(str(self.title), "en:Help:Style#section")
+        # test simple
+        self.title.sectionname = "another section"
+        assert_equals(self.title.sectionname, "another section")
+        assert_equals(str(self.title), "en:Help:Style#another section")
+        # test canonicalize
+        self.title.sectionname = " foo  _Bar_"
+        assert_equals(self.title.sectionname, "foo Bar")
+        assert_equals(str(self.title), "en:Help:Style#foo Bar")
+
+
+    def test_all(self):
+        self.title.iwprefix = ""
+        self.title.namespace = ""
+        self.title.pagename = "Main page"
+        self.title.sectionname = ""
+        assert_equals(str(self.title), "Main page")
+        assert_equals(repr(self.title), "<class 'ws.parser_helpers.title.Title'>('Main page')")
+
+
+    @raises(ValueError)
+    def test_invalid_iwprefix(self):
+        self.title.iwprefix = "invalid prefix"
+
+    @raises(ValueError)
+    def test_invalid_namespace(self):
+        self.title.namespace = "invalid namespace"

@@ -1,10 +1,15 @@
 #! /usr/bin/env python3
 
 # TODO:
-#   make interwiki prefixes more useful (accessing, changing, local vs. external, interwiki vs. interlanguage)
+#   interwiki prefixes more useful (local vs. external, interwiki vs. interlanguage)
 #   ArchWiki-specific language detection
+#   add examples to the module docstring
 
 import re
+
+from .encodings import _anchor_preprocess
+
+__all__ = ["canonicalize", "Title"]
 
 def canonicalize(title):
     """
@@ -51,8 +56,6 @@ class Title:
         """
         self.api = api
 
-        # The full title as passed to the constructor
-        self.full_title = str(title)
         # Interwiki prefix (e.g. ``wikipedia``), lowercase
         self.iw = None
         # Namespace, in the canonical form (e.g. ``ArchWiki talk``)
@@ -63,7 +66,7 @@ class Title:
         # Section anchor
         self.anchor = None
 
-        self._parse()
+        self.parse(title)
 
     @staticmethod
     def _find_caseless(what, where, from_target=False):
@@ -83,19 +86,25 @@ class Title:
                 return what
         raise ValueError
 
-    def _parse(self):
+    def parse(self, full_title):
         """
-        Splits the title into ``(iw, ns, pure)`` parts and canonicalizes them.
+        Splits the title into ``(iwprefix, namespace, pagename, sectionname)``
+        parts and canonicalizes them. Can be used to set these attributes from
+        a string of full title instead of creating new instance.
+
+        :param str full_title: The full title to be parsed.
         """
+        full_title = str(full_title)
+
         # parse interwiki prefix (defaults to "" in __init__)
         try:
-            iw, _rest = self.full_title.split(":", maxsplit=1)
+            iw, _rest = full_title.split(":", maxsplit=1)
             iw = iw.lower().replace("_", "").strip()
             # check if it is valid interwiki prefix
             self.iw = self._find_caseless(iw, self.api.interwikimap.keys())
         except ValueError:
             self.iw = ""
-            _rest = self.full_title
+            _rest = full_title
 
         # parse namespace
         # TODO: API.namespaces does not consider namespace aliases
@@ -117,8 +126,7 @@ class Title:
         # canonicalize title
         self.pure = canonicalize(_pure)
         # canonicalize anchor
-        anchor = anchor.rstrip()
-        self.anchor = re.sub("( )+", "\g<1>", anchor)
+        self.anchor = _anchor_preprocess(anchor)
 
     def _format(self, pre, mid, title):
         if pre and mid:
@@ -234,8 +242,9 @@ class Title:
     @property
     def sectionname(self):
         """
-        The section anchor, usable in wiki links. Trailing whitespace is
-        stripped and multiple spaces squashed, other than that it is unmodified.
+        The section anchor, usable in wiki links. It is passed through the
+        :py:func:`ws.parser_helpers.encodings._anchor_preprocess` function,
+        but it is not anchor-encoded nor decoded.
 
         .. note::
             Section anchors on MediaWiki are usually encoded (see
@@ -244,3 +253,54 @@ class Title:
             without comparing to the existing sections of the target page.
         """
         return self.anchor
+
+
+    @iwprefix.setter
+    def iwprefix(self, value):
+        if isinstance(value, str):
+            try:
+                self.iw = self._find_caseless(value, self.api.interwikimap.keys())
+            except ValueError:
+                if value == "":
+                    self.iw = value
+                else:
+                    raise ValueError("tried to assign invalid interwiki prefix: {}".format(value))
+        else:
+            raise TypeError("iwprefix must be of type 'str'")
+
+    @namespace.setter
+    def namespace(self, value):
+        if isinstance(value, str):
+            try:
+                self.ns = self._find_caseless(canonicalize(value), self.api.namespaces.values(), from_target=True)
+            except ValueError:
+                raise ValueError("tried to assign invalid namespace: {}".format(value))
+        else:
+            raise TypeError("namespace must be of type 'str'")
+
+# TODO: disallow interwiki and namespace prefixes and section anchor
+    @pagename.setter
+    def pagename(self, value):
+        if isinstance(value, str):
+            self.pure = canonicalize(value)
+        else:
+            raise TypeError("pagename must be of type 'str'")
+
+    @sectionname.setter
+    def sectionname(self, value):
+        if isinstance(value, str):
+            self.anchor = _anchor_preprocess(value)
+        else:
+            raise TypeError("sectionname must be of type 'str'")
+
+
+    def __repr__(self):
+        return "{}('{}')".format(self.__class__, self)
+
+    def __str__(self):
+        """
+        Returns the full representation of the title in the canonical form.
+        """
+        if self.sectionname:
+            return "{}#{}".format(self._format(self.iwprefix, self.namespace, self.pagename), self.sectionname)
+        return self._format(self.iwprefix, self.namespace, self.pagename)
