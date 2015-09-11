@@ -30,37 +30,52 @@ class test_title():
     # keys: input, values: dictionary of expected attributes of the Title object
     titles = {
         # test splitting and fullpagename formatting
-        "Foo:Bar:Baz": {
-            "iw": "",
-            "ns": "",
-            "pure": "Foo:Bar:Baz",
+        "Foo:Bar:Baz#section": {
+            "iwprefix": "",
+            "namespace": "",
+            "pagename": "Foo:Bar:Baz",
+            "sectionname": "section",
             "fullpagename": "Foo:Bar:Baz",
         },
         "Talk:Foo": {
-            "iw": "",
-            "ns": "Talk",
-            "pure": "Foo",
+            "iwprefix": "",
+            "namespace": "Talk",
+            "pagename": "Foo",
+            "sectionname": "",
             "fullpagename": "Talk:Foo",
         },
         "en:Main page": {
-            "iw": "en",
-            "ns": "",
-            "pure": "Main page",
+            "iwprefix": "en",
+            "namespace": "",
+            "pagename": "Main page",
+            "sectionname": "",
             "fullpagename": "en:Main page",
         },
-        "en:help:style": {
-            "iw": "en",
-            "ns": "Help",
-            "pure": "Style",
+        "en:help:style#section": {
+            "iwprefix": "en",
+            "namespace": "Help",
+            "pagename": "Style",
+            "sectionname": "section",
             "fullpagename": "en:Help:Style",
         },
 
         # test stripping whitespace around colons
-        "en : help : style": {
-            "iw": "en",
-            "ns": "Help",
-            "pure": "Style",
+        "en : help : style # section": {
+            "iwprefix": "en",
+            "namespace": "Help",
+            "pagename": "Style",
+            "sectionname": " section",
             "fullpagename": "en:Help:Style",
+        },
+
+        # test anchor canonicalization
+        "Main page #  _foo_  ": {
+            "pagename": "Main page",
+            "sectionname": " _foo_",
+        },
+        "#  _foo_  ": {
+            "pagename": "",
+            "sectionname": " _foo_",
         },
 
         # test MediaWiki-like properties

@@ -58,6 +58,8 @@ class Title:
         # Pure title (i.e. without interwiki and namespace prefixes), in the
         # canonical form (see :py:func:`canonicalize`)
         self.pure = None
+        # Section anchor
+        self.anchor = None
 
         self._parse()
 
@@ -104,8 +106,17 @@ class Title:
             self.ns = ""
             _pure = _rest
 
+        # split section anchor
+        try:
+            _pure, anchor = _pure.split("#", maxsplit=1)
+        except ValueError:
+            anchor = ""
+
         # canonicalize title
         self.pure = canonicalize(_pure)
+        # canonicalize anchor
+        anchor = anchor.rstrip()
+        self.anchor = re.sub("( )+", "\g<1>", anchor)
 
     def _format(self, pre, mid, title):
         if pre and mid:
@@ -118,58 +129,11 @@ class Title:
             return title
 
     @property
-    def fullpagename(self):
+    def iwprefix(self):
         """
-        Same as ``{{FULLPAGENAME}}``, but also includes interwiki prefix (if any).
+        The interwiki prefix of the title.
         """
-        return self._format(self.iw, self.ns, self.pure)
-
-    @property
-    def pagename(self):
-        """
-        Same as ``{{PAGENAME}}``, drops the interwiki and namespace prefixes.
-        """
-        return self.pure
-
-    @property
-    def basepagename(self):
-        """
-        Same as ``{{BASEPAGENAME}}``, drops the interwiki and namespace prefixes
-        and the rightmost subpage level.
-        """
-        base = self.pure.rsplit("/", maxsplit=1)[0]
-        return base
-
-    @property
-    def subpagename(self):
-        """
-        Same as ``{{SUBPAGENAME}}``, returns the rightmost subpage level.
-        """
-        subpage = self.pure.rsplit("/", maxsplit=1)[-1]
-        return subpage
-
-    @property
-    def rootpagename(self):
-        """
-        Same as ``{{ROOTPAGENAME}}``, drops the interwiki and namespace prefixes
-        and all subpages.
-        """
-        base = self.pure.split("/", maxsplit=1)[0]
-        return base
-
-    @property
-    def articlepagename(self):
-        """
-        Same as ``{{ARTICLEPAGENAME}}``.
-        """
-        return self._format(self.iw, self.articlespace, self.pure)
-
-    @property
-    def talkpagename(self):
-        """
-        Same as ``{{TALKPAGENAME}}``.
-        """
-        return self._format(self.iw, self.talkspace, self.pure)
+        return self.iw
 
 
     @property
@@ -206,3 +170,75 @@ class Title:
         if ns_id % 2 == 1:
             return self.ns
         return self.api.namespaces[ns_id + 1]
+
+
+    @property
+    def pagename(self):
+        """
+        Same as ``{{PAGENAME}}``, drops the interwiki and namespace prefixes.
+        The section anchor is not included. Other ``*pagename`` attributes are
+        based on this attribute.
+        """
+        return self.pure
+
+    @property
+    def fullpagename(self):
+        """
+        Same as ``{{FULLPAGENAME}}``, but also includes interwiki prefix (if any).
+        """
+        return self._format(self.iwprefix, self.namespace, self.pagename)
+
+    @property
+    def basepagename(self):
+        """
+        Same as ``{{BASEPAGENAME}}``, drops the interwiki and namespace prefixes
+        and the rightmost subpage level.
+        """
+        base = self.pagename.rsplit("/", maxsplit=1)[0]
+        return base
+
+    @property
+    def subpagename(self):
+        """
+        Same as ``{{SUBPAGENAME}}``, returns the rightmost subpage level.
+        """
+        subpage = self.pagename.rsplit("/", maxsplit=1)[-1]
+        return subpage
+
+    @property
+    def rootpagename(self):
+        """
+        Same as ``{{ROOTPAGENAME}}``, drops the interwiki and namespace prefixes
+        and all subpages.
+        """
+        base = self.pagename.split("/", maxsplit=1)[0]
+        return base
+
+    @property
+    def articlepagename(self):
+        """
+        Same as ``{{ARTICLEPAGENAME}}``.
+        """
+        return self._format(self.iwprefix, self.articlespace, self.pagename)
+
+    @property
+    def talkpagename(self):
+        """
+        Same as ``{{TALKPAGENAME}}``.
+        """
+        return self._format(self.iwprefix, self.talkspace, self.pagename)
+
+
+    @property
+    def sectionname(self):
+        """
+        The section anchor, usable in wiki links. Trailing whitespace is
+        stripped and multiple spaces squashed, other than that it is unmodified.
+
+        .. note::
+            Section anchors on MediaWiki are usually encoded (see
+            :py:func:`ws.parser_helpers.encodings.dotencode`), but decoding is
+            ambiguous, so the canonical form of the anchor cannot be determined
+            without comparing to the existing sections of the target page.
+        """
+        return self.anchor
