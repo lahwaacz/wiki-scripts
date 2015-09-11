@@ -63,15 +63,9 @@ def remove_and_squash(wikicode, obj):
     next_ = _get_text(index)
 
     if prev is None and next_ is not None:
-        if next_.startswith(" "):
-            next_.value = next_.lstrip(" ")
-        elif next_.startswith("\n"):
-            next_.value = next_.lstrip("\n")
+        next_.value = next_.lstrip()
     elif prev is not None and next_ is None:
-        if prev.endswith(" "):
-            prev.value = prev.rstrip(" ")
-        elif prev.endswith("\n"):
-            prev.value = prev.rstrip("\n")
+        prev.value = prev.value.rstrip()
     elif prev is not None and next_ is not None:
         if prev.endswith(" ") and next_.startswith(" "):
             prev.value = prev.rstrip(" ")
@@ -86,9 +80,9 @@ def remove_and_squash(wikicode, obj):
                 prev.value = prev.rstrip("\n") + "\n"
                 next_.value = next_.lstrip("\n")
         elif prev.endswith("\n"):
-            next_.value = next_.lstrip(" ")
-        elif next_.startswith("\n"):
-            prev.value = prev.rstrip(" ")
+            next_.value = next_.lstrip()
+        elif next_.startswith("\n"):    # pragma: no branch
+            prev.value = prev.rstrip()
         # merge successive Text nodes
         prev.value += next_.value
         parent.remove(next_)
