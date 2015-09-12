@@ -96,9 +96,9 @@ class Title:
         """
         full_title = str(full_title)
 
-        # parse interwiki prefix (defaults to "" in __init__)
+        # parse interwiki prefix
         try:
-            iw, _rest = full_title.split(":", maxsplit=1)
+            iw, _rest = full_title.lstrip(":").split(":", maxsplit=1)
             iw = iw.lower().replace("_", "").strip()
             # check if it is valid interwiki prefix
             self.iw = self._find_caseless(iw, self.api.interwikimap.keys())
@@ -107,15 +107,23 @@ class Title:
             _rest = full_title
 
         # parse namespace
-        # TODO: API.namespaces does not consider namespace aliases
         try:
-            ns, _pure = _rest.split(":", maxsplit=1)
+            ns, _pure = _rest.lstrip(":").split(":", maxsplit=1)
             ns = ns.replace("_", " ").strip()
-            # check if it is valid namespace
-            self.ns = self._find_caseless(ns, self.api.namespaces.values(), from_target=True)
+            if self.iw == "" or "local" in self.api.interwikimap[self.iw]:
+                # check if it is valid namespace
+                # TODO: API.namespaces does not consider namespace aliases
+                self.ns = self._find_caseless(ns, self.api.namespaces.values(), from_target=True)
+            else:
+                self.ns = ns
         except ValueError:
             self.ns = ""
             _pure = _rest
+
+        # TODO: This is not entirely MediaWiki-like, perhaps we should just
+        # throw BadTitle exception. In that case other bad titles should be
+        # reported as well.
+        _pure = _pure.lstrip(":")
 
         # split section anchor
         try:

@@ -130,6 +130,53 @@ class test_title():
             "articlespace": "Help",
             "talkspace": "Help talk",
         },
+
+        # test local/external namespaces
+        "en:Foo:Bar": {
+            "iwprefix": "en",
+            "namespace": "",
+            "pagename": "Foo:Bar",
+            "fullpagename": "en:Foo:Bar",
+        },
+        "wikipedia:Foo:Bar": {
+            "iwprefix": "wikipedia",
+            "namespace": "Foo",
+            "pagename": "Bar",
+            "fullpagename": "wikipedia:Foo:Bar",
+        },
+
+        # test colons
+        ":Category:Foo": {
+            "iwprefix": "",
+            "namespace": "Category",
+            "pagename": "Foo",
+            "fullpagename": "Category:Foo",
+        },
+        "Foo::Bar": {
+            "iwprefix": "",
+            "namespace": "",
+            "pagename": "Foo::Bar",
+            "fullpagename": "Foo::Bar",
+        },
+        "::Help:Style": {
+            "iwprefix": "",
+            "namespace": "Help",
+            "pagename": "Style",
+            "fullpagename": "Help:Style",
+        },
+        "wikipedia::Wikipedia:Manual of Style": {
+            "iwprefix": "wikipedia",
+            "namespace": "Wikipedia",
+            "pagename": "Manual of Style",
+            "fullpagename": "wikipedia:Wikipedia:Manual of Style",
+        },
+        # even MediaWiki chokes on this one (rendered as plain text instead of link)
+        "Help::Style": {
+            "iwprefix": "",
+            "namespace": "Help",
+            "pagename": "Style",
+            "fullpagename": "Help:Style",
+        },
     }
 
     def test(self):
