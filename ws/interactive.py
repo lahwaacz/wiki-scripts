@@ -6,6 +6,7 @@ interactive tasks.
 """
 
 import os
+import shlex
 import getpass
 import subprocess
 import logging
@@ -15,6 +16,8 @@ from .diff import diff_highlighted
 logger = logging.getLogger(__name__)
 
 __all__ = ["require_login", "edit_interactive", "InteractiveQuit", "ask_yesno"]
+
+_diffprog = shlex.split(os.environ.get("DIFFPROG", "vimdiff"))
 
 def require_login(api):
     """
@@ -60,15 +63,32 @@ class InteractiveQuit(Exception):
     pass
 
 # TODO: needs 'title' argument (to be shown in diff and for aptly named tmpfiles)
-# TODO: vimdiff should be configurable (depends on #3)
 def edit_interactive(api, title, pageid, text_old, text_new, basetimestamp, summary, **kwargs):
-    # TODO: docstring
+    """
+    A routine for interactive editing. Presents differences between the two
+    revisions highlighted using :py:func:`ws.diff.diff_highlighted` and an
+    interactive prompt to let the user decide what to do next:
+
+    - ``y`` accepts the edit and calls :py:meth:`API.edit <ws.core.api.API.edit>`.
+    - ``n`` discards the edit.
+    - ``q`` will raise :py:exc:`InteractiveQuit` exception to let the calling
+      program know that it should quit.
+    - ``e`` will open the revisions in an external merge program (configurable
+      by the ``$DIFFPROG`` environment variable, defaults to ``vimdiff``).
+    - ``?`` will print brief legend and repeat the highlighted diff and prompt.
+
+    :param api: a :py:class:`MediaWiki.api.API` instance to operate on
+    :param str text_old: old page content
+    :param str text_new: new page content
+
+    Other parameters are the same as for :py:meth:`ws.core.api.API.edit`.
+    """
     options = [
         ("y", "make this edit"),
         ("n", "do not make this edit"),
         ("q", "quit; do not make this edit or any of the following"),
         ("e", "manually edit this edit"),
-        ("?", "print help"),
+        ("?", "print this legend"),
     ]
     short_options = [opt[0] for opt in options]
     ans = ""
@@ -90,7 +110,7 @@ def edit_interactive(api, title, pageid, text_old, text_new, basetimestamp, summ
         elif ans == "e":
             basename = title.replace(" ", "_").replace("/", "_")
             with TmpFileSeries(basename, text_new, text_old) as wrapper:
-                args = ["vimdiff", wrapper.fname_new, wrapper.fname_old]
+                args = [_diffprog, wrapper.fname_new, wrapper.fname_old]
                 try:
                     subprocess.check_call(args)
                     wrapper.file_new.seek(0)
