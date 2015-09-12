@@ -77,3 +77,14 @@ class test_encodings:
         s = " :: :: Foo bar"
         e = "_::_Foo_bar"
         assert_equals(dotencode(s), e)
+
+    def test_dotencode_T20431(self):
+        """ test case from https://phabricator.wikimedia.org/T20431
+        """
+        s = "_ +.3A%3A]]"
+        # this is what [[#_ +.3A%3A&#93;&#93;]] produces (WTF?)
+#        e = "_.3A:.5D.5D"
+        # this is what the actual anchor is (i.e. <span id=".2B.3A.253A.5D.5D" ...>)
+        # (also linked correctly from TOC)
+        e = ".2B.3A.253A.5D.5D"
+        assert_equals(dotencode(s), e)

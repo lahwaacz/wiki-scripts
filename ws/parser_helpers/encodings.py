@@ -61,7 +61,14 @@ def dotencode(str_):
     """
     Return an anchor-encoded string as shown in this `encoding table`_.
 
+    .. note::
+        The rules for handling special characters in section anchors are not
+        well defined even upstream, see `T20431`_. This function produces the
+        actual anchor for the section, i.e. the ID of the heading's span element
+        (e.g. ``<span id="anchor" ...>``).
+
     .. _`encoding table`: https://www.mediawiki.org/wiki/Manual:PAGENAMEE_encoding#Encodings_compared
+    .. _`T20431`: https://phabricator.wikimedia.org/T20431
     """
     skipped = string.ascii_letters + string.digits + "-_.:"
     special = {" ": "_"}
