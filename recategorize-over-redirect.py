@@ -35,9 +35,8 @@ class Recategorize:
         text_new = str(wikicode)
 
         if text_old != text_new:
-            logger.info("Editing '{}'".format(title))
-#            edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-            self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+#            edit_interactive(self.api, title, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+            self.api.edit(title, page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 
     def flag_for_deletion(self, title):
         _title = Title(self.api, title)
@@ -53,7 +52,7 @@ class Recategorize:
             text_new += "\n{{Deletion|unused category}}"
         if text_old != text_new:
             logger.info("Flagging for deletion: '{}'".format(title))
-            self.api.edit(page["pageid"], text_new, timestamp, self.flag_for_deletion_summary, bot="")
+            self.api.edit(title, page["pageid"], text_new, timestamp, self.flag_for_deletion_summary, bot="")
 
     def recategorize_over_redirect(self, category_namespace=14):
         # FIXME: the source_namespace parameter of redirects_map does not work,

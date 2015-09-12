@@ -61,7 +61,7 @@ class InteractiveQuit(Exception):
 
 # TODO: needs 'title' argument (to be shown in diff and for aptly named tmpfiles)
 # TODO: vimdiff should be configurable (depends on #3)
-def edit_interactive(api, pageid, text_old, text_new, basetimestamp, summary, **kwargs):
+def edit_interactive(api, title, pageid, text_old, text_new, basetimestamp, summary, **kwargs):
     # TODO: docstring
     options = [
         ("y", "make this edit"),
@@ -74,7 +74,7 @@ def edit_interactive(api, pageid, text_old, text_new, basetimestamp, summary, **
     ans = ""
 
     while True:
-        diff = diff_highlighted(text_old, text_new)
+        diff = diff_highlighted(text_old, text_new, title + ".old", title + ".new", basetimestamp, "<utcnow>")
         print(diff)
         ans = input("Make this edit? [%s]? " % ",".join(short_options))
 
@@ -82,21 +82,22 @@ def edit_interactive(api, pageid, text_old, text_new, basetimestamp, summary, **
             for opt in options:
                 print("%s - %s" % opt)
         elif ans == "y":
-            return api.edit(pageid, text_new, basetimestamp, summary, **kwargs)
+            return api.edit(title, pageid, text_new, basetimestamp, summary, **kwargs)
         elif ans == "n":
             break
         elif ans == "q":
             raise InteractiveQuit
         elif ans == "e":
-            with TmpFileSeries(pageid, text_new, text_old) as wrapper:
-                cmd = "vimdiff {} {}".format(wrapper.fname_new, wrapper.fname_old)
+            basename = title.replace(" ", "_").replace("/", "_")
+            with TmpFileSeries(basename, text_new, text_old) as wrapper:
+                args = ["vimdiff", wrapper.fname_new, wrapper.fname_old]
                 try:
-                    subprocess.check_call(cmd, shell=True)
+                    subprocess.check_call(args)
                     wrapper.file_new.seek(0)
                     text_new = wrapper.file_new.read()
-                    logger.info("Command '{}' exited succesfully.".format(cmd))
+                    logger.info("Command {} exited succesfully.".format(args))
                 except subprocess.CalledProcessError:
-                    logger.exception("Command '{}' failed.")
+                    logger.exception("Command {} failed.".format(args))
 
 def ask_yesno(question):
     ans = ""

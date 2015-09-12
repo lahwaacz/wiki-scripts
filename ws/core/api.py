@@ -4,7 +4,7 @@ import hashlib
 from functools import lru_cache
 import logging
 
-from .connection import Connection, APIError
+from .connection import Connection, ConnectionError, APIError
 from .rate import RateLimited
 from .lazy import LazyProperty
 
@@ -68,6 +68,7 @@ class API(Connection):
         status = do_login(self, username, password)
         if status is True and self.is_loggedin:
             return True
+        logger.warn("Failed login attempt for user '{}'".format(username))
         raise LoginFailed
 
     def logout(self):
@@ -335,19 +336,21 @@ class API(Connection):
         return self.call_api(action="query", meta="tokens")["tokens"]["csrftoken"]
 
     @RateLimited(1, 3)
-    def edit(self, pageid, text, basetimestamp, summary, **kwargs):
+    def edit(self, title, pageid, text, basetimestamp, summary, **kwargs):
         """
         Interface to `API:Edit`_. MD5 hash of the new text is computed
         automatically and added to the query. This method is rate-limited with
         the :py:class:`@RateLimited <ws.core.rate.RateLimited>` decorator to
         allow 1 call per 3 seconds.
 
+        :param str title: the title of the page (used only for logging)
         :param pageid: page ID of the page to be edited
-        :param text: new page content
-        :param basetimestamp:
+        :type pageid: `str` or `int`
+        :param str text: new page content
+        :param str basetimestamp:
             Timestamp of the base revision (obtained through
             `prop=revisions&rvprop=timestamp`). Used to detect edit conflicts.
-        :param summary: edit summary
+        :param str summary: edit summary
         :param kwargs: Additional query parameters, see `API:Edit`_.
 
         .. _`API:Edit`: https://www.mediawiki.org/wiki/API:Edit
@@ -370,19 +373,31 @@ class API(Connection):
             # require being logged in, either as regular user or bot
             kwargs["assert"] = "user"
 
+        logger.info("Editing page '{}' ...".format(title))
+
         # helper to actually make the edit, can be used to retry
         def _make_edit():
             return self.call_api(action="edit", token=self._csrftoken, md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, **kwargs)
 
-        try:
-            return _make_edit()
-        except APIError as e:
-            # csrftoken can be used multiple times, but expires after some time,
-            # so try to get a new one *once*
-            if e.server_response["code"] == "badtoken":
-                # reset the cached csrftoken and try again
-                del self._csrftoken
+        def _with_retry():
+            try:
                 return _make_edit()
+            except APIError as e:
+                # csrftoken can be used multiple times, but expires after some time,
+                # so try to get a new one *once*
+                if e.server_response["code"] == "badtoken":
+                    # reset the cached csrftoken and try again
+                    del self._csrftoken
+                    return _make_edit()
+                raise
+
+        try:
+            return _with_retry()
+        except APIError as e:
+            logger.error("Failed to edit page '{}' (code '{}': {})".format(title, e.server_respons["code"], e.server_response["info"]))
+            raise
+        except ConnectionError as e:
+            logger.exception("Failed to edit page '{}' due to connection error".format(title))
             raise
 
 class LoginFailed(Exception):

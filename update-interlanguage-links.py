@@ -345,8 +345,8 @@ class Interlanguage:
                     continue
 
                 if text_old != text_new:
-                    edit_interactive(api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-#                    self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+#                    edit_interactive(self.api, page["title"], page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+                    self.api.edit(page["title"], page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 
     def find_orphans(self):
         if self.allpages is None:

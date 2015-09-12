@@ -243,14 +243,13 @@ class LinkChecker:
 
     def _edit(self, title, pageid, text_new, text_old, timestamp):
         if text_old != text_new:
-            logger.info("Editing '%s'" % title)
             try:
                 if self.interactive is False:
-                    self.api.edit(pageid, text_new, timestamp, self.edit_summary, bot="")
+                    self.api.edit(title, pageid, text_new, timestamp, self.edit_summary, bot="")
                 else:
-                    edit_interactive(self.api, pageid, text_old, text_new, timestamp, self.edit_summary, bot="")
+                    edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, self.edit_summary, bot="")
             except APIError as e:
-                logger.error("failed to edit page '{}' ({})".format(title, e.server_response["info"]))
+                pass
 
 
 if __name__ == "__main__":

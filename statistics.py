@@ -141,11 +141,10 @@ class Statistics:
             require_login(self.api)
 
             try:
-                result = self.api.edit(self.pageid, self.text, self.timestamp,
-                                  self.cliargs.summary, bot="1", minor="1")
+                result = self.api.edit(self.cliargs.statistics_page, self.pageid,
+                        self.text, self.timestamp, self.cliargs.summary, bot="1",
+                        minor="1")
             except APIError as err:
-                logger.error("Could not save the page ({})".format(
-                                                        err.server_response["info"]))
                 ret |= 1
             else:
                 if result["result"].lower() != "success":

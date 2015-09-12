@@ -354,10 +354,10 @@ class PkgUpdater:
             text_new = self.update_page(title, text_old)
             if text_old != text_new:
                 try:
-#                    edit_interactive(self.api, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-                    self.api.edit(page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+#                    edit_interactive(self.api, title, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+                    self.api.edit(title, page["pageid"], text_new, timestamp, self.edit_summary, bot="")
                 except APIError:
-                    logger.exception("failed to edit page '%s'" % title)
+                    pass
 
         return True
 
