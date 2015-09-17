@@ -1,16 +1,28 @@
 #! /usr/bin/env python3
 
-import difflib
-from pygments import highlight
-from pygments.lexers.text import DiffLexer
-from pygments.formatters import Terminal256Formatter
+try:
+    import WikEdDiff
+    _has_wikeddiff = True
+except ImportError:
+    _has_wikeddiff = False
+    import difflib
+    try:
+        import pygments
+        import pygments.lexers.text
+        import pygments.formatters
+        _has_pygments = True
+    except ImportError:
+        _has_pygments = False
 
 def diff_highlighted(old, new, fromfile="", tofile="", fromfiledate="", tofiledate=""):
     """
-    Generic wrapper around :py:func:`difflib.unified_diff` with highlighter based
-    on :py:mod:`pygments`.
+    Returns a diff between two texts formatted with ANSI color sequences
+    suitable for output in 256-color terminal.
 
-    See `difflib.unified_diff`_ for description of optional parameters.
+    When available, the :py:mod:`WikEdDiff` library and its
+    :py:class:`AnsiFormatter` is used. Otherwise the :py:mod:`difflib`
+    module from the standard library is used to generate the diff in unified
+    format and :py:mod:`pygments` is used (when available) as the highlighter.
 
     :param old: text to compare (old revision)
     :param new: text to compare (new revision)
@@ -18,17 +30,39 @@ def diff_highlighted(old, new, fromfile="", tofile="", fromfiledate="", tofileda
     :param tofile: new file name (used as meta data to format diff header)
     :param fromfiledate: original file timestamp (used as meta data to format diff header)
     :param tofiledate: new file timestamp (used as meta data to format diff header)
-
-    .. _`difflib.unified_diff`: https://docs.python.org/3/library/difflib.html#difflib.unified_diff
+    :returns: diff formatted with ANSI color sequences
     """
-    # splitlines() omits the '\n' char from each line, so we need to
-    # explicitly set lineterm="", otherwise spacing would be inconsistent
-    diff = difflib.unified_diff(old.splitlines(), new.splitlines(), fromfile, tofile, fromfiledate, tofiledate, lineterm="")
+    if _has_wikeddiff is True:
+        # get diff fragments
+        config = WikEdDiff.WikEdDiffConfig()
+        wd = WikEdDiff.WikEdDiff(config)
+        fragments = wd.diff(old, new)
 
-    text = "\n".join(diff)
-    lexer = DiffLexer()
-    formatter = Terminal256Formatter()
-    return highlight(text, lexer, formatter)
+        # format with ANSI colors
+        formatter = WikEdDiff.AnsiFormatter()
+        diff_ansi = formatter.format( fragments, coloredBlocks=True )
+
+        # prepend metadata
+        header = formatter.pushColor(formatter.color_delete) + \
+                 "--- {}\t{}".format(fromfile, fromfiledate) + \
+                 formatter.popColor() + "\n" + \
+                 formatter.pushColor(formatter.color_insert) + \
+                 "+++ {}\t{}".format(tofile, tofiledate) + \
+                 formatter.popColor() + "\n"
+        sep = formatter.pushColor(formatter.color_separator) + "~" * 32 + formatter.popColor()
+        return header + sep + "\n" + diff_ansi + "\n" + sep
+
+    else:
+        # splitlines() omits the '\n' char from each line, so we need to
+        # explicitly set lineterm="", otherwise spacing would be inconsistent
+        diff = difflib.unified_diff(old.splitlines(), new.splitlines(), fromfile, tofile, fromfiledate, tofiledate, lineterm="")
+
+        text = "\n".join(diff)
+        if _has_pygments is True:
+            lexer = pygments.lexers.text.DiffLexer()
+            formatter = pygments.formatters.Terminal256Formatter()
+            text = pygments.highlight(text, lexer, formatter)
+        return text
 
 class RevisionDiffer:
     """

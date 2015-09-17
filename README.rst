@@ -75,10 +75,12 @@ Requirements
 
 The following are required only by some scripts:
 
-- `Pygments`_ (for highlighting differences between revisions in interactive mode)
+- `WikEdDiff`_ (for highlighting differences between revisions in interactive mode)
+- `Pygments`_ (alternative highlighter when WikEdDiff is not available)
 - `pyalpm`_ (for ``update-package-templates.py``)
 - `NumPy`_ and `matplotlib`_ (for ``statistics_histograms.py``)
 
+.. _WikEdDiff: https://github.com/lahwaacz/python-wikeddiff
 .. _Pygments: http://pygments.org/
 .. _pyalpm: https://projects.archlinux.org/users/remy/pyalpm.git/
 .. _NumPy: http://www.numpy.org/
