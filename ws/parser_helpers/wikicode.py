@@ -1,8 +1,10 @@
 #! /usr/bin/env python3
 
+import re
+
 import mwparserfromhell
 
-__all__ = ["get_adjacent_node", "get_parent_wikicode", "remove_and_squash"]
+__all__ = ["get_adjacent_node", "get_parent_wikicode", "remove_and_squash", "get_section_headings"]
 
 def get_adjacent_node(wikicode, node, ignore_whitespace=False):
     """
@@ -86,3 +88,15 @@ def remove_and_squash(wikicode, obj):
         # merge successive Text nodes
         prev.value += next_.value
         parent.remove(next_)
+
+def get_section_headings(text):
+    """
+    Extracts section headings from given text. Custom regular expression is used
+    instead of :py:mod:`mwparserfromhell` for performance reasons.
+
+    :param str text: content of the wiki page
+    :returns: list of section headings (without the ``=`` marks)
+    """
+    # re.findall returns a list of tuples of the matched groups
+    matches = re.findall(r"^((\={1,6})\s*)([^\n]*?)(\s*(\2))$", text, flags=re.MULTILINE | re.DOTALL)
+    return [match[2] for match in matches]

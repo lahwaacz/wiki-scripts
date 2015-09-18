@@ -143,3 +143,59 @@ First paragraph
 """
         wikicode = mwparserfromhell.parse(snippet)
         self._do_test(wikicode, "[[link]]", expected)
+
+class test_get_section_headings:
+    @staticmethod
+    def _do_test(text, expected):
+        result = get_section_headings(text)
+        assert_equals(result, expected)
+
+    def test_balanced(self):
+        snippet = """
+foo
+== Section 1 ==
+bar
+=== Section 2===
+=Section 3 =
+== Section 4 ===
+"""
+        expected = ["Section 1", "Section 2", "Section 3", "Section 4 ="]
+        self._do_test(snippet, expected)
+
+    def test_unbalanced(self):
+        snippet = """
+Invalid section 1 ==
+== Invalid section 2
+== Valid section 1 =
+= Valid section 2 ==
+== Valid section 3 = =
+= = Valid section 4 ==
+"""
+        expected = [
+            "= Valid section 1",
+            "Valid section 2 =",
+            "= Valid section 3 =",
+            "= Valid section 4 =",
+        ]
+        self._do_test(snippet, expected)
+
+    def test_levels(self):
+        snippet = """
+= Level 1 =
+== Level 2 ==
+=== Level 3 ===
+==== Level 4 ====
+===== Level 5 =====
+====== Level 6 ======
+======= Invalid level =======
+"""
+        expected = [
+            "Level 1",
+            "Level 2",
+            "Level 3",
+            "Level 4",
+            "Level 5",
+            "Level 6",
+            "= Invalid level =",
+        ]
+        self._do_test(snippet, expected)
