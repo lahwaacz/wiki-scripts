@@ -323,8 +323,6 @@ class Interlanguage:
                 langlinks = self._get_langlinks(title)
                 if self._needs_update(page, langlinks):
                     yield page, langlinks
-                else:
-                    logger.info("Page '{}' is up to date".format(title))
 
         for chunk in utils.iter_chunks(_updates_gen(self.allpages), self.limit):
             pages_props, pages_langlinks = zip(*list(chunk))
