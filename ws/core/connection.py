@@ -213,8 +213,9 @@ class Connection:
         """
         Convenient method to call the ``index.php`` entry point.
 
-        Currently it only calls :py:meth:`self.request()` with specific URL and
-        sets default method to ``"GET"``.
+        Currently it only calls :py:meth:`self.request()` with specific URL, default
+        method ``"GET"`` and other ``kwargs`` (at least ``"params"`` or ``"data"``
+        should be specified).
 
         See `MediaWiki`_ for possible parameters to ``index.php``.
 
