@@ -199,3 +199,29 @@ Invalid section 1 ==
             "= Invalid level =",
         ]
         self._do_test(snippet, expected)
+
+class test_get_anchors:
+    def test_simple(self):
+        snippet = """
+== foo ==
+== bar ==
+== foo ==
+== foo_2 ==
+== foo 2 ==
+"""
+        expected = ["foo", "bar", "foo_2", "foo_2_2", "foo_2_3"]
+        result = get_anchors(snippet)
+        assert_equals(result, expected)
+
+    def test_complex(self):
+        snippet = """
+== foo_2 ==
+== foo_2_2 ==
+== foo ==
+== foo ==
+== foo 2 ==
+== foo 2 ==
+"""
+        expected = ["foo_2", "foo_2_2", "foo", "foo_3", "foo_2_3", "foo_2_4"]
+        result = get_anchors(snippet)
+        assert_equals(result, expected)

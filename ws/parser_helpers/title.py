@@ -257,8 +257,11 @@ class Title:
         .. note::
             Section anchors on MediaWiki are usually encoded (see
             :py:func:`ws.parser_helpers.encodings.dotencode`), but decoding is
-            ambiguous, so the canonical form of the anchor cannot be determined
-            without comparing to the existing sections of the target page.
+            ambiguous due to whitespace squashing and the fact that the escape
+            character itself (i.e. the dot) is not encoded even when followed by
+            two hex characters. As a result, the canonical form of the anchor
+            cannot be determined without comparing to the existing sections of
+            the target page.
         """
         return self.anchor
 

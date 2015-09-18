@@ -4,7 +4,9 @@ import re
 
 import mwparserfromhell
 
-__all__ = ["get_adjacent_node", "get_parent_wikicode", "remove_and_squash", "get_section_headings"]
+from .encodings import dotencode
+
+__all__ = ["get_adjacent_node", "get_parent_wikicode", "remove_and_squash", "get_section_headings", "get_anchors"]
 
 def get_adjacent_node(wikicode, node, ignore_whitespace=False):
     """
@@ -100,3 +102,24 @@ def get_section_headings(text):
     # re.findall returns a list of tuples of the matched groups
     matches = re.findall(r"^((\={1,6})\s*)([^\n]*?)(\s*(\2))$", text, flags=re.MULTILINE | re.DOTALL)
     return [match[2] for match in matches]
+
+def get_anchors(text):
+    """
+    Extracts section headings from given text and converts them to section
+    anchors.
+
+    :param str text: content of the wiki page
+    :returns: list of section anchors (i.e. dot-encoded)
+    """
+    headings = get_section_headings(text)
+    anchors = [dotencode(heading) for heading in headings]
+
+    # handle equivalent headings duplicated on the page
+    for i, anchor in enumerate(anchors):
+        j = 2
+        while anchor in anchors[:i]:
+            anchor = anchors[i] + "_{}".format(j)
+            j += 1
+        # update the main array
+        anchors[i] = anchor
+    return anchors
