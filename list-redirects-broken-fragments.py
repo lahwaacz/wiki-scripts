@@ -12,6 +12,7 @@ import ws.cache
 import ws.utils
 from ws.parser_helpers.encodings import dotencode
 from ws.parser_helpers.title import Title
+from ws.parser_helpers.wikicode import get_anchors
 
 # TODO: split to get_section_headings() and get_anchors() and move to
 # ws.parser_helpers (without caching, title -> text)
@@ -36,28 +37,11 @@ def valid_anchor(title, anchor, pages, wrapped_titles):
     page = ws.utils.bisect_find(pages, title, index_list=wrapped_titles)
     text = page["revisions"][0]["*"]
 
-    # TODO: split to separate function
-    # re.findall returns a list of tuples of the matched groups
-    matches = re.findall(r"^((\=+)\s*)(.*?)(\s*(\2))$", text, flags=re.MULTILINE | re.DOTALL)
-    headings = [match[2] for match in matches]
-
-    # we need to encode the headings for comparison with the given anchor
-    # because decoding the given anchor is ambiguous due to whitespace squashing
-    # and the fact that the escape character itself (i.e. the dot) is not
-    # encoded even when followed by two hex characters
-    encoded = [dotencode(heading) for heading in headings]
-
-    # handle equivalent headings duplicated on the page
-    _counts = collections.Counter(encoded)
-    for i in range(-1, -len(encoded), -1):
-        enc = encoded[i]
-        if _counts[enc] > 1:
-            encoded[i] = enc + "_{}".format(_counts[enc])
-        _counts[enc] -= 1
+    # get list of valid anchors
+    anchors = get_anchors(text)
 
     # encode the given anchor and validate
-    anchor = dotencode(anchor)
-    return anchor in encoded
+    return dotencode(anchor) in anchors
 
 def main(api, db):
     # limit to redirects pointing to the content namespaces
