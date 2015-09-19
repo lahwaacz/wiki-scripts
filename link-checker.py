@@ -6,8 +6,7 @@
 
 # TODO:
 #   extlink -> wikilink conversion should be done first
-#   URL-decoding (for page titles), dot-decoding (for sections)?
-#   skip interwiki links, categories, article status templates
+#   skip category links, article status templates
 #   detect self-redirects (definitely interactive only)
 
 import re
@@ -23,6 +22,12 @@ from ws.parser_helpers.title import canonicalize, Title
 logger = logging.getLogger(__name__)
 
 class LinkChecker:
+    """
+    Assumptions:
+
+    - all titles are case-insensitive on the first letter (true on ArchWiki)
+    - alternative text is intentional, no replacements there
+    """
     def __init__(self, api, interactive=False):
         self.api = api
         self.interactive = interactive
@@ -39,11 +44,17 @@ class LinkChecker:
         # redirects only to the Main, ArchWiki and Help namespaces, others deserve special treatment
         self.redirects = api.redirects_map(target_namespaces=[0, 4, 12])
 
+        # mapping of canonical titles to displaytitles
+        self.displaytitles = {}
+        for ns in self.api.namespaces.keys():
+            if ns < 0:
+                continue
+            for page in self.api.generator(generator="allpages", gaplimit="max", gapnamespace=ns, prop="info", inprop="displaytitle"):
+                self.displaytitles[page["title"]] = page["displaytitle"]
+
     def check_trivial(self, wikilink):
         """
         Perform trivial simplification, replace `[[Foo|foo]]` with `[[foo]]`.
-        In interactive mode, underscores in the wikilink title are replaced with
-        spaces if there is no alternative text.
 
         :param wikilink: instance of `mwparserfromhell.nodes.wikilink.Wikilink`
                          representing the link to be checked
@@ -128,6 +139,14 @@ class LinkChecker:
         :param title: the parsed :py:attr:`wikilink.title`
         :type title: :py:class:`mw.parser_helpers.title.Title`
         """
+        # run only in interactive mode
+        if self.interactive is False:
+            return
+
+        # FIXME: very common false positive
+        if title.pagename == "Wpa supplicant":
+            return
+
         # might be only a section, e.g. [[#foo]]
         if title.fullpagename:
             target = self.redirects.get(title.fullpagename)
@@ -143,16 +162,41 @@ class LinkChecker:
         # Replacing underscores and capitalization as per DISPLAYTITLE attribute
         # is not safe (e.g. 'wpa_supplicant' and 'WPA supplicant' are equivalent
         # without deeper context), so do it only in interactive mode.
-        # Also not replacing if there is an alternative text to avoid largescale
-        # edits; underscores in alternative text are likely intentional so
-        # update only the title.
-        if self.interactive is True and wikilink.text is None:
-            # TODO: look at DISPLAYTITLE of the target page:
-            #   - compare to title.fullpagename to see if it is valid
-            #   - check capitalization (handle first-letter case and CamelCase words properly!)
-            #   - there is inprop=displaytitle
-            #   - don't modify section anchor!
-            wikilink.title = str(wikilink.title).replace("_", " ")
+        if self.interactive is False:
+            return
+        # Avoid largescale edits if there is an alternative text.
+        if wikilink.text is not None:
+            return
+        # we can't check interwiki links
+        if title.iwprefix:
+            return
+        # skip relative links
+        if not title.fullpagename:
+            return
+        # report pages without DISPLAYTITLE (red links)
+        if title.fullpagename not in self.displaytitles:
+            logger.warning("wikilink to non-existing page: {}".format(wikilink))
+            return
+
+        # FIXME: avoid stripping ":" in the [[:Category:...]] links
+        if title.namespace == "Category":
+            return
+
+        # FIXME: very common false positive
+        if title.pagename == "Wpa supplicant":
+            return
+
+        # assemble new title
+        new = self.displaytitles[title.fullpagename]
+        if title.sectionname:
+            # NOTE: section anchor should be checked in self.check_anchor(), so
+            #       canonicalization here does not matter
+            new += "#" + title.sectionname
+
+        # skip first-letter case differences
+        if wikilink.title[1:] != new[1:]:
+            wikilink.title = new
+            title.parse(wikilink.title)
 
     def check_anchor(self, wikilink, title):
         # TODO: look at the actual section heading (beware of https://phabricator.wikimedia.org/T20431)
@@ -226,8 +270,8 @@ class LinkChecker:
             self.check_trivial(wikilink)
             self.check_relative(wikilink, wl_title, title)
             self.check_redirect_exact(wikilink, wl_title)
-            if self.interactive is True:
-                self.check_redirect_capitalization(wikilink, wl_title)
+            self.check_redirect_capitalization(wikilink, wl_title)
+            self.check_displaytitle(wikilink, wl_title)
 
             # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
             self.collapse_whitespace(wikicode, wikilink)
