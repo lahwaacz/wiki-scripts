@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # TODO:
-#   interwiki prefixes more useful (local vs. external, interwiki vs. interlanguage)
+#   make interwiki prefixes more useful (local vs. external, interwiki vs. interlanguage)
 #   ArchWiki-specific language detection
 #   add examples to the module docstring
 

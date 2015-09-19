@@ -62,7 +62,6 @@ class InteractiveQuit(Exception):
     """
     pass
 
-# TODO: needs 'title' argument (to be shown in diff and for aptly named tmpfiles)
 def edit_interactive(api, title, pageid, text_old, text_new, basetimestamp, summary, **kwargs):
     """
     A routine for interactive editing. Presents differences between the two
