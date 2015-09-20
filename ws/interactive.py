@@ -110,7 +110,7 @@ def edit_interactive(api, title, pageid, text_old, text_new, basetimestamp, summ
         elif ans == "e":
             basename = title.replace(" ", "_").replace("/", "_")
             with TmpFileSeries(basename, text_new, text_old) as wrapper:
-                args = [_diffprog, wrapper.fname_new, wrapper.fname_old]
+                args = _diffprog + [wrapper.fname_new, wrapper.fname_old]
                 try:
                     subprocess.check_call(args)
                     wrapper.file_new.seek(0)
