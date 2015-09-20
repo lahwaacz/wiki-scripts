@@ -103,15 +103,14 @@ def get_section_headings(text):
     matches = re.findall(r"^((\={1,6})\s*)([^\n]*?)(\s*(\2))$", text, flags=re.MULTILINE | re.DOTALL)
     return [match[2] for match in matches]
 
-def get_anchors(text):
+def get_anchors(headings):
     """
-    Extracts section headings from given text and converts them to section
-    anchors.
+    Converts section headings to anchors.
 
-    :param str text: content of the wiki page
+    :param list headings:
+        section headings (obtained e.g. with :py:func:`get_section_headings`)
     :returns: list of section anchors (i.e. dot-encoded)
     """
-    headings = get_section_headings(text)
     anchors = [dotencode(heading) for heading in headings]
 
     # handle equivalent headings duplicated on the page

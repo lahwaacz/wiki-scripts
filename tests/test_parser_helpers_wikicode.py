@@ -210,7 +210,7 @@ class test_get_anchors:
 == foo 2 ==
 """
         expected = ["foo", "bar", "foo_2", "foo_2_2", "foo_2_3"]
-        result = get_anchors(snippet)
+        result = get_anchors(get_section_headings(snippet))
         assert_equals(result, expected)
 
     def test_complex(self):
@@ -223,5 +223,5 @@ class test_get_anchors:
 == foo 2 ==
 """
         expected = ["foo_2", "foo_2_2", "foo", "foo_3", "foo_2_3", "foo_2_4"]
-        result = get_anchors(snippet)
+        result = get_anchors(get_section_headings(snippet))
         assert_equals(result, expected)

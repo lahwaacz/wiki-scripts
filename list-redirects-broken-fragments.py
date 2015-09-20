@@ -9,7 +9,7 @@ import ws.cache
 import ws.utils
 from ws.parser_helpers.encodings import dotencode
 from ws.parser_helpers.title import Title
-from ws.parser_helpers.wikicode import get_anchors
+from ws.parser_helpers.wikicode import get_section_headings, get_anchors
 
 def valid_sectionname(title, pages, wrapped_titles):
     """
@@ -40,7 +40,7 @@ def valid_sectionname(title, pages, wrapped_titles):
     text = page["revisions"][0]["*"]
 
     # get list of valid anchors
-    anchors = get_anchors(text)
+    anchors = get_anchors(get_section_headings(text))
 
     # encode the given anchor and validate
     return dotencode(title.sectionname) in anchors
