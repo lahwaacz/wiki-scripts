@@ -28,9 +28,13 @@ class LinkChecker:
     - all titles are case-insensitive on the first letter (true on ArchWiki)
     - alternative text is intentional, no replacements there
     """
-    def __init__(self, api, interactive=False):
+    def __init__(self, api, interactive=False, first=None, title=None):
         self.api = api
         self.interactive = interactive
+
+        # parameters for self.run()
+        self.first = first
+        self.title = title
 
         # TODO: when there are many different changes, create a page on ArchWiki
         # describing the changes, link it with wikilink syntax using a generic
@@ -51,6 +55,30 @@ class LinkChecker:
                 continue
             for page in self.api.generator(generator="allpages", gaplimit="max", gapnamespace=ns, prop="info", inprop="displaytitle"):
                 self.displaytitles[page["title"]] = page["displaytitle"]
+
+
+    @staticmethod
+    def set_argparser(argparser):
+        # first try to set options for objects we depend on
+        present_groups = [group.title for group in argparser._action_groups]
+        if "Connection parameters" not in present_groups:
+            API.set_argparser(argparser)
+
+        group = argparser.add_argument_group(title="script parameters")
+        group.add_argument("-i", "--interactive", action="store_true",
+                help="enables interactive mode")
+        mode = group.add_mutually_exclusive_group()
+        mode.add_argument("--first", default=None, metavar="TITLE",
+                help="the title of the first page to be processed")
+        mode.add_argument("--title",
+                help="the title of the only page to be processed")
+
+    @classmethod
+    def from_argparser(klass, args, api=None):
+        if api is None:
+            api = API.from_argparser(args)
+        return klass(api, interactive=args.interactive, first=args.first, title=args.title)
+
 
     def check_trivial(self, wikilink):
         """
@@ -249,34 +277,45 @@ class LinkChecker:
             else:
                 wikilink.title = wikilink.title.rstrip()
 
-    def update_page(self, title, text):
+    def update_page(self, src_title, text):
         """
         Parse the content of the page and call various methods to update the links.
 
-        :param title: title of the page (as `str`)
-        :param text: content of the page (as `str`)
-        :returns: updated content (as `str`)
+        :param str src_title: title of the page
+        :param str text: content of the page
+        :returns str: updated content
         """
-        logger.info("Parsing '%s'..." % title)
+        logger.info("Parsing '%s'..." % src_title)
         wikicode = mwparserfromhell.parse(text)
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
-            wl_title = Title(self.api, wikilink.title)
+            title = Title(self.api, wikilink.title)
             # skip interlanguage links (handled by update-interlanguage-links.py)
-            if wl_title.iw in self.api.interlanguagemap.keys():
+            if title.iw in self.api.interlanguagemap.keys():
                 continue
 
             self.collapse_whitespace_pipe(wikilink)
             self.check_trivial(wikilink)
-            self.check_relative(wikilink, wl_title, title)
-            self.check_redirect_exact(wikilink, wl_title)
-            self.check_redirect_capitalization(wikilink, wl_title)
-            self.check_displaytitle(wikilink, wl_title)
+            self.check_relative(wikilink, title, src_title)
+            self.check_redirect_exact(wikilink, title)
+            self.check_redirect_capitalization(wikilink, title)
+            self.check_displaytitle(wikilink, title)
+            self.check_anchor(wikilink, title)
 
             # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
             self.collapse_whitespace(wikicode, wikilink)
 
         return str(wikicode)
+
+    def _edit(self, title, pageid, text_new, text_old, timestamp):
+        if text_old != text_new:
+            try:
+                if self.interactive is False:
+                    self.api.edit(title, pageid, text_new, timestamp, self.edit_summary, bot="")
+                else:
+                    edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, self.edit_summary, bot="")
+            except APIError as e:
+                pass
 
     def process_page(self, title):
         result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", titles=title)
@@ -296,50 +335,22 @@ class LinkChecker:
             text_new = self.update_page(title, text_old)
             self._edit(title, page["pageid"], text_new, text_old, timestamp)
 
-    def _edit(self, title, pageid, text_new, text_old, timestamp):
-        if text_old != text_new:
-            try:
-                if self.interactive is False:
-                    self.api.edit(title, pageid, text_new, timestamp, self.edit_summary, bot="")
-                else:
-                    edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, self.edit_summary, bot="")
-            except APIError as e:
-                pass
+    def run(self):
+        # ensure that we are authenticated
+        require_login(self.api)
+
+        if self.title is not None:
+            checker.process_page(self.title)
+        else:
+            checker.process_allpages(apfrom=self.first)
 
 
 if __name__ == "__main__":
     import ws.config
-    import ws.logging
 
-    argparser = ws.config.getArgParser(description="Parse all pages on the wiki and try to fix/simplify/beautify links")
-    API.set_argparser(argparser)
+    checker = ws.config.object_from_argparser(LinkChecker, description="Parse all pages on the wiki and try to fix/simplify/beautify links")
 
-    # TODO: move to LinkChecker.set_argparser()
-    _script = argparser.add_argument_group(title="script parameters")
-    _script.add_argument("-i", "--interactive", action="store_true",
-            help="enables interactive mode")
-    _mode = _script.add_mutually_exclusive_group()
-    _mode.add_argument("--first", default=None, metavar="TITLE",
-            help="the title of the first page to be processed")
-    _mode.add_argument("--title",
-            help="the title of the only page to be processed")
-
-    args = argparser.parse_args()
-
-    # set up logging
-    ws.logging.init(args)
-
-    api = API.from_argparser(args)
-
-    # ensure that we are authenticated
-    require_login(api)
-
-    checker = LinkChecker(api, args.interactive)
     try:
-        # TODO: simplify for the LinkChecker.from_argparser factory
-        if args.title:
-            checker.process_page(args.title)
-        else:
-            checker.process_allpages(apfrom=args.first)
+        checker.run()
     except InteractiveQuit:
         pass
