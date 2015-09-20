@@ -8,6 +8,7 @@
 import re
 
 from .encodings import _anchor_preprocess
+from ..utils import find_caseless
 
 __all__ = ["canonicalize", "Title"]
 
@@ -68,24 +69,6 @@ class Title:
 
         self.parse(title)
 
-    @staticmethod
-    def _find_caseless(what, where, from_target=False):
-        """
-        Do a case-insensitive search in a list/iterable.
-
-        :param what: element to be found
-        :param where: a list/iterable for searching
-        :param from_target: if True, return the element from the list/iterable instead of ``what``
-        :raises ValueError: when not found
-        """
-        _what = what.lower()
-        for item in where:
-            if item.lower() == _what:
-                if from_target is True:
-                    return item
-                return what
-        raise ValueError
-
     def parse(self, full_title):
         """
         Splits the title into ``(iwprefix, namespace, pagename, sectionname)``
@@ -101,7 +84,7 @@ class Title:
             iw, _rest = full_title.lstrip(":").split(":", maxsplit=1)
             iw = iw.lower().replace("_", "").strip()
             # check if it is valid interwiki prefix
-            self.iw = self._find_caseless(iw, self.api.interwikimap.keys())
+            self.iw = find_caseless(iw, self.api.interwikimap.keys())
         except ValueError:
             self.iw = ""
             _rest = full_title
@@ -113,7 +96,7 @@ class Title:
             if self.iw == "" or "local" in self.api.interwikimap[self.iw]:
                 # check if it is valid namespace
                 # TODO: API.namespaces does not consider namespace aliases
-                self.ns = self._find_caseless(ns, self.api.namespaces.values(), from_target=True)
+                self.ns = find_caseless(ns, self.api.namespaces.values(), from_target=True)
             else:
                 self.ns = ns
         except ValueError:
@@ -270,7 +253,7 @@ class Title:
     def iwprefix(self, value):
         if isinstance(value, str):
             try:
-                self.iw = self._find_caseless(value, self.api.interwikimap.keys())
+                self.iw = find_caseless(value, self.api.interwikimap.keys())
             except ValueError:
                 if value == "":
                     self.iw = value
@@ -283,7 +266,7 @@ class Title:
     def namespace(self, value):
         if isinstance(value, str):
             try:
-                self.ns = self._find_caseless(canonicalize(value), self.api.namespaces.values(), from_target=True)
+                self.ns = find_caseless(canonicalize(value), self.api.namespaces.values(), from_target=True)
             except ValueError:
                 raise ValueError("tried to assign invalid namespace: {}".format(value))
         else:

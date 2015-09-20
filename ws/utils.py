@@ -73,7 +73,7 @@ def bisect_find(data_list, key, index_list=None):
     i = bisect.bisect_left(index_list, key)
     if i != len(index_list) and index_list[i] == key:
         return data_list[i]
-    raise IndexError
+    raise IndexError(repr(key))
 
 def bisect_insert_or_replace(data_list, key, data_element=None, index_list=None):
     """
@@ -111,3 +111,20 @@ def dmerge(source, destination):
             destination[key] = value
 
     return destination
+
+def find_caseless(what, where, from_target=False):
+    """
+    Do a case-insensitive search in a list/iterable.
+
+    :param what: element to be found
+    :param where: a list/iterable for searching
+    :param from_target: if True, return the element from the list/iterable instead of ``what``
+    :raises ValueError: when not found
+    """
+    _what = what.lower()
+    for item in where:
+        if item.lower() == _what:
+            if from_target is True:
+                return item
+            return what
+    raise ValueError
