@@ -95,6 +95,7 @@ def edit_interactive(api, title, pageid, text_old, text_new, basetimestamp, summ
     while True:
         diff = diff_highlighted(text_old, text_new, title + ".old", title + ".new", basetimestamp, "<utcnow>")
         print(diff)
+        print("Edit summary:  " + summary)
         ans = input("Make this edit? [%s]? " % ",".join(short_options))
 
         if ans == "?" or ans not in short_options:
