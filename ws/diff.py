@@ -49,7 +49,9 @@ def diff_highlighted(old, new, fromfile="", tofile="", fromfiledate="", tofileda
                  formatter.pushColor(formatter.color_insert) + \
                  "+++ {}\t{}".format(tofile, tofiledate) + \
                  formatter.popColor() + "\n"
-        sep = formatter.pushColor(formatter.color_separator) + "~" * 32 + formatter.popColor()
+        sep = formatter.pushColor(formatter.color_separator) + \
+              formatter.separator_symbol + \
+              formatter.popColor()
         return header + sep + "\n" + diff_ansi + "\n" + sep
 
     else:
