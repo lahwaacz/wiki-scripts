@@ -15,9 +15,13 @@ import logging
 import mwparserfromhell
 
 from ws.core import API, APIError
+import ws.cache
+import ws.utils
 from ws.interactive import *
 import ws.ArchWiki.lang as lang
+from ws.parser_helpers.encodings import dotencode
 from ws.parser_helpers.title import canonicalize, Title
+from ws.parser_helpers.wikicode import get_section_headings, get_anchors
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +32,9 @@ class LinkChecker:
     - all titles are case-insensitive on the first letter (true on ArchWiki)
     - alternative text is intentional, no replacements there
     """
-    def __init__(self, api, interactive=False, first=None, title=None):
+    def __init__(self, api, cache_dir, interactive=False, first=None, title=None):
         self.api = api
+        self.cache_dir = cache_dir
         self.interactive = interactive
 
         # parameters for self.run()
@@ -41,12 +46,15 @@ class LinkChecker:
         # alternative text (e.g. "semi-automatic style fixes") (path should be
         # configurable, as well as the URL fallback)
         if interactive is True:
-            self.edit_summary = "simplification of wikilinks, fixing whitespace and capitalization, removing underscores (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py (interactive))"
+            self.edit_summary = "simplification and beautification of wikilinks, fixing whitespace, capitalization and section fragments (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py (interactive))"
         else:
-            self.edit_summary = "simplification of wikilinks, fixing whitespace (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py)"
+            self.edit_summary = "simplification of wikilinks, fixing whitespace and section fragments (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py)"
 
-        # redirects only to the Main, ArchWiki and Help namespaces, others deserve special treatment
-        self.redirects = api.redirects_map(target_namespaces=[0, 4, 12])
+        # ensure that we are authenticated
+        require_login(self.api)
+
+        # api.redirects_map() is not currently cached, save the result
+        self.redirects = api.redirects_map()
 
         # mapping of canonical titles to displaytitles
         self.displaytitles = {}
@@ -55,6 +63,16 @@ class LinkChecker:
                 continue
             for page in self.api.generator(generator="allpages", gaplimit="max", gapnamespace=ns, prop="info", inprop="displaytitle"):
                 self.displaytitles[page["title"]] = page["displaytitle"]
+
+        # cache of latest revisions' content
+        self.db = ws.cache.LatestRevisionsText(api, self.cache_dir, autocommit=False)
+        # create shallow copy of the db to trigger update only the first time
+        # and not at every access
+        self.db_copy = {}
+        for ns in self.api.namespaces.keys():
+            if ns >= 0:
+                self.db_copy[str(ns)] = self.db[str(ns)]
+        self.db.dump()
 
 
     @staticmethod
@@ -77,7 +95,7 @@ class LinkChecker:
     def from_argparser(klass, args, api=None):
         if api is None:
             api = API.from_argparser(args)
-        return klass(api, interactive=args.interactive, first=args.first, title=args.title)
+        return klass(api, args.cache_dir, interactive=args.interactive, first=args.first, title=args.title)
 
 
     def check_trivial(self, wikilink):
@@ -201,6 +219,9 @@ class LinkChecker:
         # skip relative links
         if not title.fullpagename:
             return
+        # skip links to special namespaces
+        if title.namespacenumber < 0:
+            return
         # report pages without DISPLAYTITLE (red links)
         if title.fullpagename not in self.displaytitles:
             logger.warning("wikilink to non-existing page: {}".format(wikilink))
@@ -226,13 +247,79 @@ class LinkChecker:
             wikilink.title = new
             title.parse(wikilink.title)
 
-    def check_anchor(self, wikilink, title):
-        # TODO: look at the actual section heading (beware of https://phabricator.wikimedia.org/T20431)
-        #   - try exact match first
-        #   - otherwise try case-insensitive match to detect differences in capitalization
-        #   - otherwise report (or just mark with {{Broken fragment}} ?)
+    def check_anchor(self, wikilink, title, srcpage):
+        # TODO: beware of https://phabricator.wikimedia.org/T20431
+        #   - mark with {{Broken fragment}} instead of reporting?
         #   - someday maybe: check N older revisions, section might have been renamed (must be interactive!) or moved to other page (just report)
-        pass
+        # FIXME:
+        #   lookup for duplicated sections: e.g. [[Optical disc drive#DVD_2]]
+        #   DISPLAYTITLE set in self.check_displaytitle() is dropped
+
+        # we can't check interwiki links
+        if title.iwprefix:
+            return True
+
+        # empty sectionname is always valid
+        if title.sectionname == "":
+            return True
+
+        # lookup target page content
+        # TODO: pulling revisions from cache does not expand templates
+        #       (transclusions like on List of applications)
+        if title.fullpagename:
+            _target_ns = title.namespacenumber
+            _target_title = title.fullpagename
+        else:
+            src_title = Title(self.api, srcpage)
+            _target_ns = src_title.namespacenumber
+            _target_title = src_title.fullpagename
+        # skip links to special pages (e.g. [[Special:Preferences#mw-prefsection-rc]])
+        if _target_ns < 0:
+            return
+        if _target_title in self.redirects:
+            _new = self.redirects.get(_target_title)
+            if "#" not in _new:
+                _target_title = _new
+            else:
+                # TODO: decide what to do here
+                return
+        pages = self.db_copy[str(_target_ns)]
+        wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
+        try:
+            page = ws.utils.bisect_find(pages, _target_title, index_list=wrapped_titles)
+        except IndexError:
+            logger.error("could not find content of page: '{}' (wikilink {})".format(_target, wikilink))
+            return
+        text = page["revisions"][0]["*"]
+
+        # get lists of section headings and anchors
+        headings = get_section_headings(text)
+        anchors = get_anchors(headings)
+
+        # try exact match first
+        anchor = dotencode(title.sectionname)
+        if anchor in anchors:
+            # the link actually works, avoid change if there is alternative text
+            if wikilink.text is None:
+                # TODO: simplify (see #25)
+                t, _ = wikilink.title.split("#", maxsplit=1)
+                wikilink.title = t + "#" + headings[anchors.index(anchor)]
+                title.parse(wikilink.title)
+        # otherwise try case-insensitive match to detect differences in capitalization
+        elif self.interactive is True:
+            try:
+                anchor = ws.utils.find_caseless(anchor, anchors, from_target=True)
+                if wikilink.text is not None:
+                    # use canonical form if there is alternative text
+                    title.sectionname = headings[anchors.index(anchor)]
+                    wikilink.title = str(title)
+                else:
+                    # TODO: simplify (see #25)
+                    t, _ = wikilink.title.split("#", maxsplit=1)
+                    wikilink.title = t + "#" + headings[anchors.index(anchor)]
+                    title.parse(wikilink.title)
+            except ValueError:
+                logger.warning("link with broken section fragment: {}".format(wikilink))
 
     def collapse_whitespace_pipe(self, wikilink):
         """
@@ -285,7 +372,7 @@ class LinkChecker:
         :param str text: content of the page
         :returns str: updated content
         """
-        logger.info("Parsing '%s'..." % src_title)
+        logger.info("Parsing page [[{}]] ...".format(src_title))
         wikicode = mwparserfromhell.parse(text)
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
@@ -300,7 +387,9 @@ class LinkChecker:
             self.check_redirect_exact(wikilink, title)
             self.check_redirect_capitalization(wikilink, title)
             self.check_displaytitle(wikilink, title)
-            self.check_anchor(wikilink, title)
+            self.check_anchor(wikilink, title, src_title)
+            # check trivial again to avoid changes on next pass
+            self.check_trivial(wikilink)
 
             # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
             self.collapse_whitespace(wikicode, wikilink)
@@ -336,9 +425,6 @@ class LinkChecker:
             self._edit(title, page["pageid"], text_new, text_old, timestamp)
 
     def run(self):
-        # ensure that we are authenticated
-        require_login(self.api)
-
         if self.title is not None:
             checker.process_page(self.title)
         else:
