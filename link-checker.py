@@ -288,7 +288,7 @@ class LinkChecker:
         try:
             page = ws.utils.bisect_find(pages, _target_title, index_list=wrapped_titles)
         except IndexError:
-            logger.error("could not find content of page: '{}' (wikilink {})".format(_target, wikilink))
+            logger.error("could not find content of page: '{}' (wikilink {})".format(_target_title, wikilink))
             return
         text = page["revisions"][0]["*"]
 
@@ -307,19 +307,34 @@ class LinkChecker:
                 title.parse(wikilink.title)
         # otherwise try case-insensitive match to detect differences in capitalization
         elif self.interactive is True:
-            try:
-                anchor = ws.utils.find_caseless(anchor, anchors, from_target=True)
-                if wikilink.text is not None:
-                    # use canonical form if there is alternative text
-                    title.sectionname = headings[anchors.index(anchor)]
-                    wikilink.title = str(title)
-                else:
-                    # TODO: simplify (see #25)
-                    t, _ = wikilink.title.split("#", maxsplit=1)
-                    wikilink.title = t + "#" + headings[anchors.index(anchor)]
-                    title.parse(wikilink.title)
-            except ValueError:
+#            try:
+#                anchor = ws.utils.find_caseless(anchor, anchors, from_target=True)
+#            except ValueError:
+#                logger.warning("link with broken section fragment: {}".format(wikilink))
+#                return
+
+            # TODO: first detect section renaming properly, fuzzy search should be only the last resort to deal with typos and such
+            # FIXME: don't look only at the ratio, provide multiple suggestions when the alternatives are similar enough
+            matches = ws.utils.find_fuzzy(anchor, anchors, 0.9)
+            if len(matches) == 0:
                 logger.warning("link with broken section fragment: {}".format(wikilink))
+                return
+            # sort by ratio
+            matches.sort(key=lambda match: match[1], reverse=True)
+            logger.debug("wikilink {}: replacing anchor '{}' with '{}' on similarity level {}".format(wikilink, anchor, matches[0][0], matches[0][1]))
+            anchor = matches[0][0]
+
+            if wikilink.text is not None:
+                # use canonical form if there is alternative text
+                title.sectionname = headings[anchors.index(anchor)]
+                wikilink.title = str(title)
+            else:
+                # TODO: simplify (see #25)
+                t, _ = wikilink.title.split("#", maxsplit=1)
+                wikilink.title = t + "#" + headings[anchors.index(anchor)]
+                title.parse(wikilink.title)
+        else:
+            logger.warning("link with broken section fragment: {}".format(wikilink))
 
     def collapse_whitespace_pipe(self, wikilink):
         """
