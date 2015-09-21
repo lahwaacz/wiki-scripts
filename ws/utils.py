@@ -3,7 +3,6 @@
 import datetime
 import itertools
 import bisect
-import difflib
 
 def parse_date(date):
     """
@@ -129,13 +128,3 @@ def find_caseless(what, where, from_target=False):
                 return item
             return what
     raise ValueError
-
-def find_fuzzy(what, where, threshold):
-    sm = difflib.SequenceMatcher(a=what)
-    matches = []
-    for item in where:
-        sm.set_seq2(item)
-        ratio = sm.ratio()
-        if ratio >= threshold:
-            matches.append( (item, ratio) )
-    return matches

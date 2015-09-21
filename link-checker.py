@@ -9,6 +9,7 @@
 #   skip category links, article status templates
 #   detect self-redirects (definitely interactive only)
 
+import difflib
 import re
 import logging
 
@@ -24,6 +25,27 @@ from ws.parser_helpers.title import canonicalize, Title
 from ws.parser_helpers.wikicode import get_section_headings, get_anchors
 
 logger = logging.getLogger(__name__)
+
+
+def get_ranks(key, iterable):
+    """
+    Get a list of similarity ratios for a key in iterable.
+
+    :param str key: the main key to compare
+    :param iterable:
+        an iterable containing secondary keys to compare against the main key
+    :returns: a list of ``(item, ratio)`` tuples, where ``item`` is an item from
+        ``iterable`` and ``ratio`` its similarity ratio
+    """
+    sm = difflib.SequenceMatcher(a=key)
+    ranks = []
+    for item in iterable:
+        sm.set_seq2(item)
+        ratio = sm.ratio()
+        ranks.append( (item, ratio) )
+    ranks.sort(key=lambda match: match[1], reverse=True)
+    return ranks
+
 
 class LinkChecker:
     """
@@ -242,7 +264,7 @@ class LinkChecker:
             #       canonicalization here does not matter
             new += "#" + title.sectionname
 
-        # skip first-letter case differences
+        # skip if only the case of the first letter is different
         if wikilink.title[1:] != new[1:]:
             wikilink.title = new
             title.parse(wikilink.title)
@@ -252,6 +274,8 @@ class LinkChecker:
         #   - mark with {{Broken fragment}} instead of reporting?
         #   - someday maybe: check N older revisions, section might have been renamed (must be interactive!) or moved to other page (just report)
         # FIXME:
+        #   anchors can't contain '[' and ']'
+        #   strip wiki markup from the heading
         #   lookup for duplicated sections: e.g. [[Optical disc drive#DVD_2]]
         #   DISPLAYTITLE set in self.check_displaytitle() is dropped
 
@@ -281,7 +305,7 @@ class LinkChecker:
             if "#" not in _new:
                 _target_title = _new
             else:
-                # TODO: decide what to do here
+                logger.warning("skipping {} (section fragment placed on a redirect to possibly different section)".format(wikilink))
                 return
         pages = self.db_copy[str(_target_ns)]
         wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
@@ -294,47 +318,46 @@ class LinkChecker:
 
         # get lists of section headings and anchors
         headings = get_section_headings(text)
+        if len(headings) == 0:
+            logger.warning("link with broken section fragment: {}".format(wikilink))
+            return
         anchors = get_anchors(headings)
 
-        # try exact match first
         anchor = dotencode(title.sectionname)
+        needs_fix = True
+
+        # try exact match first
         if anchor in anchors:
-            # the link actually works, avoid change if there is alternative text
-            if wikilink.text is None:
-                # TODO: simplify (see #25)
-                t, _ = wikilink.title.split("#", maxsplit=1)
-                wikilink.title = t + "#" + headings[anchors.index(anchor)]
-                title.parse(wikilink.title)
+            needs_fix = False
         # otherwise try case-insensitive match to detect differences in capitalization
         elif self.interactive is True:
-#            try:
-#                anchor = ws.utils.find_caseless(anchor, anchors, from_target=True)
-#            except ValueError:
-#                logger.warning("link with broken section fragment: {}".format(wikilink))
-#                return
-
-            # TODO: first detect section renaming properly, fuzzy search should be only the last resort to deal with typos and such
-            # FIXME: don't look only at the ratio, provide multiple suggestions when the alternatives are similar enough
-            matches = ws.utils.find_fuzzy(anchor, anchors, 0.9)
-            if len(matches) == 0:
+            # FIXME: first detect section renaming properly, fuzzy search should be only the last resort to deal with typos and such
+            ranks = get_ranks(anchor, anchors)
+            ranks = list(filter(lambda rank: rank[1] >= 0.8, ranks))
+            if len(ranks) == 1 or ( len(ranks) >= 2 and ranks[0][1] - ranks[1][1] > 0.2 ):
+                logger.debug("wikilink {}: replacing anchor '{}' with '{}' on similarity level {}".format(wikilink, anchor, ranks[0][0], ranks[0][1]))
+                anchor = ranks[0][0]
+            elif len(ranks) > 1:
+                logger.debug("skipping {}: multiple feasible anchors per similarity ratio: {}".format(wikilink, ranks))
+                return
+            else:
                 logger.warning("link with broken section fragment: {}".format(wikilink))
                 return
-            # sort by ratio
-            matches.sort(key=lambda match: match[1], reverse=True)
-            logger.debug("wikilink {}: replacing anchor '{}' with '{}' on similarity level {}".format(wikilink, anchor, matches[0][0], matches[0][1]))
-            anchor = matches[0][0]
-
-            if wikilink.text is not None:
-                # use canonical form if there is alternative text
-                title.sectionname = headings[anchors.index(anchor)]
-                wikilink.title = str(title)
-            else:
-                # TODO: simplify (see #25)
-                t, _ = wikilink.title.split("#", maxsplit=1)
-                wikilink.title = t + "#" + headings[anchors.index(anchor)]
-                title.parse(wikilink.title)
         else:
             logger.warning("link with broken section fragment: {}".format(wikilink))
+            return
+
+        # fix and/or beautify
+        if wikilink.text is None:
+            # TODO: simplify (see #25)
+            t, _ = wikilink.title.split("#", maxsplit=1)
+            wikilink.title = t + "#" + headings[anchors.index(anchor)]
+            title.parse(wikilink.title)
+        # Avoid beautification if there is alternative text and the link
+        # actually works. Otherwise use canonical form for the replacement.
+        elif needs_fix is True:
+            title.sectionname = headings[anchors.index(anchor)]
+            wikilink.title = str(title)
 
     def collapse_whitespace_pipe(self, wikilink):
         """
