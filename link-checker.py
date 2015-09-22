@@ -271,11 +271,12 @@ class LinkChecker:
             return
 
         # assemble new title
+        # TODO: simplify (see #25)
         new = self.displaytitles[title.fullpagename]
         if title.sectionname:
-            # NOTE: section anchor should be checked in self.check_anchor(), so
-            #       canonicalization here does not matter
-            new += "#" + title.sectionname
+            # preserve original section anchor, it will be checked in self.check_anchor()
+            _, anchor = wikilink.title.split("#", maxsplit=1)
+            new += "#" + anchor
 
         # skip if only the case of the first letter is different
         if wikilink.title[1:] != new[1:]:
@@ -287,7 +288,6 @@ class LinkChecker:
         #   - mark with {{Broken fragment}} instead of reporting?
         #   - someday maybe: check N older revisions, section might have been renamed (must be interactive!) or moved to other page (just report)
         # FIXME:
-        #   lookup for duplicated sections: e.g. [[Optical disc drive#DVD_2]]
         #   DISPLAYTITLE set in self.check_displaytitle() is dropped
 
         # we can't check interwiki links
@@ -362,6 +362,18 @@ class LinkChecker:
         new_fragment = strip_markup(headings[anchors.index(anchor)])
         # anchors can't contain '[' and ']', encode them manually
         new_fragment = new_fragment.replace("[", ".5B").replace("]", ".5D")
+
+        # point to the right duplicated sectionname
+        # NOTE: the dupl. section number might get changed in fuzzy match
+        dupl_match = re.match("(.+)_(\d+)$", anchor)
+        if dupl_match:
+            base = dupl_match.group(1)
+            suffix = dupl_match.group(2)
+            if base in anchors:
+                if wikilink.title.endswith("_" + suffix):
+                    new_fragment += "_" + suffix
+                else:
+                    new_fragment += " " + suffix
 
         # fix and/or beautify
         if wikilink.text is None:
