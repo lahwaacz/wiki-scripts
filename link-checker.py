@@ -58,6 +58,11 @@ class LinkChecker:
     - all titles are case-insensitive on the first letter (true on ArchWiki)
     - alternative text is intentional, no replacements there
     """
+
+    skip_pages = ["Table of contents"]
+    # article status templates, lowercase
+    skip_templates = ["accuracy", "bad translation", "deletion", "expansion", "laptop style", "merge", "move", "out of date", "stub", "style", "translateme"]
+
     def __init__(self, api, cache_dir, interactive=False, first=None, title=None):
         self.api = api
         self.cache_dir = cache_dir
@@ -421,10 +426,20 @@ class LinkChecker:
         :param str text: content of the page
         :returns str: updated content
         """
+        # FIXME: ideally "DeveloperWiki:" would be a proper namespace
+        if src_title in self.skip_pages or src_title.startswith("DeveloperWiki:"):
+            logger.info("Skipping blacklisted page [[{}]]".format(src_title))
+            return text
+
         logger.info("Parsing page [[{}]] ...".format(src_title))
         wikicode = mwparserfromhell.parse(text)
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
+            # skip links inside article status templates
+            parent = wikicode.get(wikicode.index(wikilink, recursive=True))
+            if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
+                continue
+
             title = Title(self.api, wikilink.title)
             # skip interlanguage links (handled by update-interlanguage-links.py)
             if title.iw in self.api.interlanguagemap.keys():
