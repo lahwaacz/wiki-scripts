@@ -8,6 +8,7 @@
 #   extlink -> wikilink conversion should be done first
 #   skip category links, article status templates
 #   detect self-redirects (definitely interactive only)
+#   changes rejected interactively should be logged
 
 import difflib
 import re
@@ -287,8 +288,6 @@ class LinkChecker:
         # TODO: beware of https://phabricator.wikimedia.org/T20431
         #   - mark with {{Broken fragment}} instead of reporting?
         #   - someday maybe: check N older revisions, section might have been renamed (must be interactive!) or moved to other page (just report)
-        # FIXME:
-        #   DISPLAYTITLE set in self.check_displaytitle() is dropped
 
         # we can't check interwiki links
         if title.iwprefix:
@@ -375,17 +374,14 @@ class LinkChecker:
                 else:
                     new_fragment += " " + suffix
 
-        # fix and/or beautify
-        if wikilink.text is None:
+        # Avoid beautification if there is alternative text and the link
+        # actually works.
+        if wikilink.text is None or needs_fix is True:
+            # preserve title set in check_displaytitle()
             # TODO: simplify (see #25)
             t, _ = wikilink.title.split("#", maxsplit=1)
             wikilink.title = t + "#" + new_fragment
             title.parse(wikilink.title)
-        # Avoid beautification if there is alternative text and the link
-        # actually works. Otherwise use canonical form for the replacement.
-        elif needs_fix is True:
-            title.sectionname = new_fragment
-            wikilink.title = str(title)
 
     def collapse_whitespace_pipe(self, wikilink):
         """
