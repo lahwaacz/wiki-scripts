@@ -288,6 +288,13 @@ class Title:
             raise TypeError("sectionname must be of type 'str'")
 
 
+    def __eq__(self, other):
+        return self.api.api_url == other.api.api_url and \
+               self.iw == other.iw and \
+               self.ns == other.ns and \
+               self.pure == other.pure and \
+               self.anchor == other.anchor
+
     def __repr__(self):
         return "{}('{}')".format(self.__class__, self)
 

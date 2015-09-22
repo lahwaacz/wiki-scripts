@@ -180,24 +180,28 @@ class LinkChecker:
 
         text = Title(self.api, wikilink.text)
 
-        # skip anything with section anchors, which would be lost otherwise
-        if title.sectionname or text.sectionname:
-            return
-
         target1 = self.redirects.get(title.fullpagename)
         target2 = self.redirects.get(text.fullpagename)
+        if target1 is not None:
+            target1 = Title(self.api, target1)
+            # bail out if we lost the fragment
+            if target1.sectionname != title.sectionname:
+                return
+        if target2 is not None:
+            target2 = Title(self.api, target2)
+
         if target1 is not None and target2 is not None:
             if target1 == target2:
                 wikilink.title = wikilink.text
                 wikilink.text = None
                 title.parse(wikilink.title)
         elif target1 is not None:
-            if target1 == text.fullpagename:
+            if target1 == text:
                 wikilink.title = wikilink.text
                 wikilink.text = None
                 title.parse(wikilink.title)
         elif target2 is not None:
-            if target2 == title.fullpagename:
+            if target2 == title:
                 wikilink.title = wikilink.text
                 wikilink.text = None
                 title.parse(wikilink.title)
@@ -433,8 +437,10 @@ class LinkChecker:
             self.check_redirect_capitalization(wikilink, title)
             self.check_displaytitle(wikilink, title)
             self.check_anchor(wikilink, title, src_title)
-            # check trivial again to avoid changes on next pass
+
+            # partial second pass
             self.check_trivial(wikilink)
+            self.check_redirect_exact(wikilink, title)
 
             # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
             self.collapse_whitespace(wikicode, wikilink)
