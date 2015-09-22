@@ -46,6 +46,10 @@ def get_ranks(key, iterable):
     ranks.sort(key=lambda match: match[1], reverse=True)
     return ranks
 
+def strip_markup(text):
+    wikicode = mwparserfromhell.parse(text)
+    return wikicode.strip_code()
+
 
 class LinkChecker:
     """
@@ -274,8 +278,6 @@ class LinkChecker:
         #   - mark with {{Broken fragment}} instead of reporting?
         #   - someday maybe: check N older revisions, section might have been renamed (must be interactive!) or moved to other page (just report)
         # FIXME:
-        #   anchors can't contain '[' and ']'
-        #   strip wiki markup from the heading
         #   lookup for duplicated sections: e.g. [[Optical disc drive#DVD_2]]
         #   DISPLAYTITLE set in self.check_displaytitle() is dropped
 
@@ -347,16 +349,21 @@ class LinkChecker:
             logger.warning("link with broken section fragment: {}".format(wikilink))
             return
 
+        # assemble new section fragment
+        new_fragment = strip_markup(headings[anchors.index(anchor)])
+        # anchors can't contain '[' and ']', encode them manually
+        new_fragment = new_fragment.replace("[", ".5B").replace("]", ".5D")
+
         # fix and/or beautify
         if wikilink.text is None:
             # TODO: simplify (see #25)
             t, _ = wikilink.title.split("#", maxsplit=1)
-            wikilink.title = t + "#" + headings[anchors.index(anchor)]
+            wikilink.title = t + "#" + new_fragment
             title.parse(wikilink.title)
         # Avoid beautification if there is alternative text and the link
         # actually works. Otherwise use canonical form for the replacement.
         elif needs_fix is True:
-            title.sectionname = headings[anchors.index(anchor)]
+            title.sectionname = new_fragment
             wikilink.title = str(title)
 
     def collapse_whitespace_pipe(self, wikilink):
