@@ -35,8 +35,10 @@ def get_ranks(key, iterable):
     :param str key: the main key to compare
     :param iterable:
         an iterable containing secondary keys to compare against the main key
-    :returns: a list of ``(item, ratio)`` tuples, where ``item`` is an item from
-        ``iterable`` and ``ratio`` its similarity ratio
+    :returns:
+        a list of ``(item, ratio)`` tuples sorted by ``ratio`` in descending
+        order, where ``item`` is an item from ``iterable`` and ``ratio`` its
+        similarity ratio
     """
     sm = difflib.SequenceMatcher(a=key)
     ranks = []

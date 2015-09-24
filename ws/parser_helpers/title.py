@@ -194,6 +194,11 @@ class Title:
         """
         Same as ``{{BASEPAGENAME}}``, drops the interwiki and namespace prefixes
         and the rightmost subpage level.
+
+        :note::
+            The ``$wgNamespacesWithSubpages`` option is ignored (not available
+            via API anyway), the property behaves as if subpages were enabled
+            for all namespaces.
         """
         base = self.pagename.rsplit("/", maxsplit=1)[0]
         return base
@@ -202,6 +207,11 @@ class Title:
     def subpagename(self):
         """
         Same as ``{{SUBPAGENAME}}``, returns the rightmost subpage level.
+
+        :note::
+            The ``$wgNamespacesWithSubpages`` option is ignored (not available
+            via API anyway), the property behaves as if subpages were enabled
+            for all namespaces.
         """
         subpage = self.pagename.rsplit("/", maxsplit=1)[-1]
         return subpage
@@ -211,6 +221,11 @@ class Title:
         """
         Same as ``{{ROOTPAGENAME}}``, drops the interwiki and namespace prefixes
         and all subpages.
+
+        :note::
+            The ``$wgNamespacesWithSubpages`` option is ignored (not available
+            via API anyway), the property behaves as if subpages were enabled
+            for all namespaces.
         """
         base = self.pagename.split("/", maxsplit=1)[0]
         return base
