@@ -141,7 +141,10 @@ class Connection:
 
         .. _`Requests documentation`: http://docs.python-requests.org/en/latest/api/
         """
-        response = self.session.request(method, url, **kwargs)
+        try:
+            response = self.session.request(method, url, **kwargs)
+        except requests.exceptions.ConnectionError as e:
+            raise ConnectionError from e
 
         # raise HTTPError for bad requests (4XX client errors and 5XX server errors)
         response.raise_for_status()
