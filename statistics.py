@@ -219,6 +219,7 @@ divided by the number of days between the user's first and last edits.
         "*": "",
         "autoconfirmed": "",
         "user": "",
+        "checkuser": "",
         "bureaucrat": "[[ArchWiki:Bureaucrats|bureaucrat]]",
         "sysop": "[[ArchWiki:Administrators|administrator]]",
         "maintainer": "[[ArchWiki:Maintainers|maintainer]]",
