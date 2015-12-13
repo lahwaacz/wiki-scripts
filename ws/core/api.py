@@ -394,7 +394,7 @@ class API(Connection):
         try:
             return _with_retry()
         except APIError as e:
-            logger.error("Failed to edit page '{}' (code '{}': {})".format(title, e.server_respons["code"], e.server_response["info"]))
+            logger.error("Failed to edit page '{}' (code '{}': {})".format(title, e.server_response["code"], e.server_response["info"]))
             raise
         except ConnectionError as e:
             logger.exception("Failed to edit page '{}' due to connection error".format(title))
