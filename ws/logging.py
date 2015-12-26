@@ -68,9 +68,9 @@ def set_argparser(argparser):
     argparser.add_argument("--log-level", action="store", choices=LOG_LEVELS.keys(), default="info",
             help="the verbosity level for terminal logging (default: %(default)s)")
     argparser.add_argument("-d", "--debug", action="store_const", const="debug", dest="log_level",
-            help="shorthand for '--log-level debug'")
+            help="shortcut for '--log-level debug'")
     argparser.add_argument("-q", "--quiet", action="store_const", const="warning", dest="log_level",
-            help="shorthand for '--log-level warning'")
+            help="shortcut for '--log-level warning'")
     # TODO: --log-file
 
 def init(args):
