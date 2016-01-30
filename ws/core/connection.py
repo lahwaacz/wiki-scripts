@@ -99,7 +99,7 @@ class Connection:
                 help="the URL to the wiki's api.php (default: %(default)s)")
         group.add_argument("--index-url", metavar="URL",
                 help="the URL to the wiki's api.php (default: %(default)s)")
-        group.add_argument("--ssl-verify", default=1, choices=(0, 1),
+        group.add_argument("--ssl-verify", default=True, type=ws.config.argtype_bool,
                 help="whether to verify SSL certificates (default: %(default)s)")
         group.add_argument("--cookie-file", type=ws.config.argtype_dirname_must_exist, metavar="PATH",
                 help="path to cookie file (default: $cache_dir/$site.cookie)")

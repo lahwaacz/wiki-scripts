@@ -80,6 +80,19 @@ class Defaults(collections.UserDict):
         self.data["api_url"] = "https://wiki.archlinux.org/api.php"
         self.data["index_url"] = "https://wiki.archlinux.org/index.php"
 
+# strict string to bool conversion
+def argtype_bool(value):
+    if isinstance(value, bool):
+        return value
+    string = str(value).lower()
+    if string in ["1", "true", "yes"]:
+        return True
+    elif string in ["0", "false", "no"]:
+        return False
+    else:
+        print("value '%s' cannot be converted to boolean" % value)
+        raise configargparse.ArgumentTypeError("value '%s' cannot be converted to boolean" % value)
+
 # any path, the dirname part must exist (e.g. path to a file that will be created in the future)
 def argtype_dirname_must_exist(string):
     string = os.path.abspath(os.path.expanduser(string))
