@@ -35,7 +35,7 @@ class ConfigFileParser:
         try:
             _arg = "--" + self.top_level_arg
             _i = context.index(_arg)
-            top_level = context[_i]
+            top_level = context[_i + 1]
         except (ValueError, IndexError):
             top_level = None
 
