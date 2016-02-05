@@ -6,7 +6,6 @@
 
 import bisect
 import os.path
-import sys
 import datetime
 import json
 import logging
@@ -406,6 +405,7 @@ class TemplateParametersError(Exception):
 
 
 if __name__ == "__main__":
+    import sys
     import ws.config
 
     updater = ws.config.object_from_argparser(PkgUpdater, description="Update Pkg/AUR templates")
