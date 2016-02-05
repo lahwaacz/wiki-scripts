@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import datetime
-import sys
 import logging
 
 import mwparserfromhell
@@ -103,8 +102,7 @@ class Statistics:
             if not self.cliargs.force and \
                                 datetime.datetime.utcnow().date() <= \
                                 parse_date(self.timestamp).date():
-                print("The page has already been updated this UTC day",
-                                                            file=sys.stderr)
+                logger.info("The page has already been updated this UTC day")
                 return 1
 
             self._compose_page()
@@ -317,6 +315,7 @@ class MissingPageError(StatisticsError):
     pass
 
 if __name__ == "__main__":
+    import sys
     import ws.config
     statistics = ws.config.object_from_argparser(Statistics, description="Update the statistics page on ArchWiki")
     sys.exit(statistics.run())
