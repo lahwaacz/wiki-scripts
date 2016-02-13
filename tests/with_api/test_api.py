@@ -63,8 +63,9 @@ class test_api:
 
     def test_list(self):
         q = fixtures.api.list(list="querypage", qppage="Uncategorizedcategories", qplimit="max")
-        results = next(q)["results"]
-        titles = [i["title"] for i in results]
+        titles = []
+        for i in q:
+            titles.append(i["title"])
         assert_equals(titles, self.uncat_cats)
 
     def test_generator(self):

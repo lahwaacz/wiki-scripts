@@ -233,11 +233,20 @@ class API(Connection):
             raise ValueError("param 'list' must be supplied")
 
         for snippet in self.query_continue(params, **kwargs):
-            # API list returns list !!!
-            # example for list="allpages":  snippet === {"allpages":
-            #       [{"title": "Page title", "ns": 0, "pageid": "9693"},
-            #        {"title": ...
-            yield from snippet[list_]
+            if list_ == "querypage":
+                # list=querypage needs special treatment, the structure is:
+                #     snippet === {"querypage": {
+                #         "results": [{"title": "Page title", "ns": 0, "pageid": "9693"},
+                #                     {"title": ...}]
+                #         "name": "Uncategorizedcategories"}, ...}
+                yield from snippet[list_]["results"]
+            else:
+                # other list modules return entries directly in a list
+                # example for list="allpages":
+                #     snippet === {"allpages":
+                #         [{"title": "Page title", "ns": 0, "pageid": "9693"},
+                #          {"title": ...}]
+                yield from snippet[list_]
 
     @lru_cache(maxsize=8)
     def resolve_redirects(self, *pageids):
