@@ -50,13 +50,18 @@ class Connection:
     :param index_url: URL path to the wiki's ``index.php`` entry point
     :param user_agent: string sent as ``User-Agent`` header to the web server
     :param ssl_verify: if ``True``, the SSL certificate will be verified
+    :param max_retries:
+        Maximum number of retries for each connection. Applies only to
+        failed DNS lookups, socket connections and connection timeouts, never
+        to requests where data has made it to the server.
     :param cookie_file: path to a :py:class:`cookielib.FileCookieJar` file
     :param cookiejar: an existing :py:class:`cookielib.CookieJar` object
     """
 
     # TODO: when #3 is implemented, make index_url mandatory
     def __init__(self, api_url, index_url=None, user_agent=DEFAULT_UA,
-                 ssl_verify=None, cookie_file=None, cookiejar=None,
+                 ssl_verify=None, max_retries=0,
+                 cookie_file=None, cookiejar=None,
                  http_user=None, http_password=None):
         self.api_url = api_url
         self.index_url = index_url
@@ -83,6 +88,10 @@ class Connection:
         self.session.params.update({"format": "json"})
         self.session.verify = ssl_verify
 
+        adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
+        self.session.mount("https://", adapter)
+        self.session.mount("http://", adapter)
+
     @staticmethod
     def set_argparser(argparser):
         """
@@ -101,6 +110,8 @@ class Connection:
                 help="the URL to the wiki's api.php (default: %(default)s)")
         group.add_argument("--ssl-verify", default=True, type=ws.config.argtype_bool,
                 help="whether to verify SSL certificates (default: %(default)s)")
+        group.add_argument("--connection-max-retries", default=3, type=int,
+                help="maximum number of retries for each connection (default: %(default)s)")
         group.add_argument("--cookie-file", type=ws.config.argtype_dirname_must_exist, metavar="PATH",
                 help="path to cookie file (default: $cache_dir/$site.cookie)")
         # TODO: expose also user_agent, http_user, http_password?
@@ -126,7 +137,7 @@ class Connection:
             cookie_file = args.cookie_file
         # retype from int to bool
         args.ssl_verify = True if args.ssl_verify == 1 else False
-        return klass(args.api_url, args.index_url, ssl_verify=args.ssl_verify, cookie_file=cookie_file)
+        return klass(args.api_url, args.index_url, ssl_verify=args.ssl_verify, max_retries=args.connection_max_retries, cookie_file=cookie_file)
 
     @RateLimited(10, 3)
     def request(self, method, url, **kwargs):
