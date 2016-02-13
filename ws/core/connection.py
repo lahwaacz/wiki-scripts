@@ -200,6 +200,10 @@ class Connection:
         if action not in API_ACTIONS:
             raise APIWrongAction(action, API_ACTIONS)
 
+        # request response inside JSON structure
+        if action == "help":
+            params["wrap"] = "1"
+
         # select HTTP method and call the API
         if action in POST_ACTIONS:
             # passing `params` to `data` will cause form-encoding to take place,
@@ -217,9 +221,6 @@ class Connection:
 
         # see if there are errors/warnings
         if "error" in result:
-            # for some reason action=help is returned inside 'error'
-            if action == "help":
-                return result["error"]["*"]
             raise APIError(params, result["error"])
         if "warnings" in result:
             msg = "API warning(s) for query {}:".format(params)
@@ -228,7 +229,10 @@ class Connection:
             logger.warning(msg)
 
         if expand_result is True:
-            return result[action]
+            if action in result:
+                return result[action]
+            else:
+                raise APIExpandResultFailed
         return result
 
     def call_index(self, method="GET", **kwargs):
@@ -276,3 +280,8 @@ class APIError(Exception):
 
     def __str__(self):
         return "\nquery parameters: {}\nserver response: {}".format(self.params, self.server_response)
+
+class APIExpandResultFailed(Exception):
+    """ Raised when expansion of API query result failed.
+    """
+    pass
