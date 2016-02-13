@@ -8,10 +8,10 @@ import string
 import re
 import requests.exceptions as rexc
 
-from ws.core import API, APIError
+from ws.core import API
 from ws.core.rate import RateLimited
 from ws.interactive import require_login, ask_yesno
-from ws.utils import parse_date, list_chunks
+from ws.utils import list_chunks
 
 
 def is_blocked(api, user):
@@ -22,7 +22,7 @@ def block_user(api, user):
     @RateLimited(1, 3)
     def block():
         print("Blocking user '{}' ...".format(user))
-        api.call_api(action="block", user=user, reason="spamming", nocreate="1", autoblock="1", noemail="1", token=api._csrftoken)
+        api.call_with_csrftoken(action="block", user=user, reason="spamming", nocreate="1", autoblock="1", noemail="1")
     if is_blocked(api, user):
         print("User '{}' is already blocked.".format(user))
         return
@@ -31,7 +31,7 @@ def block_user(api, user):
 @RateLimited(1, 1)
 def delete_page(api, title, pageid):
     print("Deleting page '{}' (pageid={})".format(title, pageid))
-    api.call_api(action="delete", pageid=pageid, reason="spam", token=api._csrftoken)
+    api.call_with_csrftoken(action="delete", pageid=pageid, reason="spam")
 
 class Blockbot:
     def __init__(self, api, spam_phrases, spam_occurrences_threshold=5, interactive=True):
@@ -124,17 +124,6 @@ class Blockbot:
                 start2 = datetime.datetime.utcnow()
                 pages = self.api.generator(generator="recentchanges", grcstart=start, grcdir="newer", grcshow="unpatrolled", grclimit="max", prop="revisions", rvprop="ids|timestamp|user|comment|content")
                 self.filter_pages(pages)
-
-            # TODO: generalize retry on "badtoken" error (the following branch is from API.edit)
-            except APIError as e:
-                # csrftoken can be used multiple times, but expires after some time,
-                # so try to get a new one *once*
-                if e.server_response["code"] == "badtoken":
-                    # reset the cached csrftoken and try again
-                    del self.api._csrftoken
-                    # FIXME: does not count failures !!!
-                    continue
-                raise
             except (rexc.ConnectionError, rexc.Timeout) as e:
                 # query failed, set short timeout and retry from the previous timestamp
                 timeout = 30

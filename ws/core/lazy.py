@@ -33,7 +33,7 @@ class LazyProperty(property):
         return self._cache[instance]
 
     def __delete__(self, instance):
-        if instance in self._cache: # pragma: no branch
+        if instance in self._cache:  # pragma: no branch
             del self._cache[instance]
 
 if __name__ == "__main__":

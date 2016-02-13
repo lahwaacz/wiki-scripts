@@ -15,7 +15,7 @@ __all__ = ["canonicalize", "Title"]
 def canonicalize(title):
     """
     Return a canonical form of the title, that is:
-    
+
     - underscores are replaced with spaces,
     - leading and trailing whitespace is stripped,
     - consecutive spaces are squashed,
@@ -149,7 +149,7 @@ class Title:
         """
         Same as ``{{NAMESPACENUMBER}}``.
         """
-        ns_inv = dict( (v,k) for k,v in self.api.namespaces.items() )
+        ns_inv = dict( (v, k) for k, v in self.api.namespaces.items() )
         return ns_inv[self.ns]
 
     @property
