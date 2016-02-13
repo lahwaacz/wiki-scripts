@@ -151,10 +151,10 @@ class API(Connection):
         Reference: https://www.mediawiki.org/wiki/API:Query#Continuing_queries
 
         :param params:
-            same as :py:meth:`MediaWiki.connection.Connection.call`, but
+            same as :py:meth:`ws.core.connection.Connection.call_api`, but
             ``action`` is always set to ``"query"`` and ``"continue"`` to ``""``
         :param kwargs:
-            same as :py:meth:`MediaWiki.connection.Connection.call`
+            same as :py:meth:`ws.core.connection.Connection.call_api`
         :yields: ``"query"`` part of the API response
         """
         if params is None:
@@ -344,6 +344,40 @@ class API(Connection):
         logger.debug("Requesting new csrftoken...")
         return self.call_api(action="query", meta="tokens")["tokens"]["csrftoken"]
 
+    def call_with_csrftoken(self, *args, **kwargs):
+        """
+        A wrapper around :py:meth:`ws.core.connection.Connection.call_api` with
+        automatic management of CSRF token.
+
+        :param args: same as :py:meth:`ws.core.connection.Connection.call_api`
+        :param kwargs: same as :py:meth:`ws.core.connection.Connection.call_api`
+        :returns: same as :py:meth:`ws.core.connection.Connection.call_api`
+        """
+        # ensure that the token is passed
+        kwargs["token"] = self._csrftoken
+
+        # max tries
+        max_retries = 2
+
+        retries = max_retries
+        while retries > 0:
+            try:
+                return self.call_api(*args, **kwargs)
+            except APIError as e:
+                retries -= 1
+                # csrftoken can be used multiple times, but expires after some time,
+                # so try to get a new one *once*
+                if e.server_response["code"] == "badtoken":
+                    logger.debug("Got 'badtoken' error, trying to reset csrftoken [{}/{}]"
+                            .format(max_retries - retries, max_retries))
+                    # reset the cached csrftoken and try again
+                    del self._csrftoken
+                else:
+                    raise
+
+        # don't catch the exception for the last try
+        return self.call_api(*args, **kwargs)
+
     @RateLimited(1, 3)
     def edit(self, title, pageid, text, basetimestamp, summary, **kwargs):
         """
@@ -384,24 +418,8 @@ class API(Connection):
 
         logger.info("Editing page '{}' ...".format(title))
 
-        # helper to actually make the edit, can be used to retry
-        def _make_edit():
-            return self.call_api(action="edit", token=self._csrftoken, md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, **kwargs)
-
-        def _with_retry():
-            try:
-                return _make_edit()
-            except APIError as e:
-                # csrftoken can be used multiple times, but expires after some time,
-                # so try to get a new one *once*
-                if e.server_response["code"] == "badtoken":
-                    # reset the cached csrftoken and try again
-                    del self._csrftoken
-                    return _make_edit()
-                raise
-
         try:
-            return _with_retry()
+            return self.call_with_csrftoken(action="edit", md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, **kwargs)
         except APIError as e:
             logger.error("Failed to edit page '{}' due to APIError (code '{}': {})".format(title, e.server_response["code"], e.server_response["info"]))
             raise
