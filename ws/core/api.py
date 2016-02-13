@@ -340,19 +340,24 @@ class API(Connection):
         logger.debug("Requesting new csrftoken...")
         return self.call_api(action="query", meta="tokens")["tokens"]["csrftoken"]
 
-    def call_with_csrftoken(self, *args, **kwargs):
+    def call_with_csrftoken(self, params=None, **kwargs):
         """
         A wrapper around :py:meth:`ws.core.connection.Connection.call_api` with
         automatic management of the `CSRF token`_.
 
-        :param args: same as :py:meth:`ws.core.connection.Connection.call_api`
+        :param params: same as :py:meth:`ws.core.connection.Connection.call_api`
         :param kwargs: same as :py:meth:`ws.core.connection.Connection.call_api`
         :returns: same as :py:meth:`ws.core.connection.Connection.call_api`
 
         .. _`CSRF token`: https://www.mediawiki.org/wiki/API:Tokens
         """
+        if params is None:
+            params = kwargs
+        elif not isinstance(params, dict):
+            raise ValueError("params must be dict or None")
+
         # ensure that the token is passed
-        kwargs["token"] = self._csrftoken
+        params["token"] = self._csrftoken
 
         # max tries
         max_retries = 2
@@ -360,7 +365,7 @@ class API(Connection):
         retries = max_retries
         while retries > 0:
             try:
-                return self.call_api(*args, **kwargs)
+                return self.call_api(params, **kwargs)
             except APIError as e:
                 retries -= 1
                 # csrftoken can be used multiple times, but expires after some time,
@@ -374,7 +379,7 @@ class API(Connection):
                     raise
 
         # don't catch the exception for the last try
-        return self.call_api(*args, **kwargs)
+        return self.call_api(params, **kwargs)
 
     @RateLimited(1, 3)
     def edit(self, title, pageid, text, basetimestamp, summary, **kwargs):

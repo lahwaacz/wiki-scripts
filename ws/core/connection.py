@@ -173,6 +173,7 @@ class Connection:
 
         return response
 
+    # FIXME: specify if `params` and `kwargs` are merged or which takes precedence (and check all methods in ws.core.api.API)
     def call_api(self, params=None, expand_result=True, **kwargs):
         """
         Convenient method to call the ``api.php`` entry point.
