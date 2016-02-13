@@ -14,6 +14,9 @@ class test_api:
     ArchWiki configuration.
     """
 
+    # uncategorized categories on ArchWiki (should be only these all the time)
+    uncat_cats = ["Category:Archive", "Category:DeveloperWiki", "Category:Languages", "Category:Maintenance", "Category:Sandbox"]
+
     # check correct server
     def test_hostname(self):
         assert_equals(fixtures.api.get_hostname(), "wiki.archlinux.org")
@@ -49,3 +52,24 @@ class test_api:
     def test_namespaces(self):
         expected = {0: '', 1: 'Talk', 2: 'User', 3: 'User talk', 4: 'ArchWiki', 5: 'ArchWiki talk', 6: 'File', 7: 'File talk', 8: 'MediaWiki', 9: 'MediaWiki talk', 10: 'Template', 11: 'Template talk', 12: 'Help', 13: 'Help talk', 14: 'Category', 15: 'Category talk', -1: 'Special', -2: 'Media'}
         assert_equals(fixtures.api.namespaces, expected)
+
+    # testing on uncategorized categories (should contain only 5 items all the time)
+    def test_query_continue(self):
+        q = fixtures.api.query_continue(action="query", list="querypage", qppage="Uncategorizedcategories", qplimit=1)
+        titles = []
+        for chunk in q:
+            titles += [i["title"] for i in chunk["querypage"]["results"]]
+        assert_equals(titles, self.uncat_cats)
+
+    def test_list(self):
+        q = fixtures.api.list(list="querypage", qppage="Uncategorizedcategories", qplimit="max")
+        results = next(q)["results"]
+        titles = [i["title"] for i in results]
+        assert_equals(titles, self.uncat_cats)
+
+    def test_generator(self):
+        q = fixtures.api.generator(generator="querypage", gqppage="Uncategorizedcategories", gqplimit="max")
+        titles = []
+        for i in q:
+            titles.append(i["title"])
+        assert_equals(titles, self.uncat_cats)
