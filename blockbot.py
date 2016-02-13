@@ -33,9 +33,10 @@ def delete_page(api, title, pageid):
     api.call_api(action="delete", pageid=pageid, reason="spam", token=api._csrftoken)
 
 class Blockbot:
-    def __init__(self, api, spam_phrases, interactive=True):
+    def __init__(self, api, spam_phrases, spam_occurrences_threshold=5, interactive=True):
         self.api = api
         self.interactive = interactive
+        self.spam_occurrences_threshold = spam_occurrences_threshold
 
         # TODO: assert len(spam_phrases) > 0
         self.spam_phrases = spam_phrases
@@ -43,7 +44,6 @@ class Blockbot:
             self.spam_phrases.append(phrase.replace(" ", ""))
 
         # TODO: make configurable
-        self.spam_occurrences_threshold = 5
         self.timeout_func = lambda: random.uniform(180, 360)
         self.punctuation_regex = re.compile('[%s]' % re.escape(string.punctuation))
 
@@ -57,12 +57,13 @@ class Blockbot:
         group = argparser.add_argument_group(title="script parameters")
         group.add_argument("--interactive", default=True, metavar="BOOL", type=ws.config.argtype_bool, help="Enables interactive mode (default: %(default)s)")
         group.add_argument("--spam-phrases", action="append", required=True, metavar="STR", help="A phrase considered as spam (this option can be specified multiple times).")
+        group.add_argument("--spam-occurrences-threshold", type=int, default=5, help="Minimal number of phrases occurring on a page that triggers the spam filter.")
 
     @classmethod
     def from_argparser(klass, args, api=None):
         if api is None:
             api = API.from_argparser(args)
-        return klass(api, args.spam_phrases, args.interactive)
+        return klass(api, args.spam_phrases, args.spam_occurrences_threshold, args.interactive)
 
     def is_spam(self, title, text):
         title = self.punctuation_regex.sub("", title)
