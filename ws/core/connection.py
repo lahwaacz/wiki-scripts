@@ -54,17 +54,19 @@ class Connection:
         Maximum number of retries for each connection. Applies only to
         failed DNS lookups, socket connections and connection timeouts, never
         to requests where data has made it to the server.
+    :param timeout: connection timeout in seconds
     :param cookie_file: path to a :py:class:`cookielib.FileCookieJar` file
     :param cookiejar: an existing :py:class:`cookielib.CookieJar` object
     """
 
     # TODO: when #3 is implemented, make index_url mandatory
     def __init__(self, api_url, index_url=None, user_agent=DEFAULT_UA,
-                 ssl_verify=None, max_retries=0,
+                 ssl_verify=None, max_retries=0, timeout=30,
                  cookie_file=None, cookiejar=None,
                  http_user=None, http_password=None):
         self.api_url = api_url
         self.index_url = index_url
+        self.timeout = timeout
 
         self.session = requests.Session()
 
@@ -112,6 +114,8 @@ class Connection:
                 help="whether to verify SSL certificates (default: %(default)s)")
         group.add_argument("--connection-max-retries", default=3, type=int,
                 help="maximum number of retries for each connection (default: %(default)s)")
+        group.add_argument("--connection-timeout", default=30, type=float,
+                help="connection timeout in seconds (default: %(default)s)")
         group.add_argument("--cookie-file", type=ws.config.argtype_dirname_must_exist, metavar="PATH",
                 help="path to cookie file (default: $cache_dir/$site.cookie)")
         # TODO: expose also user_agent, http_user, http_password?
@@ -137,7 +141,9 @@ class Connection:
             cookie_file = args.cookie_file
         # retype from int to bool
         args.ssl_verify = True if args.ssl_verify == 1 else False
-        return klass(args.api_url, args.index_url, ssl_verify=args.ssl_verify, max_retries=args.connection_max_retries, cookie_file=cookie_file)
+        return klass(args.api_url, args.index_url, ssl_verify=args.ssl_verify,
+                     max_retries=args.connection_max_retries, timeout=args.connection_timeout,
+                     cookie_file=cookie_file)
 
     @RateLimited(10, 3)
     def request(self, method, url, **kwargs):
@@ -157,8 +163,7 @@ class Connection:
 
         .. _`Requests documentation`: http://docs.python-requests.org/en/latest/api/
         """
-        # TODO: configurable timeout (requests defaults to None, i.e. infinity)
-        response = self.session.request(method, url, timeout=30, **kwargs)
+        response = self.session.request(method, url, timeout=self.timeout, **kwargs)
 
         # raise HTTPError for bad requests (4XX client errors and 5XX server errors)
         response.raise_for_status()
