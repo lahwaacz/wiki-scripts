@@ -17,11 +17,6 @@ class API(Connection):
     """
     Simple interface to MediaWiki's API.
 
-    This object should implement wrappers around the 'action' parameter,
-    the "public" methods are named as its possible values (login, query,
-    edit, ...) and helper methods start with an underscore ('_').
-
-    :param api_url: URL path to wiki API interface
     :param kwargs: any keyword arguments of the Connection object
     """
 
@@ -147,15 +142,16 @@ class API(Connection):
 
     def query_continue(self, params=None, **kwargs):
         """
-        Generator for MediaWiki's query-continue feature.
-        Reference: https://www.mediawiki.org/wiki/API:Query#Continuing_queries
+        Generator for MediaWiki's `query-continue feature`_.
 
         :param params:
             same as :py:meth:`ws.core.connection.Connection.call_api`, but
             ``action`` is always set to ``"query"`` and ``"continue"`` to ``""``
         :param kwargs:
             same as :py:meth:`ws.core.connection.Connection.call_api`
-        :yields: ``"query"`` part of the API response
+        :yields: from ``"query"`` part of the API response
+
+        .. _`query-continue feature`: https://www.mediawiki.org/wiki/API:Query#Continuing_queries
         """
         if params is None:
             params = kwargs
@@ -226,7 +222,7 @@ class API(Connection):
 
         :param params: same as :py:meth:`API.query_continue`
         :param kwargs: same as :py:meth:`API.query_continue`
-        :yields: from ``list`` part of the API response
+        :yields: from ``"list"`` part of the API response
         """
         list_ = kwargs.get("list") if params is None else params.get("list")
         if list_ is None:
@@ -347,11 +343,13 @@ class API(Connection):
     def call_with_csrftoken(self, *args, **kwargs):
         """
         A wrapper around :py:meth:`ws.core.connection.Connection.call_api` with
-        automatic management of CSRF token.
+        automatic management of the `CSRF token`_.
 
         :param args: same as :py:meth:`ws.core.connection.Connection.call_api`
         :param kwargs: same as :py:meth:`ws.core.connection.Connection.call_api`
         :returns: same as :py:meth:`ws.core.connection.Connection.call_api`
+
+        .. _`CSRF token`: https://www.mediawiki.org/wiki/API:Tokens
         """
         # ensure that the token is passed
         kwargs["token"] = self._csrftoken
