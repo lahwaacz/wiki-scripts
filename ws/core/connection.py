@@ -19,7 +19,7 @@ from .rate import RateLimited
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["DEFAULT_UA", "Connection", "APIWrongAction", "ConnectionError", "APIJsonError", "APIError"]
+__all__ = ["DEFAULT_UA", "Connection", "APIWrongAction", "APIJsonError", "APIError"]
 
 DEFAULT_UA = "wiki-scripts/{version} ({url})".format(version=__version__, url=__url__)
 
@@ -150,12 +150,15 @@ class Connection:
         The parameters are the same as for :py:func:`requests.request()`, see
         `Requests documentation`_ for details.
 
+        There is no translation of exceptions, the :py:mod:`requests` exceptions
+        (notably :py:exc:`requests.exceptions.ConnectionError`,
+        :py:exc:`requests.exceptions.Timeout` and
+        :py:exc:`requests.exceptions.HTTPError`) should be catched by the caller.
+
         .. _`Requests documentation`: http://docs.python-requests.org/en/latest/api/
         """
-        try:
-            response = self.session.request(method, url, **kwargs)
-        except requests.exceptions.ConnectionError as e:
-            raise ConnectionError from e
+        # TODO: configurable timeout (requests defaults to None, i.e. infinity)
+        response = self.session.request(method, url, timeout=30, **kwargs)
 
         # raise HTTPError for bad requests (4XX client errors and 5XX server errors)
         response.raise_for_status()
@@ -244,7 +247,9 @@ class Connection:
         return requests.packages.urllib3.util.url.parse_url(self.api_url).hostname
 
 class APIWrongAction(Exception):
-    """ Raised when a wrong API action is specified
+    """ Raised when a wrong API action is specified.
+
+    This is a programming error, it should be fixed in the client code.
     """
     def __init__(self, action, available):
         self.message = "%s (available actions are: %s)" % (action, available)
@@ -252,18 +257,13 @@ class APIWrongAction(Exception):
     def __str__(self):
         return self.message
 
-class ConnectionError(Exception):
-    """ Base connection exception
+class APIJsonError(Exception):
+    """ Raised when json-decoding of server response failed.
     """
     pass
 
-class APIJsonError(ConnectionError):
-    """ Raised when json-decoding of server response failed
-    """
-    pass
-
-class APIError(ConnectionError):
-    """ Raised when API response contains ``error`` attribute
+class APIError(Exception):
+    """ Raised when API response contains ``error`` attribute.
     """
     def __init__(self, params, server_response):
         self.params = params

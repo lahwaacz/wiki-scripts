@@ -4,7 +4,7 @@ import hashlib
 from functools import lru_cache
 import logging
 
-from .connection import Connection, ConnectionError, APIError
+from .connection import Connection, APIError
 from .rate import RateLimited
 from .lazy import LazyProperty
 
@@ -394,10 +394,7 @@ class API(Connection):
         try:
             return _with_retry()
         except APIError as e:
-            logger.error("Failed to edit page '{}' (code '{}': {})".format(title, e.server_response["code"], e.server_response["info"]))
-            raise
-        except ConnectionError as e:
-            logger.exception("Failed to edit page '{}' due to connection error".format(title))
+            logger.error("Failed to edit page '{}' due to APIError (code '{}': {})".format(title, e.server_response["code"], e.server_response["info"]))
             raise
 
 class LoginFailed(Exception):

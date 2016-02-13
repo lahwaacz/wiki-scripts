@@ -6,6 +6,7 @@ import time
 import random
 import string
 import re
+import requests.exceptions as rexc
 
 from ws.core import API, APIError
 from ws.core.rate import RateLimited
@@ -134,7 +135,7 @@ class Blockbot:
                     # FIXME: does not count failures !!!
                     continue
                 raise
-            except (ConnectionError, TimeoutError) as e:
+            except (rexc.ConnectionError, rexc.Timeout) as e:
                 # query failed, set short timeout and retry from the previous timestamp
                 timeout = 30
                 # FIXME: better representation of the exception as str()
