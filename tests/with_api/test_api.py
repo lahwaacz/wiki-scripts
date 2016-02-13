@@ -31,9 +31,9 @@ class test_api:
     # check user rights for anonymous users
     def test_user_rights(self):
         expected = ["createaccount", "read", "createpage", "createtalk",
-                    "writeapi", "editmyusercss", "editmyuserjs",
-                    "viewmywatchlist", "editmywatchlist", "viewmyprivateinfo",
-                    "editmyprivateinfo", "editmyoptions"]
+                    "editmyusercss", "editmyuserjs", "viewmywatchlist",
+                    "editmywatchlist", "viewmyprivateinfo", "editmyprivateinfo",
+                    "editmyoptions"]
         assert_equals(fixtures.api.user_rights, expected)
 
     def test_interwikimap(self):
