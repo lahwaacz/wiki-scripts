@@ -40,6 +40,12 @@ class test_encodings:
             e2 = urllib.parse.quote(s, safe=self.url_unreserved)
             assert_equals(e1, e2)
 
+    def test_urldecode(self):
+        for s in [self.ascii_all, self.unicode_sample]:
+            enc = urlencode(s)
+            dec = urldecode(enc)
+            assert_equals(dec, s)
+
     def test_queryencode(self):
         skipped = string.ascii_letters + string.digits + "-_."
         for s in [self.ascii_all, self.unicode_sample]:
@@ -47,6 +53,12 @@ class test_encodings:
             e2 = urllib.parse.quote(s, safe=skipped)
             e2 = e2.replace("%20", "+")
             assert_equals(e1, e2)
+
+    def test_querydecode(self):
+        for s in [self.ascii_all, self.unicode_sample]:
+            enc = queryencode(s)
+            dec = querydecode(enc)
+            assert_equals(dec, s)
 
     def test_dotencode_basic(self):
         skipped = string.ascii_letters + string.digits + "-_.:"

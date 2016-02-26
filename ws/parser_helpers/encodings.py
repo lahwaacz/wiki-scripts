@@ -3,7 +3,7 @@
 import string
 import re
 
-__all__ = ["encode", "dotencode", "urlencode", "queryencode"]
+__all__ = ["encode", "decode", "dotencode", "urlencode", "urldecode", "queryencode", "querydecode"]
 
 def encode(str_, escape_char="%", encode_chars="", skip_chars="", special_map=None, charset="utf-8", errors="strict"):
     """
@@ -36,6 +36,45 @@ def encode(str_, escape_char="%", encode_chars="", skip_chars="", special_map=No
                 output += char
         else:
             output += char
+    return output
+
+def decode(str_, escape_char="%", special_map=None, charset="utf-8", errors="strict"):
+    """
+    An inverse function to :py:func:`encode`.
+
+    .. note::
+        The reversibility of the encoding depends on the parameters passed to
+        :py:func:`encode`. Specifically, if the `escape_char` is not encoded,
+        the operation is irreversible. Unfortunately MediaWiki does this with
+        dot-encoding, so don't even try to decode dot-encoded strings!
+
+    :param str_: the string to be decoded
+    :param escape_char: character to be used as escape (by default '%')
+    :param special_map: an analogue to the same parameter in :py:func:`encode`
+        (the caller is responsible for inverting the mapping they passed to
+        :py:func:`encode`)
+    :param charset:
+        character set used to decode byte sequence with :py:meth:`bytes.decode()`
+    :param errors:
+        defines behaviour when byte-decoding with :py:meth:`bytes.decode()` fails
+    """
+    tok = re.compile(escape_char + "([0-9A-Fa-f]{2})|(.)")
+    output = ""
+    barr = bytearray()
+    for match in tok.finditer(str_):
+        enc_couple, char = match.groups()
+        if enc_couple:
+            barr.append(int(enc_couple, 16))
+        else:
+            if len(barr) > 0:
+                output += barr.decode(charset, errors)
+                barr = bytearray()
+            if special_map is not None and char in special_map:
+                output += special_map[char]
+            else:
+                output += char
+    if len(barr) > 0:
+        output += barr.decode(charset, errors)
     return output
 
 def _anchor_preprocess(str_):
@@ -85,6 +124,12 @@ def urlencode(str_):
     skipped = string.ascii_letters + string.digits + "-_.~"
     return encode(str_, skip_chars=skipped)
 
+def urldecode(str_):
+    """
+    An inverse function to :py:func:`urlencode`.
+    """
+    return decode(str_)
+
 def queryencode(str_):
     """
     The ``QUERY`` style encoding as described on `MediaWiki`_. This is the
@@ -95,3 +140,10 @@ def queryencode(str_):
     skipped = string.ascii_letters + string.digits + "-_."
     special = {" ": "+"}
     return encode(str_, skip_chars=skipped, special_map=special)
+
+def querydecode(str_):
+    """
+    An inverse function to :py:func:`queryencode`.
+    """
+    special = {"+": " "}
+    return decode(str_, special_map=special)
