@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals, raises
+from nose.tools import assert_equals, assert_true, raises
 from nose.plugins.attrib import attr
 
 from . import fixtures
@@ -266,7 +266,15 @@ class test_title_setters():
         assert_equals(str(self.title), "en:Help:Style#foo Bar")
 
 
-    def test_all(self):
+    def test_eq(self):
+        other_title = Title(self.api, "")
+        other_title.iwprefix = "en"
+        other_title.namespace = "Help"
+        other_title.pagename = "Style"
+        other_title.sectionname = "section"
+        assert_true(self.title == other_title)
+
+    def test_str_repr(self):
         self.title.iwprefix = ""
         self.title.namespace = ""
         self.title.pagename = "Main page"

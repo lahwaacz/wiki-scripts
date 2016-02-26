@@ -41,7 +41,7 @@ class test_encodings:
             assert_equals(e1, e2)
 
     def test_urldecode(self):
-        for s in [self.ascii_all, self.unicode_sample]:
+        for s in [string.ascii_letters, self.ascii_all, self.unicode_sample]:
             enc = urlencode(s)
             dec = urldecode(enc)
             assert_equals(dec, s)
@@ -55,7 +55,7 @@ class test_encodings:
             assert_equals(e1, e2)
 
     def test_querydecode(self):
-        for s in [self.ascii_all, self.unicode_sample]:
+        for s in [string.ascii_letters, self.ascii_all, self.unicode_sample]:
             enc = queryencode(s)
             dec = querydecode(enc)
             assert_equals(dec, s)
