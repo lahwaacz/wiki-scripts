@@ -7,7 +7,7 @@
 
 import re
 
-from .encodings import _anchor_preprocess
+from .encodings import _anchor_preprocess, urldecode
 from ..utils import find_caseless
 
 __all__ = ["canonicalize", "Title"]
@@ -114,6 +114,10 @@ class Title:
         except ValueError:
             anchor = ""
 
+        # MediaWiki does not treat encoded underscores as spaces (e.g.
+        # [[Main%5Fpage]] is rendered as <a href="...">Main_page</a>),
+        # but we focus on meaning, not rendering.
+        _pure = urldecode(_pure)
         # canonicalize title
         self.pure = canonicalize(_pure)
         # canonicalize anchor
