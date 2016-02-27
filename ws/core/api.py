@@ -403,6 +403,9 @@ class API(Connection):
         """
         if not summary:
             raise Exception("edit summary is mandatory")
+        if len(summary) > 255:
+            # TODO: the limit is planned to be increased since MW 1.25
+            raise Exception("the edit summary is too long, maximum is 255 chars (got len('{}') == {})".format(summary, len(summary)))
 
         # send text as utf-8 encoded
         text = text.encode("utf-8")
