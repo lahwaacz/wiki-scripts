@@ -73,6 +73,9 @@ class ExtlinkRules:
                 wikilink = "[[{}]]".format(pagename)
             wikicode.replace(extlink, wikilink)
 
+    def update_extlink(self, wikicode, extlink):
+        self.extlink_to_wikilink(wikicode, extlink)
+
 
 class WikilinkRules:
     """
@@ -403,6 +406,27 @@ class WikilinkRules:
             else:
                 wikilink.title = wikilink.title.rstrip()
 
+    def update_wikilink(self, wikicode, wikilink, src_title):
+        title = Title(self.api, wikilink.title)
+        # skip interlanguage links (handled by update-interlanguage-links.py)
+        if title.iw in self.api.interlanguagemap.keys():
+            return
+
+        self.collapse_whitespace_pipe(wikilink)
+        self.check_trivial(wikilink)
+        self.check_relative(wikilink, title, src_title)
+        self.check_redirect_exact(wikilink, title)
+        self.check_redirect_capitalization(wikilink, title)
+        self.check_displaytitle(wikilink, title)
+        self.check_anchor(wikilink, title, src_title)
+
+        # partial second pass
+        self.check_trivial(wikilink)
+        self.check_redirect_exact(wikilink, title)
+
+        # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
+        self.collapse_whitespace(wikicode, wikilink)
+
 
 class LinkChecker(ExtlinkRules, WikilinkRules):
 
@@ -476,34 +500,14 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
             parent = wikicode.get(wikicode.index(extlink, recursive=True))
             if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
                 continue
-
-            self.extlink_to_wikilink(wikicode, extlink)
+            self.update_extlink(wikicode, extlink)
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
             # skip links inside article status templates
             parent = wikicode.get(wikicode.index(wikilink, recursive=True))
             if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
                 continue
-
-            title = Title(self.api, wikilink.title)
-            # skip interlanguage links (handled by update-interlanguage-links.py)
-            if title.iw in self.api.interlanguagemap.keys():
-                continue
-
-            self.collapse_whitespace_pipe(wikilink)
-            self.check_trivial(wikilink)
-            self.check_relative(wikilink, title, src_title)
-            self.check_redirect_exact(wikilink, title)
-            self.check_redirect_capitalization(wikilink, title)
-            self.check_displaytitle(wikilink, title)
-            self.check_anchor(wikilink, title, src_title)
-
-            # partial second pass
-            self.check_trivial(wikilink)
-            self.check_redirect_exact(wikilink, title)
-
-            # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
-            self.collapse_whitespace(wikicode, wikilink)
+            self.update_wikilink(wikicode, wikilink, src_title)
 
         return str(wikicode)
 
@@ -549,5 +553,5 @@ if __name__ == "__main__":
 
     try:
         checker.run()
-    except InteractiveQuit:
+    except (InteractiveQuit, KeyboardInterrupt):
         pass
