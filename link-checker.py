@@ -64,10 +64,13 @@ class ExtlinkRules:
     #                 (it is formatted using the groups matched by url_regex)
     #       - as None: the extlink must not have any alternative text
     #   - text_cond_flags: flags for the text_cond regex
-    #   - replacement: a format string used as a replacement (it is formatted using the groups matched by url_regex)
+    #   - replacement: a format string used as a replacement (it is formatted
+    #                  using the groups matched by url_regex and the alternative
+    #                  text (if present))
     replacements = [
         # Arch bug tracker
-        (re.escape("https://bugs.archlinux.org/task/") + "(\d+)", "FS#{0}", 0, "{{{{Bug|{0}}}}}"),
+        (re.escape("https://bugs.archlinux.org/task/") + "(\d+)",
+            "FS#{0}", 0, "{{{{Bug|{0}}}}}"),
 
         # official packages, with and without alternative text
         ("https?\\:\\/\\/(?:www\\.)?archlinux\\.org\\/packages\\/[\w-]+\\/(?:any|i686|x86_64)\\/([a-zA-Z0-9@._+-]+)\\/?",
@@ -80,6 +83,12 @@ class ExtlinkRules:
             "{0}", re.IGNORECASE, "{{{{AUR|{0}}}}}"),
         ("https?\\:\\/\\/aur\\.archlinux\\.org\\/packages\\/([a-zA-Z0-9@._+-]+)\\/?",
             None, 0, "{{{{AUR|{0}}}}}"),
+
+        # Wikipedia interwiki
+        ("https?\\:\\/\\/en\\.wikipedia\\.org\\/wiki\\/([^\\]]+)",
+            ".*", 0, "[[wikipedia:{0}|{1}]]"),
+        ("https?\\:\\/\\/en\\.wikipedia\\.org\\/wiki\\/([^\\]]+)",
+            None, 0, "[[wikipedia:{0}]]"),
     ]
 
     def __init__(self):
@@ -141,8 +150,10 @@ class ExtlinkRules:
                 continue
             match = url_regex.fullmatch(str(extlink.url))
             if match:
-                if extlink.title is None or re.fullmatch(text_cond.format(*match.groups()), str(extlink.title), text_cond_flags):
+                if extlink.title is None:
                     wikicode.replace(extlink, replacement.format(*match.groups()))
+                elif re.fullmatch(text_cond.format(*match.groups()), str(extlink.title), text_cond_flags):
+                    wikicode.replace(extlink, replacement.format(*match.groups(), extlink.title))
                     return True
                 else:
                     logger.warning("external link that should be replaced, but has custom alternative text: {}".format(extlink))
