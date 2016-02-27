@@ -54,7 +54,27 @@ def strip_markup(text):
     return wikicode.strip_code()
 
 
-class LinkChecker:
+class ExtlinkRules:
+    @LazyProperty
+    def extlink_regex(self):
+        result = self.api.call_api(action="query", meta="siteinfo", siprop="general")
+        regex = re.escape(result["general"]["server"] + result["general"]["articlepath"].split("$1")[0])
+        regex += "(?P<pagename>\S+)"
+        return re.compile(regex)
+
+    def extlink_to_wikilink(self, wikicode, extlink):
+        match = self.extlink_regex.fullmatch(str(extlink.url))
+        if match:
+            # FIXME: add leading colon when necessary
+            pagename = match.group("pagename")
+            if extlink.title:
+                wikilink = "[[{}|{}]]".format(pagename, extlink.title)
+            else:
+                wikilink = "[[{}]]".format(pagename)
+            wikicode.replace(extlink, wikilink)
+
+
+class WikilinkRules:
     """
     Assumptions:
 
@@ -62,30 +82,9 @@ class LinkChecker:
     - alternative text is intentional, no replacements there
     """
 
-    skip_pages = ["Table of contents"]
-    # article status templates, lowercase
-    skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
-
-    def __init__(self, api, cache_dir, interactive=False, first=None, title=None):
+    def __init__(self, api, cache_dir):
         self.api = api
         self.cache_dir = cache_dir
-        self.interactive = interactive
-
-        # parameters for self.run()
-        self.first = first
-        self.title = title
-
-        # TODO: when there are many different changes, create a page on ArchWiki
-        # describing the changes, link it with wikilink syntax using a generic
-        # alternative text (e.g. "semi-automatic style fixes") (path should be
-        # configurable, as well as the URL fallback)
-        if interactive is True:
-            self.edit_summary = "simplification and beautification of wikilinks, fixing whitespace, capitalization and section fragments (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py (interactive))"
-        else:
-            self.edit_summary = "simplification of wikilinks, fixing whitespace and section fragments (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py)"
-
-        # ensure that we are authenticated
-        require_login(self.api)
 
         # api.redirects_map() is not currently cached, save the result
         self.redirects = api.redirects_map()
@@ -107,49 +106,6 @@ class LinkChecker:
             if ns >= 0:
                 self.db_copy[str(ns)] = self.db[str(ns)]
         self.db.dump()
-
-
-    @staticmethod
-    def set_argparser(argparser):
-        # first try to set options for objects we depend on
-        present_groups = [group.title for group in argparser._action_groups]
-        if "Connection parameters" not in present_groups:
-            API.set_argparser(argparser)
-
-        group = argparser.add_argument_group(title="script parameters")
-        group.add_argument("-i", "--interactive", action="store_true",
-                help="enables interactive mode")
-        mode = group.add_mutually_exclusive_group()
-        mode.add_argument("--first", default=None, metavar="TITLE",
-                help="the title of the first page to be processed")
-        mode.add_argument("--title",
-                help="the title of the only page to be processed")
-
-    @classmethod
-    def from_argparser(klass, args, api=None):
-        if api is None:
-            api = API.from_argparser(args)
-        return klass(api, args.cache_dir, interactive=args.interactive, first=args.first, title=args.title)
-
-
-    @LazyProperty
-    def extlink_regex(self):
-        result = self.api.call_api(action="query", meta="siteinfo", siprop="general")
-        regex = re.escape(result["general"]["server"] + result["general"]["articlepath"].split("$1")[0])
-        regex += "(?P<pagename>\S+)"
-        return re.compile(regex)
-
-    def extlink_to_wikilink(self, wikicode, extlink):
-        match = self.extlink_regex.fullmatch(str(extlink.url))
-        if match:
-            # FIXME: add leading colon when necessary
-            pagename = match.group("pagename")
-            if extlink.title:
-                wikilink = "[[{}|{}]]".format(pagename, extlink.title)
-            else:
-                wikilink = "[[{}]]".format(pagename)
-            wikicode.replace(extlink, wikilink)
-
 
     def check_trivial(self, wikilink):
         """
@@ -447,6 +403,57 @@ class LinkChecker:
             else:
                 wikilink.title = wikilink.title.rstrip()
 
+
+class LinkChecker(ExtlinkRules, WikilinkRules):
+
+    skip_pages = ["Table of contents"]
+    # article status templates, lowercase
+    skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
+
+    def __init__(self, api, cache_dir, interactive=False, first=None, title=None):
+        # ensure that we are authenticated
+        require_login(api)
+
+        # init inherited
+        WikilinkRules.__init__(self, api, cache_dir)
+
+        self.api = api
+        self.interactive = interactive
+
+        # parameters for self.run()
+        self.first = first
+        self.title = title
+
+        # TODO: when there are many different changes, create a page on ArchWiki
+        # describing the changes, link it with wikilink syntax using a generic
+        # alternative text (e.g. "semi-automatic style fixes") (path should be
+        # configurable, as well as the URL fallback)
+        if interactive is True:
+            self.edit_summary = "simplification and beautification of wikilinks, fixing whitespace, capitalization and section fragments (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py (interactive))"
+        else:
+            self.edit_summary = "simplification of wikilinks, fixing whitespace and section fragments (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py)"
+
+    @staticmethod
+    def set_argparser(argparser):
+        # first try to set options for objects we depend on
+        present_groups = [group.title for group in argparser._action_groups]
+        if "Connection parameters" not in present_groups:
+            API.set_argparser(argparser)
+
+        group = argparser.add_argument_group(title="script parameters")
+        group.add_argument("-i", "--interactive", action="store_true",
+                help="enables interactive mode")
+        mode = group.add_mutually_exclusive_group()
+        mode.add_argument("--first", default=None, metavar="TITLE",
+                help="the title of the first page to be processed")
+        mode.add_argument("--title",
+                help="the title of the only page to be processed")
+
+    @classmethod
+    def from_argparser(klass, args, api=None):
+        if api is None:
+            api = API.from_argparser(args)
+        return klass(api, args.cache_dir, interactive=args.interactive, first=args.first, title=args.title)
 
     def update_page(self, src_title, text):
         """
