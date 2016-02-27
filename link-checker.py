@@ -5,7 +5,6 @@
 #   how hard is skipping code blocks?
 
 # TODO:
-#   extlink -> wikilink conversion should be done first
 #   skip category links, article status templates
 #   detect self-redirects (definitely interactive only)
 #   changes rejected interactively should be logged
@@ -17,6 +16,7 @@ import logging
 import mwparserfromhell
 
 from ws.core import API, APIError
+from ws.core.lazy import LazyProperty
 import ws.cache
 import ws.utils
 from ws.interactive import *
@@ -64,7 +64,7 @@ class LinkChecker:
 
     skip_pages = ["Table of contents"]
     # article status templates, lowercase
-    skip_templates = ["accuracy", "bad translation", "deletion", "expansion", "laptop style", "merge", "move", "out of date", "stub", "style", "translateme"]
+    skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
 
     def __init__(self, api, cache_dir, interactive=False, first=None, title=None):
         self.api = api
@@ -130,6 +130,25 @@ class LinkChecker:
         if api is None:
             api = API.from_argparser(args)
         return klass(api, args.cache_dir, interactive=args.interactive, first=args.first, title=args.title)
+
+
+    @LazyProperty
+    def extlink_regex(self):
+        result = self.api.call_api(action="query", meta="siteinfo", siprop="general")
+        regex = re.escape(result["general"]["server"] + result["general"]["articlepath"].split("$1")[0])
+        regex += "(?P<pagename>\S+)"
+        return re.compile(regex)
+
+    def extlink_to_wikilink(self, wikicode, extlink):
+        match = self.extlink_regex.fullmatch(str(extlink.url))
+        if match:
+            # FIXME: add leading colon when necessary
+            pagename = match.group("pagename")
+            if extlink.title:
+                wikilink = "[[{}|{}]]".format(pagename, extlink.title)
+            else:
+                wikilink = "[[{}]]".format(pagename)
+            wikicode.replace(extlink, wikilink)
 
 
     def check_trivial(self, wikilink):
@@ -428,6 +447,7 @@ class LinkChecker:
             else:
                 wikilink.title = wikilink.title.rstrip()
 
+
     def update_page(self, src_title, text):
         """
         Parse the content of the page and call various methods to update the links.
@@ -443,6 +463,14 @@ class LinkChecker:
 
         logger.info("Parsing page [[{}]] ...".format(src_title))
         wikicode = mwparserfromhell.parse(text)
+
+        for extlink in wikicode.ifilter_external_links(recursive=True):
+            # skip links inside article status templates
+            parent = wikicode.get(wikicode.index(extlink, recursive=True))
+            if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
+                continue
+
+            self.extlink_to_wikilink(wikicode, extlink)
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
             # skip links inside article status templates
