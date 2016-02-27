@@ -55,12 +55,72 @@ def strip_markup(text):
 
 
 class ExtlinkRules:
+
+    retype = type(re.compile(""))
+    # list of (url_regex, text_cond, text_cond_flags, replacement) tuples, where:
+    #   - url_regex: a regular expression matching the URL (using re.fullmatch)
+    #   - text_cond:
+    #       - as str: a format string used to create the regular expression described above
+    #                 (it is formatted using the groups matched by url_regex)
+    #       - as None: the extlink must not have any alternative text
+    #   - text_cond_flags: flags for the text_cond regex
+    #   - replacement: a format string used as a replacement (it is formatted using the groups matched by url_regex)
+    replacements = [
+        # Arch bug tracker
+        (re.escape("https://bugs.archlinux.org/task/") + "(\d+)", "FS#{0}", 0, "{{{{Bug|{0}}}}}"),
+
+        # official packages, with and without alternative text
+        ("https?\\:\\/\\/(?:www\\.)?archlinux\\.org\\/packages\\/[\w-]+\\/(?:any|i686|x86_64)\\/([a-zA-Z0-9@._+-]+)\\/?",
+            "{0}", re.IGNORECASE, "{{{{Pkg|{0}}}}}"),
+        ("https?\\:\\/\\/(?:www\\.)?archlinux\\.org\\/packages\\/[\w-]+\\/(?:any|i686|x86_64)\\/([a-zA-Z0-9@._+-]+)\\/?",
+            None, 0, "{{{{Pkg|{0}}}}}"),
+
+        # AUR packages, with and without alternative text
+        ("https?\\:\\/\\/aur\\.archlinux\\.org\\/packages\\/([a-zA-Z0-9@._+-]+)\\/?",
+            "{0}", re.IGNORECASE, "{{{{AUR|{0}}}}}"),
+        ("https?\\:\\/\\/aur\\.archlinux\\.org\\/packages\\/([a-zA-Z0-9@._+-]+)\\/?",
+            None, 0, "{{{{AUR|{0}}}}}"),
+    ]
+
+    def __init__(self):
+        _replacements = []
+        for url_regex, text_cond, text_cond_flags, replacement in self.replacements:
+            compiled = re.compile(url_regex)
+            _replacements.append( (compiled, text_cond, text_cond_flags, replacement) )
+        self.replacements = _replacements
+
     @LazyProperty
     def extlink_regex(self):
         result = self.api.call_api(action="query", meta="siteinfo", siprop="general")
         regex = re.escape(result["general"]["server"] + result["general"]["articlepath"].split("$1")[0])
         regex += "(?P<pagename>\S+)"
         return re.compile(regex)
+
+    @staticmethod
+    def strip_extra_brackets(wikicode, extlink):
+        """
+        Strip extra brackets around an external link, for example:
+
+            [[http://example.com/ foo]] -> [http://example.com/ foo]
+        """
+        parent, _ = wikicode._do_strong_search(extlink, True)
+        index = parent.index(extlink)
+
+        def _get_text(index):
+            try:
+                node = parent.get(index)
+                if not isinstance(node, mwparserfromhell.nodes.text.Text):
+                    return None
+                return node
+            except IndexError:
+                return None
+
+        prev = _get_text(index - 1)
+        next_ = _get_text(index + 1)
+
+        if prev is not None and next_ is not None and prev.endswith("[") and next_.startswith("]"):
+            prev.value = prev.value[:-1]
+            next_.value = next_.value[1:]
 
     def extlink_to_wikilink(self, wikicode, extlink):
         match = self.extlink_regex.fullmatch(str(extlink.url))
@@ -72,10 +132,29 @@ class ExtlinkRules:
             else:
                 wikilink = "[[{}]]".format(pagename)
             wikicode.replace(extlink, wikilink)
+            return True
+        return False
+
+    def extlink_replacements(self, wikicode, extlink):
+        for url_regex, text_cond, text_cond_flags, replacement in self.replacements:
+            if (text_cond is None and extlink.title is not None) or (text_cond is not None and extlink.title is None):
+                continue
+            match = url_regex.fullmatch(str(extlink.url))
+            if match:
+                if extlink.title is None or re.fullmatch(text_cond.format(*match.groups()), str(extlink.title), text_cond_flags):
+                    wikicode.replace(extlink, replacement.format(*match.groups()))
+                    return True
+                else:
+                    logger.warning("external link that should be replaced, but has custom alternative text: {}".format(extlink))
+        return False
 
     def update_extlink(self, wikicode, extlink):
-        self.extlink_to_wikilink(wikicode, extlink)
-
+        # always make sure to return as soon as the extlink is invalidated
+        self.strip_extra_brackets(wikicode, extlink)
+        if self.extlink_to_wikilink(wikicode, extlink):
+            return
+        if self.extlink_replacements(wikicode, extlink):
+            return
 
 class WikilinkRules:
     """
@@ -85,9 +164,10 @@ class WikilinkRules:
     - alternative text is intentional, no replacements there
     """
 
-    def __init__(self, api, cache_dir):
+    def __init__(self, api, cache_dir, interactive=False):
         self.api = api
         self.cache_dir = cache_dir
+        self.interactive = interactive
 
         # api.redirects_map() is not currently cached, save the result
         self.redirects = api.redirects_map()
@@ -309,7 +389,7 @@ class WikilinkRules:
         # get lists of section headings and anchors
         headings = get_section_headings(text)
         if len(headings) == 0:
-            logger.warning("link with broken section fragment: {}".format(wikilink))
+            logger.warning("wikilink with broken section fragment: {}".format(wikilink))
             return
         anchors = get_anchors(headings)
 
@@ -331,10 +411,10 @@ class WikilinkRules:
                 logger.debug("skipping {}: multiple feasible anchors per similarity ratio: {}".format(wikilink, ranks))
                 return
             else:
-                logger.warning("link with broken section fragment: {}".format(wikilink))
+                logger.warning("wikilink with broken section fragment: {}".format(wikilink))
                 return
         else:
-            logger.warning("link with broken section fragment: {}".format(wikilink))
+            logger.warning("wikilink with broken section fragment: {}".format(wikilink))
             return
 
         # assemble new section fragment
@@ -433,13 +513,15 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
     skip_pages = ["Table of contents"]
     # article status templates, lowercase
     skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
+    script_url = "https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py"
 
     def __init__(self, api, cache_dir, interactive=False, first=None, title=None):
         # ensure that we are authenticated
         require_login(api)
 
         # init inherited
-        WikilinkRules.__init__(self, api, cache_dir)
+        ExtlinkRules.__init__(self)
+        WikilinkRules.__init__(self, api, cache_dir, interactive)
 
         self.api = api
         self.interactive = interactive
@@ -452,10 +534,8 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         # describing the changes, link it with wikilink syntax using a generic
         # alternative text (e.g. "semi-automatic style fixes") (path should be
         # configurable, as well as the URL fallback)
-        if interactive is True:
-            self.edit_summary = "simplification and beautification of wikilinks, fixing whitespace, capitalization and section fragments (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py (interactive))"
-        else:
-            self.edit_summary = "simplification of wikilinks, fixing whitespace and section fragments (https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py)"
+        self.extlinks_summary = "replaced external links"
+        self.wikilinks_summary = "simplification and beautification of wikilinks, fixing whitespace, capitalization and section fragments"
 
     @staticmethod
     def set_argparser(argparser):
@@ -485,15 +565,17 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
 
         :param str src_title: title of the page
         :param str text: content of the page
-        :returns str: updated content
+        :returns: a (text, edit_summary) tuple, where text is the updated content
+            and edit_summary is the description of performed changes
         """
         # FIXME: ideally "DeveloperWiki:" would be a proper namespace
         if src_title in self.skip_pages or src_title.startswith("DeveloperWiki:"):
             logger.info("Skipping blacklisted page [[{}]]".format(src_title))
-            return text
+            return text, ""
 
         logger.info("Parsing page [[{}]] ...".format(src_title))
         wikicode = mwparserfromhell.parse(text)
+        summary_parts = []
 
         for extlink in wikicode.ifilter_external_links(recursive=True):
             # skip links inside article status templates
@@ -502,6 +584,11 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
                 continue
             self.update_extlink(wikicode, extlink)
 
+        new_text = str(wikicode)
+        if new_text != text:
+            summary_parts.append(self.extlinks_summary)
+            text = new_text
+
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
             # skip links inside article status templates
             parent = wikicode.get(wikicode.index(wikilink, recursive=True))
@@ -509,15 +596,25 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
                 continue
             self.update_wikilink(wikicode, wikilink, src_title)
 
-        return str(wikicode)
+        new_text = str(wikicode)
+        if new_text != text:
+            summary_parts.append(self.wikilinks_summary)
 
-    def _edit(self, title, pageid, text_new, text_old, timestamp):
+        edit_summary = ", ".join(summary_parts)
+        if self.interactive is True:
+            edit_summary += " ({} (interactive))".format(self.script_url)
+        else:
+            edit_summary += " ({})".format(self.script_url)
+
+        return new_text, edit_summary
+
+    def _edit(self, title, pageid, text_new, text_old, timestamp, edit_summary):
         if text_old != text_new:
             try:
                 if self.interactive is False:
-                    self.api.edit(title, pageid, text_new, timestamp, self.edit_summary, bot="")
+                    self.api.edit(title, pageid, text_new, timestamp, edit_summary, bot="")
                 else:
-                    edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, self.edit_summary, bot="")
+                    edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, edit_summary, bot="")
             except APIError as e:
                 pass
 
@@ -526,8 +623,8 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         page = list(result["pages"].values())[0]
         timestamp = page["revisions"][0]["timestamp"]
         text_old = page["revisions"][0]["*"]
-        text_new = self.update_page(title, text_old)
-        self._edit(title, page["pageid"], text_new, text_old, timestamp)
+        text_new, edit_summary = self.update_page(title, text_old)
+        self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
 
     def process_allpages(self, apfrom=None):
         for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapfrom=apfrom, prop="revisions", rvprop="content|timestamp"):
@@ -536,8 +633,8 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
                 continue
             timestamp = page["revisions"][0]["timestamp"]
             text_old = page["revisions"][0]["*"]
-            text_new = self.update_page(title, text_old)
-            self._edit(title, page["pageid"], text_new, text_old, timestamp)
+            text_new, edit_summary = self.update_page(title, text_old)
+            self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
 
     def run(self):
         if self.title is not None:
