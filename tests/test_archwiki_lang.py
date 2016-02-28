@@ -113,6 +113,10 @@ class test_detect_language:
         # this case used to be for old pages, the suffix for English pages is not used
         # nevertheless it is useful to keep the algorithm simple
         "foo (English)": ("foo", "English"),
+
+        # language categories
+        "Category:Foo": ("Category:Foo", "English"),
+        "Category:Česky": ("Category:Česky", "Česky"),
     }
 
     @staticmethod
@@ -126,3 +130,8 @@ class test_detect_language:
     def test_all_langs(self):
         for lang in language_names:
             yield self._do_test, "foo ({})".format(lang), ("foo", lang)
+
+    def test_all_cats(self):
+        for lang in language_names:
+            title = "Category:{}".format(lang)
+            yield self._do_test, title, (title, lang)
