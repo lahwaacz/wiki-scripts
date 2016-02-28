@@ -536,7 +536,7 @@ class WikilinkRules:
 
 class LinkChecker(ExtlinkRules, WikilinkRules):
 
-    skip_pages = ["Table of contents"]
+    skip_pages = ["Table of contents", "Help:Editing"]
     # article status templates, lowercase
     skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
     script_url = "https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py"
@@ -653,14 +653,18 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
 
     def process_allpages(self, apfrom=None):
-        for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapfrom=apfrom, prop="revisions", rvprop="content|timestamp"):
-            title = page["title"]
-            if lang.detect_language(title)[1] != "English":
-                continue
-            timestamp = page["revisions"][0]["timestamp"]
-            text_old = page["revisions"][0]["*"]
-            text_new, edit_summary = self.update_page(title, text_old)
-            self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
+        namespaces = [0, 14]
+        if self.interactive is True:
+            namespaces.append(12)
+        for ns in namespaces:
+            for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom, prop="revisions", rvprop="content|timestamp"):
+                title = page["title"]
+                if lang.detect_language(title)[1] != "English":
+                    continue
+                timestamp = page["revisions"][0]["timestamp"]
+                text_old = page["revisions"][0]["*"]
+                text_new, edit_summary = self.update_page(title, text_old)
+                self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
 
     def run(self):
         if self.title is not None:
