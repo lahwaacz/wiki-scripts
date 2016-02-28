@@ -117,6 +117,7 @@ class Title:
         # MediaWiki does not treat encoded underscores as spaces (e.g.
         # [[Main%5Fpage]] is rendered as <a href="...">Main_page</a>),
         # but we focus on meaning, not rendering.
+        # FIXME: don't decode '[', '|' and ']'
         _pure = urldecode(_pure)
         # canonicalize title
         self.pure = canonicalize(_pure)

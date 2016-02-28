@@ -21,7 +21,7 @@ import ws.cache
 import ws.utils
 from ws.interactive import *
 import ws.ArchWiki.lang as lang
-from ws.parser_helpers.encodings import dotencode
+from ws.parser_helpers.encodings import dotencode, urldecode
 from ws.parser_helpers.title import canonicalize, Title
 from ws.parser_helpers.wikicode import get_section_headings, get_anchors
 
@@ -73,22 +73,28 @@ class ExtlinkRules:
             "FS#{0}", 0, "{{{{Bug|{0}}}}}"),
 
         # official packages, with and without alternative text
-        ("https?\\:\\/\\/(?:www\\.)?archlinux\\.org\\/packages\\/[\w-]+\\/(?:any|i686|x86_64)\\/([a-zA-Z0-9@._+-]+)\\/?",
+        (r"https?\:\/\/(?:www\.)?archlinux\.org\/packages\/[\w-]+\/(?:any|i686|x86_64)\/([a-zA-Z0-9@._+-]+)\/?",
             "{0}", re.IGNORECASE, "{{{{Pkg|{0}}}}}"),
-        ("https?\\:\\/\\/(?:www\\.)?archlinux\\.org\\/packages\\/[\w-]+\\/(?:any|i686|x86_64)\\/([a-zA-Z0-9@._+-]+)\\/?",
+        (r"https?\:\/\/(?:www\.)?archlinux\.org\/packages\/[\w-]+\/(?:any|i686|x86_64)\/([a-zA-Z0-9@._+-]+)\/?",
             None, 0, "{{{{Pkg|{0}}}}}"),
 
         # AUR packages, with and without alternative text
-        ("https?\\:\\/\\/aur\\.archlinux\\.org\\/packages\\/([a-zA-Z0-9@._+-]+)\\/?",
+        (r"https?\:\/\/aur\.archlinux\.org\/packages\/([a-zA-Z0-9@._+-]+)\/?",
             "{0}", re.IGNORECASE, "{{{{AUR|{0}}}}}"),
-        ("https?\\:\\/\\/aur\\.archlinux\\.org\\/packages\\/([a-zA-Z0-9@._+-]+)\\/?",
+        (r"https?\:\/\/aur\.archlinux\.org\/packages\/([a-zA-Z0-9@._+-]+)\/?",
             None, 0, "{{{{AUR|{0}}}}}"),
 
         # Wikipedia interwiki
-        ("https?\\:\\/\\/en\\.wikipedia\\.org\\/wiki\\/([^\\]]+)",
+        (r"https?\:\/\/en\.wikipedia\.org\/wiki\/([^\]]+)",
             ".*", 0, "[[wikipedia:{0}|{1}]]"),
-        ("https?\\:\\/\\/en\\.wikipedia\\.org\\/wiki\\/([^\\]]+)",
+        (r"https?\:\/\/en\.wikipedia\.org\/wiki\/([^\]]+)",
             None, 0, "[[wikipedia:{0}]]"),
+
+        # change http:// to https:// for archlinux.org and wikipedia.org (do it at the bottom, i.e. with least priority)
+        (r"http:\/\/((?:[a-z]+\.)?(?:archlinux|wikipedia)\.org(?:\/\S+)?\/?)",
+            ".*", 0, "[https://{0} {1}]"),
+        (r"http:\/\/((?:[a-z]+\.)?(?:archlinux|wikipedia)\.org(?:\/\S+)?\/?)",
+            None, 0, "https://{0}"),
     ]
 
     def __init__(self):
@@ -152,6 +158,7 @@ class ExtlinkRules:
             if match:
                 if extlink.title is None:
                     wikicode.replace(extlink, replacement.format(*match.groups()))
+                    return True
                 elif re.fullmatch(text_cond.format(*match.groups()), str(extlink.title), text_cond_flags):
                     wikicode.replace(extlink, replacement.format(*match.groups(), extlink.title))
                     return True
@@ -430,8 +437,8 @@ class WikilinkRules:
 
         # assemble new section fragment
         new_fragment = strip_markup(headings[anchors.index(anchor)])
-        # anchors can't contain '[' and ']', encode them manually
-        new_fragment = new_fragment.replace("[", ".5B").replace("]", ".5D")
+        # anchors can't contain '[', '|' and ']', encode them manually
+        new_fragment = new_fragment.replace("[", ".5B").replace("|", ".7C").replace("]", ".5D")
 
         # point to the right duplicated sectionname
         # NOTE: the dupl. section number might get changed in fuzzy match
@@ -502,6 +509,14 @@ class WikilinkRules:
         # skip interlanguage links (handled by update-interlanguage-links.py)
         if title.iw in self.api.interlanguagemap.keys():
             return
+
+        # beautify if urldecoded
+        # FIXME: make it implicit - it does not always propagate from the Title class
+        if re.search("%[0-9a-f]{2}", str(wikilink.title), re.IGNORECASE):
+            # FIXME: this is not done anywhere due to false positives
+            wikilink.title = str(title)
+            # FIXME: should be done in the Title class
+            wikilink.title = str(wikilink.title).replace("[", ".5B").replace("|", ".7C").replace("]", ".5D")
 
         self.collapse_whitespace_pipe(wikilink)
         self.check_trivial(wikilink)
