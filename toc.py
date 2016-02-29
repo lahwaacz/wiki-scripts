@@ -40,11 +40,22 @@ class TableOfContents:
                 info.setdefault(page["title"], {}).update(page["categoryinfo"])
         return graph_parents, graph_subcats, info
 
+    # TODO: works only for acyclic graphs (in general it is necessary to build a list of visited nodes to avoid infinite loop)
+    @staticmethod
+    def walk(graph, node, levels=None):
+        if levels is None:
+            levels = []
+        children = graph.get(node, [])
+        for i, child in enumerate(sorted(children)):
+            levels.append(i)
+            yield child, node, levels
+            if child != node:
+                yield from TableOfContents.walk(graph, child, levels)
+            levels.pop(-1)
+
     def run(self):
         graph_parents, graph_subcats, info = self.build_graph()
         roots = ["Category:English"]
-
-        levels = []
 
         def format_plain(title, parent=None, levels=None):
             if levels is None:
@@ -66,18 +77,10 @@ class TableOfContents:
         def format_html(title, parent=None, levels=None):
             pass
 
-        def walk(root):
-            nodes = graph_subcats.get(root, [])
-            for i, title in enumerate(sorted(nodes)):
-                levels.append(i)
-                yield title, root, levels
-                yield from walk(title)
-                levels.pop(-1)
-
         ff = format_plain
         for title in roots:
             ff(title)
-            for item in walk(title):
+            for item in self.walk(graph_subcats, title):
                 ff(*item)
 
 if __name__ == "__main__":
