@@ -1,10 +1,50 @@
 #! /usr/bin/env python3
 
 from pprint import pprint
+import copy
 
 from ws.core import API
 import ws.ArchWiki.lang as lang
 
+
+def cmp(left, right):
+    if left < right:
+        return -1
+    elif left > right:
+        return 1
+    else:
+        return 0
+
+class MyIterator(object):
+    """
+    Wrapper around python generators that allows to explicitly check if the
+    generator has been exhausted or not.
+    """
+    def __init__(self, iterable):
+        self._iterable = iter(iterable)
+        self._exhausted = False
+        self._next_item = None
+        self._cache_next_item()
+
+    def _cache_next_item(self):
+        try:
+            self._next_item = next(self._iterable)
+        except StopIteration:
+            self._exhausted = True
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._exhausted:
+            raise StopIteration
+        # FIXME: workaround for strange behaviour of lists inside tuples -> investigate
+        next_item = copy.deepcopy(self._next_item)
+        self._cache_next_item()
+        return next_item
+
+    def __bool__(self):
+        return not self._exhausted
 
 class TableOfContents:
 
@@ -46,12 +86,66 @@ class TableOfContents:
         if levels is None:
             levels = []
         children = graph.get(node, [])
-        for i, child in enumerate(sorted(children)):
+        for i, child in enumerate(sorted(children, key=str.lower)):
             levels.append(i)
             yield child, node, levels
             if child != node:
                 yield from TableOfContents.walk(graph, child, levels)
             levels.pop(-1)
+
+    @staticmethod
+    def compare_trees(graph, left, right):
+        def cmp_tuples(left, right):
+            if left is None and right is None:
+                return 0
+            elif left is None:
+                return 1
+            elif right is None:
+                return -1
+            return cmp( (-len(left[2]), lang.detect_language(left[0])[0]),
+                        (-len(right[2]), lang.detect_language(right[0])[0]) )
+
+        lgen = MyIterator(TableOfContents.walk(graph, left))
+        rgen = MyIterator(TableOfContents.walk(graph, right))
+
+        try:
+            lval = next(lgen)
+            rval = next(rgen)
+        except StopIteration:
+            # both empty, there is nothing to do
+            return None, None
+
+        while lgen and rgen:
+            while cmp_tuples(lval, rval) < 0:
+                yield lval, None
+                lval = next(lgen)
+            while cmp_tuples(lval, rval) == 0:
+                yield lval, rval
+                lval = next(lgen)
+                rval = next(rgen)
+            while cmp_tuples(lval, rval) > 0:
+                yield None, rval
+                rval = next(rgen)
+
+        while lgen:
+            while cmp_tuples(lval, rval) < 0:
+                yield lval, None
+                lval = next(lgen)
+            while cmp_tuples(lval, rval) == 0:
+                yield lval, rval
+                lval = next(lgen)
+                rval = None
+
+        while rgen:
+            while cmp_tuples(lval, rval) == 0:
+                yield lval, rval
+                lval = None
+                rval = next(rgen)
+            while cmp_tuples(lval, rval) > 0:
+                yield None, rval
+                rval = next(rgen)
+
+        yield lval, rval
 
     def run(self):
         graph_parents, graph_subcats, info = self.build_graph()
@@ -78,10 +172,23 @@ class TableOfContents:
             pass
 
         ff = format_plain
+#        for title in roots:
+#            ff(title)
+#            for item in self.walk(graph_subcats, title):
+#                ff(*item)
+
+        print("====")
         for title in roots:
-            ff(title)
-            for item in self.walk(graph_subcats, title):
-                ff(*item)
+            for a, b in self.compare_trees(graph_subcats, title, "Category:Magyar"):
+                if a:
+                    ff(*a)
+                else:
+                    print(a)
+                if b:
+                    ff(*b)
+                else:
+                    print(b)
+                print("----")
 
 if __name__ == "__main__":
     import ws.config
