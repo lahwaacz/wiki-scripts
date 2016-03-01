@@ -2,6 +2,7 @@
 
 from pprint import pprint
 import copy
+from collections import Iterable
 
 from ws.core import API
 import ws.ArchWiki.lang as lang
@@ -14,6 +15,7 @@ def cmp(left, right):
         return 1
     else:
         return 0
+
 
 class MyIterator(object):
     """
@@ -45,6 +47,7 @@ class MyIterator(object):
 
     def __bool__(self):
         return not self._exhausted
+
 
 class TableOfContents:
 
@@ -149,46 +152,83 @@ class TableOfContents:
 
     def run(self):
         graph_parents, graph_subcats, info = self.build_graph()
-        roots = ["Category:English"]
-
-        def format_plain(title, parent=None, levels=None):
-            if levels is None:
-                # root
-                print("{} ({})".format(title, info[title]["pages"]))
-            else:
-                # indent
-                output = " " * (len(levels) - 1) * 4
-                # level
-                output += ".".join(str(x + 1) for x in levels)
-                # title, number of subpages
-                output += " {} ({})".format(title, info[title]["pages"])
-                # "also in" suffix
-                parents = set(graph_parents[title]) - {parent}
-                if parents:
-                    output += " (also in: {})".format(", ".join(sorted(parents)))
-                print(output)
+        roots = [
+            "Category:English",
+            ("Category:English", "Category:Česky"),
+        ]
 
         def format_html(title, parent=None, levels=None):
             pass
 
-        ff = format_plain
-#        for title in roots:
-#            ff(title)
-#            for item in self.walk(graph_subcats, title):
-#                ff(*item)
+        for root in roots:
+            print("====")
+            ff = PlainFormatter(graph_parents, info)
+            ff.format_root(root)
+            if isinstance(root, str):
+                for item in self.walk(graph_subcats, root):
+                    ff.format_row(item)
+            elif isinstance(root, Iterable):
+                for result in self.compare_trees(graph_subcats, *root):
+                    ff.format_row(*result)
+            print(ff)
 
-        print("====")
-        for title in roots:
-            for a, b in self.compare_trees(graph_subcats, title, "Category:Magyar"):
-                if a:
-                    ff(*a)
-                else:
-                    print(a)
-                if b:
-                    ff(*b)
-                else:
-                    print(b)
-                print("----")
+
+class BaseFormatter:
+    def __init__(self, parents, info):
+        self.parents = parents
+        self.info = info
+
+    def format_also_in(self, parents, language):
+        # TODO: localize
+        return " (also in: {})".format(", ".join(sorted(parents)))
+
+    def localized_category(self, category):
+        # TODO: search in a dictionary
+        return category
+
+
+class PlainFormatter(BaseFormatter):
+
+    column_width = 80
+
+    def __init__(self, parents, info):
+        super().__init__(parents, info)
+        self.text = ""
+
+    def format_root(self, title):
+        if isinstance(title, str):
+            self.text += "{} ({})\n".format(title, self.info[title]["pages"])
+        elif isinstance(title, Iterable):
+            # title is a tuple of titles
+            for t in title:
+                self.format_root(t)
+            self.text += "----\n"
+
+    def format_cell(self, title, parent, levels):
+        language = lang.detect_language(title)[1]
+        # indent
+        output = " " * (len(levels) - 1) * 4
+        # level
+        output += ".".join(str(x + 1) for x in levels)
+        # title, number of subpages
+        output += " {} ({})".format(title, self.info[title]["pages"])
+        # "also in" suffix
+        parents = set(self.parents[title]) - {parent}
+        if parents:
+            output += self.format_also_in(parents, language)
+        return output
+
+    def format_row(self, *columns):
+        for col in columns:
+            if isinstance(col, Iterable) and not isinstance(col, str):
+                self.text += self.format_cell(*col) + "\n"
+            else:
+                self.text += str(col) + "\n"
+        if len(columns) > 1:
+            self.text += "----\n"
+
+    def __str__(self):
+        return self.text
 
 if __name__ == "__main__":
     import ws.config
