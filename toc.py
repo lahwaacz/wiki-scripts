@@ -153,16 +153,13 @@ class TableOfContents:
     def run(self):
         graph_parents, graph_subcats, info = self.build_graph()
         roots = [
-            "Category:English",
-            ("Category:English", "Category:Česky"),
+#            "Category:English",
+            ("Category:Česky", "Category:English"),
         ]
 
-        def format_html(title, parent=None, levels=None):
-            pass
-
         for root in roots:
-            print("====")
-            ff = PlainFormatter(graph_parents, info)
+#            ff = PlainFormatter(graph_parents, info)
+            ff = MediaWikiFormatter(graph_parents, info)
             ff.format_root(root)
             if isinstance(root, str):
                 for item in self.walk(graph_subcats, root):
@@ -182,14 +179,12 @@ class BaseFormatter:
         # TODO: localize
         return " (also in: {})".format(", ".join(sorted(parents)))
 
-    def localized_category(self, category):
+    def localize(self, category):
         # TODO: search in a dictionary
-        return category
+        return category.split(":", 1)[1]
 
 
 class PlainFormatter(BaseFormatter):
-
-    column_width = 80
 
     def __init__(self, parents, info):
         super().__init__(parents, info)
@@ -207,7 +202,7 @@ class PlainFormatter(BaseFormatter):
     def format_cell(self, title, parent, levels):
         language = lang.detect_language(title)[1]
         # indent
-        output = " " * (len(levels) - 1) * 4
+        output = " " * len(levels) * 4
         # level
         output += ".".join(str(x + 1) for x in levels)
         # title, number of subpages
@@ -229,6 +224,59 @@ class PlainFormatter(BaseFormatter):
 
     def __str__(self):
         return self.text
+
+
+class MediaWikiFormatter(BaseFormatter):
+
+    cell_format = "<span style=\"margin-left:{margin}em;\"><small>{levels}</small> {catlink} <small>{info}</small></span>"
+
+    def __init__(self, parents, info):
+        super().__init__(parents, info)
+        self.text = ""
+
+    def catlink(self, title):
+        return "[[:{}|{}]]".format(title, self.localize(title))
+
+    def format_root(self, title):
+        if isinstance(title, str):
+            self.text += "| {} ({})\n".format(self.catlink(title), self.info[title]["pages"])
+            self.text += "|-\n"
+        elif isinstance(title, Iterable):
+            # title is a tuple of titles
+            for t in title:
+                self.text += "| {} ({})\n".format(self.catlink(t), self.info[t]["pages"])
+            self.text += "|-\n"
+
+    def format_cell(self, title, parent, levels):
+        language = lang.detect_language(title)[1]
+        margin = 1.6 * len(levels)
+        lev = ".".join(str(x + 1) for x in levels) + "."
+        info = "({})".format(self.info[title]["pages"])
+        # "also in" suffix
+        parents = set(self.parents[title]) - {parent}
+        if parents:
+            parents = [self.catlink(cat) for cat in parents]
+            info += self.format_also_in(parents, language)
+        return self.cell_format.format(margin=margin, levels=lev, catlink=self.catlink(title), info=info)
+
+    def format_row(self, *columns):
+        for col in columns:
+            if isinstance(col, Iterable) and not isinstance(col, str):
+                self.text += "| " + self.format_cell(*col) + "\n"
+            elif col:
+                self.text += "| " + str(col) + "\n"
+            else:
+                self.text += "|\n"
+        self.text += "|-\n"
+
+    def __str__(self):
+        out = "{|\n" + self.text
+        if out.endswith("\n"):
+            out += "|}"
+        else:
+            out += "\n|}"
+        return out
+
 
 if __name__ == "__main__":
     import ws.config
