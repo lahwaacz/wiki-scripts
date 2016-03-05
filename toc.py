@@ -404,7 +404,7 @@ class TableOfContents:
                 # skip trivial cases to apply our defaults
                 pure, _ = lang.detect_language(title.pagename)
                 if wikilink.text.lower() != title.pagename.lower() and wikilink.text.lower() != pure.lower():
-                    dictionary[str(title)] = wikilink.text
+                    dictionary[str(title)] = str(wikilink.text).strip()
         return dictionary
 
     def save_page(self, title, pageid, text_old, text_new, timestamp):
