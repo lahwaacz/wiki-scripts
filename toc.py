@@ -364,6 +364,32 @@ class TableOfContents:
 
         return contents, timestamps, pageids
 
+    def parse_toc_table(self, title, wikicode):
+        toc_table = None
+        # default format is one column in the title's language
+        columns = [lang.tag_for_langname(lang.detect_language(title)[1])]
+        dictionary = LowercaseDict()
+
+        for table in wikicode.ifilter_tags(matches=lambda node: node.tag == "table"):
+            if table.has("id"):
+                id_ = table.get("id")
+                if id_.value == "wiki-scripts-toc-table":
+                    toc_table = table
+                    break
+
+        if toc_table is not None:
+            # parse data-toc-languages attribute
+            try:
+                _languages = str(toc_table.get("data-toc-languages").value)
+                columns = _languages.split(",")
+            except ValueError:
+                toc_table.add("data-toc-languages", value=",".join(columns))
+
+            # extract localized category names (useful even for PlainFormatter)
+            dictionary = self.extract_translations(toc_table.contents)
+
+        return toc_table, columns, dictionary
+
     def extract_translations(self, wikicode):
         dictionary = LowercaseDict()
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
@@ -403,19 +429,7 @@ class TableOfContents:
                 continue
 
             wikicode = mwparserfromhell.parse(contents[title])
-
-            # default format is one column in the title's language
-            columns = [lang.tag_for_langname(lang.detect_language(title)[1])]
-            dictionary = LowercaseDict()
-
-            # get div#wiki-scripts-toc-table
-            toc_table = None
-            for table in wikicode.ifilter_tags(matches=lambda node: node.tag == "table"):
-                if table.has("id"):
-                    _id = table.get("id")
-                    if _id.value == "wiki-scripts-toc-table":
-                        toc_table = table
-                        break
+            toc_table, columns, dictionary = self.parse_toc_table(title, wikicode)
 
             if toc_table is None:
                 if self.cliargs.save is True:
@@ -428,16 +442,6 @@ class TableOfContents:
                     logger.warning(
                             "The wiki page '{}' does not contain the ToC table, "
                             "so there will be no translations.".format(title))
-            else:
-                # parse data-toc-languages attribute
-                try:
-                    _languages = str(toc_table.get("data-toc-languages").value)
-                    columns = _languages.split(",")
-                except ValueError:
-                    toc_table.add("data-toc-languages", value=",".join(columns))
-
-                # extract localized category names (useful even for PlainFormatter)
-                dictionary = self.extract_translations(toc_table.contents)
 
             if self.cliargs.print:
                 ff = PlainFormatter(graph_parents, info, dictionary)
@@ -462,7 +466,6 @@ class TableOfContents:
                 print("== {} ==\n".format(title))
                 print(ff)
             elif self.cliargs.save:
-                # TODO: replace content of div#wiki-scripts-toc-table
                 toc_table.contents = str(ff)
                 self.save_page(title, pageids[title], contents[title], str(wikicode), timestamps[title])
 
