@@ -104,21 +104,24 @@ class CategoryGraph:
                 info.setdefault(page["title"], {}).update(page["categoryinfo"])
         return graph_parents, graph_subcats, info
 
-    # TODO: works only for acyclic graphs (in general it is necessary to build a list of visited nodes to avoid infinite loop)
     @staticmethod
-    def walk(graph, node, levels=None):
+    def walk(graph, node, levels=None, visited=None):
         if levels is None:
             levels = []
+        if visited is None:
+            visited = set()
         children = graph.get(node, [])
         for i, child in enumerate(sorted(children, key=str.lower)):
-            levels.append(i)
-            yield child, node, levels
-            if child != node:
-                yield from CategoryGraph.walk(graph, child, levels)
-            levels.pop(-1)
+            if child not in visited:
+                levels.append(i)
+                visited.add(child)
+                yield child, node, levels
+                yield from CategoryGraph.walk(graph, child, levels, visited)
+                visited.remove(child)
+                levels.pop(-1)
 
     @staticmethod
-    def compare_trees(graph, left, right):
+    def compare_components(graph, left, right):
         def cmp_tuples(left, right):
             if left is None and right is None:
                 return 0
@@ -456,10 +459,10 @@ class TableOfContents:
                 for item in category_graph.walk(graph_subcats, roots[0]):
                     ff.format_row(item)
             elif len(roots) == 2:
-                for result in category_graph.compare_trees(graph_subcats, *roots):
+                for result in category_graph.compare_components(graph_subcats, *roots):
                     ff.format_row(*result)
             else:
-                logger.error("Cannot compare more than 2 trees at once. Requested: {}".format(columns))
+                logger.error("Cannot compare more than 2 languages at once. Requested: {}".format(columns))
                 continue
 
             if self.cliargs.print:
