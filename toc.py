@@ -235,6 +235,7 @@ class PlainFormatter(BaseFormatter):
 class MediaWikiFormatter(BaseFormatter):
 
     cell_format = "<span style=\"margin-left:{margin:.3}em;\"><small>{levels}</small> {catlink} <small>{info}</small></span>"
+    rtl_languages = {"العربية"}
 
     def __init__(self, parents, info, dictionary, include_opening_closing_tokens=True):
         super().__init__(parents, info, dictionary)
@@ -242,7 +243,10 @@ class MediaWikiFormatter(BaseFormatter):
         self.text = ""
 
     def catlink(self, title):
-        return "[[:{}|{}]]".format(title, self.localize(title))
+        catlink = "[[:{}|{}]]".format(title, self.localize(title))
+        if lang.detect_language(title)[1] in self.rtl_languages:
+            catlink += "&lrm;"
+        return catlink
 
     def format_root(self, title):
         if isinstance(title, str):
