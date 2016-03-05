@@ -1,11 +1,18 @@
 #! /usr/bin/env python3
 
-from pprint import pprint
 import copy
 from collections import Iterable
+import logging
+
+import mwparserfromhell
 
 from ws.core import API
+from ws.interactive import require_login
+from ws.parser_helpers.title import Title
 import ws.ArchWiki.lang as lang
+
+
+logger = logging.getLogger(__name__)
 
 
 def cmp(left, right):
@@ -49,23 +56,92 @@ class MyIterator(object):
         return not self._exhausted
 
 
+class LowercaseDict(dict):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __getitem__(self, key):
+        return super().__getitem__(key.lower())
+
+    def __setitem__(self, key, value):
+        super().__setitem__(key.lower(), value)
+
+    def __contains__(self, key):
+        return super().__contains__(key.lower())
+
+    def get(self, key, default=None):
+        return super().get(key.lower(), default)
+
+    def setdefault(self, key, default=None):
+        return super().setdefault(key.lower(), default)
+
+    def update(self, other):
+        for key, value in other.items():
+            super().__setitem__(key.lower(), value)
+
+    def pop(self, key, default=None):
+        return super().pop(key.lower(), default)
+
+
 class TableOfContents:
 
-    def __init__(self, api):
+    def __init__(self, api, cliargs):
         self.api = api
+        self.cliargs = cliargs
+
+        if self.cliargs.save is False and self.cliargs.print is False:
+            self.cliargs.print = True
+
+        if len(self.cliargs.toc_languages) == 1 and self.cliargs.toc_languages[0] == "all":
+            self.cliargs.toc_languages = lang.get_internal_tags()
+        # strip "(Language)" suffix
+        self.cliargs.toc_page = lang.detect_language(self.cliargs.toc_page)[0]
+
+        # detect page titles
+        self.titles = []
+        for ln in sorted(self.cliargs.toc_languages):
+            if ln == lang.tag_for_langname(lang.get_local_language()):
+                self.titles.append(self.cliargs.toc_page)
+            else:
+                self.titles.append("{} ({})".format(self.cliargs.toc_page, lang.langname_for_tag(ln)))
 
     @staticmethod
     def set_argparser(argparser):
+        import ws.config
+
         # first try to set options for objects we depend on
         present_groups = [group.title for group in argparser._action_groups]
         if "Connection parameters" not in present_groups:
             API.set_argparser(argparser)
 
+        output = argparser.add_argument_group(title="output mode")
+        _g = output.add_mutually_exclusive_group()
+        # TODO: maybe leave only the short option to forbid configurability in config file
+        _g.add_argument("-s", "--save", action="store_true",
+                help="try to save the page (requires being logged in)")
+        _g.add_argument("-p", "--print", action="store_true",
+                help="print the updated text in the standard output (this is the default output method)")
+
+        group = argparser.add_argument_group(title="script parameters")
+        group.add_argument("-a", "--anonymous", action="store_true",
+                help="do not require logging in: queries may be limited to a lower rate")
+        # TODO: maybe leave only the short option to forbid configurability in config file
+        group.add_argument("-f", "--force", action="store_true",
+                help="try to update the page even if it was last saved in the same UTC day")
+        group.add_argument("--toc-languages", default="all", type=ws.config.argtype_comma_list_choices(["all"] + lang.get_internal_tags()),
+                help="a comma-separated list of language tags whose ToC pages should be updated (default: %(default)s)")
+        group.add_argument("--toc-page", default="Table of contents",
+                help="the page name on the wiki to fetch and update (the language suffix "
+                     "is added automatically as necessary) (default: %(default)s)")
+        # TODO: no idea how to forbid setting this globally in the config...
+        group.add_argument("--summary", default="automatic update",
+                help="the edit summary to use when saving the page (default: %(default)s)")
+
     @classmethod
     def from_argparser(klass, args, api=None):
         if api is None:
             api = API.from_argparser(args)
-        return klass(api)
+        return klass(api, args)
 
     def build_graph(self):
         # `graph_parents` maps category names to the list of their parents
@@ -150,44 +226,147 @@ class TableOfContents:
 
         yield lval, rval
 
-    def run(self):
-        graph_parents, graph_subcats, info = self.build_graph()
-        roots = [
-#            "Category:English",
-            ("Category:Česky", "Category:English"),
-        ]
+    def get_pages_contents(self, titles):
+        contents = {}
+        timestamps = {}
+        pageids = {}
 
-        for root in roots:
-#            ff = PlainFormatter(graph_parents, info)
-            ff = MediaWikiFormatter(graph_parents, info)
-            ff.format_root(root)
-            if isinstance(root, str):
-                for item in self.walk(graph_subcats, root):
+        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", titles="|".join(titles))
+        for page in result["pages"].values():
+            if "revisions" in page:
+                title = page["title"]
+                revision = page["revisions"][0]
+                text = revision["*"]
+                contents[title] = text
+                timestamps[title] = revision["timestamp"]
+                pageids[title] = page["pageid"]
+
+        if set(contents.keys()) != set(titles):
+            logger.error("unable to retrieve content of all pages: pages {} are missing".format(set(titles) - set(contents.keys())))
+
+        return contents, timestamps, pageids
+
+    def extract_translations(self, wikicode):
+        dictionary = LowercaseDict()
+        for wikilink in wikicode.ifilter_wikilinks(recursive=True):
+            # skip catlinks without leading colon
+            if not wikilink.title.startswith(":"):
+                continue
+            title = Title(self.api, wikilink.title)
+            if title.namespace == "Category" and wikilink.text:
+                # skip trivial cases to apply our defaults
+                pure, _ = lang.detect_language(title.pagename)
+                if wikilink.text.lower() != title.pagename.lower() and wikilink.text.lower() != pure.lower():
+                    dictionary[str(title)] = wikilink.text
+        return dictionary
+
+    def save_page(self, title, pageid, text_old, text_new, timestamp):
+        if text_old != text_new:
+            try:
+                self.api.edit(title, pageid, text_new, timestamp, self.cliargs.summary)
+            except APIError as e:
+                pass
+        else:
+            logger.info("Page '{}' is already up to date.".format(title))
+
+    def run(self):
+        if not self.cliargs.anonymous:
+            require_login(self.api)
+
+        # build category graph
+        graph_parents, graph_subcats, info = self.build_graph()
+
+        # detect target pages, fetch content at once
+        contents, timestamps, pageids = self.get_pages_contents(self.titles)
+
+        for title in self.titles:
+            if title not in contents:
+                continue
+
+            wikicode = mwparserfromhell.parse(contents[title])
+
+            # default format is one column in the title's language
+            columns = [lang.tag_for_langname(lang.detect_language(title)[1])]
+            dictionary = LowercaseDict()
+
+            # get div#wiki-scripts-toc-table
+            toc_table = None
+            for table in wikicode.ifilter_tags(matches=lambda node: node.tag == "table"):
+                if table.has("id"):
+                    _id = table.get("id")
+                    if _id.value == "wiki-scripts-toc-table":
+                        toc_table = table
+                        break
+
+            if toc_table is None:
+                if self.cliargs.save is True:
+                    logger.error(
+                            "The wiki page '{}' does not contain the ToC table. "
+                            "Create the following entry point manually: "
+                            "{{| id=\"wiki-scripts-toc-table\"\n|}}".format(title))
+                    continue
+                else:
+                    logger.warning(
+                            "The wiki page '{}' does not contain the ToC table, "
+                            "so there will be no translations.".format(title))
+            else:
+                # parse data-toc-languages attribute
+                try:
+                    _languages = str(toc_table.get("data-toc-languages").value)
+                    columns = _languages.split(",")
+                except ValueError:
+                    toc_table.add("data-toc-languages", value=",".join(columns))
+
+                # extract localized category names (useful even for PlainFormatter)
+                dictionary = self.extract_translations(toc_table.contents)
+
+            if self.cliargs.print:
+                ff = PlainFormatter(graph_parents, info, dictionary)
+            elif self.cliargs.save:
+                ff = MediaWikiFormatter(graph_parents, info, dictionary, include_opening_closing_tokens=False)
+            else:
+                raise NotImplementedError("unknown output action: {}".format(self.cliargs.save))
+
+            roots = ["Category:{}".format(lang.langname_for_tag(c)) for c in columns]
+            ff.format_root(roots)
+            if len(roots) == 1:
+                for item in self.walk(graph_subcats, roots[0]):
                     ff.format_row(item)
-            elif isinstance(root, Iterable):
-                for result in self.compare_trees(graph_subcats, *root):
+            elif len(roots) == 2:
+                for result in self.compare_trees(graph_subcats, *roots):
                     ff.format_row(*result)
-            print(ff)
+            else:
+                logger.error("Cannot compare more than 2 trees at once. Requested: {}".format(columns))
+                continue
+
+            if self.cliargs.print:
+                print("== {} ==\n".format(title))
+                print(ff)
+            elif self.cliargs.save:
+                # TODO: replace content of div#wiki-scripts-toc-table
+                toc_table.contents = str(ff)
+                self.save_page(title, pageids[title], contents[title], str(wikicode), timestamps[title])
 
 
 class BaseFormatter:
-    def __init__(self, parents, info):
+    def __init__(self, parents, info, dictionary):
         self.parents = parents
         self.info = info
+        self.dictionary = dictionary
 
     def format_also_in(self, parents, language):
         # TODO: localize
         return " (also in: {})".format(", ".join(sorted(parents)))
 
     def localize(self, category):
-        # TODO: search in a dictionary
-        return category.split(":", 1)[1]
+        default = lang.detect_language(category.split(":", 1)[1])[0]
+        return self.dictionary.get(category, default)
 
 
 class PlainFormatter(BaseFormatter):
 
-    def __init__(self, parents, info):
-        super().__init__(parents, info)
+    def __init__(self, parents, info, dictionary):
+        super().__init__(parents, info, dictionary)
         self.text = ""
 
     def format_root(self, title):
@@ -206,7 +385,7 @@ class PlainFormatter(BaseFormatter):
         # level
         output += ".".join(str(x + 1) for x in levels)
         # title, number of subpages
-        output += " {} ({})".format(title, self.info[title]["pages"])
+        output += " {} ({})".format(self.localize(title), self.info[title]["pages"])
         # "also in" suffix
         parents = set(self.parents[title]) - {parent}
         if parents:
@@ -228,10 +407,11 @@ class PlainFormatter(BaseFormatter):
 
 class MediaWikiFormatter(BaseFormatter):
 
-    cell_format = "<span style=\"margin-left:{margin}em;\"><small>{levels}</small> {catlink} <small>{info}</small></span>"
+    cell_format = "<span style=\"margin-left:{margin:.3}em;\"><small>{levels}</small> {catlink} <small>{info}</small></span>"
 
-    def __init__(self, parents, info):
-        super().__init__(parents, info)
+    def __init__(self, parents, info, dictionary, include_opening_closing_tokens=True):
+        super().__init__(parents, info, dictionary)
+        self.include_opening_closing_tokens = include_opening_closing_tokens
         self.text = ""
 
     def catlink(self, title):
@@ -270,12 +450,14 @@ class MediaWikiFormatter(BaseFormatter):
         self.text += "|-\n"
 
     def __str__(self):
-        out = "{|\n" + self.text
-        if out.endswith("\n"):
-            out += "|}"
-        else:
-            out += "\n|}"
-        return out
+        if self.include_opening_closing_tokens is True:
+            out = "{|\n" + self.text
+            if out.endswith("\n"):
+                out += "|}"
+            else:
+                out += "\n|}"
+            return out
+        return self.text
 
 
 if __name__ == "__main__":
