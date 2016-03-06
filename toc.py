@@ -100,8 +100,10 @@ class CategoryGraph:
                 graph_parents.setdefault(page["title"], []).extend([cat["title"] for cat in page["categories"]])
                 for cat in page["categories"]:
                     graph_subcats.setdefault(cat["title"], []).append(page["title"])
+            # empty categories don't have the "categoryinfo" field
+            i = info.setdefault(page["title"], {"files": 0, "pages": 0, "subcats": 0, "size": 0})
             if "categoryinfo" in page:
-                info.setdefault(page["title"], {}).update(page["categoryinfo"])
+                i.update(page["categoryinfo"])
         return graph_parents, graph_subcats, info
 
     @staticmethod
