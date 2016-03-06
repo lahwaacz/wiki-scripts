@@ -11,6 +11,23 @@ Unreleased
   indicated by the server responses.
 - Partial interlanguage support for ``update-package-templates.py``: localized
   templates "Broken package link" and "aur-mirror" are respected.
+- Added the :py:mod:`ws.parser_helpers.title` module for parsing titles into
+  ``(iwprefix, namespace, pagename, sectionname)`` and easy manipulation with
+  the parts.
+- Removed :py:meth:`ws.core.api.API.detect_namespace()` in favour of the new
+  :py:class:`Title <ws.parser_helpers.title.Title>` parser.
+- Improved exception logging in :py:meth:`API.edit() <ws.core.api.API.edit>`.
+  Both :py:meth:`ws.core.api.API.edit()` and
+  :py:func:`ws.interactive.edit_interactive()` now take an additional ``title``
+  parameter representing the title of the page being edited.
+- Added support for :py:mod:`WikEdDiff`, an inline-style diff engine with
+  block move support and splitting optimized for MediaWiki markup.
+  :py:mod:`pygments` is now used only as a fallback.
+- The ``link-checker.py`` script has been improved to consider the
+  ``DISPLAYTITLE`` property of pages and links to sections are checked base on
+  the sections existing on the target page.
+- Added ``--connection-max-retries`` and ``--connection-timeout`` options.
+- Added ``toc.py`` script to update the "Table of contents" page on the wiki.
 
 Version 1.0
 -----------
