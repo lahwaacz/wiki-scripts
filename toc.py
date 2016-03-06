@@ -185,7 +185,7 @@ class BaseFormatter:
 
     def format_also_in(self, parents, language):
         # TODO: localize
-        return " (also in: {})".format(", ".join(sorted(parents)))
+        return " (also in {})".format(", ".join(sorted(parents)))
 
     def localize(self, category):
         default = lang.detect_language(category.split(":", 1)[1])[0]
@@ -205,7 +205,8 @@ class PlainFormatter(BaseFormatter):
             # title is a tuple of titles
             for t in title:
                 self.format_root(t)
-            self.text += "----\n"
+            if len(title) > 1:
+                self.text += "----\n"
 
     def format_cell(self, title, parent, levels):
         language = lang.detect_language(title)[1]
@@ -218,6 +219,7 @@ class PlainFormatter(BaseFormatter):
         # "also in" suffix
         parents = set(self.parents[title]) - {parent}
         if parents:
+            parents = [self.localize(cat) for cat in parents]
             output += self.format_also_in(parents, language)
         return output
 
