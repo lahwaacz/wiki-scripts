@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ws.core.rate module &mdash; wiki-scripts 1.0 documentation</title>
+    <title>ws.core.rate module &mdash; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,13 +24,13 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.0 documentation" href="../index.html" />
+    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
     <link rel="up" title="ws.core package" href="ws.core.html" />
     <link rel="next" title="ws.parser_helpers package" href="ws.parser_helpers.html" />
     <link rel="prev" title="ws.core.lazy module" href="ws.core.lazy.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -46,14 +46,14 @@
 <p>The original algorithm comes from this <a class="reference external" href="http://stackoverflow.com/a/6415181">StackOverflow answer</a> and has been modified
 to apply longer timeout when the rate limit is exceeded.</p>
 <p>Usage as Python decorator:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># allow at most 10 calls in 2 seconds</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># allow at most 10 calls in 2 seconds</span>
 <span class="nd">@RateLimited</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">PrintNumber</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
     <span class="k">print</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Or at runtime by wrapping the function call:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># allow at most 10 calls in 2 seconds</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># allow at most 10 calls in 2 seconds</span>
 <span class="n">wrapped</span> <span class="o">=</span> <span class="n">RateLimited</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)(</span><span class="n">PrintNumber</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -115,8 +115,8 @@ to apply longer timeout when the rate limit is exceeded.</p>
       &copy;2014-2015, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
       |
       <a href="../_sources/ws/ws.core.rate.txt"

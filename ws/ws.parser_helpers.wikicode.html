@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ws.parser_helpers.wikicode module &mdash; wiki-scripts 1.0 documentation</title>
+    <title>ws.parser_helpers.wikicode module &mdash; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,13 +24,13 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.0 documentation" href="../index.html" />
+    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
     <link rel="up" title="ws.parser_helpers package" href="ws.parser_helpers.html" />
     <link rel="next" title="ws.config module" href="ws.config.html" />
-    <link rel="prev" title="ws.parser_helpers.encodings module" href="ws.parser_helpers.encodings.html" />
+    <link rel="prev" title="ws.parser_helpers.title module" href="ws.parser_helpers.title.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -51,8 +51,8 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>wikicode</strong> &#8211; a <code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code> object</li>
-<li><strong>node</strong> &#8211; a <code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.nodes.Node</span></code> object</li>
+<li><strong>wikicode</strong> &#8211; a <a class="reference external" href="https://mwparserfromhell.readthedocs.org/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object</li>
+<li><strong>node</strong> &#8211; a <a class="reference external" href="https://mwparserfromhell.readthedocs.org/en/latest/api/mwparserfromhell.nodes.html#mwparserfromhell.nodes.Node" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.nodes.Node</span></code></a> object</li>
 <li><strong>ignore_whitespace</strong> &#8211; When True, the whitespace between <cite>node</cite> and the
 node being returned is ignored, i.e. the returned object is
 guaranteed to not be an all white space text, but it can still be a
@@ -60,7 +60,7 @@ text with leading space.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a <code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.nodes.Node</span></code> object or None if <cite>node</cite>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a <a class="reference external" href="https://mwparserfromhell.readthedocs.org/en/latest/api/mwparserfromhell.nodes.html#mwparserfromhell.nodes.Node" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.nodes.Node</span></code></a> object or None if <cite>node</cite>
 is the last object in <cite>wikicode</cite></p>
 </td>
 </tr>
@@ -72,13 +72,46 @@ is the last object in <cite>wikicode</cite></p>
 <dt id="ws.parser_helpers.wikicode.get_parent_wikicode">
 <code class="descclassname">ws.parser_helpers.wikicode.</code><code class="descname">get_parent_wikicode</code><span class="sig-paren">(</span><em>wikicode</em>, <em>node</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.wikicode.get_parent_wikicode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the parent of <cite>node</cite> as a <cite>wikicode</cite> object.
-Raises <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.4)"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code></a> if <cite>node</cite> is not a descendant of <cite>wikicode</cite>.</p>
+Raises <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.5)"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code></a> if <cite>node</cite> is not a descendant of <cite>wikicode</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="ws.parser_helpers.wikicode.remove_and_squash">
 <code class="descclassname">ws.parser_helpers.wikicode.</code><code class="descname">remove_and_squash</code><span class="sig-paren">(</span><em>wikicode</em>, <em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.wikicode.remove_and_squash" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove <cite>obj</cite> from <cite>wikicode</cite> and fix whitespace in the place it was removed from.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ws.parser_helpers.wikicode.get_section_headings">
+<code class="descclassname">ws.parser_helpers.wikicode.</code><code class="descname">get_section_headings</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.wikicode.get_section_headings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts section headings from given text. Custom regular expression is used
+instead of <code class="xref py py-mod docutils literal"><span class="pre">mwparserfromhell</span></code> for performance reasons.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; content of the wiki page</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of section headings (without the <code class="docutils literal"><span class="pre">=</span></code> marks)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ws.parser_helpers.wikicode.get_anchors">
+<code class="descclassname">ws.parser_helpers.wikicode.</code><code class="descname">get_anchors</code><span class="sig-paren">(</span><em>headings</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.wikicode.get_anchors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts section headings to anchors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>headings</strong> (<a class="reference internal" href="ws.core.api.html#ws.core.api.API.list" title="ws.core.api.API.list"><em>list</em></a>) &#8211; section headings (obtained e.g. with <a class="reference internal" href="#ws.parser_helpers.wikicode.get_section_headings" title="ws.parser_helpers.wikicode.get_section_headings"><code class="xref py py-func docutils literal"><span class="pre">get_section_headings()</span></code></a>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of section anchors (i.e. dot-encoded)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -98,7 +131,7 @@ Raises <a class="reference external" href="https://docs.python.org/3/library/exc
   <li><a href="../modules.html">API reference</a><ul>
   <li><a href="ws.html">ws package</a><ul>
   <li><a href="ws.parser_helpers.html">ws.parser_helpers package</a><ul>
-      <li>Previous: <a href="ws.parser_helpers.encodings.html" title="previous chapter">ws.parser_helpers.encodings module</a></li>
+      <li>Previous: <a href="ws.parser_helpers.title.html" title="previous chapter">ws.parser_helpers.title module</a></li>
       <li>Next: <a href="ws.config.html" title="next chapter">ws.config module</a></li>
   </ul></li>
   </ul></li>
@@ -134,8 +167,8 @@ Raises <a class="reference external" href="https://docs.python.org/3/library/exc
       &copy;2014-2015, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
       |
       <a href="../_sources/ws/ws.parser_helpers.wikicode.txt"

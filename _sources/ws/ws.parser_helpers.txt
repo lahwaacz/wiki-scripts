@@ -12,5 +12,6 @@ Submodules
 .. toctree::
 
    ws.parser_helpers.encodings
+   ws.parser_helpers.title
    ws.parser_helpers.wikicode
 

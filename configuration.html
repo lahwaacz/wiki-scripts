@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Configuration &mdash; wiki-scripts 1.0 documentation</title>
+    <title>Configuration &mdash; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,12 +24,12 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.0 documentation" href="index.html" />
+    <link rel="top" title="wiki-scripts 1.1 documentation" href="index.html" />
     <link rel="next" title="Writing new scripts" href="tutorial.html" />
     <link rel="prev" title="wiki-scripts documentation" href="index.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -46,7 +46,7 @@ the <code class="docutils literal"><span class="pre">ws.config</span></code> sub
 <a class="reference external" href="https://github.com/kynikos/lib.py.configfile">configfile</a> libraries.</p>
 <p>All options can be passed as command line arguments, the special <code class="docutils literal"><span class="pre">--help</span></code> option
 prints all available options for a script:</p>
-<div class="code highlight-python"><div class="highlight"><pre>$ python print-namespaces.py -h
+<div class="code highlight-python"><div class="highlight"><pre><span></span>$ python print-namespaces.py -h
 ...
 
 optional arguments:
@@ -114,7 +114,7 @@ to allow better flexibility over setting all options in the top-level section.
 The <code class="docutils literal"><span class="pre">--site</span></code> argument specifies the section to be read from the configuration
 file, e.g. <code class="docutils literal"><span class="pre">--site</span> <span class="pre">ArchWiki</span></code> selects the <code class="docutils literal"><span class="pre">[ArchWiki]</span></code> section. This allows
 maintaining a configuration file for multiple sites, for example</p>
-<div class="highlight-ini"><div class="highlight"><pre><span class="na">site</span> <span class="o">=</span> <span class="s">ArchWiki-de</span>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">site</span> <span class="o">=</span> <span class="s">ArchWiki-de</span>
 
 <span class="k">[ArchWiki]</span>
 <span class="na">api-url</span> <span class="o">=</span> <span class="s">https://wiki.archlinux.org/api.php</span>
@@ -131,7 +131,7 @@ line.</p>
 <p>To override the site options on a per-script basis, it is possible to create a
 <code class="docutils literal"><span class="pre">[sitename.scriptname]</span></code> subsections, which inherit all options from the parent
 section. For example:</p>
-<div class="highlight-ini"><div class="highlight"><pre><span class="na">site</span> <span class="o">=</span> <span class="s">ArchWiki</span>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">site</span> <span class="o">=</span> <span class="s">ArchWiki</span>
 
 <span class="k">[ArchWiki]</span>
 <span class="na">api-url</span> <span class="o">=</span> <span class="s">https://wiki.archlinux.org/api.php</span>
@@ -144,7 +144,7 @@ section. For example:</p>
 </div>
 <p>To avoid duplicating option values, <a class="reference external" href="https://github.com/kynikos/lib.py.configfile">configfile</a> supports sharing common parts
 with the <a class="reference external" href="https://kynikos.github.io/lib.py.configfile/#interpolation">interpolation syntax</a>. The previous example can be simplified into:</p>
-<div class="highlight-ini"><div class="highlight"><pre><span class="na">site</span> <span class="o">=</span> <span class="s">ArchWiki</span>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">site</span> <span class="o">=</span> <span class="s">ArchWiki</span>
 
 <span class="na">cache-dir</span> <span class="o">=</span> <span class="s">~/.cache/wiki-scripts/</span>
 
@@ -214,8 +214,8 @@ with the <a class="reference external" href="https://kynikos.github.io/lib.py.co
       &copy;2014-2015, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
       |
       <a href="_sources/configuration.txt"

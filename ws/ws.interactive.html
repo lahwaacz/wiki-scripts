@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ws.interactive module &mdash; wiki-scripts 1.0 documentation</title>
+    <title>ws.interactive module &mdash; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,13 +24,13 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.0 documentation" href="../index.html" />
+    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
     <link rel="up" title="ws package" href="ws.html" />
     <link rel="next" title="ws.logging module" href="ws.logging.html" />
     <link rel="prev" title="ws.dump module" href="ws.dump.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -62,13 +62,44 @@ credentials.</p>
 <dl class="exception">
 <dt id="ws.interactive.InteractiveQuit">
 <em class="property">exception </em><code class="descclassname">ws.interactive.</code><code class="descname">InteractiveQuit</code><a class="headerlink" href="#ws.interactive.InteractiveQuit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
 <p>Raised when the user specified <code class="docutils literal"><span class="pre">quit</span></code> on the interactive prompt.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="ws.interactive.edit_interactive">
-<code class="descclassname">ws.interactive.</code><code class="descname">edit_interactive</code><span class="sig-paren">(</span><em>api</em>, <em>pageid</em>, <em>text_old</em>, <em>text_new</em>, <em>basetimestamp</em>, <em>summary</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interactive.edit_interactive" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ws.interactive.</code><code class="descname">edit_interactive</code><span class="sig-paren">(</span><em>api</em>, <em>title</em>, <em>pageid</em>, <em>text_old</em>, <em>text_new</em>, <em>basetimestamp</em>, <em>summary</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interactive.edit_interactive" title="Permalink to this definition">¶</a></dt>
+<dd><p>A routine for interactive editing. Presents differences between the two
+revisions highlighted using <a class="reference internal" href="ws.diff.html#ws.diff.diff_highlighted" title="ws.diff.diff_highlighted"><code class="xref py py-func docutils literal"><span class="pre">ws.diff.diff_highlighted()</span></code></a> and an
+interactive prompt to let the user decide what to do next:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">y</span></code> accepts the edit and calls <a class="reference internal" href="ws.core.api.html#ws.core.api.API.edit" title="ws.core.api.API.edit"><code class="xref py py-meth docutils literal"><span class="pre">API.edit</span></code></a>.</li>
+<li><code class="docutils literal"><span class="pre">n</span></code> discards the edit.</li>
+<li><code class="docutils literal"><span class="pre">q</span></code> will raise <a class="reference internal" href="#ws.interactive.InteractiveQuit" title="ws.interactive.InteractiveQuit"><code class="xref py py-exc docutils literal"><span class="pre">InteractiveQuit</span></code></a> exception to let the calling
+program know that it should quit.</li>
+<li><code class="docutils literal"><span class="pre">e</span></code> will open the revisions in an external merge program (configurable
+by the <code class="docutils literal"><span class="pre">$DIFFPROG</span></code> environment variable, defaults to <code class="docutils literal"><span class="pre">vimdiff</span></code>).</li>
+<li><code class="docutils literal"><span class="pre">?</span></code> will print brief legend and repeat the highlighted diff and prompt.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>api</strong> &#8211; a <code class="xref py py-class docutils literal"><span class="pre">MediaWiki.api.API</span></code> instance to operate on</li>
+<li><strong>text_old</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; old page content</li>
+<li><strong>text_new</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; new page content</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Other parameters are the same as for <a class="reference internal" href="ws.core.api.html#ws.core.api.API.edit" title="ws.core.api.API.edit"><code class="xref py py-meth docutils literal"><span class="pre">ws.core.api.API.edit()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ws.interactive.ask_yesno">
+<code class="descclassname">ws.interactive.</code><code class="descname">ask_yesno</code><span class="sig-paren">(</span><em>question</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interactive.ask_yesno" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -122,8 +153,8 @@ credentials.</p>
       &copy;2014-2015, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
       |
       <a href="../_sources/ws/ws.interactive.txt"

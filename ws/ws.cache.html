@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ws.cache package &mdash; wiki-scripts 1.0 documentation</title>
+    <title>ws.cache package &mdash; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,13 +24,13 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.0 documentation" href="../index.html" />
+    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
     <link rel="up" title="ws package" href="ws.html" />
     <link rel="next" title="ws.cache.AllRevisionsProps module" href="ws.cache.AllRevisionsProps.html" />
     <link rel="prev" title="ws.ArchWiki.lang module" href="ws.ArchWiki.lang.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -45,11 +45,11 @@
 <dl class="class">
 <dt id="ws.cache.CacheDb">
 <em class="property">class </em><code class="descclassname">ws.cache.</code><code class="descname">CacheDb</code><span class="sig-paren">(</span><em>api</em>, <em>cache_dir</em>, <em>dbname</em>, <em>autocommit=True</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Base class for caching databases. The database is saved on disk in the
 gzipped JSON format. The data is represented by the <a class="reference internal" href="#ws.cache.CacheDb.data" title="ws.cache.CacheDb.data"><code class="xref py py-attr docutils literal"><span class="pre">data</span></code></a>
 structure, whose type depends on the implementation in each subclass
-(generally a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">list</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">dict</span></code></a>). There is also a
+(generally a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">list</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">dict</span></code></a>). There is also a
 <a class="reference internal" href="#ws.cache.CacheDb.meta" title="ws.cache.CacheDb.meta"><code class="xref py py-attr docutils literal"><span class="pre">meta</span></code></a> structure holding the meta data such as timestamp of the
 last update.</p>
 <p>The data elements can be accessed using the subscript syntax <code class="docutils literal"><span class="pre">db[&quot;key&quot;]</span></code>,
@@ -62,8 +62,8 @@ trigger an update.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>api</strong> (<a class="reference internal" href="ws.core.api.html#ws.core.api.API" title="ws.core.api.API"><em>ws.core.api.API</em></a>) &#8211; an instance of the API to work with</li>
-<li><strong>dbname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; a name of the database, usually the name of the subclass</li>
-<li><strong>autocommit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.4)"><em>bool</em></a>) &#8211; whether to automatically call <a class="reference internal" href="#ws.cache.CacheDb.dump" title="ws.cache.CacheDb.dump"><code class="xref py py-meth docutils literal"><span class="pre">dump()</span></code></a> after each update of
+<li><strong>dbname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; a name of the database, usually the name of the subclass</li>
+<li><strong>autocommit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.5)"><em>bool</em></a>) &#8211; whether to automatically call <a class="reference internal" href="#ws.cache.CacheDb.dump" title="ws.cache.CacheDb.dump"><code class="xref py py-meth docutils literal"><span class="pre">dump()</span></code></a> after each update of
 the database</li>
 </ul>
 </td>
@@ -189,7 +189,7 @@ initialized. Can be ignored in case of single-key databases.</td>
 <dl class="exception">
 <dt id="ws.cache.CacheDbError">
 <em class="property">exception </em><code class="descclassname">ws.cache.</code><code class="descname">CacheDbError</code><a class="headerlink" href="#ws.cache.CacheDbError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
 <p>Raised on database errors, e.g. when loading from disk failed.</p>
 </dd></dl>
 
@@ -452,8 +452,8 @@ Internally functions as the database key.</td>
       &copy;2014-2015, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
       |
       <a href="../_sources/ws/ws.cache.txt"

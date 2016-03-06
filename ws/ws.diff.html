@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ws.diff module &mdash; wiki-scripts 1.0 documentation</title>
+    <title>ws.diff module &mdash; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,13 +24,13 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.0 documentation" href="../index.html" />
+    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
     <link rel="up" title="ws package" href="ws.html" />
     <link rel="next" title="ws.dump module" href="ws.dump.html" />
     <link rel="prev" title="ws.config module" href="ws.config.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -45,14 +45,17 @@
 <dl class="function">
 <dt id="ws.diff.diff_highlighted">
 <code class="descclassname">ws.diff.</code><code class="descname">diff_highlighted</code><span class="sig-paren">(</span><em>old</em>, <em>new</em>, <em>fromfile=''</em>, <em>tofile=''</em>, <em>fromfiledate=''</em>, <em>tofiledate=''</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.diff.diff_highlighted" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generic wrapper around <a class="reference external" href="https://docs.python.org/3/library/difflib.html#difflib.unified_diff" title="(in Python v3.4)"><code class="xref py py-func docutils literal"><span class="pre">difflib.unified_diff()</span></code></a> with highlighter based
-on <code class="xref py py-mod docutils literal"><span class="pre">pygments</span></code>.</p>
-<p>See <a class="reference external" href="https://docs.python.org/3/library/difflib.html#difflib.unified_diff">difflib.unified_diff</a> for description of optional parameters.</p>
+<dd><p>Returns a diff between two texts formatted with ANSI color sequences
+suitable for output in 256-color terminal.</p>
+<p>When available, the <code class="xref py py-mod docutils literal"><span class="pre">WikEdDiff</span></code> library and its
+<code class="xref py py-class docutils literal"><span class="pre">AnsiFormatter</span></code> is used. Otherwise the <a class="reference external" href="https://docs.python.org/3/library/difflib.html#module-difflib" title="(in Python v3.5)"><code class="xref py py-mod docutils literal"><span class="pre">difflib</span></code></a>
+module from the standard library is used to generate the diff in unified
+format and <code class="xref py py-mod docutils literal"><span class="pre">pygments</span></code> is used (when available) as the highlighter.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>old</strong> &#8211; text to compare (old revision)</li>
 <li><strong>new</strong> &#8211; text to compare (new revision)</li>
 <li><strong>fromfile</strong> &#8211; original file name (used as meta data to format diff header)</li>
@@ -62,6 +65,9 @@ on <code class="xref py py-mod docutils literal"><span class="pre">pygments</spa
 </ul>
 </td>
 </tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">diff formatted with ANSI color sequences</p>
+</td>
+</tr>
 </tbody>
 </table>
 </dd></dl>
@@ -69,7 +75,7 @@ on <code class="xref py py-mod docutils literal"><span class="pre">pygments</spa
 <dl class="class">
 <dt id="ws.diff.RevisionDiffer">
 <em class="property">class </em><code class="descclassname">ws.diff.</code><code class="descname">RevisionDiffer</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.diff.RevisionDiffer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Object for comparing revisions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -154,8 +160,8 @@ timestamp fields, we show more.</p>
       &copy;2014-2015, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
       |
       <a href="../_sources/ws/ws.diff.txt"

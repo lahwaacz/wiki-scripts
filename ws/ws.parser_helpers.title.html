@@ -1,0 +1,300 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ws.parser_helpers.title module &mdash; wiki-scripts 1.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
+    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
+    <link rel="up" title="ws.parser_helpers package" href="ws.parser_helpers.html" />
+    <link rel="next" title="ws.parser_helpers.wikicode module" href="ws.parser_helpers.wikicode.html" />
+    <link rel="prev" title="ws.parser_helpers.encodings module" href="ws.parser_helpers.encodings.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ws.parser_helpers.title">
+<span id="ws-parser-helpers-title-module"></span><h1>ws.parser_helpers.title module<a class="headerlink" href="#module-ws.parser_helpers.title" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="ws.parser_helpers.title.canonicalize">
+<code class="descclassname">ws.parser_helpers.title.</code><code class="descname">canonicalize</code><span class="sig-paren">(</span><em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.canonicalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a canonical form of the title, that is:</p>
+<ul class="simple">
+<li>underscores are replaced with spaces,</li>
+<li>leading and trailing whitespace is stripped,</li>
+<li>consecutive spaces are squashed,</li>
+<li>first letter is capitalized.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The interwiki and namespace prefixes are not split, canonicalization
+is applied to the passed title as a whole.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> &#8211; a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or <a class="reference external" href="https://mwparserfromhell.readthedocs.org/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="ws.parser_helpers.title.Title">
+<em class="property">class </em><code class="descclassname">ws.parser_helpers.title.</code><code class="descname">Title</code><span class="sig-paren">(</span><em>api</em>, <em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>A helper class intended for easy manipulation with wiki titles. Title
+parsing complies to the rules used in <a class="reference external" href="https://www.mediawiki.org/wiki/Manual:Title.php#Title_structure">MediaWiki code</a> and the interface is
+inspired by the <a class="reference external" href="https://www.mediawiki.org/wiki/Help:Magic_words#Page_names">magic words</a>. Besides namespace detection, we also parse
+interwiki prefixes, which is useful for parsing the wiki links on lower
+level than what <code class="xref py py-mod docutils literal"><span class="pre">mwparserfromhell</span></code> provides (it does not take the
+wiki configuration into account). The functionality depends on the
+<a class="reference internal" href="ws.core.api.html#ws.core.api.API" title="ws.core.api.API"><code class="xref py py-class docutils literal"><span class="pre">API</span></code></a> class for the validation of interwiki and
+namespace prefixes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>api</strong> &#8211; an <a class="reference internal" href="ws.core.api.html#ws.core.api.API" title="ws.core.api.API"><code class="xref py py-class docutils literal"><span class="pre">API</span></code></a> instance</li>
+<li><strong>title</strong> &#8211; a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or <a class="reference external" href="https://mwparserfromhell.readthedocs.org/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ws.parser_helpers.title.Title.parse">
+<code class="descname">parse</code><span class="sig-paren">(</span><em>full_title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits the title into <code class="docutils literal"><span class="pre">(iwprefix,</span> <span class="pre">namespace,</span> <span class="pre">pagename,</span> <span class="pre">sectionname)</span></code>
+parts and canonicalizes them. Can be used to set these attributes from
+a string of full title instead of creating new instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; The full title to be parsed.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.parser_helpers.title.Title._format">
+<code class="descname">_format</code><span class="sig-paren">(</span><em>pre</em>, <em>mid</em>, <em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title._format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.namespacenumber">
+<code class="descname">namespacenumber</code><a class="headerlink" href="#ws.parser_helpers.title.Title.namespacenumber" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal"><span class="pre">{{NAMESPACENUMBER}}</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.articlespace">
+<code class="descname">articlespace</code><a class="headerlink" href="#ws.parser_helpers.title.Title.articlespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal"><span class="pre">{{ARTICLESPACE}}</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.talkspace">
+<code class="descname">talkspace</code><a class="headerlink" href="#ws.parser_helpers.title.Title.talkspace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal"><span class="pre">{{TALKSPACE}}</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.fullpagename">
+<code class="descname">fullpagename</code><a class="headerlink" href="#ws.parser_helpers.title.Title.fullpagename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal"><span class="pre">{{FULLPAGENAME}}</span></code>, but also includes interwiki prefix (if any).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.basepagename">
+<code class="descname">basepagename</code><a class="headerlink" href="#ws.parser_helpers.title.Title.basepagename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal"><span class="pre">{{BASEPAGENAME}}</span></code>, drops the interwiki and namespace prefixes
+and the rightmost subpage level.</p>
+<dl class="docutils">
+<dt>:note::</dt>
+<dd>The <code class="docutils literal"><span class="pre">$wgNamespacesWithSubpages</span></code> option is ignored (not available
+via API anyway), the property behaves as if subpages were enabled
+for all namespaces.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.subpagename">
+<code class="descname">subpagename</code><a class="headerlink" href="#ws.parser_helpers.title.Title.subpagename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal"><span class="pre">{{SUBPAGENAME}}</span></code>, returns the rightmost subpage level.</p>
+<dl class="docutils">
+<dt>:note::</dt>
+<dd>The <code class="docutils literal"><span class="pre">$wgNamespacesWithSubpages</span></code> option is ignored (not available
+via API anyway), the property behaves as if subpages were enabled
+for all namespaces.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.rootpagename">
+<code class="descname">rootpagename</code><a class="headerlink" href="#ws.parser_helpers.title.Title.rootpagename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal"><span class="pre">{{ROOTPAGENAME}}</span></code>, drops the interwiki and namespace prefixes
+and all subpages.</p>
+<dl class="docutils">
+<dt>:note::</dt>
+<dd>The <code class="docutils literal"><span class="pre">$wgNamespacesWithSubpages</span></code> option is ignored (not available
+via API anyway), the property behaves as if subpages were enabled
+for all namespaces.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.articlepagename">
+<code class="descname">articlepagename</code><a class="headerlink" href="#ws.parser_helpers.title.Title.articlepagename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal"><span class="pre">{{ARTICLEPAGENAME}}</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.talkpagename">
+<code class="descname">talkpagename</code><a class="headerlink" href="#ws.parser_helpers.title.Title.talkpagename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal"><span class="pre">{{TALKPAGENAME}}</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.iwprefix">
+<code class="descname">iwprefix</code><a class="headerlink" href="#ws.parser_helpers.title.Title.iwprefix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The interwiki prefix of the title.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.namespace">
+<code class="descname">namespace</code><a class="headerlink" href="#ws.parser_helpers.title.Title.namespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal"><span class="pre">{{NAMESPACE}}</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.pagename">
+<code class="descname">pagename</code><a class="headerlink" href="#ws.parser_helpers.title.Title.pagename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal"><span class="pre">{{PAGENAME}}</span></code>, drops the interwiki and namespace prefixes.
+The section anchor is not included. Other <code class="docutils literal"><span class="pre">*pagename</span></code> attributes are
+based on this attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.sectionname">
+<code class="descname">sectionname</code><a class="headerlink" href="#ws.parser_helpers.title.Title.sectionname" title="Permalink to this definition">¶</a></dt>
+<dd><p>The section anchor, usable in wiki links. It is passed through the
+<code class="xref py py-func docutils literal"><span class="pre">ws.parser_helpers.encodings._anchor_preprocess()</span></code> function,
+but it is not anchor-encoded nor decoded.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Section anchors on MediaWiki are usually encoded (see
+<a class="reference internal" href="ws.parser_helpers.encodings.html#ws.parser_helpers.encodings.dotencode" title="ws.parser_helpers.encodings.dotencode"><code class="xref py py-func docutils literal"><span class="pre">ws.parser_helpers.encodings.dotencode()</span></code></a>), but decoding is
+ambiguous due to whitespace squashing and the fact that the escape
+character itself (i.e. the dot) is not encoded even when followed by
+two hex characters. As a result, the canonical form of the anchor
+cannot be determined without comparing to the existing sections of
+the target page.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/wiki-scripts.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../modules.html">API reference</a><ul>
+  <li><a href="ws.html">ws package</a><ul>
+  <li><a href="ws.parser_helpers.html">ws.parser_helpers package</a><ul>
+      <li>Previous: <a href="ws.parser_helpers.encodings.html" title="previous chapter">ws.parser_helpers.encodings module</a></li>
+      <li>Next: <a href="ws.parser_helpers.wikicode.html" title="next chapter">ws.parser_helpers.wikicode module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/ws/ws.parser_helpers.title.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014-2015, Jakub Klinkovský.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="../_sources/ws/ws.parser_helpers.title.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/lahwaacz/wiki-scripts" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

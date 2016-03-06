@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ws.ArchWiki.header module &mdash; wiki-scripts 1.0 documentation</title>
+    <title>ws.ArchWiki.header module &mdash; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,13 +24,13 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.0 documentation" href="../index.html" />
+    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
     <link rel="up" title="ws.ArchWiki package" href="ws.ArchWiki.html" />
     <link rel="next" title="ws.ArchWiki.lang module" href="ws.ArchWiki.lang.html" />
     <link rel="prev" title="ws.ArchWiki package" href="ws.ArchWiki.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -45,7 +45,7 @@
 <dl class="exception">
 <dt id="ws.ArchWiki.header.HeaderError">
 <em class="property">exception </em><code class="descclassname">ws.ArchWiki.header.</code><code class="descname">HeaderError</code><a class="headerlink" href="#ws.ArchWiki.header.HeaderError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
 </dd></dl>
 
 <dl class="function">
@@ -68,7 +68,7 @@
 <p>Only 1-3 are safe to be updated automatically. This function will extract
 the header parts from the wikicode and return them as tuple
 <code class="docutils literal"><span class="pre">(parent,</span> <span class="pre">magics,</span> <span class="pre">cats,</span> <span class="pre">langlinks)</span></code>, where <code class="docutils literal"><span class="pre">parent</span></code> is an instance of
-<code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code> containing all extracted
+<a class="reference external" href="https://mwparserfromhell.readthedocs.org/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> containing all extracted
 elements. It is assumed that all header elements are children of the same
 parent node, otherwise <a class="reference internal" href="#ws.ArchWiki.header.HeaderError" title="ws.ArchWiki.header.HeaderError"><code class="xref py py-exc docutils literal"><span class="pre">HeaderError</span></code></a> is raised.</p>
 <p>If <code class="docutils literal"><span class="pre">remove_from_parent</span></code> is <code class="docutils literal"><span class="pre">True</span></code>, the extracted header elements  are
@@ -154,8 +154,8 @@ preserved.</p>
       &copy;2014-2015, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
       |
       <a href="../_sources/ws/ws.ArchWiki.header.txt"
