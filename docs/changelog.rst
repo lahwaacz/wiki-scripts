@@ -1,11 +1,17 @@
 Changelog
 =========
 
-Version 1.1
+Version 1.2
 -----------
 
 Unreleased
-(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.0...master>`__)
+(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.1...master>`__)
+
+Version 1.1
+-----------
+
+`Released March 6, 2016 <https://github.com/lahwaacz/wiki-scripts/tree/1.0>`_
+(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.0...1.1>`__)
 
 - Fixed handling of ``csrftoken``, it is now cached and automatically renewed as
   indicated by the server responses.
