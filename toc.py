@@ -370,8 +370,10 @@ class TableOfContents:
                 timestamps[title] = revision["timestamp"]
                 pageids[title] = page["pageid"]
 
-        if set(contents.keys()) != set(titles):
-            logger.error("unable to retrieve content of all pages: pages {} are missing".format(set(titles) - set(contents.keys())))
+        titles = set(titles)
+        retrieved = set(contents.keys())
+        if retrieved != titles:
+            logger.error("unable to retrieve content of all pages: pages {} are missing, retrieved {}".format(titles - retrieved, retrieved))
 
         return contents, timestamps, pageids
 
