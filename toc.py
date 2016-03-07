@@ -8,7 +8,7 @@ import mwparserfromhell
 
 from ws.core import API
 from ws.interactive import require_login
-from ws.parser_helpers.title import Title
+from ws.parser_helpers.title import canonicalize, Title
 import ws.ArchWiki.lang as lang
 
 
@@ -307,7 +307,7 @@ class TableOfContents:
         if len(self.cliargs.toc_languages) == 1 and self.cliargs.toc_languages[0] == "all":
             self.cliargs.toc_languages = lang.get_internal_tags()
         # strip "(Language)" suffix
-        self.cliargs.toc_page = lang.detect_language(self.cliargs.toc_page)[0]
+        self.cliargs.toc_page = lang.detect_language(canonicalize(self.cliargs.toc_page))[0]
 
         # detect page titles
         self.titles = []
