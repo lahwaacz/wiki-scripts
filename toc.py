@@ -178,24 +178,28 @@ class CategoryGraph:
 
 
 class BaseFormatter:
-    def __init__(self, parents, info, dictionary):
+    def __init__(self, parents, info, category_names, alsoin=None):
         self.parents = parents
         self.info = info
-        self.dictionary = dictionary
+        self.category_names = category_names
+        if alsoin is None:
+            alsoin = {}
+        alsoin.setdefault("en", "also in")
+        self.alsoin = alsoin
 
-    def format_also_in(self, parents, language):
-        # TODO: localize
-        return " (also in {})".format(", ".join(sorted(parents)))
+    def format_also_in(self, parents, lang_tag):
+        alsoin = self.alsoin.get(lang_tag, self.alsoin["en"])
+        return " ({alsoin} {categories})".format(alsoin=alsoin, categories=", ".join(sorted(parents)))
 
     def localize(self, category):
         default = lang.detect_language(category.split(":", 1)[1])[0]
-        return self.dictionary.get(category, default)
+        return self.category_names.get(category, default)
 
 
 class PlainFormatter(BaseFormatter):
 
-    def __init__(self, parents, info, dictionary):
-        super().__init__(parents, info, dictionary)
+    def __init__(self, parents, info, category_names, alsoin=None):
+        super().__init__(parents, info, category_names, alsoin)
         self.text = ""
 
     def format_root(self, title):
@@ -209,7 +213,7 @@ class PlainFormatter(BaseFormatter):
                 self.text += "----\n"
 
     def format_cell(self, title, parent, levels):
-        language = lang.detect_language(title)[1]
+        lang_tag = lang.tag_for_langname(lang.detect_language(title)[1])
         # indent
         output = " " * len(levels) * 4
         # level
@@ -220,7 +224,7 @@ class PlainFormatter(BaseFormatter):
         parents = set(self.parents[title]) - {parent}
         if parents:
             parents = [self.localize(cat) for cat in parents]
-            output += self.format_also_in(parents, language)
+            output += self.format_also_in(parents, lang_tag)
         return output
 
     def format_row(self, *columns):
@@ -241,8 +245,8 @@ class MediaWikiFormatter(BaseFormatter):
     cell_format = "<span style=\"margin-left:{margin:.3}em;\"><small>{levels}</small> {catlink} <small>{info}</small></span>"
     rtl_languages = {"العربية"}
 
-    def __init__(self, parents, info, dictionary, include_opening_closing_tokens=True):
-        super().__init__(parents, info, dictionary)
+    def __init__(self, parents, info, category_names, alsoin=None, include_opening_closing_tokens=True):
+        super().__init__(parents, info, category_names, alsoin)
         self.include_opening_closing_tokens = include_opening_closing_tokens
         self.text = ""
 
@@ -263,7 +267,7 @@ class MediaWikiFormatter(BaseFormatter):
             self.text += "|-\n"
 
     def format_cell(self, title, parent, levels):
-        language = lang.detect_language(title)[1]
+        lang_tag = lang.tag_for_langname(lang.detect_language(title)[1])
         margin = 1.6 * len(levels)
         lev = ".".join(str(x + 1) for x in levels) + "."
         info = "({})".format(self.info[title]["pages"])
@@ -271,7 +275,7 @@ class MediaWikiFormatter(BaseFormatter):
         parents = set(self.parents[title]) - {parent}
         if parents:
             parents = [self.catlink(cat) for cat in parents]
-            info += self.format_also_in(parents, language)
+            info += self.format_also_in(parents, lang_tag)
         return self.cell_format.format(margin=margin, levels=lev, catlink=self.catlink(title), info=info)
 
     def format_row(self, *columns):
@@ -381,7 +385,8 @@ class TableOfContents:
         toc_table = None
         # default format is one column in the title's language
         columns = [lang.tag_for_langname(lang.detect_language(title)[1])]
-        dictionary = LowercaseDict()
+        category_names = LowercaseDict()
+        alsoin = {}
 
         for table in wikicode.ifilter_tags(matches=lambda node: node.tag == "table"):
             if table.has("id"):
@@ -398,10 +403,33 @@ class TableOfContents:
             except ValueError:
                 toc_table.add("data-toc-languages", value=",".join(columns))
 
-            # extract localized category names (useful even for PlainFormatter)
-            dictionary = self.extract_translations(toc_table.contents)
+            # parse data-toc-alsoin attribute
+            if toc_table.has("data-toc-alsoin"):
+                alsoin = self.parse_alsoin(title, str(toc_table.get("data-toc-alsoin").value))
+            elif columns != ["en"]:
+                logger.warning("Page '{}': missing 'also in' translations".format(title))
 
-        return toc_table, columns, dictionary
+            # extract localized category names (useful even for PlainFormatter)
+            category_names = self.extract_translations(toc_table.contents)
+
+        return toc_table, columns, category_names, alsoin
+
+    def parse_alsoin(self, title, value):
+        alsoin = {}
+        for item in value.split(","):
+            item = item.strip()
+            try:
+                tag, translation = item.split(":", maxsplit=1)
+                tag = tag.strip()
+                translation = translation.strip()
+                if not lang.is_language_tag(tag):
+                    raise ValueError
+            except ValueError:
+                tag = lang.tag_for_langname(lang.detect_language(title)[1])
+                translation = item
+            alsoin[tag] = translation
+        logger.debug("Page '{}': parsed data-toc-alsoin = {}".format(title, alsoin))
+        return alsoin
 
     def extract_translations(self, wikicode):
         dictionary = LowercaseDict()
@@ -442,7 +470,7 @@ class TableOfContents:
                 continue
 
             wikicode = mwparserfromhell.parse(contents[title])
-            toc_table, columns, dictionary = self.parse_toc_table(title, wikicode)
+            toc_table, columns, category_names, alsoin = self.parse_toc_table(title, wikicode)
 
             if toc_table is None:
                 if self.cliargs.save is True:
@@ -457,9 +485,9 @@ class TableOfContents:
                             "so there will be no translations.".format(title))
 
             if self.cliargs.print:
-                ff = PlainFormatter(graph_parents, info, dictionary)
+                ff = PlainFormatter(graph_parents, info, category_names, alsoin)
             elif self.cliargs.save:
-                ff = MediaWikiFormatter(graph_parents, info, dictionary, include_opening_closing_tokens=False)
+                ff = MediaWikiFormatter(graph_parents, info, category_names, alsoin, include_opening_closing_tokens=False)
             else:
                 raise NotImplementedError("unknown output action: {}".format(self.cliargs.save))
 
