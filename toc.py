@@ -476,8 +476,8 @@ class TableOfContents:
                 if self.cliargs.save is True:
                     logger.error(
                             "The wiki page '{}' does not contain the ToC table. "
-                            "Create the following entry point manually: "
-                            "{{| id=\"wiki-scripts-toc-table\"\n|}}".format(title))
+                            "Create the following entry point manually:\n"
+                            "{{| id=\"wiki-scripts-toc-table\"\n...\n|}}".format(title))
                     continue
                 else:
                     logger.warning(
