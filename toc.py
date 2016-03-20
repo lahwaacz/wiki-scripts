@@ -448,7 +448,10 @@ class TableOfContents:
     def save_page(self, title, pageid, text_old, text_new, timestamp):
         if text_old != text_new:
             try:
-                self.api.edit(title, pageid, text_new, timestamp, self.cliargs.summary)
+                if "bot" in self.api.user_rights:
+                    self.api.edit(title, pageid, text_new, timestamp, self.cliargs.summary, bot="1")
+                else:
+                    self.api.edit(title, pageid, text_new, timestamp, self.cliargs.summary, minor="1")
             except APIError as e:
                 pass
         else:
