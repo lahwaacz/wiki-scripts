@@ -243,7 +243,7 @@ class PlainFormatter(BaseFormatter):
 class MediaWikiFormatter(BaseFormatter):
 
     cell_format = "<span style=\"margin-left:{margin:.3}em;\"><small>{levels}</small> {catlink} <small>{info}</small></span>"
-    rtl_languages = {"العربية"}
+    rtl_languages = {"עברית", "العربية"}
 
     def __init__(self, parents, info, category_names, alsoin=None, include_opening_closing_tokens=True):
         super().__init__(parents, info, category_names, alsoin)
