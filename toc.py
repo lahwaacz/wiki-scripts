@@ -258,12 +258,12 @@ class MediaWikiFormatter(BaseFormatter):
 
     def format_root(self, title):
         if isinstance(title, str):
-            self.text += "| {} ({})\n".format(self.catlink(title), self.info[title]["pages"])
+            self.text += "| {} <small>({})</small>\n".format(self.catlink(title), self.info[title]["pages"])
             self.text += "|-\n"
         elif isinstance(title, Iterable):
             # title is a tuple of titles
             for t in title:
-                self.text += "| {} ({})\n".format(self.catlink(t), self.info[t]["pages"])
+                self.text += "| {} <small>({})</small>\n".format(self.catlink(t), self.info[t]["pages"])
             self.text += "|-\n"
 
     def format_cell(self, title, parent, levels):
