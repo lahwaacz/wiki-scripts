@@ -2,6 +2,7 @@
 
 import copy
 from collections import Iterable
+import datetime
 import logging
 
 import mwparserfromhell
@@ -10,6 +11,7 @@ from ws.core import API
 from ws.interactive import require_login
 from ws.parser_helpers.title import canonicalize, Title
 import ws.ArchWiki.lang as lang
+from ws.utils import parse_date
 
 
 logger = logging.getLogger(__name__)
@@ -446,6 +448,10 @@ class TableOfContents:
         return dictionary
 
     def save_page(self, title, pageid, text_old, text_new, timestamp):
+        if not self.cliargs.force and datetime.datetime.utcnow().date() <= parse_date(timestamp).date():
+            logger.info("The page '{}' has already been updated this UTC day.".format(title))
+            return
+
         if text_old != text_new:
             try:
                 if "bot" in self.api.user_rights:
