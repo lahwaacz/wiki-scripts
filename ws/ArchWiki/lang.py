@@ -85,6 +85,8 @@ __category_languages = [
     "简体中文",
     "正體中文"
 ]
+# languages with right-to-left script
+__rtl = ["ar", "he"]
 __interlanguage_external = ["de", "fa", "fi", "fr", "ja", "ro", "sv", "tr"]
 __interlanguage_internal = ["ar", "bg", "cs", "da", "el", "en", "es", "he", "hr",
                             "hu", "id", "it", "ko", "lt", "nl", "pl", "pt",
@@ -119,6 +121,13 @@ def get_category_languages():
 
 def is_category_language(lang):
     return lang in get_category_languages()
+
+
+def is_rtl_tag(tag):
+    return tag in __rtl
+
+def is_rtl_language(lang):
+    return is_rtl_tag(tag_for_langname(lang))
 
 
 def get_interlanguage_tags():

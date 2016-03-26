@@ -11,6 +11,8 @@ language_tags = ["ar", "bg", "ca", "cs", "da", "de", "el", "en", "eo", "es", "fa
 category_languages = ["العربية", "Български", "Català", "Česky", "Dansk", "Ελληνικά", "English", "Esperanto", "Español", "Suomi", "עברית", "Hrvatski", "Magyar", "Indonesia", "Italiano", "日本語", "한국어", "Lietuviškai", "Norsk Bokmål", "Nederlands", "Polski", "Português", "Русский", "Slovenský", "Српски", "ไทย", "Українська", "简体中文", "正體中文"]
 external_tags = ["de", "fa", "fi", "fr", "ja", "ro", "sv", "tr"]
 internal_tags = ["ar", "bg", "cs", "da", "el", "en", "es", "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt", "ru", "sk", "sr", "th", "uk", "zh-cn", "zh-tw"]
+rtl_languages = ["עברית", "العربية"]
+rtl_tags = ["ar", "he"]
 
 class test_getters:
     def _test(self, values, getter):
@@ -43,19 +45,25 @@ class test_checkers:
     def test_is_language_name(self):
         self._test(language_names, is_language_name)
 
-    def test_is_english_language_names(self):
+    def test_is_english_language_name(self):
         self._test(english_language_names, is_english_language_name)
 
-    def test_is_language_tags(self):
+    def test_is_language_tag(self):
         self._test(language_tags, is_language_tag)
 
-    def test_is_category_languages(self):
+    def test_is_category_language(self):
         self._test(category_languages, is_category_language)
 
-    def test_is_external_tags(self):
+    def test_is_rtl_tag(self):
+        self._test(rtl_tags, is_rtl_tag)
+
+    def test_is_rtl_language(self):
+        self._test(rtl_languages, is_rtl_language)
+
+    def test_is_external_tag(self):
         self._test(external_tags, is_external_tag)
 
-    def test_is_internal_tags(self):
+    def test_is_internal_tag(self):
         self._test(internal_tags, is_internal_tag)
 
 class test_languages_data_sanity:
