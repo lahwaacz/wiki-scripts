@@ -8,6 +8,7 @@
 #   skip category links, article status templates
 #   detect self-redirects (definitely interactive only)
 #   changes rejected interactively should be logged
+#   warn if the link leads to an archived page
 
 import difflib
 import re
@@ -140,8 +141,11 @@ class ExtlinkRules:
     def extlink_to_wikilink(self, wikicode, extlink):
         match = self.extlink_regex.fullmatch(str(extlink.url))
         if match:
-            # FIXME: add leading colon when necessary
             pagename = match.group("pagename")
+            # handle category links properly
+            # NOTE: this is not general, namespace names can be internationalized
+            if pagename.lower().startswith("category"):
+                pagename = ":" + pagename
             if extlink.title:
                 wikilink = "[[{}|{}]]".format(pagename, extlink.title)
             else:
