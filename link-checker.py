@@ -518,7 +518,11 @@ class WikilinkRules:
         # FIXME: make it implicit - it does not always propagate from the Title class
         if re.search("%[0-9a-f]{2}", str(wikilink.title), re.IGNORECASE):
             # FIXME: this is not done anywhere due to false positives
-            wikilink.title = str(title)
+            # handle category links properly
+            if wikilink.title.strip().startswith(":"):
+                wikilink.title = ":" + str(title)
+            else:
+                wikilink.title = str(title)
             # FIXME: should be done in the Title class
             wikilink.title = str(wikilink.title).replace("[", ".5B").replace("|", ".7C").replace("]", ".5D")
 
