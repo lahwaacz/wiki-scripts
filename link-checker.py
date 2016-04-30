@@ -161,7 +161,11 @@ class ExtlinkRules:
             match = url_regex.fullmatch(str(extlink.url))
             if match:
                 if extlink.title is None:
-                    wikicode.replace(extlink, replacement.format(*match.groups()))
+                    repl = replacement.format(*match.groups())
+                    # FIXME: hack to preserve brackets (e.g. [http://example.com/] )
+                    if extlink.brackets and not repl.startswith("[") and not repl.endswith("]"):
+                        repl = "[{}]".format(repl)
+                    wikicode.replace(extlink, repl)
                     return True
                 elif re.fullmatch(text_cond.format(*match.groups()), str(extlink.title), text_cond_flags):
                     wikicode.replace(extlink, replacement.format(*match.groups(), extlink.title))
