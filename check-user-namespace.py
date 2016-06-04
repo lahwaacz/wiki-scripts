@@ -4,13 +4,8 @@ import itertools
 
 from ws.core import API
 
-IGNORED_CATEGORIES = [
-    "Category:Noindexed pages",
-    "Category:Pages using duplicate arguments in template calls",
-]
-
 def pages_in_namespace(api, ns):
-    return api.generator(generator="allpages", gapnamespace=ns, gaplimit="max", prop="categories")
+    return api.generator(generator="allpages", gapnamespace=ns, gaplimit="max", prop="categories", clshow="!hidden")
 
 def get_user_names(api):
     return [user["name"] for user in api.list(list="allusers", aulimit="max")]
@@ -28,7 +23,6 @@ def main(api):
 
         # user pages shall not be categorized
         if "categories" in page:
-            page["categories"] = [cat for cat in page["categories"] if cat["title"] not in IGNORED_CATEGORIES]
             if len(page["categories"]) > 0:
                 print("* Page [[{}]] is categorized: {}".format(page["title"], list(cat["title"] for cat in page["categories"])))
 
