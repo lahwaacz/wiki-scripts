@@ -200,7 +200,7 @@ class Title:
         Same as ``{{BASEPAGENAME}}``, drops the interwiki and namespace prefixes
         and the rightmost subpage level.
 
-        :note::
+        .. note::
             The ``$wgNamespacesWithSubpages`` option is ignored (not available
             via API anyway), the property behaves as if subpages were enabled
             for all namespaces.
@@ -213,7 +213,7 @@ class Title:
         """
         Same as ``{{SUBPAGENAME}}``, returns the rightmost subpage level.
 
-        :note::
+        .. note::
             The ``$wgNamespacesWithSubpages`` option is ignored (not available
             via API anyway), the property behaves as if subpages were enabled
             for all namespaces.
@@ -227,7 +227,7 @@ class Title:
         Same as ``{{ROOTPAGENAME}}``, drops the interwiki and namespace prefixes
         and all subpages.
 
-        :note::
+        .. note::
             The ``$wgNamespacesWithSubpages`` option is ignored (not available
             via API anyway), the property behaves as if subpages were enabled
             for all namespaces.
