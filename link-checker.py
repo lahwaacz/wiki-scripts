@@ -50,10 +50,6 @@ def get_ranks(key, iterable):
     ranks.sort(key=lambda match: match[1], reverse=True)
     return ranks
 
-def strip_markup(text):
-    wikicode = mwparserfromhell.parse(text)
-    return wikicode.strip_code()
-
 
 class ExtlinkRules:
 
@@ -444,21 +440,21 @@ class WikilinkRules:
             return
 
         # assemble new section fragment
-        new_fragment = strip_markup(headings[anchors.index(anchor)])
-        # anchors can't contain '[', '|' and ']', encode them manually
-        new_fragment = new_fragment.replace("[", ".5B").replace("|", ".7C").replace("]", ".5D")
+        # get_anchors makes sure to strip markup and handle duplicate section names
+        new_fragment = get_anchors(headings, pretty=True)[anchors.index(anchor)]
 
+        # FIXME: this should be useless now, except for the part to respect current '_'/' ' before the numeric suffix
         # point to the right duplicated sectionname
         # NOTE: the dupl. section number might get changed in fuzzy match
-        dupl_match = re.match("(.+)_(\d+)$", anchor)
-        if dupl_match:
-            base = dupl_match.group(1)
-            suffix = dupl_match.group(2)
-            if base in anchors:
-                if wikilink.title.endswith("_" + suffix):
-                    new_fragment += "_" + suffix
-                else:
-                    new_fragment += " " + suffix
+#        dupl_match = re.match("(.+)_(\d+)$", anchor)
+#        if dupl_match:
+#            base = dupl_match.group(1)
+#            suffix = dupl_match.group(2)
+#            if base in anchors:
+#                if wikilink.title.endswith("_" + suffix):
+#                    new_fragment += "_" + suffix
+#                else:
+#                    new_fragment += " " + suffix
 
         # Avoid beautification if there is alternative text and the link
         # actually works.

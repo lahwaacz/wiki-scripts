@@ -6,7 +6,11 @@ import mwparserfromhell
 
 from .encodings import dotencode
 
-__all__ = ["get_adjacent_node", "get_parent_wikicode", "remove_and_squash", "get_section_headings", "get_anchors"]
+__all__ = ["strip_markup", "get_adjacent_node", "get_parent_wikicode", "remove_and_squash", "get_section_headings", "get_anchors"]
+
+def strip_markup(text, normalize=True, collapse=True):
+    wikicode = mwparserfromhell.parse(text)
+    return wikicode.strip_code(normalize, collapse)
 
 def get_adjacent_node(wikicode, node, ignore_whitespace=False):
     """
@@ -103,15 +107,36 @@ def get_section_headings(text):
     matches = re.findall(r"^((\={1,6})\s*)([^\n]*?)(\s*(\2))$", text, flags=re.MULTILINE | re.DOTALL)
     return [match[2] for match in matches]
 
-def get_anchors(headings):
+def get_anchors(headings, pretty=False):
     """
     Converts section headings to anchors.
 
+    .. note::
+        Known issues:
+
+        - templates are always fully stripped (doing this right requires
+          template expansion)
+        - all tags are always stripped, even invalid tags (``mwparserfromhell``
+          is not that configurable)
+        - if ``pretty`` is ``True``, tags escaped with <nowiki> in the input
+          are not encoded in the output
+
     :param list headings:
         section headings (obtained e.g. with :py:func:`get_section_headings`)
-    :returns: list of section anchors (i.e. dot-encoded)
+    :param bool pretty:
+        if ``True``, the anchors will be as pretty as possible (e.g. for use
+        in wikilinks), otherwise they are fully dot-encoded
+    :returns: list of section anchors
     """
-    anchors = [dotencode(heading) for heading in headings]
+    # MediaWiki markup should be stripped, but the text has to be parsed as a
+    # heading, otherwise e.g. starting '#' would be understood as a list and
+    # stripped as well.
+    anchors = [strip_markup("={}=".format(heading)) for heading in headings]
+    if pretty is False:
+        anchors = [dotencode(a) for a in anchors]
+    else:
+        # anchors can't contain '[', '|', ']' and tags encode them manually
+        anchors = [a.replace("[", "%5B").replace("|", "%7C").replace("]", "%5D") for a in anchors]
 
     # handle equivalent headings duplicated on the page
     for i, anchor in enumerate(anchors):

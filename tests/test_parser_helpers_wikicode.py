@@ -225,3 +225,53 @@ class test_get_anchors:
         expected = ["foo_2", "foo_2_2", "foo", "foo_3", "foo_2_3", "foo_2_4"]
         result = get_anchors(get_section_headings(snippet))
         assert_equals(result, expected)
+
+    def test_strip(self):
+        snippet = """
+== Section with ''wikicode'' ==
+== Section with <i>tag</i> ==
+== Section with HTML entities &Sigma;, &#931;, and &#x3a3; ==
+== Section with [[Main page|wikilink]] ==
+== Section with <nowiki><nowiki></nowiki> ==
+== #section starting with hash ==
+"""
+        expected = [
+            "Section_with_wikicode",
+            "Section_with_tag",
+            "Section_with_HTML_entities_.CE.A3.2C_.CE.A3.2C_and_.CE.A3",
+            "Section_with_wikilink",
+            "Section_with_.3Cnowiki.3E",
+            "#section starting with hash",
+        ]
+        result = get_anchors(get_section_headings(snippet))
+        assert_equals(result, expected)
+
+    def test_strip_pretty(self):
+        snippet = """
+== Section with ''wikicode'' ==
+== Section with <i>tag</i> ==
+== Section with HTML entities &Sigma;, &#931;, and &#x3a3; ==
+== Section with [[Main page|wikilink]] ==
+== Section with <nowiki><nowiki></nowiki> ==
+"""
+        expected = [
+            "Section with wikicode",
+            "Section with tag",
+            "Section with HTML entities Σ, Σ, and Σ",
+            "Section with wikilink",
+            "Section with <nowiki>",    # FIXME: should be encoded, i.e. "Section with %3Cnowiki%3E",
+        ]
+        result = get_anchors(get_section_headings(snippet), pretty=True)
+        assert_equals(result, expected)
+
+    def test_encoding(self):
+        snippet = """
+== Section with | pipe ==
+== Section with [brackets] ==
+== Section with <invalid tag> ==
+"""
+        expected = [
+            "Section with %7C pipe",
+            "Section with %5Bbrackets%5D",
+            "Section with <invalid tag>",
+        ]
