@@ -107,7 +107,7 @@ def get_section_headings(text):
     matches = re.findall(r"^((\={1,6})\s*)([^\n]*?)(\s*(\2))$", text, flags=re.MULTILINE | re.DOTALL)
     return [match[2] for match in matches]
 
-def get_anchors(headings, pretty=False):
+def get_anchors(headings, pretty=False, suffix_sep="_"):
     """
     Converts section headings to anchors.
 
@@ -126,6 +126,9 @@ def get_anchors(headings, pretty=False):
     :param bool pretty:
         if ``True``, the anchors will be as pretty as possible (e.g. for use
         in wikilinks), otherwise they are fully dot-encoded
+    :param str suffix_sep:
+        the separator between the base anchor and numeric suffix for duplicate
+        section names
     :returns: list of section anchors
     """
     # MediaWiki markup should be stripped, but the text has to be parsed as a
@@ -142,7 +145,7 @@ def get_anchors(headings, pretty=False):
     for i, anchor in enumerate(anchors):
         j = 2
         while anchor in anchors[:i]:
-            anchor = anchors[i] + "_{}".format(j)
+            anchor = anchors[i] + suffix_sep + "{}".format(j)
             j += 1
         # update the main array
         anchors[i] = anchor

@@ -241,7 +241,7 @@ class test_get_anchors:
             "Section_with_HTML_entities_.CE.A3.2C_.CE.A3.2C_and_.CE.A3",
             "Section_with_wikilink",
             "Section_with_.3Cnowiki.3E",
-            "#section starting with hash",
+            ".23section_starting_with_hash",
         ]
         result = get_anchors(get_section_headings(snippet))
         assert_equals(result, expected)
@@ -253,6 +253,7 @@ class test_get_anchors:
 == Section with HTML entities &Sigma;, &#931;, and &#x3a3; ==
 == Section with [[Main page|wikilink]] ==
 == Section with <nowiki><nowiki></nowiki> ==
+== #section starting with hash ==
 """
         expected = [
             "Section with wikicode",
@@ -260,6 +261,7 @@ class test_get_anchors:
             "Section with HTML entities Σ, Σ, and Σ",
             "Section with wikilink",
             "Section with <nowiki>",    # FIXME: should be encoded, i.e. "Section with %3Cnowiki%3E",
+            "#section starting with hash",
         ]
         result = get_anchors(get_section_headings(snippet), pretty=True)
         assert_equals(result, expected)
