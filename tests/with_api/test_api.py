@@ -36,7 +36,8 @@ class test_api:
         expected = ["createaccount", "read", "createpage", "createtalk",
                     "editmyusercss", "editmyuserjs", "viewmywatchlist",
                     "editmywatchlist", "viewmyprivateinfo", "editmyprivateinfo",
-                    "editmyoptions"]
+                    "editmyoptions", "abusefilter-log-detail", "abusefilter-view",
+                    "abusefilter-log"]
         assert_equals(fixtures.api.user_rights, expected)
 
     def test_interwikimap(self):
