@@ -29,11 +29,13 @@
     <link rel="next" title="ws.parser_helpers.wikicode module" href="ws.parser_helpers.wikicode.html" />
     <link rel="prev" title="ws.parser_helpers.encodings module" href="ws.parser_helpers.encodings.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">  
+  <body role="document">
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -61,7 +63,7 @@ is applied to the passed title as a whole.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> &#8211; a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or <a class="reference external" href="https://mwparserfromhell.readthedocs.org/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> &#8211; a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or <a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> object</td>
 </tr>
@@ -87,7 +89,7 @@ namespace prefixes.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>api</strong> &#8211; an <a class="reference internal" href="ws.core.api.html#ws.core.api.API" title="ws.core.api.API"><code class="xref py py-class docutils literal"><span class="pre">API</span></code></a> instance</li>
-<li><strong>title</strong> &#8211; a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or <a class="reference external" href="https://mwparserfromhell.readthedocs.org/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object</li>
+<li><strong>title</strong> &#8211; a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or <a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object</li>
 </ul>
 </td>
 </tr>
@@ -143,24 +145,24 @@ a string of full title instead of creating new instance.</p>
 <code class="descname">basepagename</code><a class="headerlink" href="#ws.parser_helpers.title.Title.basepagename" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <code class="docutils literal"><span class="pre">{{BASEPAGENAME}}</span></code>, drops the interwiki and namespace prefixes
 and the rightmost subpage level.</p>
-<dl class="docutils">
-<dt>:note::</dt>
-<dd>The <code class="docutils literal"><span class="pre">$wgNamespacesWithSubpages</span></code> option is ignored (not available
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="docutils literal"><span class="pre">$wgNamespacesWithSubpages</span></code> option is ignored (not available
 via API anyway), the property behaves as if subpages were enabled
-for all namespaces.</dd>
-</dl>
+for all namespaces.</p>
+</div>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="ws.parser_helpers.title.Title.subpagename">
 <code class="descname">subpagename</code><a class="headerlink" href="#ws.parser_helpers.title.Title.subpagename" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <code class="docutils literal"><span class="pre">{{SUBPAGENAME}}</span></code>, returns the rightmost subpage level.</p>
-<dl class="docutils">
-<dt>:note::</dt>
-<dd>The <code class="docutils literal"><span class="pre">$wgNamespacesWithSubpages</span></code> option is ignored (not available
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="docutils literal"><span class="pre">$wgNamespacesWithSubpages</span></code> option is ignored (not available
 via API anyway), the property behaves as if subpages were enabled
-for all namespaces.</dd>
-</dl>
+for all namespaces.</p>
+</div>
 </dd></dl>
 
 <dl class="attribute">
@@ -168,12 +170,12 @@ for all namespaces.</dd>
 <code class="descname">rootpagename</code><a class="headerlink" href="#ws.parser_helpers.title.Title.rootpagename" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <code class="docutils literal"><span class="pre">{{ROOTPAGENAME}}</span></code>, drops the interwiki and namespace prefixes
 and all subpages.</p>
-<dl class="docutils">
-<dt>:note::</dt>
-<dd>The <code class="docutils literal"><span class="pre">$wgNamespacesWithSubpages</span></code> option is ignored (not available
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="docutils literal"><span class="pre">$wgNamespacesWithSubpages</span></code> option is ignored (not available
 via API anyway), the property behaves as if subpages were enabled
-for all namespaces.</dd>
-</dl>
+for all namespaces.</p>
+</div>
 </dd></dl>
 
 <dl class="attribute">
@@ -263,14 +265,11 @@ the target page.</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -278,11 +277,11 @@ the target page.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2014-2015, Jakub Klinkovský.
+      &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
       <a href="../_sources/ws/ws.parser_helpers.title.txt"

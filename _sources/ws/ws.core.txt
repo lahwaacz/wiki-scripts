@@ -15,4 +15,5 @@ Submodules
    ws.core.connection
    ws.core.lazy
    ws.core.rate
+   ws.core.tags
 

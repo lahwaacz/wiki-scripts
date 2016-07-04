@@ -1,0 +1,7 @@
+ws.core.tags module
+===================
+
+.. automodule:: ws.core.tags
+    :members:
+    :undoc-members:
+    :show-inheritance:

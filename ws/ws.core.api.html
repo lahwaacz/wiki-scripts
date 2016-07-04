@@ -29,11 +29,13 @@
     <link rel="next" title="ws.core.connection module" href="ws.core.connection.html" />
     <link rel="prev" title="ws.core package" href="ws.core.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">  
+  <body role="document">
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -110,6 +112,15 @@ not (<code class="docutils literal"><span class="pre">False</span></code>).</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="ws.core.api.API.max_ids_per_query">
+<code class="descname">max_ids_per_query</code><a class="headerlink" href="#ws.core.api.API.max_ids_per_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>A maximum number of values that can be passed to the <code class="docutils literal"><span class="pre">titles</span></code>,
+<code class="docutils literal"><span class="pre">pageids</span></code> and <code class="docutils literal"><span class="pre">revids</span></code> parameters of the API. It is 500 for users
+with the <code class="docutils literal"><span class="pre">apihighlimits</span></code> right and 50 for others. These values
+correspond to the actual limits enforced by MediaWiki.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="ws.core.api.API.interwikimap">
 <code class="descname">interwikimap</code><a class="headerlink" href="#ws.core.api.API.interwikimap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interwiki prefixes on the wiki, represented as a dictionary where
@@ -133,6 +144,12 @@ by the <cite>siteinfo/interwikimap</cite> query, see <a class="reference externa
 IDs to their names.</p>
 <p>The property is evaluated lazily and cached with the
 <a class="reference internal" href="ws.core.lazy.html#ws.core.lazy.LazyProperty" title="ws.core.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">&#64;LazyProperty</span></code></a> decorator.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.core.api.API.tags">
+<code class="descname">tags</code><a class="headerlink" href="#ws.core.api.API.tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference internal" href="ws.core.tags.html#ws.core.tags.Tags" title="ws.core.tags.Tags"><code class="xref py py-class docutils literal"><span class="pre">ws.core.tags.Tags</span></code></a> instance for the current wiki.</p>
 </dd></dl>
 
 <dl class="method">
@@ -218,7 +235,7 @@ for an example of proper handling of this case.</p>
 <code class="descname">resolve_redirects</code><a class="headerlink" href="#ws.core.api.API.resolve_redirects" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resolve redirect titles according to the <a class="reference external" href="https://www.mediawiki.org/wiki/API:Query#Resolving_redirects">MediaWiki&#8217;s API</a>. List of
 redirect pages must be obtained other way, for example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pageids</span> <span class="o">=</span> <span class="p">[]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pageids</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">ns</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">,</span> <span class="s2">&quot;12&quot;</span><span class="p">]:</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">pages</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">generator</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s2">&quot;allpages&quot;</span><span class="p">,</span> <span class="n">gaplimit</span><span class="o">=</span><span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="n">gapfilterredir</span><span class="o">=</span><span class="s2">&quot;redirects&quot;</span><span class="p">,</span> <span class="n">gapnamespace</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">_pageids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">page</span><span class="p">[</span><span class="s2">&quot;pageid&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">pages</span><span class="p">]</span>
@@ -365,14 +382,11 @@ allow 1 call per 3 seconds.</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -380,11 +394,11 @@ allow 1 call per 3 seconds.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2014-2015, Jakub Klinkovský.
+      &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
       <a href="../_sources/ws/ws.core.api.txt"

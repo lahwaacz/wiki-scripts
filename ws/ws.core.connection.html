@@ -29,11 +29,13 @@
     <link rel="next" title="ws.core.lazy module" href="ws.core.lazy.html" />
     <link rel="prev" title="ws.core.api module" href="ws.core.api.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">  
+  <body role="document">
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -43,8 +45,8 @@
   <div class="section" id="module-ws.core.connection">
 <span id="ws-core-connection-module"></span><h1>ws.core.connection module<a class="headerlink" href="#module-ws.core.connection" title="Permalink to this headline">¶</a></h1>
 <p>The <a class="reference internal" href="#module-ws.core.connection" title="ws.core.connection"><code class="xref py py-mod docutils literal"><span class="pre">ws.core.connection</span></code></a> module provides a low-level interface for
-connections to the wiki. The <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.9.1)"><code class="xref py py-class docutils literal"><span class="pre">requests.Session</span></code></a> class from the
-<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#module-requests" title="(in Requests v2.9.1)"><code class="xref py py-mod docutils literal"><span class="pre">requests</span></code></a> library is used to manage the cookies, authentication
+connections to the wiki. The <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.10.0)"><code class="xref py py-class docutils literal"><span class="pre">requests.Session</span></code></a> class from the
+<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#module-requests" title="(in Requests v2.10.0)"><code class="xref py py-mod docutils literal"><span class="pre">requests</span></code></a> library is used to manage the cookies, authentication
 and making requests.</p>
 <dl class="class">
 <dt id="ws.core.connection.Connection">
@@ -114,12 +116,12 @@ it is expected to also contain <code class="docutils literal"><span class="pre">
 <dt id="ws.core.connection.Connection.request">
 <code class="descname">request</code><span class="sig-paren">(</span><em>method</em>, <em>url</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.connection.Connection.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simple HTTP request handler. It is basically a wrapper around
-<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.request" title="(in Requests v2.9.1)"><code class="xref py py-func docutils literal"><span class="pre">requests.request()</span></code></a> using the established session including
+<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.request" title="(in Requests v2.10.0)"><code class="xref py py-func docutils literal"><span class="pre">requests.request()</span></code></a> using the established session including
 cookies, so it should be used only for connections with <code class="docutils literal"><span class="pre">url</span></code> leading
 to the same site.</p>
-<p>The parameters are the same as for <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.request" title="(in Requests v2.9.1)"><code class="xref py py-func docutils literal"><span class="pre">requests.request()</span></code></a>, see
+<p>The parameters are the same as for <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.request" title="(in Requests v2.10.0)"><code class="xref py py-func docutils literal"><span class="pre">requests.request()</span></code></a>, see
 <a class="reference external" href="http://docs.python-requests.org/en/latest/api/">Requests documentation</a> for details.</p>
-<p>There is no translation of exceptions, the <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#module-requests" title="(in Requests v2.9.1)"><code class="xref py py-mod docutils literal"><span class="pre">requests</span></code></a> exceptions
+<p>There is no translation of exceptions, the <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#module-requests" title="(in Requests v2.10.0)"><code class="xref py py-mod docutils literal"><span class="pre">requests</span></code></a> exceptions
 (notably <code class="xref py py-exc docutils literal"><span class="pre">requests.exceptions.ConnectionError</span></code>,
 <code class="xref py py-exc docutils literal"><span class="pre">requests.exceptions.Timeout</span></code> and
 <code class="xref py py-exc docutils literal"><span class="pre">requests.exceptions.HTTPError</span></code>) should be catched by the caller.</p>
@@ -234,14 +236,11 @@ should be specified).</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -249,11 +248,11 @@ should be specified).</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2014-2015, Jakub Klinkovský.
+      &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
       <a href="../_sources/ws/ws.core.connection.txt"
