@@ -184,16 +184,20 @@ def detect_language(title):
     :returns: a ``(pure, lang)`` tuple, where ``pure`` is the pure page title without
         the language suffix and ``lang`` is the detected language in long, localized form
     """
-    # matches "Page name (Česky)"
-    match = re.fullmatch(r"(?P<pure>.*?)[ _]\((?P<lang>[^\(\)]+)\)", title)
-    if match:
-        lang = match.group("lang")
-        if lang in get_language_names():
-            return match.group("pure"), lang
+    title_regex = r"(?P<pure>.*?)[ _]\((?P<lang>[^\(\)]+)\)"
+    pure_suffix = ""
+    # matches "Page name/Subpage (Česky)"
+    match = re.fullmatch(title_regex, title)
+    # matches "Page name (Česky)/Subpage"
+    if not match and "/" in title:
+        base, pure_suffix = title.split("/", maxsplit=1)
+        pure_suffix = "/" + pure_suffix
+        match = re.fullmatch(title_regex, base)
     # matches "Category:Česky"
-    match = re.fullmatch(r"(?P<pure>[Cc]ategory[ _]?\:[ _]?(?P<lang>[^\(\)]+))", title)
+    if not match:
+        match = re.fullmatch(r"(?P<pure>[Cc]ategory[ _]?\:[ _]?(?P<lang>[^\(\)]+))", title)
     if match:
         lang = match.group("lang")
         if lang in get_language_names():
-            return match.group("pure"), lang
+            return match.group("pure") + pure_suffix, lang
     return title, get_local_language()

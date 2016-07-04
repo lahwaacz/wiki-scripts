@@ -113,17 +113,18 @@ class test_detect_language:
         "foo(Česky)": ("foo(Česky)", default),
         "foo/bar": ("foo/bar", default),
 
-        # the logic for these two should be switched after FS#39668 is implemented
+        # ArchWiki uses only one scheme, but wiki-scripts should detect both
+        # schemes to not be confused by users' errors. See also FS#39668:
         # https://bugs.archlinux.org/task/39668
         "foo/bar (Česky)": ("foo/bar", "Česky"),
-        "foo (Česky)/bar": ("foo (Česky)/bar", default),
+        "foo (Česky)/bar": ("foo/bar", "Česky"),
 
         # this case used to be for old pages, the suffix for English pages is not used
         # nevertheless it is useful to keep the algorithm simple
         "foo (English)": ("foo", "English"),
 
         # language categories
-        "Category:Foo": ("Category:Foo", "English"),
+        "Category:Foo": ("Category:Foo", default),
         "Category:Česky": ("Category:Česky", "Česky"),
     }
 
