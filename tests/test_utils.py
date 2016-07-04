@@ -82,3 +82,39 @@ class test_bisect_find:
         wrapped_ids = ListOfDictsAttrWrapper(l, "id")
         d = bisect_find(l, 2, index_list=wrapped_ids)
         assert_equals(d, {"name": "Betty", "id": 2})
+
+class test_bisect_insert_or_replace:
+    def test_insert(self):
+        expected = [
+            {"name": "Anne", "id": 1},
+            {"name": "Betty", "id": 0},
+            {"name": "Cecilia", "id": 2},
+            {"name": "Daisy", "id": 3},
+        ]
+        l = []
+        wrapped_names = ListOfDictsAttrWrapper(l, "name")
+        bisect_insert_or_replace(l, "Cecilia", {"name": "Cecilia", "id": 2}, wrapped_names)
+        bisect_insert_or_replace(l, "Daisy", {"name": "Daisy", "id": 3}, wrapped_names)
+        bisect_insert_or_replace(l, "Betty", {"name": "Betty", "id": 0}, wrapped_names)
+        bisect_insert_or_replace(l, "Anne", {"name": "Anne", "id": 1}, wrapped_names)
+        assert_equals(l, expected)
+
+    def test_replace(self):
+        l = [
+            {"name": "Anne", "id": 0},
+            {"name": "Betty", "id": 1},
+            {"name": "Cecilia", "id": 2},
+            {"name": "Daisy", "id": 3},
+        ]
+        expected = [
+            {"name": "Anne", "id": 1},
+            {"name": "Betty", "id": 0},
+            {"name": "Cecilia", "id": 3},
+            {"name": "Daisy", "id": 2},
+        ]
+        wrapped_names = ListOfDictsAttrWrapper(l, "name")
+        bisect_insert_or_replace(l, "Anne", {"name": "Anne", "id": 1}, wrapped_names)
+        bisect_insert_or_replace(l, "Betty", {"name": "Betty", "id": 0}, wrapped_names)
+        bisect_insert_or_replace(l, "Cecilia", {"name": "Cecilia", "id": 3}, wrapped_names)
+        bisect_insert_or_replace(l, "Daisy", {"name": "Daisy", "id": 2}, wrapped_names)
+        assert_equals(l, expected)
