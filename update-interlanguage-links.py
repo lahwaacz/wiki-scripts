@@ -54,7 +54,7 @@ class Interlanguage:
     """
 
     namespaces = [0, 4, 10, 12, 14]
-    edit_summary = "update interlanguage links (https://github.com/lahwaacz/wiki-scripts/blob/master/update-interlanguage-links.py)"
+    edit_summary = "update interlanguage links"
 
     def __init__(self, api):
         self.api = api

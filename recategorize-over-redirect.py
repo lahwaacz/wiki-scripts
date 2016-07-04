@@ -12,8 +12,8 @@ from ws.interactive import edit_interactive, ask_yesno
 logger = logging.getLogger(__name__)
 
 class Recategorize:
-    edit_summary = "recategorize to avoid redirect after the old category has been renamed (https://github.com/lahwaacz/wiki-scripts/blob/master/recategorize-over-redirect.py)"
-    flag_for_deletion_summary = "unused category, flagging for deletion (https://github.com/lahwaacz/wiki-scripts/blob/master/recategorize-over-redirect.py)"
+    edit_summary = "recategorize to avoid redirect after the old category has been renamed"
+    flag_for_deletion_summary = "unused category, flagging for deletion"
 
     def __init__(self, api):
         self.api = api

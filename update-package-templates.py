@@ -170,7 +170,7 @@ class PkgUpdater:
         self.finder = PkgFinder(aurpkgs_url, tmpdir, ssl_verify)
         self.report_dir = report_dir
 
-        self.edit_summary = "update Pkg/AUR templates (https://github.com/lahwaacz/wiki-scripts/blob/master/update-package-templates.py)"
+        self.edit_summary = "update Pkg/AUR templates"
 
         # log data for easy report generation
         # the dictionary looks like this:

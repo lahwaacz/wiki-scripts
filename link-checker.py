@@ -540,7 +540,6 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
     skip_pages = ["Table of contents", "Help:Editing"]
     # article status templates, lowercase
     skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
-    script_url = "https://github.com/lahwaacz/wiki-scripts/blob/master/link-checker.py"
 
     def __init__(self, api, cache_dir, interactive=False, first=None, title=None):
         # ensure that we are authenticated
@@ -629,9 +628,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
 
         edit_summary = ", ".join(summary_parts)
         if self.interactive is True:
-            edit_summary += " ({} (interactive))".format(self.script_url)
-        else:
-            edit_summary += " ({})".format(self.script_url)
+            edit_summary += " (interactive)"
 
         return new_text, edit_summary
 
