@@ -7,6 +7,7 @@ import logging
 from .connection import Connection, APIError
 from .rate import RateLimited
 from .lazy import LazyProperty
+from .tags import Tags
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +105,12 @@ class API(Connection):
 
     @LazyProperty
     def max_ids_per_query(self):
+        """
+        A maximum number of values that can be passed to the ``titles``,
+        ``pageids`` and ``revids`` parameters of the API. It is 500 for users
+        with the ``apihighlimits`` right and 50 for others. These values
+        correspond to the actual limits enforced by MediaWiki.
+        """
         return 500 if "apihighlimits" in self.user_rights else 50
 
     @LazyProperty
@@ -143,6 +150,13 @@ class API(Connection):
         result = self.call_api(action="query", meta="siteinfo", siprop="namespaces")
         namespaces = result["namespaces"].values()
         return dict( (ns["id"], ns["*"]) for ns in namespaces )
+
+    @LazyProperty
+    def tags(self):
+        """
+        A :py:class:`ws.core.tags.Tags` instance for the current wiki.
+        """
+        return Tags(self)
 
 
     def query_continue(self, params=None, **kwargs):
@@ -423,6 +437,14 @@ class API(Connection):
         else:
             # require being logged in, either as regular user or bot
             kwargs["assert"] = "user"
+
+        # check and apply tags
+        if "applychangetags" in self.user_rights and "wiki-scripts" in self.tags.applicable:
+            kwargs.setdefault("tags", [])
+            kwargs["tags"].append("wiki-scripts")
+        elif "applychangetags" not in self.user_rights and "tags" in kwargs:
+            logger.warning("Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(kwargs["tags"]))
+            del kwargs["tags"]
 
         logger.info("Editing page '{}' ...".format(title))
 
