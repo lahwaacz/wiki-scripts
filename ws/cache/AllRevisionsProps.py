@@ -20,11 +20,8 @@ __all__ = ["AllRevisionsProps"]
 
 class AllRevisionsProps(CacheDb):
     def __init__(self, api, cache_dir, autocommit=True):
-        # needed for database initialization
-        self.limit = 500 if "apihighlimits" in api.user_rights else 50
-
         # check for necessary rights
-        if "deletedhistory" in api.user_rights:
+        if "deletedhistory" in api.user.rights:
             self.deletedrevisions = True
         else:
             logger.warning("The current user does not have the 'deletedhistory' right. Properties of deleted revisions will not be available.")
@@ -94,7 +91,7 @@ class AllRevisionsProps(CacheDb):
         wrapped_revids = utils.ListOfDictsAttrWrapper(self.data["revisions"], "revid")
         wrapped_deletedrevids = utils.ListOfDictsAttrWrapper(self.data["deletedrevisions"], "revid")
 
-        for chunk in utils.list_chunks(range(first, last+1), self.limit):
+        for chunk in utils.list_chunks(range(first, last+1), self.api.max_ids_per_query):
             logger.info("Fetching revids %s-%s" % (chunk[0], chunk[-1]))
             revids = "|".join(str(x) for x in chunk)
             if self.deletedrevisions is True:

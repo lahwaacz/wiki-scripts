@@ -31,9 +31,6 @@ class AllUsersProps(CacheDb):
         self.active_days = active_days
         self.rc_err_threshold = datetime.timedelta(hours=rc_err_hours)
 
-        # TODO: this had better be specified as attribute of CacheDb, named chunk_size
-        self.limit = 500 if "apihighlimits" in api.user_rights else 50
-
         super().__init__(api, cache_dir, "AllUsersProps", autocommit)
 
     def init(self, key=None):
@@ -74,7 +71,7 @@ class AllUsersProps(CacheDb):
             logger.info("Fetching properties of {} possibly modified user accounts...".format(len(users)))
             wrapped_names = utils.ListOfDictsAttrWrapper(self.data, "name")
 
-            for snippet in utils.list_chunks(users, self.limit):
+            for snippet in utils.list_chunks(users, self.api.max_ids_per_query):
                 for user in self.api.list(list="users", ususers="|".join(snippet), usprop="blockinfo|groups|editcount|registration"):
                     utils.bisect_insert_or_replace(self.data, user["name"], data_element=user, index_list=wrapped_names)
 

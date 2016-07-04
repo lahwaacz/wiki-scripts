@@ -29,7 +29,7 @@ class test_api:
 
     # this is anonymous test
     def test_is_loggedin(self):
-        assert_false(fixtures.api.is_loggedin)
+        assert_false(fixtures.api.user.is_loggedin)
 
     # check user rights for anonymous users
     def test_user_rights(self):
@@ -38,7 +38,7 @@ class test_api:
                     "editmywatchlist", "viewmyprivateinfo", "editmyprivateinfo",
                     "editmyoptions", "abusefilter-log-detail", "abusefilter-view",
                     "abusefilter-log"]
-        assert_equals(fixtures.api.user_rights, expected)
+        assert_equals(fixtures.api.user.rights, expected)
 
     def test_max_ids_per_query(self):
         assert_equals(fixtures.api.max_ids_per_query, 50)

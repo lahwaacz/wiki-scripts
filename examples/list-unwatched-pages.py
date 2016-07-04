@@ -10,7 +10,7 @@ def main(api):
     require_login(api)
 
     # check for necessary rights
-    if "unwatchedpages" not in api.user_rights:
+    if "unwatchedpages" not in api.user.rights:
         print("The current user does not have the 'unwatchedpages' right, which is necessary to use this script. Sorry.")
         sys.exit(1)
 

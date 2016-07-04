@@ -453,7 +453,7 @@ class TableOfContents:
 
         if text_old != text_new:
             try:
-                if "bot" in self.api.user_rights:
+                if "bot" in self.api.user.rights:
                     self.api.edit(title, pageid, text_new, timestamp, self.cliargs.summary, bot="1")
                 else:
                     self.api.edit(title, pageid, text_new, timestamp, self.cliargs.summary, minor="1")

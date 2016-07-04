@@ -8,12 +8,12 @@ from .connection import Connection, APIError
 from .rate import RateLimited
 from .lazy import LazyProperty
 from .tags import Tags
+from .user import User
 
 logger = logging.getLogger(__name__)
 
 __all__ = ["API", "LoginFailed"]
 
-# TODO: rename as "Site"?
 class API(Connection):
     """
     Simple interface to MediaWiki's API.
@@ -58,12 +58,11 @@ class API(Connection):
                 return False
 
         # reset the properties related to login
-        del self.is_loggedin
-        del self.user_rights
+        del self.user
         del self.max_ids_per_query
 
         status = do_login(self, username, password)
-        if status is True and self.is_loggedin:
+        if status is True and self.user.is_loggedin:
             return True
         logger.warn("Failed login attempt for user '{}'".format(username))
         raise LoginFailed
@@ -81,27 +80,11 @@ class API(Connection):
         return True
 
     @LazyProperty
-    def is_loggedin(self):
+    def user(self):
         """
-        Indicates whether the current session is authenticated (``True``) or
-        not (``False``).
-
-        The property is evaluated lazily and cached with the
-        :py:class:`@LazyProperty <ws.core.lazy.LazyProperty>` decorator.
+        A :py:class:`ws.core.user.User` instance for the current wiki.
         """
-        result = self.call_api(action="query", meta="userinfo")
-        return "anon" not in result["userinfo"]
-
-    @LazyProperty
-    def user_rights(self):
-        """
-        A list of rights for the current user.
-
-        The property is evaluated lazily and cached with the
-        :py:class:`@LazyProperty <ws.core.lazy.LazyProperty>` decorator.
-        """
-        result = self.call_api(action="query", meta="userinfo", uiprop="rights")
-        return result["userinfo"]["rights"]
+        return User(self)
 
     @LazyProperty
     def max_ids_per_query(self):
@@ -111,7 +94,7 @@ class API(Connection):
         with the ``apihighlimits`` right and 50 for others. These values
         correspond to the actual limits enforced by MediaWiki.
         """
-        return 500 if "apihighlimits" in self.user_rights else 50
+        return 500 if "apihighlimits" in self.user.rights else 50
 
     @LazyProperty
     def interwikimap(self):
@@ -439,10 +422,10 @@ class API(Connection):
             kwargs["assert"] = "user"
 
         # check and apply tags
-        if "applychangetags" in self.user_rights and "wiki-scripts" in self.tags.applicable:
+        if "applychangetags" in self.user.rights and "wiki-scripts" in self.tags.applicable:
             kwargs.setdefault("tags", [])
             kwargs["tags"].append("wiki-scripts")
-        elif "applychangetags" not in self.user_rights and "tags" in kwargs:
+        elif "applychangetags" not in self.user.rights and "tags" in kwargs:
             logger.warning("Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(kwargs["tags"]))
             del kwargs["tags"]
 

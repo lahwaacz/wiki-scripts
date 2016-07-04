@@ -26,7 +26,7 @@ def require_login(api):
 
     :param api: an :py:class:`ws.core.api.API` instance
     """
-    if not api.is_loggedin:
+    if not api.user.is_loggedin:
         print("You need to log in to use this script. URL is %s" % api.api_url)
         api.login(username=input("Username: "), password=getpass.getpass("Password: "))
 

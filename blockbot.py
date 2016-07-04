@@ -107,10 +107,10 @@ class Blockbot:
 
     def main_loop(self):
         require_login(self.api)
-        if "block" not in self.api.user_rights:
+        if "block" not in self.api.user.rights:
             print("Your account does not have the 'block' right.")
             return False
-        if "delete" not in self.api.user_rights:
+        if "delete" not in self.api.user.rights:
             print("Your account does not have the 'delete' right.")
             return False
 

@@ -13,9 +13,6 @@ __all__ = ["LatestRevisionsText"]
 
 class LatestRevisionsText(CacheDb):
     def __init__(self, api, cache_dir, autocommit=True):
-        # needed for database initialization
-        self.limit = 500 if "apihighlimits" in api.user_rights else 50
-
         super().__init__(api, cache_dir, "LatestRevisionsText", autocommit)
 
     def init(self, ns=None):
@@ -69,7 +66,7 @@ class LatestRevisionsText(CacheDb):
             # not necessary to wrap in each iteration since lists are mutable
             wrapped_titles = utils.ListOfDictsAttrWrapper(self.data[ns], "title")
 
-            for snippet in utils.list_chunks(for_update, self.limit):
+            for snippet in utils.list_chunks(for_update, self.api.max_ids_per_query):
                 result = self.api.call_api(action="query", pageids="|".join(str(pageid) for pageid in snippet), prop="info|revisions", rvprop="content")
                 for page in result["pages"].values():
                     utils.bisect_insert_or_replace(self.data[ns], page["title"], data_element=page, index_list=wrapped_titles)
