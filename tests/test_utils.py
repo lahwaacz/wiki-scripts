@@ -118,3 +118,29 @@ class test_bisect_insert_or_replace:
         bisect_insert_or_replace(l, "Cecilia", {"name": "Cecilia", "id": 3}, wrapped_names)
         bisect_insert_or_replace(l, "Daisy", {"name": "Daisy", "id": 2}, wrapped_names)
         assert_equals(l, expected)
+
+class test_dmerge:
+    @raises(TypeError)
+    def test_type(self):
+        dmerge({"foo": "bar"}, "baz")
+
+    def test_shallow(self):
+        src = {"foo": 0, "bar": 1}
+        dest = {"foo": 1, "baz": 2}
+        dmerge(src, dest)
+        assert_equals(dest, {"foo": 0, "bar": 1, "baz": 2})
+
+    def test_nested_dict(self):
+        src = {"bar": {"foo": 2}}
+        dest = {
+            "foo": 0,
+            "bar": {"baz": 1},
+        }
+        dmerge(src, dest)
+        assert_equals(dest, {"foo": 0, "bar": {"foo": 2, "baz": 1}})
+
+    def test_nested_list(self):
+        src = {"foo": [1, 2]}
+        dest = {"foo": [0, 1]}
+        dmerge(src, dest)
+        assert_equals(dest, {"foo": [0, 1, 1, 2]})
