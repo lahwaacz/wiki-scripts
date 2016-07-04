@@ -58,7 +58,7 @@ class Interlanguage:
 
     def __init__(self, api):
         self.api = api
-        self.redirects = self.api.redirects_map()
+        self.redirects = self.api.site.redirects_map()
 
         self.allpages = None
         self.wrapped_titles = None

@@ -54,8 +54,8 @@ class Meta:
             result = result[self.module]
 
         self._values.update(result)
-        for prop in result:
-            self._timestamps[prop] = utcnow
+        for p in result:
+            self._timestamps[p] = utcnow
 
         if isinstance(prop, str):
             return result[prop]
@@ -63,7 +63,7 @@ class Meta:
 
     def __getattr__(self, attr):
         if attr not in self.properties:
-            raise AttributeError("Invalid attribute: '{}'. Valid attributes are: {}".format(attr, self.properties))
+            raise AttributeError("Invalid attribute: '{}'. Valid attributes are: {}".format(attr, sorted(self.properties)))
 
         utcnow = datetime.datetime.utcnow()
         if attr in self.volatile_properties:

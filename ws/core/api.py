@@ -7,8 +7,9 @@ import logging
 from .connection import Connection, APIError
 from .rate import RateLimited
 from .lazy import LazyProperty
-from .tags import Tags
+from .site import Site
 from .user import User
+from .tags import Tags
 
 logger = logging.getLogger(__name__)
 
@@ -80,11 +81,25 @@ class API(Connection):
         return True
 
     @LazyProperty
+    def site(self):
+        """
+        A :py:class:`ws.core.site.Site` instance for the current wiki.
+        """
+        return Site(self)
+
+    @LazyProperty
     def user(self):
         """
         A :py:class:`ws.core.user.User` instance for the current wiki.
         """
         return User(self)
+
+    @LazyProperty
+    def tags(self):
+        """
+        A :py:class:`ws.core.tags.Tags` instance for the current wiki.
+        """
+        return Tags(self)
 
     @LazyProperty
     def max_ids_per_query(self):
@@ -95,51 +110,6 @@ class API(Connection):
         correspond to the actual limits enforced by MediaWiki.
         """
         return 500 if "apihighlimits" in self.user.rights else 50
-
-    @LazyProperty
-    def interwikimap(self):
-        """
-        Interwiki prefixes on the wiki, represented as a dictionary where
-        keys are the available prefixes and additional information (as returned
-        by the `siteinfo/interwikimap` query, see `API:siteinfo`_).
-
-        The property is evaluated lazily and cached with the
-        :py:class:`@LazyProperty <ws.core.lazy.LazyProperty>` decorator.
-
-        .. _`API:siteinfo`: https://www.mediawiki.org/wiki/API:Siteinfo
-        """
-        result = self.call_api(action="query", meta="siteinfo", siprop="interwikimap")
-        interwikis = result["interwikimap"]
-        return dict( (d["prefix"], d) for d in interwikis )
-
-    @property
-    def interlanguagemap(self):
-        """
-        Interlanguage prefixes on the wiki, filtered from the general
-        :py:attr:`interwikimap <ws.core.API.interwikimap>` property.
-        """
-        return dict( (prefix, info) for prefix, info in self.interwikimap.items() if "local" in info )
-
-# TODO: namespace aliases are not considered
-    @LazyProperty
-    def namespaces(self):
-        """
-        Namespaces present on the wiki as a mapping (dictionary) of namespace
-        IDs to their names.
-
-        The property is evaluated lazily and cached with the
-        :py:class:`@LazyProperty <ws.core.lazy.LazyProperty>` decorator.
-        """
-        result = self.call_api(action="query", meta="siteinfo", siprop="namespaces")
-        namespaces = result["namespaces"].values()
-        return dict( (ns["id"], ns["*"]) for ns in namespaces )
-
-    @LazyProperty
-    def tags(self):
-        """
-        A :py:class:`ws.core.tags.Tags` instance for the current wiki.
-        """
-        return Tags(self)
 
 
     def query_continue(self, params=None, **kwargs):
@@ -287,51 +257,6 @@ class API(Connection):
             result = self.call_api(action="query", redirects="", pageids="|".join(snippet))
             redirects.extend(result["redirects"])
 
-        return redirects
-
-    # TODO: solve caching of methods with unhashable parameters somehow
-#    @lru_cache(maxsize=8)
-    def redirects_map(self, source_namespaces=None, target_namespaces="all"):
-        """
-        Build a mapping of redirects in given namespaces. Interwiki redirects are
-        not included in the mapping.
-
-        :param source_namespaces:
-            the namespace ID of the source title must be in this list in order
-            to be included in the mapping (default is ``[0]``, the magic word
-            ``"all"`` will select all available namespaces)
-        :param target_namespaces:
-            the namespace ID of the target title must be in this list in order
-            to be included in the mapping (default is ``"all"``, which will
-            select all available namespaces)
-        :returns:
-            a dictionary where the keys are source titles and values are the
-            redirect targets, including the link fragments (e.g.
-            ``"Page title#Section title"``).
-        """
-        source_namespaces = source_namespaces if source_namespaces is not None else [0]
-        if source_namespaces == "all":
-            source_namespaces = [ns for ns in self.namespaces if int(ns) >= 0]
-        if target_namespaces == "all":
-            target_namespaces = [ns for ns in self.namespaces if int(ns) >= 0]
-
-        redirects = {}
-        for ns in target_namespaces:
-            # FIXME: adding the rdnamespace parameter causes an internal API error,
-            # see https://wiki.archlinux.org/index.php/User:Lahwaacz/Notes#API:_resolving_redirects
-            # removing it for now, all namespaces are included by default anyway...
-#            allpages = self.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max", prop="redirects", rdprop="title|fragment", rdnamespace="|".join(source_namespaces), rdlimit="max")
-            allpages = self.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max", prop="redirects", rdprop="title|fragment", rdlimit="max")
-            for page in allpages:
-                # construct the mapping, the query result is somewhat reversed...
-                target_title = page["title"]
-                for redirect in page.get("redirects", []):
-                    source_title = redirect["title"]
-                    target_fragment = redirect.get("fragment")
-                    if target_fragment:
-                        redirects[source_title] = "{}#{}".format(target_title, target_fragment)
-                    else:
-                        redirects[source_title] = target_title
         return redirects
 
     @LazyProperty

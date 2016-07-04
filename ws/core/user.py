@@ -41,7 +41,7 @@ class User(Meta):
         The property is evaluated lazily and cached with the
         :py:class:`@LazyProperty <ws.core.lazy.LazyProperty>` decorator.
         """
-        return "anon" not in self._fetch()
+        return "anon" not in self.fetch()
 
     def set_option(self, option, value):
         """

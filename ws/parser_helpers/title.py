@@ -84,7 +84,7 @@ class Title:
             iw, _rest = full_title.lstrip(":").split(":", maxsplit=1)
             iw = iw.lower().replace("_", "").strip()
             # check if it is valid interwiki prefix
-            self.iw = find_caseless(iw, self.api.interwikimap.keys())
+            self.iw = find_caseless(iw, self.api.site.interwikimap.keys())
         except ValueError:
             self.iw = ""
             _rest = full_title
@@ -93,10 +93,10 @@ class Title:
         try:
             ns, _pure = _rest.lstrip(":").split(":", maxsplit=1)
             ns = ns.replace("_", " ").strip()
-            if self.iw == "" or "local" in self.api.interwikimap[self.iw]:
+            if self.iw == "" or "local" in self.api.site.interwikimap[self.iw]:
                 # check if it is valid namespace
-                # TODO: API.namespaces does not consider namespace aliases
-                self.ns = find_caseless(ns, self.api.namespaces.values(), from_target=True)
+                # TODO: API.site.namespaces does not consider namespace aliases
+                self.ns = find_caseless(ns, self.api.site.namespaces.values(), from_target=True)
             else:
                 self.ns = ns
         except ValueError:
@@ -154,7 +154,7 @@ class Title:
         """
         Same as ``{{NAMESPACENUMBER}}``.
         """
-        ns_inv = dict( (v, k) for k, v in self.api.namespaces.items() )
+        ns_inv = dict( (v, k) for k, v in self.api.site.namespaces.items() )
         return ns_inv[self.ns]
 
     @property
@@ -165,7 +165,7 @@ class Title:
         ns_id = self.namespacenumber
         if ns_id % 2 == 0:
             return self.ns
-        return self.api.namespaces[ns_id - 1]
+        return self.api.site.namespaces[ns_id - 1]
 
     @property
     def talkspace(self):
@@ -175,7 +175,7 @@ class Title:
         ns_id = self.namespacenumber
         if ns_id % 2 == 1:
             return self.ns
-        return self.api.namespaces[ns_id + 1]
+        return self.api.site.namespaces[ns_id + 1]
 
 
     @property
@@ -273,7 +273,7 @@ class Title:
     def iwprefix(self, value):
         if isinstance(value, str):
             try:
-                self.iw = find_caseless(value, self.api.interwikimap.keys())
+                self.iw = find_caseless(value, self.api.site.interwikimap.keys())
             except ValueError:
                 if value == "":
                     self.iw = value
@@ -286,7 +286,7 @@ class Title:
     def namespace(self, value):
         if isinstance(value, str):
             try:
-                self.ns = find_caseless(canonicalize(value), self.api.namespaces.values(), from_target=True)
+                self.ns = find_caseless(canonicalize(value), self.api.site.namespaces.values(), from_target=True)
             except ValueError:
                 raise ValueError("tried to assign invalid namespace: {}".format(value))
         else:

@@ -191,12 +191,12 @@ class WikilinkRules:
         self.cache_dir = cache_dir
         self.interactive = interactive
 
-        # api.redirects_map() is not currently cached, save the result
-        self.redirects = api.redirects_map()
+        # api.site.redirects_map() is not currently cached, save the result
+        self.redirects = api.site.redirects_map()
 
         # mapping of canonical titles to displaytitles
         self.displaytitles = {}
-        for ns in self.api.namespaces.keys():
+        for ns in self.api.site.namespaces.keys():
             if ns < 0:
                 continue
             for page in self.api.generator(generator="allpages", gaplimit="max", gapnamespace=ns, prop="info", inprop="displaytitle"):
@@ -207,7 +207,7 @@ class WikilinkRules:
         # create shallow copy of the db to trigger update only the first time
         # and not at every access
         self.db_copy = {}
-        for ns in self.api.namespaces.keys():
+        for ns in self.api.site.namespaces.keys():
             if ns >= 0:
                 self.db_copy[str(ns)] = self.db[str(ns)]
         self.db.dump()

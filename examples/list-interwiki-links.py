@@ -13,7 +13,7 @@ cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
 for api_url in api_urls:
     api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
     prefixes = set()
-    for ns in api.namespaces:
+    for ns in api.site.namespaces:
         if ns < 0:
             continue
         for page in api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, prop="iwlinks", iwprop="url", iwlimit="max"):
