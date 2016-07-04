@@ -40,6 +40,9 @@ class test_api:
                     "abusefilter-log"]
         assert_equals(fixtures.api.user_rights, expected)
 
+    def test_max_ids_per_query(self):
+        assert_equals(fixtures.api.max_ids_per_query, 50)
+
     def test_interwikimap(self):
         expected = set(['ar', 'arxiv', 'bg', 'commons', 'cs', 'da', 'de', 'debian', 'doi', 'el', 'emacswiki', 'en', 'es', 'fa', 'fi', 'foldoc', 'fr', 'freebsdman', 'funtoo', 'gentoo', 'gregswiki', 'he', 'hr', 'hu', 'id', 'it', 'ja', 'ko', 'linuxwiki', 'lqwiki', 'lt', 'meta', 'metawikimedia', 'mozillawiki', 'mw', 'nl', 'phab', 'phabricator', 'pl', 'pt', 'rfc', 'ro', 'ru', 'sk', 'sourceforge', 'sr', 'sv', 'th', 'tr', 'uk', 'w', 'wikia', 'wikibooks', 'wikimedia', 'wikinews', 'wikipedia', 'wikiquote', 'wikisource', 'wikispecies', 'wikiversity', 'wikivoyage', 'wikt', 'wiktionary', 'wmf', 'zh-cn', 'zh-tw'])
         assert_equals(set(fixtures.api.interwikimap), expected)

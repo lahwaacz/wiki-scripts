@@ -59,6 +59,7 @@ class API(Connection):
         # reset the properties related to login
         del self.is_loggedin
         del self.user_rights
+        del self.max_ids_per_query
 
         status = do_login(self, username, password)
         if status is True and self.is_loggedin:
@@ -100,6 +101,10 @@ class API(Connection):
         """
         result = self.call_api(action="query", meta="userinfo", uiprop="rights")
         return result["userinfo"]["rights"]
+
+    @LazyProperty
+    def max_ids_per_query(self):
+        return 500 if "apihighlimits" in self.user_rights else 50
 
     @LazyProperty
     def interwikimap(self):
@@ -279,12 +284,9 @@ class API(Connection):
             """
             return (list_[i:i+bs] for i in range(0, len(list_), bs))
 
-        # check if we have apihighlimits and set the limit accordingly
-        limit = 500 if "apihighlimits" in self.user_rights else 50
-
         # resolve by chunks
         redirects = []
-        for snippet in _chunks(pageids, limit):
+        for snippet in _chunks(pageids, self.max_ids_per_query):
             result = self.call_api(action="query", redirects="", pageids="|".join(snippet))
             redirects.extend(result["redirects"])
 

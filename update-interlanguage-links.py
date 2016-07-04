@@ -60,8 +60,6 @@ class Interlanguage:
         self.api = api
         self.redirects = self.api.redirects_map()
 
-        self.limit = 500 if "apihighlimits" in self.api.user_rights else 50
-
         self.allpages = None
         self.wrapped_titles = None
         self.families = None
@@ -324,7 +322,7 @@ class Interlanguage:
                 if self._needs_update(page, langlinks):
                     yield page, langlinks
 
-        for chunk in utils.iter_chunks(_updates_gen(self.allpages), self.limit):
+        for chunk in utils.iter_chunks(_updates_gen(self.allpages), self.api.max_ids_per_query):
             pages_props, pages_langlinks = zip(*list(chunk))
             pageids = "|".join(str(page["pageid"]) for page in pages_props)
             result = self.api.call_api(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp")

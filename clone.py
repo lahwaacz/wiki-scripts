@@ -98,9 +98,7 @@ class Downloader:
         # sort by title (first item in tuple)
         to_be_updated.sort()
 
-        limit = 500 if "apihighlimits" in api.user_rights else 50
-
-        for snippet in list_chunks(to_be_updated, limit):
+        for snippet in list_chunks(to_be_updated, api.max_ids_per_query):
             # unzip the list of tuples
             titles, pageids, fnames = zip(*snippet)
             print("  [downloading]   '{}' ... '{}'".format(titles[0], titles[-1]))
