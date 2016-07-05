@@ -83,13 +83,12 @@ class Connection:
                 self.session.cookies.save()
                 self.session.cookies.load()
 
-        _auth = None
-        # TODO: replace with requests.auth.HTTPBasicAuth
+        self._auth = None
         if http_user is not None and http_password is not None:
             self._auth = (http_user, http_password)
 
         self.session.headers.update({"user-agent": user_agent})
-        self.session.auth = _auth
+        self.session.auth = self._auth
         self.session.params.update({"format": "json"})
         self.session.verify = ssl_verify
 
