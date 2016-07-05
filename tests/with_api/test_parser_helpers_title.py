@@ -27,6 +27,7 @@ class test_canonicalize:
         result = canonicalize(src)
         assert_equals(result, expected)
 
+
 @attr(speed="slow")
 class test_title():
     # keys: input, values: dictionary of expected attributes of the Title object
@@ -202,6 +203,7 @@ class test_title():
         for attr, value in expected.items():
             assert_equals(getattr(title, attr), value)
 
+
 @attr(speed="slow")
 class test_title_setters():
     attributes = ["iwprefix", "namespace", "pagename", "sectionname"]
@@ -304,3 +306,29 @@ class test_title_setters():
     @raises(ValueError)
     def test_invalid_namespace(self):
         self.title.namespace = "invalid namespace"
+
+
+@attr(speed="slow")
+class test_title_invalid_chars:
+    titles = [
+        "Foo [bar]",
+        "Foo | bar",
+        "<foo>",
+        "foo %23 bar",  # encoded '#'
+        "{foo}",
+    ]
+
+    def test_chars(self):
+        @raises(InvalidTitleCharError)
+        def tester(title):
+            print(Title(fixtures.api, title))
+        for title in self.titles:
+            yield tester, title
+
+    def test_setter(self):
+        @raises(InvalidTitleCharError)
+        def tester(pagename):
+            title = Title(fixtures.api, "")
+            title.pagename = pagename
+        for title in self.titles:
+            yield tester, title

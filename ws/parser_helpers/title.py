@@ -10,7 +10,7 @@ import re
 from .encodings import _anchor_preprocess, urldecode
 from ..utils import find_caseless
 
-__all__ = ["canonicalize", "Title"]
+__all__ = ["canonicalize", "Title", "InvalidTitleCharError"]
 
 def canonicalize(title):
     """
@@ -95,7 +95,6 @@ class Title:
             ns = ns.replace("_", " ").strip()
             if self.iw == "" or "local" in self.api.site.interwikimap[self.iw]:
                 # check if it is valid namespace
-                # TODO: API.site.namespaces does not consider namespace aliases
                 self.ns = find_caseless(ns, self.api.site.namespacenames, from_target=True)
             else:
                 self.ns = ns
@@ -104,8 +103,7 @@ class Title:
             _pure = _rest
 
         # TODO: This is not entirely MediaWiki-like, perhaps we should just
-        # throw BadTitle exception. In that case other bad titles should be
-        # reported as well.
+        # throw BadTitle exception.
         _pure = _pure.lstrip(":")
 
         # split section anchor
@@ -117,8 +115,9 @@ class Title:
         # MediaWiki does not treat encoded underscores as spaces (e.g.
         # [[Main%5Fpage]] is rendered as <a href="...">Main_page</a>),
         # but we focus on meaning, not rendering.
-        # FIXME: don't decode '[', '|' and ']'
         _pure = urldecode(_pure)
+        if not re.fullmatch("[{}]*".format(self.api.site.general["legaltitlechars"]), _pure):
+            raise InvalidTitleCharError("Given title contains illegal character(s): '{}'".format(_pure))
         # canonicalize title
         self.pure = canonicalize(_pure)
         # canonicalize anchor
@@ -295,7 +294,10 @@ class Title:
     @pagename.setter
     def pagename(self, value):
         if isinstance(value, str):
-            self.pure = canonicalize(value)
+            _pure = urldecode(value)
+            if not re.fullmatch("[{}]*".format(self.api.site.general["legaltitlechars"]), _pure):
+                raise InvalidTitleCharError("Given title contains illegal character(s): '{}'".format(_pure))
+            self.pure = canonicalize(_pure)
         else:
             raise TypeError("pagename must be of type 'str'")
 
@@ -324,3 +326,10 @@ class Title:
         if self.sectionname:
             return "{}#{}".format(self._format(self.iwprefix, self.namespace, self.pagename), self.sectionname)
         return self._format(self.iwprefix, self.namespace, self.pagename)
+
+
+class InvalidTitleCharError(Exception):
+    """
+    Raised when an invalid title is passed to :py:class:`Title`.
+    """
+    pass
