@@ -58,7 +58,8 @@ class Meta:
             self._timestamps[p] = utcnow
 
         if isinstance(prop, str):
-            return result[prop]
+            # use .get(), some props may never be returned by the API (e.g. uiprop=blockinfo)
+            return result.get(prop)
         return result
 
     def __getattr__(self, attr):
@@ -74,4 +75,5 @@ class Meta:
         # don't fetch if delta is 0
         if attr not in self._values or (delta and self._timestamps.get(attr, utcnow) < utcnow - delta):
             self.fetch(attr)
-        return self._values[attr]
+        # use .get(), some props may never be returned by the API (e.g. uiprop=blockinfo)
+        return self._values.get(attr)
