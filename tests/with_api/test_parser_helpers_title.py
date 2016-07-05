@@ -145,6 +145,20 @@ class test_title():
             "fullpagename": "wikipedia:Foo:Bar",
         },
 
+        # test alternative namespace names
+        "Project:Foo": {
+            "iwprefix": "",
+            "namespace": "Project",
+            "pagename": "Foo",
+            "fullpagename": "Project:Foo",
+        },
+        "Image:Foo": {
+            "iwprefix": "",
+            "namespace": "Image",
+            "pagename": "Foo",
+            "fullpagename": "Image:Foo",
+        },
+
         # test colons
         ":Category:Foo": {
             "iwprefix": "",

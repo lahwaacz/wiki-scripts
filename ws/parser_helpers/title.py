@@ -96,7 +96,7 @@ class Title:
             if self.iw == "" or "local" in self.api.site.interwikimap[self.iw]:
                 # check if it is valid namespace
                 # TODO: API.site.namespaces does not consider namespace aliases
-                self.ns = find_caseless(ns, self.api.site.namespaces.values(), from_target=True)
+                self.ns = find_caseless(ns, self.api.site.namespacenames, from_target=True)
             else:
                 self.ns = ns
         except ValueError:
@@ -154,8 +154,7 @@ class Title:
         """
         Same as ``{{NAMESPACENUMBER}}``.
         """
-        ns_inv = dict( (v, k) for k, v in self.api.site.namespaces.items() )
-        return ns_inv[self.ns]
+        return self.api.site.namespacenames[self.ns]
 
     @property
     def articlespace(self):
@@ -165,7 +164,7 @@ class Title:
         ns_id = self.namespacenumber
         if ns_id % 2 == 0:
             return self.ns
-        return self.api.site.namespaces[ns_id - 1]
+        return self.api.site.namespaces[ns_id - 1]["*"]
 
     @property
     def talkspace(self):
@@ -175,7 +174,7 @@ class Title:
         ns_id = self.namespacenumber
         if ns_id % 2 == 1:
             return self.ns
-        return self.api.site.namespaces[ns_id + 1]
+        return self.api.site.namespaces[ns_id + 1]["*"]
 
 
     @property
@@ -286,7 +285,7 @@ class Title:
     def namespace(self, value):
         if isinstance(value, str):
             try:
-                self.ns = find_caseless(canonicalize(value), self.api.site.namespaces.values(), from_target=True)
+                self.ns = find_caseless(canonicalize(value), self.api.site.namespacenames, from_target=True)
             except ValueError:
                 raise ValueError("tried to assign invalid namespace: {}".format(value))
         else:
