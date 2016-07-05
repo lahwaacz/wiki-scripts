@@ -103,8 +103,8 @@ class ExtlinkRules:
 
     @LazyProperty
     def extlink_regex(self):
-        result = self.api.call_api(action="query", meta="siteinfo", siprop="general")
-        regex = re.escape(result["general"]["server"] + result["general"]["articlepath"].split("$1")[0])
+        general = self.api.site.general
+        regex = re.escape(general["server"] + general["articlepath"].split("$1")[0])
         regex += "(?P<pagename>\S+)"
         return re.compile(regex)
 
@@ -504,7 +504,7 @@ class WikilinkRules:
     def update_wikilink(self, wikicode, wikilink, src_title):
         title = Title(self.api, wikilink.title)
         # skip interlanguage links (handled by update-interlanguage-links.py)
-        if title.iw in self.api.interlanguagemap.keys():
+        if title.iw in self.api.site.interlanguagemap.keys():
             return
 
         # beautify if urldecoded
