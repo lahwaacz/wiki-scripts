@@ -129,6 +129,8 @@ class API(Connection):
             params = kwargs
         elif not isinstance(params, dict):
             raise ValueError("params must be dict or None")
+        elif kwargs and params:
+            raise ValueError("specifying 'params' and 'kwargs' at the same time is not supported")
         else:
             # create copy before adding action=query
             params = params.copy()
@@ -281,6 +283,11 @@ class API(Connection):
             params = kwargs
         elif not isinstance(params, dict):
             raise ValueError("params must be dict or None")
+        elif kwargs and params:
+            raise ValueError("specifying 'params' and 'kwargs' at the same time is not supported")
+        else:
+            # create copy before adding token
+            params = params.copy()
 
         # ensure that the token is passed
         params["token"] = self._csrftoken

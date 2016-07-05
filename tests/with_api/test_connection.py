@@ -51,3 +51,7 @@ class test_connection:
         h = fixtures.api.call_api(action="help")
         assert_equals(h["mime"], "text/html")
         assert_true(isinstance(h["help"], str))
+
+    @raises(ValueError)
+    def test_mixed_params_and_kwargs(self):
+        fixtures.api.call_api(params={"meta": "siteinfo"}, action="query")

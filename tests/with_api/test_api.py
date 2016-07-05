@@ -50,6 +50,10 @@ class test_api:
             titles += [i["title"] for i in chunk["querypage"]["results"]]
         assert_equals(titles, self.uncat_cats)
 
+    @raises(ValueError)
+    def test_query_continue_params_kwargs(self):
+        next(fixtures.api.query_continue(params={"foo": 0}, bar=1))
+
     def test_list_pagepropnames(self):
         expected = ["displaytitle", "hiddencat", "newsectionlink", "noeditsection", "noindex", "notoc"]
         pagepropnames = [d["propname"] for d in fixtures.api.list(list="pagepropnames")]

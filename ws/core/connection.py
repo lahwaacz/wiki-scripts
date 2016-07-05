@@ -175,7 +175,6 @@ class Connection:
 
         return response
 
-    # FIXME: specify if `params` and `kwargs` are merged or which takes precedence (and check all methods in ws.core.api.API)
     def call_api(self, params=None, expand_result=True, **kwargs):
         """
         Convenient method to call the ``api.php`` entry point.
@@ -184,7 +183,8 @@ class Connection:
         selects correct HTTP request method, handles API errors and warnings.
 
         Parameters of the call can be passed either as a dict to ``params``, or
-        as keyword arguments.
+        as keyword arguments. ``params`` and ``kwargs`` cannot be specified at
+        the same time.
 
         :param params: dictionary of API parameters
         :param expand_result:
@@ -197,6 +197,11 @@ class Connection:
             params = kwargs
         elif not isinstance(params, dict):
             raise ValueError("params must be dict or None")
+        elif kwargs and params:
+            # To let kwargs override params, we would have to create deep copy
+            # of params to avoid modifying the caller's data and then call
+            # utils.dmerge. Too complicated, not supported.
+            raise ValueError("specifying 'params' and 'kwargs' at the same time is not supported")
 
         # check if action is valid
         action = params.setdefault("action", "help")
