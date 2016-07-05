@@ -68,7 +68,7 @@ class Site(Meta):
     @property
     def namespacenames(self):
         """
-        Mapping of all valid namespace names, including canonical names or
+        Mapping of all valid namespace names, including canonical names and
         aliases, to the corresponding namespace ID.
         """
         names = dict( (ns["*"], ns["id"]) for ns in self.namespaces.values() )

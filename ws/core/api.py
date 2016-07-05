@@ -231,7 +231,7 @@ class API(Connection):
         Or just use this method when not sure if given title is a redirect or
         not.
 
-        :param pageids:
+        :param int pageids:
             unpacked list of page IDs to resolve (i.e. call this method as
             ``resolve_redirects(*list)`` or ``resolve_redirects(pageid1, pageid2, ...)``)
         :returns:
@@ -254,8 +254,10 @@ class API(Connection):
         # resolve by chunks
         redirects = []
         for snippet in _chunks(pageids, self.max_ids_per_query):
-            result = self.call_api(action="query", redirects="", pageids="|".join(snippet))
-            redirects.extend(result["redirects"])
+            pageids = "|".join(str(x) for x in snippet)
+            result = self.call_api(action="query", redirects="", pageids=pageids)
+            if "redirects" in result:
+                redirects.extend(result["redirects"])
 
         return redirects
 

@@ -47,3 +47,11 @@ class test_api:
         for i in q:
             titles.append(i["title"])
         assert_equals(titles, self.uncat_cats)
+
+    def test_resolve_redirects(self):
+        pageids = [1216, 17719]
+        expected = [
+            {'from': 'ABS', 'to': 'Arch Build System'},
+            {'from': 'Main Page', 'to': 'Main page'},
+        ]
+        assert_equals(fixtures.api.resolve_redirects(*pageids), expected)
