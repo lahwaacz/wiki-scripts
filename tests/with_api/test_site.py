@@ -14,6 +14,72 @@ class test_site:
     """
 
     props_data = {
+	"general": {
+            "mainpage": "Main page",
+            "base": "https://wiki.archlinux.org/index.php/Main_page",
+            "sitename": "ArchWiki",
+            "logo": "https://wiki.archlinux.org/skins/archlinux/archlogo.png",
+            "generator": "MediaWiki 1.26.3",
+            "phpversion": "7.0.6",
+            "phpsapi": "fpm-fcgi",
+            "dbtype": "mysql",
+            "dbversion": "5.7.11-4",
+            "imagewhitelistenabled": "",
+            "langconversion": "",
+            "titleconversion": "",
+            "linkprefixcharset": "",
+            "linkprefix": "",
+            "linktrail": "/^([a-z]+)(.*)$/sD",
+            "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
+            "invalidusernamechars": "@:",
+            "case": "first-letter",
+            "lang": "en",
+            "fallback": [],
+            "fallback8bitEncoding": "windows-1252",
+            "writeapi": "",
+            "timezone": "UTC",
+            "timeoffset": 0,
+            "articlepath": "/index.php/$1",
+            "scriptpath": "",
+            "script": "/index.php",
+            "variantarticlepath": False,
+            "server": "https://wiki.archlinux.org",
+            "servername": "wiki.archlinux.org",
+            "wikiid": "archwiki",
+            "maxuploadsize": 104857600,
+            "minuploadchunksize": 1024,
+            "thumblimits": [
+                120,
+                150,
+                180,
+                200,
+                250,
+                300
+            ],
+            "imagelimits": [
+                {
+                    "width": 320,
+                    "height": 240
+                },
+                {
+                    "width": 640,
+                    "height": 480
+                },
+                {
+                    "width": 800,
+                    "height": 600
+                },
+                {
+                    "width": 1024,
+                    "height": 768
+                },
+                {
+                    "width": 1280,
+                    "height": 1024
+                }
+            ],
+            "favicon": "https://wiki.archlinux.org/favicon.ico"
+        },
         "usergroups": [
             {
                 "name": "*",
@@ -388,7 +454,11 @@ class test_site:
     def test_props(self):
         fixtures.api.site.fetch(list(self.props_data))
         def tester(propname, expected):
-            assert_equals(getattr(fixtures.api.site, propname), expected)
+            prop = getattr(fixtures.api.site, propname).copy()
+            # FIXME: ugly hack...
+            if isinstance(prop, dict) and "time" in prop:
+                del prop["time"]
+            assert_equals(prop, expected)
         for propname, expected in self.props_data.items():
             yield tester, propname, expected
 
