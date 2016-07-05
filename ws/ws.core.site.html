@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ws.core.site module &mdash; wiki-scripts 1.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
+    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
+    <link rel="up" title="ws.core package" href="ws.core.html" />
+    <link rel="next" title="ws.core.tags module" href="ws.core.tags.html" />
+    <link rel="prev" title="ws.core.rate module" href="ws.core.rate.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ws.core.site">
+<span id="ws-core-site-module"></span><h1>ws.core.site module<a class="headerlink" href="#module-ws.core.site" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="ws.core.site.Site">
+<em class="property">class </em><code class="descclassname">ws.core.site.</code><code class="descname">Site</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.site.Site" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ws.core.meta.html#ws.core.meta.Meta" title="ws.core.meta.Meta"><code class="xref py py-class docutils literal"><span class="pre">ws.core.meta.Meta</span></code></a></p>
+<p>The <a class="reference internal" href="#ws.core.site.Site" title="ws.core.site.Site"><code class="xref py py-class docutils literal"><span class="pre">Site</span></code></a> class holds information about the wiki site.</p>
+<p>Valid properties are listed in the <a class="reference internal" href="#ws.core.site.Site.properties" title="ws.core.site.Site.properties"><code class="xref py py-attr docutils literal"><span class="pre">properties</span></code></a> attribute.
+See the <a class="reference external" href="https://www.mediawiki.org/wiki/API:Siteinfo">MediaWiki documentation</a> for explanation of the properties.</p>
+<p>All <a class="reference internal" href="#ws.core.site.Site.properties" title="ws.core.site.Site.properties"><code class="xref py py-attr docutils literal"><span class="pre">properties</span></code></a> are evaluated lazily and cached. The cache is
+never automatically invalidated, you should create a new instance for this.</p>
+<dl class="attribute">
+<dt id="ws.core.site.Site.module">
+<code class="descname">module</code><em class="property"> = 'siteinfo'</em><a class="headerlink" href="#ws.core.site.Site.module" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ws.core.site.Site.properties">
+<code class="descname">properties</code><em class="property"> = {'namespaces', 'showhooks', 'languages', 'protocols', 'magicwords', 'rightsinfo', 'fileextensions', 'dbrepllag', 'libraries', 'statistics', 'extensiontags', 'functionhooks', 'skins', 'interwikimap', 'specialpagealiases', 'usergroups', 'general', 'namespacealiases', 'restrictions', 'defaultoptions', 'extensions', 'variables'}</em><a class="headerlink" href="#ws.core.site.Site.properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ws.core.site.Site.interwikimap">
+<code class="descname">interwikimap</code><a class="headerlink" href="#ws.core.site.Site.interwikimap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interwiki prefixes on the wiki, represented as a dictionary where
+keys are the available prefixes and additional information (as returned
+by the <cite>siteinfo/interwikimap</cite> query, see <a class="reference external" href="https://www.mediawiki.org/wiki/API:Siteinfo">API:siteinfo</a>).</p>
+<p>The property is evaluated lazily and cached with the
+<a class="reference internal" href="ws.core.lazy.html#ws.core.lazy.LazyProperty" title="ws.core.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">&#64;LazyProperty</span></code></a> decorator.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.core.site.Site.interlanguagemap">
+<code class="descname">interlanguagemap</code><a class="headerlink" href="#ws.core.site.Site.interlanguagemap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interlanguage prefixes on the wiki, filtered from the general
+<code class="xref py py-attr docutils literal"><span class="pre">interwikimap</span></code> property.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.core.site.Site.namespaces">
+<code class="descname">namespaces</code><a class="headerlink" href="#ws.core.site.Site.namespaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Namespaces present on the wiki as a mapping (dictionary) of namespace
+IDs to their names.</p>
+<p>The property is evaluated lazily and cached with the
+<a class="reference internal" href="ws.core.lazy.html#ws.core.lazy.LazyProperty" title="ws.core.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">&#64;LazyProperty</span></code></a> decorator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.core.site.Site.redirects_map">
+<code class="descname">redirects_map</code><span class="sig-paren">(</span><em>source_namespaces=None</em>, <em>target_namespaces='all'</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.site.Site.redirects_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a mapping of redirects in given namespaces. Interwiki redirects are
+not included in the mapping.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>source_namespaces</strong> &#8211; the namespace ID of the source title must be in this list in order
+to be included in the mapping (default is <code class="docutils literal"><span class="pre">[0]</span></code>, the magic word
+<code class="docutils literal"><span class="pre">&quot;all&quot;</span></code> will select all available namespaces)</li>
+<li><strong>target_namespaces</strong> &#8211; the namespace ID of the target title must be in this list in order
+to be included in the mapping (default is <code class="docutils literal"><span class="pre">&quot;all&quot;</span></code>, which will
+select all available namespaces)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a dictionary where the keys are source titles and values are the
+redirect targets, including the link fragments (e.g.
+<code class="docutils literal"><span class="pre">&quot;Page</span> <span class="pre">title#Section</span> <span class="pre">title&quot;</span></code>).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/wiki-scripts.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../modules.html">API reference</a><ul>
+  <li><a href="ws.html">ws package</a><ul>
+  <li><a href="ws.core.html">ws.core package</a><ul>
+      <li>Previous: <a href="ws.core.rate.html" title="previous chapter">ws.core.rate module</a></li>
+      <li>Next: <a href="ws.core.tags.html" title="next chapter">ws.core.tags module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/ws/ws.core.site.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014-2016, Jakub Klinkovský.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="../_sources/ws/ws.core.site.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/lahwaacz/wiki-scripts" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

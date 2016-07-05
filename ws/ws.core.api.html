@@ -95,20 +95,21 @@ See <a class="reference external" href="https://www.mediawiki.org/wiki/API:Logou
 </dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.api.API.is_loggedin">
-<code class="descname">is_loggedin</code><a class="headerlink" href="#ws.core.api.API.is_loggedin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Indicates whether the current session is authenticated (<code class="docutils literal"><span class="pre">True</span></code>) or
-not (<code class="docutils literal"><span class="pre">False</span></code>).</p>
-<p>The property is evaluated lazily and cached with the
-<a class="reference internal" href="ws.core.lazy.html#ws.core.lazy.LazyProperty" title="ws.core.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">&#64;LazyProperty</span></code></a> decorator.</p>
+<dt id="ws.core.api.API.site">
+<code class="descname">site</code><a class="headerlink" href="#ws.core.api.API.site" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference internal" href="ws.core.site.html#ws.core.site.Site" title="ws.core.site.Site"><code class="xref py py-class docutils literal"><span class="pre">ws.core.site.Site</span></code></a> instance for the current wiki.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.api.API.user_rights">
-<code class="descname">user_rights</code><a class="headerlink" href="#ws.core.api.API.user_rights" title="Permalink to this definition">¶</a></dt>
-<dd><p>A list of rights for the current user.</p>
-<p>The property is evaluated lazily and cached with the
-<a class="reference internal" href="ws.core.lazy.html#ws.core.lazy.LazyProperty" title="ws.core.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">&#64;LazyProperty</span></code></a> decorator.</p>
+<dt id="ws.core.api.API.user">
+<code class="descname">user</code><a class="headerlink" href="#ws.core.api.API.user" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference internal" href="ws.core.user.html#ws.core.user.User" title="ws.core.user.User"><code class="xref py py-class docutils literal"><span class="pre">ws.core.user.User</span></code></a> instance for the current wiki.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.core.api.API.tags">
+<code class="descname">tags</code><a class="headerlink" href="#ws.core.api.API.tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference internal" href="ws.core.tags.html#ws.core.tags.Tags" title="ws.core.tags.Tags"><code class="xref py py-class docutils literal"><span class="pre">ws.core.tags.Tags</span></code></a> instance for the current wiki.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -118,38 +119,6 @@ not (<code class="docutils literal"><span class="pre">False</span></code>).</p>
 <code class="docutils literal"><span class="pre">pageids</span></code> and <code class="docutils literal"><span class="pre">revids</span></code> parameters of the API. It is 500 for users
 with the <code class="docutils literal"><span class="pre">apihighlimits</span></code> right and 50 for others. These values
 correspond to the actual limits enforced by MediaWiki.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="ws.core.api.API.interwikimap">
-<code class="descname">interwikimap</code><a class="headerlink" href="#ws.core.api.API.interwikimap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Interwiki prefixes on the wiki, represented as a dictionary where
-keys are the available prefixes and additional information (as returned
-by the <cite>siteinfo/interwikimap</cite> query, see <a class="reference external" href="https://www.mediawiki.org/wiki/API:Siteinfo">API:siteinfo</a>).</p>
-<p>The property is evaluated lazily and cached with the
-<a class="reference internal" href="ws.core.lazy.html#ws.core.lazy.LazyProperty" title="ws.core.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">&#64;LazyProperty</span></code></a> decorator.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="ws.core.api.API.interlanguagemap">
-<code class="descname">interlanguagemap</code><a class="headerlink" href="#ws.core.api.API.interlanguagemap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Interlanguage prefixes on the wiki, filtered from the general
-<code class="xref py py-attr docutils literal"><span class="pre">interwikimap</span></code> property.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="ws.core.api.API.namespaces">
-<code class="descname">namespaces</code><a class="headerlink" href="#ws.core.api.API.namespaces" title="Permalink to this definition">¶</a></dt>
-<dd><p>Namespaces present on the wiki as a mapping (dictionary) of namespace
-IDs to their names.</p>
-<p>The property is evaluated lazily and cached with the
-<a class="reference internal" href="ws.core.lazy.html#ws.core.lazy.LazyProperty" title="ws.core.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">&#64;LazyProperty</span></code></a> decorator.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="ws.core.api.API.tags">
-<code class="descname">tags</code><a class="headerlink" href="#ws.core.api.API.tags" title="Permalink to this definition">¶</a></dt>
-<dd><p>A <a class="reference internal" href="ws.core.tags.html#ws.core.tags.Tags" title="ws.core.tags.Tags"><code class="xref py py-class docutils literal"><span class="pre">ws.core.tags.Tags</span></code></a> instance for the current wiki.</p>
 </dd></dl>
 
 <dl class="method">
@@ -252,34 +221,6 @@ not.</p>
 <code class="docutils literal"><span class="pre">resolve_redirects(*list)</span></code> or <code class="docutils literal"><span class="pre">resolve_redirects(pageid1,</span> <span class="pre">pageid2,</span> <span class="pre">...)</span></code>)</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">redirects</span></code> part of the API response concatenated into one list</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="ws.core.api.API.redirects_map">
-<code class="descname">redirects_map</code><span class="sig-paren">(</span><em>source_namespaces=None</em>, <em>target_namespaces='all'</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.api.API.redirects_map" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build a mapping of redirects in given namespaces. Interwiki redirects are
-not included in the mapping.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>source_namespaces</strong> &#8211; the namespace ID of the source title must be in this list in order
-to be included in the mapping (default is <code class="docutils literal"><span class="pre">[0]</span></code>, the magic word
-<code class="docutils literal"><span class="pre">&quot;all&quot;</span></code> will select all available namespaces)</li>
-<li><strong>target_namespaces</strong> &#8211; the namespace ID of the target title must be in this list in order
-to be included in the mapping (default is <code class="docutils literal"><span class="pre">&quot;all&quot;</span></code>, which will
-select all available namespaces)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a dictionary where the keys are source titles and values are the
-redirect targets, including the link fragments (e.g.
-<code class="docutils literal"><span class="pre">&quot;Page</span> <span class="pre">title#Section</span> <span class="pre">title&quot;</span></code>).</p>
-</td>
 </tr>
 </tbody>
 </table>

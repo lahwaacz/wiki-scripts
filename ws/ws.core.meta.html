@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ws.core.tags module &mdash; wiki-scripts 1.1 documentation</title>
+    <title>ws.core.meta module &mdash; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -26,8 +26,8 @@
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
     <link rel="up" title="ws.core package" href="ws.core.html" />
-    <link rel="next" title="ws.core.user module" href="ws.core.user.html" />
-    <link rel="prev" title="ws.core.site module" href="ws.core.site.html" />
+    <link rel="next" title="ws.core.rate module" href="ws.core.rate.html" />
+    <link rel="prev" title="ws.core.lazy module" href="ws.core.lazy.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -42,41 +42,49 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-ws.core.tags">
-<span id="ws-core-tags-module"></span><h1>ws.core.tags module<a class="headerlink" href="#module-ws.core.tags" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-ws.core.meta">
+<span id="ws-core-meta-module"></span><h1>ws.core.meta module<a class="headerlink" href="#module-ws.core.meta" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="ws.core.tags.Tags">
-<em class="property">class </em><code class="descclassname">ws.core.tags.</code><code class="descname">Tags</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.tags.Tags" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.core.meta.Meta">
+<em class="property">class </em><code class="descclassname">ws.core.meta.</code><code class="descname">Meta</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.meta.Meta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
-<p>An interface for MediaWiki&#8217;s <a class="reference external" href="https://www.mediawiki.org/wiki/Manual:Tags">change tags</a>.</p>
+<p>Meta-class for <code class="docutils literal"><span class="pre">siteinfo</span></code> and <code class="docutils literal"><span class="pre">userinfo</span></code> functionality.</p>
+<p>Subclasses must configure the <a class="reference internal" href="#ws.core.meta.Meta.module" title="ws.core.meta.Meta.module"><code class="xref py py-attr docutils literal"><span class="pre">module</span></code></a> and <a class="reference internal" href="#ws.core.meta.Meta.properties" title="ws.core.meta.Meta.properties"><code class="xref py py-attr docutils literal"><span class="pre">properties</span></code></a>
+attributes.</p>
 <dl class="attribute">
-<dt id="ws.core.tags.Tags.all">
-<code class="descname">all</code><a class="headerlink" href="#ws.core.tags.Tags.all" title="Permalink to this definition">¶</a></dt>
-<dd><p>Names of all tags present on the wiki.</p>
-</dd></dl>
+<dt id="ws.core.meta.Meta.module">
+<code class="descname">module</code><em class="property"> = ''</em><a class="headerlink" href="#ws.core.meta.Meta.module" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.tags.Tags.active">
-<code class="descname">active</code><a class="headerlink" href="#ws.core.tags.Tags.active" title="Permalink to this definition">¶</a></dt>
-<dd><p>Names of active tags.</p>
-</dd></dl>
+<dt id="ws.core.meta.Meta.properties">
+<code class="descname">properties</code><em class="property"> = set()</em><a class="headerlink" href="#ws.core.meta.Meta.properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.tags.Tags.manual">
-<code class="descname">manual</code><a class="headerlink" href="#ws.core.tags.Tags.manual" title="Permalink to this definition">¶</a></dt>
-<dd><p>Names of tags defined manually.</p>
-</dd></dl>
+<dt id="ws.core.meta.Meta.volatile_properties">
+<code class="descname">volatile_properties</code><em class="property"> = set()</em><a class="headerlink" href="#ws.core.meta.Meta.volatile_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.tags.Tags.extension">
-<code class="descname">extension</code><a class="headerlink" href="#ws.core.tags.Tags.extension" title="Permalink to this definition">¶</a></dt>
-<dd><p>Names of tags defined by extensions.</p>
-</dd></dl>
+<dt id="ws.core.meta.Meta.timeout">
+<code class="descname">timeout</code><em class="property"> = 0</em><a class="headerlink" href="#ws.core.meta.Meta.timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.tags.Tags.applicable">
-<code class="descname">applicable</code><a class="headerlink" href="#ws.core.tags.Tags.applicable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Names of active tags that may be applied by users and bots.</p>
+<dt id="ws.core.meta.Meta.volatile_timeout">
+<code class="descname">volatile_timeout</code><em class="property"> = 0</em><a class="headerlink" href="#ws.core.meta.Meta.volatile_timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="ws.core.meta.Meta._abbreviation">
+<em class="property">classmethod </em><code class="descname">_abbreviation</code><span class="sig-paren">(</span><em>klass</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.meta.Meta._abbreviation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.core.meta.Meta.fetch">
+<code class="descname">fetch</code><span class="sig-paren">(</span><em>prop=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.meta.Meta.fetch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Auxiliary method for querying properties.</p>
 </dd></dl>
 
 </dd></dl>
@@ -98,8 +106,8 @@
   <li><a href="../modules.html">API reference</a><ul>
   <li><a href="ws.html">ws package</a><ul>
   <li><a href="ws.core.html">ws.core package</a><ul>
-      <li>Previous: <a href="ws.core.site.html" title="previous chapter">ws.core.site module</a></li>
-      <li>Next: <a href="ws.core.user.html" title="next chapter">ws.core.user module</a></li>
+      <li>Previous: <a href="ws.core.lazy.html" title="previous chapter">ws.core.lazy module</a></li>
+      <li>Next: <a href="ws.core.rate.html" title="next chapter">ws.core.rate module</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -109,7 +117,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.core.tags.txt"
+      <li><a href="../_sources/ws/ws.core.meta.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -135,7 +143,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
-      <a href="../_sources/ws/ws.core.tags.txt"
+      <a href="../_sources/ws/ws.core.meta.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -1,0 +1,7 @@
+ws.core.user module
+===================
+
+.. automodule:: ws.core.user
+    :members:
+    :undoc-members:
+    :show-inheritance:

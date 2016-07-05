@@ -14,6 +14,9 @@ Submodules
    ws.core.api
    ws.core.connection
    ws.core.lazy
+   ws.core.meta
    ws.core.rate
+   ws.core.site
    ws.core.tags
+   ws.core.user
 
