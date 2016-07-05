@@ -44,7 +44,7 @@ class Meta:
             }
         if isinstance(prop, list):
             data[self._abbreviation() + "prop"] = "|".join(prop)
-        # TODO: name and id are for userinfo, other modules might have their own 'special' properties
+        # 'name' and 'id' are special properties of userinfo (not part of uiprop, returned in every query)
         elif prop in self.properties - {"name", "id"}:
             data[self._abbreviation() + "prop"] = prop
         result = self._api.call_api(data)

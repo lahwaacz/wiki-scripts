@@ -63,8 +63,7 @@ class Connection:
     :param cookiejar: an existing :py:class:`cookielib.CookieJar` object
     """
 
-    # TODO: when #3 is implemented, make index_url mandatory
-    def __init__(self, api_url, index_url=None, user_agent=DEFAULT_UA,
+    def __init__(self, api_url, index_url, user_agent=DEFAULT_UA,
                  ssl_verify=None, max_retries=0, timeout=30,
                  cookie_file=None, cookiejar=None,
                  http_user=None, http_password=None):
