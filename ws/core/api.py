@@ -298,7 +298,7 @@ class API(Connection):
         retries = max_retries
         while retries > 0:
             try:
-                return self.call_api(params, **kwargs)
+                return self.call_api(params)
             except APIError as e:
                 retries -= 1
                 # csrftoken can be used multiple times, but expires after some time,
