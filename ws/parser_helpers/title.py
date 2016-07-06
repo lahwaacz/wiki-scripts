@@ -116,7 +116,7 @@ class Title:
         # [[Main%5Fpage]] is rendered as <a href="...">Main_page</a>),
         # but we focus on meaning, not rendering.
         _pure = urldecode(_pure)
-        if not re.fullmatch("[{}]*".format(self.api.site.general["legaltitlechars"]), _pure):
+        if re.search("[^{}\w\s]|[\0\b\t\n\v\f\r]".format(self.api.site.general["legaltitlechars"]), _pure):
             raise InvalidTitleCharError("Given title contains illegal character(s): '{}'".format(_pure))
         # canonicalize title
         self.pure = canonicalize(_pure)
@@ -294,8 +294,9 @@ class Title:
     @pagename.setter
     def pagename(self, value):
         if isinstance(value, str):
+            # TODO: refactoring, reuse part of self.parse somehow
             _pure = urldecode(value)
-            if not re.fullmatch("[{}]*".format(self.api.site.general["legaltitlechars"]), _pure):
+            if re.search("[^{}\w\s]|[\0\b\t\n\v\f\r]".format(self.api.site.general["legaltitlechars"]), _pure):
                 raise InvalidTitleCharError("Given title contains illegal character(s): '{}'".format(_pure))
             self.pure = canonicalize(_pure)
         else:

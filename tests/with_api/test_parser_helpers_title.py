@@ -309,26 +309,70 @@ class test_title_setters():
 
 
 @attr(speed="slow")
-class test_title_invalid_chars:
-    titles = [
+class test_title_valid_chars:
+    invalid_titles = [
         "Foo [bar]",
         "Foo | bar",
         "<foo>",
         "foo %23 bar",  # encoded '#'
         "{foo}",
+        # whitespace
+        "Foo\0bar",     # null
+        "Foo\bbar",     # backspace
+        "Foo\tbar",     # horizontal tab
+        "Foo\nbar",     # line feed
+        "Foo\vbar",     # vertical tab
+        "Foo\fbar",     # form feed
+        "Foo\rbar",     # carriage return
     ]
 
-    def test_chars(self):
+    valid_titles = [
+        "Table of contents (العربية)",
+        "Foo\u0085bar", # next line
+        "Foo\u00A0bar", # no-break space
+        "Foo\u1680bar", # Ogham space mark
+        "Foo\u2000bar", # en quad
+        "Foo\u2001bar", # em quad
+        "Foo\u2002bar", # en space
+        "Foo\u2003bar", # em space
+        "Foo\u2004bar", # three-per-em space
+        "Foo\u2005bar", # four-per-em space
+        "Foo\u2006bar", # six-per-em space
+        "Foo\u2007bar", # figure space
+        "Foo\u2008bar", # punctuation space
+        "Foo\u2009bar", # thin space
+        "Foo\u200Abar", # hair space
+        "Foo\u2028bar", # line separator
+        "Foo\u2029bar", # paragraph separator
+        "Foo\u202Fbar", # narrow no-break space
+        "Foo\u205Fbar", # medium mathematical space
+        "Foo\u3000bar", # ideographic space
+    ]
+
+    def test_invalid_chars(self):
         @raises(InvalidTitleCharError)
         def tester(title):
-            print(Title(fixtures.api, title))
-        for title in self.titles:
+            Title(fixtures.api, title)
+        for title in self.invalid_titles:
+            yield tester, title
+
+    def test_valid_chars(self):
+        def tester(pagename):
+            title = Title(fixtures.api, pagename)
+            assert_equals(title.pagename, pagename)
+        for title in self.valid_titles:
             yield tester, title
 
     def test_setter(self):
         @raises(InvalidTitleCharError)
-        def tester(pagename):
+        def tester_invalid(pagename):
             title = Title(fixtures.api, "")
             title.pagename = pagename
-        for title in self.titles:
-            yield tester, title
+        def tester_valid(pagename):
+            title = Title(fixtures.api, "")
+            title.pagename = pagename
+            assert_equals(title.pagename, pagename)
+        for title in self.invalid_titles:
+            yield tester_invalid, title
+        for title in self.valid_titles:
+            yield tester_valid, title
