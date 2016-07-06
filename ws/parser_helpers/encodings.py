@@ -58,7 +58,7 @@ def decode(str_, escape_char="%", special_map=None, charset="utf-8", errors="str
     :param errors:
         defines behaviour when byte-decoding with :py:meth:`bytes.decode()` fails
     """
-    tok = re.compile(escape_char + "([0-9A-Fa-f]{2})|(.)")
+    tok = re.compile(escape_char + "([0-9A-Fa-f]{2})|(.)", re.DOTALL)
     output = ""
     barr = bytearray()
     for match in tok.finditer(str_):

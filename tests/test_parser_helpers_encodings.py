@@ -46,6 +46,11 @@ class test_encodings:
             dec = urldecode(enc)
             assert_equals(dec, s)
 
+    def test_urldecode_noop(self):
+        for s in [string.ascii_letters, self.ascii_all, self.unicode_sample]:
+            dec = urldecode(s)
+            assert_equals(dec, s)
+
     def test_queryencode(self):
         skipped = string.ascii_letters + string.digits + "-_."
         for s in [self.ascii_all, self.unicode_sample]:
