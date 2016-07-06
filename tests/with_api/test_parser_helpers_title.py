@@ -269,6 +269,14 @@ class test_title_setters():
         assert_equals(self.title.pagename, "Foo Bar")
         assert_equals(str(self.title), "en:Help:Foo Bar#section")
 
+    def test_invalid_pagename(self):
+        @raises(ValueError)
+        def tester(pagename):
+            title = Title(fixtures.api, "")
+            title.pagename = pagename
+        for pagename in ["en:Main page", "Help:Foo", "Main page#Section"]:
+            yield tester, pagename
+
     def test_sectionname(self):
         assert_equals(self.title.sectionname, "section")
         assert_equals(str(self.title), "en:Help:Style#section")

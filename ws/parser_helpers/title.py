@@ -312,10 +312,22 @@ class Title:
     def namespace(self, value):
         return self.set_namespace(value)
 
-# TODO: disallow interwiki and namespace prefixes and section anchor
     @pagename.setter
     def pagename(self, value):
-        return self.set_pagename(value)
+        if not isinstance(value, str):
+            raise TypeError("pagename must be of type 'str'")
+
+        iw, ns, pure, anchor = self.iw, self.ns, self.pure, self.anchor
+        self.iw, self.ns, self.pure, self.anchor = None, None, None, None
+        try:
+            self.parse(value)
+        except InvalidTitleCharError:
+            self.iw, self.ns, self.pure, self.anchor = iw, ns, pure, anchor
+            raise
+        if self.iw or self.ns or self.anchor:
+            self.iw, self.ns, self.pure, self.anchor = iw, ns, pure, anchor
+            raise ValueError("tried to assign invalid pagename: {}".format(ns))
+        self.iw, self.ns, self.anchor = iw, ns, anchor
 
     @sectionname.setter
     def sectionname(self, value):
