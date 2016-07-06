@@ -76,10 +76,13 @@ class Title:
             raise TypeError("iwprefix must be of type 'str'")
 
         try:
-                    # FIXME: why is here empty string?
-            iw = iw.replace("_", "").strip()
+            # strip spaces
+            iw = iw.replace("_", " ").strip()
+            # convert spaces to underscores to make find_caseless work
+            # TODO: this is not tested, just a wild guess
+            iw = iw.replace(" ", "_")
             # check if it is valid interwiki prefix
-            self.iw = find_caseless(iw, self.api.site.interwikimap.keys())
+            self.iw = find_caseless(iw, self.api.site.interwikimap.keys(), from_target=True)
         except ValueError:
             if iw == "":
                 self.iw = iw
