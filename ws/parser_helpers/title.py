@@ -67,7 +67,62 @@ class Title:
         # Section anchor
         self.anchor = None
 
-        self.parse(title)
+        self.parse(str(title))
+
+    # explicit setters are necessary, because methods decorated with
+    # @foo.setter are not callable from self.__init__
+    def set_iwprefix(self, iw):
+        if not isinstance(iw, str):
+            raise TypeError("iwprefix must be of type 'str'")
+
+        try:
+                    # FIXME: why is here empty string?
+            iw = iw.replace("_", "").strip()
+            # check if it is valid interwiki prefix
+            self.iw = find_caseless(iw, self.api.site.interwikimap.keys())
+        except ValueError:
+            if iw == "":
+                self.iw = iw
+            else:
+                raise ValueError("tried to assign invalid interwiki prefix: {}".format(iw))
+
+    def set_namespace(self, ns):
+        if not isinstance(ns, str):
+            raise TypeError("namespace must be of type 'str'")
+
+        try:
+            ns = canonicalize(ns)
+            if self.iw == "" or "local" in self.api.site.interwikimap[self.iw]:
+                # check if it is valid namespace
+                self.ns = find_caseless(ns, self.api.site.namespacenames, from_target=True)
+            else:
+                self.ns = ns
+        except ValueError:
+            raise ValueError("tried to assign invalid namespace: {}".format(ns))
+
+    def set_pagename(self, pagename):
+        if not isinstance(pagename, str):
+            raise TypeError("pagename must be of type 'str'")
+
+        # TODO: This is not entirely MediaWiki-like, perhaps we should just
+        # throw BadTitle exception.
+        pagename = pagename.lstrip(":")
+
+        # MediaWiki does not treat encoded underscores as spaces (e.g.
+        # [[Main%5Fpage]] is rendered as <a href="...">Main_page</a>),
+        # but we focus on meaning, not rendering.
+        pagename = urldecode(pagename)
+        if re.search("[^{}\w\s]|[\0\b\t\n\v\f\r]".format(self.api.site.general["legaltitlechars"]), pagename):
+            raise InvalidTitleCharError("Given title contains illegal character(s): '{}'".format(pagename))
+        # canonicalize title
+        self.pure = canonicalize(pagename)
+
+    def set_sectionname(self, sectionname):
+        if not isinstance(sectionname, str):
+            raise TypeError("sectionname must be of type 'str'")
+
+        # canonicalize anchor
+        self.anchor = _anchor_preprocess(sectionname)
 
     def parse(self, full_title):
         """
@@ -77,14 +132,10 @@ class Title:
 
         :param str full_title: The full title to be parsed.
         """
-        full_title = str(full_title)
-
         # parse interwiki prefix
         try:
             iw, _rest = full_title.lstrip(":").split(":", maxsplit=1)
-            iw = iw.lower().replace("_", "").strip()
-            # check if it is valid interwiki prefix
-            self.iw = find_caseless(iw, self.api.site.interwikimap.keys())
+            self.set_iwprefix(iw)
         except ValueError:
             self.iw = ""
             _rest = full_title
@@ -92,19 +143,10 @@ class Title:
         # parse namespace
         try:
             ns, _pure = _rest.lstrip(":").split(":", maxsplit=1)
-            ns = ns.replace("_", " ").strip()
-            if self.iw == "" or "local" in self.api.site.interwikimap[self.iw]:
-                # check if it is valid namespace
-                self.ns = find_caseless(ns, self.api.site.namespacenames, from_target=True)
-            else:
-                self.ns = ns
+            self.set_namespace(ns)
         except ValueError:
             self.ns = ""
             _pure = _rest
-
-        # TODO: This is not entirely MediaWiki-like, perhaps we should just
-        # throw BadTitle exception.
-        _pure = _pure.lstrip(":")
 
         # split section anchor
         try:
@@ -112,16 +154,8 @@ class Title:
         except ValueError:
             anchor = ""
 
-        # MediaWiki does not treat encoded underscores as spaces (e.g.
-        # [[Main%5Fpage]] is rendered as <a href="...">Main_page</a>),
-        # but we focus on meaning, not rendering.
-        _pure = urldecode(_pure)
-        if re.search("[^{}\w\s]|[\0\b\t\n\v\f\r]".format(self.api.site.general["legaltitlechars"]), _pure):
-            raise InvalidTitleCharError("Given title contains illegal character(s): '{}'".format(_pure))
-        # canonicalize title
-        self.pure = canonicalize(_pure)
-        # canonicalize anchor
-        self.anchor = _anchor_preprocess(anchor)
+        self.set_pagename(_pure)
+        self.set_sectionname(anchor)
 
     def _format(self, pre, mid, title):
         if pre and mid:
@@ -269,45 +303,20 @@ class Title:
 
     @iwprefix.setter
     def iwprefix(self, value):
-        if isinstance(value, str):
-            try:
-                self.iw = find_caseless(value, self.api.site.interwikimap.keys())
-            except ValueError:
-                if value == "":
-                    self.iw = value
-                else:
-                    raise ValueError("tried to assign invalid interwiki prefix: {}".format(value))
-        else:
-            raise TypeError("iwprefix must be of type 'str'")
+        return self.set_iwprefix(value)
 
     @namespace.setter
     def namespace(self, value):
-        if isinstance(value, str):
-            try:
-                self.ns = find_caseless(canonicalize(value), self.api.site.namespacenames, from_target=True)
-            except ValueError:
-                raise ValueError("tried to assign invalid namespace: {}".format(value))
-        else:
-            raise TypeError("namespace must be of type 'str'")
+        return self.set_namespace(value)
 
 # TODO: disallow interwiki and namespace prefixes and section anchor
     @pagename.setter
     def pagename(self, value):
-        if isinstance(value, str):
-            # TODO: refactoring, reuse part of self.parse somehow
-            _pure = urldecode(value)
-            if re.search("[^{}\w\s]|[\0\b\t\n\v\f\r]".format(self.api.site.general["legaltitlechars"]), _pure):
-                raise InvalidTitleCharError("Given title contains illegal character(s): '{}'".format(_pure))
-            self.pure = canonicalize(_pure)
-        else:
-            raise TypeError("pagename must be of type 'str'")
+        return self.set_pagename(value)
 
     @sectionname.setter
     def sectionname(self, value):
-        if isinstance(value, str):
-            self.anchor = _anchor_preprocess(value)
-        else:
-            raise TypeError("sectionname must be of type 'str'")
+        return self.set_sectionname(value)
 
 
     def __eq__(self, other):

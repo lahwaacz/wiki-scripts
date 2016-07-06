@@ -288,7 +288,7 @@ class test_title_setters():
         other_title.namespace = "Help"
         other_title.pagename = "Style"
         other_title.sectionname = "section"
-        assert_true(self.title == other_title)
+        assert_equals(other_title, self.title)
 
     def test_str_repr(self):
         self.title.iwprefix = ""
