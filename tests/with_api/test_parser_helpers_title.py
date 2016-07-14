@@ -335,7 +335,6 @@ class test_title_valid_chars:
     ]
 
     valid_titles = [
-        "Table of contents (العربية)",
         "Foo\u0085bar", # next line
         "Foo\u00A0bar", # no-break space
         "Foo\u1680bar", # Ogham space mark
@@ -355,6 +354,9 @@ class test_title_valid_chars:
         "Foo\u202Fbar", # narrow no-break space
         "Foo\u205Fbar", # medium mathematical space
         "Foo\u3000bar", # ideographic space
+        # detected as problematic
+        "Table of contents (العربية)",
+        "Let’s Encrypt", # note that it's not an apostrophe!
     ]
 
     def test_invalid_chars(self):

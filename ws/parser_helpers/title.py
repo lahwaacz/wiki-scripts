@@ -115,7 +115,9 @@ class Title:
         # [[Main%5Fpage]] is rendered as <a href="...">Main_page</a>),
         # but we focus on meaning, not rendering.
         pagename = urldecode(pagename)
-        if re.search("[^{}\w\s]|[\0\b\t\n\v\f\r]".format(self.api.site.general["legaltitlechars"]), pagename):
+        # FIXME: how does MediaWiki handle unicode titles?  https://phabricator.wikimedia.org/T139881
+        # as a workaround, any UTF-8 character, which is not an ASCII character, is allowed
+        if re.search("[^{}\\u0100-\\uFFFF]".format(self.api.site.general["legaltitlechars"]), pagename):
             raise InvalidTitleCharError("Given title contains illegal character(s): '{}'".format(pagename))
         # canonicalize title
         self.pure = canonicalize(pagename)
