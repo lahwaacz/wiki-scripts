@@ -83,6 +83,9 @@ class Site(Meta):
         Build a mapping of redirects in given namespaces. Interwiki redirects are
         not included in the mapping.
 
+        Note that the mapping can contain double redirects, which could cause
+        some algorithms to break.
+
         :param source_namespaces:
             the namespace ID of the source title must be in this list in order
             to be included in the mapping (default is ``[0]``, the magic word
@@ -107,8 +110,8 @@ class Site(Meta):
             # FIXME: adding the rdnamespace parameter causes an internal API error,
             # see https://wiki.archlinux.org/index.php/User:Lahwaacz/Notes#API:_resolving_redirects
             # removing it for now, all namespaces are included by default anyway...
-#            allpages = self._api.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max", prop="redirects", rdprop="title|fragment", rdnamespace="|".join(source_namespaces), rdlimit="max")
-            allpages = self._api.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max", prop="redirects", rdprop="title|fragment", rdlimit="max")
+#            allpages = self._api.generator(generator="allpages", gapnamespace=ns, gaplimit="max", prop="redirects", rdprop="title|fragment", rdnamespace="|".join(source_namespaces), rdlimit="max")
+            allpages = self._api.generator(generator="allpages", gapnamespace=ns, gaplimit="max", prop="redirects", rdprop="title|fragment", rdlimit="max")
             for page in allpages:
                 # construct the mapping, the query result is somewhat reversed...
                 target_title = page["title"]
