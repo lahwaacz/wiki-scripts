@@ -23,7 +23,7 @@ import ws.utils
 from ws.interactive import *
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.encodings import dotencode, urldecode
-from ws.parser_helpers.title import canonicalize, Title
+from ws.parser_helpers.title import canonicalize, Title, InvalidTitleCharError
 from ws.parser_helpers.wikicode import get_section_headings, get_anchors
 
 logger = logging.getLogger(__name__)
@@ -266,7 +266,10 @@ class WikilinkRules:
         if wikilink.text is None:
             return
 
-        text = Title(self.api, wikilink.text)
+        try:
+            text = Title(self.api, wikilink.text)
+        except InvalidTitleCharError:
+            return
 
         target1 = self.redirects.get(title.fullpagename)
         target2 = self.redirects.get(text.fullpagename)
