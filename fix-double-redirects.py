@@ -65,6 +65,9 @@ class DoubleRedirects:
 
     def fixall(self):
         double = self.findall()
+        if not double:
+            logger.info("There are no double redirects.")
+            return
 
         # fetch all revisions at once
         result = self.api.call_api(action="query", titles="|".join(double.keys()), prop="revisions", rvprop="content|timestamp")
