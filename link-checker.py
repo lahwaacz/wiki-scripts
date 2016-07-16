@@ -515,14 +515,15 @@ class WikilinkRules:
         # beautify if urldecoded
         # FIXME: make it implicit - it does not always propagate from the Title class
         if re.search("%[0-9a-f]{2}", str(wikilink.title), re.IGNORECASE):
-            # FIXME: this is not done anywhere due to false positives
             # handle category links properly
             if wikilink.title.strip().startswith(":"):
                 wikilink.title = ":" + str(title)
             else:
                 wikilink.title = str(title)
             # FIXME: should be done in the Title class
-            wikilink.title = str(wikilink.title).replace("[", ".5B").replace("|", ".7C").replace("]", ".5D")
+            # the anchor is dot-encoded, but percent-encoding wors for links too
+            # and is even rendered nicely
+            wikilink.title = str(wikilink.title).replace("[", "%5B").replace("|", "%7C").replace("]", "%5D")
 
         self.collapse_whitespace_pipe(wikilink)
         self.check_trivial(wikilink)
