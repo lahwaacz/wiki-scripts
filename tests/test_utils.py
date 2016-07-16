@@ -144,3 +144,25 @@ class test_dmerge:
         dest = {"foo": [0, 1]}
         dmerge(src, dest)
         assert_equals(dest, {"foo": [0, 1, 1, 2]})
+
+class test_find_caseless:
+    def _do_test_1(self, what, where, from_target=False, expected=None):
+        result = find_caseless(what, where, from_target)
+        assert_equals(result, expected)
+
+    def test_list(self):
+        src = ["Foo", "bar"]
+        yield self._do_test_1, "foo", src, False, "foo"
+        yield self._do_test_1, "Bar", src, False, "Bar"
+        yield self._do_test_1, "foo", src, True, "Foo"
+        yield self._do_test_1, "Bar", src, True, "bar"
+
+    @raises(ValueError)
+    def _do_test_2(self, what, where, from_target=False):
+        find_caseless(what, where, from_target)
+
+    def test_notfound(self):
+        yield self._do_test_2, "foo", [], False
+        yield self._do_test_2, "foo", [], True
+        yield self._do_test_2, "foo", ["bar"], False
+        yield self._do_test_2, "foo", ["bar"], True

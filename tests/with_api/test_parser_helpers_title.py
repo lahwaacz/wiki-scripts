@@ -232,6 +232,12 @@ class test_title_setters():
     def test_invalid_type_parse(self):
         self.title.parse(42)
 
+    # this one has to be explicit for completeness, because
+    # `title.pagename = foo` checks it too
+    @raises(TypeError)
+    def test_invalid_type_set_pagename(self):
+        self.title.set_pagename(42)
+
 
     def test_iwprefix(self):
         assert_equals(self.title.iwprefix, "en")
