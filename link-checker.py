@@ -546,7 +546,7 @@ class WikilinkRules:
 
 class LinkChecker(ExtlinkRules, WikilinkRules):
 
-    skip_pages = ["Table of contents", "Help:Editing"]
+    skip_pages = ["Table of contents", "Help:Editing", "ArchWiki:Reports", "ArchWiki:Requests", "ArchWiki:Statistics"]
     # article status templates, lowercase
     skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
 
@@ -660,7 +660,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
 
     def process_allpages(self, apfrom=None):
-        namespaces = [0, 14]
+        namespaces = [0, 4, 14]
         if self.interactive is True:
             namespaces.append(12)
         for ns in namespaces:
