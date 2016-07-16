@@ -222,7 +222,15 @@ class test_title_setters():
 
     def test_invalid_type(self):
         for attr in self.attributes:
-            yield self._do_type_test, attr, None
+            yield self._do_type_test, attr, 42
+
+    @raises(TypeError)
+    def test_invalid_type_constructor(self):
+        Title(self.api, 42)
+
+    @raises(TypeError)
+    def test_invalid_type_parse(self):
+        self.title.parse(42)
 
 
     def test_iwprefix(self):

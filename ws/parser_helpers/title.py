@@ -7,6 +7,9 @@
 
 import re
 
+# only for explicit type check in Title.parse
+import mwparserfromhell
+
 from .encodings import _anchor_preprocess, urldecode
 from ..utils import find_caseless
 
@@ -67,7 +70,7 @@ class Title:
         # Section anchor
         self.anchor = None
 
-        self.parse(str(title))
+        self.parse(title)
 
     # explicit setters are necessary, because methods decorated with
     # @foo.setter are not callable from self.__init__
@@ -135,8 +138,16 @@ class Title:
         parts and canonicalizes them. Can be used to set these attributes from
         a string of full title instead of creating new instance.
 
-        :param str full_title: The full title to be parsed.
+        :param full_title:
+            The full title to be parsed, either a :py:obj:`str` or
+            :py:class:`mwparserfromhell.wikicode.Wikicode` object.
         """
+        # Wikicode has to be converted to str, but we don't want to convert
+        # numbers or any arbitrary objects.
+        if not isinstance(full_title, str) and not isinstance(full_title, mwparserfromhell.wikicode.Wikicode):
+            raise TypeError("full_title must be either 'str' or 'Wikicode'")
+        full_title = str(full_title)
+
         # parse interwiki prefix
         try:
             iw, _rest = full_title.lstrip(":").split(":", maxsplit=1)
