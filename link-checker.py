@@ -379,9 +379,7 @@ class WikilinkRules:
         if title.sectionname == "":
             return True
 
-        # lookup target page content
-        # TODO: pulling revisions from cache does not expand templates
-        #       (transclusions like on List of applications)
+        # determine target page
         if title.fullpagename:
             _target_ns = title.namespacenumber
             _target_title = title.fullpagename
@@ -389,16 +387,23 @@ class WikilinkRules:
             src_title = Title(self.api, srcpage)
             _target_ns = src_title.namespacenumber
             _target_title = src_title.fullpagename
+
         # skip links to special pages (e.g. [[Special:Preferences#mw-prefsection-rc]])
         if _target_ns < 0:
             return
+
+        # resolve redirects
         if _target_title in self.redirects:
-            _new = self.redirects.get(_target_title)
-            if "#" not in _new:
-                _target_title = _new
-            else:
+            _new_title = Title(self.api, self.redirects[_target_title])
+            if _new_title.sectionname:
                 logger.warning("skipping {} (section fragment placed on a redirect to possibly different section)".format(wikilink))
                 return
+            _target_ns = _new_title.namespacenumber
+            _target_title = _new_title.fullpagename
+
+        # lookup target page content
+        # TODO: pulling revisions from cache does not expand templates
+        #       (transclusions like on List of applications)
         pages = self.db_copy[str(_target_ns)]
         wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
         try:
