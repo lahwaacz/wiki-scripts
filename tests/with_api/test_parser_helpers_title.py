@@ -71,6 +71,15 @@ class test_title():
             "fullpagename": "en:Help:Style",
         },
 
+        # test canonicalization
+        "helP_ Talk : foo  _Bar_": {
+            "iwprefix": "",
+            "namespace": "Help talk",
+            "pagename": "Foo Bar",
+            "sectionname": "",
+            "fullpagename": "Help talk:Foo Bar",
+        },
+
         # test anchor canonicalization
         "Main page #  _foo_  ": {
             "pagename": "Main page",
@@ -110,6 +119,7 @@ class test_title():
         },
         "help talk:foo/Bar/baz": {
             "fullpagename": "Help talk:Foo/Bar/baz",
+            "namespace": "Help talk",
             "pagename": "Foo/Bar/baz",
             "basepagename": "Foo/Bar",
             "subpagename": "baz",
@@ -122,6 +132,7 @@ class test_title():
             "namespacenumber": 13,
             "articlespace": "Help",
             "talkspace": "Help talk",
+            "pagename": "Style",
         },
         "Help:Style": {
             "articlepagename": "Help:Style",
@@ -130,6 +141,7 @@ class test_title():
             "namespacenumber": 12,
             "articlespace": "Help",
             "talkspace": "Help talk",
+            "pagename": "Style",
         },
 
         # test local/external namespaces
@@ -194,14 +206,36 @@ class test_title():
         },
     }
 
-    def test(self):
-        for src, expected in self.titles.items():
-            yield self._do_test, src, expected
+    def test_constructor(self):
+        def tester(src, expected):
+            title = Title(fixtures.api, src)
+            for attr, value in expected.items():
+                assert_equals(getattr(title, attr), value)
 
-    def _do_test(self, src, expected):
-        title = Title(fixtures.api, src)
-        for attr, value in expected.items():
-            assert_equals(getattr(title, attr), value)
+        for src, expected in self.titles.items():
+            yield tester, src, expected
+
+    def test_parse(self):
+        def tester(src, expected):
+            title = Title(fixtures.api, "")
+            title.parse(src)
+            for attr, value in expected.items():
+                assert_equals(getattr(title, attr), value)
+
+        for src, expected in self.titles.items():
+            yield tester, src, expected
+
+    def test_setters(self):
+        def tester(iw, ns, pagename, sectionname, expected):
+            title = Title(fixtures.api, "")
+            title.iwprefix = iw
+            title.namespace = ns
+            title.pagename = pagename
+            title.sectionname = sectionname
+            assert_equals(title, expected)
+
+        for full, attrs in self.titles.items():
+            yield tester, attrs.get("iwprefix", ""), attrs.get("namespace", ""), attrs.get("pagename", ""), attrs.get("sectionname", ""), Title(fixtures.api, full)
 
 
 @attr(speed="slow")
@@ -262,10 +296,6 @@ class test_title_setters():
         self.title.namespace = self.title.talkspace
         assert_equals(self.title.namespace, "Help talk")
         assert_equals(str(self.title), "en:Help talk:Style#section")
-        # test namespace canonicalization
-        self.title.namespace = "helP_ Talk"
-        assert_equals(self.title.namespace, "Help talk")
-        assert_equals(str(self.title), "en:Help talk:Style#section")
         # test empty
         self.title.namespace = ""
         assert_equals(self.title.namespace, "")
@@ -278,10 +308,6 @@ class test_title_setters():
         self.title.pagename = "Main page"
         assert_equals(self.title.pagename, "Main page")
         assert_equals(str(self.title), "en:Help:Main page#section")
-        # test canonicalize
-        self.title.pagename = " foo  _Bar_"
-        assert_equals(self.title.pagename, "Foo Bar")
-        assert_equals(str(self.title), "en:Help:Foo Bar#section")
 
     def test_invalid_pagename(self):
         @raises(ValueError)
@@ -298,10 +324,6 @@ class test_title_setters():
         self.title.sectionname = "another section"
         assert_equals(self.title.sectionname, "another section")
         assert_equals(str(self.title), "en:Help:Style#another section")
-        # test canonicalize
-        self.title.sectionname = " foo  _Bar_"
-        assert_equals(self.title.sectionname, "foo Bar")
-        assert_equals(str(self.title), "en:Help:Style#foo Bar")
 
 
     def test_eq(self):
