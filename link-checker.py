@@ -531,14 +531,16 @@ class WikilinkRules:
         self.collapse_whitespace_pipe(wikilink)
         self.check_trivial(wikilink)
         self.check_relative(wikilink, title, src_title)
-        self.check_redirect_exact(wikilink, title)
+        if lang.detect_language(src_title)[1] == "English":
+            self.check_redirect_exact(wikilink, title)
         self.check_redirect_capitalization(wikilink, title)
         self.check_displaytitle(wikilink, title)
         self.check_anchor(wikilink, title, src_title)
 
         # partial second pass
         self.check_trivial(wikilink)
-        self.check_redirect_exact(wikilink, title)
+        if lang.detect_language(src_title)[1] == "English":
+            self.check_redirect_exact(wikilink, title)
 
         # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
         self.collapse_whitespace(wikicode, wikilink)
@@ -666,8 +668,8 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         for ns in namespaces:
             for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom, prop="revisions", rvprop="content|timestamp"):
                 title = page["title"]
-                if lang.detect_language(title)[1] != "English":
-                    continue
+#                if lang.detect_language(title)[1] != "English":
+#                    continue
                 timestamp = page["revisions"][0]["timestamp"]
                 text_old = page["revisions"][0]["*"]
                 text_new, edit_summary = self.update_page(title, text_old)
