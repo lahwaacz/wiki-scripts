@@ -311,7 +311,7 @@ class WikilinkRules:
             return
 
         # FIXME: very common false positive
-        if title.pagename == "Wpa supplicant":
+        if str(title.pagename).lower().startswith("wpa supplicant"):
             return
 
         # might be only a section, e.g. [[#foo]]
