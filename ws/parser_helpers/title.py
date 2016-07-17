@@ -337,10 +337,16 @@ class Title:
         except InvalidTitleCharError:
             self.iw, self.ns, self.pure, self.anchor = iw, ns, pure, anchor
             raise
-        if self.iw or self.ns or self.anchor:
+        if (self.iw and not iw) or (self.ns and not ns) or self.anchor:
             self.iw, self.ns, self.pure, self.anchor = iw, ns, pure, anchor
-            raise ValueError("tried to assign invalid pagename: {}".format(ns))
+            raise ValueError("tried to assign invalid pagename: {}".format(value))
         self.iw, self.ns, self.anchor = iw, ns, anchor
+
+        # Set again with set_pagename, because e.g. if self.ns was initially
+        # "Help" and the user sets pagename to "Help:Foo", the result should be
+        # "Help:Help:Foo". This is not possible with plain self.parse above,
+        # because that way the second "Help:" would be stripped.
+        self.set_pagename(value)
 
     @sectionname.setter
     def sectionname(self, value):

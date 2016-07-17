@@ -204,6 +204,20 @@ class test_title():
             "pagename": "Style",
             "fullpagename": "Help:Style",
         },
+
+        # "double" namespace (important mainly for setters)
+        "Help:Help:Style": {
+            "iwprefix": "",
+            "namespace": "Help",
+            "pagename": "Help:Style",
+            "fullpagename": "Help:Help:Style",
+        },
+        "en:en:Style": {
+            "iwprefix": "en",
+            "namespace": "",
+            "pagename": "En:Style",
+            "fullpagename": "en:En:Style",
+        },
     }
 
     def test_constructor(self):
