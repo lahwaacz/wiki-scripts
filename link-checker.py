@@ -665,15 +665,27 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         namespaces = [0, 4, 14]
         if self.interactive is True:
             namespaces.append(12)
+
+        # rewind to the right namespace (the API throws BadTitle error if the
+        # namespace of apfrom does not match apnamespace)
+        _title = Title(self.api, apfrom)
+        if _title.namespacenumber not in namespaces:
+            logger.error("Valid namespaces for the --first option are {}.".format([self.api.site.namespaces[ns] for ns in namespaces]))
+            return
+        while namespaces[0] != _title.namespacenumber:
+            del namespaces[0]
+        # apfrom must be without namespace prefix
+        apfrom = _title.pagename
+
         for ns in namespaces:
             for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom, prop="revisions", rvprop="content|timestamp"):
                 title = page["title"]
-#                if lang.detect_language(title)[1] != "English":
-#                    continue
                 timestamp = page["revisions"][0]["timestamp"]
                 text_old = page["revisions"][0]["*"]
                 text_new, edit_summary = self.update_page(title, text_old)
                 self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
+            # the apfrom parameter is valid only for the first namespace
+            apfrom=""
 
     def run(self):
         if self.title is not None:
