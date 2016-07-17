@@ -220,6 +220,43 @@ class PkgUpdater:
         # fall back to English
         return template
 
+    def strip_whitespace(self, wikicode, template):
+        """
+        Strip whitespace around the first template parameter. If the template is
+        surrounded by text, it is ensured that there is a space around the
+        template `in the text` instead.
+
+        :param :py:class:`mwparserfromhell.wikicode.Wikicode` wikicode:
+            The root object containing ``template``.
+        :param :py:class:`mwparserfromhell.nodes.Template` template:
+            A `simple inline` template assumed to take exactly one parameter,
+            which does not `disappear` in the rendered wikitext.
+        """
+        try:
+            param = template.get(1)
+        except ValueError:
+            raise TemplateParametersError(template)
+        param.value = param.value.strip()
+
+        parent = get_parent_wikicode(wikicode, template)
+        index = parent.index(template)
+
+        try:
+            prev = parent.get(index - 1)
+        except IndexError:
+            prev = None
+        try:
+            next_ = parent.get(index - 1)
+        except IndexError:
+            next_ = None
+
+        if isinstance(prev, mwparserfromhell.nodes.text.Text):
+            if not prev.endswith("\n") and not prev.endswith(" "):
+                prev.value += " "
+        if isinstance(next_, mwparserfromhell.nodes.text.Text):
+            if not next_.startswith("\n") and not next_.startswith(" "):
+                next_.value = " " + next_.value
+
     def update_package_template(self, template, lang="English"):
         """
         Update given package template.
@@ -241,7 +278,7 @@ class PkgUpdater:
         except ValueError:
             raise TemplateParametersError(template)
 
-        # strip whitespace for searching (spacing is preserved on the wiki)
+        # strip whitespace for searching
         pkgname = param.strip()
 
         if self.finder.find_pkg(pkgname):
@@ -311,6 +348,10 @@ class PkgUpdater:
                 wikicode.index(template, True)
             except ValueError:
                 continue
+
+            # strip whitespace around the parameter, otherwise it is added to
+            # the link and rendered incorrectly
+            self.strip_whitespace(wikicode, template)
 
             hint = self.update_package_template(template, lang)
 
