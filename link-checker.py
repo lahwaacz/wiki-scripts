@@ -370,17 +370,24 @@ class WikilinkRules:
             title.parse(wikilink.title)
 
     def check_anchor(self, wikilink, title, srcpage):
+        """
+        :returns:
+            ``True`` if the anchor is correct or has been corrected, ``False``
+            if it is definitely broken, ``None`` if it can't be checked at all
+            or the check was indecisive and a warning/error has been printed to
+            the log.
+        """
         # TODO: beware of https://phabricator.wikimedia.org/T20431
         #   - mark with {{Broken fragment}} instead of reporting?
         #   - someday maybe: check N older revisions, section might have been renamed (must be interactive!) or moved to other page (just report)
 
         # we can't check interwiki links
         if title.iwprefix:
-            return True
+            return None
 
         # empty sectionname is always valid
         if title.sectionname == "":
-            return True
+            return None
 
         # determine target page
         if title.fullpagename:
@@ -393,14 +400,14 @@ class WikilinkRules:
 
         # skip links to special pages (e.g. [[Special:Preferences#mw-prefsection-rc]])
         if _target_ns < 0:
-            return
+            return None
 
         # resolve redirects
         if _target_title in self.redirects:
             _new_title = Title(self.api, self.redirects[_target_title])
             if _new_title.sectionname:
                 logger.warning("skipping {} (section fragment placed on a redirect to possibly different section)".format(wikilink))
-                return
+                return None
             _target_ns = _new_title.namespacenumber
             _target_title = _new_title.fullpagename
 
@@ -413,14 +420,14 @@ class WikilinkRules:
             page = ws.utils.bisect_find(pages, _target_title, index_list=wrapped_titles)
         except IndexError:
             logger.error("could not find content of page: '{}' (wikilink {})".format(_target_title, wikilink))
-            return
+            return None
         text = page["revisions"][0]["*"]
 
         # get lists of section headings and anchors
         headings = get_section_headings(text)
         if len(headings) == 0:
             logger.warning("wikilink with broken section fragment: {}".format(wikilink))
-            return
+            return False
         anchors = get_anchors(headings)
 
         anchor = dotencode(title.sectionname)
@@ -439,13 +446,13 @@ class WikilinkRules:
                 anchor = ranks[0][0]
             elif len(ranks) > 1:
                 logger.debug("skipping {}: multiple feasible anchors per similarity ratio: {}".format(wikilink, ranks))
-                return
+                return False
             else:
                 logger.warning("wikilink with broken section fragment: {}".format(wikilink))
-                return
+                return False
         else:
             logger.warning("wikilink with broken section fragment: {}".format(wikilink))
-            return
+            return False
 
         # assemble new section fragment
         # try to preserve the character separating base anchor and numeric suffix
@@ -465,6 +472,8 @@ class WikilinkRules:
             t, _ = wikilink.title.split("#", maxsplit=1)
             wikilink.title = t + "#" + new_fragment
             title.parse(wikilink.title)
+
+        return True
 
     def collapse_whitespace_pipe(self, wikilink):
         """
