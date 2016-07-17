@@ -9,6 +9,7 @@
 #   detect self-redirects (definitely interactive only)
 #   changes rejected interactively should be logged
 #   warn if the link leads to an archived page
+#   mark links with broken fragment with {{Broken fragment}}
 
 import difflib
 import re
@@ -311,18 +312,16 @@ class WikilinkRules:
             return
 
         # FIXME: very common false positive
-        if str(title.pagename).lower().startswith("wpa supplicant"):
+        if title.pagename.lower().startswith("wpa supplicant"):
             return
 
         # might be only a section, e.g. [[#foo]]
         if title.fullpagename:
             target = self.redirects.get(title.fullpagename)
             if target is not None and target.lower() == title.fullpagename.lower():
-                wikilink.title = target
                 if title.sectionname:
-                    # TODO: check how canonicalization of section anchor works; previously we only replaced underscores
-                    # (this is run only in interactive mode anyway)
-                    wikilink.title = str(wikilink.title) + "#" + title.sectionname
+                    target += "#" + title.sectionname
+                wikilink.title = target
                 title.parse(wikilink.title)
 
     def check_displaytitle(self, wikilink, title):
@@ -378,8 +377,6 @@ class WikilinkRules:
             the log.
         """
         # TODO: beware of https://phabricator.wikimedia.org/T20431
-        #   - mark with {{Broken fragment}} instead of reporting?
-        #   - someday maybe: check N older revisions, section might have been renamed (must be interactive!) or moved to other page (just report)
 
         # we can't check interwiki links
         if title.iwprefix:
