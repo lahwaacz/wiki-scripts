@@ -611,7 +611,8 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
             return text, ""
 
         logger.info("Parsing page [[{}]] ...".format(src_title))
-        wikicode = mwparserfromhell.parse(text)
+        # FIXME: skip_style_tags=True is a partial workaround for https://github.com/earwig/mwparserfromhell/issues/40
+        wikicode = mwparserfromhell.parse(text, skip_style_tags=True)
         summary_parts = []
 
         for extlink in wikicode.ifilter_external_links(recursive=True):
