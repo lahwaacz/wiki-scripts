@@ -1,10 +1,5 @@
 #! /usr/bin/env python3
 
-# TODO:
-#   make interwiki prefixes more useful (local vs. external, interwiki vs. interlanguage)
-#   ArchWiki-specific language detection
-#   add examples to the module docstring
-
 import re
 
 # only for explicit type check in Title.parse
