@@ -668,14 +668,15 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
 
         # rewind to the right namespace (the API throws BadTitle error if the
         # namespace of apfrom does not match apnamespace)
-        _title = Title(self.api, apfrom)
-        if _title.namespacenumber not in namespaces:
-            logger.error("Valid namespaces for the --first option are {}.".format([self.api.site.namespaces[ns] for ns in namespaces]))
-            return
-        while namespaces[0] != _title.namespacenumber:
-            del namespaces[0]
-        # apfrom must be without namespace prefix
-        apfrom = _title.pagename
+        if apfrom is not None:
+            _title = Title(self.api, apfrom)
+            if _title.namespacenumber not in namespaces:
+                logger.error("Valid namespaces for the --first option are {}.".format([self.api.site.namespaces[ns] for ns in namespaces]))
+                return
+            while namespaces[0] != _title.namespacenumber:
+                del namespaces[0]
+            # apfrom must be without namespace prefix
+            apfrom = _title.pagename
 
         for ns in namespaces:
             for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom, prop="revisions", rvprop="content|timestamp"):
