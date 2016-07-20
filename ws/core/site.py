@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 from .meta import Meta
-from .lazy import LazyProperty
+from ..utils import LazyProperty
 
 class Site(Meta):
     """

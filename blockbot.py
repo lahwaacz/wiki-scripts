@@ -9,7 +9,7 @@ import re
 import requests.exceptions as rexc
 
 from ws.core import API
-from ws.core.rate import RateLimited
+from ws.utils import RateLimited
 from ws.interactive import require_login, ask_yesno
 from ws.utils import list_chunks
 

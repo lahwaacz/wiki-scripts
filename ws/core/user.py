@@ -3,7 +3,7 @@
 import datetime
 
 from .meta import Meta
-from .lazy import LazyProperty
+from ..utils import LazyProperty
 
 class User(Meta):
     """

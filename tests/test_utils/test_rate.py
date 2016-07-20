@@ -2,7 +2,7 @@
 
 from nose.tools import assert_equals, raises, timed, TimeExpired
 
-from ws.core.rate import RateLimited
+from ws.utils import RateLimited
 
 def _simple_gen():
     yield from range(100)

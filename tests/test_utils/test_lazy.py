@@ -2,7 +2,7 @@
 
 from nose.tools import assert_equals
 
-from ws.core.lazy import LazyProperty
+from ws.utils import LazyProperty
 
 class test_lazy:
     def setup(self):

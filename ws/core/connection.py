@@ -15,7 +15,7 @@ import http.cookiejar as cookielib
 import logging
 
 from ws import __version__, __url__
-from .rate import RateLimited
+from ..utils import RateLimited
 
 logger = logging.getLogger(__name__)
 

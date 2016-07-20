@@ -4,9 +4,9 @@ import hashlib
 from functools import lru_cache
 import logging
 
+from ..utils import RateLimited, LazyProperty
+
 from .connection import Connection, APIError
-from .rate import RateLimited
-from .lazy import LazyProperty
 from .site import Site
 from .user import User
 from .tags import Tags
