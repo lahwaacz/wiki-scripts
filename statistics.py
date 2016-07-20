@@ -17,7 +17,7 @@ from ws.wikitable import Wikitable
 from ws.utils import parse_date
 import ws.cache
 
-from statistics_modules import UserStatsModules
+from ws.statistics.UserStatsModules import *
 
 
 logger = logging.getLogger(__name__)

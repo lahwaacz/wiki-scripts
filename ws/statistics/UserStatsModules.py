@@ -6,6 +6,8 @@ import heapq
 
 import ws.utils as utils
 
+__all__ = ["UserStatsModules"]
+
 class UserStatsModules:
     def __init__(self, db_allrevprops, round_to_midnight=False):
         """

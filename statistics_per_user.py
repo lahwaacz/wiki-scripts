@@ -8,7 +8,7 @@ from ws.client import API
 import ws.cache
 from ws.utils import parse_date
 
-from statistics_modules import UserStatsModules
+from ws.statistics.UserStatsModules import *
 
 # return list of datetime.date objects with items jumped by 1 day
 def datetime_day_range(first, last):
