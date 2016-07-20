@@ -177,7 +177,7 @@ class UserStatsModules:
 
 if __name__ == "__main__":
     # this is only for testing...
-    from ws.core import API
+    from ws.client import API
     import ws.cache
     from ws.wikitable import *
 

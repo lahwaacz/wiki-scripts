@@ -39,7 +39,7 @@ class User(Meta):
         not (``False``).
 
         The property is evaluated lazily and cached with the
-        :py:class:`@LazyProperty <ws.core.lazy.LazyProperty>` decorator.
+        :py:class:`@LazyProperty <ws.utils.lazy.LazyProperty>` decorator.
         """
         return "anon" not in self.fetch()
 

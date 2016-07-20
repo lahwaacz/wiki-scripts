@@ -2,7 +2,7 @@
 
 import os.path
 
-from ws.core import API
+from ws.client import API
 from ws.diff import RevisionDiffer
 
 api_url = "https://wiki.archlinux.org/api.php"

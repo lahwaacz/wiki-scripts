@@ -8,7 +8,7 @@ import os
 import datetime
 import hashlib
 
-from ws.core import API
+from ws.client import API
 import ws.ArchWiki.lang
 from ws.parser_helpers.title import Title
 from ws.utils import *

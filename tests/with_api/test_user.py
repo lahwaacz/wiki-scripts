@@ -5,7 +5,7 @@ from nose.plugins.attrib import attr
 
 from . import fixtures
 
-from ws.core.api import LoginFailed
+from ws.client.api import LoginFailed
 
 @attr(speed="slow")
 class test_user:

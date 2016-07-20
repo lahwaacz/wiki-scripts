@@ -9,7 +9,7 @@ import logging
 
 import mwparserfromhell
 
-from ws.core import API
+from ws.client import API
 from ws.utils import RateLimited
 from ws.interactive import *
 import ws.ArchWiki.lang as lang

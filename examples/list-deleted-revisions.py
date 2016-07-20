@@ -3,7 +3,7 @@
 import sys
 from pprint import pprint
 
-from ws.core import API
+from ws.client import API
 from ws.interactive import require_login
 
 def main(api):

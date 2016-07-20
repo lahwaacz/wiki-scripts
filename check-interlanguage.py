@@ -4,7 +4,7 @@ import itertools
 
 import mwparserfromhell
 
-from ws.core import API
+from ws.client import API
 import ws.utils
 from ws.interactive import edit_interactive
 import ws.ArchWiki.lang as lang

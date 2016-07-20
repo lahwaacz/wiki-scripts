@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from ws.core.api import API
+from ws.client.api import API
 
 class fixtures:
     api = None

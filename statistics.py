@@ -11,7 +11,7 @@ try:
 except ImportError:
     Tk = None
 
-from ws.core import API, APIError
+from ws.client import API, APIError
 from ws.interactive import require_login
 from ws.wikitable import Wikitable
 from ws.utils import parse_date

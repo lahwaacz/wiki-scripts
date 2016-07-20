@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from ws.core import API
+from ws.client import API
 import ws.ArchWiki.lang as lang
 
 # According to ArchWiki standards, the title must be sentence-case (if it is not

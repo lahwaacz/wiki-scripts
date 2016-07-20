@@ -8,7 +8,7 @@ class Site(Meta):
     The :py:class:`Site` class holds information about the wiki site.
 
     Valid properties are listed in the :py:attr:`properties` attribute, which is
-    accessed by the :py:meth:`__getattr__ <ws.core.meta.Meta>` method. The
+    accessed by the :py:meth:`__getattr__ <ws.client.meta.Meta>` method. The
     representation these `automatic` properties is the same as returned by the
     `MediaWiki API`_, unless it is overridden by an explicit method of the same
     name in this class.
@@ -43,7 +43,7 @@ class Site(Meta):
     def interlanguagemap(self):
         """
         Interlanguage prefixes on the wiki, filtered from the general
-        :py:attr:`interwikimap <ws.core.API.interwikimap>` property.
+        :py:attr:`interwikimap <ws.client.API.interwikimap>` property.
         """
         return dict( (prefix, info) for prefix, info in self.interwikimap.items() if "local" in info )
 

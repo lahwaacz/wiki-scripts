@@ -17,7 +17,7 @@ import logging
 
 import mwparserfromhell
 
-from ws.core import API, APIError
+from ws.client import API, APIError
 from ws.utils import LazyProperty
 import ws.cache
 import ws.utils

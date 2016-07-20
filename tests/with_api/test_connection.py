@@ -5,13 +5,13 @@ from nose.plugins.attrib import attr
 
 from . import fixtures
 
-import ws.core.connection
-from ws.core.connection import APIWrongAction, APIError, APIExpandResultFailed
+import ws.client.connection
+from ws.client.connection import APIWrongAction, APIError, APIExpandResultFailed
 
 @attr(speed="slow")
 class test_connection:
     """
-    Tests :py:class:`ws.core.connection` methods on :py:obj:`fixtures.api` instance.
+    Tests :py:class:`ws.client.connection` methods on :py:obj:`fixtures.api` instance.
 
     TODO:
         - cookies
@@ -22,7 +22,7 @@ class test_connection:
     def test_coverage(self):
         paraminfo = fixtures.api.call_api(action="paraminfo", modules="main")
         actions = set(paraminfo["modules"][0]["parameters"][0]["type"])
-        assert_equals(actions, ws.core.connection.API_ACTIONS)
+        assert_equals(actions, ws.client.connection.API_ACTIONS)
 
     # check correct server
     def test_hostname(self):

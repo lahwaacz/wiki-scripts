@@ -2,7 +2,7 @@
 
 import os.path
 
-from ws.core import API
+from ws.client import API
 
 api_urls = [
     "https://wiki.archlinux.org/api.php",

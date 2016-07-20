@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 """
-Collection of functions extending :py:class:`ws.core.api.API` with various
+Collection of functions extending :py:class:`ws.client.api.API` with various
 interactive tasks.
 """
 
@@ -24,7 +24,7 @@ def require_login(api):
     Check if the current ``api`` session is authenticated, otherwise ask for
     credentials.
 
-    :param api: an :py:class:`ws.core.api.API` instance
+    :param api: an :py:class:`ws.client.api.API` instance
     """
     if not api.user.is_loggedin:
         print("You need to log in to use this script. URL is %s" % api.api_url)
@@ -68,7 +68,7 @@ def edit_interactive(api, title, pageid, text_old, text_new, basetimestamp, summ
     revisions highlighted using :py:func:`ws.diff.diff_highlighted` and an
     interactive prompt to let the user decide what to do next:
 
-    - ``y`` accepts the edit and calls :py:meth:`API.edit <ws.core.api.API.edit>`.
+    - ``y`` accepts the edit and calls :py:meth:`API.edit <ws.client.api.API.edit>`.
     - ``n`` discards the edit.
     - ``q`` will raise :py:exc:`InteractiveQuit` exception to let the calling
       program know that it should quit.
@@ -80,7 +80,7 @@ def edit_interactive(api, title, pageid, text_old, text_new, basetimestamp, summ
     :param str text_old: old page content
     :param str text_new: new page content
 
-    Other parameters are the same as for :py:meth:`ws.core.api.API.edit`.
+    Other parameters are the same as for :py:meth:`ws.client.api.API.edit`.
     """
     options = [
         ("y", "make this edit"),

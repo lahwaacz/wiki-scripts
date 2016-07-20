@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-from ws.core import API
+from ws.client import API
 import ws.cache
 from ws.utils import parse_date
 

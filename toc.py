@@ -7,7 +7,7 @@ import logging
 
 import mwparserfromhell
 
-from ws.core import API
+from ws.client import API
 from ws.interactive import require_login
 from ws.parser_helpers.title import canonicalize, Title
 import ws.ArchWiki.lang as lang

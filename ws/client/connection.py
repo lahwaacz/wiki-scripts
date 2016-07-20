@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 """
-The :py:mod:`ws.core.connection` module provides a low-level interface for
+The :py:mod:`ws.client.connection` module provides a low-level interface for
 connections to the wiki. The :py:class:`requests.Session` class from the
 :py:mod:`requests` library is used to manage the cookies, authentication
 and making requests.

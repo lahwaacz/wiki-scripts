@@ -2,7 +2,7 @@
 
 import sys
 
-from ws.core import API
+from ws.client import API
 from ws.dump import DumpGenerator
 
 if __name__ == "__main__":

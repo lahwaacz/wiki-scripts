@@ -7,7 +7,7 @@
 
 import logging
 
-from ws.core import API
+from ws.client import API
 import ws.cache
 from ws.utils import parse_date
 

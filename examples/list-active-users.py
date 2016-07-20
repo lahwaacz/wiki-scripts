@@ -3,7 +3,7 @@
 import os.path
 import datetime
 
-from ws.core import API
+from ws.client import API
 from ws.utils import *
 
 api_url = "https://wiki.archlinux.org/api.php"

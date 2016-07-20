@@ -15,7 +15,7 @@ import mwparserfromhell
 import pycman
 import pyalpm
 
-from ws.core import API, APIError
+from ws.client import API, APIError
 from ws.utils import LazyProperty
 from ws.interactive import *
 from ws.ArchWiki.lang import detect_language

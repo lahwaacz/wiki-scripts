@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from ws.core import API
+from ws.client import API
 import ws.config
 api = ws.config.object_from_argparser(API, description="Print namespace IDs and names")
 

@@ -5,7 +5,7 @@ import logging
 
 import mwparserfromhell
 
-from ws.core import API
+from ws.client import API
 from ws.parser_helpers.title import Title
 from ws.interactive import edit_interactive, ask_yesno
 

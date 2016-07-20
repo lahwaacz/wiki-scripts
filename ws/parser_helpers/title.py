@@ -41,7 +41,7 @@ class Title:
     interwiki prefixes, which is useful for parsing the wiki links on lower
     level than what :py:mod:`mwparserfromhell` provides (it does not take the
     wiki configuration into account). The functionality depends on the
-    :py:class:`API <ws.core.api.API>` class for the validation of interwiki and
+    :py:class:`API <ws.client.api.API>` class for the validation of interwiki and
     namespace prefixes.
 
     .. _`MediaWiki code`: https://www.mediawiki.org/wiki/Manual:Title.php#Title_structure
@@ -50,7 +50,7 @@ class Title:
 
     def __init__(self, api, title):
         """
-        :param api: an :py:class:`API <ws.core.api.API>` instance
+        :param api: an :py:class:`API <ws.client.api.API>` instance
         :param title: a :py:obj:`str` or :py:class:`mwparserfromhell.wikicode.Wikicode` object
         """
         self.api = api

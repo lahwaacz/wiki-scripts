@@ -2,7 +2,7 @@
 
 import itertools
 
-from ws.core import API
+from ws.client import API
 
 def pages_in_namespace(api, ns):
     return api.generator(generator="allpages", gapnamespace=ns, gaplimit="max", prop="categories", clshow="!hidden")

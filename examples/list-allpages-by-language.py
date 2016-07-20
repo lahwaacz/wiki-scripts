@@ -4,7 +4,7 @@ import os.path
 from collections import namedtuple
 import itertools
 
-from ws.core import API
+from ws.client import API
 import ws.ArchWiki.lang as lang
 
 api_url = "https://wiki.archlinux.org/api.php"

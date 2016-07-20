@@ -4,7 +4,7 @@
 #   pulling revisions from cache does not expand templates (transclusions like on List of applications)
 #   finally merge into link-checker.py, broken stuff should be just reported
 
-from ws.core import API
+from ws.client import API
 import ws.cache
 import ws.utils
 from ws.parser_helpers.encodings import dotencode

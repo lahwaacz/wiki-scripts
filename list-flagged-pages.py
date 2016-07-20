@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from ws.core import API
+from ws.client import API
 import ws.ArchWiki.lang as lang
 
 # return set of page titles transcluding 'title'

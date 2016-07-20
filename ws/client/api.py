@@ -83,21 +83,21 @@ class API(Connection):
     @LazyProperty
     def site(self):
         """
-        A :py:class:`ws.core.site.Site` instance for the current wiki.
+        A :py:class:`ws.client.site.Site` instance for the current wiki.
         """
         return Site(self)
 
     @LazyProperty
     def user(self):
         """
-        A :py:class:`ws.core.user.User` instance for the current wiki.
+        A :py:class:`ws.client.user.User` instance for the current wiki.
         """
         return User(self)
 
     @LazyProperty
     def tags(self):
         """
-        A :py:class:`ws.core.tags.Tags` instance for the current wiki.
+        A :py:class:`ws.client.tags.Tags` instance for the current wiki.
         """
         return Tags(self)
 
@@ -117,10 +117,10 @@ class API(Connection):
         Generator for MediaWiki's `query-continue feature`_.
 
         :param params:
-            same as :py:meth:`ws.core.connection.Connection.call_api`, but
+            same as :py:meth:`ws.client.connection.Connection.call_api`, but
             ``action`` is always set to ``"query"`` and ``"continue"`` to ``""``
         :param kwargs:
-            same as :py:meth:`ws.core.connection.Connection.call_api`
+            same as :py:meth:`ws.client.connection.Connection.call_api`
         :yields: from ``"query"`` part of the API response
 
         .. _`query-continue feature`: https://www.mediawiki.org/wiki/API:Query#Continuing_queries
@@ -270,12 +270,12 @@ class API(Connection):
 
     def call_with_csrftoken(self, params=None, **kwargs):
         """
-        A wrapper around :py:meth:`ws.core.connection.Connection.call_api` with
+        A wrapper around :py:meth:`ws.client.connection.Connection.call_api` with
         automatic management of the `CSRF token`_.
 
-        :param params: same as :py:meth:`ws.core.connection.Connection.call_api`
-        :param kwargs: same as :py:meth:`ws.core.connection.Connection.call_api`
-        :returns: same as :py:meth:`ws.core.connection.Connection.call_api`
+        :param params: same as :py:meth:`ws.client.connection.Connection.call_api`
+        :param kwargs: same as :py:meth:`ws.client.connection.Connection.call_api`
+        :returns: same as :py:meth:`ws.client.connection.Connection.call_api`
 
         .. _`CSRF token`: https://www.mediawiki.org/wiki/API:Tokens
         """
@@ -319,7 +319,7 @@ class API(Connection):
         """
         Interface to `API:Edit`_. MD5 hash of the new text is computed
         automatically and added to the query. This method is rate-limited with
-        the :py:class:`@RateLimited <ws.core.rate.RateLimited>` decorator to
+        the :py:class:`@RateLimited <ws.utils.rate.RateLimited>` decorator to
         allow 1 call per 3 seconds.
 
         :param str title: the title of the page (used only for logging)

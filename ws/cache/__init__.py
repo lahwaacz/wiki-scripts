@@ -33,7 +33,7 @@ class CacheDb:
     can be accessed as attributes (e.g. ``db.attribute``), which does not
     trigger an update.
 
-    :param ws.core.api.API api:
+    :param ws.client.api.API api:
         an instance of the API to work with
     :param str dbname:
         a name of the database, usually the name of the subclass

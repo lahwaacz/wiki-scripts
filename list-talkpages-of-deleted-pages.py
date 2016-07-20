@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from ws.core import API
+from ws.client import API
 from ws.parser_helpers.title import Title
 
 def main(api):

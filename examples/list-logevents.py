@@ -2,7 +2,7 @@
 
 from pprint import pprint
 
-from ws.core import API
+from ws.client import API
 
 def main(api):
     logs = api.list(list="logevents", letype="newusers", lelimit="max", ledir="newer")

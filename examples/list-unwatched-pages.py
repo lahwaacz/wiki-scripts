@@ -2,7 +2,7 @@
 
 import sys
 
-from ws.core import API
+from ws.client import API
 from ws.interactive import require_login
 from ws.ArchWiki.lang import detect_language
 

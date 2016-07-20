@@ -2,7 +2,7 @@
 
 import itertools
 
-from ws.core import API
+from ws.client import API
 from ws.ArchWiki.lang import detect_language
 
 def main(api):

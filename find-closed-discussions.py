@@ -2,7 +2,7 @@
 
 import re
 
-from ws.core import API
+from ws.client import API
 import ws.cache
 
 def main(api, db):
