@@ -55,9 +55,8 @@ class Recategorize:
             self.api.edit(title, page["pageid"], text_new, timestamp, self.flag_for_deletion_summary, bot="")
 
     def recategorize_over_redirect(self, category_namespace=14):
-        # FIXME: the source_namespace parameter of redirects_map does not work,
-        #        so we need to do manual filtering
-        redirects = self.api.site.redirects_map()
+        # FIXME: the source_namespace parameter of redirects.fetch does not work, so we need to do manual filtering
+        redirects = self.api.redirects.fetch()
         catredirs = dict((key, value) for key, value in redirects.items() if Title(self.api, key).namespace == "Category")
         for source, target in catredirs.items():
             ans = ask_yesno("Recategorize pages from '{}' to '{}'?".format(source, target))

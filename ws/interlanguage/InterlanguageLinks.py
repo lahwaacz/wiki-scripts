@@ -59,7 +59,6 @@ class InterlanguageLinks:
 
     def __init__(self, api):
         self.api = api
-        self.redirects = self.api.site.redirects_map()
 
         self.families = None
         self.family_index = None
@@ -160,8 +159,9 @@ class InterlanguageLinks:
         if lang.is_internal_tag(langlink["lang"]):
             title = canonicalize(title)
             # resolve redirects
-            if title in self.redirects:
-                title = self.redirects[title].split("#", maxsplit=1)[0]
+            resolved = self.api.redirects.resolve(title)
+            if resolved is not None:
+                title = resolved.split("#", maxsplit=1)[0]
         return title
 
     def _titles_in_family(self, master_title):
@@ -342,8 +342,8 @@ class InterlanguageLinks:
                     continue
 
                 if text_old != text_new:
-#                    edit_interactive(self.api, page["title"], page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-                    self.api.edit(page["title"], page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+                    edit_interactive(self.api, page["title"], page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+#                    self.api.edit(page["title"], page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 
     def find_orphans(self):
         for page in self.allpages:

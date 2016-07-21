@@ -16,7 +16,6 @@ class DoubleRedirects:
 
     def __init__(self, api):
         self.api = api
-        self.redirects = self.api.site.redirects_map()
 
     def update_redirect_page(self, page, target):
         title = page["title"]
@@ -45,23 +44,10 @@ class DoubleRedirects:
 
     def findall(self):
         double = {}
-        for source, target in self.redirects.items():
-            if target in self.redirects:
+        for source, target in self.api.redirects.map.items():
+            if target in self.api.redirects.map:
                 double[source] = target
         return double
-
-    def get_last_target(self, source):
-        intermediates = set()
-        target = self.redirects.get(source)
-        source = target
-        while source in self.redirects and target not in intermediates:
-            target = self.redirects[source]
-            intermediates.add(target)
-            source = target
-        if target in self.redirects:
-            logger.error("Failed to resolve last redirect target of '{}': detected infinite loop.".format(source))
-            return None
-        return target
 
     def fixall(self):
         double = self.findall()
@@ -75,7 +61,7 @@ class DoubleRedirects:
 
         for page in pages.values():
             source = page["title"]
-            target = self.get_last_target(source)
+            target = self.api.redirects.resolve(source)
             if target:
                 self.update_redirect_page(page, target)
                 

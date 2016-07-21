@@ -10,6 +10,7 @@ from .connection import Connection, APIError
 from .site import Site
 from .user import User
 from .tags import Tags
+from .redirects import Redirects
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +101,13 @@ class API(Connection):
         A :py:class:`ws.client.tags.Tags` instance for the current wiki.
         """
         return Tags(self)
+
+    @LazyProperty
+    def redirects(self):
+        """
+        A :py:class:`ws.client.redirects.Redirects` instance for the current wiki.
+        """
+        return Redirects(self)
 
     @LazyProperty
     def max_ids_per_query(self):
@@ -217,51 +225,6 @@ class API(Connection):
                 #         [{"title": "Page title", "ns": 0, "pageid": "9693"},
                 #          {"title": ...}]
                 yield from snippet[list_]
-
-    @lru_cache(maxsize=8)
-    def resolve_redirects(self, *pageids):
-        """
-        Resolve redirect titles according to the `MediaWiki's API`_. List of
-        redirect pages must be obtained other way, for example:
-
-        >>> pageids = []
-        >>> for ns in ["0", "4", "12"]:
-        >>>     pages = api.generator(generator="allpages", gaplimit="max", gapfilterredir="redirects", gapnamespace=ns)
-        >>>     _pageids = [str(page["pageid"]) for page in pages]
-        >>>     pageids.extend(_pageids)
-
-        Or just use this method when not sure if given title is a redirect or
-        not.
-
-        :param int pageids:
-            unpacked list of page IDs to resolve (i.e. call this method as
-            ``resolve_redirects(*list)`` or ``resolve_redirects(pageid1, pageid2, ...)``)
-        :returns:
-            ``redirects`` part of the API response concatenated into one list
-
-        .. _`MediaWiki's API`: https://www.mediawiki.org/wiki/API:Query#Resolving_redirects
-        """
-        # To resolve the redirects, the list of pageids must be split into chunks to
-        # fit the limit for pageids= parameter. This can't be done on snippets
-        # returned by API.query_continue(), because the limit for pageids is *lower*
-        # than for the generator (for both normal and apihighlimits)
-        #
-        # See also https://wiki.archlinux.org/index.php/User:Lahwaacz/Notes#API:_resolving_redirects
-
-        def _chunks(list_, bs):
-            """ split ``list_`` into chunks of fixed length ``bs``
-            """
-            return (list_[i:i+bs] for i in range(0, len(list_), bs))
-
-        # resolve by chunks
-        redirects = []
-        for snippet in _chunks(pageids, self.max_ids_per_query):
-            pageids = "|".join(str(x) for x in snippet)
-            result = self.call_api(action="query", redirects="", pageids=pageids)
-            if "redirects" in result:
-                redirects.extend(result["redirects"])
-
-        return redirects
 
     @LazyProperty
     def _csrftoken(self):

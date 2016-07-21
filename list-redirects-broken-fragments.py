@@ -47,7 +47,7 @@ def valid_sectionname(title, pages, wrapped_titles):
 
 def main(api, db):
     # limit to redirects pointing to the content namespaces
-    redirects = api.site.redirects_map(target_namespaces=[0, 4, 12])
+    redirects = api.redirects.fetch(target_namespaces=[0, 4, 12])
 
     # reference to the list of pages to avoid update of the cache for each lookup
     pages = db["0"]

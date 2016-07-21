@@ -192,9 +192,6 @@ class WikilinkRules:
         self.cache_dir = cache_dir
         self.interactive = interactive
 
-        # api.site.redirects_map() is not currently cached, save the result
-        self.redirects = api.site.redirects_map()
-
         # mapping of canonical titles to displaytitles
         self.displaytitles = {}
         for ns in self.api.site.namespaces.keys():
@@ -243,7 +240,7 @@ class WikilinkRules:
         if title.iwprefix or not title.sectionname:
             return
         # check if title is a redirect
-        target = self.redirects.get(title.fullpagename)
+        target = self.api.redirects.map.get(title.fullpagename)
         if target:
             _title = Title(self.api, target)
             _title.sectionname = title.sectionname
@@ -272,8 +269,8 @@ class WikilinkRules:
         except InvalidTitleCharError:
             return
 
-        target1 = self.redirects.get(title.fullpagename)
-        target2 = self.redirects.get(text.fullpagename)
+        target1 = self.api.redirects.map.get(title.fullpagename)
+        target2 = self.api.redirects.map.get(text.fullpagename)
         if target1 is not None:
             target1 = Title(self.api, target1)
             # bail out if we lost the fragment
@@ -317,7 +314,7 @@ class WikilinkRules:
 
         # might be only a section, e.g. [[#foo]]
         if title.fullpagename:
-            target = self.redirects.get(title.fullpagename)
+            target = self.api.redirects.map.get(title.fullpagename)
             if target is not None and target.lower() == title.fullpagename.lower():
                 if title.sectionname:
                     target += "#" + title.sectionname
@@ -400,8 +397,8 @@ class WikilinkRules:
             return None
 
         # resolve redirects
-        if _target_title in self.redirects:
-            _new_title = Title(self.api, self.redirects[_target_title])
+        if _target_title in self.api.redirects.map:
+            _new_title = Title(self.api, self.api.redirects.resolve(_target_title))
             if _new_title.sectionname:
                 logger.warning("skipping {} (section fragment placed on a redirect to possibly different section)".format(wikilink))
                 return None
