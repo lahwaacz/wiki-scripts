@@ -54,7 +54,7 @@ class InterlanguageLinks:
               - If there is a difference, save the page.
     """
 
-    namespaces = [0, 4, 10, 12, 14]
+    content_namespaces = [0, 4, 10, 12, 14]
     edit_summary = "update interlanguage links"
 
     def __init__(self, api):
@@ -71,7 +71,7 @@ class InterlanguageLinks:
         # not necessary to wrap in each iteration since lists are mutable
         wrapped_titles = utils.ListOfDictsAttrWrapper(allpages, "title")
 
-        for ns in self.namespaces:
+        for ns in self.content_namespaces:
             g = self.api.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max", prop="langlinks", lllimit="max")
             for page in g:
                 # the same page may be yielded multiple times with different pieces
@@ -132,18 +132,12 @@ class InterlanguageLinks:
     def _is_valid_internal(self, tag, title):
         if not lang.is_internal_tag(tag):
             return False
-        if tag == "en":
-            full_title = title
-        else:
-            full_title = "{} ({})".format(title, lang.langname_for_tag(tag))
+        full_title = lang.format_title(title, lang.langname_for_tag(tag))
         return full_title in self.wrapped_titles
 
     def _title_from_langlink(self, langlink):
         langname = lang.langname_for_tag(langlink["lang"])
-        if langname == "English":
-            title = langlink["*"]
-        else:
-            title = "{} ({})".format(langlink["*"], langname)
+        title = lang.format_title(langlink["*"], langname)
         if lang.is_internal_tag(langlink["lang"]):
             title = canonicalize(title)
             # resolve redirects
@@ -355,5 +349,5 @@ class InterlanguageLinks:
             if not self._is_valid_interlanguage(title):
                 continue
             langlinks = self._get_langlinks(title)
-            if lang.detect_language(title)[1] != "English" and len(langlinks) == 0:
+            if lang.detect_language(title)[1] != lang.get_local_language() and len(langlinks) == 0:
                 print("* [[{}]]".format(title))

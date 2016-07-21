@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals, assert_count_equal, assert_true
+from nose.tools import assert_equals, assert_count_equal, assert_true, raises
 
 from ws.ArchWiki.lang import *
 
@@ -129,8 +129,8 @@ class test_detect_language:
     }
 
     @staticmethod
-    def _do_test(title, expected):
-        assert_equals(detect_language(title), expected)
+    def _do_test(title, parts):
+        assert_equals(detect_language(title), parts)
 
     def test_suite(self):
         for title, expected in self.testsuite.items():
@@ -144,3 +144,44 @@ class test_detect_language:
         for lang in language_names:
             title = "Category:{}".format(lang)
             yield self._do_test, title, (title, lang)
+
+class test_format_title:
+    default = get_local_language()
+
+    # mapping of input to expected result
+    testsuite = {
+        "": ("", default),
+        "foo": ("foo", default),
+        "foo (bar)": ("foo (bar)", default),
+        "foo (Česky)": ("foo", "Česky"),
+        "foo bar": ("foo bar", default),
+        "foo (Česky)": ("foo", "Česky"),
+        "foo(Česky)": ("foo(Česky)", default),
+        "foo/bar": ("foo/bar", default),
+
+        # language categories
+        "Category:Foo": ("Category:Foo", default),
+        "Category:Česky": ("Category:Česky", "Česky"),
+    }
+
+    @staticmethod
+    def _do_test(title, parts):
+        assert_equals(format_title(*parts), title)
+
+    def test_suite(self):
+        for title, expected in self.testsuite.items():
+            yield self._do_test, title, expected
+
+    def test_all_langs(self):
+        for lang in language_names:
+            if lang != self.default:
+                yield self._do_test, "foo ({})".format(lang), ("foo", lang)
+
+    def test_all_cats(self):
+        for lang in language_names:
+            title = "Category:{}".format(lang)
+            yield self._do_test, title, (title, lang)
+
+    @raises(ValueError)
+    def test_invalid_langname(self):
+        format_title("foo", "bar")

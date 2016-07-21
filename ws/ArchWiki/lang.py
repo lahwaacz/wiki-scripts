@@ -201,3 +201,22 @@ def detect_language(title):
         if lang in get_language_names():
             return match.group("pure") + pure_suffix, lang
     return title, get_local_language()
+
+def format_title(title, langname):
+    """
+    Formats a local title for given base title and language. It is basically
+    an inverse operation for :py:func:`detect_language`.
+
+    :param str title: the base title
+    :param str langname: the language name of the title to be produced
+    :returns: a string representing the local title
+    """
+    if not is_language_name(langname):
+        raise ValueError("Invalid language name: {}".format(langname))
+    # local language
+    if langname == get_local_language():
+        return title
+    # master category for language
+    if title.lower() == "category:" + langname.lower():
+        return title
+    return "{} ({})".format(title, langname)
