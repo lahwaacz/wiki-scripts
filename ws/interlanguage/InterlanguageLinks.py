@@ -62,6 +62,7 @@ class InterlanguageLinks:
         self.redirects = self.api.site.redirects_map()
 
         self.families = None
+        self.family_index = None
 
     def _get_allpages(self):
         logger.info("Fetching langlinks property of all pages...")
@@ -79,6 +80,9 @@ class InterlanguageLinks:
                     ws.utils.dmerge(page, db_page)
                 except IndexError:
                     ws.utils.bisect_insert_or_replace(allpages, page["title"], data_element=page, index_list=wrapped_titles)
+
+        # sort by title
+        allpages.sort(key=lambda page: page["title"])
         return allpages
 
     @staticmethod
@@ -103,7 +107,7 @@ class InterlanguageLinks:
             _family_key = lambda page: lang.detect_language(page["title"])[0]
         else:
             _family_key = lambda page: lang.detect_language(page["title"])[0].lower()
-        pages.sort(key=_family_key)
+        pages = sorted(pages, key=_family_key)
         families_groups = itertools.groupby(_valid_interlanguage_pages(pages), key=_family_key)
 
         families = {}
@@ -125,9 +129,6 @@ class InterlanguageLinks:
     def allpages(self):
         allpages = self._get_allpages()
         self.families = self._group_into_families(allpages)
-        # sort again, this time by title (self._group_into_families sorted it by
-        # the family key)
-        allpages.sort(key=lambda page: page["title"])
 
         # create inverse mapping for fast searching
         self.family_index = {}
