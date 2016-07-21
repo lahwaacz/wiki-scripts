@@ -6,21 +6,9 @@ import matplotlib as mpl
 
 from ws.client import API
 import ws.cache
-from ws.utils import parse_date
+from ws.utils import parse_date, range_by_days
 
 from ws.statistics.UserStatsModules import *
-
-# return list of datetime.date objects with items jumped by 1 day
-def datetime_day_range(first, last):
-    import datetime
-    range_ = []
-    first = datetime.date(first.year, first.month, first.day)
-    last = datetime.date(last.year, last.month, last.day)
-    while first < last:
-        range_.append(first)
-        first += datetime.timedelta(days=1)
-    range_.append(first)    # rightmost
-    return range_
 
 def plot_setup(title="", ylabel="edits"):
     fig = plt.figure(figsize=(12, 9))
@@ -51,7 +39,7 @@ def plot_revisions(ax, revisions, label):
     timestamps = [parse_date(revision["timestamp"]) for revision in revisions]
 
     # construct an array of bin edges, one bin per day
-    bin_edges = datetime_day_range(timestamps[0], timestamps[-1])
+    bin_edges = range_by_days(timestamps[0], timestamps[-1])
 
     # "bin" the timestamps (this will implicitly bin also the revisions)
     # NOTE: np.digitize returns a list of bin indexes for each revision

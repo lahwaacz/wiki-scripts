@@ -9,24 +9,9 @@ import logging
 
 from ws.client import API
 import ws.cache
-from ws.utils import parse_date
+from ws.utils import parse_date, range_by_months
 
 logger = logging.getLogger(__name__)
-
-# return list of datetime.date objects with items jumped by 1 month
-def datetime_month_range(first, last):
-    import datetime
-    range_ = []
-    first = datetime.date(first.year, first.month, 1)
-    last = datetime.date(last.year, last.month, last.day)
-    while first < last:
-        range_.append(first)
-        try:
-            first = datetime.date(first.year, first.month + 1, 1)
-        except ValueError:
-            first = datetime.date(first.year + 1, 1, 1)
-    range_.append(first)    # rightmost
-    return range_
 
 def plot_date_bars(bin_data, bin_edges, title, ylabel, fname):
     """
@@ -80,7 +65,7 @@ def create_histograms(revisions):
 #    timestamps = [parse_date(revision["timestamp"]) for revision in revisions if revision["user"] not in ["Kynikos.bot", "Lahwaacz.bot", "Strcat"]]
 
     # construct an array of bin edges, one bin per calendar month
-    bin_edges = datetime_month_range(timestamps[0], timestamps[-1])
+    bin_edges = range_by_months(timestamps[0], timestamps[-1])
 
     # "bin" the timestamps (this will implicitly bin also the revisions)
     # NOTE: np.digitize returns a list of bin indexes for each revision

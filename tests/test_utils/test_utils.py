@@ -1,14 +1,8 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals, assert_true, assert_false, raises
+from nose.tools import assert_equals, assert_true, assert_false
 
 from ws.utils import *
-
-def test_parse_date():
-    import datetime
-    timestamp = "2014-08-25T14:26:59Z"
-    expected = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
-    assert_equals(parse_date(timestamp), expected)
 
 class test_is_ascii:
     """ test for utils.is_ascii() function
