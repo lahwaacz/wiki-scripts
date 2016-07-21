@@ -9,8 +9,6 @@ import logging
 
 import mwparserfromhell
 
-from ws.client import API
-from ws.utils import RateLimited
 from ws.interactive import *
 import ws.ArchWiki.lang as lang
 import ws.ArchWiki.header as header
@@ -19,7 +17,9 @@ from ws.parser_helpers.title import canonicalize
 
 logger = logging.getLogger(__name__)
 
-class Interlanguage:
+__all__ = ["InterlanguageLinks"]
+
+class InterlanguageLinks:
     """
     Update interlanguage links on ArchWiki based on the following algorithm:
 
@@ -117,7 +117,7 @@ class Interlanguage:
             elif case_sensitive is False:
                 # sometimes case-insensitive matching is not enough, e.g. [[fish]] is
                 # not [[FiSH]] (and neither is redirect)
-                families.update(Interlanguage._group_into_families(pages, case_sensitive=True))
+                families.update(InterlanguageLinks._group_into_families(pages, case_sensitive=True))
             else:
                 # this should never happen
                 raise Exception
@@ -357,11 +357,3 @@ class Interlanguage:
             langlinks = self._get_langlinks(title)
             if lang.detect_language(title)[1] != "English" and len(langlinks) == 0:
                 print("* [[{}]]".format(title))
-
-
-if __name__ == "__main__":
-    import ws.config
-    api = ws.config.object_from_argparser(API, description="Update interlanguage links")
-    il = Interlanguage(api)
-    il.update_allpages()
-#    il.find_orphans()
