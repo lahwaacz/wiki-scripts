@@ -12,7 +12,7 @@ import mwparserfromhell
 from ws.interactive import *
 import ws.ArchWiki.lang as lang
 import ws.ArchWiki.header as header
-import ws.utils as utils
+import ws.utils
 from ws.parser_helpers.title import canonicalize
 
 logger = logging.getLogger(__name__)
@@ -61,26 +61,24 @@ class InterlanguageLinks:
         self.api = api
         self.redirects = self.api.site.redirects_map()
 
-        self.allpages = None
-        self.wrapped_titles = None
         self.families = None
 
     def _get_allpages(self):
         logger.info("Fetching langlinks property of all pages...")
         allpages = []
         # not necessary to wrap in each iteration since lists are mutable
-        wrapped_titles = utils.ListOfDictsAttrWrapper(allpages, "title")
+        wrapped_titles = ws.utils.ListOfDictsAttrWrapper(allpages, "title")
 
         for ns in self.content_namespaces:
             g = self.api.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max", prop="langlinks", lllimit="max")
             for page in g:
                 # the same page may be yielded multiple times with different pieces
-                # of the information, hence the utils.dmerge
+                # of the information, hence the ws.utils.dmerge
                 try:
-                    db_page = utils.bisect_find(allpages, page["title"], index_list=wrapped_titles)
-                    utils.dmerge(page, db_page)
+                    db_page = ws.utils.bisect_find(allpages, page["title"], index_list=wrapped_titles)
+                    ws.utils.dmerge(page, db_page)
                 except IndexError:
-                    utils.bisect_insert_or_replace(allpages, page["title"], data_element=page, index_list=wrapped_titles)
+                    ws.utils.bisect_insert_or_replace(allpages, page["title"], data_element=page, index_list=wrapped_titles)
         return allpages
 
     @staticmethod
@@ -122,6 +120,26 @@ class InterlanguageLinks:
                 # this should never happen
                 raise Exception
         return families
+
+    @ws.utils.LazyProperty
+    def allpages(self):
+        allpages = self._get_allpages()
+        self.families = self._group_into_families(allpages)
+        # sort again, this time by title (self._group_into_families sorted it by
+        # the family key)
+        allpages.sort(key=lambda page: page["title"])
+
+        # create inverse mapping for fast searching
+        self.family_index = {}
+        for family, pages in self.families.items():
+            for page in pages:
+                self.family_index[page["title"]] = family
+
+        return allpages
+
+    @property
+    def wrapped_titles(self):
+        return ws.utils.ListOfDictsAttrWrapper(self.allpages, "title")
 
     @staticmethod
     # check if interlanguage links are supported for the language of the given title
@@ -195,7 +213,7 @@ class InterlanguageLinks:
         _pulled_from_english = False
         if "en" in tags:
             en_title = titles[tags.index("en")]
-            en_page = utils.bisect_find(self.allpages, en_title, index_list=self.wrapped_titles)
+            en_page = ws.utils.bisect_find(self.allpages, en_title, index_list=self.wrapped_titles)
             # If the English page is present from the beginning, pull its langlinks.
             # This will take priority over other pages in the family.
             if master_tag == "en" or had_english_early:
@@ -240,20 +258,6 @@ class InterlanguageLinks:
         # transform to list, sort by the language tag
         langlinks = sorted(langlinks, key=lambda t: t[0])
         return langlinks
-
-    def build_graph(self):
-        self.allpages = self._get_allpages()
-        self.wrapped_titles = utils.ListOfDictsAttrWrapper(self.allpages, "title")
-        self.families = self._group_into_families(self.allpages)
-        # sort again, this time by title (self._group_into_families sorted it by
-        # the family key)
-        self.allpages.sort(key=lambda page: page["title"])
-
-        # create inverse mapping for fast searching
-        self.family_index = {}
-        for family, pages in self.families.items():
-            for page in pages:
-                self.family_index[page["title"]] = family
 
     @staticmethod
     def _update_interlanguage_links(page, langlinks, weak_update=True):
@@ -304,7 +308,8 @@ class InterlanguageLinks:
         return set(langlinks_new) != set(langlinks_old)
 
     def update_allpages(self):
-        self.build_graph()
+        # always start from scratch
+        del self.allpages
 
         def _updates_gen(pages_gen):
             for page in pages_gen:
@@ -317,7 +322,7 @@ class InterlanguageLinks:
                 if self._needs_update(page, langlinks):
                     yield page, langlinks
 
-        for chunk in utils.iter_chunks(_updates_gen(self.allpages), self.api.max_ids_per_query):
+        for chunk in ws.utils.iter_chunks(_updates_gen(self.allpages), self.api.max_ids_per_query):
             pages_props, pages_langlinks = zip(*list(chunk))
             pageids = "|".join(str(page["pageid"]) for page in pages_props)
             result = self.api.call_api(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp")
@@ -340,9 +345,6 @@ class InterlanguageLinks:
                     self.api.edit(page["title"], page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 
     def find_orphans(self):
-        if self.allpages is None:
-            self.build_graph()
-
         for page in self.allpages:
             title = page["title"]
             # unsupported languages need to be skipped now
