@@ -141,6 +141,7 @@ class InterlanguageLinks:
     def wrapped_titles(self):
         return ws.utils.ListOfDictsAttrWrapper(self.allpages, "title")
 
+
     @staticmethod
     # check if interlanguage links are supported for the language of the given title
     def _is_valid_interlanguage(full_title):
@@ -164,10 +165,11 @@ class InterlanguageLinks:
                 title = resolved.split("#", maxsplit=1)[0]
         return title
 
-    def _titles_in_family(self, master_title):
+    def titles_in_family(self, master_title):
         """
-        Get the titles in the family corresponding to ``title``.
+        Get the titles in the family corresponding to ``master_title``.
 
+        :param str master_title: a page title (does not have to be English page)
         :returns: a ``(titles, tags)`` tuple, where ``titles`` is the set of titles
                   in the family (including ``title``) and ``tags`` is the set of
                   corresponding language tags
@@ -224,7 +226,7 @@ class InterlanguageLinks:
                 # Otherwise check if the family of the English page is the same as
                 # this one or if it does not contain master_tag. This will effectively
                 # merge the families.
-                en_tags, en_titles = self._titles_in_family(en_title)
+                en_tags, en_titles = self.titles_in_family(en_title)
                 if master_title in en_titles or master_tag not in en_tags:
                     _pull_from_page(en_page, condition=lambda tag, title: lang.is_external_tag(tag) or self._is_valid_internal(tag, title))
                     _pulled_from_english = True
@@ -241,16 +243,16 @@ class InterlanguageLinks:
 
         return tags, titles
 
-    def _get_langlinks(self, full_title):
+    def get_langlinks(self, full_title):
         """
-        Uses :py:meth:`self._titles_in_family` to get the titles of all pages in
+        Uses :py:meth:`self.titles_in_family` to get the titles of all pages in
         the family, removes the link to the passed title and sorts the list by
         the language subtag.
 
         :returns: a list of ``(tag, title)`` tuples
         """
         # get all titles in the family
-        tags, titles = self._titles_in_family(full_title)
+        tags, titles = self.titles_in_family(full_title)
         langlinks = set(zip(tags, titles))
         # remove title of the page to be updated
         title, langname = lang.detect_language(full_title)
@@ -319,7 +321,7 @@ class InterlanguageLinks:
                 if not self._is_valid_interlanguage(title):
                     logger.warning("Skipping page '{}' (unsupported language)".format(title))
                     continue
-                langlinks = self._get_langlinks(title)
+                langlinks = self.get_langlinks(title)
                 if self._needs_update(page, langlinks):
                     yield page, langlinks
 
@@ -346,11 +348,16 @@ class InterlanguageLinks:
                     self.api.edit(page["title"], page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 
     def find_orphans(self):
+        """
+        Returns list of pages that are alone in their families.
+        """
+        orphans = []
         for page in self.allpages:
             title = page["title"]
             # unsupported languages need to be skipped now
             if not self._is_valid_interlanguage(title):
                 continue
-            langlinks = self._get_langlinks(title)
+            langlinks = self.get_langlinks(title)
             if lang.detect_language(title)[1] != lang.get_local_language() and len(langlinks) == 0:
-                print("* [[{}]]".format(title))
+                orphans.append(title)
+        return orphans
