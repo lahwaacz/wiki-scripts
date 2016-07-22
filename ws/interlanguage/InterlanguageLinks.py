@@ -264,10 +264,10 @@ class InterlanguageLinks:
         return langlinks
 
     @staticmethod
-    def _update_interlanguage_links(page, langlinks, weak_update=True):
+    def update_page(title, text, langlinks, weak_update=True):
         """
-        :param page: a dictionary with page properties obtained from the wiki API.
-                     Must contain the content under the ``revisions`` key.
+        :param str title: title of the page
+        :param str text: wikitext of the page
         :param langlinks: a sorted list of ``(tag, title)`` tuples as obtained
                           from :py:meth:`self._get_langlinks`
         :param weak_update:
@@ -277,9 +277,6 @@ class InterlanguageLinks:
             be preserved and solved manually. This is reported in _merge_families.
         :returns: updated wikicode
         """
-        title = page["title"]
-        text = page["revisions"][0]["*"]
-
         # temporarily skip main pages until the behavior switches
         # (__NOTOC__ etc.) can be parsed by mwparserfromhell
         # NOTE: handling whitespace right will be hard: https://wiki.archlinux.org/index.php?title=Main_page&diff=383144&oldid=382787
@@ -339,7 +336,7 @@ class InterlanguageLinks:
                 timestamp = page["revisions"][0]["timestamp"]
                 text_old = page["revisions"][0]["*"]
                 try:
-                    text_new = self._update_interlanguage_links(page, langlinks, weak_update=False)
+                    text_new = self.update_page(page["title"], text_old, langlinks, weak_update=False)
                 except header.HeaderError:
                     logger.error("Error: failed to extract header elements. Please investigate.")
                     continue

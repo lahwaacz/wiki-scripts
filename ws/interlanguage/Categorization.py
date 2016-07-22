@@ -48,8 +48,8 @@ class Categorization:
 
         return needs_fixing
 
-    def fix_page(self, pageid, title, text_old, timestamp):
-        logger.info("Fixing language of categories on page [[{}]]...".format(title))
+    @staticmethod
+    def fix_page(title, text_old):
         langname = lang.detect_language(title)[1]
         wikicode = mwparserfromhell.parse(text_old)
         parent, magics, cats, langlinks = get_header_parts(wikicode, remove_from_parent=True)
@@ -63,13 +63,7 @@ class Categorization:
                 cat.title = lang.format_title(pure, langname)
 
         build_header(wikicode, parent, magics, cats, langlinks)
-        text_new = str(wikicode)
-        if text_old != text_new:
-            try:
-                edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, self.summary, bot="")
-#                self.api.edit(page["title"], pageid, text_new, timestamp, self.summary, bot="")
-            except APIError:
-                pass
+        return wikicode
 
     def fix_allpages(self):
         pageids = self.find_broken()
@@ -82,6 +76,15 @@ class Categorization:
             result = self.api.call_api(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp")
             pages = result["pages"]
             for page in pages.values():
-                text = page["revisions"][0]["*"]
+                logger.info("Fixing language of categories on page [[{}]]...".format(page["title"]))
+
                 timestamp = page["revisions"][0]["timestamp"]
-                self.fix_page(page["pageid"], page["title"], text, timestamp)
+                text_old = page["revisions"][0]["*"]
+                text_new = self.fix_page(page["title"], text_old)
+
+                if text_old != text_new:
+                    try:
+                        edit_interactive(self.api, page["title"], page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+#                        self.api.edit(page["title"], page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+                    except APIError:
+                        pass
