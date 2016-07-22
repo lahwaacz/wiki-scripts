@@ -9,6 +9,7 @@ import logging
 
 import mwparserfromhell
 
+from ws.client import APIError
 from ws.interactive import *
 import ws.ArchWiki.lang as lang
 import ws.ArchWiki.header as header
@@ -344,8 +345,11 @@ class InterlanguageLinks:
                     continue
 
                 if text_old != text_new:
-#                    edit_interactive(self.api, page["title"], page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-                    self.api.edit(page["title"], page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+                    try:
+#                        edit_interactive(self.api, page["title"], page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+                        self.api.edit(page["title"], page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+                    except APIError:
+                        pass
 
     def find_orphans(self):
         """

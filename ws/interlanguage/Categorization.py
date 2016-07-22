@@ -5,7 +5,7 @@ import logging
 
 import mwparserfromhell
 
-from ws.client import API
+from ws.client import APIError
 import ws.utils
 from ws.interactive import edit_interactive
 import ws.ArchWiki.lang as lang
@@ -65,8 +65,11 @@ class Categorization:
         build_header(wikicode, parent, magics, cats, langlinks)
         text_new = str(wikicode)
         if text_old != text_new:
-            edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, self.summary, bot="")
-#            self.api.edit(page["title"], pageid, text_new, timestamp, self.summary, bot="")
+            try:
+                edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, self.summary, bot="")
+#                self.api.edit(page["title"], pageid, text_new, timestamp, self.summary, bot="")
+            except APIError:
+                pass
 
     def fix_allpages(self):
         pageids = self.find_broken()

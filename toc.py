@@ -7,7 +7,7 @@ import logging
 
 import mwparserfromhell
 
-from ws.client import API
+from ws.client import API, APIError
 from ws.interactive import require_login
 from ws.parser_helpers.title import canonicalize, Title
 import ws.ArchWiki.lang as lang
@@ -458,7 +458,7 @@ class TableOfContents:
                     self.api.edit(title, pageid, text_new, timestamp, self.cliargs.summary, bot="1")
                 else:
                     self.api.edit(title, pageid, text_new, timestamp, self.cliargs.summary, minor="1")
-            except APIError as e:
+            except APIError:
                 pass
         else:
             logger.info("Page '{}' is already up to date.".format(title))
