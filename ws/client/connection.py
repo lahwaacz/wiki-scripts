@@ -45,11 +45,6 @@ class Connection:
     """
     The base object handling connection between a wiki and scripts.
 
-    It is possible to save the session data by specifying either ``cookiejar``
-    or ``cookie_file`` arguments. This way cookies can be saved permanently to
-    the disk or shared between multiple :py:class:`Connection` objects.
-    If ``cookiejar`` is present ``cookie_file`` is ignored.
-
     :param str api_url: URL path to the wiki's ``api.php`` entry point
     :param str index_url: URL path to the wiki's ``index.php`` entry point
     :param requests.Session session: session created by :py:meth:`make_session`
@@ -68,6 +63,10 @@ class Connection:
                      http_user=None, http_password=None):
         """
         Creates a :py:class:`requests.Session` object for the connection.
+
+        It is possible to save the session data by specifying either ``cookiejar``
+        or ``cookie_file`` arguments. If ``cookiejar`` is present, ``cookie_file``
+        is ignored.
 
         :param str user_agent: string sent as ``User-Agent`` header to the web server
         :param bool ssl_verify: if ``True``, the SSL certificate will be verified
