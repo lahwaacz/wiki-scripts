@@ -10,7 +10,8 @@ def setup_package():
     api_url = "https://wiki.archlinux.org/api.php"
     index_url = "https://wiki.archlinux.org/index.php"
     ssl_verify = True
-    fixtures.api = API(api_url, index_url, ssl_verify=ssl_verify)
+    session = API.make_session(ssl_verify=ssl_verify)
+    fixtures.api = API(api_url, index_url, session)
 
 def teardown_package():
     fixtures.api = None

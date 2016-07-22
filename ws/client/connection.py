@@ -50,51 +50,60 @@ class Connection:
     the disk or shared between multiple :py:class:`Connection` objects.
     If ``cookiejar`` is present ``cookie_file`` is ignored.
 
-    :param api_url: URL path to the wiki's ``api.php`` entry point
-    :param index_url: URL path to the wiki's ``index.php`` entry point
-    :param user_agent: string sent as ``User-Agent`` header to the web server
-    :param ssl_verify: if ``True``, the SSL certificate will be verified
-    :param max_retries:
-        Maximum number of retries for each connection. Applies only to
-        failed DNS lookups, socket connections and connection timeouts, never
-        to requests where data has made it to the server.
-    :param timeout: connection timeout in seconds
-    :param cookie_file: path to a :py:class:`cookielib.FileCookieJar` file
-    :param cookiejar: an existing :py:class:`cookielib.CookieJar` object
+    :param str api_url: URL path to the wiki's ``api.php`` entry point
+    :param str index_url: URL path to the wiki's ``index.php`` entry point
+    :param requests.Session session: session created by :py:meth:`make_session`
+    :param int timeout: connection timeout in seconds
     """
 
-    def __init__(self, api_url, index_url, user_agent=DEFAULT_UA,
-                 ssl_verify=None, max_retries=0, timeout=30,
-                 cookie_file=None, cookiejar=None,
-                 http_user=None, http_password=None):
+    def __init__(self, api_url, index_url, session, timeout=30):
         self.api_url = api_url
         self.index_url = index_url
+        self.session = session
         self.timeout = timeout
 
-        self.session = requests.Session()
+    @staticmethod
+    def make_session(user_agent=DEFAULT_UA, ssl_verify=None, max_retries=0,
+                     cookie_file=None, cookiejar=None,
+                     http_user=None, http_password=None):
+        """
+        Creates a :py:class:`requests.Session` object for the connection.
+
+        :param str user_agent: string sent as ``User-Agent`` header to the web server
+        :param bool ssl_verify: if ``True``, the SSL certificate will be verified
+        :param int max_retries:
+            Maximum number of retries for each connection. Applies only to
+            failed DNS lookups, socket connections and connection timeouts, never
+            to requests where data has made it to the server.
+        :param str cookie_file: path to a :py:class:`cookielib.FileCookieJar` file
+        :param cookiejar: an existing :py:class:`cookielib.CookieJar` object
+        :returns: :py:class:`requests.Session` object
+        """
+        session = requests.Session()
 
         if cookiejar is not None:
-            self.session.cookies = cookiejar
+            session.cookies = cookiejar
         elif cookie_file is not None:
-            self.session.cookies = cookielib.LWPCookieJar(cookie_file)
+            session.cookies = cookielib.LWPCookieJar(cookie_file)
             try:
-                self.session.cookies.load()
+                session.cookies.load()
             except (cookielib.LoadError, FileNotFoundError):
-                self.session.cookies.save()
-                self.session.cookies.load()
+                session.cookies.save()
+                session.cookies.load()
 
-        self._auth = None
+        _auth = None
         if http_user is not None and http_password is not None:
-            self._auth = (http_user, http_password)
+            _auth = (http_user, http_password)
 
-        self.session.headers.update({"user-agent": user_agent})
-        self.session.auth = self._auth
-        self.session.params.update({"format": "json"})
-        self.session.verify = ssl_verify
+        session.headers.update({"user-agent": user_agent})
+        session.auth = _auth
+        session.params.update({"format": "json"})
+        session.verify = ssl_verify
 
         adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
-        self.session.mount("https://", adapter)
-        self.session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        session.mount("http://", adapter)
+        return session
 
     @staticmethod
     def set_argparser(argparser):
@@ -143,9 +152,11 @@ class Connection:
             cookie_file = args.cookie_file
         # retype from int to bool
         args.ssl_verify = True if args.ssl_verify == 1 else False
-        return klass(args.api_url, args.index_url, ssl_verify=args.ssl_verify,
-                     max_retries=args.connection_max_retries, timeout=args.connection_timeout,
-                     cookie_file=cookie_file)
+
+        session = Connection.make_session(ssl_verify=args.ssl_verify,
+                                          max_retries=args.connection_max_retries,
+                                          cookie_file=cookie_file)
+        return klass(args.api_url, args.index_url, session=session, timeout=args.connection_timeout)
 
     @RateLimited(10, 3)
     def request(self, method, url, **kwargs):
