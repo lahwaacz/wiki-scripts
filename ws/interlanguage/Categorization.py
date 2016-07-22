@@ -1,0 +1,84 @@
+#! /usr/bin/env python3
+
+import itertools
+import logging
+
+import mwparserfromhell
+
+from ws.client import API
+import ws.utils
+from ws.interactive import edit_interactive
+import ws.ArchWiki.lang as lang
+from ws.ArchWiki.header import get_header_parts, build_header
+
+logger = logging.getLogger(__name__)
+
+__all__ = ["Categorization"]
+
+class Categorization:
+    """
+    Checks if pages are categorized in categories of the same language.
+    """
+
+    content_namespaces = [0, 4, 10, 12, 14]
+    edit_summary = "fix category, see [[Help:Category#i18n category name]]"
+
+    def __init__(self, api):
+        self.api = api
+
+    def find_broken(self):
+        def pages_in_namespace(ns):
+            return self.api.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max", prop="categories", cllimit="max", clshow="!hidden")
+
+        pages = itertools.chain.from_iterable(pages_in_namespace(ns) for ns in self.content_namespaces)
+
+        needs_fixing = []
+
+        for page in pages:
+            langname = lang.detect_language(page["title"])[1]
+            if "categories" in page:
+                for cat in page["categories"]:
+                    # skip root categories for non-English languages
+                    if page["title"] == "Category:{}".format(langname) and cat["title"] == "Category:Languages":
+                        continue
+
+                    # check language
+                    if lang.detect_language(cat["title"])[1] != langname:
+                        needs_fixing.append(page["pageid"])
+
+        return needs_fixing
+
+    def fix_page(self, pageid, title, text_old, timestamp):
+        logger.info("Fixing language of categories on page [[{}]]...".format(title))
+        langname = lang.detect_language(title)[1]
+        wikicode = mwparserfromhell.parse(text_old)
+        parent, magics, cats, langlinks = get_header_parts(wikicode, remove_from_parent=True)
+
+        for cat in cats:
+            # get_header_parts returns list of wikicode objects, each with one node
+            cat = cat.nodes[0]
+
+            pure, ln = lang.detect_language(str(cat.title))
+            if ln != langname:
+                cat.title = lang.format_title(pure, langname)
+
+        build_header(wikicode, parent, magics, cats, langlinks)
+        text_new = str(wikicode)
+        if text_old != text_new:
+            edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, self.summary, bot="")
+#            self.api.edit(page["title"], pageid, text_new, timestamp, self.summary, bot="")
+
+    def fix_allpages(self):
+        pageids = self.find_broken()
+        if not pageids:
+            logger.info("All pages are categorized under correct language.")
+            return
+
+        for chunk in ws.utils.iter_chunks(pageids, self.api.max_ids_per_query):
+            pageids = "|".join(str(pageid) for pageid in chunk)
+            result = self.api.call_api(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp")
+            pages = result["pages"]
+            for page in pages.values():
+                text = page["revisions"][0]["*"]
+                timestamp = page["revisions"][0]["timestamp"]
+                self.fix_page(page["pageid"], page["title"], text, timestamp)

@@ -1,16 +1,20 @@
 #! /usr/bin/env python3
 
 from ws.client import API
+from ws.interlanguage.Categorization import *
 from ws.interlanguage.InterlanguageLinks import *
 
 def main(args, api):
-    il = InterlanguageLinks(api)
-
     if args.mode == "update":
+        # first fix categorization
+        cat = Categorization(api)
+        cat.fix_allpages()
+        # update intelanguage links
+        il = InterlanguageLinks(api)
         il.update_allpages()
     elif args.mode == "orphans":
-        orphans = il.find_orphans()
-        for title in orphans:
+        il = InterlanguageLinks(api)
+        for title in il.find_orphans():
             print("* [[{}]]".format(title))
     else:
         raise Exception("Unknown mode: {}".format(args.mode))
