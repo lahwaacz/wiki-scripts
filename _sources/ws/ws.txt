@@ -13,8 +13,9 @@ Subpackages
 
     ws.ArchWiki
     ws.cache
-    ws.core
+    ws.client
     ws.parser_helpers
+    ws.utils
 
 Submodules
 ----------
@@ -26,6 +27,5 @@ Submodules
    ws.dump
    ws.interactive
    ws.logging
-   ws.utils
    ws.wikitable
 

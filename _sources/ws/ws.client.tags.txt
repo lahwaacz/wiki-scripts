@@ -1,0 +1,7 @@
+ws.client.tags module
+=====================
+
+.. automodule:: ws.client.tags
+    :members:
+    :undoc-members:
+    :show-inheritance:

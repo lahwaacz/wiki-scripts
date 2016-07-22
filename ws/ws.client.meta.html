@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ws.core.meta module &mdash; wiki-scripts 1.1 documentation</title>
+    <title>ws.client.meta module &mdash; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,9 +25,9 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
-    <link rel="up" title="ws.core package" href="ws.core.html" />
-    <link rel="next" title="ws.core.rate module" href="ws.core.rate.html" />
-    <link rel="prev" title="ws.core.lazy module" href="ws.core.lazy.html" />
+    <link rel="up" title="ws.client package" href="ws.client.html" />
+    <link rel="next" title="ws.client.redirects module" href="ws.client.redirects.html" />
+    <link rel="prev" title="ws.client.connection module" href="ws.client.connection.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -42,48 +42,48 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-ws.core.meta">
-<span id="ws-core-meta-module"></span><h1>ws.core.meta module<a class="headerlink" href="#module-ws.core.meta" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-ws.client.meta">
+<span id="ws-client-meta-module"></span><h1>ws.client.meta module<a class="headerlink" href="#module-ws.client.meta" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="ws.core.meta.Meta">
-<em class="property">class </em><code class="descclassname">ws.core.meta.</code><code class="descname">Meta</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.meta.Meta" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.meta.Meta">
+<em class="property">class </em><code class="descclassname">ws.client.meta.</code><code class="descname">Meta</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.meta.Meta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Meta-class for <code class="docutils literal"><span class="pre">siteinfo</span></code> and <code class="docutils literal"><span class="pre">userinfo</span></code> functionality.</p>
-<p>Subclasses must configure the <a class="reference internal" href="#ws.core.meta.Meta.module" title="ws.core.meta.Meta.module"><code class="xref py py-attr docutils literal"><span class="pre">module</span></code></a> and <a class="reference internal" href="#ws.core.meta.Meta.properties" title="ws.core.meta.Meta.properties"><code class="xref py py-attr docutils literal"><span class="pre">properties</span></code></a>
+<p>Subclasses must configure the <a class="reference internal" href="#ws.client.meta.Meta.module" title="ws.client.meta.Meta.module"><code class="xref py py-attr docutils literal"><span class="pre">module</span></code></a> and <a class="reference internal" href="#ws.client.meta.Meta.properties" title="ws.client.meta.Meta.properties"><code class="xref py py-attr docutils literal"><span class="pre">properties</span></code></a>
 attributes.</p>
 <dl class="attribute">
-<dt id="ws.core.meta.Meta.module">
-<code class="descname">module</code><em class="property"> = ''</em><a class="headerlink" href="#ws.core.meta.Meta.module" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.meta.Meta.module">
+<code class="descname">module</code><em class="property"> = ''</em><a class="headerlink" href="#ws.client.meta.Meta.module" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.meta.Meta.properties">
-<code class="descname">properties</code><em class="property"> = set()</em><a class="headerlink" href="#ws.core.meta.Meta.properties" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.meta.Meta.properties">
+<code class="descname">properties</code><em class="property"> = set()</em><a class="headerlink" href="#ws.client.meta.Meta.properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.meta.Meta.volatile_properties">
-<code class="descname">volatile_properties</code><em class="property"> = set()</em><a class="headerlink" href="#ws.core.meta.Meta.volatile_properties" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.meta.Meta.volatile_properties">
+<code class="descname">volatile_properties</code><em class="property"> = set()</em><a class="headerlink" href="#ws.client.meta.Meta.volatile_properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.meta.Meta.timeout">
-<code class="descname">timeout</code><em class="property"> = 0</em><a class="headerlink" href="#ws.core.meta.Meta.timeout" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.meta.Meta.timeout">
+<code class="descname">timeout</code><em class="property"> = 0</em><a class="headerlink" href="#ws.client.meta.Meta.timeout" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.meta.Meta.volatile_timeout">
-<code class="descname">volatile_timeout</code><em class="property"> = 0</em><a class="headerlink" href="#ws.core.meta.Meta.volatile_timeout" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.meta.Meta.volatile_timeout">
+<code class="descname">volatile_timeout</code><em class="property"> = 0</em><a class="headerlink" href="#ws.client.meta.Meta.volatile_timeout" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
-<dt id="ws.core.meta.Meta._abbreviation">
-<em class="property">classmethod </em><code class="descname">_abbreviation</code><span class="sig-paren">(</span><em>klass</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.meta.Meta._abbreviation" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.meta.Meta._abbreviation">
+<em class="property">classmethod </em><code class="descname">_abbreviation</code><span class="sig-paren">(</span><em>klass</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.meta.Meta._abbreviation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="ws.core.meta.Meta.fetch">
-<code class="descname">fetch</code><span class="sig-paren">(</span><em>prop=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.meta.Meta.fetch" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.meta.Meta.fetch">
+<code class="descname">fetch</code><span class="sig-paren">(</span><em>prop=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.meta.Meta.fetch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Auxiliary method for querying properties.</p>
 </dd></dl>
 
@@ -105,9 +105,9 @@ attributes.</p>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../modules.html">API reference</a><ul>
   <li><a href="ws.html">ws package</a><ul>
-  <li><a href="ws.core.html">ws.core package</a><ul>
-      <li>Previous: <a href="ws.core.lazy.html" title="previous chapter">ws.core.lazy module</a></li>
-      <li>Next: <a href="ws.core.rate.html" title="next chapter">ws.core.rate module</a></li>
+  <li><a href="ws.client.html">ws.client package</a><ul>
+      <li>Previous: <a href="ws.client.connection.html" title="previous chapter">ws.client.connection module</a></li>
+      <li>Next: <a href="ws.client.redirects.html" title="next chapter">ws.client.redirects module</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -117,7 +117,7 @@ attributes.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.core.meta.txt"
+      <li><a href="../_sources/ws/ws.client.meta.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -139,11 +139,11 @@ attributes.</p>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
-      <a href="../_sources/ws/ws.core.meta.txt"
+      <a href="../_sources/ws/ws.client.meta.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -47,6 +47,15 @@
 <h2>Version 1.2<a class="headerlink" href="#version-1-2" title="Permalink to this headline">¶</a></h2>
 <p>Unreleased
 (<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/compare/1.1...master">changes</a>)</p>
+<ul class="simple">
+<li>Large refactoring: <code class="xref py py-mod docutils literal"><span class="pre">ws.core</span></code> renamed to <a class="reference internal" href="ws/ws.client.html#module-ws.client" title="ws.client"><code class="xref py py-mod docutils literal"><span class="pre">ws.client</span></code></a>, created
+<a class="reference internal" href="ws/ws.utils.html#module-ws.utils" title="ws.utils"><code class="xref py py-mod docutils literal"><span class="pre">ws.utils</span></code></a>, <code class="xref py py-mod docutils literal"><span class="pre">ws.statistics</span></code>, <code class="xref py py-mod docutils literal"><span class="pre">ws.interlanguage</span></code></li>
+<li>Added <a class="reference internal" href="ws/ws.client.site.html#module-ws.client.site" title="ws.client.site"><code class="xref py py-mod docutils literal"><span class="pre">ws.client.site</span></code></a>, <a class="reference internal" href="ws/ws.client.user.html#module-ws.client.user" title="ws.client.user"><code class="xref py py-mod docutils literal"><span class="pre">ws.client.user</span></code></a> and
+<a class="reference internal" href="ws/ws.client.redirects.html#module-ws.client.redirects" title="ws.client.redirects"><code class="xref py py-mod docutils literal"><span class="pre">ws.client.redirects</span></code></a> modules, <a class="reference internal" href="ws/ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><code class="xref py py-class docutils literal"><span class="pre">ws.client.api.API</span></code></a> has
+attributes with the appropriate instances for the current wiki.</li>
+<li>Improved parsing of page titles &#8211; fixed many bugs, extended test suite, added
+checking of legal characters, handling of namespace aliases.</li>
+</ul>
 </div>
 <div class="section" id="version-1-1">
 <h2>Version 1.1<a class="headerlink" href="#version-1-1" title="Permalink to this headline">¶</a></h2>
@@ -62,8 +71,8 @@ templates &#8220;Broken package link&#8221; and &#8220;aur-mirror&#8221; are res
 the parts.</li>
 <li>Removed <code class="xref py py-meth docutils literal"><span class="pre">ws.core.api.API.detect_namespace()</span></code> in favour of the new
 <a class="reference internal" href="ws/ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal"><span class="pre">Title</span></code></a> parser.</li>
-<li>Improved exception logging in <a class="reference internal" href="ws/ws.core.api.html#ws.core.api.API.edit" title="ws.core.api.API.edit"><code class="xref py py-meth docutils literal"><span class="pre">API.edit()</span></code></a>.
-Both <a class="reference internal" href="ws/ws.core.api.html#ws.core.api.API.edit" title="ws.core.api.API.edit"><code class="xref py py-meth docutils literal"><span class="pre">ws.core.api.API.edit()</span></code></a> and
+<li>Improved exception logging in <code class="xref py py-meth docutils literal"><span class="pre">API.edit()</span></code>.
+Both <code class="xref py py-meth docutils literal"><span class="pre">ws.core.api.API.edit()</span></code> and
 <a class="reference internal" href="ws/ws.interactive.html#ws.interactive.edit_interactive" title="ws.interactive.edit_interactive"><code class="xref py py-func docutils literal"><span class="pre">ws.interactive.edit_interactive()</span></code></a> now take an additional <code class="docutils literal"><span class="pre">title</span></code>
 parameter representing the title of the page being edited.</li>
 <li>Added support for <code class="xref py py-mod docutils literal"><span class="pre">WikEdDiff</span></code>, an inline-style diff engine with
@@ -83,15 +92,15 @@ the sections existing on the target page.</li>
 <ul class="simple">
 <li>Major reorganization of the project structure: common code shared between the
 scripts has been moved to the <a class="reference internal" href="ws/ws.html#module-ws" title="ws"><code class="xref py py-mod docutils literal"><span class="pre">ws</span></code></a> module and the original
-<code class="xref py py-mod docutils literal"><span class="pre">MediaWiki</span></code> module has been renamed to <a class="reference internal" href="ws/ws.core.html#module-ws.core" title="ws.core"><code class="xref py py-mod docutils literal"><span class="pre">ws.core</span></code></a>, some of its
+<code class="xref py py-mod docutils literal"><span class="pre">MediaWiki</span></code> module has been renamed to <code class="xref py py-mod docutils literal"><span class="pre">ws.core</span></code>, some of its
 parts were moved directly to <a class="reference internal" href="ws/ws.html#module-ws" title="ws"><code class="xref py py-mod docutils literal"><span class="pre">ws</span></code></a>.</li>
 <li>Reorganization of the <a class="reference internal" href="ws/ws.parser_helpers.html#module-ws.parser_helpers" title="ws.parser_helpers"><code class="xref py py-mod docutils literal"><span class="pre">ws.parser_helpers</span></code></a> submodule, added
 <a class="reference internal" href="ws/ws.parser_helpers.encodings.html#module-ws.parser_helpers.encodings" title="ws.parser_helpers.encodings"><code class="xref py py-mod docutils literal"><span class="pre">ws.parser_helpers.encodings</span></code></a>.</li>
 <li>Expanded documentation, fixed many typos in docstrings.</li>
 <li>Expanded test suite, at least for parts not depending on the MediaWiki API.</li>
-<li>Generalized the <a class="reference internal" href="ws/ws.core.connection.html#ws.core.connection.Connection" title="ws.core.connection.Connection"><code class="xref py py-class docutils literal"><span class="pre">ws.core.connection.Connection</span></code></a> class to handle also
+<li>Generalized the <code class="xref py py-class docutils literal"><span class="pre">ws.core.connection.Connection</span></code> class to handle also
 the <code class="docutils literal"><span class="pre">index.php</span></code> entry point.</li>
-<li>Created the <a class="reference internal" href="ws/ws.core.lazy.html#ws.core.lazy.LazyProperty" title="ws.core.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">ws.core.lazy.LazyProperty</span></code></a> decorator and made
+<li>Created the <code class="xref py py-class docutils literal"><span class="pre">ws.core.lazy.LazyProperty</span></code> decorator and made
 <code class="xref py py-attr docutils literal"><span class="pre">ws.core.api.API.is_loggedin</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">ws.core.api.API.user_rights</span></code>
 and <code class="xref py py-attr docutils literal"><span class="pre">ws.core.api.API.namespaces</span></code> proper properties.</li>
 <li>Started using the <a class="reference external" href="https://docs.python.org/3/library/logging.html#module-logging" title="(in Python v3.5)"><code class="xref py py-mod docutils literal"><span class="pre">logging</span></code></a> module for messages.</li>
@@ -126,7 +135,7 @@ multiple values in the <code class="docutils literal"><span class="pre">prop</sp
 <li><code class="docutils literal"><span class="pre">check-user-namespace.py</span></code> (warn if user pages are categorized)</li>
 <li><code class="docutils literal"><span class="pre">list-redirects-broken-fragments.py</span></code> (improved detection of redirects with
 broken fragments by comparing dot-encoded fragments)</li>
-<li><code class="docutils literal"><span class="pre">dump.py</span></code> (deduplicated against <a class="reference internal" href="ws/ws.core.connection.html#ws.core.connection.Connection" title="ws.core.connection.Connection"><code class="xref py py-class docutils literal"><span class="pre">ws.core.connection.Connection</span></code></a>)</li>
+<li><code class="docutils literal"><span class="pre">dump.py</span></code> (deduplicated against <code class="xref py py-class docutils literal"><span class="pre">ws.core.connection.Connection</span></code>)</li>
 </ul>
 </li>
 <li>New scripts:<ul>
@@ -189,7 +198,7 @@ broken fragments by comparing dot-encoded fragments)</li>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |

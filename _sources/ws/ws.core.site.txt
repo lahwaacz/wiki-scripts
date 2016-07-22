@@ -1,7 +1,0 @@
-ws.core.site module
-===================
-
-.. automodule:: ws.core.site
-    :members:
-    :undoc-members:
-    :show-inheritance:

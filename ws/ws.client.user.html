@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ws.core.user module &mdash; wiki-scripts 1.1 documentation</title>
+    <title>ws.client.user module &mdash; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,9 +25,9 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
-    <link rel="up" title="ws.core package" href="ws.core.html" />
+    <link rel="up" title="ws.client package" href="ws.client.html" />
     <link rel="next" title="ws.parser_helpers package" href="ws.parser_helpers.html" />
-    <link rel="prev" title="ws.core.tags module" href="ws.core.tags.html" />
+    <link rel="prev" title="ws.client.tags module" href="ws.client.tags.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -42,57 +42,57 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-ws.core.user">
-<span id="ws-core-user-module"></span><h1>ws.core.user module<a class="headerlink" href="#module-ws.core.user" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-ws.client.user">
+<span id="ws-client-user-module"></span><h1>ws.client.user module<a class="headerlink" href="#module-ws.client.user" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="ws.core.user.User">
-<em class="property">class </em><code class="descclassname">ws.core.user.</code><code class="descname">User</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.user.User" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ws.core.meta.html#ws.core.meta.Meta" title="ws.core.meta.Meta"><code class="xref py py-class docutils literal"><span class="pre">ws.core.meta.Meta</span></code></a></p>
-<p>The <a class="reference internal" href="#ws.core.user.User" title="ws.core.user.User"><code class="xref py py-class docutils literal"><span class="pre">User</span></code></a> class holds and interacts with information about the
+<dt id="ws.client.user.User">
+<em class="property">class </em><code class="descclassname">ws.client.user.</code><code class="descname">User</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.user.User" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ws.client.meta.html#ws.client.meta.Meta" title="ws.client.meta.Meta"><code class="xref py py-class docutils literal"><span class="pre">ws.client.meta.Meta</span></code></a></p>
+<p>The <a class="reference internal" href="#ws.client.user.User" title="ws.client.user.User"><code class="xref py py-class docutils literal"><span class="pre">User</span></code></a> class holds and interacts with information about the
 current user.</p>
-<p>Valid properties are listed in the <a class="reference internal" href="#ws.core.user.User.properties" title="ws.core.user.User.properties"><code class="xref py py-attr docutils literal"><span class="pre">properties</span></code></a> attribute.
+<p>Valid properties are listed in the <a class="reference internal" href="#ws.client.user.User.properties" title="ws.client.user.User.properties"><code class="xref py py-attr docutils literal"><span class="pre">properties</span></code></a> attribute.
 See the <a class="reference external" href="https://www.mediawiki.org/wiki/API:Userinfo">MediaWiki documentation</a> for explanation of the properties.</p>
-<p>All <a class="reference internal" href="#ws.core.user.User.properties" title="ws.core.user.User.properties"><code class="xref py py-attr docutils literal"><span class="pre">properties</span></code></a> are evaluated lazily and cached. All cached
-properties are automatically invalidated after <a class="reference internal" href="#ws.core.user.User.timeout" title="ws.core.user.User.timeout"><code class="xref py py-attr docutils literal"><span class="pre">timeout</span></code></a> seconds,
-except <a class="reference internal" href="#ws.core.user.User.volatile_properties" title="ws.core.user.User.volatile_properties"><code class="xref py py-attr docutils literal"><span class="pre">volatile_properties</span></code></a>, which are invalidated after
-<a class="reference internal" href="#ws.core.user.User.volatile_timeout" title="ws.core.user.User.volatile_timeout"><code class="xref py py-attr docutils literal"><span class="pre">volatile_timeout</span></code></a> seconds.</p>
+<p>All <a class="reference internal" href="#ws.client.user.User.properties" title="ws.client.user.User.properties"><code class="xref py py-attr docutils literal"><span class="pre">properties</span></code></a> are evaluated lazily and cached. All cached
+properties are automatically invalidated after <a class="reference internal" href="#ws.client.user.User.timeout" title="ws.client.user.User.timeout"><code class="xref py py-attr docutils literal"><span class="pre">timeout</span></code></a> seconds,
+except <a class="reference internal" href="#ws.client.user.User.volatile_properties" title="ws.client.user.User.volatile_properties"><code class="xref py py-attr docutils literal"><span class="pre">volatile_properties</span></code></a>, which are invalidated after
+<a class="reference internal" href="#ws.client.user.User.volatile_timeout" title="ws.client.user.User.volatile_timeout"><code class="xref py py-attr docutils literal"><span class="pre">volatile_timeout</span></code></a> seconds.</p>
 <dl class="attribute">
-<dt id="ws.core.user.User.module">
-<code class="descname">module</code><em class="property"> = 'userinfo'</em><a class="headerlink" href="#ws.core.user.User.module" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.user.User.module">
+<code class="descname">module</code><em class="property"> = 'userinfo'</em><a class="headerlink" href="#ws.client.user.User.module" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.user.User.properties">
-<code class="descname">properties</code><em class="property"> = {'rights', 'hasmsg', 'id', 'options', 'implicitgroups', 'blockinfo', 'acceptlang', 'changeablegroups', 'editcount', 'groups', 'email', 'realname', 'registrationdate', 'name', 'unreadcount', 'ratelimits'}</em><a class="headerlink" href="#ws.core.user.User.properties" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.user.User.properties">
+<code class="descname">properties</code><em class="property"> = {'implicitgroups', 'id', 'editcount', 'changeablegroups', 'rights', 'registrationdate', 'ratelimits', 'options', 'realname', 'groups', 'email', 'hasmsg', 'name', 'blockinfo', 'unreadcount', 'acceptlang'}</em><a class="headerlink" href="#ws.client.user.User.properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.user.User.volatile_properties">
-<code class="descname">volatile_properties</code><em class="property"> = {'editcount', 'hasmsg', 'unreadcount'}</em><a class="headerlink" href="#ws.core.user.User.volatile_properties" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.user.User.volatile_properties">
+<code class="descname">volatile_properties</code><em class="property"> = {'unreadcount', 'hasmsg', 'editcount'}</em><a class="headerlink" href="#ws.client.user.User.volatile_properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.user.User.timeout">
-<code class="descname">timeout</code><em class="property"> = 3600</em><a class="headerlink" href="#ws.core.user.User.timeout" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.user.User.timeout">
+<code class="descname">timeout</code><em class="property"> = 3600</em><a class="headerlink" href="#ws.client.user.User.timeout" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.user.User.volatile_timeout">
-<code class="descname">volatile_timeout</code><em class="property"> = 300</em><a class="headerlink" href="#ws.core.user.User.volatile_timeout" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.user.User.volatile_timeout">
+<code class="descname">volatile_timeout</code><em class="property"> = 300</em><a class="headerlink" href="#ws.client.user.User.volatile_timeout" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="ws.core.user.User.is_loggedin">
-<code class="descname">is_loggedin</code><a class="headerlink" href="#ws.core.user.User.is_loggedin" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.user.User.is_loggedin">
+<code class="descname">is_loggedin</code><a class="headerlink" href="#ws.client.user.User.is_loggedin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indicates whether the current session is authenticated (<code class="docutils literal"><span class="pre">True</span></code>) or
 not (<code class="docutils literal"><span class="pre">False</span></code>).</p>
 <p>The property is evaluated lazily and cached with the
-<a class="reference internal" href="ws.core.lazy.html#ws.core.lazy.LazyProperty" title="ws.core.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">&#64;LazyProperty</span></code></a> decorator.</p>
+<a class="reference internal" href="ws.utils.lazy.html#ws.utils.lazy.LazyProperty" title="ws.utils.lazy.LazyProperty"><code class="xref py py-class docutils literal"><span class="pre">&#64;LazyProperty</span></code></a> decorator.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="ws.core.user.User.set_option">
-<code class="descname">set_option</code><span class="sig-paren">(</span><em>option</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.user.User.set_option" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.client.user.User.set_option">
+<code class="descname">set_option</code><span class="sig-paren">(</span><em>option</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.user.User.set_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change preferences of the current user.</p>
 <p>See the list of <a class="reference external" href="https://www.mediawiki.org/wiki/API:Options#Available_Options">available options</a> on MediaWiki.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -127,8 +127,8 @@ not (<code class="docutils literal"><span class="pre">False</span></code>).</p>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../modules.html">API reference</a><ul>
   <li><a href="ws.html">ws package</a><ul>
-  <li><a href="ws.core.html">ws.core package</a><ul>
-      <li>Previous: <a href="ws.core.tags.html" title="previous chapter">ws.core.tags module</a></li>
+  <li><a href="ws.client.html">ws.client package</a><ul>
+      <li>Previous: <a href="ws.client.tags.html" title="previous chapter">ws.client.tags module</a></li>
       <li>Next: <a href="ws.parser_helpers.html" title="next chapter">ws.parser_helpers package</a></li>
   </ul></li>
   </ul></li>
@@ -139,7 +139,7 @@ not (<code class="docutils literal"><span class="pre">False</span></code>).</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.core.user.txt"
+      <li><a href="../_sources/ws/ws.client.user.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -161,11 +161,11 @@ not (<code class="docutils literal"><span class="pre">False</span></code>).</p>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
-      <a href="../_sources/ws/ws.core.user.txt"
+      <a href="../_sources/ws/ws.client.user.txt"
           rel="nofollow">Page source</a>
     </div>
 

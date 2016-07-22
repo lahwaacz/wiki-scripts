@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ws.core package &mdash; wiki-scripts 1.1 documentation</title>
+    <title>ws.utils.rate module &mdash; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,9 +25,9 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
-    <link rel="up" title="ws package" href="ws.html" />
-    <link rel="next" title="ws.core.api module" href="ws.core.api.html" />
-    <link rel="prev" title="ws.cache.LatestRevisionsText module" href="ws.cache.LatestRevisionsText.html" />
+    <link rel="up" title="ws.utils package" href="ws.utils.html" />
+    <link rel="next" title="ws.config module" href="ws.config.html" />
+    <link rel="prev" title="ws.utils.lazy module" href="ws.utils.lazy.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -42,23 +42,28 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-ws.core">
-<span id="ws-core-package"></span><h1>ws.core package<a class="headerlink" href="#module-ws.core" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="ws.core.api.html">ws.core.api module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ws.core.connection.html">ws.core.connection module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ws.core.lazy.html">ws.core.lazy module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ws.core.meta.html">ws.core.meta module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ws.core.rate.html">ws.core.rate module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ws.core.site.html">ws.core.site module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ws.core.tags.html">ws.core.tags module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ws.core.user.html">ws.core.user module</a></li>
-</ul>
+  <div class="section" id="module-ws.utils.rate">
+<span id="ws-utils-rate-module"></span><h1>ws.utils.rate module<a class="headerlink" href="#module-ws.utils.rate" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference internal" href="#ws.utils.rate.RateLimited" title="ws.utils.rate.RateLimited"><code class="xref py py-func docutils literal"><span class="pre">RateLimited()</span></code></a> is a rate limiting algorithm implemented as Python decorator.</p>
+<p>The original algorithm comes from this <a class="reference external" href="http://stackoverflow.com/a/6415181">StackOverflow answer</a> and has been modified
+to apply longer timeout when the rate limit is exceeded.</p>
+<p>Usage as Python decorator:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># allow at most 10 calls in 2 seconds</span>
+<span class="nd">@RateLimited</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">PrintNumber</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+</pre></div>
 </div>
+<p>Or at runtime by wrapping the function call:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># allow at most 10 calls in 2 seconds</span>
+<span class="n">wrapped</span> <span class="o">=</span> <span class="n">RateLimited</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)(</span><span class="n">PrintNumber</span><span class="p">)</span>
+</pre></div>
 </div>
+<dl class="function">
+<dt id="ws.utils.rate.RateLimited">
+<code class="descclassname">ws.utils.rate.</code><code class="descname">RateLimited</code><span class="sig-paren">(</span><em>rate</em>, <em>per</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.rate.RateLimited" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 
@@ -69,22 +74,16 @@
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/wiki-scripts.png" alt="Logo"/>
-            </a></p>
-  <h3><a href="../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">ws.core package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-</ul>
-</li>
-</ul>
-<div class="relations">
+            </a></p><div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../modules.html">API reference</a><ul>
   <li><a href="ws.html">ws package</a><ul>
-      <li>Previous: <a href="ws.cache.LatestRevisionsText.html" title="previous chapter">ws.cache.LatestRevisionsText module</a></li>
-      <li>Next: <a href="ws.core.api.html" title="next chapter">ws.core.api module</a></li>
+  <li><a href="ws.utils.html">ws.utils package</a><ul>
+      <li>Previous: <a href="ws.utils.lazy.html" title="previous chapter">ws.utils.lazy module</a></li>
+      <li>Next: <a href="ws.config.html" title="next chapter">ws.config module</a></li>
+  </ul></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -93,7 +92,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.core.txt"
+      <li><a href="../_sources/ws/ws.utils.rate.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -115,11 +114,11 @@
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
-      <a href="../_sources/ws/ws.core.txt"
+      <a href="../_sources/ws/ws.utils.rate.txt"
           rel="nofollow">Page source</a>
     </div>
 

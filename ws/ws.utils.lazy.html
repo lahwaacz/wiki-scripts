@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ws.core.rate module &mdash; wiki-scripts 1.1 documentation</title>
+    <title>ws.utils.lazy module &mdash; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,9 +25,9 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
-    <link rel="up" title="ws.core package" href="ws.core.html" />
-    <link rel="next" title="ws.core.site module" href="ws.core.site.html" />
-    <link rel="prev" title="ws.core.meta module" href="ws.core.meta.html" />
+    <link rel="up" title="ws.utils package" href="ws.utils.html" />
+    <link rel="next" title="ws.utils.rate module" href="ws.utils.rate.html" />
+    <link rel="prev" title="ws.utils.datetime_ module" href="ws.utils.datetime_.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -42,27 +42,20 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-ws.core.rate">
-<span id="ws-core-rate-module"></span><h1>ws.core.rate module<a class="headerlink" href="#module-ws.core.rate" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference internal" href="#ws.core.rate.RateLimited" title="ws.core.rate.RateLimited"><code class="xref py py-func docutils literal"><span class="pre">RateLimited()</span></code></a> is a rate limiting algorithm implemented as Python decorator.</p>
-<p>The original algorithm comes from this <a class="reference external" href="http://stackoverflow.com/a/6415181">StackOverflow answer</a> and has been modified
-to apply longer timeout when the rate limit is exceeded.</p>
-<p>Usage as Python decorator:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># allow at most 10 calls in 2 seconds</span>
-<span class="nd">@RateLimited</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">PrintNumber</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Or at runtime by wrapping the function call:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># allow at most 10 calls in 2 seconds</span>
-<span class="n">wrapped</span> <span class="o">=</span> <span class="n">RateLimited</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)(</span><span class="n">PrintNumber</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="function">
-<dt id="ws.core.rate.RateLimited">
-<code class="descclassname">ws.core.rate.</code><code class="descname">RateLimited</code><span class="sig-paren">(</span><em>rate</em>, <em>per</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.core.rate.RateLimited" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+  <div class="section" id="module-ws.utils.lazy">
+<span id="ws-utils-lazy-module"></span><h1>ws.utils.lazy module<a class="headerlink" href="#module-ws.utils.lazy" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="ws.utils.lazy.LazyProperty">
+<em class="property">class </em><code class="descclassname">ws.utils.lazy.</code><code class="descname">LazyProperty</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.lazy.LazyProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#property" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">property</span></code></a></p>
+<p>A <a class="reference external" href="https://docs.python.org/3/howto/descriptor.html">descriptor</a> wrapping a class method and exposing it as a lazily
+evaluated and cached property. It is intended to be used as a decorator.</p>
+<p>The wrapped method is evaluated once on the first access and its return
+value is cached for fast subsequent accessing. The cached value can be
+reset by deleting the attribute using the <code class="docutils literal"><span class="pre">del</span></code> operator, e.g.
+<code class="docutils literal"><span class="pre">del</span> <span class="pre">object.attribute</span></code>, which will cause the wrapped method to be called
+again on the next access.</p>
+</dd></dl>
 
 </div>
 
@@ -80,9 +73,9 @@ to apply longer timeout when the rate limit is exceeded.</p>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../modules.html">API reference</a><ul>
   <li><a href="ws.html">ws package</a><ul>
-  <li><a href="ws.core.html">ws.core package</a><ul>
-      <li>Previous: <a href="ws.core.meta.html" title="previous chapter">ws.core.meta module</a></li>
-      <li>Next: <a href="ws.core.site.html" title="next chapter">ws.core.site module</a></li>
+  <li><a href="ws.utils.html">ws.utils package</a><ul>
+      <li>Previous: <a href="ws.utils.datetime_.html" title="previous chapter">ws.utils.datetime_ module</a></li>
+      <li>Next: <a href="ws.utils.rate.html" title="next chapter">ws.utils.rate module</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -92,7 +85,7 @@ to apply longer timeout when the rate limit is exceeded.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.core.rate.txt"
+      <li><a href="../_sources/ws/ws.utils.lazy.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -114,11 +107,11 @@ to apply longer timeout when the rate limit is exceeded.</p>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
-      <a href="../_sources/ws/ws.core.rate.txt"
+      <a href="../_sources/ws/ws.utils.lazy.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -1,7 +1,7 @@
-ws.core.connection module
+ws.utils.datetime_ module
 =========================
 
-.. automodule:: ws.core.connection
+.. automodule:: ws.utils.datetime_
     :members:
     :undoc-members:
     :show-inheritance:

@@ -44,7 +44,7 @@
             
   <div class="section" id="module-ws.interactive">
 <span id="ws-interactive-module"></span><h1>ws.interactive module<a class="headerlink" href="#module-ws.interactive" title="Permalink to this headline">¶</a></h1>
-<p>Collection of functions extending <a class="reference internal" href="ws.core.api.html#ws.core.api.API" title="ws.core.api.API"><code class="xref py py-class docutils literal"><span class="pre">ws.core.api.API</span></code></a> with various
+<p>Collection of functions extending <a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><code class="xref py py-class docutils literal"><span class="pre">ws.client.api.API</span></code></a> with various
 interactive tasks.</p>
 <dl class="function">
 <dt id="ws.interactive.require_login">
@@ -55,7 +55,7 @@ credentials.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>api</strong> &#8211; an <a class="reference internal" href="ws.core.api.html#ws.core.api.API" title="ws.core.api.API"><code class="xref py py-class docutils literal"><span class="pre">ws.core.api.API</span></code></a> instance</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>api</strong> &#8211; an <a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><code class="xref py py-class docutils literal"><span class="pre">ws.client.api.API</span></code></a> instance</td>
 </tr>
 </tbody>
 </table>
@@ -75,7 +75,7 @@ credentials.</p>
 revisions highlighted using <a class="reference internal" href="ws.diff.html#ws.diff.diff_highlighted" title="ws.diff.diff_highlighted"><code class="xref py py-func docutils literal"><span class="pre">ws.diff.diff_highlighted()</span></code></a> and an
 interactive prompt to let the user decide what to do next:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">y</span></code> accepts the edit and calls <a class="reference internal" href="ws.core.api.html#ws.core.api.API.edit" title="ws.core.api.API.edit"><code class="xref py py-meth docutils literal"><span class="pre">API.edit</span></code></a>.</li>
+<li><code class="docutils literal"><span class="pre">y</span></code> accepts the edit and calls <a class="reference internal" href="ws.client.api.html#ws.client.api.API.edit" title="ws.client.api.API.edit"><code class="xref py py-meth docutils literal"><span class="pre">API.edit</span></code></a>.</li>
 <li><code class="docutils literal"><span class="pre">n</span></code> discards the edit.</li>
 <li><code class="docutils literal"><span class="pre">q</span></code> will raise <a class="reference internal" href="#ws.interactive.InteractiveQuit" title="ws.interactive.InteractiveQuit"><code class="xref py py-exc docutils literal"><span class="pre">InteractiveQuit</span></code></a> exception to let the calling
 program know that it should quit.</li>
@@ -96,7 +96,7 @@ by the <code class="docutils literal"><span class="pre">$DIFFPROG</span></code> 
 </tr>
 </tbody>
 </table>
-<p>Other parameters are the same as for <a class="reference internal" href="ws.core.api.html#ws.core.api.API.edit" title="ws.core.api.API.edit"><code class="xref py py-meth docutils literal"><span class="pre">ws.core.api.API.edit()</span></code></a>.</p>
+<p>Other parameters are the same as for <a class="reference internal" href="ws.client.api.html#ws.client.api.API.edit" title="ws.client.api.API.edit"><code class="xref py py-meth docutils literal"><span class="pre">ws.client.api.API.edit()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -152,7 +152,7 @@ by the <code class="docutils literal"><span class="pre">$DIFFPROG</span></code> 
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |

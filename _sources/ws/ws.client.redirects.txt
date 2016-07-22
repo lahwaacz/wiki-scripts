@@ -1,0 +1,7 @@
+ws.client.redirects module
+==========================
+
+.. automodule:: ws.client.redirects
+    :members:
+    :undoc-members:
+    :show-inheritance:

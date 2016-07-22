@@ -25,7 +25,7 @@ There is a `list of client software`_ maintained on mediawiki.org, many of them
 are quite inspirational.
 
 - `simplemediawiki`_ is the original inspiration for the core
-  :py:mod:`ws.core.connection` and (partially) :py:mod:`ws.core.api` modules.
+  :py:mod:`ws.client.connection` and (partially) :py:mod:`ws.client.api` modules.
 - Some scripts are inspired by the `Wiki Monkey`_'s plugins, but (obviously) were
   written from scratch.
 

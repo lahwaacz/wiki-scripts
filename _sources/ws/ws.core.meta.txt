@@ -1,7 +1,0 @@
-ws.core.meta module
-===================
-
-.. automodule:: ws.core.meta
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,0 +1,7 @@
+ws.client.meta module
+=====================
+
+.. automodule:: ws.client.meta
+    :members:
+    :undoc-members:
+    :show-inheritance:

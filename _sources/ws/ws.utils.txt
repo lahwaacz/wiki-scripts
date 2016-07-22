@@ -1,7 +1,18 @@
-ws.utils module
-===============
+ws.utils package
+================
 
 .. automodule:: ws.utils
     :members:
     :undoc-members:
     :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   ws.utils.containers
+   ws.utils.datetime_
+   ws.utils.lazy
+   ws.utils.rate
+

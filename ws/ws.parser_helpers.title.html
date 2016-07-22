@@ -81,20 +81,40 @@ inspired by the <a class="reference external" href="https://www.mediawiki.org/wi
 interwiki prefixes, which is useful for parsing the wiki links on lower
 level than what <code class="xref py py-mod docutils literal"><span class="pre">mwparserfromhell</span></code> provides (it does not take the
 wiki configuration into account). The functionality depends on the
-<a class="reference internal" href="ws.core.api.html#ws.core.api.API" title="ws.core.api.API"><code class="xref py py-class docutils literal"><span class="pre">API</span></code></a> class for the validation of interwiki and
+<a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><code class="xref py py-class docutils literal"><span class="pre">API</span></code></a> class for the validation of interwiki and
 namespace prefixes.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>api</strong> &#8211; an <a class="reference internal" href="ws.core.api.html#ws.core.api.API" title="ws.core.api.API"><code class="xref py py-class docutils literal"><span class="pre">API</span></code></a> instance</li>
+<li><strong>api</strong> &#8211; an <a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><code class="xref py py-class docutils literal"><span class="pre">API</span></code></a> instance</li>
 <li><strong>title</strong> &#8211; a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or <a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="ws.parser_helpers.title.Title.set_iwprefix">
+<code class="descname">set_iwprefix</code><span class="sig-paren">(</span><em>iw</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title.set_iwprefix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.parser_helpers.title.Title.set_namespace">
+<code class="descname">set_namespace</code><span class="sig-paren">(</span><em>ns</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title.set_namespace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.parser_helpers.title.Title.set_pagename">
+<code class="descname">set_pagename</code><span class="sig-paren">(</span><em>pagename</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title.set_pagename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.parser_helpers.title.Title.set_sectionname">
+<code class="descname">set_sectionname</code><span class="sig-paren">(</span><em>sectionname</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title.set_sectionname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="ws.parser_helpers.title.Title.parse">
 <code class="descname">parse</code><span class="sig-paren">(</span><em>full_title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title.parse" title="Permalink to this definition">¶</a></dt>
@@ -105,7 +125,8 @@ a string of full title instead of creating new instance.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; The full title to be parsed.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_title</strong> &#8211; The full title to be parsed, either a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or
+<a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object.</td>
 </tr>
 </tbody>
 </table>
@@ -230,6 +251,13 @@ the target page.</p>
 
 </dd></dl>
 
+<dl class="exception">
+<dt id="ws.parser_helpers.title.InvalidTitleCharError">
+<em class="property">exception </em><code class="descclassname">ws.parser_helpers.title.</code><code class="descname">InvalidTitleCharError</code><a class="headerlink" href="#ws.parser_helpers.title.InvalidTitleCharError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
+<p>Raised when an invalid title is passed to <a class="reference internal" href="#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal"><span class="pre">Title</span></code></a>.</p>
+</dd></dl>
+
 </div>
 
 
@@ -280,7 +308,7 @@ the target page.</p>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |

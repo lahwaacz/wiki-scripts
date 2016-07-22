@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ws.utils.containers module &mdash; wiki-scripts 1.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
+    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
+    <link rel="up" title="ws.utils package" href="ws.utils.html" />
+    <link rel="next" title="ws.utils.datetime_ module" href="ws.utils.datetime_.html" />
+    <link rel="prev" title="ws.utils package" href="ws.utils.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ws.utils.containers">
+<span id="ws-utils-containers-module"></span><h1>ws.utils.containers module<a class="headerlink" href="#module-ws.utils.containers" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="ws.utils.containers.ListOfDictsAttrWrapper">
+<em class="property">class </em><code class="descclassname">ws.utils.containers.</code><code class="descname">ListOfDictsAttrWrapper</code><span class="sig-paren">(</span><em>dict_list</em>, <em>attr</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.ListOfDictsAttrWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>A list-like wrapper around list of dicts, operating on a given attribute.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ws.utils.containers.bisect_find">
+<code class="descclassname">ws.utils.containers.</code><code class="descname">bisect_find</code><span class="sig-paren">(</span><em>data_list</em>, <em>key</em>, <em>index_list=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.bisect_find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find an element in a sorted list using the bisect method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_list</strong> &#8211; list of elements to be returned from</li>
+<li><strong>key</strong> &#8211; element to be found in <code class="docutils literal"><span class="pre">index_list</span></code></li>
+<li><strong>index_list</strong> &#8211; an optional list of indexes where <code class="docutils literal"><span class="pre">key</span></code> is searched for,
+by default <code class="docutils literal"><span class="pre">data_list</span></code> is taken. Has to be sorted.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">data_list[i]</span></code> if <code class="docutils literal"><span class="pre">index_list[i]</span> <span class="pre">==</span> <span class="pre">key</span></code></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.5)"><strong>IndexError</strong></a> &#8211; when <code class="docutils literal"><span class="pre">key</span></code> is not found</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ws.utils.containers.bisect_insert_or_replace">
+<code class="descclassname">ws.utils.containers.</code><code class="descname">bisect_insert_or_replace</code><span class="sig-paren">(</span><em>data_list</em>, <em>key</em>, <em>data_element=None</em>, <em>index_list=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.bisect_insert_or_replace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert an element into a sorted list using the bisect method. If an element
+is found in the list, it is replaced.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_list</strong> &#8211; list of elements to be inserted into</li>
+<li><strong>data_element</strong> &#8211; an element to be inserted. By default <code class="docutils literal"><span class="pre">key</span></code> is taken.</li>
+<li><strong>key</strong> &#8211; a key used for searching</li>
+<li><strong>index_list</strong> &#8211; an optional list of indexes where <code class="docutils literal"><span class="pre">key</span></code> is searched for,
+by default <code class="docutils literal"><span class="pre">data_list</span></code> is taken. Has to be sorted.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ws.utils.containers.dmerge">
+<code class="descclassname">ws.utils.containers.</code><code class="descname">dmerge</code><span class="sig-paren">(</span><em>source</em>, <em>destination</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.dmerge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deep merging of dictionaries.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ws.utils.containers.find_caseless">
+<code class="descclassname">ws.utils.containers.</code><code class="descname">find_caseless</code><span class="sig-paren">(</span><em>what</em>, <em>where</em>, <em>from_target=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.find_caseless" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do a case-insensitive search in a list/iterable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>what</strong> &#8211; element to be found</li>
+<li><strong>where</strong> &#8211; a list/iterable for searching</li>
+<li><strong>from_target</strong> &#8211; if True, return the element from the list/iterable instead of <code class="docutils literal"><span class="pre">what</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.5)"><strong>ValueError</strong></a> &#8211; when not found</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/wiki-scripts.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../modules.html">API reference</a><ul>
+  <li><a href="ws.html">ws package</a><ul>
+  <li><a href="ws.utils.html">ws.utils package</a><ul>
+      <li>Previous: <a href="ws.utils.html" title="previous chapter">ws.utils package</a></li>
+      <li>Next: <a href="ws.utils.datetime_.html" title="next chapter">ws.utils.datetime_ module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/ws/ws.utils.containers.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014-2016, Jakub Klinkovský.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="../_sources/ws/ws.utils.containers.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/lahwaacz/wiki-scripts" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
