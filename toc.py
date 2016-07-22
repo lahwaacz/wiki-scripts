@@ -12,6 +12,7 @@ from ws.interactive import require_login
 from ws.parser_helpers.title import canonicalize, Title
 import ws.ArchWiki.lang as lang
 from ws.utils import parse_date
+from ws.interlanguage.Categorization import *
 
 
 logger = logging.getLogger(__name__)
@@ -465,6 +466,11 @@ class TableOfContents:
     def run(self):
         if not self.cliargs.anonymous:
             require_login(self.api)
+
+        # if we are going to save, make sure that the categories are correct first
+        if self.cliargs.save is True:
+            cat = Categorization(self.api)
+            cat.fix_allpages()
 
         # build category graph
         category_graph = CategoryGraph(self.api)
