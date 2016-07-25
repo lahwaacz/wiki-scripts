@@ -59,23 +59,29 @@ class CategoryGraph:
     def __init__(self, api):
         self.api = api
 
-    def build_graph(self):
-        # `graph_parents` maps category names to the list of their parents
-        graph_parents = {}
-        # `graph_subcats` maps category names to the list of their subcategories
-        graph_subcats = {}
+        # `parents` maps category names to the list of their parents
+        self.parents = {}
+        # `subcats` maps category names to the list of their subcategories
+        self.subcats = {}
         # a mapping of category names to the corresponding "categoryinfo" dictionary
-        info = {}
+        self.info = {}
+
+        self.update()
+
+    def update(self):
+        self.parents.clear()
+        self.subcats.clear()
+        self.info.clear()
+
         for page in self.api.generator(generator="allpages", gaplimit="max", gapnamespace=14, prop="categories|categoryinfo", cllimit="max", clshow="!hidden", clprop="hidden"):
             if "categories" in page:
-                graph_parents.setdefault(page["title"], []).extend([cat["title"] for cat in page["categories"]])
+                self.parents.setdefault(page["title"], []).extend([cat["title"] for cat in page["categories"]])
                 for cat in page["categories"]:
-                    graph_subcats.setdefault(cat["title"], []).append(page["title"])
+                    self.subcats.setdefault(cat["title"], []).append(page["title"])
             # empty categories don't have the "categoryinfo" field
-            i = info.setdefault(page["title"], {"files": 0, "pages": 0, "subcats": 0, "size": 0})
+            i = self.info.setdefault(page["title"], {"files": 0, "pages": 0, "subcats": 0, "size": 0})
             if "categoryinfo" in page:
                 i.update(page["categoryinfo"])
-        return graph_parents, graph_subcats, info
 
     @staticmethod
     def walk(graph, node, levels=None, visited=None):

@@ -338,8 +338,7 @@ class TableOfContents:
             cat.fix_allpages()
 
         # build category graph
-        category_graph = CategoryGraph(self.api)
-        graph_parents, graph_subcats, info = category_graph.build_graph()
+        graph = CategoryGraph(self.api)
 
         # detect target pages, fetch content at once
         contents, timestamps, pageids = self.get_pages_contents(self.titles)
@@ -364,19 +363,19 @@ class TableOfContents:
                             "so there will be no translations.".format(title))
 
             if self.cliargs.print:
-                ff = PlainFormatter(graph_parents, info, category_names, alsoin)
+                ff = PlainFormatter(graph.parents, graph.info, category_names, alsoin)
             elif self.cliargs.save:
-                ff = MediaWikiFormatter(graph_parents, info, category_names, alsoin, include_opening_closing_tokens=False)
+                ff = MediaWikiFormatter(graph.parents, graph.info, category_names, alsoin, include_opening_closing_tokens=False)
             else:
                 raise NotImplementedError("unknown output action: {}".format(self.cliargs.save))
 
             roots = ["Category:{}".format(lang.langname_for_tag(c)) for c in columns]
             ff.format_root(roots)
             if len(roots) == 1:
-                for item in category_graph.walk(graph_subcats, roots[0]):
+                for item in graph.walk(graph.subcats, roots[0]):
                     ff.format_row(item)
             elif len(roots) == 2:
-                for result in category_graph.compare_components(graph_subcats, *roots):
+                for result in graph.compare_components(graph.subcats, *roots):
                     ff.format_row(*result)
             else:
                 logger.error("Cannot compare more than 2 languages at once. Requested: {}".format(columns))
