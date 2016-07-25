@@ -326,12 +326,64 @@ class API(Connection):
             logger.warning("Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(kwargs["tags"]))
             del kwargs["tags"]
 
-        logger.info("Editing page '{}' ...".format(title))
+        logger.info("Editing page [[{}]] ...".format(title))
 
         try:
             return self.call_with_csrftoken(action="edit", md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, **kwargs)
         except APIError as e:
-            logger.error("Failed to edit page '{}' due to APIError (code '{}': {})".format(title, e.server_response["code"], e.server_response["info"]))
+            logger.error("Failed to edit page [[{}]] due to APIError (code '{}': {})".format(title, e.server_response["code"], e.server_response["info"]))
+            raise
+
+    @RateLimited(1, 10)
+    def create(self, title, text, summary, **kwargs):
+        """
+        Specialization of :py:meth:`edit` for creating pages. The ``createonly``
+        parameter is always added to the query. This method is rate-limited with
+        the :py:class:`@RateLimited <ws.utils.rate.RateLimited>` decorator to
+        allow 1 call per 10 seconds.
+
+        :param str title: the title of the page to be created
+        :param str text: new page content
+        :param str summary: edit summary
+        :param kwargs: Additional query parameters, see `API:Edit`_.
+
+        .. _`API:Edit`: https://www.mediawiki.org/wiki/API:Edit
+        """
+        if not summary:
+            raise Exception("edit summary is mandatory")
+        if len(summary) > 255:
+            # TODO: the limit is planned to be increased since MW 1.25
+            raise Exception("the edit summary is too long, maximum is 255 chars (got len('{}') == {})".format(summary, len(summary)))
+
+        # send text as utf-8 encoded
+        text = text.encode("utf-8")
+
+        # md5 hash is used to prevent data corruption during transfer
+        h = hashlib.md5()
+        h.update(text)
+        md5 = h.hexdigest()
+
+        # if bot= is passed, also pass an assertion
+        if "bot" in kwargs:
+            kwargs["assert"] = "bot"
+        else:
+            # require being logged in, either as regular user or bot
+            kwargs["assert"] = "user"
+
+        # check and apply tags
+        if "applychangetags" in self.user.rights and "wiki-scripts" in self.tags.applicable:
+            kwargs.setdefault("tags", [])
+            kwargs["tags"].append("wiki-scripts")
+        elif "applychangetags" not in self.user.rights and "tags" in kwargs:
+            logger.warning("Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(kwargs["tags"]))
+            del kwargs["tags"]
+
+        logger.info("Creating page [[{}]] ...".format(title))
+
+        try:
+            return self.call_with_csrftoken(action="edit", title=title, md5=md5, text=text, summary=summary, createonly="1", **kwargs)
+        except APIError as e:
+            logger.error("Failed to create page [[{}]] due to APIError (code '{}': {})".format(title, e.server_response["code"], e.server_response["info"]))
             raise
 
 class LoginFailed(Exception):

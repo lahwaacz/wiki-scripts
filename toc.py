@@ -340,6 +340,10 @@ class TableOfContents:
         # build category graph
         graph = CategoryGraph(self.api)
 
+        # if we are going to save, init wanted categories
+        if self.cliargs.save is True:
+            graph.init_wanted_categories()
+
         # detect target pages, fetch content at once
         contents, timestamps, pageids = self.get_pages_contents(self.titles)
 

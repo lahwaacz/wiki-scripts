@@ -4,6 +4,7 @@ import copy
 import logging
 
 import ws.ArchWiki.lang as lang
+from ws.parser_helpers.title import Title
 
 
 logger = logging.getLogger(__name__)
@@ -152,3 +153,37 @@ class CategoryGraph:
                 rval = next(rgen)
 
         yield lval, rval
+
+    def create_category(self, category):
+        title = Title(self.api, category)
+        if title.iwprefix or title.namespace != "Category":
+            raise ValueError("Invalid category name: [[{}]]".format(category))
+        # normalize name
+        category = title.fullpagename
+
+        # skip existing categories
+        if category in self.info:
+            return
+
+        pure, langname = lang.detect_language(category)
+        if langname == lang.get_local_language():
+            logger.warning("Cannot automatically create {} category: [[{}]]".format(lang.get_local_language(), category))
+            return
+
+        local = lang.format_title(pure, lang.get_local_language())
+        if local not in self.info:
+            logger.warning("Cannot create category [[{}]]: {} category [[{}]] does not exist.".format(category, lang.get_local_language(), local))
+            return
+
+        parents = [lang.format_title(lang.detect_language(p)[0], langname) for p in self.parents[local]]
+        content = "\n".join("[[{}]]".format(p) for p in parents)
+
+        self.api.create(title=category, text=content, summary="init wanted category")
+        self.update()
+
+        for p in parents:
+            self.create_category(p)
+
+    def init_wanted_categories(self):
+        for page in self.api.list(list="querypage", qppage="Wantedcategories", qplimit="max"):
+            self.create_category(page["title"])
