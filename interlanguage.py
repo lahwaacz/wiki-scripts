@@ -5,6 +5,15 @@ from ws.interlanguage.Categorization import *
 from ws.interlanguage.CategoryGraph import *
 from ws.interlanguage.InterlanguageLinks import *
 
+modes = ["update", "orphans"]
+_modes_desc = {
+    "update": "fix categorization of i18n pages, init wanted categories and update all interlanguage links",
+    "orphans": "list all orphans",
+}
+modes_description = "The available modes are:"
+for m in modes:
+    modes_description += "\n- '{}': {}".format(m, _modes_desc[m])
+
 def main(args, api):
     if args.mode == "update":
         # first fix categorization
@@ -27,10 +36,10 @@ if __name__ == "__main__":
     import ws.config
     import ws.logging
 
-    argparser = ws.config.getArgParser(description="Update interlanguage links")
+    argparser = ws.config.getArgParser(description="Update interlanguage links", epilog=modes_description)
     API.set_argparser(argparser)
     _group = argparser.add_argument_group("interlanguage")
-    _group.add_argument("--mode", choices=["update", "orphans"], default="update", help="operation mode of the script: 'update' all interlanguage links, list all 'orphans'")
+    _group.add_argument("--mode", choices=modes, default="update", help="operation mode of the script")
 
     args = argparser.parse_args()
 

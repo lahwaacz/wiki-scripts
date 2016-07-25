@@ -131,7 +131,8 @@ def getArgParser(subname=None, *args, **kwargs):
 
     # set brief usage parameter by default
     kwargs.setdefault("usage", "%(prog)s [options]")
-    # TODO: the supplied description is merged with the one from configargparse, which looks very ugly
+    # TODO: the supplied description is merged with the one from configargparse, which looks very ugly, regardless of the used formatter
+    kwargs.setdefault("formatter_class", configargparse.RawDescriptionHelpFormatter)
 
     ap = configargparse.ArgParser(*args, **kwargs)
 
