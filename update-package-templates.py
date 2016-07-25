@@ -236,26 +236,30 @@ class PkgUpdater:
             param = template.get(1)
         except ValueError:
             raise TemplateParametersError(template)
-        param.value = param.value.strip()
 
         parent = get_parent_wikicode(wikicode, template)
         index = parent.index(template)
 
-        try:
-            prev = parent.get(index - 1)
-        except IndexError:
-            prev = None
-        try:
-            next_ = parent.get(index - 1)
-        except IndexError:
-            next_ = None
+        if param.value.startswith(" "):
+            try:
+                prev = parent.get(index - 1)
+            except IndexError:
+                prev = None
+            if isinstance(prev, mwparserfromhell.nodes.text.Text):
+                if not prev.endswith("\n") and not prev.endswith(" "):
+                    prev.value += " "
 
-        if isinstance(prev, mwparserfromhell.nodes.text.Text):
-            if not prev.endswith("\n") and not prev.endswith(" "):
-                prev.value += " "
-        if isinstance(next_, mwparserfromhell.nodes.text.Text):
-            if not next_.startswith("\n") and not next_.startswith(" "):
-                next_.value = " " + next_.value
+        if param.value.endswith(" "):
+            try:
+                next_ = parent.get(index + 1)
+            except IndexError:
+                next_ = None
+            if isinstance(next_, mwparserfromhell.nodes.text.Text):
+                if not next_.startswith("\n") and not next_.startswith(" "):
+                    next_.value = " " + next_.value
+
+        template.name = str(template.name).strip()
+        param.value = param.value.strip()
 
     def update_package_template(self, template, lang="English"):
         """
