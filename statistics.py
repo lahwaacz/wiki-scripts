@@ -273,7 +273,11 @@ divided by the number of days between the user's first and last edits.
         for user in self.db_userprops:
             if user["editcount"] >= self.MINTOTEDITS or user["recenteditcount"] >= self.MINRECEDITS:
                 name = user["name"]
-                registration = parse_date(user["registration"])
+                # There seems to be users without registration date (?!?) TODO: investigate
+                if user["registration"]:
+                    registration = parse_date(user["registration"])
+                else:
+                    registration = None
                 longest_streak, current_streak = self.modules.get_streaks(name)
                 # compose row with cells ordered based on self.FIELDS
                 # TODO: perhaps it would be best if Wikitable.assemble could handle list of dicts
