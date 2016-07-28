@@ -108,14 +108,24 @@ class Redirects:
             A string of the last non-redirect target page if ``source`` is a
             redirect page, otherwise ``None``.
         """
+        def _get(source, anchor):
+            target = self.map.get(source)
+            try:
+                target, anchor = target.split("#", maxsplit=1)
+            except ValueError:
+                pass
+            return target, anchor
+
         intermediates = set()
-        target = self.map.get(source)
+        target, anchor = _get(source, None)
         source = target
         while source in self.map and target not in intermediates:
-            target = self.map[source]
+            target, anchor = _get(source, anchor)
             intermediates.add(target)
             source = target
         if target in self.map:
             logger.error("Failed to resolve last redirect target of '{}': detected infinite loop.".format(source))
             return None
+        if anchor:
+            target += "#" + anchor
         return target

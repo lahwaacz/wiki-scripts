@@ -22,7 +22,7 @@ class DoubleRedirects:
         text_old = page["revisions"][0]["*"]
         timestamp = page["revisions"][0]["timestamp"]
 
-        if not re.fullmatch(r"#redirect\s*\[\[[^[\]{}|#]+\]\]", text_old, flags=re.MULTILINE | re.IGNORECASE):
+        if not re.fullmatch(r"#redirect\s*\[\[[^[\]{}]+\]\]", text_old, flags=re.MULTILINE | re.IGNORECASE):
             logger.error("Double redirect page '{}' is not empty, so it cannot be fixed automatically.".format(title))
             return
 
@@ -45,6 +45,7 @@ class DoubleRedirects:
     def findall(self):
         double = {}
         for source, target in self.api.redirects.map.items():
+            target = target.split("#", maxsplit=1)[0]
             if target in self.api.redirects.map:
                 double[source] = target
         return double
