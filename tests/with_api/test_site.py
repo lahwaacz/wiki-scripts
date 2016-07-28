@@ -190,7 +190,8 @@ class test_site:
                     "abusefilter-revert",
                     "checkuser",
                     "checkuser-log",
-                    "nuke"
+                    "interwiki",
+                    "nuke",
                 ]
             },
             {
@@ -270,6 +271,26 @@ class test_site:
                 "version": "2.4",
                 "license-name": "GPL-2.0+",
                 "license": "/index.php/Special:Version/License/CheckUser"
+            },
+            {
+                "type": "specialpage",
+                "name": "Interwiki",
+                "descriptionmsg": "interwiki-desc",
+                "author": "Stephanie Amanda Stevens, Alexandre Emsenhuber, Robin Pepermans, Siebrand Mazeland, Platonides, Raimond Spekking, Sam Reed, Jack Phoenix, Calimonius the Estrange, ...",
+                "url": "https://www.mediawiki.org/wiki/Extension:Interwiki",
+                "version": "3.0 20140719",
+                "license-name": "GPL-2.0+",
+                "license": "/index.php/Special:Version/License/Interwiki"
+            },
+            {
+                "type": "parserhook",
+                "name": "ParserFunctions",
+                "descriptionmsg": "pfunc_desc",
+                "author": "Tim Starling, Robert Rohde, Ross McClure, Juraj Simlovic",
+                "url": "https://www.mediawiki.org/wiki/Extension:ParserFunctions",
+                "version": "1.6.0",
+                "license-name": "GPL-2.0",
+                "license": "/index.php/Special:Version/License/ParserFunctions"
             }
         ],
         "fileextensions": [
@@ -377,7 +398,7 @@ class test_site:
             "enotifwatchlistpages": 1,
             "extendwatchlist": 1,
             "fancysig": 0,
-            "forceeditsummary": 0,
+            "forceeditsummary": 1,
             "gender": "unknown",
             "hideminor": 0,
             "hidepatrolled": 0,
@@ -447,7 +468,11 @@ class test_site:
         "namespaces": {
             -2: {'*': 'Media', 'canonical': 'Media', 'case': 'first-letter', 'id': -2},
 	    -1: {'*': 'Special', 'canonical': 'Special', 'case': 'first-letter', 'id': -1},
-	    0: {'*': '', 'case': 'first-letter', 'content': '', 'id': 0},
+	    0: {'*': '',
+                'case': 'first-letter',
+                'content': '',
+                'id': 0,
+                'subpages': ''},
 	    1: {'*': 'Talk',
 	        'canonical': 'Talk',
 	        'case': 'first-letter',
