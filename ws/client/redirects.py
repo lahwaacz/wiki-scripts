@@ -110,6 +110,8 @@ class Redirects:
         """
         def _get(source, anchor):
             target = self.map.get(source)
+            if not target:
+                return None, None
             try:
                 target, anchor = target.split("#", maxsplit=1)
             except ValueError:
