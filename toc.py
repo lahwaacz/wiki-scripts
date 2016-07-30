@@ -4,13 +4,11 @@ from collections import Iterable
 import datetime
 import logging
 
-import mwparserfromhell
-
 from ws.client import API, APIError
 from ws.interactive import require_login
+from ws.autopage import AutoPage
 from ws.parser_helpers.title import canonicalize, Title
 import ws.ArchWiki.lang as lang
-from ws.utils import parse_date
 from ws.interlanguage.CategoryGraph import *
 from ws.interlanguage.Categorization import *
 
@@ -226,41 +224,11 @@ class TableOfContents:
             api = API.from_argparser(args)
         return klass(api, args)
 
-    def get_pages_contents(self, titles):
-        contents = {}
-        timestamps = {}
-        pageids = {}
-
-        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", titles="|".join(titles))
-        for page in result["pages"].values():
-            if "revisions" in page:
-                title = page["title"]
-                revision = page["revisions"][0]
-                text = revision["*"]
-                contents[title] = text
-                timestamps[title] = revision["timestamp"]
-                pageids[title] = page["pageid"]
-
-        titles = set(titles)
-        retrieved = set(contents.keys())
-        if retrieved != titles:
-            logger.error("unable to retrieve content of all pages: pages {} are missing, retrieved {}".format(titles - retrieved, retrieved))
-
-        return contents, timestamps, pageids
-
-    def parse_toc_table(self, title, wikicode):
-        toc_table = None
+    def parse_toc_table(self, title, toc_table):
         # default format is one column in the title's language
         columns = [lang.tag_for_langname(lang.detect_language(title)[1])]
         category_names = LowercaseDict()
         alsoin = {}
-
-        for table in wikicode.ifilter_tags(matches=lambda node: node.tag == "table"):
-            if table.has("id"):
-                id_ = table.get("id")
-                if id_.value == "wiki-scripts-toc-table":
-                    toc_table = table
-                    break
 
         if toc_table is not None:
             # parse data-toc-languages attribute
@@ -274,12 +242,12 @@ class TableOfContents:
             if toc_table.has("data-toc-alsoin"):
                 alsoin = self.parse_alsoin(title, str(toc_table.get("data-toc-alsoin").value))
             elif columns != ["en"]:
-                logger.warning("Page '{}': missing 'also in' translations".format(title))
+                logger.warning("Page [[{}]]: missing 'also in' translations".format(title))
 
             # extract localized category names (useful even for PlainFormatter)
             category_names = self.extract_translations(toc_table.contents)
 
-        return toc_table, columns, category_names, alsoin
+        return columns, category_names, alsoin
 
     def parse_alsoin(self, title, value):
         alsoin = {}
@@ -295,7 +263,7 @@ class TableOfContents:
                 tag = lang.tag_for_langname(lang.detect_language(title)[1])
                 translation = item
             alsoin[tag] = translation
-        logger.debug("Page '{}': parsed data-toc-alsoin = {}".format(title, alsoin))
+        logger.debug("Page [[{}]]: parsed data-toc-alsoin = {}".format(title, alsoin))
         return alsoin
 
     def extract_translations(self, wikicode):
@@ -311,22 +279,6 @@ class TableOfContents:
                 if wikilink.text.lower() != title.pagename.lower() and wikilink.text.lower() != pure.lower():
                     dictionary[str(title)] = str(wikilink.text).strip()
         return dictionary
-
-    def save_page(self, title, pageid, text_old, text_new, timestamp):
-        if not self.cliargs.force and datetime.datetime.utcnow().date() <= parse_date(timestamp).date():
-            logger.info("The page '{}' has already been updated this UTC day.".format(title))
-            return
-
-        if text_old != text_new:
-            try:
-                if "bot" in self.api.user.rights:
-                    self.api.edit(title, pageid, text_new, timestamp, self.cliargs.summary, bot="1")
-                else:
-                    self.api.edit(title, pageid, text_new, timestamp, self.cliargs.summary, minor="1")
-            except APIError:
-                pass
-        else:
-            logger.info("Page '{}' is already up to date.".format(title))
 
     def run(self):
         if not self.cliargs.anonymous:
@@ -345,25 +297,28 @@ class TableOfContents:
             graph.init_wanted_categories()
 
         # detect target pages, fetch content at once
-        contents, timestamps, pageids = self.get_pages_contents(self.titles)
+        page = AutoPage(self.api, fetch_titles=self.titles)
 
         for title in self.titles:
-            if title not in contents:
+            try:
+                page.set_title(title)
+            except ValueError:
+                # page not fetched
                 continue
 
-            wikicode = mwparserfromhell.parse(contents[title])
-            toc_table, columns, category_names, alsoin = self.parse_toc_table(title, wikicode)
+            toc_table = page.get_tag_by_id(tag="table", id="wiki-scripts-toc-table")
+            columns, category_names, alsoin = self.parse_toc_table(title, toc_table)
 
             if toc_table is None:
                 if self.cliargs.save is True:
                     logger.error(
-                            "The wiki page '{}' does not contain the ToC table. "
+                            "The wiki page [[{}]] does not contain the ToC table. "
                             "Create the following entry point manually:\n"
                             "{{| id=\"wiki-scripts-toc-table\"\n...\n|}}".format(title))
                     continue
                 else:
                     logger.warning(
-                            "The wiki page '{}' does not contain the ToC table, "
+                            "The wiki page [[{}]] does not contain the ToC table, "
                             "so there will be no translations.".format(title))
 
             if self.cliargs.print:
@@ -390,7 +345,10 @@ class TableOfContents:
                 print(ff)
             elif self.cliargs.save:
                 toc_table.contents = str(ff)
-                self.save_page(title, pageids[title], contents[title], str(wikicode), timestamps[title])
+                if self.cliargs.force or page.is_old_enough(min_interval=datetime.timedelta(days=1), strip_time=True):
+                    page.save(self.cliargs.summary)
+                else:
+                    logger.info("The page [[{}]] has already been updated this UTC day.".format(title))
 
 
 if __name__ == "__main__":
