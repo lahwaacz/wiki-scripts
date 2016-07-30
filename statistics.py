@@ -13,6 +13,7 @@ except ImportError:
 
 from ws.client import API, APIError
 from ws.interactive import require_login
+from ws.autopage import AutoPage
 from ws.wikitable import Wikitable
 from ws.utils import parse_date
 import ws.cache
@@ -97,37 +98,22 @@ class Statistics:
             require_login(self.api)
 
         try:
-            self._parse_page()
-
-            if not self.cliargs.force and \
-                                datetime.datetime.utcnow().date() <= \
-                                parse_date(self.timestamp).date():
-                logger.info("The page has already been updated this UTC day")
-                return 1
-
-            self._compose_page()
-            return self._output_page()
-        except MissingPageError:
-            logger.error("The page '{}' currently does not exist. It must be "
+            self.page = AutoPage(self.api, self.cliargs.statistics_page)
+        except ValueError:
+            logger.error("The page [[{}]] currently does not exist. It must be "
                   "created manually before the script can update it.".format(
                                         self.cliargs.statistics_page))
-        return 1
+            return 1
 
-    def _parse_page(self):
-        result = self.api.call_api(action="query", prop="info|revisions",
-                rvprop="content|timestamp", titles=self.cliargs.statistics_page)
-        page = tuple(result["pages"].values())[0]
-
-        if "missing" in page:
-            raise MissingPageError
-
-        self.pageid = page["pageid"]
-        revision = page["revisions"][0]
-        self.text = mwparserfromhell.parse(revision["*"])
-        self.timestamp = revision["timestamp"]
+        if self.cliargs.force or self.page.is_old_enough(min_interval=datetime.timedelta(days=1), strip_time=True):
+            self._compose_page()
+            return self._output_page()
+        else:
+            logger.info("The page has already been updated this UTC day")
+            return 1
 
     def _compose_page(self):
-        userstats = _UserStats(self.api, self.cliargs.cache_dir, self.text,
+        userstats = _UserStats(self.api, self.cliargs.cache_dir, self.page,
                     self.cliargs.us_days, self.cliargs.us_mintotedits,
                     self.cliargs.us_minrecedits, self.cliargs.us_rcerrhours)
         userstats.update()
@@ -139,26 +125,19 @@ class Statistics:
             require_login(self.api)
 
             try:
-                result = self.api.edit(self.cliargs.statistics_page, self.pageid,
-                        self.text, self.timestamp, self.cliargs.summary, bot="1",
-                        minor="1")
+                self.page.save(self.cliargs.summary, minor="1")
+                logger.info("The page has been saved: do not forget to "
+                                                "double-check the diff")
+                ret |= 2
             except APIError as err:
                 ret |= 1
-            else:
-                if result["result"].lower() != "success":
-                    logger.exception("The page was not saved correctly")
-                    ret |= 1
-                else:
-                    logger.info("The page has been saved: do not forget to "
-                                                    "double-check the diff")
-                    ret |= 2
 
         if self.cliargs.clipboard or ret is False:
             if Tk:
                 w = Tk()
                 w.withdraw()
                 w.clipboard_clear()
-                w.clipboard_append(self.text)
+                w.clipboard_append(self.page.wikicode)
                 # The copied text is lost once the script terminates
                 input("The updated page text has been copied to the "
                         "clipboard: paste it in the browser, then press Enter "
@@ -174,7 +153,7 @@ class Statistics:
         # If no other action was chosen, always print the output, so that all
         # the effort doesn't go wasted
         if self.cliargs.print or ret == 0:
-            print(self.text)
+            print(self.page.wikicode)
 
         return ret & 1
 
@@ -226,13 +205,13 @@ divided by the number of days between the user's first and last edits.
     STREAK_FORMAT = '<span title="{length} days, from {start} to {end} ({editcount} edits)">{length}</span>'
     REGISTRATION_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-    def __init__(self, api, cache_dir, text, days, mintotedits, minrecedits, rcerrhours):
+    def __init__(self, api, cache_dir, autopage, days, mintotedits, minrecedits, rcerrhours):
         self.api = api
-        self.text = text.get_sections(matches="User statistics", flat=True,
-                                include_lead=False, include_headings=False)[0]
+        self.text = autopage.wikicode.get_sections(matches="User statistics",
+                    flat=True, include_lead=False, include_headings=False)[0]
 
         self.DAYS = days
-        self.CELLSN = len(self. FIELDS)
+        self.CELLSN = len(self.FIELDS)
         self.MINTOTEDITS = mintotedits
         self.MINRECEDITS = minrecedits
 
@@ -311,12 +290,6 @@ divided by the number of days between the user's first and last edits.
         newtext += Wikitable.assemble(self.FIELDS_FORMAT, rows)
         self.text.replace(self.text, newtext, recursive=False)
 
-
-class StatisticsError(Exception):
-    pass
-
-class MissingPageError(StatisticsError):
-    pass
 
 if __name__ == "__main__":
     import sys
