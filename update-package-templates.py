@@ -165,12 +165,23 @@ class PkgFinder:
 
 
 class PkgUpdater:
-    def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify, report_dir):
+
+    edit_summary = "update Pkg/AUR templates"
+
+    # titles of pages that should not be processed
+    blacklist_pages = [
+        "AUR Cleanup Day/2010",
+        "Christmas Cleanup/2011",
+        "Midyear Cleanup/2013",
+        "Security Advisories",
+        "CVE",
+    ]
+
+    def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify, report_dir, interactive=False):
         self.api = api
         self.finder = PkgFinder(aurpkgs_url, tmpdir, ssl_verify)
         self.report_dir = report_dir
-
-        self.edit_summary = "update Pkg/AUR templates"
+        self.interactive = interactive
 
         # log data for easy report generation
         # the dictionary looks like this:
@@ -178,15 +189,6 @@ class PkgUpdater:
         # where _list item_ is the text representing the warning/error + hints (formatted
         # with wiki markup)
         self.log = {}
-
-        # titles of pages that should not be processed
-        self.blacklist_pages = [
-            "AUR Cleanup Day/2010",
-            "Christmas Cleanup/2011",
-            "Midyear Cleanup/2013",
-            "Security Advisories",
-            "CVE",
-        ]
 
     @staticmethod
     def set_argparser(argparser):
@@ -196,6 +198,8 @@ class PkgUpdater:
             API.set_argparser(argparser)
 
         group = argparser.add_argument_group(title="script parameters")
+        group.add_argument("-i", "--interactive", action="store_true",
+                help="run in interactive mode (should be used for testing)")
         group.add_argument("--aurpkgs-url", default="https://aur.archlinux.org/packages.gz", metavar="URL",
                 help="the URL to packages.gz file on the AUR (default: %(default)s)")
         group.add_argument("--report-dir", type=ws.config.argtype_existing_dir, default=".", metavar="PATH",
@@ -205,7 +209,7 @@ class PkgUpdater:
     def from_argparser(klass, args, api=None):
         if api is None:
             api = API.from_argparser(args)
-        return klass(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify, args.report_dir)
+        return klass(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify, args.report_dir, args.interactive)
 
     @LazyProperty
     def _alltemplates(self):
@@ -395,8 +399,10 @@ class PkgUpdater:
             text_new = self.update_page(title, text_old)
             if text_old != text_new:
                 try:
-#                    edit_interactive(self.api, title, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-                    self.api.edit(title, page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+                    if self.interactive:
+                        edit_interactive(self.api, title, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+                    else:
+                        self.api.edit(title, page["pageid"], text_new, timestamp, self.edit_summary, bot="")
                 except APIError:
                     pass
 
@@ -460,7 +466,7 @@ if __name__ == "__main__":
         if not ret:
             sys.exit(ret)
         updater.save_report()
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, InteractiveQuit):
         print()
         updater.save_report()
         raise
