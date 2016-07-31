@@ -346,7 +346,10 @@ class TableOfContents:
             elif self.cliargs.save:
                 toc_table.contents = str(ff)
                 if self.cliargs.force or page.is_old_enough(min_interval=datetime.timedelta(days=1), strip_time=True):
-                    page.save(self.cliargs.summary)
+                    try:
+                        page.save(self.cliargs.summary)
+                    except APIError:
+                        pass
                 else:
                     logger.info("The page [[{}]] has already been updated this UTC day.".format(title))
 

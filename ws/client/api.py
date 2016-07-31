@@ -329,7 +329,7 @@ class API(Connection):
         logger.info("Editing page [[{}]] ...".format(title))
 
         try:
-            return self.call_with_csrftoken(action="edit", md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, **kwargs)
+            return self.call_with_csrftoken(action="edit", md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, nocreate="1", **kwargs)
         except APIError as e:
             logger.error("Failed to edit page [[{}]] due to APIError (code '{}': {})".format(title, e.server_response["code"], e.server_response["info"]))
             raise

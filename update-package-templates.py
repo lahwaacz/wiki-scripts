@@ -18,6 +18,7 @@ import pyalpm
 from ws.client import API, APIError
 from ws.utils import LazyProperty
 from ws.interactive import *
+from ws.autopage import AutoPage
 from ws.ArchWiki.lang import detect_language, format_title
 from ws.parser_helpers.wikicode import get_parent_wikicode, get_adjacent_node
 from ws.parser_helpers.title import canonicalize
@@ -177,10 +178,11 @@ class PkgUpdater:
         "CVE",
     ]
 
-    def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify, report_dir, interactive=False):
+    def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify, report_dir, report_page, interactive=False):
         self.api = api
         self.finder = PkgFinder(aurpkgs_url, tmpdir, ssl_verify)
         self.report_dir = report_dir
+        self.report_page = report_page
         self.interactive = interactive
 
         # log data for easy report generation
@@ -204,12 +206,14 @@ class PkgUpdater:
                 help="the URL to packages.gz file on the AUR (default: %(default)s)")
         group.add_argument("--report-dir", type=ws.config.argtype_existing_dir, default=".", metavar="PATH",
                 help="directory where the report should be saved")
+        group.add_argument("--report-page", type=str, default=None, metavar="PATH",
+                help="existing report page on the wiki (default: %(default)s)")
 
     @classmethod
     def from_argparser(klass, args, api=None):
         if api is None:
             api = API.from_argparser(args)
-        return klass(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify, args.report_dir, args.interactive)
+        return klass(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify, args.report_dir, args.report_page, args.interactive)
 
     @LazyProperty
     def _alltemplates(self):
@@ -342,7 +346,7 @@ class PkgUpdater:
         :returns: a :py:class:`mwparserfromhell.wikicode.Wikicode` object with the updated
                   content of the page
         """
-        logger.info("Parsing '%s'..." % title)
+        logger.info("Parsing [[{}]]...".format(title))
         lang = detect_language(title)[1]
         wikicode = mwparserfromhell.parse(text)
         for template in wikicode.ifilter_templates():
@@ -392,7 +396,7 @@ class PkgUpdater:
         for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", prop="revisions", rvprop="content|timestamp"):
             title = page["title"]
             if title in self.blacklist_pages:
-                logger.info("skipping blacklisted page '%s'" % title)
+                logger.info("skipping blacklisted page [[{}]]".format(title))
                 continue
             timestamp = page["revisions"][0]["timestamp"]
             text_old = page["revisions"][0]["*"]
@@ -429,17 +433,32 @@ class PkgUpdater:
                     report += "** %s\n" % message
         return report
 
-    def save_report(self):
+    def save_report(self, save_to_wiki=True):
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
         basename = os.path.join(self.report_dir, "update-pkgs-{}.report".format(timestamp))
-        f = open(basename + ".mediawiki", "w")
-        f.write(self.get_report_wikitext())
-        f.close()
-        logger.info("Saved report in '%s.mediawiki'" % basename)
+
         f = open(basename + ".json", "w")
         json.dump(self.log, f, indent=4, sort_keys=True)
         f.close()
-        logger.info("Saved report in '%s.json'" % basename)
+        logger.info("Saved report in '{}.json'".format(basename))
+
+        mwreport = self.get_report_wikitext()
+        if self.report_page and save_to_wiki is True:
+            page = AutoPage(self.api, self.report_page)
+            div = page.get_tag_by_id("div", "wiki-scripts-archpkgs-report")
+            div.contents = mwreport
+            try:
+                page.save("automatic update", self.interactive)
+                logger.info("Saved report to the [[{}]] page on the wiki.".format(self.report_page))
+                save_mwfile = False
+            except APIError:
+                save_mwfile = True
+
+        if save_mwfile is True:
+            f = open(basename + ".mediawiki", "w")
+            f.write(mwreport)
+            f.close()
+            logger.info("Saved report in '{}.mediawiki'".format(basename))
 
 
 class TemplateParametersError(Exception):
@@ -468,5 +487,5 @@ if __name__ == "__main__":
         updater.save_report()
     except (KeyboardInterrupt, InteractiveQuit):
         print()
-        updater.save_report()
+        updater.save_report(save_to_wiki=False)
         raise
