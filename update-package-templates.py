@@ -18,7 +18,7 @@ import pyalpm
 from ws.client import API, APIError
 from ws.utils import LazyProperty
 from ws.interactive import *
-from ws.ArchWiki.lang import detect_language
+from ws.ArchWiki.lang import detect_language, format_title
 from ws.parser_helpers.wikicode import get_parent_wikicode, get_adjacent_node
 from ws.parser_helpers.title import canonicalize
 
@@ -208,14 +208,14 @@ class PkgUpdater:
         return klass(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify, args.report_dir)
 
     @LazyProperty
-    def _templates_list(self):
+    def _alltemplates(self):
         result = self.api.generator(generator="allpages", gapnamespace=10, gaplimit="max", gapfilterredir="nonredirects")
-        return [page["title"].split(":", maxsplit=1)[1] for page in result]
+        return {page["title"].split(":", maxsplit=1)[1] for page in result}
 
     def _localized_template(self, template, lang="English"):
-        assert(canonicalize(template) in self._templates_list)
-        localized = "{} ({})".format(template, lang) if lang != "English" else template
-        if canonicalize(localized) in self._templates_list:
+        assert(canonicalize(template) in self._alltemplates)
+        localized = format_title(template, lang)
+        if canonicalize(localized) in self._alltemplates:
             return localized
         # fall back to English
         return template
