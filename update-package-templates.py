@@ -447,12 +447,16 @@ class PkgUpdater:
             page = AutoPage(self.api, self.report_page)
             div = page.get_tag_by_id("div", "wiki-scripts-archpkgs-report")
             div.contents = mwreport
-            try:
-                page.save("automatic update", self.interactive)
-                logger.info("Saved report to the [[{}]] page on the wiki.".format(self.report_page))
+            if page.is_old_enough(datetime.timedelta(days=7), strip_time=True):
+                try:
+                    page.save("automatic update", self.interactive)
+                    logger.info("Saved report to the [[{}]] page on the wiki.".format(self.report_page))
+                    save_mwfile = False
+                except APIError:
+                    save_mwfile = True
+            else:
+                logger.info("The report page on the wiki has already been updated in the past 7 days, skipping today's update.")
                 save_mwfile = False
-            except APIError:
-                save_mwfile = True
 
         if save_mwfile is True:
             f = open(basename + ".mediawiki", "w")
