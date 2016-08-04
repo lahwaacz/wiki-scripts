@@ -383,6 +383,10 @@ class WikilinkRules:
         if title.sectionname == "":
             return None
 
+        # FIXME: indecisive due to missing expansion of transclusions
+        if title.pagename.startswith("List of applications"):
+            return None
+
         # determine target page
         if title.fullpagename:
             _target_ns = title.namespacenumber
