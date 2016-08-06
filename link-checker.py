@@ -14,6 +14,7 @@
 import difflib
 import re
 import logging
+import contextlib
 
 import mwparserfromhell
 
@@ -50,6 +51,18 @@ def get_ranks(key, iterable):
         ranks.append( (item, ratio) )
     ranks.sort(key=lambda match: match[1], reverse=True)
     return ranks
+
+
+def get_edit_checker(wikicode, summary_parts):
+    @contextlib.contextmanager
+    def checker(summary):
+        text = str(wikicode)
+        try:
+            yield
+        finally:
+            if text != str(wikicode):
+                summary_parts.append(summary)
+    return checker
 
 
 class ExtlinkRules:
@@ -516,7 +529,7 @@ class WikilinkRules:
             else:
                 wikilink.title = wikilink.title.rstrip()
 
-    def update_wikilink(self, wikicode, wikilink, src_title):
+    def update_wikilink(self, wikicode, wikilink, src_title, summary_parts):
         title = Title(self.api, wikilink.title)
         # skip interlanguage links (handled by update-interlanguage-links.py)
         if title.iw in self.api.site.interlanguagemap.keys():
@@ -535,22 +548,28 @@ class WikilinkRules:
             # and is even rendered nicely
             wikilink.title = str(wikilink.title).replace("[", "%5B").replace("|", "%7C").replace("]", "%5D")
 
-        self.collapse_whitespace_pipe(wikilink)
-        self.check_trivial(wikilink)
-        self.check_relative(wikilink, title, src_title)
-        if lang.detect_language(src_title)[1] == "English":
-            self.check_redirect_exact(wikilink, title)
-        self.check_redirect_capitalization(wikilink, title)
-        self.check_displaytitle(wikilink, title)
-        self.check_anchor(wikilink, title, src_title)
+        summary = get_edit_checker(wikicode, summary_parts)
 
-        # partial second pass
-        self.check_trivial(wikilink)
-        if lang.detect_language(src_title)[1] == "English":
-            self.check_redirect_exact(wikilink, title)
+        with summary("simplification and beautification of wikilinks"):
+            self.collapse_whitespace_pipe(wikilink)
+            self.check_trivial(wikilink)
+            self.check_relative(wikilink, title, src_title)
+            if lang.detect_language(src_title)[1] == "English":
+                self.check_redirect_exact(wikilink, title)
+            self.check_redirect_capitalization(wikilink, title)
+            self.check_displaytitle(wikilink, title)
 
-        # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
-        self.collapse_whitespace(wikicode, wikilink)
+        with summary("fixed section fragments"):
+            self.check_anchor(wikilink, title, src_title)
+
+        with summary("simplification and beautification of wikilinks"):
+            # partial second pass
+            self.check_trivial(wikilink)
+            if lang.detect_language(src_title)[1] == "English":
+                self.check_redirect_exact(wikilink, title)
+
+            # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
+            self.collapse_whitespace(wikicode, wikilink)
 
 
 class LinkChecker(ExtlinkRules, WikilinkRules):
@@ -573,13 +592,6 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         # parameters for self.run()
         self.first = first
         self.title = title
-
-        # TODO: when there are many different changes, create a page on ArchWiki
-        # describing the changes, link it with wikilink syntax using a generic
-        # alternative text (e.g. "semi-automatic style fixes") (path should be
-        # configurable, as well as the URL fallback)
-        self.extlinks_summary = "replaced external links"
-        self.wikilinks_summary = "simplification and beautification of wikilinks, fixing whitespace, capitalization and section fragments"
 
     @staticmethod
     def set_argparser(argparser):
@@ -629,27 +641,26 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
                 continue
             self.update_extlink(wikicode, extlink)
 
-        new_text = str(wikicode)
-        if new_text != text:
-            summary_parts.append(self.extlinks_summary)
-            text = new_text
+        if text != str(wikicode):
+            summary_parts.append("replaced external links")
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
             # skip links inside article status templates
             parent = wikicode.get(wikicode.index(wikilink, recursive=True))
             if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
                 continue
-            self.update_wikilink(wikicode, wikilink, src_title)
+            self.update_wikilink(wikicode, wikilink, src_title, summary_parts)
 
-        new_text = str(wikicode)
-        if new_text != text:
-            summary_parts.append(self.wikilinks_summary)
+        # deduplicate and keep order
+        parts = set()
+        parts_add = parts.add
+        summary_parts = [part for part in summary_parts if not (part in parts or parts_add(part))]
 
         edit_summary = ", ".join(summary_parts)
         if self.interactive is True:
             edit_summary += " (interactive)"
 
-        return new_text, edit_summary
+        return str(wikicode), edit_summary
 
     def _edit(self, title, pageid, text_new, text_old, timestamp, edit_summary):
         if text_old != text_new:
