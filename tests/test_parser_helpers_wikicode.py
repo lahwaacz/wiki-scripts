@@ -277,3 +277,55 @@ class test_get_anchors:
             "Section with %5Bbrackets%5D",
             "Section with <invalid tag>",
         ]
+        result = get_anchors(get_section_headings(snippet), pretty=True)
+        assert_equals(result, expected)
+
+class test_ensure_flagged:
+    def test_add(self):
+        wikicode = mwparserfromhell.parse("[[foo]]")
+        link = wikicode.nodes[0]
+        flag = ensure_flagged_by_template(wikicode, link, "bar")
+        assert_equals(str(wikicode), "[[foo]]{{bar}}")
+
+    def test_preserve(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{bar}}")
+        link = wikicode.nodes[0]
+        flag = ensure_flagged_by_template(wikicode, link, "bar")
+        assert_equals(str(wikicode), "[[foo]] {{bar}}")
+
+    def test_strip_params(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{bar|baz}}")
+        link = wikicode.nodes[0]
+        flag = ensure_flagged_by_template(wikicode, link, "bar")
+        assert_equals(str(wikicode), "[[foo]] {{bar}}")
+
+    def test_replace_params(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{bar|baz}}")
+        link = wikicode.nodes[0]
+        flag = ensure_flagged_by_template(wikicode, link, "bar", "param1", "param2")
+        assert_equals(str(wikicode), "[[foo]] {{bar|param1|param2}}")
+
+    def test_named_params(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{bar|baz}}")
+        link = wikicode.nodes[0]
+        flag = ensure_flagged_by_template(wikicode, link, "bar", "2=param1", "1=param2")
+        assert_equals(str(wikicode), "[[foo]] {{bar|2=param1|1=param2}}")
+
+class test_ensure_unflagged:
+    def test_noop(self):
+        wikicode = mwparserfromhell.parse("[[foo]]")
+        link = wikicode.nodes[0]
+        flag = ensure_unflagged_by_template(wikicode, link, "bar")
+        assert_equals(str(wikicode), "[[foo]]")
+
+    def test_preserve(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{baz}}")
+        link = wikicode.nodes[0]
+        flag = ensure_unflagged_by_template(wikicode, link, "bar")
+        assert_equals(str(wikicode), "[[foo]] {{baz}}")
+
+    def test_remove(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{bar}}")
+        link = wikicode.nodes[0]
+        flag = ensure_unflagged_by_template(wikicode, link, "bar")
+        assert_equals(str(wikicode), "[[foo]]")

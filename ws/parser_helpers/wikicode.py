@@ -6,7 +6,7 @@ import mwparserfromhell
 
 from .encodings import dotencode
 
-__all__ = ["strip_markup", "get_adjacent_node", "get_parent_wikicode", "remove_and_squash", "get_section_headings", "get_anchors"]
+__all__ = ["strip_markup", "get_adjacent_node", "get_parent_wikicode", "remove_and_squash", "get_section_headings", "get_anchors", "ensure_flagged_by_template", "ensure_unflagged_by_template"]
 
 def strip_markup(text, normalize=True, collapse=True):
     wikicode = mwparserfromhell.parse(text)
@@ -150,3 +150,49 @@ def get_anchors(headings, pretty=False, suffix_sep="_"):
         # update the main array
         anchors[i] = anchor
     return anchors
+
+def ensure_flagged_by_template(wikicode, node, template_name, *template_parameters):
+    """
+    Makes sure that ``node`` in ``wikicode`` is immediately (except for
+    whitespace) followed by a template with ``template_name`` and optional
+    ``template_parameters``.
+
+    :param wikicode: a :py:class:`mwparserfromhell.wikicode.Wikicode` object
+    :param node: a :py:class:`mwparserfromhell.nodes.Node` object
+    :param str template_name: the name of the template flag
+    :param str *template_parameters: optional template parameters
+    :returns: the template flag, as a
+        :py:class:`mwparserfromhell.nodes.template.Template` objet
+    """
+    parent = get_parent_wikicode(wikicode, node)
+    adjacent = get_adjacent_node(parent, node, ignore_whitespace=True)
+
+    if template_parameters:
+        flag = "{{%s}}" % "|".join([template_name, *template_parameters])
+    else:
+        flag = "{{%s}}" % template_name
+    flag = mwparserfromhell.parse(flag).nodes[0]
+    assert(isinstance(flag, mwparserfromhell.nodes.Template))
+
+    if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches(template_name):
+        wikicode.replace(adjacent, flag)
+    else:
+        wikicode.insert_after(node, flag)
+
+    assert(get_parent_wikicode(wikicode, flag) is parent)
+    return flag
+
+def ensure_unflagged_by_template(wikicode, node, template_name):
+    """
+    Makes sure that ``node`` in ``wikicode`` is not immediately (except for
+    whitespace) followed by a template with ``template_name``.
+
+    :param wikicode: a :py:class:`mwparserfromhell.wikicode.Wikicode` object
+    :param node: a :py:class:`mwparserfromhell.nodes.Node` object
+    :param str template_name: the name of the template flag
+    """
+    parent = get_parent_wikicode(wikicode, node)
+    adjacent = get_adjacent_node(parent, node, ignore_whitespace=True)
+
+    if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches(template_name):
+        remove_and_squash(wikicode, adjacent)

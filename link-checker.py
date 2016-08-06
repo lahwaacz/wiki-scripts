@@ -26,7 +26,7 @@ from ws.interactive import *
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.encodings import dotencode, urldecode
 from ws.parser_helpers.title import canonicalize, Title, InvalidTitleCharError
-from ws.parser_helpers.wikicode import get_section_headings, get_anchors
+from ws.parser_helpers.wikicode import get_section_headings, get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template
 
 logger = logging.getLogger(__name__)
 
@@ -560,7 +560,13 @@ class WikilinkRules:
             self.check_displaytitle(wikilink, title)
 
         with summary("fixed section fragments"):
-            self.check_anchor(wikilink, title, src_title)
+            anchor_result = self.check_anchor(wikilink, title, src_title)
+        if anchor_result is False:
+            with summary("flagged broken section links"):
+                ensure_flagged_by_template(wikicode, wikilink, "Broken section link")
+        else:
+            with summary("unflagged working section links"):
+                ensure_unflagged_by_template(wikicode, wikilink, "Broken section link")
 
         with summary("simplification and beautification of wikilinks"):
             # partial second pass
