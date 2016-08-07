@@ -588,7 +588,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
     # article status templates, lowercase
     skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
 
-    def __init__(self, api, cache_dir, interactive=False, first=None, title=None):
+    def __init__(self, api, cache_dir, interactive=False, first=None, title=None, langnames=None):
         # ensure that we are authenticated
         require_login(api)
 
@@ -602,6 +602,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         # parameters for self.run()
         self.first = first
         self.title = title
+        self.langnames = langnames
 
     @staticmethod
     def set_argparser(argparser):
@@ -618,12 +619,20 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
                 help="the title of the first page to be processed")
         mode.add_argument("--title",
                 help="the title of the only page to be processed")
+        group.add_argument("--lang", default=None,
+                help="comma-separated list of language tags to process (default: all, choices: {})".format(lang.get_internal_tags()))
 
     @classmethod
     def from_argparser(klass, args, api=None):
         if api is None:
             api = API.from_argparser(args)
-        return klass(api, args.cache_dir, interactive=args.interactive, first=args.first, title=args.title)
+        tags = args.lang.split(",")
+        for tag in tags:
+            if tag not in lang.get_internal_tags():
+                # FIXME: more elegant solution
+                raise Exception("{} is not a valid language tag".format(tag))
+        langnames = {lang.langname_for_tag(tag) for tag in tags}
+        return klass(api, args.cache_dir, interactive=args.interactive, first=args.first, title=args.title, langnames=langnames)
 
     def update_page(self, src_title, text):
         """
@@ -690,7 +699,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         text_new, edit_summary = self.update_page(title, text_old)
         self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
 
-    def process_allpages(self, apfrom=None):
+    def process_allpages(self, apfrom=None, langnames=None):
         namespaces = [0, 4, 14]
         if self.interactive is True:
             namespaces.append(12)
@@ -710,6 +719,8 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         for ns in namespaces:
             for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom, prop="revisions", rvprop="content|timestamp"):
                 title = page["title"]
+                if langnames and lang.detect_language(title)[1] not in langnames:
+                    continue
                 timestamp = page["revisions"][0]["timestamp"]
                 text_old = page["revisions"][0]["*"]
                 text_new, edit_summary = self.update_page(title, text_old)
@@ -721,7 +732,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         if self.title is not None:
             checker.process_page(self.title)
         else:
-            checker.process_allpages(apfrom=self.first)
+            checker.process_allpages(apfrom=self.first, langnames=self.langnames)
 
 
 if __name__ == "__main__":
