@@ -277,6 +277,10 @@ class WikilinkRules:
         if wikilink.text is None:
             return
 
+        # FIXME: handle relative links properly
+        if str(wikilink.text).startswith("/"):
+            return
+
         try:
             text = Title(self.api, wikilink.text)
         except InvalidTitleCharError:
