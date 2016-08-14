@@ -535,26 +535,26 @@ class WikilinkRules:
 
     def update_wikilink(self, wikicode, wikilink, src_title, summary_parts):
         title = Title(self.api, wikilink.title)
-        # skip interlanguage links (handled by update-interlanguage-links.py)
-        if title.iw in self.api.site.interlanguagemap.keys():
+        # skip interlanguage links (handled by interlanguage.py)
+        if title.iwprefix in self.api.site.interlanguagemap.keys():
             return
-
-        # beautify if urldecoded
-        # FIXME: make it implicit - it does not always propagate from the Title class
-        if re.search("%[0-9a-f]{2}", str(wikilink.title), re.IGNORECASE):
-            # handle category links properly
-            if wikilink.title.strip().startswith(":"):
-                wikilink.title = ":" + str(title)
-            else:
-                wikilink.title = str(title)
-            # FIXME: should be done in the Title class
-            # the anchor is dot-encoded, but percent-encoding wors for links too
-            # and is even rendered nicely
-            wikilink.title = str(wikilink.title).replace("[", "%5B").replace("|", "%7C").replace("]", "%5D")
 
         summary = get_edit_checker(wikicode, summary_parts)
 
         with summary("simplification and beautification of wikilinks"):
+            # beautify if urldecoded
+            # FIXME: make it implicit - it does not always propagate from the Title class
+            if not title.iwprefix and re.search("%[0-9a-f]{2}", str(wikilink.title), re.IGNORECASE):
+                # handle category links properly
+                if wikilink.title.strip().startswith(":"):
+                    wikilink.title = ":" + str(title)
+                else:
+                    wikilink.title = str(title)
+                # FIXME: should be done in the Title class
+                # the anchor is dot-encoded, but percent-encoding wors for links too
+                # and is even rendered nicely
+                wikilink.title = str(wikilink.title).replace("[", "%5B").replace("|", "%7C").replace("]", "%5D")
+
             self.collapse_whitespace_pipe(wikilink)
             self.check_trivial(wikilink)
             self.check_relative(wikilink, title, src_title)
