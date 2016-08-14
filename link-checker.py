@@ -177,7 +177,7 @@ class ExtlinkRules:
                         repl = "[{}]".format(repl)
                     wikicode.replace(extlink, repl)
                     return True
-                elif re.fullmatch(text_cond.format(*match.groups()), str(extlink.title), text_cond_flags):
+                elif re.fullmatch(text_cond.format(*match.groups()), str(extlink.title).strip(), text_cond_flags):
                     wikicode.replace(extlink, replacement.format(*match.groups(), extlink.title))
                     return True
                 else:
