@@ -275,7 +275,7 @@ class API(Connection):
                     raise
 
         # don't catch the exception for the last try
-        return self.call_api(params, **kwargs)
+        return self.call_api(params)
 
     @RateLimited(1, 3)
     def edit(self, title, pageid, text, basetimestamp, summary, **kwargs):
