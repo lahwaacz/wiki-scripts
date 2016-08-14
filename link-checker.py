@@ -626,12 +626,15 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
     def from_argparser(klass, args, api=None):
         if api is None:
             api = API.from_argparser(args)
-        tags = args.lang.split(",")
-        for tag in tags:
-            if tag not in lang.get_internal_tags():
-                # FIXME: more elegant solution
-                raise Exception("{} is not a valid language tag".format(tag))
-        langnames = {lang.langname_for_tag(tag) for tag in tags}
+        if args.lang:
+            tags = args.lang.split(",")
+            for tag in tags:
+                if tag not in lang.get_internal_tags():
+                    # FIXME: more elegant solution
+                    raise Exception("{} is not a valid language tag".format(tag))
+            langnames = {lang.langname_for_tag(tag) for tag in tags}
+        else:
+            langnames = set()
         return klass(api, args.cache_dir, interactive=args.interactive, first=args.first, title=args.title, langnames=langnames)
 
     def update_page(self, src_title, text):
