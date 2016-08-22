@@ -4,7 +4,6 @@
 #   testing repos may contain new packages
 #   is Template:Grp x86_64 only? in that case warn about i686-only groups
 
-import bisect
 import os.path
 import datetime
 import json
@@ -61,7 +60,7 @@ class PkgFinder:
         self.aurpkgs = None
         self.pacdb32 = self.pacdb_init(PACCONF, os.path.join(self.tmpdir, "pacdbpath32"), arch="i686")
         self.pacdb64 = self.pacdb_init(PACCONF + PACCONF64_SUFFIX, os.path.join(self.tmpdir, "pacdbpath64"), arch="x86_64")
-        self.aur_archived_pkgs = open("./static/aur3-archive.pkglist").read().split()
+        self.aur_archived_pkgs = None
 
     def pacdb_init(self, config, dbpath, arch):
         os.makedirs(dbpath, exist_ok=True)
@@ -76,7 +75,18 @@ class PkgFinder:
     def aurpkgs_refresh(self, aurpkgs_url):
         response = requests.get(aurpkgs_url, verify=self.ssl_verify)
         response.raise_for_status()
-        self.aurpkgs = sorted([line for line in response.text.splitlines() if not line.startswith("#")])
+        self.aurpkgs = set(line for line in response.text.splitlines() if not line.startswith("#"))
+
+        self.aur_archived_pkgs = set(open("./static/aur3-archive.pkglist").read().split())
+        self.aur_archived_pkgs -= self.aurpkgs
+        try:
+            # gradually remove packages that were ever found in AUR4
+            # (if removed again, it's for a good reason, so we should not mark
+            # it as "archived in aur-mirror")
+            with open("./static/aur3-archive.pkglist", "w") as f:
+                f.write("\n".join(sorted(self.aur_archived_pkgs)))
+        except OSError:
+            pass
 
     # sync databases like pacman -Sy
     def pacdb_refresh(self, pacdb, force=False):
@@ -136,20 +146,13 @@ class PkgFinder:
     def find_aur(self, pkgname):
         # all packages in AUR are strictly lowercase, but queries both via web (links) and helpers are case-insensitive
         pkgname = pkgname.lower()
-        # use bisect instead of 'pkgname in self.aurpkgs' for performance
-        i = bisect.bisect_left(self.aurpkgs, pkgname)
-        if i != len(self.aurpkgs) and self.aurpkgs[i] == pkgname:
-            return True
-        return False
+        return pkgname in self.aurpkgs
 
     # check that given package exists in AUR3 archive (aur-mirror.git)
     def find_aur3_archive(self, pkgname):
+        # all packages in AUR are strictly lowercase, but queries both via web (links) and helpers are case-insensitive
         pkgname = pkgname.lower()
-        # use bisect instead of 'pkgname in self.aur_archived_pkgs' for performance
-        i = bisect.bisect_left(self.aur_archived_pkgs, pkgname)
-        if i != len(self.aur_archived_pkgs) and self.aur_archived_pkgs[i] == pkgname:
-            return True
-        return False
+        return pkgname in self.aur_archived_pkgs
 
     # try to find a package that has given pkgname in its `replaces` array
     def find_replaces(self, pkgname, exact=True):
