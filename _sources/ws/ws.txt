@@ -14,6 +14,7 @@ Subpackages
     ws.ArchWiki
     ws.cache
     ws.client
+    ws.interlanguage
     ws.parser_helpers
     ws.utils
 
