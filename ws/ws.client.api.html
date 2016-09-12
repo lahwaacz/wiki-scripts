@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ws.client.api module &mdash; wiki-scripts 1.1 documentation</title>
+    <title>ws.client.api module &#8212; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -30,6 +30,7 @@
     <link rel="prev" title="ws.client package" href="ws.client.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
@@ -258,6 +259,29 @@ allow 1 call per 3 seconds.</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="ws.client.api.API.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>title</em>, <em>text</em>, <em>summary</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specialization of <a class="reference internal" href="#ws.client.api.API.edit" title="ws.client.api.API.edit"><code class="xref py py-meth docutils literal"><span class="pre">edit()</span></code></a> for creating pages. The <code class="docutils literal"><span class="pre">createonly</span></code>
+parameter is always added to the query. This method is rate-limited with
+the <a class="reference internal" href="ws.utils.rate.html#ws.utils.rate.RateLimited" title="ws.utils.rate.RateLimited"><code class="xref py py-class docutils literal"><span class="pre">&#64;RateLimited</span></code></a> decorator to
+allow 1 call per 10 seconds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; the title of the page to be created</li>
+<li><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; new page content</li>
+<li><strong>summary</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; edit summary</li>
+<li><strong>kwargs</strong> &#8211; Additional query parameters, see <a class="reference external" href="https://www.mediawiki.org/wiki/API:Edit">API:Edit</a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="exception">
@@ -317,8 +341,8 @@ allow 1 call per 3 seconds.</p>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
       <a href="../_sources/ws/ws.client.api.txt"

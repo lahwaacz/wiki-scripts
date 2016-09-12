@@ -14,6 +14,7 @@ Unreleased
   attributes with the appropriate instances for the current wiki.
 - Improved parsing of page titles -- fixed many bugs, extended test suite, added
   checking of legal characters, handling of namespace aliases.
+- Added :py:mod:`ws.autopage` submodule.
 
 Version 1.1
 -----------

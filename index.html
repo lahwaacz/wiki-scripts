@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>wiki-scripts documentation &mdash; wiki-scripts 1.1 documentation</title>
+    <title>wiki-scripts documentation &#8212; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -28,6 +28,7 @@
     <link rel="next" title="Configuration" href="configuration.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
@@ -54,8 +55,9 @@ links over redirects and relative links, and to beautify them based on
 ArchWiki&#8217;s <a class="reference external" href="https://wiki.archlinux.org/index.php/Help:Style">style recommendations</a>.</li>
 <li><code class="docutils literal"><span class="pre">statistics.py</span></code>
 generates automatic updates to the <a class="reference external" href="https://wiki.archlinux.org/index.php/ArchWiki:Statistics">ArchWiki:Statistics</a> page.</li>
-<li><code class="docutils literal"><span class="pre">update-interlanguage-links.py</span></code>
-updates the interlanguage links based on the ArchWiki&#8217;s <a class="reference external" href="https://wiki.archlinux.org/index.php/Help:I18n">interlanguage map</a>.</li>
+<li><code class="docutils literal"><span class="pre">interlanguage.py</span></code>
+updates the interlanguage links based on the ArchWiki&#8217;s <a class="reference external" href="https://wiki.archlinux.org/index.php/Help:I18n">interlanguage map</a>
+and fixes categories of local pages.</li>
 <li><code class="docutils literal"><span class="pre">update-package-templates.py</span></code>
 finds broken links using the <a class="reference external" href="https://wiki.archlinux.org/index.php/Template:AUR">AUR</a>/<a class="reference external" href="https://wiki.archlinux.org/index.php/Template:Grp">Grp</a>/<a class="reference external" href="https://wiki.archlinux.org/index.php/Template:Pkg">Pkg</a> templates and tries to
 update them (for example when a package has been moved from the AUR to the
@@ -142,6 +144,7 @@ written from scratch.</li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="ws/ws.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ws/ws.autopage.html">ws.autopage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.config.html">ws.config module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.diff.html">ws.diff module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.dump.html">ws.dump module</a></li>
@@ -223,8 +226,8 @@ written from scratch.</li>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
       <a href="_sources/index.txt"

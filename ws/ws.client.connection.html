@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ws.client.connection module &mdash; wiki-scripts 1.1 documentation</title>
+    <title>ws.client.connection module &#8212; wiki-scripts 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -31,6 +31,7 @@
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
@@ -45,8 +46,8 @@
   <div class="section" id="module-ws.client.connection">
 <span id="ws-client-connection-module"></span><h1>ws.client.connection module<a class="headerlink" href="#module-ws.client.connection" title="Permalink to this headline">¶</a></h1>
 <p>The <a class="reference internal" href="#module-ws.client.connection" title="ws.client.connection"><code class="xref py py-mod docutils literal"><span class="pre">ws.client.connection</span></code></a> module provides a low-level interface for
-connections to the wiki. The <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.10.0)"><code class="xref py py-class docutils literal"><span class="pre">requests.Session</span></code></a> class from the
-<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#module-requests" title="(in Requests v2.10.0)"><code class="xref py py-mod docutils literal"><span class="pre">requests</span></code></a> library is used to manage the cookies, authentication
+connections to the wiki. The <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.11.1)"><code class="xref py py-class docutils literal"><span class="pre">requests.Session</span></code></a> class from the
+<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#module-requests" title="(in Requests v2.11.1)"><code class="xref py py-mod docutils literal"><span class="pre">requests</span></code></a> library is used to manage the cookies, authentication
 and making requests.</p>
 <dl class="class">
 <dt id="ws.client.connection.Connection">
@@ -60,7 +61,7 @@ and making requests.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>api_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; URL path to the wiki&#8217;s <code class="docutils literal"><span class="pre">api.php</span></code> entry point</li>
 <li><strong>index_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; URL path to the wiki&#8217;s <code class="docutils literal"><span class="pre">index.php</span></code> entry point</li>
-<li><strong>session</strong> (<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.10.0)"><em>requests.Session</em></a>) &#8211; session created by <a class="reference internal" href="#ws.client.connection.Connection.make_session" title="ws.client.connection.Connection.make_session"><code class="xref py py-meth docutils literal"><span class="pre">make_session()</span></code></a></li>
+<li><strong>session</strong> (<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.11.1)"><em>requests.Session</em></a>) &#8211; session created by <a class="reference internal" href="#ws.client.connection.Connection.make_session" title="ws.client.connection.Connection.make_session"><code class="xref py py-meth docutils literal"><span class="pre">make_session()</span></code></a></li>
 <li><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; connection timeout in seconds</li>
 </ul>
 </td>
@@ -70,7 +71,7 @@ and making requests.</p>
 <dl class="staticmethod">
 <dt id="ws.client.connection.Connection.make_session">
 <em class="property">static </em><code class="descname">make_session</code><span class="sig-paren">(</span><em>user_agent='wiki-scripts/1.1 (https://github.com/lahwaacz/wiki-scripts)'</em>, <em>ssl_verify=None</em>, <em>max_retries=0</em>, <em>cookie_file=None</em>, <em>cookiejar=None</em>, <em>http_user=None</em>, <em>http_password=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.make_session" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.10.0)"><code class="xref py py-class docutils literal"><span class="pre">requests.Session</span></code></a> object for the connection.</p>
+<dd><p>Creates a <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.11.1)"><code class="xref py py-class docutils literal"><span class="pre">requests.Session</span></code></a> object for the connection.</p>
 <p>It is possible to save the session data by specifying either <code class="docutils literal"><span class="pre">cookiejar</span></code>
 or <code class="docutils literal"><span class="pre">cookie_file</span></code> arguments. If <code class="docutils literal"><span class="pre">cookiejar</span></code> is present, <code class="docutils literal"><span class="pre">cookie_file</span></code>
 is ignored.</p>
@@ -89,7 +90,7 @@ to requests where data has made it to the server.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.10.0)"><code class="xref py py-class docutils literal"><span class="pre">requests.Session</span></code></a> object</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.11.1)"><code class="xref py py-class docutils literal"><span class="pre">requests.Session</span></code></a> object</p>
 </td>
 </tr>
 </tbody>
@@ -135,12 +136,12 @@ it is expected to also contain <code class="docutils literal"><span class="pre">
 <dt id="ws.client.connection.Connection.request">
 <code class="descname">request</code><span class="sig-paren">(</span><em>method</em>, <em>url</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simple HTTP request handler. It is basically a wrapper around
-<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.request" title="(in Requests v2.10.0)"><code class="xref py py-func docutils literal"><span class="pre">requests.request()</span></code></a> using the established session including
+<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.request" title="(in Requests v2.11.1)"><code class="xref py py-func docutils literal"><span class="pre">requests.request()</span></code></a> using the established session including
 cookies, so it should be used only for connections with <code class="docutils literal"><span class="pre">url</span></code> leading
 to the same site.</p>
-<p>The parameters are the same as for <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.request" title="(in Requests v2.10.0)"><code class="xref py py-func docutils literal"><span class="pre">requests.request()</span></code></a>, see
+<p>The parameters are the same as for <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.request" title="(in Requests v2.11.1)"><code class="xref py py-func docutils literal"><span class="pre">requests.request()</span></code></a>, see
 <a class="reference external" href="http://docs.python-requests.org/en/latest/api/">Requests documentation</a> for details.</p>
-<p>There is no translation of exceptions, the <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#module-requests" title="(in Requests v2.10.0)"><code class="xref py py-mod docutils literal"><span class="pre">requests</span></code></a> exceptions
+<p>There is no translation of exceptions, the <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#module-requests" title="(in Requests v2.11.1)"><code class="xref py py-mod docutils literal"><span class="pre">requests</span></code></a> exceptions
 (notably <code class="xref py py-exc docutils literal"><span class="pre">requests.exceptions.ConnectionError</span></code>,
 <code class="xref py py-exc docutils literal"><span class="pre">requests.exceptions.Timeout</span></code> and
 <code class="xref py py-exc docutils literal"><span class="pre">requests.exceptions.HTTPError</span></code>) should be catched by the caller.</p>
@@ -271,8 +272,8 @@ should be specified).</p>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
       <a href="../_sources/ws/ws.client.connection.txt"

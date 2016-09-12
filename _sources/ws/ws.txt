@@ -22,6 +22,7 @@ Submodules
 
 .. toctree::
 
+   ws.autopage
    ws.config
    ws.diff
    ws.dump
