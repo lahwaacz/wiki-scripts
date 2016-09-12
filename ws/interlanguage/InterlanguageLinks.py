@@ -24,35 +24,39 @@ class InterlanguageLinks:
     """
     Update interlanguage links on ArchWiki based on the following algorithm:
 
-     1. Fetch list of all pages with prop=langlinks to be able to build a langlink
-        graph (separate from the content dict for quick searching).
-     2. Group pages into families based on their title, which is the primary key to
-        denote a family. The grouping is case-insensitive and includes even pages
-        without any interlanguage links. The family name corresponds to the only
-        English page in the family (or when not present, to the English base of the
-        localized title).
+     1. Fetch list of all pages with prop=langlinks to be able to build a
+        langlink graph (separate from the content dict for quick searching).
+     2. Group pages into families based on their title, which is the primary key
+        to denote a family. The grouping is case-insensitive and includes even
+        pages without any interlanguage links. The family name corresponds to
+        the only English page in the family (or when not present, to the English
+        base of the localized title).
      3. For every page on the wiki:
-        3.1 Determine the family of the page.
-        3.2 Assemble a set of pages in the family. This is done by first including
-            the pages in the group from step 2., then pulling any internal langlinks
-            from the pages in the set (in unspecified order), and finally based on
-            the presence of an English page in the family:
-              - If there is an English page directly in the group from step 2. or if
-                other pages link to an English page whose group can be merged with
-                the current group without causing a conflict, its external langlinks
-                are pulled in. As a result, external langlinks removed from the
-                English page are assumed to be invalid and removed also from other
-                pages in the family. For consistency, also internal langlinks are
-                pulled from the English page.
-              - If the pulling from an English page was not done, external langlinks
-                are pulled from the other pages (in unspecified order), which
-                completes the previous inclusion of internal langlinks.
-        3.3 Check if it is necessary to update the page by comparing the new set of
-            langlinks for a page (i.e. ``family.titles - {title}``) with the old set
-            obtained from the wiki's API. If an update is needed:
-              - Fetch content of the page.
-              - Update the langlinks of the page.
-              - If there is a difference, save the page.
+
+        a) Determine the family of the page.
+        b) Assemble a set of pages in the family. This is done by first
+           including the pages in the group from step 2., then pulling any
+           internal langlinks from the pages in the set (in unspecified order),
+           and finally based on the presence of an English page in the family:
+
+           - If there is an English page directly in the group from step 2. or
+             if other pages link to an English page whose group can be merged
+             with the current group without causing a conflict, its external
+             langlinks are pulled in. As a result, external langlinks removed
+             from the English page are assumed to be invalid and removed also
+             from other pages in the family. For consistency, also internal
+             langlinks are pulled from the English page.
+           - If the pulling from an English page was not done, external
+             langlinks are pulled from the other pages (in unspecified order),
+             which completes the previous inclusion of internal langlinks.
+
+        c) Check if it is necessary to update the page by comparing the new set
+           of langlinks for a page (i.e. ``family.titles - {title}``) with the
+           old set obtained from the wiki's API. If an update is needed:
+
+           - Fetch content of the page.
+           - Update the langlinks of the page.
+           - If there is a difference, save the page.
     """
 
     content_namespaces = [0, 4, 10, 12, 14]

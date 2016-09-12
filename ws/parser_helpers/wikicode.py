@@ -160,7 +160,7 @@ def ensure_flagged_by_template(wikicode, node, template_name, *template_paramete
     :param wikicode: a :py:class:`mwparserfromhell.wikicode.Wikicode` object
     :param node: a :py:class:`mwparserfromhell.nodes.Node` object
     :param str template_name: the name of the template flag
-    :param str *template_parameters: optional template parameters
+    :param template_parameters: optional template parameters
     :returns: the template flag, as a
         :py:class:`mwparserfromhell.nodes.template.Template` objet
     """

@@ -29,7 +29,8 @@ class Redirects:
 
     This class therefore uses the second method to query redirects for the whole
     wiki and caches the post-processed results. There are some limitations:
-        - Interwiki redirects are not included in the mapping.
+
+    - Interwiki redirects are not included in the mapping.
 
     .. _`first way`: https://www.mediawiki.org/wiki/API:Query#Resolving_redirects
     .. _`prop=redirects`: https://www.mediawiki.org/wiki/API:Redirects
