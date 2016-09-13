@@ -13,14 +13,17 @@ The underlying ``ws`` module is general and reusable on any wiki powered by
 Featured scripts
 ----------------
 
+- ``interlanguage.py``
+  updates the interlanguage links based on the ArchWiki's `interlanguage map`_
+  and fixes categories of local pages.
 - ``link-checker.py``
   parses all pages on the wiki and tries to fix broken wikilinks, simplify
   links over redirects and relative links, and to beautify them based on
   ArchWiki's `style recommendations`_.
 - ``statistics.py``
   generates automatic updates to the `ArchWiki:Statistics`_ page.
-- ``update-interlanguage-links.py``
-  updates the interlanguage links based on the ArchWiki's `interlanguage map`_.
+- ``toc.py``
+  generates the `Table of contents`_ page and its localized versions.
 - ``update-package-templates.py``
   finds broken links using the `AUR`_/`Grp`_/`Pkg`_ templates and tries to
   update them (for example when a package has been moved from the AUR to the
@@ -29,9 +32,10 @@ Featured scripts
 For a full list of available scripts see the root directory of the
 `git repository`_.
 
+.. _`interlanguage map`: https://wiki.archlinux.org/index.php/Help:I18n
 .. _`style recommendations`: https://wiki.archlinux.org/index.php/Help:Style
 .. _`ArchWiki:Statistics`: https://wiki.archlinux.org/index.php/ArchWiki:Statistics
-.. _`interlanguage map`: https://wiki.archlinux.org/index.php/Help:I18n
+.. _`Table of contents`: https://wiki.archlinux.org/index.php/Table_of_contents
 .. _`AUR`: https://wiki.archlinux.org/index.php/Template:AUR
 .. _`Grp`: https://wiki.archlinux.org/index.php/Template:Grp
 .. _`Pkg`: https://wiki.archlinux.org/index.php/Template:Pkg
