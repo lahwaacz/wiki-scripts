@@ -1,3 +1,7 @@
 requests
 # mwparserfromhell
 git+https://github.com/earwig/mwparserfromhell.git
+git+https://github.com/kynikos/lib.py.configfile.git#egg=configfile&subdirectory=src
+
+# optional deps
+git+https://github.com/lahwaacz/python-wikeddiff.git

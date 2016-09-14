@@ -8,5 +8,10 @@ setup(
     name = "wiki-scripts",
     version = ws.__version__,
     packages = find_packages(),
-    install_requires = ["requests", "mwparserfromhell"],
+    install_requires = [
+        "requests",
+        "mwparserfromhell",
+        "configfile",
+        "wikeddiff",
+    ],
 )
