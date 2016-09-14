@@ -1,9 +1,7 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals, assert_true, raises
-from nose.plugins.attrib import attr
+import pytest
 
-from . import fixtures
 from ws.parser_helpers.title import *
 
 class test_canonicalize:
@@ -19,16 +17,14 @@ class test_canonicalize:
         "fOOo BaAar": "FOOo BaAar",
     }
 
-    def test(self):
-        for src, expected in self.titles.items():
-            yield self._do_test, src, expected
-
-    def _do_test(self, src, expected):
+    @pytest.mark.parametrize("src, expected", titles.items())
+    def test(self, src, expected):
         result = canonicalize(src)
-        assert_equals(result, expected)
+        assert result == expected
 
 
-@attr(speed="slow")
+# TODO: set pytest attribute?
+#@attr(speed="slow")
 class test_title():
     # keys: input, values: dictionary of expected attributes of the Title object
     titles = {
@@ -220,153 +216,140 @@ class test_title():
         },
     }
 
-    def test_constructor(self):
-        def tester(src, expected):
-            title = Title(fixtures.api, src)
-            for attr, value in expected.items():
-                assert_equals(getattr(title, attr), value)
+    @pytest.mark.parametrize("src, expected", titles.items())
+    def test_constructor(self, api, src, expected):
+        title = Title(api, src)
+        for attr, value in expected.items():
+            assert getattr(title, attr) == value
 
-        for src, expected in self.titles.items():
-            yield tester, src, expected
+    @pytest.mark.parametrize("src, expected", titles.items())
+    def test_parse(self, api, src, expected):
+        title = Title(api, "")
+        title.parse(src)
+        for attr, value in expected.items():
+            assert getattr(title, attr) == value
 
-    def test_parse(self):
-        def tester(src, expected):
-            title = Title(fixtures.api, "")
-            title.parse(src)
-            for attr, value in expected.items():
-                assert_equals(getattr(title, attr), value)
-
-        for src, expected in self.titles.items():
-            yield tester, src, expected
-
-    def test_setters(self):
-        def tester(iw, ns, pagename, sectionname, expected):
-            title = Title(fixtures.api, "")
-            title.iwprefix = iw
-            title.namespace = ns
-            title.pagename = pagename
-            title.sectionname = sectionname
-            assert_equals(title, expected)
-
-        for full, attrs in self.titles.items():
-            yield tester, attrs.get("iwprefix", ""), attrs.get("namespace", ""), attrs.get("pagename", ""), attrs.get("sectionname", ""), Title(fixtures.api, full)
+    @pytest.mark.parametrize("full, attrs", titles.items())
+    def test_setters(self, api, full, attrs):
+        expected = Title(api, full)
+        title = Title(api, "")
+        title.iwprefix = attrs.get("iwprefix", "")
+        title.namespace = attrs.get("namespace", "")
+        title.pagename = attrs.get("pagename", "")
+        title.sectionname = attrs.get("sectionname", "")
+        assert title == expected
 
 
-@attr(speed="slow")
+# TODO: set pytest attribute?
+#@attr(speed="slow")
 class test_title_setters():
     attributes = ["iwprefix", "namespace", "pagename", "sectionname"]
 
-    @classmethod
-    def setup_class(klass):
-        klass.api = fixtures.api
-
-    def setup(self):
-        self.title = Title(self.api, "en:Help:Style#section")
+    @staticmethod
+    @pytest.fixture(scope="function")
+    def title(api):
+        return Title(api, "en:Help:Style#section")
 
 
-    @raises(TypeError)
-    def _do_type_test(self, attr, value):
-        setattr(self.title, attr, value)
+    @pytest.mark.parametrize("attr", attributes)
+    def test_invalid_type(self, title, attr):
+        with pytest.raises(TypeError):
+            setattr(title, attr, 42)
 
-    def test_invalid_type(self):
-        for attr in self.attributes:
-            yield self._do_type_test, attr, 42
+    def test_invalid_type_constructor(self, api):
+        with pytest.raises(TypeError):
+            Title(api, 42)
 
-    @raises(TypeError)
-    def test_invalid_type_constructor(self):
-        Title(self.api, 42)
-
-    @raises(TypeError)
-    def test_invalid_type_parse(self):
-        self.title.parse(42)
+    def test_invalid_type_parse(self, title):
+        with pytest.raises(TypeError):
+            title.parse(42)
 
     # this one has to be explicit for completeness, because
     # `title.pagename = foo` checks it too
-    @raises(TypeError)
-    def test_invalid_type_set_pagename(self):
-        self.title.set_pagename(42)
+    def test_invalid_type_set_pagename(self, title):
+        with pytest.raises(TypeError):
+            title.set_pagename(42)
 
 
-    def test_iwprefix(self):
-        assert_equals(self.title.iwprefix, "en")
-        assert_equals(str(self.title), "en:Help:Style#section")
+    def test_iwprefix(self, title):
+        assert title.iwprefix == "en"
+        assert str(title) == "en:Help:Style#section"
         # test internal tag
-        self.title.iwprefix = "cs"
-        assert_equals(self.title.iwprefix, "cs")
-        assert_equals(str(self.title), "cs:Help:Style#section")
+        title.iwprefix = "cs"
+        assert title.iwprefix == "cs"
+        assert str(title) == "cs:Help:Style#section"
         # test external tag
-        self.title.iwprefix = "de"
-        assert_equals(self.title.iwprefix, "de")
-        assert_equals(str(self.title), "de:Help:Style#section")
+        title.iwprefix = "de"
+        assert title.iwprefix == "de"
+        assert str(title) == "de:Help:Style#section"
         # test empty
-        self.title.iwprefix = ""
-        assert_equals(self.title.iwprefix, "")
-        assert_equals(str(self.title), "Help:Style#section")
+        title.iwprefix = ""
+        assert title.iwprefix == ""
+        assert str(title) == "Help:Style#section"
 
-    def test_namespace(self):
-        assert_equals(self.title.namespace, "Help")
-        assert_equals(str(self.title), "en:Help:Style#section")
+    def test_namespace(self, title):
+        assert title.namespace == "Help"
+        assert str(title) == "en:Help:Style#section"
         # test talkspace
-        self.title.namespace = self.title.talkspace
-        assert_equals(self.title.namespace, "Help talk")
-        assert_equals(str(self.title), "en:Help talk:Style#section")
+        title.namespace = title.talkspace
+        assert title.namespace == "Help talk"
+        assert str(title) == "en:Help talk:Style#section"
         # test empty
-        self.title.namespace = ""
-        assert_equals(self.title.namespace, "")
-        assert_equals(str(self.title), "en:Style#section")
+        title.namespace = ""
+        assert title.namespace == ""
+        assert str(title) == "en:Style#section"
 
-    def test_pagename(self):
-        assert_equals(self.title.pagename, "Style")
-        assert_equals(str(self.title), "en:Help:Style#section")
+    def test_pagename(self, title):
+        assert title.pagename == "Style"
+        assert str(title) == "en:Help:Style#section"
         # test simple
-        self.title.pagename = "Main page"
-        assert_equals(self.title.pagename, "Main page")
-        assert_equals(str(self.title), "en:Help:Main page#section")
+        title.pagename = "Main page"
+        assert title.pagename == "Main page"
+        assert str(title) == "en:Help:Main page#section"
 
-    def test_invalid_pagename(self):
-        @raises(ValueError)
-        def tester(pagename):
-            title = Title(fixtures.api, "")
+    @pytest.mark.parametrize("pagename", ["en:Main page", "Help:Foo", "Main page#Section"])
+    def test_invalid_pagename(self, api, pagename):
+        title = Title(api, "")
+        with pytest.raises(ValueError):
             title.pagename = pagename
-        for pagename in ["en:Main page", "Help:Foo", "Main page#Section"]:
-            yield tester, pagename
 
-    def test_sectionname(self):
-        assert_equals(self.title.sectionname, "section")
-        assert_equals(str(self.title), "en:Help:Style#section")
+    def test_sectionname(self, title):
+        assert title.sectionname == "section"
+        assert str(title) == "en:Help:Style#section"
         # test simple
-        self.title.sectionname = "another section"
-        assert_equals(self.title.sectionname, "another section")
-        assert_equals(str(self.title), "en:Help:Style#another section")
+        title.sectionname = "another section"
+        assert title.sectionname == "another section"
+        assert str(title) == "en:Help:Style#another section"
 
 
-    def test_eq(self):
-        other_title = Title(self.api, "")
+    def test_eq(self, api, title):
+        other_title = Title(api, "")
         other_title.iwprefix = "en"
         other_title.namespace = "Help"
         other_title.pagename = "Style"
         other_title.sectionname = "section"
-        assert_equals(other_title, self.title)
+        assert other_title == title
 
-    def test_str_repr(self):
-        self.title.iwprefix = ""
-        self.title.namespace = ""
-        self.title.pagename = "Main page"
-        self.title.sectionname = ""
-        assert_equals(str(self.title), "Main page")
-        assert_equals(repr(self.title), "<class 'ws.parser_helpers.title.Title'>('Main page')")
-
-
-    @raises(ValueError)
-    def test_invalid_iwprefix(self):
-        self.title.iwprefix = "invalid prefix"
-
-    @raises(ValueError)
-    def test_invalid_namespace(self):
-        self.title.namespace = "invalid namespace"
+    def test_str_repr(self, title):
+        title.iwprefix = ""
+        title.namespace = ""
+        title.pagename = "Main page"
+        title.sectionname = ""
+        assert str(title) == "Main page"
+        assert repr(title) == "<class 'ws.parser_helpers.title.Title'>('Main page')"
 
 
-@attr(speed="slow")
+    def test_invalid_iwprefix(self, title):
+        with pytest.raises(ValueError):
+            title.iwprefix = "invalid prefix"
+
+    def test_invalid_namespace(self, title):
+        with pytest.raises(ValueError):
+            title.namespace = "invalid namespace"
+
+
+# TODO: set pytest attribute?
+#@attr(speed="slow")
 class test_title_valid_chars:
     invalid_titles = [
         "Foo [bar]",
@@ -409,30 +392,24 @@ class test_title_valid_chars:
         "Let’s Encrypt", # note that it's not an apostrophe!
     ]
 
-    def test_invalid_chars(self):
-        @raises(InvalidTitleCharError)
-        def tester(title):
-            Title(fixtures.api, title)
-        for title in self.invalid_titles:
-            yield tester, title
+    @pytest.mark.parametrize("pagename", invalid_titles)
+    def test_invalid_chars(self, api, pagename):
+        with pytest.raises(InvalidTitleCharError):
+            Title(api, pagename)
 
-    def test_valid_chars(self):
-        def tester(pagename):
-            title = Title(fixtures.api, pagename)
-            assert_equals(title.pagename, pagename)
-        for title in self.valid_titles:
-            yield tester, title
+    @pytest.mark.parametrize("pagename", invalid_titles)
+    def test_invalid_chars_setter(self, api, pagename):
+        title = Title(api, "")
+        with pytest.raises(InvalidTitleCharError):
+            title.pagename = pagename
 
-    def test_setter(self):
-        @raises(InvalidTitleCharError)
-        def tester_invalid(pagename):
-            title = Title(fixtures.api, "")
-            title.pagename = pagename
-        def tester_valid(pagename):
-            title = Title(fixtures.api, "")
-            title.pagename = pagename
-            assert_equals(title.pagename, pagename)
-        for title in self.invalid_titles:
-            yield tester_invalid, title
-        for title in self.valid_titles:
-            yield tester_valid, title
+    @pytest.mark.parametrize("pagename", valid_titles)
+    def test_valid_chars(self, api, pagename):
+        title = Title(api, pagename)
+        assert title.pagename == pagename
+
+    @pytest.mark.parametrize("pagename", valid_titles)
+    def test_valid_chars_setter(self, api, pagename):
+        title = Title(api, "")
+        title.pagename = pagename
+        assert title.pagename == pagename

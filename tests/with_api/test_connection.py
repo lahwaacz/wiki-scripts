@@ -1,17 +1,15 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals, assert_false, assert_true, raises
-from nose.plugins.attrib import attr
-
-from . import fixtures
+import pytest
 
 import ws.client.connection
 from ws.client.connection import APIWrongAction, APIError, APIExpandResultFailed
 
-@attr(speed="slow")
+# TODO: pytest attribute
+#@attr(speed="slow")
 class test_connection:
     """
-    Tests :py:class:`ws.client.connection` methods on :py:obj:`fixtures.api` instance.
+    Tests :py:class:`ws.client.connection` methods on :py:obj:`api` fixture.
 
     TODO:
         - cookies
@@ -19,39 +17,39 @@ class test_connection:
         - call_index
     """
 
-    def test_coverage(self):
-        paraminfo = fixtures.api.call_api(action="paraminfo", modules="main")
+    def test_coverage(self, api):
+        paraminfo = api.call_api(action="paraminfo", modules="main")
         actions = set(paraminfo["modules"][0]["parameters"][0]["type"])
-        assert_equals(actions, ws.client.connection.API_ACTIONS)
+        assert actions == ws.client.connection.API_ACTIONS
 
     # check correct server
-    def test_hostname(self):
-        assert_equals(fixtures.api.get_hostname(), "wiki.archlinux.org")
+    def test_hostname(self, api):
+        assert api.get_hostname() == "wiki.archlinux.org"
 
-    @raises(ValueError)
-    def test_params_is_dict(self):
-        fixtures.api.call_api(params=("foo", "bar"))
+    def test_params_is_dict(self, api):
+        with pytest.raises(ValueError):
+            api.call_api(params=("foo", "bar"))
 
-    @raises(APIWrongAction)
-    def test_wrong_action(self):
-        fixtures.api.call_api(params={"action": "wrong action"})
+    def test_wrong_action(self, api):
+        with pytest.raises(APIWrongAction):
+            api.call_api(params={"action": "wrong action"})
 
-    @raises(APIExpandResultFailed)
-    def test_empty_query_expand(self):
-        fixtures.api.call_api(action="query")
+    def test_empty_query_expand(self, api):
+        with pytest.raises(APIExpandResultFailed):
+            api.call_api(action="query")
 
-    def test_empty_query(self):
-        assert_equals(fixtures.api.call_api(action="query", expand_result=False), {"batchcomplete": ""})
+    def test_empty_query(self, api):
+        assert api.call_api(action="query", expand_result=False) == {"batchcomplete": ""}
 
-    @raises(APIError)
-    def test_post_action(self):
-        fixtures.api.call_api(action="purge")
+    def test_post_action(self, api):
+        with pytest.raises(APIError):
+            api.call_api(action="purge")
 
-    def test_help(self):
-        h = fixtures.api.call_api(action="help")
-        assert_equals(h["mime"], "text/html")
-        assert_true(isinstance(h["help"], str))
+    def test_help(self, api):
+        h = api.call_api(action="help")
+        assert h["mime"] == "text/html"
+        assert isinstance(h["help"], str)
 
-    @raises(ValueError)
-    def test_mixed_params_and_kwargs(self):
-        fixtures.api.call_api(params={"meta": "siteinfo"}, action="query")
+    def test_mixed_params_and_kwargs(self, api):
+        with pytest.raises(ValueError):
+            api.call_api(params={"meta": "siteinfo"}, action="query")

@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals, raises
-from nose.plugins.skip import SkipTest
+import pytest
 
 import mwparserfromhell
 
@@ -12,7 +11,7 @@ class test_fix_header:
     def _do_test(snippet, expected):
         wikicode = mwparserfromhell.parse(snippet)
         fix_header(wikicode)
-        assert_equals(str(wikicode), expected)
+        assert str(wikicode) == expected
 
     def test_fixed_point(self):
         snippet = """\
@@ -92,9 +91,8 @@ The [[vi]] editor.
 """
         self._do_test(snippet, snippet)
 
+    @pytest.mark.xfail(reason="mwparserfromhell can't parse behavior switches")
     def test_notoc(self):
-        # TODO: failing because mwparserfromhell can't parse behavior switches
-        raise SkipTest
         snippet = """\
 __NOTOC__
 [[es:Main page]]
@@ -163,7 +161,6 @@ Some other text [[link]]
 """
         self._do_test(snippet, expected)
 
-    @raises(HeaderError)
     def test_noinclude_error(self):
         snippet = """\
 [[cs:Template:Foo]]
@@ -173,4 +170,5 @@ Some other text [[link]]
 <includeonly>Template content...</includeonly>
 """
         wikicode = mwparserfromhell.parse(snippet)
-        fix_header(wikicode)
+        with pytest.raises(HeaderError):
+            fix_header(wikicode)

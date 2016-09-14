@@ -1,13 +1,11 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals, assert_false, raises
-from nose.plugins.attrib import attr
-
-from . import fixtures
+import pytest
 
 from ws.client.api import LoginFailed
 
-@attr(speed="slow")
+# TODO: pytest attribute
+#@attr(speed="slow")
 class test_user:
     """
     Tests intended mostly for detecting changes in the ArchWiki configuration.
@@ -51,28 +49,30 @@ class test_user:
         "unreadcount": 0,
     }
 
-    def test_coverage(self):
-        paraminfo = fixtures.api.call_api(action="paraminfo", modules="query+userinfo")
+    def test_coverage(self, api):
+        paraminfo = api.call_api(action="paraminfo", modules="query+userinfo")
         properties = set(paraminfo["modules"][0]["parameters"][0]["type"])
-        assert_equals(properties - {"preferencestoken"}, fixtures.api.user.properties - {"name", "id"})
+        assert properties - {"preferencestoken"} == api.user.properties - {"name", "id"}
 
-    def test_props(self):
-        fixtures.api.user.fetch(list(self.props_data))
-        def tester(propname, expected):
-            assert_equals(getattr(fixtures.api.user, propname), expected)
-        for propname, expected in self.props_data.items():
-            yield tester, propname, expected
+    @pytest.fixture(scope="class")
+    def api(self, api):
+        api.user.fetch(list(self.props_data))
+        return api
+
+    @pytest.mark.parametrize("propname, expected", props_data.items())
+    def test_props(self, api, propname, expected):
+        assert getattr(api.user, propname) == expected
 
     # this is anonymous test
-    def test_is_loggedin(self):
-        assert_false(fixtures.api.user.is_loggedin)
+    def test_is_loggedin(self, api):
+        assert api.user.is_loggedin is False
 
     # check user rights for anonymous users
-    def test_user_rights(self):
+    def test_user_rights(self, api):
         expected = ["createaccount", "read", "createpage", "createtalk",
                     "editmyusercss", "editmyuserjs", "viewmywatchlist",
                     "editmywatchlist", "viewmyprivateinfo", "editmyprivateinfo",
                     "editmyoptions", "abusefilter-log-detail", "abusefilter-view",
                     "abusefilter-log"]
-        assert_equals(fixtures.api.user.rights, expected)
+        assert api.user.rights == expected
 

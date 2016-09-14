@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals, assert_true, assert_false
-
 import datetime
 
 from ws.utils import *
@@ -9,7 +7,7 @@ from ws.utils import *
 def test_parse_date():
     timestamp = "2014-08-25T14:26:59Z"
     expected = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
-    assert_equals(parse_date(timestamp), expected)
+    assert parse_date(timestamp) == expected
 
 def test_range_by_days():
     first = datetime.datetime(2000, 1, 30,  8, 35, 42)
@@ -21,7 +19,7 @@ def test_range_by_days():
         datetime.date(2000, 2, 1),
         datetime.date(2000, 2, 2),
     ]
-    assert_equals(ran, expected)
+    assert ran == expected
 
 def test_range_by_months():
     first = datetime.datetime(2000, 10, 30,  8, 35, 42)
@@ -35,4 +33,4 @@ def test_range_by_months():
         datetime.date(2001, 2, 1),
         datetime.date(2001, 3, 1),
     ]
-    assert_equals(ran, expected)
+    assert ran == expected

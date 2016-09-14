@@ -1,28 +1,27 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals, assert_false, raises
-from nose.plugins.attrib import attr
-
-from . import fixtures
+import pytest
 
 from ws.client.api import LoginFailed
 
-@attr(speed="slow")
+# TODO: pytest attribute
+#@attr(speed="slow")
 class test_redirects:
+
+    # TODO: mock the API object with custom data, we're testing the algorithms, not queries
+
+    # TODO: tests for resolving double redirects over sections
+    # e.g.  [[A]] -> [[B#section]], [[B]] -> [[C]] should be resolved as [[A]] -> [[C#section]]
 
     redirects = {
         "Main page": None,
         "Main Page": "Main page",
         "ABS": "Arch Build System",
-        }
+    }
 
-    @staticmethod
-    def _do_test(source, expected_target):
-        assert_equals(fixtures.api.redirects.resolve(source), expected_target)
+    @pytest.mark.parametrize("source, expected_target", redirects.items())
+    def test_resolve_redirects(self, api, source, expected_target):
+        assert api.redirects.resolve(source) == expected_target
         # test suite does not contain any double redirect
-        assert_equals(fixtures.api.redirects.map.get(source), expected_target)
-        assert_equals(fixtures.api.redirects.resolve(expected_target), None)
-
-    def test_resolve_redirects(self):
-        for source, target in self.redirects.items():
-            yield self._do_test, source, target
+        assert api.redirects.map.get(source) == expected_target
+        assert api.redirects.resolve(expected_target) is None

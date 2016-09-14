@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals, assert_count_equal, assert_true, raises
+import pytest
 
 from ws.ArchWiki.lang import *
 
@@ -17,7 +17,7 @@ rtl_tags = ["ar", "he"]
 class test_getters:
     def _test(self, values, getter):
         result = getter()
-        assert_equals(values, result)
+        assert values == result
 
     def test_get_language_names(self):
         self._test(language_names, get_language_names)
@@ -40,7 +40,7 @@ class test_getters:
 class test_checkers:
     def _test(self, values, checker):
         for value in values:
-            assert_true(checker(value))
+            assert checker(value) is True
 
     def test_is_language_name(self):
         self._test(language_names, is_language_name)
@@ -79,7 +79,7 @@ class test_languages_data_sanity:
 
     def test_category_languages_validity(self):
         for lang in get_category_languages():
-            assert_true(is_language_name(lang))
+            assert is_language_name(lang) is True
 
 class test_conversion:
     # list of (targetlist, srclist, target_for_src_function) tuples
@@ -97,7 +97,7 @@ class test_conversion:
         for targetlist, srclist, conversion_func in self.testsuite:
             for lang in srclist:
                 expected = targetlist[srclist.index(lang)]
-                assert_equals(conversion_func(lang), expected)
+                assert conversion_func(lang) == expected
 
 class test_detect_language:
     default = get_local_language()
@@ -128,22 +128,18 @@ class test_detect_language:
         "Category:Česky": ("Category:Česky", "Česky"),
     }
 
-    @staticmethod
-    def _do_test(title, parts):
-        assert_equals(detect_language(title), parts)
+    @pytest.mark.parametrize("title, expected", testsuite.items())
+    def test_suite(self, title, expected):
+        assert detect_language(title) == expected
 
-    def test_suite(self):
-        for title, expected in self.testsuite.items():
-            yield self._do_test, title, expected
+    @pytest.mark.parametrize("lang", language_names)
+    def test_all_langs(self, lang):
+        assert detect_language("foo ({})".format(lang)) == ("foo", lang)
 
-    def test_all_langs(self):
-        for lang in language_names:
-            yield self._do_test, "foo ({})".format(lang), ("foo", lang)
-
-    def test_all_cats(self):
-        for lang in language_names:
-            title = "Category:{}".format(lang)
-            yield self._do_test, title, (title, lang)
+    @pytest.mark.parametrize("lang", language_names)
+    def test_all_cats(self, lang):
+        title = "Category:{}".format(lang)
+        assert detect_language(title) == (title, lang)
 
 class test_format_title:
     default = get_local_language()
@@ -164,24 +160,23 @@ class test_format_title:
         "Category:Česky": ("Category:Česky", "Česky"),
     }
 
-    @staticmethod
-    def _do_test(title, parts):
-        assert_equals(format_title(*parts), title)
+    @pytest.mark.parametrize("title, expected", testsuite.items())
+    def test_suite(self, title, expected):
+        assert format_title(*expected) == title
 
-    def test_suite(self):
-        for title, expected in self.testsuite.items():
-            yield self._do_test, title, expected
+    @pytest.mark.parametrize("lang", language_names)
+    def test_all_langs(self, lang):
+        if lang == self.default:
+            expected = "foo"
+        else:
+            expected = "foo ({})".format(lang)
+        assert format_title("foo", lang) == expected
 
-    def test_all_langs(self):
-        for lang in language_names:
-            if lang != self.default:
-                yield self._do_test, "foo ({})".format(lang), ("foo", lang)
+    @pytest.mark.parametrize("lang", language_names)
+    def test_all_cats(self, lang):
+        title = "Category:{}".format(lang)
+        assert format_title(title, lang) == title
 
-    def test_all_cats(self):
-        for lang in language_names:
-            title = "Category:{}".format(lang)
-            yield self._do_test, title, (title, lang)
-
-    @raises(ValueError)
     def test_invalid_langname(self):
-        format_title("foo", "bar")
+        with pytest.raises(ValueError):
+            format_title("foo", "bar")

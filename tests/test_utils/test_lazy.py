@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals
-
 from ws.utils import LazyProperty
 
 class test_lazy:
@@ -17,14 +15,14 @@ class test_lazy:
         return self._values.pop(0)
 
     def test_lazyprop(self):
-        assert_equals(self.lazyprop, 0)
-        assert_equals(self.lazyprop, 0)
+        assert self.lazyprop == 0
+        assert self.lazyprop == 0
         del self.lazyprop
-        assert_equals(self.lazyprop, 1)
-        assert_equals(self.lazyprop, 1)
+        assert self.lazyprop == 1
+        assert self.lazyprop == 1
 
     def test_normalprop(self):
-        assert_equals(self.normalprop, 0)
-        assert_equals(self.normalprop, 1)
-        assert_equals(self.normalprop, 2)
-        assert_equals(self.normalprop, 3)
+        assert self.normalprop == 0
+        assert self.normalprop == 1
+        assert self.normalprop == 2
+        assert self.normalprop == 3

@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals
-
 import mwparserfromhell
 
 from ws.parser_helpers.wikicode import *
@@ -12,20 +10,20 @@ class test_get_adjacent_node:
         wikicode = mwparserfromhell.parse(snippet)
         first = wikicode.get(0)
         last = get_adjacent_node(wikicode, first)
-        assert_equals(str(last), " is the best!")
+        assert str(last) == " is the best!"
 
     def test_last_node(self):
         snippet = "[[Arch Linux]] is the best!"
         wikicode = mwparserfromhell.parse(snippet)
         last = get_adjacent_node(wikicode, " is the best!")
-        assert_equals(last, None)
+        assert last == None
 
     def test_whitespace_preserved(self):
         snippet = "[[Arch Linux]] \t\n is the best!"
         wikicode = mwparserfromhell.parse(snippet)
         first = wikicode.get(0)
         last = get_adjacent_node(wikicode, first, ignore_whitespace=True)
-        assert_equals(str(last), " \t\n is the best!")
+        assert str(last) == " \t\n is the best!"
 
     def test_ignore_whitespace(self):
         snippet = "[[Arch Linux]] \t\n [[link]] is the best!"
@@ -33,7 +31,7 @@ class test_get_adjacent_node:
         first = wikicode.get(0)
         wikicode.remove("[[link]]")
         last = get_adjacent_node(wikicode, first, ignore_whitespace=True)
-        assert_equals(str(last), " is the best!")
+        assert str(last) == " is the best!"
 
 class test_get_parent_wikicode:
     snippet = """\
@@ -44,20 +42,20 @@ Some other text.
 
     def test_toplevel(self):
         parent = get_parent_wikicode(self.wikicode, self.wikicode.get(0))
-        assert_equals(str(parent), self.snippet)
+        assert str(parent) == self.snippet
 
     def test_nested(self):
         note = self.wikicode.filter_templates()[0]
         link = self.wikicode.filter_wikilinks()[0]
         parent = get_parent_wikicode(self.wikicode, link)
-        assert_equals(str(parent), str(note.params[0]))
+        assert str(parent) == str(note.params[0])
 
 class test_remove_and_squash:
     @staticmethod
     def _do_test(wikicode, remove, expected):
         node = wikicode.get(wikicode.index(remove))
         remove_and_squash(wikicode, node)
-        assert_equals(str(wikicode), expected)
+        assert str(wikicode) == expected
 
     def test_inside(self):
         snippet = "Some text with a [[link]] inside."
@@ -148,7 +146,7 @@ class test_get_section_headings:
     @staticmethod
     def _do_test(text, expected):
         result = get_section_headings(text)
-        assert_equals(result, expected)
+        assert result == expected
 
     def test_balanced(self):
         snippet = """
@@ -211,7 +209,7 @@ class test_get_anchors:
 """
         expected = ["foo", "bar", "foo_2", "foo_2_2", "foo_2_3"]
         result = get_anchors(get_section_headings(snippet))
-        assert_equals(result, expected)
+        assert result == expected
 
     def test_complex(self):
         snippet = """
@@ -224,7 +222,7 @@ class test_get_anchors:
 """
         expected = ["foo_2", "foo_2_2", "foo", "foo_3", "foo_2_3", "foo_2_4"]
         result = get_anchors(get_section_headings(snippet))
-        assert_equals(result, expected)
+        assert result == expected
 
     def test_strip(self):
         snippet = """
@@ -244,7 +242,7 @@ class test_get_anchors:
             ".23section_starting_with_hash",
         ]
         result = get_anchors(get_section_headings(snippet))
-        assert_equals(result, expected)
+        assert result == expected
 
     def test_strip_pretty(self):
         snippet = """
@@ -264,7 +262,7 @@ class test_get_anchors:
             "#section starting with hash",
         ]
         result = get_anchors(get_section_headings(snippet), pretty=True)
-        assert_equals(result, expected)
+        assert result == expected
 
     def test_encoding(self):
         snippet = """
@@ -278,54 +276,54 @@ class test_get_anchors:
             "Section with <invalid tag>",
         ]
         result = get_anchors(get_section_headings(snippet), pretty=True)
-        assert_equals(result, expected)
+        assert result == expected
 
 class test_ensure_flagged:
     def test_add(self):
         wikicode = mwparserfromhell.parse("[[foo]]")
         link = wikicode.nodes[0]
         flag = ensure_flagged_by_template(wikicode, link, "bar")
-        assert_equals(str(wikicode), "[[foo]]{{bar}}")
+        assert str(wikicode) == "[[foo]]{{bar}}"
 
     def test_preserve(self):
         wikicode = mwparserfromhell.parse("[[foo]] {{bar}}")
         link = wikicode.nodes[0]
         flag = ensure_flagged_by_template(wikicode, link, "bar")
-        assert_equals(str(wikicode), "[[foo]] {{bar}}")
+        assert str(wikicode) == "[[foo]] {{bar}}"
 
     def test_strip_params(self):
         wikicode = mwparserfromhell.parse("[[foo]] {{bar|baz}}")
         link = wikicode.nodes[0]
         flag = ensure_flagged_by_template(wikicode, link, "bar")
-        assert_equals(str(wikicode), "[[foo]] {{bar}}")
+        assert str(wikicode) == "[[foo]] {{bar}}"
 
     def test_replace_params(self):
         wikicode = mwparserfromhell.parse("[[foo]] {{bar|baz}}")
         link = wikicode.nodes[0]
         flag = ensure_flagged_by_template(wikicode, link, "bar", "param1", "param2")
-        assert_equals(str(wikicode), "[[foo]] {{bar|param1|param2}}")
+        assert str(wikicode) == "[[foo]] {{bar|param1|param2}}"
 
     def test_named_params(self):
         wikicode = mwparserfromhell.parse("[[foo]] {{bar|baz}}")
         link = wikicode.nodes[0]
         flag = ensure_flagged_by_template(wikicode, link, "bar", "2=param1", "1=param2")
-        assert_equals(str(wikicode), "[[foo]] {{bar|2=param1|1=param2}}")
+        assert str(wikicode) == "[[foo]] {{bar|2=param1|1=param2}}"
 
 class test_ensure_unflagged:
     def test_noop(self):
         wikicode = mwparserfromhell.parse("[[foo]]")
         link = wikicode.nodes[0]
         flag = ensure_unflagged_by_template(wikicode, link, "bar")
-        assert_equals(str(wikicode), "[[foo]]")
+        assert str(wikicode) == "[[foo]]"
 
     def test_preserve(self):
         wikicode = mwparserfromhell.parse("[[foo]] {{baz}}")
         link = wikicode.nodes[0]
         flag = ensure_unflagged_by_template(wikicode, link, "bar")
-        assert_equals(str(wikicode), "[[foo]] {{baz}}")
+        assert str(wikicode) == "[[foo]] {{baz}}"
 
     def test_remove(self):
         wikicode = mwparserfromhell.parse("[[foo]] {{bar}}")
         link = wikicode.nodes[0]
         flag = ensure_unflagged_by_template(wikicode, link, "bar")
-        assert_equals(str(wikicode), "[[foo]]")
+        assert str(wikicode) == "[[foo]]"

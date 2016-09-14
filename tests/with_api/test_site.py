@@ -1,13 +1,11 @@
 #! /usr/bin/env python3
 
-from nose.tools import assert_equals, assert_false, raises
-from nose.plugins.attrib import attr
-
-from . import fixtures
+import pytest
 
 from ws.client.api import LoginFailed
 
-@attr(speed="slow")
+# TODO: pytest attribute
+#@attr(speed="slow")
 class test_site:
     """
     Tests intended mostly for detecting changes in the ArchWiki configuration.
@@ -755,28 +753,30 @@ class test_site:
 	},
     }
 
-    def test_coverage(self):
-        paraminfo = fixtures.api.call_api(action="paraminfo", modules="query+siteinfo")
+    def test_coverage(self, api):
+        paraminfo = api.call_api(action="paraminfo", modules="query+siteinfo")
         properties = set(paraminfo["modules"][0]["parameters"][0]["type"])
-        assert_equals(properties, fixtures.api.site.properties)
+        assert properties == api.site.properties
 
-    def test_props(self):
-        fixtures.api.site.fetch(list(self.props_data))
-        def tester(propname, expected):
-            prop = getattr(fixtures.api.site, propname).copy()
-            # FIXME: ugly hack...
-            if isinstance(prop, dict) and "time" in prop:
-                del prop["time"]
-            assert_equals(prop, expected)
-        for propname, expected in self.props_data.items():
-            yield tester, propname, expected
+    @pytest.fixture(scope="class")
+    def api(self, api):
+        api.site.fetch(list(self.props_data))
+        return api
 
-    @raises(AttributeError)
-    def test_invalid(self):
-        fixtures.api.site.invalid_property
+    @pytest.mark.parametrize("propname, expected", props_data.items())
+    def test_props(self, api, propname, expected):
+        prop = getattr(api.site, propname).copy()
+        # FIXME: ugly hack...
+        if isinstance(prop, dict) and "time" in prop:
+            del prop["time"]
+        assert prop == expected
 
-    def test_interlanguagemap(self):
+    def test_invalid(self, api):
+        with pytest.raises(AttributeError):
+            api.site.invalid_property
+
+    def test_interlanguagemap(self, api):
         external_tags = ["de", "fa", "fi", "fr", "ja", "ro", "sv", "tr"]
         internal_tags = ["ar", "bg", "cs", "da", "el", "en", "es", "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt", "ru", "sk", "sr", "th", "uk", "zh-cn", "zh-tw"]
         expected = set(external_tags + internal_tags)
-        assert_equals(set(fixtures.api.site.interlanguagemap), expected)
+        assert set(api.site.interlanguagemap) == expected
