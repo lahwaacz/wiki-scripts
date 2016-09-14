@@ -100,17 +100,13 @@ Optional dependencies:
 
 Tools used for development:
 
-- `nose`_
-- `nosecover3`_
-- `flake8`_
 - `sphinx`_
 - `fabric`_
+- `tox`_ (other dependencies are installed in the virtual environments)
 
-.. _nose: https://github.com/nose-devs/nose
-.. _nosecover3: https://github.com/ask/nosecover3
-.. _flake8: https://pypi.python.org/pypi/flake8
 .. _sphinx: http://sphinx-doc.org/
 .. _fabric: http://www.fabfile.org/
+.. _tox: https://testrun.org/tox/latest/
 
 .. install-section-end
 
