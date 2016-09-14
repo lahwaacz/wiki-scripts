@@ -1,9 +1,9 @@
 #! /usr/bin/env python3
 
 from ws.client import API
-from ws.interlanguage.Categorization import *
-from ws.interlanguage.CategoryGraph import *
-from ws.interlanguage.InterlanguageLinks import *
+from ws.interlanguage.Categorization import Categorization
+from ws.interlanguage.CategoryGraph import CategoryGraph
+from ws.interlanguage.InterlanguageLinks import InterlanguageLinks
 
 modes = ["update", "orphans"]
 _modes_desc = {

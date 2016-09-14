@@ -111,12 +111,14 @@ def argtype_existing_dir(string):
 # list of comma-separated items from a fixed set
 def argtype_comma_list_choices(choices):
     choices = set(choices)
+
     def wrapped(string):
         items = [item.strip() for item in string.split(",")]
         for item in items:
             if item not in choices:
                 raise configargparse.ArgumentTypeError("unknown item: '{}' (available choices: {})".format(item, choices))
         return items
+
     return wrapped
 
 def getArgParser(subname=None, *args, **kwargs):

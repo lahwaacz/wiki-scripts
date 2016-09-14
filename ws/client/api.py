@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import hashlib
-from functools import lru_cache
 import logging
 
 from ..utils import RateLimited, LazyProperty

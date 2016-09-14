@@ -6,8 +6,6 @@ import logging
 import mwparserfromhell
 
 from ws.client import API
-from ws.parser_helpers.title import Title
-from ws.interactive import edit_interactive, ask_yesno
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +37,6 @@ class DoubleRedirects:
         text_new = str(wikicode)
 
         if text_old != text_new:
-#            edit_interactive(self.api, title, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
             self.api.edit(title, page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 
     def findall(self):
@@ -65,7 +62,7 @@ class DoubleRedirects:
             target = self.api.redirects.resolve(source)
             if target:
                 self.update_redirect_page(page, target)
-                
+
 
 if __name__ == "__main__":
     import ws.config

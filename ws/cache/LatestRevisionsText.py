@@ -4,7 +4,7 @@
 
 import logging
 
-from . import *
+from . import CacheDb
 from .. import utils
 
 logger = logging.getLogger(__name__)

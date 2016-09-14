@@ -4,7 +4,7 @@ import os.path
 import datetime
 
 from ws.client import API
-from ws.utils import *
+from ws.utils import parse_date
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")

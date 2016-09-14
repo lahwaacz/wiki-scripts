@@ -44,7 +44,7 @@ class Redirects:
     def fetch(self, source_namespaces="all", target_namespaces="all"):
         """
         Build a mapping of redirects in given namespaces.
-        
+
         Note that the mapping can contain double redirects, which could cause
         some algorithms to break. Always use :py:meth:`Redirects.resolve` to
         resolve redirects.

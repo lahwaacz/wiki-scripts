@@ -2,7 +2,7 @@
 
 import logging
 
-from . import *
+from . import CacheDb, CacheDbError
 from .. import utils
 
 logger = logging.getLogger(__name__)
@@ -91,7 +91,7 @@ class AllRevisionsProps(CacheDb):
         wrapped_revids = utils.ListOfDictsAttrWrapper(self.data["revisions"], "revid")
         wrapped_deletedrevids = utils.ListOfDictsAttrWrapper(self.data["deletedrevisions"], "revid")
 
-        for chunk in utils.list_chunks(range(first, last+1), self.api.max_ids_per_query):
+        for chunk in utils.list_chunks(range(first, last + 1), self.api.max_ids_per_query):
             logger.info("Fetching revids %s-%s" % (chunk[0], chunk[-1]))
             revids = "|".join(str(x) for x in chunk)
             if self.deletedrevisions is True:

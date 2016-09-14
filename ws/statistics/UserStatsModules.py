@@ -181,7 +181,7 @@ if __name__ == "__main__":
     # this is only for testing...
     from ws.client import API
     import ws.cache
-    from ws.wikitable import *
+    from ws.wikitable import Wikitable
 
     import ws.config
     import ws.logging

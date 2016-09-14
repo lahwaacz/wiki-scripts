@@ -16,7 +16,7 @@ import pyalpm
 
 from ws.client import API, APIError
 from ws.utils import LazyProperty
-from ws.interactive import *
+from ws.interactive import edit_interactive, require_login, InteractiveQuit
 from ws.autopage import AutoPage
 from ws.ArchWiki.lang import detect_language, format_title
 from ws.parser_helpers.wikicode import get_parent_wikicode, get_adjacent_node

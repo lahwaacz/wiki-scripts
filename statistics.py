@@ -3,8 +3,6 @@
 import datetime
 import logging
 
-import mwparserfromhell
-
 try:
     # Optional for copying the text to the clipboard
     from tkinter import Tk
@@ -18,7 +16,7 @@ from ws.wikitable import Wikitable
 from ws.utils import parse_date
 import ws.cache
 
-from ws.statistics.UserStatsModules import *
+from ws.statistics.UserStatsModules import UserStatsModules
 
 
 logger = logging.getLogger(__name__)
@@ -73,19 +71,19 @@ class Statistics:
         group = argparser.add_argument_group(title="other parameters")
 
         group.add_argument('-a', '--anonymous', action='store_true',
-                                    help='do not require logging in: queries '
-                                            'may be limited to a lower rate')
+                    help='do not require logging in: queries may be limited to '
+                    'a lower rate')
         # TODO: maybe leave only the short option to forbid configurability in config file
         group.add_argument('-f', '--force', action='store_true',
-                                    help='try to update the page even if it '
-                                    'was last saved in the same UTC day')
+                    help='try to update the page even if it was last saved in '
+                    'the same UTC day')
         group.add_argument('--statistics-page', default='ArchWiki:Statistics',
-                        help='the page name on the wiki to fetch and update '
-                        '(default: %(default)s)')
+                    help='the page name on the wiki to fetch and update '
+                    '(default: %(default)s)')
         # TODO: no idea how to forbid setting this globally in the config...
         group.add_argument('--summary', default='automatic update',
-                        help='the edit summary to use when saving the page '
-                        '(default: %(default)s)')
+                    help='the edit summary to use when saving the page '
+                    '(default: %(default)s)')
 
     @classmethod
     def from_argparser(klass, args, api=None):
@@ -101,8 +99,8 @@ class Statistics:
             self.page = AutoPage(self.api, self.cliargs.statistics_page)
         except ValueError:
             logger.error("The page [[{}]] currently does not exist. It must be "
-                  "created manually before the script can update it.".format(
-                                        self.cliargs.statistics_page))
+                  "created manually before the script can update it."
+                  .format(self.cliargs.statistics_page))
             return 1
 
         if self.cliargs.force or self.page.is_old_enough(min_interval=datetime.timedelta(days=1), strip_time=True):
@@ -127,7 +125,7 @@ class Statistics:
             try:
                 self.page.save(self.cliargs.summary, minor="1")
                 logger.info("The page has been saved: do not forget to "
-                                                "double-check the diff")
+                            "double-check the diff")
                 ret |= 2
             except APIError as err:
                 ret |= 1
@@ -139,9 +137,8 @@ class Statistics:
                 w.clipboard_clear()
                 w.clipboard_append(self.page.wikicode)
                 # The copied text is lost once the script terminates
-                input("The updated page text has been copied to the "
-                        "clipboard: paste it in the browser, then press Enter "
-                        "to continue")
+                input("The updated page text has been copied to the clipboard: "
+                      "paste it in the browser, then press Enter to continue")
                 w.destroy()
 
                 ret |= 2

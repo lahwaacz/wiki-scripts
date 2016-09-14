@@ -22,9 +22,9 @@ from ws.client import API, APIError
 from ws.utils import LazyProperty
 import ws.cache
 import ws.utils
-from ws.interactive import *
+from ws.interactive import edit_interactive, require_login, InteractiveQuit
 import ws.ArchWiki.lang as lang
-from ws.parser_helpers.encodings import dotencode, urldecode
+from ws.parser_helpers.encodings import dotencode
 from ws.parser_helpers.title import canonicalize, Title, InvalidTitleCharError
 from ws.parser_helpers.wikicode import get_section_headings, get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template
 
@@ -729,7 +729,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
                 text_new, edit_summary = self.update_page(title, text_old)
                 self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
             # the apfrom parameter is valid only for the first namespace
-            apfrom=""
+            apfrom = ""
 
     def run(self):
         if self.title is not None:

@@ -41,7 +41,7 @@ class Meta:
         data = {
             "action": "query",
             "meta": self.module,
-            }
+        }
         if isinstance(prop, list):
             data[self._abbreviation() + "prop"] = "|".join(prop)
         # 'name' and 'id' are special properties of userinfo (not part of uiprop, returned in every query)

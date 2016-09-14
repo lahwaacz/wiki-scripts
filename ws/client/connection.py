@@ -24,14 +24,14 @@ __all__ = ["DEFAULT_UA", "Connection", "APIWrongAction", "APIJsonError", "APIErr
 DEFAULT_UA = "wiki-scripts/{version} ({url})".format(version=__version__, url=__url__)
 
 API_ACTIONS = {
-     "abusefiltercheckmatch", "abusefilterchecksyntax", "abusefilterevalexpression",
-     "abusefilterunblockautopromote", "block", "checktoken", "clearhasmsg", "compare",
-     "createaccount", "delete", "edit", "emailuser", "expandtemplates", "feedcontributions",
-     "feedrecentchanges", "feedwatchlist", "filerevert", "help", "imagerotate", "import",
-     "login", "logout", "managetags", "move", "opensearch", "options", "paraminfo", "parse",
-     "patrol", "protect", "purge", "query", "revisiondelete", "rollback", "rsd",
-     "setnotificationtimestamp", "stashedit", "tag", "tokens", "unblock", "undelete",
-     "upload", "userrights", "watch"
+    "abusefiltercheckmatch", "abusefilterchecksyntax", "abusefilterevalexpression",
+    "abusefilterunblockautopromote", "block", "checktoken", "clearhasmsg", "compare",
+    "createaccount", "delete", "edit", "emailuser", "expandtemplates", "feedcontributions",
+    "feedrecentchanges", "feedwatchlist", "filerevert", "help", "imagerotate", "import",
+    "login", "logout", "managetags", "move", "opensearch", "options", "paraminfo", "parse",
+    "patrol", "protect", "purge", "query", "revisiondelete", "rollback", "rsd",
+    "setnotificationtimestamp", "stashedit", "tag", "tokens", "unblock", "undelete",
+    "upload", "userrights", "watch"
 }
 POST_ACTIONS = {
     "login", "createaccount", "purge", "setnotificationtimestamp", "rollback",

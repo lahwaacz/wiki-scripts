@@ -8,7 +8,7 @@ from ws.client import API
 import ws.cache
 from ws.utils import parse_date, range_by_days
 
-from ws.statistics.UserStatsModules import *
+from ws.statistics.UserStatsModules import UserStatsModules
 
 def plot_setup(title="", ylabel="edits"):
     fig = plt.figure(figsize=(12, 9))

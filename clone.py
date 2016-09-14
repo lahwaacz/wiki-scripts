@@ -11,7 +11,7 @@ import hashlib
 from ws.client import API
 import ws.ArchWiki.lang
 from ws.parser_helpers.title import Title
-from ws.utils import *
+from ws.utils import is_ascii, parse_date, list_chunks
 
 class Downloader:
     extension = "mediawiki"

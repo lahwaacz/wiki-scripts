@@ -9,8 +9,8 @@ from ws.interactive import require_login
 from ws.autopage import AutoPage
 from ws.parser_helpers.title import canonicalize, Title
 import ws.ArchWiki.lang as lang
-from ws.interlanguage.CategoryGraph import *
-from ws.interlanguage.Categorization import *
+from ws.interlanguage.CategoryGraph import CategoryGraph
+from ws.interlanguage.Categorization import Categorization
 
 
 logger = logging.getLogger(__name__)
@@ -312,14 +312,14 @@ class TableOfContents:
             if toc_table is None:
                 if self.cliargs.save is True:
                     logger.error(
-                            "The wiki page [[{}]] does not contain the ToC table. "
-                            "Create the following entry point manually:\n"
-                            "{{| id=\"wiki-scripts-toc-table\"\n...\n|}}".format(title))
+                        "The wiki page [[{}]] does not contain the ToC table. "
+                        "Create the following entry point manually:\n"
+                        "{{| id=\"wiki-scripts-toc-table\"\n...\n|}}".format(title))
                     continue
                 else:
                     logger.warning(
-                            "The wiki page [[{}]] does not contain the ToC table, "
-                            "so there will be no translations.".format(title))
+                        "The wiki page [[{}]] does not contain the ToC table, "
+                        "so there will be no translations.".format(title))
 
             if self.cliargs.print:
                 ff = PlainFormatter(graph.parents, graph.info, category_names, alsoin)

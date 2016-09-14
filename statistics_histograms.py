@@ -32,13 +32,13 @@ def plot_date_bars(bin_data, bin_edges, title, ylabel, fname):
     from matplotlib.dates import date2num, num2date
     from matplotlib import ticker
 
-    fig = plt.figure()
+#    fig = plt.figure()
     plt.title(title)
     plt.xlabel("date")
     plt.ylabel(ylabel)
 
     # plot the bars, width of the bins is assumed to be fixed
-    plt.bar(date2num(bin_edges[:-1]), bin_data, width=date2num(bin_edges[1])-date2num(bin_edges[0]))
+    plt.bar(date2num(bin_edges[:-1]), bin_data, width=date2num(bin_edges[1]) - date2num(bin_edges[0]))
 
     # x-ticks formatting
     plt.gca().xaxis.set_major_formatter(ticker.FuncFormatter(lambda numdate, _: num2date(numdate).strftime('%Y-%m-%d')))
@@ -57,7 +57,7 @@ def create_histograms(revisions):
     Reference: http://stackoverflow.com/a/3035824 (highly adjusted)
     """
     import numpy as np
-    from matplotlib.dates import date2num, num2date
+    from matplotlib.dates import date2num
 
     # list of timestamps for each revision
     timestamps = [parse_date(revision["timestamp"]) for revision in revisions]

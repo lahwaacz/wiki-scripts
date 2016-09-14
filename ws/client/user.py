@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-import datetime
-
 from .meta import Meta
 from ..utils import LazyProperty
 
