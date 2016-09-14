@@ -8,10 +8,12 @@ class test_lazy:
 
     @LazyProperty
     def lazyprop(self):
+        """lazyprop docstring"""
         return self._values.pop(0)
 
     @property
     def normalprop(self):
+        """normalprop docstring"""
         return self._values.pop(0)
 
     def test_lazyprop(self):
@@ -26,3 +28,7 @@ class test_lazy:
         assert self.normalprop == 1
         assert self.normalprop == 2
         assert self.normalprop == 3
+
+    def test_docstrings(self):
+        assert test_lazy.lazyprop.__doc__ == "lazyprop docstring"
+        assert test_lazy.normalprop.__doc__ == "normalprop docstring"
