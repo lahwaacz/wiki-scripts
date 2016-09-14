@@ -1,5 +1,7 @@
 [run]
 branch = True
+data_file = tmp/.coverage
+source = ws
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -18,3 +20,6 @@ exclude_lines =
     # Don't complain if non-runnable code isn't run:
     if 0:
     if __name__ == .__main__.:
+
+[html]
+directory = tmp/cover

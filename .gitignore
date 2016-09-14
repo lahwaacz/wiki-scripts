@@ -1,5 +1,8 @@
 __pycache__
 /stub/
+/tmp/
+
+# documentation
 /docs/_build/
 /docs/Makefile
 /docs/ws/*.rst
@@ -10,3 +13,7 @@ __pycache__
 # coverage reports
 /.coverage
 /cover/
+
+# tox
+/.cache/
+/.tox/

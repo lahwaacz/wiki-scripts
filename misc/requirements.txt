@@ -1,0 +1,3 @@
+requests
+# mwparserfromhell
+git+https://github.com/earwig/mwparserfromhell.git
