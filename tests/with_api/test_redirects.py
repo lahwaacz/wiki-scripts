@@ -2,26 +2,47 @@
 
 import pytest
 
-from ws.client.api import LoginFailed
-
 # TODO: pytest attribute
 #@attr(speed="slow")
 class test_redirects:
 
-    # TODO: mock the API object with custom data, we're testing the algorithms, not queries
+    # data for monkeypatching
+    redirects_data = {
+        "Main Page": "Main page",
+        "ABS": "Arch Build System",
+        "foo": "bar#baz",
+        "A1": "B1",
+        "B1": "C1",
+        "A2": "B2#section",
+        "B2": "C2",
+        "A3": "B3#section",
+        "B3": "C3#section2",
+        "x": "y",
+        "y": "x",
+    }
 
-    # TODO: tests for resolving double redirects over sections
-    # e.g.  [[A]] -> [[B#section]], [[B]] -> [[C]] should be resolved as [[A]] -> [[C#section]]
-
-    redirects = {
+    # how they should be resolved
+    redirects_resolved = {
         "Main page": None,
         "Main Page": "Main page",
         "ABS": "Arch Build System",
+        "foo": "bar#baz",
+        "A1": "C1",
+        "A2": "C2#section",
+        "A3": "C3#section2",
+        "x": None,
+        "y": None,
     }
 
-    @pytest.mark.parametrize("source, expected_target", redirects.items())
+    # monkeypatch fixture mocking the API object with custom data to avoid expensive
+    # queries. After all, we're testing the algorithms, not queries.
+    @classmethod
+    @pytest.fixture
+    def api(klass, api, monkeypatch):
+        monkeypatch.setattr(api.redirects, "fetch", lambda *args: klass.redirects_data)
+        yield api
+        del api.redirects.map
+
+    @pytest.mark.parametrize("source, expected_target", redirects_resolved.items())
     def test_resolve_redirects(self, api, source, expected_target):
         assert api.redirects.resolve(source) == expected_target
-        # test suite does not contain any double redirect
-        assert api.redirects.map.get(source) == expected_target
-        assert api.redirects.resolve(expected_target) is None
