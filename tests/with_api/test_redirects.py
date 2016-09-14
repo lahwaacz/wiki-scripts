@@ -2,8 +2,6 @@
 
 import pytest
 
-# TODO: pytest attribute
-#@attr(speed="slow")
 class test_redirects:
 
     # data for monkeypatching
