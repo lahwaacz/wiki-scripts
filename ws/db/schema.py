@@ -4,7 +4,7 @@ from sqlalchemy import Table, Column, ForeignKey, Index
 from sqlalchemy.types import Integer, SmallInteger, Float, Unicode, UnicodeText
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
 
-from sql_types import \
+from .sql_types import \
         TinyBlob, Blob, MediumBlob, LongBlob, UnicodeBinary, \
         MWTimestamp, Base36
 

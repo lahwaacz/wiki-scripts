@@ -14,7 +14,7 @@ Prerequisites:
 
 from sqlalchemy import create_engine, Table, MetaData
 
-import schema
+from . import schema
 
 class Database:
 
