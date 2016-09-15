@@ -1,2 +1,8 @@
 pytest
 pytest-cov
+#pytest-dbfixtures
+git+https://github.com/lahwaacz/pytest-dbfixtures.git
+
+#pytest-sqlalchemy
+# we need git master due to https://github.com/toirl/pytest-sqlalchemy/commit/5de970864cb42377b5dfb6530fd0fdfee8d2c4b1
+git+https://github.com/toirl/pytest-sqlalchemy.git

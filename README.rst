@@ -92,9 +92,13 @@ The following are required only by some scripts:
 
 Optional dependencies:
 
+- MySQL server, `SQLAlchemy`_, `PyMySQL`_ (for direct database access)
+  (experimental)
 - `Tk/Tcl`_ (for copying the output of ``statistics.py`` to the clipboard)
 - `colorlog`_ (for colorized logging output)
 
+.. _SQLAlchemy: http://www.sqlalchemy.org/
+.. _PyMySQL: https://github.com/PyMySQL/PyMySQL
 .. _Tk/Tcl: https://docs.python.org/3.4/library/tk.html
 .. _colorlog: https://github.com/borntyping/python-colorlog
 

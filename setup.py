@@ -12,6 +12,8 @@ setup(
         "requests",
         "mwparserfromhell",
         "configfile",
+        "sqlalchemy",
+        "pymysql",
         "wikeddiff",
     ],
 )
