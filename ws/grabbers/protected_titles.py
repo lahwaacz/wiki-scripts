@@ -31,14 +31,11 @@ def insert(api, db):
 
 def select(db):
     pt_sel = db.protected_titles.select()
+
     conn = db.engine.connect()
     result = conn.execute(pt_sel)
+
     for row in result:
-        # decode bytes
-# FIXME: raises TypeError: 'RowProxy' object does not support item assignment
-#        for c in row.keys():
-#            if isinstance(row[c], bytes):
-#                row[c] = str(row[c], encoding=db.charset)
         api_entry = {
             "ns": row.pt_namespace,
             "title": row.pt_title,
