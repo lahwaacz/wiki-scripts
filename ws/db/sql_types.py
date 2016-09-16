@@ -27,13 +27,12 @@ class _UnicodeConverter(types.TypeDecorator):
         self.charset = charset
 
     def process_bind_param(self, value, dialect):
-#        if isinstance(value, str):
-#            return value.encode(self.charset)
-#        return value
-        return bytes(value, self.charset)
+        if isinstance(value, str):
+            return bytes(value, self.charset)
+        return value
 
     def process_result_value(self, value, dialect):
-        return value.decode(self.charset)
+        return str(value, self.charset)
 
 
 class TinyBlob(_UnicodeConverter):
