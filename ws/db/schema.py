@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 from sqlalchemy import Table, Column, ForeignKey, Index
-from sqlalchemy.types import Integer, SmallInteger, Float, Unicode, UnicodeText
+from sqlalchemy.types import Boolean, Integer, SmallInteger, Float, Unicode, UnicodeText, Enum
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
 
 from .sql_types import \
@@ -9,10 +9,32 @@ from .sql_types import \
         MWTimestamp, Base36
 
 
+def create_custom_tables(metadata, charset):
+    namespace = Table('namespace', metadata,
+        Column('ns_id', Integer, nullable=False, primary_key=True, autoincrement=False),
+        Column('ns_case', Enum("first-letter", "case-sensitive"),  nullable=False),
+        Column('ns_content', Boolean, nullable=False, server_default='0'),
+        Column('ns_subpages', Boolean, nullable=False, server_default='0'),
+        Column('ns_nonincludable', Boolean, nullable=False, server_default='0'),
+        Column('ns_defaultcontentmodel', UnicodeBinary(32), server_default=None)
+    )
+
+    # TODO: constraints on the boolean columns
+    namespace_name = Table('namespace_name', metadata,
+        Column('nsn_id', Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        # namespace prefixes are case-insensitive, just like the VARCHAR type
+        Column('nsn_name', Unicode(32), nullable=False),
+        Column('nsn_starname', Boolean, nullable=False, server_default='0'),
+        Column('nsn_canonical', Boolean, nullable=False, server_default='0'),
+        Column('nsn_alias', Boolean, nullable=False, server_default='0')
+    )
+    Index("nsn_name", namespace_name.c.nsn_name, unique=True)
+
+
 def create_pages_tables(metadata, charset):
     archive = Table('archive', metadata,
         Column('ar_id', Integer, nullable=False, primary_key=True),
-        Column('ar_namespace', Integer, nullable=False, server_default='0'),
+        Column('ar_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('ar_title', UnicodeBinary(255), nullable=False, server_default=''),
         Column('ar_text', MediumBlob(charset=charset), nullable=False),
         Column('ar_comment', UnicodeBinary(767), nullable=False),
@@ -69,7 +91,7 @@ def create_pages_tables(metadata, charset):
 
     page = Table('page', metadata,
         Column('page_id', Integer, primary_key=True, nullable=False),
-        Column('page_namespace', Integer, nullable=False),
+        Column('page_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column('page_title', UnicodeBinary(255), nullable=False),
         Column('page_restrictions', TinyBlob(charset=charset), nullable=False),
         Column('page_is_redirect', SmallInteger, nullable=False, server_default='0'),
@@ -113,7 +135,7 @@ def create_pages_tables(metadata, charset):
     Index("pr_cascade", page_restrictions.c.pr_cascade)
 
     protected_titles = Table('protected_titles', metadata,
-        Column('pt_namespace', Integer, nullable=False),
+        Column('pt_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column('pt_title', UnicodeBinary(255), nullable=False),
         Column('pt_user', Integer, nullable=False),
         Column('pt_reason', UnicodeBinary(767)),
@@ -137,7 +159,7 @@ def create_pages_tables(metadata, charset):
     redirect = Table('redirect', metadata,
         # FK: rd_from -> page.page_id
         Column('rd_from', Integer, primary_key=True, nullable=False, server_default='0'),
-        Column('rd_namespace', Integer, nullable=False, server_default='0'),
+        Column('rd_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('rd_title', UnicodeBinary(255), nullable=False, server_default=''),
         Column('rd_interwiki', Unicode(32), server_default=None),
         Column('rd_fragment', UnicodeBinary(255), server_default=None)
@@ -149,8 +171,8 @@ def create_links_tables(metadata, charset):
     pagelinks = Table('pagelinks', metadata,
         # FK: pl_from -> page.page_id
         Column('pl_from', Integer, nullable=False, server_default='0'),
-        Column('pl_from_namespace', Integer, nullable=False, server_default='0'),
-        Column('pl_namespace', Integer, nullable=False, server_default='0'),
+        Column('pl_from_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
+        Column('pl_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('pl_title', UnicodeBinary(255), nullable=False, server_default='')
     )
 
@@ -177,15 +199,15 @@ def create_links_tables(metadata, charset):
     imagelinks = Table('imagelinks', metadata,
         # FK: il_from -> page.page_id
         Column('il_from', Integer, nullable=False, server_default='0'),
-        Column('il_from_namespace', Integer, nullable=False, server_default='0'),
+        Column('il_from_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('il_to', UnicodeBinary(255), nullable=False, server_default='')
     )
 
     templatelinks = Table('templatelinks', metadata,
         # FK: tl_from -> page.page_id
         Column('tl_from', Integer, nullable=False, server_default='0'),
-        Column('tl_from_namespace', Integer, nullable=False, server_default='0'),
-        Column('tl_namespace', Integer, nullable=False, server_default='0'),
+        Column('tl_from_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
+        Column('tl_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('tl_title', UnicodeBinary(255), nullable=False, server_default='')
     )
 
@@ -208,7 +230,7 @@ def create_recentchanges_tables(metadata, charset):
         # FK: rc_user -> user.user_id
         Column('rc_user', Integer, nullable=False, server_default='0'),
         Column('rc_user_text', UnicodeBinary(255), nullable=False),
-        Column('rc_namespace', Integer, nullable=False, server_default='0'),
+        Column('rc_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('rc_title', UnicodeBinary(255), nullable=False, server_default=''),
         Column('rc_comment', UnicodeBinary(767), nullable=False, server_default=''),
         Column('rc_minor', SmallInteger, nullable=False, server_default='0'),
@@ -235,7 +257,7 @@ def create_recentchanges_tables(metadata, charset):
 
     watchlist = Table('watchlist', metadata,
         Column('wl_user', Integer, nullable=False),
-        Column('wl_namespace', Integer, nullable=False, server_default='0'),
+        Column('wl_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('wl_title', UnicodeBinary(255), nullable=False, server_default=''),
         Column('wl_notificationtimestamp', MWTimestamp)
     )
@@ -315,7 +337,7 @@ def create_siteinfo_tables(metadata, charset):
         # FK: log_user -> user.user_id
         Column('log_user', Integer, nullable=False, server_default='0'),
         Column('log_user_text', UnicodeBinary(255), nullable=False, server_default=''),
-        Column('log_namespace', Integer, nullable=False, server_default='0'),
+        Column('log_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('log_title', UnicodeBinary(255), nullable=False, server_default=''),
         Column('log_page', Integer),
         Column('log_comment', UnicodeBinary(767), nullable=False, server_default=''),
@@ -432,7 +454,7 @@ def create_unused_tables(metadata, charset):
     job = Table('job', metadata,
         Column('job_id', Integer, primary_key=True, nullable=False),
         Column('job_cmd', UnicodeBinary(60), nullable=False, server_default=''),
-        Column('job_namespace', Integer, nullable=False),
+        Column('job_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column('job_title', UnicodeBinary(255), nullable=False),
         Column('job_timestamp', MWTimestamp, server_default=None),
         Column('job_params', Blob(charset=charset), nullable=False),
@@ -452,16 +474,16 @@ def create_unused_tables(metadata, charset):
     querycache = Table('querycache', metadata,
         Column('qc_type', UnicodeBinary(32), nullable=False),
         Column('qc_value', Integer, nullable=False, server_default='0'),
-        Column('qc_namespace', Integer, nullable=False, server_default='0'),
+        Column('qc_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('qc_title', UnicodeBinary(255), nullable=False, server_default='')
     )
 
     querycachetwo = Table('querycachetwo', metadata,
         Column('qcc_type', UnicodeBinary(32), nullable=False),
         Column('qcc_value', Integer, nullable=False, server_default='0'),
-        Column('qcc_namespace', Integer, nullable=False, server_default='0'),
+        Column('qcc_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('qcc_title', UnicodeBinary(255), nullable=False, server_default=''),
-        Column('qcc_namespacetwo', Integer, nullable=False, server_default='0'),
+        Column('qcc_namespacetwo', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('qcc_titletwo', UnicodeBinary(255), nullable=False, server_default='')
     )
 
@@ -502,5 +524,6 @@ def create_unused_tables(metadata, charset):
 
 
 def create_tables(metadata, charset="utf8"):
+    create_custom_tables(metadata, charset)
     create_pages_tables(metadata, charset)
     metadata.create_all()

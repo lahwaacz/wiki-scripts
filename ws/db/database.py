@@ -40,6 +40,10 @@ class Database:
         self.metadata = MetaData(bind=self.engine)
         schema.create_tables(self.metadata, self.charset)
 
+        # custom tables
+        self.namespace = self.metadata.tables["namespace"]
+        self.namespace_name = self.metadata.tables["namespace_name"]
+
         # supported tables
         self.protected_titles = self.metadata.tables["protected_titles"]
         self.page_props = self.metadata.tables["page_props"]
