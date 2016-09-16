@@ -10,7 +10,7 @@ def base_enc(number, base):
     """
     Encode a number in given base.
     """
-    if base > 36:  # pragma: no-cover
+    if base > 36:  # pragma: no cover
         raise NotImplementedError
 
     alphabet = b"0123456789abcdefghijklmnopqrstuvwxyz"
