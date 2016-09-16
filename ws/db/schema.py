@@ -1,5 +1,22 @@
 #! /usr/bin/env python3
 
+"""
+Known incompatibilities from MediaWiki schema:
+
+- Not binary compatible, but stores the same data. Thus compatibility can be
+  achieved via wiki-scripts <-> MWAPI interface, but wiki-scripts can't read
+  a MediaWiki database directly. This wouldn't be possible even theoretically,
+  since the database can contain serialized PHP objects etc.
+- Added some custom tables.
+- Enforced foreign key constraints (not present in MediaWiki's MySQL schema).
+"""
+
+# TODO:
+# - most foreign keys are nullable in MW's PostgreSQL schema and have an ON DELETE clause
+# - some non-nullable columns have silly default values - if we don't know, let's make it NULL
+# - some boolean columns use SmallInteger instead of Boolean
+# - remove columns that were deprecated even in MediaWiki
+
 from sqlalchemy import Table, Column, ForeignKey, Index
 from sqlalchemy.types import Boolean, Integer, SmallInteger, Float, Unicode, UnicodeText, Enum
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
@@ -11,6 +28,7 @@ from .sql_types import \
 
 def create_custom_tables(metadata, charset):
     namespace = Table("namespace", metadata,
+        # can't be auto-incremented because we need to start from 0
         Column("ns_id", Integer, nullable=False, primary_key=True, autoincrement=False),
         Column("ns_case", Enum("first-letter", "case-sensitive"),  nullable=False),
         Column("ns_content", Boolean, nullable=False, server_default="0"),
@@ -30,8 +48,6 @@ def create_custom_tables(metadata, charset):
     )
     Index("nsn_name", namespace_name.c.nsn_name, unique=True)
 
-
-# TODO: most foreign keys are nullable in MW's PostgreSQL schema and have an ON DELETE clause
 
 def create_pages_tables(metadata, charset):
     archive = Table("archive", metadata,

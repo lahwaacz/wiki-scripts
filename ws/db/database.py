@@ -3,13 +3,8 @@
 """
 Prerequisites:
 
-1. A pre-configured database backend (e.g. MySQL or PostgreSQL) with separate database and account.
-2. Database populated with MediaWiki's scheme: in the MediaWiki tree, this can be found at
-    - maintenance/tables.sql for MySQL
-    - maintenance/mssql/tables.sql
-    - maintenance/oracle/tables.sql
-    - maintenance/postgres/tables.sql
-3. One of the many drivers supported by sqlalchemy, e.g. pymysql.
+1. A pre-configured MySQL database backend with separate database and account.
+2. One of the many drivers supported by sqlalchemy, e.g. pymysql.
 """
 
 from sqlalchemy import create_engine, Table, MetaData
