@@ -31,6 +31,8 @@ def create_custom_tables(metadata, charset):
     Index("nsn_name", namespace_name.c.nsn_name, unique=True)
 
 
+# TODO: most foreign keys are nullable in MW's PostgreSQL schema and have an ON DELETE clause
+
 def create_pages_tables(metadata, charset):
     archive = Table('archive', metadata,
         Column('ar_id', Integer, nullable=False, primary_key=True),
@@ -38,13 +40,13 @@ def create_pages_tables(metadata, charset):
         Column('ar_title', UnicodeBinary(255), nullable=False, server_default=''),
         Column('ar_text', MediumBlob(charset=charset), nullable=False),
         Column('ar_comment', UnicodeBinary(767), nullable=False),
-        Column('ar_user', Integer, nullable=False, server_default='0'),
+        Column('ar_user', Integer, ForeignKey("user.user_id"), nullable=False, server_default='0'),
         Column('ar_user_text', UnicodeBinary(255), nullable=False),
         Column('ar_timestamp', MWTimestamp, nullable=False, server_default=''),
         Column('ar_minor_edit', SmallInteger, nullable=False, server_default='0'),
         Column('ar_flags', TinyBlob(charset=charset), nullable=False),
         Column('ar_rev_id', Integer),
-        Column('ar_text_id', Integer, ForeignKey('text.old_id')),
+        Column('ar_text_id', Integer, ForeignKey("text.old_id")),
         Column('ar_deleted', SmallInteger, nullable=False, server_default='0'),
         Column('ar_len', Integer),
         Column('ar_page_id', Integer),
@@ -59,13 +61,11 @@ def create_pages_tables(metadata, charset):
 
     revision = Table('revision', metadata,
         Column('rev_id', Integer, primary_key=True, nullable=False),
-        # FK: rev_page -> page.page_id
-        Column('rev_page', Integer, nullable=False),
-        # FK: rev_text_id -> text.old_id
-        Column('rev_text_id', Integer, nullable=False),
+        # TODO: check how this works for deleted pages (MW's PostgreSQL schema has the foreign key, so it's probably OK)
+        Column('rev_page', Integer, ForeignKey("page.page_id"), nullable=False),
+        Column('rev_text_id', Integer, ForeignKey("text.old_id"), nullable=False),
         Column('rev_comment', UnicodeBinary(767), nullable=False),
-        # FK: rev_user -> user.user_id
-        Column('rev_user', Integer, nullable=False, server_default='0'),
+        Column('rev_user', Integer, ForeignKey("user.user_id"), nullable=False, server_default='0'),
         Column('rev_user_text', UnicodeBinary(255), nullable=False, server_default=''),
         Column('rev_timestamp', MWTimestamp, nullable=False, server_default=''),
         Column('rev_minor_edit', SmallInteger, nullable=False, server_default='0'),
@@ -99,6 +99,7 @@ def create_pages_tables(metadata, charset):
         Column('page_random', Float, nullable=False),
         Column('page_touched', MWTimestamp, nullable=False, server_default=''),
         Column('page_links_updated', MWTimestamp, server_default=None),
+        # FIXME: MW defect: key to revision.rev_id, breaks relationship
         Column('page_latest', Integer, nullable=False),
         Column('page_len', Integer, nullable=False),
         Column('page_content_model', UnicodeBinary(32), server_default=None),
@@ -110,7 +111,7 @@ def create_pages_tables(metadata, charset):
     Index("page_redirect_namespace_len", page.c.page_is_redirect, page.c.page_namespace, page.c.page_len)
 
     page_props = Table('page_props', metadata,
-        Column('pp_page', Integer, nullable=False),
+        Column('pp_page', Integer, ForeignKey("page.page_id"), nullable=False),
         Column('pp_propname', UnicodeBinary(60), nullable=False),
         Column('pp_value', Blob(charset=charset), nullable=False),
         Column('pp_sortkey', Float, server_default=None)
@@ -121,8 +122,7 @@ def create_pages_tables(metadata, charset):
 
     page_restrictions = Table('page_restrictions', metadata,
         Column('pr_id', Integer, primary_key=True, nullable=False),
-        # FK: pr_page -> page.page_id
-        Column('pr_page', Integer, nullable=False),
+        Column('pr_page', Integer, ForeignKey("page.page_id"), nullable=False),
         Column('pr_type', UnicodeBinary(60), nullable=False),
         Column('pr_level', UnicodeBinary(60), nullable=False),
         Column('pr_cascade', SmallInteger, nullable=False),
@@ -137,7 +137,7 @@ def create_pages_tables(metadata, charset):
     protected_titles = Table('protected_titles', metadata,
         Column('pt_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column('pt_title', UnicodeBinary(255), nullable=False),
-        Column('pt_user', Integer, nullable=False),
+        Column('pt_user', Integer, ForeignKey("user.user_id"), nullable=False),
         Column('pt_reason', UnicodeBinary(767)),
         Column('pt_timestamp', MWTimestamp, nullable=False),
         Column('pt_expiry', MWTimestamp, nullable=False, server_default=''),
@@ -157,8 +157,7 @@ def create_pages_tables(metadata, charset):
     Index("cat_pages", category.c.cat_pages)
 
     redirect = Table('redirect', metadata,
-        # FK: rd_from -> page.page_id
-        Column('rd_from', Integer, primary_key=True, nullable=False, server_default='0'),
+        Column('rd_from', Integer, ForeignKey("page.page_id"), primary_key=True, nullable=False, server_default='0'),
         Column('rd_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('rd_title', UnicodeBinary(255), nullable=False, server_default=''),
         Column('rd_interwiki', Unicode(32), server_default=None),
@@ -169,51 +168,48 @@ def create_pages_tables(metadata, charset):
 
 def create_links_tables(metadata, charset):
     pagelinks = Table('pagelinks', metadata,
-        # FK: pl_from -> page.page_id
-        Column('pl_from', Integer, nullable=False, server_default='0'),
+        Column('pl_from', Integer, ForeignKey("page.page_id"), nullable=False, server_default='0'),
+        # TODO: useless, should be in view
         Column('pl_from_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('pl_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('pl_title', UnicodeBinary(255), nullable=False, server_default='')
     )
 
     iwlinks = Table('iwlinks', metadata,
-        Column('iwl_from', Integer, nullable=False, server_default='0'),
+        Column('iwl_from', Integer, ForeignKey("page.page_id"), nullable=False, server_default='0'),
         Column('iwl_prefix', UnicodeBinary(20), nullable=False, server_default=''),
         Column('iwl_title', UnicodeBinary(255), nullable=False, server_default=''),
     )
 
     externallinks = Table('externallinks', metadata,
         Column('el_id', Integer, nullable=False, primary_key=True),
-        Column('el_from', Integer, nullable=False, server_default='0'),
+        Column('el_from', Integer, ForeignKey("page.page_id"), nullable=False, server_default='0'),
         Column('el_to', Blob(charset=charset), nullable=False),
         Column('el_index', Blob(charset=charset), nullable=False)
     )
 
     langlinks = Table('langlinks', metadata,
-        # FK: ll_from -> page.page_id
-        Column('ll_from', Integer, nullable=False, server_default='0'),
+        Column('ll_from', Integer, ForeignKey("page.page_id"), nullable=False, server_default='0'),
         Column('ll_lang', UnicodeBinary(20), nullable=False, server_default=''),
         Column('ll_title', UnicodeBinary(255), nullable=False, server_default='')
     )
 
     imagelinks = Table('imagelinks', metadata,
-        # FK: il_from -> page.page_id
-        Column('il_from', Integer, nullable=False, server_default='0'),
+        Column('il_from', Integer, ForeignKey("page.page_id"), nullable=False, server_default='0'),
         Column('il_from_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('il_to', UnicodeBinary(255), nullable=False, server_default='')
     )
 
     templatelinks = Table('templatelinks', metadata,
-        # FK: tl_from -> page.page_id
-        Column('tl_from', Integer, nullable=False, server_default='0'),
+        Column('tl_from', Integer, ForeignKey("page.page_id"), nullable=False, server_default='0'),
+        # TODO: useless, should be in view
         Column('tl_from_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('tl_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('tl_title', UnicodeBinary(255), nullable=False, server_default='')
     )
 
     categorylinks = Table('categorylinks', metadata,
-        # FK: cl_from -> page.page_id
-        Column('cl_from', Integer, nullable=False, server_default='0'),
+        Column('cl_from', Integer, ForeignKey("page.page_id"), nullable=False, server_default='0'),
         Column('cl_to', UnicodeBinary(255), nullable=False, server_default=''),
         Column('cl_sortkey', UnicodeBinary(230), nullable=False, server_default=''),
         Column('cl_sortkey', UnicodeBinary(255), nullable=False, server_default=''),
@@ -227,8 +223,7 @@ def create_recentchanges_tables(metadata, charset):
     recentchanges = Table('recentchanges', metadata,
         Column('rc_id', Integer, primary_key=True, nullable=False),
         Column('rc_timestamp', MWTimestamp, nullable=False, server_default=''),
-        # FK: rc_user -> user.user_id
-        Column('rc_user', Integer, nullable=False, server_default='0'),
+        Column('rc_user', Integer, ForeignKey("user.user_id"), nullable=False, server_default='0'),
         Column('rc_user_text', UnicodeBinary(255), nullable=False),
         Column('rc_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('rc_title', UnicodeBinary(255), nullable=False, server_default=''),
@@ -236,11 +231,11 @@ def create_recentchanges_tables(metadata, charset):
         Column('rc_minor', SmallInteger, nullable=False, server_default='0'),
         Column('rc_bot', SmallInteger, nullable=False, server_default='0'),
         Column('rc_new', SmallInteger, nullable=False, server_default='0'),
-        # FK: rc_cur_id -> page.page_id
+        # FK: rc_cur_id -> page.page_id     (not in PostgreSQL)
         Column('rc_cur_id', Integer, nullable=False, server_default='0'),
-        # FK: rc_this_oldid -> revision.rev_id
+        # FK: rc_this_oldid -> revision.rev_id      (not in PostgreSQL)
         Column('rc_this_oldid', Integer, nullable=False, server_default='0'),
-        # FK: rc_this_oldid -> revision.rev_id
+        # FK: rc_this_oldid -> revision.rev_id      (not in PostgreSQL)
         Column('rc_last_oldid', Integer, nullable=False, server_default='0'),
         Column('rc_type', SmallInteger, nullable=False, server_default='0'),
         Column('rc_source', UnicodeBinary(16), nullable=False, server_default=''),
@@ -256,7 +251,8 @@ def create_recentchanges_tables(metadata, charset):
     )
 
     watchlist = Table('watchlist', metadata,
-        Column('wl_user', Integer, nullable=False),
+        Column('wl_user', Integer, ForeignKey("user.user_id"), nullable=False),
+        # FIXME: MW defect: why is there not a FK to page.page_id?
         Column('wl_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('wl_title', UnicodeBinary(255), nullable=False, server_default=''),
         Column('wl_notificationtimestamp', MWTimestamp)
@@ -283,15 +279,15 @@ def create_users_tables(metadata, charset):
     )
 
     user_groups = Table('user_groups', metadata,
-        Column('ug_user', Integer, nullable=False, server_default='0'),
+        Column('ug_user', Integer, ForeignKey("user.user_id"), nullable=False, server_default='0'),
         Column('ug_group', UnicodeBinary(255), nullable=False, server_default='')
     )
 
     ipblocks = Table('ipblocks', metadata,
         Column('ipb_id', Integer, primary_key=True, nullable=False),
         Column('ipb_address', TinyBlob(charset=charset), nullable=False),
-        Column('ipb_user', Integer, nullable=False, server_default='0'),
-        Column('ipb_by', Integer, nullable=False, server_default='0'),
+        Column('ipb_user', Integer, ForeignKey("user.user_id"), nullable=False, server_default='0'),
+        Column('ipb_by', Integer, ForeignKey("user.user_id"), nullable=False, server_default='0'),
         Column('ipb_by_text', UnicodeBinary(255), nullable=False, server_default=''),
         Column('ipb_reason', UnicodeBinary(767), nullable=False),
         Column('ipb_timestamp', MWTimestamp, nullable=False, server_default=''),
@@ -305,7 +301,8 @@ def create_users_tables(metadata, charset):
         Column('ipb_deleted', Boolean, nullable=False, server_default='0'),
         Column('ipb_block_email', Boolean, nullable=False, server_default='0'),
         Column('ipb_allow_usertalk', Boolean, nullable=False, server_default='0'),
-        Column('ipb_parent_block_id', Integer, server_default=None)
+        # FIXME: MW defect: FK to the same table
+        Column('ipb_parent_block_id', Integer, ForeignKey("ipblocks.ipb_id", ondelete="SET NULL"), server_default=None)
     )
 
 
@@ -334,8 +331,7 @@ def create_siteinfo_tables(metadata, charset):
         Column('log_type', UnicodeBinary(32), nullable=False, server_default=''),
         Column('log_action', UnicodeBinary(32), nullable=False, server_default=''),
         Column('log_timestamp', MWTimestamp, nullable=False, server_default='19700101000000'),
-        # FK: log_user -> user.user_id
-        Column('log_user', Integer, nullable=False, server_default='0'),
+        Column('log_user', Integer, ForeignKey("user.user_id"), nullable=False, server_default='0'),
         Column('log_user_text', UnicodeBinary(255), nullable=False, server_default=''),
         Column('log_namespace', Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default='0'),
         Column('log_title', UnicodeBinary(255), nullable=False, server_default=''),
@@ -396,7 +392,7 @@ def create_multimedia_tables(metadata, charset):
         Column('img_major_mime', Enum("unknown", "application", "audio", "image", "text", "video", "message", "model", "multipart", "chemical"), nullable=False, server_default='unknown'),
         Column('img_minor_mime', UnicodeBinary(100), nullable=False, server_default='unknown'),
         Column('img_description', UnicodeBinary(767), nullable=False),
-        Column('img_user', Integer, nullable=False, server_default='0'),
+        Column('img_user', Integer, ForeignKey("user.user_id"), nullable=False, server_default='0'),
         Column('img_user_text', UnicodeBinary(255), nullable=False),
         Column('img_timestamp', MWTimestamp, nullable=False, server_default=''),
         Column('img_sha1', Base36(32), nullable=False, server_default='')
@@ -410,7 +406,7 @@ def create_multimedia_tables(metadata, charset):
         Column('oi_height', Integer, nullable=False, server_default='0'),
         Column('oi_bits', Integer, nullable=False, server_default='0'),
         Column('oi_description', UnicodeBinary(767), nullable=False),
-        Column('oi_user', Integer, nullable=False, server_default='0'),
+        Column('oi_user', Integer, ForeignKey("user.user_id"), nullable=False, server_default='0'),
         Column('oi_user_text', UnicodeBinary(255), nullable=False),
         Column('oi_timestamp', MWTimestamp, nullable=False, server_default=''),
         Column('oi_metadata', MediumBlob(charset=charset), nullable=False),
@@ -427,7 +423,7 @@ def create_multimedia_tables(metadata, charset):
         Column('fa_archive_name', UnicodeBinary(255), server_default=''),
         Column('fa_storage_group', UnicodeBinary(16)),
         Column('fa_storage_key', UnicodeBinary(64), server_default=''),
-        Column('fa_deleted_user', Integer),
+        Column('fa_deleted_user', Integer, ForeignKey("user.user_id")),
         Column('fa_deleted_timestamp', MWTimestamp, server_default=''),
         Column('fa_deleted_reason', UnicodeBinary(767), server_default=''),
         Column('fa_size', Integer, server_default='0'),
@@ -439,7 +435,7 @@ def create_multimedia_tables(metadata, charset):
         Column('fa_major_mime', Enum("unknown", "application", "audio", "image", "text", "video", "message", "model", "multipart", "chemical"), server_default="unknown"),
         Column('fa_minor_mime', UnicodeBinary(100), server_default="unknown"),
         Column('fa_description', UnicodeBinary(767)),
-        Column('fa_user', Integer, server_default='0'),
+        Column('fa_user', Integer, ForeignKey("user.user_id"), server_default='0'),
         Column('fa_user_text', UnicodeBinary(255)),
         Column('fa_timestamp', MWTimestamp, server_default=''),
         Column('fa_deleted', SmallInteger, nullable=False,
@@ -512,12 +508,12 @@ def create_unused_tables(metadata, charset):
     )
 
     user_former_groups = Table('user_former_groups', metadata,
-        Column('ufg_user', Integer, nullable=False, server_default='0'),
+        Column('ufg_user', Integer, ForeignKey("user.user_id"), nullable=False, server_default='0'),
         Column('ufg_group', UnicodeBinary(255), nullable=False, server_default='')
     )
 
     user_newtalk = Table('user_newtalk', metadata,
-        Column('user_id', Integer, nullable=False, server_default='0'),
+        Column('user_id', Integer, ForeignKey("user.user_id"), nullable=False, server_default='0'),
         Column('user_ip', UnicodeBinary(40), nullable=False, server_default=''),
         Column('user_last_timestamp', MWTimestamp, server_default=None)
     )
@@ -526,4 +522,5 @@ def create_unused_tables(metadata, charset):
 def create_tables(metadata, charset="utf8"):
     create_custom_tables(metadata, charset)
     create_pages_tables(metadata, charset)
+    create_users_tables(metadata, charset)
     metadata.create_all()
