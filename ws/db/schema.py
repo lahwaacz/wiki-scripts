@@ -9,6 +9,8 @@ Known incompatibilities from MediaWiki schema:
   since the database can contain serialized PHP objects etc.
 - Added some custom tables.
 - Enforced foreign key constraints (not present in MediaWiki's MySQL schema).
+- Columns not available via the API (e.g. user passwords) are nullable, since
+  they are not part of the mirroring process.
 """
 
 # TODO:
@@ -280,10 +282,15 @@ def create_users_tables(metadata, charset):
         Column("user_id", Integer, primary_key=True, nullable=False),
         Column("user_name", UnicodeBinary(255), nullable=False, server_default=""),
         Column("user_real_name", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("user_password", TinyBlob(charset=charset), nullable=False),
-        Column("user_newpassword", TinyBlob(charset=charset), nullable=False),
+        # MW incompatibility: set to nullable since passwords are not part of mirroring
+#        Column("user_password", TinyBlob(charset=charset), nullable=False),
+#        Column("user_newpassword", TinyBlob(charset=charset), nullable=False),
+        Column("user_password", TinyBlob(charset=charset), server_default=None),
+        Column("user_newpassword", TinyBlob(charset=charset), server_default=None),
         Column("user_newpass_time", MWTimestamp),
-        Column("user_email", TinyBlob(charset=charset), nullable=False),
+        # nullable for the same reason as passwords
+#        Column("user_email", TinyBlob(charset=charset), nullable=False),
+        Column("user_email", TinyBlob(charset=charset), server_default=None),
         Column("user_touched", MWTimestamp, nullable=False, server_default=""),
         Column("user_token", UnicodeBinary(32), nullable=False, server_default=""),
         Column("user_email_authenticated", MWTimestamp),
@@ -301,7 +308,9 @@ def create_users_tables(metadata, charset):
 
     ipblocks = Table("ipblocks", metadata,
         Column("ipb_id", Integer, primary_key=True, nullable=False),
-        Column("ipb_address", TinyBlob(charset=charset), nullable=False),
+        # nullable due to mirroring
+#        Column("ipb_address", TinyBlob(charset=charset), nullable=False),
+        Column("ipb_address", TinyBlob(charset=charset)),
         Column("ipb_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
         Column("ipb_by", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
         Column("ipb_by_text", UnicodeBinary(255), nullable=False, server_default=""),

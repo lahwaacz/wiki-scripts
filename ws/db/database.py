@@ -40,6 +40,9 @@ class Database:
         self.namespace_name = self.metadata.tables["namespace_name"]
 
         # supported tables
+        self.user = self.metadata.tables["user"]
+        self.user_groups = self.metadata.tables["user_groups"]
+        self.ipblocks = self.metadata.tables["ipblocks"]
         self.protected_titles = self.metadata.tables["protected_titles"]
         self.page_props = self.metadata.tables["page_props"]
         self.page_restrictions = self.metadata.tables["page_restrictions"]
