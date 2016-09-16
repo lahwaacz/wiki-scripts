@@ -2,7 +2,7 @@
 
 import datetime
 
-__all__ = ["parse_date", "range_by_days", "range_by_months"]
+__all__ = ["parse_date", "format_date", "range_by_days", "range_by_months"]
 
 def parse_date(date):
     """
@@ -25,6 +25,15 @@ def parse_date(date):
     #return datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
     return datetime.datetime(int(date[:4]), int(date[5:7]), int(date[8:10]),
             int(date[11:13]), int(date[14:16]), int(date[17:19]))
+
+def format_date(date):
+    """
+    An inverse function to :py:func:`parse_date`.
+
+    :param datetime.datetime date: timestamp to format
+    :returns: :py:class:`str` representation of the timestamp
+    """
+    return date.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 def range_by_days(first, last):
     """

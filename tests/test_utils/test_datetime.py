@@ -9,6 +9,11 @@ def test_parse_date():
     expected = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
     assert parse_date(timestamp) == expected
 
+def test_format_date():
+    timestamp = datetime.datetime(2014, 8, 25, 14, 26, 59)
+    expected = "2014-08-25T14:26:59Z"
+    assert format_date(timestamp) == expected
+
 def test_range_by_days():
     first = datetime.datetime(2000, 1, 30,  8, 35, 42)
     last = datetime.datetime(2000, 2, 2,  13, 25, 53)

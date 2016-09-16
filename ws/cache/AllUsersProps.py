@@ -12,9 +12,6 @@ __all__ = ["AllUsersProps"]
 
 class AllUsersProps(CacheDb):
 
-    #: format for MediaWiki timestamps
-    mw_ts_format = "%Y-%m-%dT%H:%M:%SZ"
-
     def __init__(self, api, cache_dir, autocommit=True, active_days=30, round_to_midnight=False, rc_err_hours=6):
         """
         :param active_days:
@@ -90,7 +87,7 @@ class AllUsersProps(CacheDb):
 
         :returns: list of user names
         """
-        lestart = self.timestamp.strftime(self.mw_ts_format)
+        lestart = utils.format_date(self.timestamp)
         users = []
         for letype in ["newusers", "rights", "block"]:
             for user in self.api.list(list="logevents", letype=letype, lelimit="max", ledir="newer", lestart=lestart):
@@ -112,8 +109,8 @@ class AllUsersProps(CacheDb):
             today = datetime.datetime(*(today.timetuple()[:3]))
         firstday = today - datetime.timedelta(days=self.active_days)
 
-        rcstart = today.strftime(self.mw_ts_format)
-        rcend = firstday.strftime(self.mw_ts_format)
+        rcstart = utils.format_date(today)
+        rcend = utils.format_date(firstday)
         rc = self.api.list(action="query", list="recentchanges", rctype="edit", rcprop="user|timestamp", rclimit="max", rcstart=rcstart, rcend=rcend)
 
         rcusers = {}
