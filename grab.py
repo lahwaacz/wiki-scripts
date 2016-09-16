@@ -2,7 +2,7 @@ from pprint import pprint
 
 from ws.client import API
 from ws.db.database import Database
-from ws.grabbers import namespace, page, protected_titles, archive, revision
+from ws.grabbers import namespace, user, page, protected_titles, archive, revision
 
 
 def main(api, db):
@@ -11,6 +11,7 @@ def main(api, db):
     namespace.update(api, db)
     pprint(namespace.select(db))
 
+    user.insert(api, db)
     page.insert(api, db)
     protected_titles.insert(api, db)
     archive.insert(api, db)
