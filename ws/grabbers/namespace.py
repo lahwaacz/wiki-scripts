@@ -156,7 +156,6 @@ def select(db):
             ns["nonincludable"] = ""
         namespaces[row.ns_id] = ns
 
-    # TODO: add '*' and 'canonical' names from namespace_name table
     result = conn.execute(nsn_sel)
     for row in result:
         if row.nsn_starname:
