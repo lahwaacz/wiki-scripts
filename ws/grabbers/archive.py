@@ -11,16 +11,16 @@ def gen(api):
         db_entry = {
             "ar_namespace": page["ns"],
             "ar_title": page["title"],
+            "ar_rev_id": rev["revid"],
+            "ar_page_id": page["pageid"] if page["pageid"] else None,
+            # ar_text_id will be set while populating the text table
             "ar_comment": rev["comment"],
             "ar_user": rev["userid"],
             "ar_user_text": rev["user"],
             "ar_timestamp": rev["timestamp"],
             "ar_minor_edit": "minor" in rev,
-            "ar_rev_id": rev["revid"],
-            # ar_text_id will be set while populating the text table
             # TODO: ar_deleted
             "ar_len": rev["size"],
-            "ar_page_id": page["pageid"],
             # TODO: ar_parent_id should be populated from revision.rev_parent_id
             "ar_sha1": rev["sha1"],
             "ar_content_model": rev["contentmodel"],

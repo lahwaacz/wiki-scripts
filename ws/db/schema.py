@@ -12,13 +12,17 @@ Known incompatibilities from MediaWiki schema:
 - Columns not available via the API (e.g. user passwords) are nullable, since
   they are not part of the mirroring process.
 - user_groups table has primary key to avoid duplicate entries.
+- Removed columns that were deprecated even in MediaWiki:
+    page.page_restrictions
+    archive.ar_text
+    archive.ar_flags
+- Reordered columns in archive table to match the revision table.
 """
 
 # TODO:
 # - most foreign keys are nullable in MW's PostgreSQL schema and have an ON DELETE clause
 # - some non-nullable columns have silly default values - if we don't know, let's make it NULL
 # - some boolean columns use SmallInteger instead of Boolean
-# - remove columns that were deprecated even in MediaWiki
 
 from sqlalchemy import Table, Column, ForeignKey, Index, PrimaryKeyConstraint
 from sqlalchemy.types import Boolean, Integer, SmallInteger, Float, Unicode, UnicodeText, Enum
@@ -97,33 +101,38 @@ def create_users_tables(metadata, charset):
         Column("ipb_create_account", Boolean, nullable=False, server_default="1"),
         Column("ipb_enable_autoblock", Boolean, nullable=False, server_default="1"),
         Column("ipb_expiry", MWTimestamp, nullable=False, server_default=""),
-        Column("ipb_range_start", TinyBlob(charset=charset), nullable=False),
-        Column("ipb_range_end", TinyBlob(charset=charset), nullable=False),
+        # MW incompatibility: set to nullable, although they're not nullable in MW
+        # (but that's a bug, even reported somewhere)
+        Column("ipb_range_start", TinyBlob(charset=charset)),
+        Column("ipb_range_end", TinyBlob(charset=charset)),
         Column("ipb_deleted", Boolean, nullable=False, server_default="0"),
         Column("ipb_block_email", Boolean, nullable=False, server_default="0"),
         Column("ipb_allow_usertalk", Boolean, nullable=False, server_default="0"),
-        # FIXME: MW defect: FK to the same table
         Column("ipb_parent_block_id", Integer, ForeignKey("ipblocks.ipb_id", ondelete="SET NULL"), server_default=None)
     )
 
 
 def create_pages_tables(metadata, charset):
+    # MW incompatibility:
+    # - removed ar_text, ar_flags columns
+    # - reordered columns to match the revision table
     archive = Table("archive", metadata,
         Column("ar_id", Integer, nullable=False, primary_key=True),
+        # MW defect: there is ar_page_id as a FK to page.page_id, but it was added too late (MW 1.11)
         Column("ar_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
         Column("ar_title", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("ar_text", MediumBlob(charset=charset), nullable=False),
+        # former revision.rev_id used to preserve it across undelete
+        Column("ar_rev_id", Integer),
+        # like revision.rev_page, but nullable because pages deleted prior to MW 1.11 have NULL
+        Column("ar_page_id", Integer, ForeignKey("page.page_id")),
+        Column("ar_text_id", Integer, ForeignKey("text.old_id")),
         Column("ar_comment", UnicodeBinary(767), nullable=False),
         Column("ar_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
         Column("ar_user_text", UnicodeBinary(255), nullable=False),
         Column("ar_timestamp", MWTimestamp, nullable=False, server_default=""),
         Column("ar_minor_edit", SmallInteger, nullable=False, server_default="0"),
-        Column("ar_flags", TinyBlob(charset=charset), nullable=False),
-        Column("ar_rev_id", Integer),
-        Column("ar_text_id", Integer, ForeignKey("text.old_id")),
         Column("ar_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("ar_len", Integer),
-        Column("ar_page_id", Integer),
         Column("ar_parent_id", Integer, server_default=None),
         Column("ar_sha1", Base36(32), nullable=False, server_default=""),
         Column("ar_content_model", UnicodeBinary(32), server_default=None),
@@ -145,6 +154,8 @@ def create_pages_tables(metadata, charset):
         Column("rev_minor_edit", SmallInteger, nullable=False, server_default="0"),
         Column("rev_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("rev_len", Integer),
+        # FIXME: should be set as FK, but that probably breaks archiving
+#        Column("rev_parent_id", Integer, ForeignKey("revision.rev_id", ondelete="SET NULL"), server_default=None),
         Column("rev_parent_id", Integer, server_default=None),
         Column("rev_sha1", Base36(32), nullable=False, server_default=""),
         Column("rev_content_model", UnicodeBinary(32), server_default=None),
@@ -163,11 +174,11 @@ def create_pages_tables(metadata, charset):
         Column("old_flags", TinyBlob(charset=charset), nullable=False)
     )
 
+    # MW incompatibility: removed page.page_restrictions column (unused since MW 1.9)
     page = Table("page", metadata,
         Column("page_id", Integer, primary_key=True, nullable=False),
         Column("page_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("page_title", UnicodeBinary(255), nullable=False),
-        Column("page_restrictions", TinyBlob(charset=charset), nullable=False),
         Column("page_is_redirect", SmallInteger, nullable=False, server_default="0"),
         Column("page_is_new", SmallInteger, nullable=False, server_default="0"),
         Column("page_random", Float, nullable=False),
