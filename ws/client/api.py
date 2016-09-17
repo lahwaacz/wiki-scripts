@@ -118,6 +118,29 @@ class API(Connection):
         """
         return 500 if "apihighlimits" in self.user.rights else 50
 
+    @property
+    def last_revision_id(self):
+        """
+        ID of the last revision on the wiki. This property is not cached since
+        it may change very often.
+
+        .. note::
+            The total edit count is available in `global statistics`_, but it is
+            different from the last revision ID obtained from recentchanges.
+
+        .. _`global statistics`: https://wiki.archlinux.org/api.php?action=query&meta=siteinfo&siprop=statistics
+        """
+        params = {
+            "action": "query",
+            "list": "recentchanges",
+            "rcprop": "ids",
+            "rctype": "edit",
+            "rclimit": "1",
+            "continue": "",  # needed only to silence stupid deprecation warning
+        }
+        result = self.call_api(params)
+        return result["recentchanges"][0]["revid"]
+
 
     def query_continue(self, params=None, **kwargs):
         """

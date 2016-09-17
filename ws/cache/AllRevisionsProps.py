@@ -49,7 +49,7 @@ class AllRevisionsProps(CacheDb):
 
         # get revision IDs of first and last revision to fetch
         firstrevid = self._get_last_revid_db() + 1
-        lastrevid = self._get_last_revid_api()
+        lastrevid = self.api.last_revision_id
 
         if lastrevid >= firstrevid:
             self._fetch_revisions(firstrevid, lastrevid)
@@ -68,16 +68,6 @@ class AllRevisionsProps(CacheDb):
         except IndexError:
             # empty database
             return 0
-
-    # TODO: total edit count is available in global statistics:
-    #           https://wiki.archlinux.org/api.php?action=query&meta=siteinfo&siprop=statistics
-    #       but it is different from the last revision ID obtained from recentchanges !!!
-    def _get_last_revid_api(self):
-        """
-        Get ID of the last revision on the wiki.
-        """
-        result = self.api.call_api(action="query", list="recentchanges", rcprop="ids", rctype="edit", rclimit="1")
-        return result["recentchanges"][0]["revid"]
 
     def _fetch_revisions(self, first, last):
         """
