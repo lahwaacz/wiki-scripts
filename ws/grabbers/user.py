@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 
+import datetime
+import logging
+
 import ws.utils
+
+logger = logging.getLogger(__name__)
 
 # FIXME: keep all MediaWiki constants in one place
 implicit_groups = {"*", "user"}
 
-def gen_init(api):
-    blocks = set()
-    for user in api.list(
-                list="allusers",
-                aulimit="max",
-                auprop="blockinfo|groups|editcount|registration",
-            ):
 
+def gen(api, list_params):
+    for user in api.list(list_params):
         db_entry = {
             "user_id": user["userid"],
             "user_name": user["name"],
@@ -42,16 +42,94 @@ def gen_init(api):
             yield db_entry
 
 
-def insert(api, db):
-    user_ins = db.user.insert()
+def gen_insert(api):
+    list_params = {
+        "list": "allusers",
+        "aulimit": "max",
+        "auprop": "blockinfo|groups|editcount|registration",
+    }
+    yield from gen(api, list_params)
+
+
+def gen_update(api, rcusers):
+    logger.info("Fetching properties of {} possibly modified user accounts...".format(len(rcusers)))
+    list_params = {
+        "list": "users",
+        "ususers": "|".join(rcusers),
+        "usprop": "blockinfo|groups|editcount|registration",
+    }
+    yield from gen(api, list_params)
+
+
+class ShortRecentChangesError(Exception):
+    pass
+
+def gen_rcusers(api, since):
+    """
+    Find users whose properties may have changed since the last update.
+
+    :param datetime.datetime since: timestamp of the last update
+    :returns: a set of user names
+    """
+    since_f = ws.utils.format_date(since)
+    rcusers = set()
+
+    # also add the performer of any log entry
+    for change in api.list(action="query", list="recentchanges", rctype="edit|log", rcprop="user|timestamp", rclimit="max", rcend=since_f):
+        rcusers.add(change["user"])
+
+    # Items in the recentchanges table are periodically purged according to
+    # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
+    # By default the max age is 13 weeks: if a larger timespan is requested
+    # here, it's very important to warn that the changes are not available
+    oldestchange = ws.utils.parse_date(change["timestamp"])
+    # FIXME: hardcoded threshold
+    if oldestchange - since > datetime.timedelta(hours=6):
+        raise ShortRecentChangesError()
+
+    # also examine log entries and add target user
+    # (this is not available in recentchanges - although there is rctype=log
+    # parameter, rcprop=loginfo provides only user IDs, which can't be used
+    # in list=users)
+    # there should be only three log event types that might change other users:
+    #  - newusers (if user A creates account for user B, recent changes list
+    #    only user A)
+    #  - rights
+    #  - block
+    for letype in ["newusers", "rights", "block"]:
+        for user in api.list(list="logevents", letype=letype, lelimit="max", leend=since_f):
+            # extract target user name
+            username = user["title"].split(":", maxsplit=1)[1]
+            rcusers.add(username)
+
+    return rcusers
+
+
+def db_execute(db, gen):
+    user_ins = db.user.insert(mysql_on_duplicate_key_update=[
+                                db.user.c.user_name,
+                                db.user.c.user_registration,
+                                db.user.c.user_editcount,
+                            ])
+    # FIXME: user_groups does not have primary key, so this causes duplicates
     ug_ins = db.user_groups.insert()
-    ipb_ins = db.ipblocks.insert()
+#    ug_ins = db.user_groups.insert(mysql_on_duplicate_key_update=[
+#                                db.user_groups.c.ug_group
+#                            ])
+    ipb_ins = db.ipblocks.insert(mysql_on_duplicate_key_update=[
+                                db.ipblocks.c.ipb_user,
+                                db.ipblocks.c.ipb_by,
+                                db.ipblocks.c.ipb_by_text,
+                                db.ipblocks.c.ipb_reason,
+                                db.ipblocks.c.ipb_timestamp,
+                                db.ipblocks.c.ipb_expiry,
+                            ])
 
     # must be catch-all because it may reference users that were not added yet
     # (API sorts by name, not ID...)
     ipblocks_entries = []
 
-    for chunk in ws.utils.iter_chunks(gen_init(api), db.chunk_size):
+    for chunk in ws.utils.iter_chunks(gen, db.chunk_size):
         # separate according to target table
         user_entries = []
         user_groups_entries = []
@@ -66,8 +144,34 @@ def insert(api, db):
                 raise Exception
 
         with db.engine.begin() as conn:
-            conn.execute(user_ins, user_entries)
-            conn.execute(ug_ins, user_groups_entries)
+            if user_entries:
+                conn.execute(user_ins, user_entries)
+            if user_groups_entries:
+                conn.execute(ug_ins, user_groups_entries)
 
     with db.engine.begin() as conn:
-        conn.execute(ipb_ins, ipblocks_entries)
+        if ipblocks_entries:
+            conn.execute(ipb_ins, ipblocks_entries)
+
+
+def insert(api, db):
+    gen = gen_insert(api)
+    db_execute(db, gen)
+
+
+def update(api, db):
+    # TODO: if empty -> insert, return
+
+    # TODO: store last-sync timestamp in the database
+    since = datetime.datetime.utcnow() - datetime.timedelta(days=30)
+
+    try:
+        rcusers = list(gen_rcusers(api, since))
+    except ShortRecentChangesError:
+        logger.warning("The recent changes table on the wiki has been recently purged, starting from scratch. The recent edit count will not be available.")
+        insert(api, db)
+        return
+
+    if len(rcusers) > 0:
+        gen = gen_update(api, rcusers)
+        db_execute(db, gen)

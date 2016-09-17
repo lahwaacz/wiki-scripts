@@ -12,6 +12,8 @@ def main(api, db):
     pprint(namespace.select(db))
 
     user.insert(api, db)
+    user.update(api, db)
+
     page.insert(api, db)
     protected_titles.insert(api, db)
     archive.insert(api, db)

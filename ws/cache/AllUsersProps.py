@@ -79,7 +79,10 @@ class AllUsersProps(CacheDb):
             if self.autocommit is True:
                 self.dump()
 
-    # TODO: this could also be read from recent changes with rctype=log, which would save us one query
+    # NOTE:
+    # this is not available in recentchanges - although there is rctype=log
+    # parameter, rcprop=loginfo provides only user IDs, which can't be used
+    # in list=users
     def _find_changed_users(self):
         """
         Find users whose properties may have changed since the last update.
