@@ -3,7 +3,7 @@
 import hashlib
 import logging
 
-from ..utils import RateLimited, LazyProperty
+from ..utils import RateLimited, LazyProperty, parse_date
 
 from .connection import Connection, APIError
 from .site import Site
@@ -121,8 +121,9 @@ class API(Connection):
     @property
     def last_revision_id(self):
         """
-        ID of the last revision on the wiki. This property is not cached since
-        it may change very often.
+        ID of the last revision on the wiki.
+
+        This property is not cached since it may change very often.
 
         .. note::
             The total edit count is available in `global statistics`_, but it is
@@ -140,6 +141,31 @@ class API(Connection):
         }
         result = self.call_api(params)
         return result["recentchanges"][0]["revid"]
+
+    @property
+    def oldest_recent_change(self):
+        """
+        A timestamp of the oldest entry stored in the ``recentchanges`` table.
+
+        Items in the recentchanges table are periodically purged according to
+        the `$wgRCMaxAge`_ setting. The value is very important for algorithms
+        using ``list=recentchanges`` with specific timespan.
+
+        This property is not cached since it may change (though not very often).
+
+        .. _`$wgRCMaxAge`: http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
+        """
+        params = {
+            "action": "query",
+            "list": "recentchanges",
+            "rcprop": "timestamp",
+            "rcdir": "newer",
+            "rclimit": "1",
+            "continue": "",  # needed only to silence stupid deprecation warning
+        }
+        result = self.call_api(params)
+        timestamp = result["recentchanges"][0]["timestamp"]
+        return parse_date(timestamp)
 
 
     def query_continue(self, params=None, **kwargs):
@@ -411,5 +437,12 @@ class API(Connection):
 class LoginFailed(Exception):
     """
     Raised when the :py:meth:`API.login` call failed.
+    """
+    pass
+
+class ShortRecentChangesError(Exception):
+    """
+    Should be raised by clients to indicate that changes from the requested
+    timespan are not available in the ``recentchanges`` table.
     """
     pass

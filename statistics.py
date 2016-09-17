@@ -60,11 +60,6 @@ class Statistics:
                     default=1, type=int, dest='us_minrecedits', metavar='N',
                     help='minimum recent changes for users with not enough '
                     'total edits (default: %(default)s)')
-        usstats.add_argument('--us-err-threshold', action='store', default=6,
-                    type=int, dest='us_rcerrhours', metavar='N',
-                    help='the maximum difference in hours allowed between the '
-                    'oldest retrieved change and the old end of the time span '
-                    '(default: %(default)s)')
 
         # TODO: main group for "script parameters" would be most logical, but
         #       but argparse does not display nested groups in the help page
@@ -113,7 +108,7 @@ class Statistics:
     def _compose_page(self):
         userstats = _UserStats(self.api, self.cliargs.cache_dir, self.page,
                     self.cliargs.us_days, self.cliargs.us_mintotedits,
-                    self.cliargs.us_minrecedits, self.cliargs.us_rcerrhours)
+                    self.cliargs.us_minrecedits)
         userstats.update()
 
     def _output_page(self):
@@ -202,7 +197,7 @@ divided by the number of days between the user's first and last edits.
     STREAK_FORMAT = '<span title="{length} days, from {start} to {end} ({editcount} edits)">{length}</span>'
     REGISTRATION_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-    def __init__(self, api, cache_dir, autopage, days, mintotedits, minrecedits, rcerrhours):
+    def __init__(self, api, cache_dir, autopage, days, mintotedits, minrecedits):
         self.api = api
         self.text = autopage.wikicode.get_sections(matches="User statistics",
                     flat=True, include_lead=False, include_headings=False)[0]
@@ -212,7 +207,7 @@ divided by the number of days between the user's first and last edits.
         self.MINTOTEDITS = mintotedits
         self.MINRECEDITS = minrecedits
 
-        self.db_userprops = ws.cache.AllUsersProps(api, cache_dir, active_days=days, round_to_midnight=True, rc_err_hours=rcerrhours)
+        self.db_userprops = ws.cache.AllUsersProps(api, cache_dir, active_days=days, round_to_midnight=True)
         self.db_allrevsprops = ws.cache.AllRevisionsProps(api, cache_dir)
         self.modules = UserStatsModules(self.db_allrevsprops, round_to_midnight=True)
 

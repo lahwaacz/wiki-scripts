@@ -5,6 +5,7 @@ import logging
 
 from . import CacheDb
 from .. import utils
+from ws.client.api import ShortRecentChangesError
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +13,7 @@ __all__ = ["AllUsersProps"]
 
 class AllUsersProps(CacheDb):
 
-    def __init__(self, api, cache_dir, autocommit=True, active_days=30, round_to_midnight=False, rc_err_hours=6):
+    def __init__(self, api, cache_dir, autocommit=True, active_days=30, round_to_midnight=False):
         """
         :param active_days:
             the time span in days to consider users as active
@@ -20,13 +21,9 @@ class AllUsersProps(CacheDb):
             Whether to round timestamps to midnight when fetching recent changes. This
             affects the ``"recenteditcount"`` property, but not the total ``"editcount"``,
             which reflects the state as of the last update of the cache.
-        :param rc_err_hours:
-            the maximum difference in hours allowed between the oldest retrieved
-            recent change and the old end of the time span
         """
         self.round_to_midnight = round_to_midnight
         self.active_days = active_days
-        self.rc_err_threshold = datetime.timedelta(hours=rc_err_hours)
 
         super().__init__(api, cache_dir, "AllUsersProps", autocommit)
 
@@ -127,8 +124,7 @@ class AllUsersProps(CacheDb):
         # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
         # By default the max age is 13 weeks: if a larger timespan is requested
         # here, it's very important to warn that the changes are not available
-        oldestchange = utils.parse_date(change["timestamp"])
-        if oldestchange - firstday > self.rc_err_threshold:
+        if self.api.oldest_recent_change > firstday:
             raise ShortRecentChangesError()
 
         # save as meta data, only when not raising
@@ -147,6 +143,3 @@ class AllUsersProps(CacheDb):
                 user["recenteditcount"] = rcusers[user["name"]]
             else:
                 user["recenteditcount"] = 0
-
-class ShortRecentChangesError(Exception):
-    pass
