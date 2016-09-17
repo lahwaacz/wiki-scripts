@@ -4,6 +4,7 @@ import datetime
 import logging
 
 import ws.utils
+from ws.client.api import ShortRecentChangesError
 
 logger = logging.getLogger(__name__)
 
@@ -62,9 +63,6 @@ def gen_update(api, rcusers):
         yield from gen(api, list_params)
 
 
-class ShortRecentChangesError(Exception):
-    pass
-
 def gen_rcusers(api, since):
     """
     Find users whose properties may have changed since the last update.
@@ -75,18 +73,16 @@ def gen_rcusers(api, since):
     since_f = ws.utils.format_date(since)
     rcusers = set()
 
-    # also add the performer of any log entry
-    for change in api.list(action="query", list="recentchanges", rctype="edit|log", rcprop="user|timestamp", rclimit="max", rcend=since_f):
-        rcusers.add(change["user"])
-
     # Items in the recentchanges table are periodically purged according to
     # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
     # By default the max age is 13 weeks: if a larger timespan is requested
     # here, it's very important to warn that the changes are not available
-    oldestchange = ws.utils.parse_date(change["timestamp"])
-    # FIXME: hardcoded threshold
-    if oldestchange - since > datetime.timedelta(hours=6):
+    if api.oldest_recent_change > since:
         raise ShortRecentChangesError()
+
+    # also add the performer of any log entry
+    for change in api.list(action="query", list="recentchanges", rctype="edit|log", rcprop="user|timestamp", rclimit="max", rcdir="newer", rcstart=since_f):
+        rcusers.add(change["user"])
 
     # also examine log entries and add target user
     # (this is not available in recentchanges - although there is rctype=log
@@ -98,7 +94,7 @@ def gen_rcusers(api, since):
     #  - rights
     #  - block
     for letype in ["newusers", "rights", "block"]:
-        for user in api.list(list="logevents", letype=letype, lelimit="max", leend=since_f):
+        for user in api.list(list="logevents", letype=letype, lelimit="max", ledir="newer", lestart=since_f):
             # extract target user name
             username = user["title"].split(":", maxsplit=1)[1]
             rcusers.add(username)
