@@ -1,5 +1,6 @@
 pytest
 pytest-cov
+# wait for 0.15.1, https://github.com/ClearcodeHQ/pytest-dbfixtures/pull/190
 #pytest-dbfixtures
 git+https://github.com/lahwaacz/pytest-dbfixtures.git
 
