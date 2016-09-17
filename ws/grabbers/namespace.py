@@ -63,75 +63,30 @@ def gen_namespace_name(api):
 
 
 # TODO: delete namespaces that ceased to exist
-def update_namespace(api, db):
-    ns_sel = sa.select([db.namespace.c.ns_id])
-    ns_ins = db.namespace.insert()
-    ns_upd = db.namespace.update() \
-             .where(db.namespace.c.ns_id == sa.bindparam("b_ns_id"))
-
-    # select only ns_id so we know what's in the db
-    existing_namespaces = set()
-    with db.engine.begin() as conn:
-        for row in conn.execute(ns_sel):
-            existing_namespaces.add(row.ns_id)
-
-    # divide the API entries for insert or update
-    ins_entries = []
-    upd_entries = []
-    for entry in gen_namespace(api):
-        if entry["ns_id"] in existing_namespaces:
-            # change ns_id to b_ns_id to make bindparam in the update statement work
-            entry["b_ns_id"] = entry.pop("ns_id")
-            upd_entries.append(entry)
-        else:
-            ins_entries.append(entry)
-
-    with db.engine.begin() as conn:
-        # insert new namespaces
-        if ins_entries:
-            conn.execute(ns_ins, ins_entries)
-
-        # update existing namespaces
-        if upd_entries:
-            conn.execute(ns_upd, upd_entries)
-
-
-def update_namespace_name(api, db):
-    nsn_sel = sa.select([db.namespace_name.c.nsn_name])
-    nsn_ins = db.namespace_name.insert()
-    nsn_upd = db.namespace_name.update() \
-              .where(db.namespace_name.c.nsn_name == sa.bindparam("b_nsn_name"))
-
-    # select only nsn_name so we know what's in the db
-    existing_names = set()
-    with db.engine.begin() as conn:
-        for row in conn.execute(nsn_sel):
-            existing_names.add(row.nsn_name)
-
-    # divide the API entries for insert or update
-    ins_entries = []
-    upd_entries = []
-    for entry in gen_namespace_name(api):
-        if entry["nsn_name"] in existing_names:
-            # change ns_id to b_ns_id to make bindparam in the update statement work
-            entry["b_nsn_name"] = entry.pop("nsn_name")
-            upd_entries.append(entry)
-        else:
-            ins_entries.append(entry)
-
-    with db.engine.begin() as conn:
-        # insert new names
-        if ins_entries:
-            conn.execute(nsn_ins, ins_entries)
-
-        # update existing names
-        if upd_entries:
-            conn.execute(nsn_upd, upd_entries)
-
-
 def update(api, db):
-    update_namespace(api, db)
-    update_namespace_name(api, db)
+    ns_ins = db.namespace.insert(mysql_on_duplicate_key_update=[
+                                db.namespace.c.ns_case,
+                                db.namespace.c.ns_content,
+                                db.namespace.c.ns_subpages,
+                                db.namespace.c.ns_nonincludable,
+                                db.namespace.c.ns_defaultcontentmodel,
+                            ])
+    nsn_ins = db.namespace_name.insert(mysql_on_duplicate_key_update=[
+                                db.namespace_name.c.nsn_id,
+                                db.namespace_name.c.nsn_starname,
+                                db.namespace_name.c.nsn_canonical,
+                                db.namespace_name.c.nsn_alias,
+                            ])
+
+    ns_entries = list(gen_namespace(api))
+    if ns_entries:
+        with db.engine.begin() as conn:
+            conn.execute(ns_ins, ns_entries)
+
+    nsn_entries = list(gen_namespace_name(api))
+    if nsn_entries:
+        with db.engine.begin() as conn:
+            conn.execute(nsn_ins, nsn_entries)
 
 
 def select(db):
