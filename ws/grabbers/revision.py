@@ -53,6 +53,7 @@ def gen(api, first, last, with_content=False, text_id_gen=None):
                         })
                     yield db_entry
 
+# TODO: text.old_id is auto-increment, but revision.rev_text_id has to be set accordingly. SQL should be able to do it automatically.
 def _get_text_id(conn):
     result = conn.execute(sqlalchemy.select( [func.max(db.text.c.old_id)] ))
     value = result.fetchone()[0]
@@ -72,13 +73,6 @@ def _get_last_revid_db(conn):
         return 0
     return value
 
-def _get_last_revid_api():
-    """
-    Get ID of the last revision on the wiki.
-    """
-    result = api.call_api(action="query", list="recentchanges", rcprop="ids", rctype="edit", rclimit="1")
-    return result["recentchanges"][0]["revid"]
-
 def insert(api, db):
     revision_ins = db.revision.insert()
     text_ins = db.text.insert()
@@ -88,7 +82,7 @@ def insert(api, db):
     # get revision IDs
     firstrevid = 1
     midrevid = _get_last_revid_db(conn)
-    lastrevid = _get_last_revid_api()
+    lastrevid = api.last_revision_id
 
     text_id_gen = _get_text_id(conn)
 
