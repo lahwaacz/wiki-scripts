@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 # FIXME: keep all MediaWiki constants in one place
 implicit_groups = {"*", "user"}
+# this should be equal to the API's limit for the ususers= parameter
+chunk_size_small = 500
 
 
 def gen(api, list_params):
@@ -53,12 +55,13 @@ def gen_insert(api):
 
 def gen_update(api, rcusers):
     logger.info("Fetching properties of {} possibly modified user accounts...".format(len(rcusers)))
-    list_params = {
-        "list": "users",
-        "ususers": "|".join(rcusers),
-        "usprop": "blockinfo|groups|editcount|registration",
-    }
-    yield from gen(api, list_params)
+    for chunk in ws.utils.iter_chunks(rcusers, chunk_size_small):
+        list_params = {
+            "list": "users",
+            "ususers": "|".join(chunk),
+            "usprop": "blockinfo|groups|editcount|registration",
+        }
+        yield from gen(api, list_params)
 
 
 class ShortRecentChangesError(Exception):
