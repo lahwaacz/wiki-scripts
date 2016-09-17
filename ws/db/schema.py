@@ -11,6 +11,7 @@ Known incompatibilities from MediaWiki schema:
 - Enforced foreign key constraints (not present in MediaWiki's MySQL schema).
 - Columns not available via the API (e.g. user passwords) are nullable, since
   they are not part of the mirroring process.
+- user_groups table has primary key to avoid duplicate entries.
 """
 
 # TODO:
@@ -19,7 +20,7 @@ Known incompatibilities from MediaWiki schema:
 # - some boolean columns use SmallInteger instead of Boolean
 # - remove columns that were deprecated even in MediaWiki
 
-from sqlalchemy import Table, Column, ForeignKey, Index
+from sqlalchemy import Table, Column, ForeignKey, Index, PrimaryKeyConstraint
 from sqlalchemy.types import Boolean, Integer, SmallInteger, Float, Unicode, UnicodeText, Enum
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
 
@@ -303,7 +304,8 @@ def create_users_tables(metadata, charset):
 
     user_groups = Table("user_groups", metadata,
         Column("ug_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
-        Column("ug_group", UnicodeBinary(255), nullable=False, server_default="")
+        Column("ug_group", UnicodeBinary(255), nullable=False, server_default=""),
+        PrimaryKeyConstraint("ug_user", "ug_group")
     )
 
     ipblocks = Table("ipblocks", metadata,

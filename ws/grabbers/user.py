@@ -111,11 +111,11 @@ def db_execute(db, gen):
                                 db.user.c.user_registration,
                                 db.user.c.user_editcount,
                             ])
-    # FIXME: user_groups does not have primary key, so this causes duplicates
-    ug_ins = db.user_groups.insert()
-#    ug_ins = db.user_groups.insert(mysql_on_duplicate_key_update=[
-#                                db.user_groups.c.ug_group
-#                            ])
+    # it would have been fine to use INSERT IGNORE here (also probably specific
+    # to MySQL), but it generates a warning for every discarded row
+    ug_ins = db.user_groups.insert(mysql_on_duplicate_key_update=[
+                                db.user_groups.c.ug_group
+                            ])
     ipb_ins = db.ipblocks.insert(mysql_on_duplicate_key_update=[
                                 db.ipblocks.c.ipb_user,
                                 db.ipblocks.c.ipb_by,
