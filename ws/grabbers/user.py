@@ -152,15 +152,20 @@ def db_execute(db, gen):
 
 
 def insert(api, db):
+    sync_timestamp = datetime.datetime.utcnow()
+
     gen = gen_insert(api)
     db_execute(db, gen)
 
+    db.set_sync_timestamp(db.user, sync_timestamp)
+
 
 def update(api, db):
-    # TODO: if empty -> insert, return
-
-    # TODO: store last-sync timestamp in the database
-    since = datetime.datetime.utcnow() - datetime.timedelta(days=30)
+    sync_timestamp = datetime.datetime.utcnow()
+    since = db.get_sync_timestamp(db.user)
+    if since is None:
+        insert(api, db)
+        return
 
     try:
         rcusers = list(gen_rcusers(api, since))
@@ -172,3 +177,5 @@ def update(api, db):
     if len(rcusers) > 0:
         gen = gen_update(api, rcusers)
         db_execute(db, gen)
+
+        db.set_sync_timestamp(db.user, sync_timestamp)

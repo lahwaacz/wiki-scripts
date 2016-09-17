@@ -7,7 +7,7 @@ Prerequisites:
 2. One of the many drivers supported by sqlalchemy, e.g. pymysql.
 """
 
-from sqlalchemy import create_engine, Table, MetaData
+from sqlalchemy import create_engine, Table, MetaData, select
 from sqlalchemy.engine import Engine
 
 from . import schema
@@ -103,6 +103,40 @@ class Database:
         """
         url = klass.make_url(args.db_user, args.db_password, args.db_host, args.db_name)
         return klass(url)
+
+    def set_sync_timestamp(self, table, timestamp):
+        """
+        Set a last-sync timestamp for given table. Writes into the custom
+        ``ws_sync`` tyble.
+
+        :param sqlalchemy.Table table: a table whose timestamp should be updated
+        :param datetime.datetime timestamp: the new timestamp
+        """
+        ws_sync = self.metadata.tables["ws_sync"]
+        ins = ws_sync.insert(mysql_on_duplicate_key_update=[ws_sync.c.wss_timestamp])
+        entry = {
+            "wss_table": table.name,
+            "wss_timestamp": timestamp,
+        }
+
+        with self.engine.begin() as conn:
+            conn.execute(ins, entry)
+
+    def get_sync_timestamp(self, table):
+        """
+        Set a last-sync timestamp for given table. Reads from the custom
+        ``ws_sync`` tyble.
+
+        :param sqlalchemy.Table table: a table whose timestamp should be updated
+        """
+        ws_sync = self.metadata.tables["ws_sync"]
+        sel = select([ws_sync.c.wss_timestamp]).where(ws_sync.c.wss_table == table.name)
+
+        conn = self.engine.connect()
+        row = conn.execute(sel).fetchone()
+        if row:
+            return row[0]
+        return None
 
 
 # The standard MERGE statement is not supported with the standard syntax in

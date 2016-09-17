@@ -11,7 +11,6 @@ def main(api, db):
     namespace.update(api, db)
     pprint(namespace.select(db))
 
-    user.insert(api, db)
     user.update(api, db)
 
     page.insert(api, db)

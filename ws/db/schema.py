@@ -25,7 +25,9 @@ Known incompatibilities from MediaWiki schema:
 # - some boolean columns use SmallInteger instead of Boolean
 
 from sqlalchemy import Table, Column, ForeignKey, Index, PrimaryKeyConstraint
-from sqlalchemy.types import Boolean, Integer, SmallInteger, Float, Unicode, UnicodeText, Enum
+from sqlalchemy.types import \
+        Boolean, Integer, SmallInteger, Float, \
+        Unicode, UnicodeText, Enum, DateTime
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
 
 from .sql_types import \
@@ -54,6 +56,12 @@ def create_custom_tables(metadata, charset):
         Column("nsn_alias", Boolean, nullable=False, server_default="0")
     )
     Index("nsn_name", namespace_name.c.nsn_name, unique=True)
+
+    ws_sync = Table("ws_sync", metadata,
+        Column("wss_table", Unicode(32), nullable=False, primary_key=True),
+        # timestamp of the last successful sync of the table
+        Column("wss_timestamp", DateTime, nullable=False)
+    )
 
 
 def create_users_tables(metadata, charset):
