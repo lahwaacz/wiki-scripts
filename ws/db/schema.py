@@ -52,6 +52,61 @@ def create_custom_tables(metadata, charset):
     Index("nsn_name", namespace_name.c.nsn_name, unique=True)
 
 
+def create_users_tables(metadata, charset):
+    user = Table("user", metadata,
+        Column("user_id", Integer, primary_key=True, nullable=False),
+        Column("user_name", UnicodeBinary(255), nullable=False, server_default=""),
+        Column("user_real_name", UnicodeBinary(255), nullable=False, server_default=""),
+        # MW incompatibility: set to nullable since passwords are not part of mirroring
+#        Column("user_password", TinyBlob(charset=charset), nullable=False),
+#        Column("user_newpassword", TinyBlob(charset=charset), nullable=False),
+        Column("user_password", TinyBlob(charset=charset), server_default=None),
+        Column("user_newpassword", TinyBlob(charset=charset), server_default=None),
+        Column("user_newpass_time", MWTimestamp),
+        # nullable for the same reason as passwords
+#        Column("user_email", TinyBlob(charset=charset), nullable=False),
+        Column("user_email", TinyBlob(charset=charset), server_default=None),
+        Column("user_touched", MWTimestamp, nullable=False, server_default=""),
+        Column("user_token", UnicodeBinary(32), nullable=False, server_default=""),
+        Column("user_email_authenticated", MWTimestamp),
+        Column("user_email_token", UnicodeBinary(32)),
+        Column("user_email_token_expires", MWTimestamp),
+        Column("user_registration", MWTimestamp),
+        Column("user_editcount", Integer),
+        Column("user_password_expires", MWTimestamp, server_default=None)
+    )
+
+    user_groups = Table("user_groups", metadata,
+        Column("ug_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
+        Column("ug_group", UnicodeBinary(255), nullable=False, server_default=""),
+        PrimaryKeyConstraint("ug_user", "ug_group")
+    )
+
+    ipblocks = Table("ipblocks", metadata,
+        Column("ipb_id", Integer, primary_key=True, nullable=False),
+        # nullable due to mirroring
+#        Column("ipb_address", TinyBlob(charset=charset), nullable=False),
+        Column("ipb_address", TinyBlob(charset=charset)),
+        Column("ipb_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
+        Column("ipb_by", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
+        Column("ipb_by_text", UnicodeBinary(255), nullable=False, server_default=""),
+        Column("ipb_reason", UnicodeBinary(767), nullable=False),
+        Column("ipb_timestamp", MWTimestamp, nullable=False, server_default=""),
+        Column("ipb_auto", Boolean, nullable=False, server_default="0"),
+        Column("ipb_anon_only", Boolean, nullable=False, server_default="0"),
+        Column("ipb_create_account", Boolean, nullable=False, server_default="1"),
+        Column("ipb_enable_autoblock", Boolean, nullable=False, server_default="1"),
+        Column("ipb_expiry", MWTimestamp, nullable=False, server_default=""),
+        Column("ipb_range_start", TinyBlob(charset=charset), nullable=False),
+        Column("ipb_range_end", TinyBlob(charset=charset), nullable=False),
+        Column("ipb_deleted", Boolean, nullable=False, server_default="0"),
+        Column("ipb_block_email", Boolean, nullable=False, server_default="0"),
+        Column("ipb_allow_usertalk", Boolean, nullable=False, server_default="0"),
+        # FIXME: MW defect: FK to the same table
+        Column("ipb_parent_block_id", Integer, ForeignKey("ipblocks.ipb_id", ondelete="SET NULL"), server_default=None)
+    )
+
+
 def create_pages_tables(metadata, charset):
     archive = Table("archive", metadata,
         Column("ar_id", Integer, nullable=False, primary_key=True),
@@ -278,61 +333,6 @@ def create_recentchanges_tables(metadata, charset):
     )
 
 
-def create_users_tables(metadata, charset):
-    user = Table("user", metadata,
-        Column("user_id", Integer, primary_key=True, nullable=False),
-        Column("user_name", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("user_real_name", UnicodeBinary(255), nullable=False, server_default=""),
-        # MW incompatibility: set to nullable since passwords are not part of mirroring
-#        Column("user_password", TinyBlob(charset=charset), nullable=False),
-#        Column("user_newpassword", TinyBlob(charset=charset), nullable=False),
-        Column("user_password", TinyBlob(charset=charset), server_default=None),
-        Column("user_newpassword", TinyBlob(charset=charset), server_default=None),
-        Column("user_newpass_time", MWTimestamp),
-        # nullable for the same reason as passwords
-#        Column("user_email", TinyBlob(charset=charset), nullable=False),
-        Column("user_email", TinyBlob(charset=charset), server_default=None),
-        Column("user_touched", MWTimestamp, nullable=False, server_default=""),
-        Column("user_token", UnicodeBinary(32), nullable=False, server_default=""),
-        Column("user_email_authenticated", MWTimestamp),
-        Column("user_email_token", UnicodeBinary(32)),
-        Column("user_email_token_expires", MWTimestamp),
-        Column("user_registration", MWTimestamp),
-        Column("user_editcount", Integer),
-        Column("user_password_expires", MWTimestamp, server_default=None)
-    )
-
-    user_groups = Table("user_groups", metadata,
-        Column("ug_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
-        Column("ug_group", UnicodeBinary(255), nullable=False, server_default=""),
-        PrimaryKeyConstraint("ug_user", "ug_group")
-    )
-
-    ipblocks = Table("ipblocks", metadata,
-        Column("ipb_id", Integer, primary_key=True, nullable=False),
-        # nullable due to mirroring
-#        Column("ipb_address", TinyBlob(charset=charset), nullable=False),
-        Column("ipb_address", TinyBlob(charset=charset)),
-        Column("ipb_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
-        Column("ipb_by", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
-        Column("ipb_by_text", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("ipb_reason", UnicodeBinary(767), nullable=False),
-        Column("ipb_timestamp", MWTimestamp, nullable=False, server_default=""),
-        Column("ipb_auto", Boolean, nullable=False, server_default="0"),
-        Column("ipb_anon_only", Boolean, nullable=False, server_default="0"),
-        Column("ipb_create_account", Boolean, nullable=False, server_default="1"),
-        Column("ipb_enable_autoblock", Boolean, nullable=False, server_default="1"),
-        Column("ipb_expiry", MWTimestamp, nullable=False, server_default=""),
-        Column("ipb_range_start", TinyBlob(charset=charset), nullable=False),
-        Column("ipb_range_end", TinyBlob(charset=charset), nullable=False),
-        Column("ipb_deleted", Boolean, nullable=False, server_default="0"),
-        Column("ipb_block_email", Boolean, nullable=False, server_default="0"),
-        Column("ipb_allow_usertalk", Boolean, nullable=False, server_default="0"),
-        # FIXME: MW defect: FK to the same table
-        Column("ipb_parent_block_id", Integer, ForeignKey("ipblocks.ipb_id", ondelete="SET NULL"), server_default=None)
-    )
-
-
 def create_siteinfo_tables(metadata, charset):
     change_tag = Table("change_tag", metadata,
         Column("ct_rc_id", Integer),
@@ -548,6 +548,6 @@ def create_unused_tables(metadata, charset):
 
 def create_tables(metadata, charset="utf8"):
     create_custom_tables(metadata, charset)
-    create_pages_tables(metadata, charset)
     create_users_tables(metadata, charset)
+    create_pages_tables(metadata, charset)
     metadata.create_all()
