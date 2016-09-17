@@ -294,6 +294,9 @@ def create_links_tables(metadata, charset):
 
 
 def create_recentchanges_tables(metadata, charset):
+    # Instead of rc_namespace,rc_title there could be a foreign key to page.page_id,
+    # but recentchanges is probably intended to hold entries even if the page has
+    # been deleted in the meantime.
     recentchanges = Table("recentchanges", metadata,
         Column("rc_id", Integer, primary_key=True, nullable=False),
         Column("rc_timestamp", MWTimestamp, nullable=False, server_default=""),
@@ -305,12 +308,14 @@ def create_recentchanges_tables(metadata, charset):
         Column("rc_minor", SmallInteger, nullable=False, server_default="0"),
         Column("rc_bot", SmallInteger, nullable=False, server_default="0"),
         Column("rc_new", SmallInteger, nullable=False, server_default="0"),
-        # FK: rc_cur_id -> page.page_id     (not in PostgreSQL)
+        # fake foreign key (see note above): rc_cur_id -> page.page_id
         Column("rc_cur_id", Integer, nullable=False, server_default="0"),
-        # FK: rc_this_oldid -> revision.rev_id      (not in PostgreSQL)
+        # foreign key (see note above): rc_this_oldid -> revision.rev_id
         Column("rc_this_oldid", Integer, nullable=False, server_default="0"),
-        # FK: rc_this_oldid -> revision.rev_id      (not in PostgreSQL)
+        # foreign key (see note above): rc_last_oldid -> revision.rev_id
         Column("rc_last_oldid", Integer, nullable=False, server_default="0"),
+        # FIXME: MW defect: should be enum, instead there are some numeric constants
+        # (RC_EDIT,RC_NEW,RC_LOG,RC_EXTERNAL)
         Column("rc_type", SmallInteger, nullable=False, server_default="0"),
         Column("rc_source", UnicodeBinary(16), nullable=False, server_default=""),
         Column("rc_patrolled", SmallInteger, nullable=False, server_default="0"),
