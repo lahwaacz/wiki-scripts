@@ -105,16 +105,21 @@ class Database:
         return klass(url)
 
 
-
-# TODO:
-#   figure out proper updating of the existing entries (UPDATE does not insert new entries, REPLACE is specific to mysql and not easily available in sqlalchemy)
+# The standard MERGE statement is not supported with the standard syntax in
+# MySQL, SQLite and others.
+# https://en.wikipedia.org/wiki/Merge_(SQL)
+#
+# Note that statements involving REPLACE are nonstandard and invoke referential
+# actions on child rows (e.g. FOREIGN KEY ... ON DELETE CASCADE).
 
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import Insert
 
-@compiles(Insert)
-def update_key(insert, compiler, **kw):
+@compiles(Insert, "mysql")
+def on_duplicate_key_update(insert, compiler, **kw):
     s = compiler.visit_insert(insert, **kw)
-    if "update_key" in insert.kwargs:
-        return s + " ON DUPLICATE KEY UPDATE {0}=VALUES({0})".format(insert.kwargs["update_key"])
+    if "on_duplicate_key_update" in insert.kwargs:
+        columns = [c.name for c in insert.kwargs["on_duplicate_key_update"]]
+        values = ", ".join("{0}=VALUES({0})".format(c) for c in columns)
+        return s + " ON DUPLICATE KEY UPDATE " + values
     return s
