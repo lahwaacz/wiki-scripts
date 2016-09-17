@@ -118,8 +118,9 @@ from sqlalchemy.sql.expression import Insert
 @compiles(Insert, "mysql")
 def on_duplicate_key_update(insert, compiler, **kw):
     s = compiler.visit_insert(insert, **kw)
-    if "on_duplicate_key_update" in insert.kwargs:
-        columns = [c.name for c in insert.kwargs["on_duplicate_key_update"]]
+    if insert.kwargs["mysql_on_duplicate_key_update"]:
+        columns = [c.name for c in insert.kwargs["mysql_on_duplicate_key_update"]]
         values = ", ".join("{0}=VALUES({0})".format(c) for c in columns)
         return s + " ON DUPLICATE KEY UPDATE " + values
     return s
+Insert.argument_for("mysql", "on_duplicate_key_update", None)
