@@ -10,7 +10,8 @@ Known incompatibilities from MediaWiki schema:
 - Added some custom tables.
 - Enforced foreign key constraints (not present in MediaWiki's MySQL schema).
 - Columns not available via the API (e.g. user passwords) are nullable, since
-  they are not part of the mirroring process.
+  they are not part of the mirroring process. Likewise revision.rev_text_id
+  is nullable so that we can sync metadata and text separately.
 - user_groups table has primary key to avoid duplicate entries.
 - Removed columns that were deprecated even in MediaWiki:
     page.page_restrictions
@@ -154,7 +155,8 @@ def create_pages_tables(metadata, charset):
         Column("rev_id", Integer, primary_key=True, nullable=False),
         # TODO: check how this works for deleted pages (MW's PostgreSQL schema has the foreign key, so it's probably OK)
         Column("rev_page", Integer, ForeignKey("page.page_id"), nullable=False),
-        Column("rev_text_id", Integer, ForeignKey("text.old_id"), nullable=False),
+        # MW incompatibility: set as nullable so that we can sync metadata and text separately
+        Column("rev_text_id", Integer, ForeignKey("text.old_id")),
         Column("rev_comment", UnicodeBinary(767), nullable=False),
         Column("rev_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
         Column("rev_user_text", UnicodeBinary(255), nullable=False, server_default=""),
