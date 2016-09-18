@@ -7,7 +7,7 @@ Prerequisites:
 2. One of the many drivers supported by sqlalchemy, e.g. pymysql.
 """
 
-from sqlalchemy import create_engine, Table, MetaData, select
+from sqlalchemy import create_engine, MetaData, select
 from sqlalchemy.engine import Engine
 
 from . import schema

@@ -87,8 +87,9 @@ class MWTimestamp(types.TypeDecorator):
         """
         if value is None:
             return value
+        # TODO: there should be some validation (which would probably make this very slow)
         # special values like "infinity" are handled implicitly
-        value = value.replace('-','').replace('T','').replace(':','').replace('Z','')
+        value = value.replace('-', '').replace('T', '').replace(':', '').replace('Z', '')
         return bytes(value, self.charset)
 
     def process_result_value(self, value, dialect):

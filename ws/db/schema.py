@@ -27,12 +27,12 @@ Known incompatibilities from MediaWiki schema:
 
 from sqlalchemy import Table, Column, ForeignKey, Index, PrimaryKeyConstraint
 from sqlalchemy.types import \
-        Boolean, Integer, SmallInteger, Float, \
+        Boolean, SmallInteger, Integer, BigInteger, Float, \
         Unicode, UnicodeText, Enum, DateTime
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
 
 from .sql_types import \
-        TinyBlob, Blob, MediumBlob, LongBlob, UnicodeBinary, \
+        TinyBlob, Blob, MediumBlob, UnicodeBinary, \
         MWTimestamp, Base36
 
 
@@ -309,7 +309,7 @@ def create_links_tables(metadata, charset):
         Column("cl_to", UnicodeBinary(255), nullable=False, server_default=""),
         Column("cl_sortkey", UnicodeBinary(230), nullable=False, server_default=""),
         Column("cl_sortkey", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("cl_timestamp", TIMESTAMP(timezone=False), nullable=False),
+        Column("cl_timestamp", DateTime, nullable=False),
         Column("cl_collation", UnicodeBinary(32), nullable=False, server_default=""),
         Column("cl_type", Enum("page", "subcat", "file"), nullable=False, server_default="page")
     )
@@ -394,7 +394,7 @@ def create_siteinfo_tables(metadata, charset):
         Column("log_page", Integer),
         Column("log_comment", UnicodeBinary(767), nullable=False, server_default=""),
         Column("log_params", Blob(charset=charset), nullable=False),
-        Column("log_deleted", SmallInteger, nullable=False,server_default="0")
+        Column("log_deleted", SmallInteger, nullable=False, server_default="0")
     )
 
     # TODO: log_search table
@@ -520,7 +520,7 @@ def create_unused_tables(metadata, charset):
     objectcache = Table("objectcache", metadata,
         Column("keyname", UnicodeBinary(255), primary_key=True, nullable=False, server_default=""),
         Column("value", MediumBlob(charset=charset)),
-        Column("exptime", DATETIME(timezone=False))
+        Column("exptime", DateTime)
     )
 
     querycache = Table("querycache", metadata,
