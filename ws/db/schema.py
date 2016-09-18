@@ -385,10 +385,12 @@ def create_siteinfo_tables(metadata, charset):
         Column("log_type", UnicodeBinary(32), nullable=False, server_default=""),
         Column("log_action", UnicodeBinary(32), nullable=False, server_default=""),
         Column("log_timestamp", MWTimestamp, nullable=False, server_default="19700101000000"),
-        Column("log_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
+        Column("log_user", Integer, ForeignKey("user.user_id", ondelete="SET NULL")),
         Column("log_user_text", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("log_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
+        # FIXME: logging table may contain rows with log_namespace < 0
+        Column("log_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("log_title", UnicodeBinary(255), nullable=False, server_default=""),
+        # TODO: is it safe to make this a FK (with ON DELETE SET NULL)?
         Column("log_page", Integer),
         Column("log_comment", UnicodeBinary(767), nullable=False, server_default=""),
         Column("log_params", Blob(charset=charset), nullable=False),
