@@ -100,7 +100,7 @@ def create_users_tables(metadata, charset):
         # nullable due to mirroring
 #        Column("ipb_address", TinyBlob(charset=charset), nullable=False),
         Column("ipb_address", TinyBlob(charset=charset)),
-        Column("ipb_user", Integer, ForeignKey("user.user_id", ondelete="CASCADE"), nullable=False, server_default="0"),
+        Column("ipb_user", Integer, ForeignKey("user.user_id", ondelete="CASCADE")),
         Column("ipb_by", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
         Column("ipb_by_text", UnicodeBinary(255), nullable=False, server_default=""),
         Column("ipb_reason", UnicodeBinary(767), nullable=False),
