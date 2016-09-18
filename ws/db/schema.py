@@ -100,7 +100,7 @@ def create_users_tables(metadata, charset):
         # nullable due to mirroring
 #        Column("ipb_address", TinyBlob(charset=charset), nullable=False),
         Column("ipb_address", TinyBlob(charset=charset)),
-        Column("ipb_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
+        Column("ipb_user", Integer, ForeignKey("user.user_id", ondelete="CASCADE"), nullable=False, server_default="0"),
         Column("ipb_by", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
         Column("ipb_by_text", UnicodeBinary(255), nullable=False, server_default=""),
         Column("ipb_reason", UnicodeBinary(767), nullable=False),
@@ -117,7 +117,7 @@ def create_users_tables(metadata, charset):
         Column("ipb_deleted", Boolean, nullable=False, server_default="0"),
         Column("ipb_block_email", Boolean, nullable=False, server_default="0"),
         Column("ipb_allow_usertalk", Boolean, nullable=False, server_default="0"),
-        Column("ipb_parent_block_id", Integer, ForeignKey("ipblocks.ipb_id", ondelete="SET NULL"), server_default=None)
+        Column("ipb_parent_block_id", Integer, ForeignKey("ipblocks.ipb_id", ondelete="CASCADE"), server_default=None)
     )
 
 
