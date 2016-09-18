@@ -3,14 +3,18 @@
 from sqlalchemy import bindparam
 
 import ws.utils
+from ws.parser_helpers.title import Title
 
 def gen(api):
     _props = "ids|timestamp|flags|user|userid|comment|size|sha1|contentmodel"
     for page in api.list(list="alldeletedrevisions", adrlimit="max", adrprop=_props):
+        title = Title(api, page["title"])
         rev = page["revisions"][0]
+
         db_entry = {
             "ar_namespace": page["ns"],
-            "ar_title": page["title"],
+            # title is stored without the namespace prefix
+            "ar_title": title.pagename,
             "ar_rev_id": rev["revid"],
             "ar_page_id": page["pageid"] if page["pageid"] else None,
             # ar_text_id will be set while populating the text table

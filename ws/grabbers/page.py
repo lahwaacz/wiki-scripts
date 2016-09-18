@@ -3,6 +3,7 @@
 import random
 
 import ws.utils
+from ws.parser_helpers.title import Title
 
 def gen(api):
     for ns in api.site.namespaces.keys():
@@ -16,12 +17,14 @@ def gen(api):
                     inprop="protection",
                 ):
 
+            title = Title(api, page["title"])
+
             # init for page table
             db_entry = {
                 "page_id": page["pageid"],
                 "page_namespace": page["ns"],
-                # TODO: strip namespace prefix
-                "page_title": page["title"],
+                # title is stored without the namespace prefix
+                "page_title": title.pagename,
                 "page_is_redirect": "redirect" in page,
                 "page_is_new": "new" in page,
                 "page_random": random.random(),
