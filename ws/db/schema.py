@@ -88,12 +88,16 @@ def create_users_tables(metadata, charset):
         Column("user_editcount", Integer),
         Column("user_password_expires", MWTimestamp, server_default=None)
     )
+    Index("user_name", user.c.user_name, unique=True)
+    Index("user_email_token", user.c.user_email_token)
+    Index("user_email", user.c.user_email, mysql_length=50)
 
     user_groups = Table("user_groups", metadata,
-        Column("ug_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
-        Column("ug_group", UnicodeBinary(255), nullable=False, server_default=""),
+        Column("ug_user", Integer, ForeignKey("user.user_id"), nullable=False),
+        Column("ug_group", UnicodeBinary(255), nullable=False),
         PrimaryKeyConstraint("ug_user", "ug_group")
     )
+    Index("ug_group", user_groups.c.ug_group)
 
     ipblocks = Table("ipblocks", metadata,
         Column("ipb_id", Integer, primary_key=True, nullable=False),
@@ -119,6 +123,12 @@ def create_users_tables(metadata, charset):
         Column("ipb_allow_usertalk", Boolean, nullable=False, server_default="0"),
         Column("ipb_parent_block_id", Integer, ForeignKey("ipblocks.ipb_id", ondelete="CASCADE"), server_default=None)
     )
+    Index("ipb_address", ipblocks.c.ipb_address, ipblocks.c.ipb_user, ipblocks.c.ipb_auto, ipblocks.c.ipb_anon_only, mysql_length={"ipb_address": 255}, unique=True)
+    Index("ipb_user", ipblocks.c.ipb_user)
+    Index("ipb_range", ipblocks.c.ipb_range_start, ipblocks.c.ipb_range_end, mysql_length={"ipb_range_start": 8, "ipb_range_end": 8})
+    Index("ipb_timestamp", ipblocks.c.ipb_timestamp)
+    Index("ipb_expiry", ipblocks.c.ipb_expiry)
+    Index("ipb_parent_block_id", ipblocks.c.ipb_parent_block_id)
 
 
 def create_pages_tables(metadata, charset):
@@ -350,6 +360,13 @@ def create_recentchanges_tables(metadata, charset):
         Column("rc_log_action", UnicodeBinary(255), server_default=None),
         Column("rc_params", Blob(charset=charset))
     )
+    Index("rc_timestamp", recentchanges.c._timestamp)
+    Index("rc_namespace_title", recentchanges.c._namespace, recentchanges.c._title)
+    Index("rc_cur_id", recentchanges.c._cur_id)
+    Index("new_name_timestamp", recentchanges.c._new, recentchanges.c._namespace, recentchanges.c._timestamp)
+    Index("rc_ip", recentchanges.c._ip)
+    Index("rc_ns_usertext", recentchanges.c._namespace, recentchanges.c._user_text)
+    Index("rc_user_text", recentchanges.c._user_text, recentchanges.c._timestamp)
 
     watchlist = Table("watchlist", metadata,
         Column("wl_user", Integer, ForeignKey("user.user_id"), nullable=False),
@@ -358,6 +375,9 @@ def create_recentchanges_tables(metadata, charset):
         Column("wl_title", UnicodeBinary(255), nullable=False, server_default=""),
         Column("wl_notificationtimestamp", MWTimestamp)
     )
+    Index("wl_user", watchlist.c.wl_user, watchlist.c.wl_namespace, watchlist.c.wl_title, unique=True)
+    Index("wl_namespace_title", watchlist.c.wl_namespace, watchlist.c.wl_title)
+    Index("wl_user_notificationtimestamp", watchlist.c.wl_user, watchlist.c.wl_notificationtimestamp)
 
 
 def create_siteinfo_tables(metadata, charset):
@@ -368,6 +388,10 @@ def create_siteinfo_tables(metadata, charset):
         Column("ct_tag", Unicode(255), nullable=False),
         Column("ct_params", Blob(charset=charset))
     )
+    Index("change_tag_rc_tag", change_tag.c.ct_rc_id, change_tag.c.ct_tag, unique=True)
+    Index("change_tag_log_tag", change_tag.c.ct_log_id, change_tag.c.ct_tag, unique=True)
+    Index("change_tag_rev_tag", change_tag.c.ct_rev_id, change_tag.c.ct_tag, unique=True)
+    Index("change_tag_tag_id", change_tag.c.ct_tag, change_tag.c.ct_rc_id, change_tag.c.change_tag.c.ct_rev_id, change_tag.c.ct_log_id)
 
     valid_tag = Table("valid_tag", metadata,
         Column("vt_tag", Unicode(255), primary_key=True, nullable=False)
@@ -379,6 +403,9 @@ def create_siteinfo_tables(metadata, charset):
         Column("ts_rev_id", Integer),
         Column("ts_tags", MediumBlob(charset=charset), nullable=False)
     )
+    Index("tag_summary_rc_id", tag_summary.c.ts_rc_id, unique=True)
+    Index("tag_summary_log_id", tag_summary.c.ts_log_id, unique=True)
+    Index("tag_summary_rev_id", tag_summary.c.ts_rev_id, unique=True)
 
     logging = Table("logging", metadata,
         Column("log_id", Integer, primary_key=True, nullable=False),
@@ -396,6 +423,15 @@ def create_siteinfo_tables(metadata, charset):
         Column("log_params", Blob(charset=charset), nullable=False),
         Column("log_deleted", SmallInteger, nullable=False, server_default="0")
     )
+    Index("log_type_time", logging.c.log_type, logging.c.log_timestamp)
+    Index("log_user_time", logging.c.log_user, logging.c.log_timestamp)
+    Index("log_page_time", logging.c.log_namespace, logging.c.log_title, logging.c.log_timestamp)
+    Index("log_time", logging.c.log_timestamp)
+    Index("log_user_type_time", logging.c.log_user, logging.c.log_type, logging.c.log_timestamp)
+    Index("log_page_id_time", logging.c.log_page, logging.c.log_timestamp)
+    Index("log_type_action", logging.c.log_type, logging.c.log_action, logging.c.log_timestamp)
+    Index("log_user_text_type_time", logging.c.log_user_text, logging.c.log_type, logging.c.log_timestamp)
+    Index("log_user_text_time", logging.c.log_user_text, logging.c.log_timestamp)
 
     # TODO: log_search table
 
@@ -422,6 +458,14 @@ def create_siteinfo_tables(metadata, charset):
         Column("site_forward", Boolean, nullable=False),
         Column("site_config", Blob(charset=charset), nullable=False),
     )
+    Index("sites_global_key", sites.c.site_global_key, unique=True)
+    Index("sites_type", sites.c.site_type)
+    Index("sites_group", sites.c.site_group)
+    Index("sites_source", sites.c.site_source)
+    Index("sites_language", sites.c.site_language)
+    Index("sites_protocol", sites.c.site_protocol)
+    Index("sites_domain", sites.c.site_domain)
+    Index("sites_forward", sites.c.site_forward)
 
     # TODO: site_identifiers table
 
@@ -433,6 +477,7 @@ def create_siteinfo_tables(metadata, charset):
         Column("iw_local", Boolean, nullable=False),
         Column("iw_trans", SmallInteger, nullable=False, server_default="0")
     )
+    Index("iw_prefix", interwiki.c.iw_prefix, unique=True)
 
 
 def create_multimedia_tables(metadata, charset):
@@ -453,6 +498,11 @@ def create_multimedia_tables(metadata, charset):
         Column("img_timestamp", MWTimestamp, nullable=False, server_default=""),
         Column("img_sha1", Base36(32), nullable=False, server_default="")
     )
+    Index("img_usertext_timestamp", image.c.img_user_text, image.c.img_timestamp)
+    Index("img_size", image.c.img_size)
+    Index("img_timestamp", image.c.img_timestamp)
+    Index("img_sha1", image.c.img_sha1)
+    Index("img_media_mime", image.c.img_media_type, image.c.img_major_mime, image.c.img_minor_mime)
 
     oldimage = Table("oldimage", metadata,
         Column("oi_name", UnicodeBinary(255), nullable=False, server_default=""),
@@ -472,6 +522,10 @@ def create_multimedia_tables(metadata, charset):
         Column("oi_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("oi_sha1", Base36(32), nullable=False, server_default="")
     )
+    Index("oi_usertext_timestamp", oldimage.c.oi_user_text, oldimage.c.oi_timestamp)
+    Index("oi_name_timestamp", oldimage.c.oi_name, oldimage.c.oi_timestamp)
+    Index("oi_name_archive_name", oldimage.c.oi_name, oldimage.c.oi_archive_name, mysql_length={"oi_archive_name": 14})
+    Index("oi_sha1", oldimage.c.oi_sha1)
 
     filearchive = Table("filearchive", metadata,
         Column("fa_id", Integer, primary_key=True, nullable=False),
@@ -498,6 +552,11 @@ def create_multimedia_tables(metadata, charset):
                server_default="0"),
         Column("fa_sha1", Base36(32), nullable=False, server_default="")
     )
+    Index("fa_name", filearchive.c.fa_name, filearchive.c.fa_timestamp)
+    Index("fa_storage_group", filearchive.c.fa_storage_group, filearchive.c.fa_storage_key)
+    Index("fa_deleted_timestamp", filearchive.c.fa_deleted_timestamp)
+    Index("fa_user_timestamp", filearchive.c.fa_user_text, filearchive.c.fa_timestamp)
+    Index("fa_sha1", filearchive.c.fa_sha1)
 
     # TODO: uploadstash table
 
@@ -564,15 +623,19 @@ def create_unused_tables(metadata, charset):
     )
 
     user_former_groups = Table("user_former_groups", metadata,
-        Column("ufg_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
-        Column("ufg_group", UnicodeBinary(255), nullable=False, server_default="")
+        Column("ufg_user", Integer, ForeignKey("user.user_id"), nullable=False),
+        Column("ufg_group", UnicodeBinary(255), nullable=False),
+        PrimaryKeyConstraint("ufg_user", "ufg_group")
     )
 
+    # MW incompatibility: nullability + default values
     user_newtalk = Table("user_newtalk", metadata,
-        Column("user_id", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
-        Column("user_ip", UnicodeBinary(40), nullable=False, server_default=""),
+        Column("user_id", Integer, ForeignKey("user.user_id")),
+        Column("user_ip", UnicodeBinary(40)),
         Column("user_last_timestamp", MWTimestamp, server_default=None)
     )
+    Index("un_user_id", user_newtalk.c.user_id)
+    Index("un_user_ip", user_newtalk.c.user_ip)
 
 
 def create_tables(metadata, charset="utf8"):
