@@ -30,24 +30,12 @@ def gen(api, list_params):
             }
             yield db_entry
 
-        if "blockid" in user:
-            db_entry = {
-                "ipb_id": user["blockid"],
-                "ipb_user": user["userid"],
-                "ipb_by": user["blockedbyid"],
-                "ipb_by_text": user["blockedby"],
-                "ipb_reason": user["blockreason"],
-                "ipb_timestamp": user["blockedtimestamp"],
-                "ipb_expiry": user["blockexpiry"],
-            }
-            yield db_entry
-
 
 def gen_insert(api):
     list_params = {
         "list": "allusers",
         "aulimit": "max",
-        "auprop": "blockinfo|groups|editcount|registration",
+        "auprop": "groups|editcount|registration",
     }
     yield from gen(api, list_params)
 
@@ -58,7 +46,7 @@ def gen_update(api, rcusers):
         list_params = {
             "list": "users",
             "ususers": "|".join(chunk),
-            "usprop": "blockinfo|groups|editcount|registration",
+            "usprop": "groups|editcount|registration",
         }
         yield from gen(api, list_params)
 
@@ -92,11 +80,10 @@ def gen_rcusers(api, since):
     #  - newusers (if user A creates account for user B, recent changes list
     #    only user A)
     #  - rights
-    #  - block
-    for letype in ["newusers", "rights", "block"]:
-        for user in api.list(list="logevents", letype=letype, lelimit="max", ledir="newer", lestart=since_f):
+    for letype in ["newusers", "rights"]:
+        for logevent in api.list(list="logevents", letype=letype, leprop="title", lelimit="max", ledir="newer", lestart=since_f):
             # extract target user name
-            username = user["title"].split(":", maxsplit=1)[1]
+            username = logevent["title"].split(":", maxsplit=1)[1]
             rcusers.add(username)
 
     return rcusers
@@ -113,18 +100,6 @@ def db_execute(db, gen):
     ug_ins = db.user_groups.insert(mysql_on_duplicate_key_update=[
                                 db.user_groups.c.ug_group
                             ])
-    ipb_ins = db.ipblocks.insert(mysql_on_duplicate_key_update=[
-                                db.ipblocks.c.ipb_user,
-                                db.ipblocks.c.ipb_by,
-                                db.ipblocks.c.ipb_by_text,
-                                db.ipblocks.c.ipb_reason,
-                                db.ipblocks.c.ipb_timestamp,
-                                db.ipblocks.c.ipb_expiry,
-                            ])
-
-    # must be catch-all because it may reference users that were not added yet
-    # (API sorts by name, not ID...)
-    ipblocks_entries = []
 
     for chunk in ws.utils.iter_chunks(gen, db.chunk_size):
         # separate according to target table
@@ -135,8 +110,6 @@ def db_execute(db, gen):
                 user_entries.append(entry)
             elif "ug_user" in entry:
                 user_groups_entries.append(entry)
-            elif "ipb_user" in entry:
-                ipblocks_entries.append(entry)
             else:  # pragma: no cover
                 raise Exception
 
@@ -145,10 +118,6 @@ def db_execute(db, gen):
                 conn.execute(user_ins, user_entries)
             if user_groups_entries:
                 conn.execute(ug_ins, user_groups_entries)
-
-    with db.engine.begin() as conn:
-        if ipblocks_entries:
-            conn.execute(ipb_ins, ipblocks_entries)
 
 
 def insert(api, db):

@@ -2,7 +2,7 @@ from pprint import pprint
 
 from ws.client import API
 from ws.db.database import Database
-from ws.grabbers import namespace, user, page, protected_titles, archive, revision
+from ws.grabbers import namespace, user, ipblocks, page, protected_titles, archive, revision
 
 
 def main(api, db):
@@ -12,6 +12,10 @@ def main(api, db):
     pprint(namespace.select(db))
 
     user.update(api, db)
+
+    # TODO: syncing the logs now would allow us to use it in the following syncs to avoid some queries
+
+    ipblocks.update(api, db)
 
     page.insert(api, db)
     protected_titles.insert(api, db)
