@@ -127,10 +127,11 @@ def create_pages_tables(metadata, charset):
     # - reordered columns to match the revision table
     archive = Table("archive", metadata,
         Column("ar_id", Integer, nullable=False, primary_key=True),
-        # MW defect: there is ar_page_id as a FK to page.page_id, but it was added too late (MW 1.11)
-        Column("ar_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("ar_title", UnicodeBinary(255), nullable=False, server_default=""),
-        # former revision.rev_id used to preserve it across undelete
+        # for preserving page.page_namespace and page.page_title (the corresponding row in
+        # the page table is deleted, all other columns can be recomputed when undeleting)
+        Column("ar_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        Column("ar_title", UnicodeBinary(255), nullable=False),
+        # for preserving revision.rev_id
         Column("ar_rev_id", Integer),
         # like revision.rev_page, but nullable because pages deleted prior to MW 1.11 have NULL
         Column("ar_page_id", Integer, ForeignKey("page.page_id")),
