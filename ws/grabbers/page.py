@@ -3,6 +3,8 @@
 import random
 import logging
 
+from sqlalchemy import bindparam
+
 import ws.utils
 from ws.parser_helpers.title import Title
 from ws.client.api import ShortRecentChangesError
@@ -46,14 +48,12 @@ class GrabberPages(Grabber):
                 ]),
             ("delete", "page"):
                 db.page.delete().where(db.page.c.page_id == "?"),
-            ("delete!", "page_props"):
+            ("delete", "page_props"):
                 db.page_props.delete().where(
-                    db.page_props.c.pp_page == "?" and
-                    db.page_props.c.pp_propname.notin_("?")),
-            ("delete!", "page_restrictions"):
+                    db.page_props.c.pp_page == bindparam("b_pp_page")),
+            ("delete", "page_restrictions"):
                 db.page_restrictions.delete().where(
-                    db.page_restrictions.c.pr_page == "?" and
-                    db.page_restrictions.c.pr_type.notin_("?")),
+                    db.page_restrictions.c.pr_page == bindparam("b_pr_page")),
         }
 
 
@@ -111,15 +111,31 @@ class GrabberPages(Grabber):
         if "missing" in page:
             # deleted page - this will cause cascade deletion in
             # page_props and page_restrictions tables
-            yield "delete", "page", page["pageid"]
+            yield "delete", "page", {"page_id": page["pageid"]}
         else:
             # delete outdated props
             props = set(page.get("pageprops", {}))
-            yield "delete!", "page_props", (page["pageid"], props)
+            if props:
+                # we need to check a tuple of arbitrary length (i.e. the props to keep),
+                # so the queries can't be grouped
+                yield self.db.page_props.delete().where(
+                        (self.db.page_props.c.pp_page == page["pageid"]) &
+                        self.db.page_props.c.pp_propname.notin_(props))
+            else:
+                # no props present - delete all rows with the pageid
+                yield "delete", "page_props", {"b_pp_page": page["pageid"]}
 
             # delete outdated restrictions
             applied = set(pr["type"] for pr in page["protection"])
-            yield "delete!", "page_restrictions", (page["pageid"], applied)
+            if applied:
+                # we need to check a tuple of arbitrary length (i.e. the restrictions
+                # to keep), so the queries can't be grouped
+                yield self.db.page_restrictions.delete().where(
+                        (self.db.page_restrictions.c.pr_page == page["pageid"]) &
+                        self.db.page_restrictions.c.pr_type.notin_(applied))
+            else:
+                # no restrictions applied - delete all rows with the pageid
+                yield "delete", "page_restrictions", {"b_pr_page": page["pageid"]}
 
 
     def gen_insert(self):
