@@ -14,6 +14,11 @@ implicit_groups = {"*", "user"}
 
 def gen(api, list_params):
     for user in api.list(list_params):
+        # skip invalid users (the logs might point to non-existing users)
+        if "invalid" in user or "missing" in user:
+            # TODO: issue DELETE or at least warning, since this should never happen
+            continue
+
         db_entry = {
             "user_id": user["userid"],
             "user_name": user["name"],
