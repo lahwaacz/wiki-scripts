@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
 import datetime
+import logging
 
 from sqlalchemy import select
 
 from ws.client.api import ShortRecentChangesError
+
+logger = logging.getLogger(__name__)
 
 class Grabber:
 
