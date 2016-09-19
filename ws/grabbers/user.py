@@ -73,22 +73,27 @@ def gen_rcusers(api, since):
     if api.oldest_recent_change > since:
         raise ShortRecentChangesError()
 
-    # also add the performer of any log entry
-    for change in api.list(action="query", list="recentchanges", rctype="edit|log", rcprop="user|timestamp", rclimit="max", rcdir="newer", rcstart=since_f):
+    rc_params = {
+        "action": "query",
+        "list": "recentchanges",
+        "rctype": "edit|new|log",
+        "rcprop": "user|title|loginfo",
+        "rclimit": "max",
+        "rcdir": "newer",
+        "rcstart": since_f,
+    }
+    for change in api.list(rc_params):
+        # add the performer of the edit, newpage or log entry
         rcusers.add(change["user"])
 
-    # also examine log entries and add target user
-    # (this is not available in recentchanges - although there is rctype=log
-    # parameter, rcprop=loginfo provides only user IDs, which can't be used
-    # in list=users)
-    # there should be only three log event types that might change other users:
-    #  - newusers (if user A creates account for user B, recent changes list
-    #    only user A)
-    #  - rights
-    for letype in ["newusers", "rights"]:
-        for logevent in api.list(list="logevents", letype=letype, leprop="title", lelimit="max", ledir="newer", lestart=since_f):
+        # also examine log entries and add target user
+        # there should be only three log event types that might change other users:
+        #  - newusers (if user A creates account for user B, recent changes list
+        #    only user A)
+        #  - rights
+        if change["type"] == "log" and change["logtype"] in ["newusers", "rights"]:
             # extract target user name
-            username = logevent["title"].split(":", maxsplit=1)[1]
+            username = change["title"].split(":", maxsplit=1)[1]
             rcusers.add(username)
 
     return rcusers
