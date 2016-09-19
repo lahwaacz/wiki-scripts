@@ -2,6 +2,8 @@
 
 import logging
 
+from sqlalchemy import bindparam
+
 import ws.utils
 from ws.client.api import ShortRecentChangesError
 
@@ -34,20 +36,19 @@ class GrabberUsers(Grabber):
                 db.user_groups.insert(mysql_on_duplicate_key_update=[
                     db.user_groups.c.ug_group
                 ]),
+            ("delete", "user_groups"):
+                db.user_groups.delete().where(
+                    db.user_groups.c.ug_user == bindparam("b_ug_user")),
         }
 
 
-    def gen(self, list_params):
-        for user in self.api.list(list_params):
-            # skip invalid users (the logs might point to non-existing users)
-            if "invalid" in user or "missing" in user:
-                logger.warning(
-                    "Got an invalid username '{}' from the wiki server. "
-                    "The row will not be deleted locally, since this should have "
-                    "never happened. Blame MediaWiki for not using foreign key "
-                    "constraints in their database.".format(user["name"]))
-                continue
-
+    def gen_inserts_from_user(self, user):
+        # skip invalid users (the logs might point to non-existing users)
+        if "invalid" in user or "missing" in user:
+            logger.warning(
+                "Got an invalid username '{}' from the wiki server. "
+                "Skipping INSERT.".format(user["name"]))
+        else:
             db_entry = {
                 "user_id": user["userid"],
                 "user_name": user["name"],
@@ -65,13 +66,35 @@ class GrabberUsers(Grabber):
                 yield "insert", "user_groups", db_entry
 
 
+    def gen_deletes_from_user(self, user):
+        # skip invalid users (the logs might point to non-existing users)
+        if "invalid" in user or "missing" in user:
+            logger.warning(
+                "Got an invalid username '{}' from the wiki server. "
+                "The row will not be deleted locally, since this should have "
+                "never happened. Blame MediaWiki for not using foreign key "
+                "constraints in their database.".format(user["name"]))
+        else:
+            extra_groups = set(user["groups"]) - implicit_groups
+            if applied:
+                # we need to check a tuple of arbitrary length (i.e. the groups
+                # to keep), so the queries can't be grouped
+                yield self.db.user_groups.delete().where(
+                        (self.db.user_groups.c.ug_user == user["userid"]) &
+                        self.db.user_groups.c.ug_group.notin_(extra_groups))
+            else:
+                # no groups - delete all rows with the userid
+                yield "delete", "user_groups", {"b_ug_user": user["userid"]}
+
+
     def gen_insert(self):
         list_params = {
             "list": "allusers",
             "aulimit": "max",
             "auprop": "groups|editcount|registration",
         }
-        yield from self.gen(list_params)
+        for user in self.api.list(list_params):
+            yield from self.gen_inserts_from_user(user)
 
 
     def gen_update(self, since):
@@ -83,7 +106,8 @@ class GrabberUsers(Grabber):
                 "ususers": "|".join(chunk),
                 "usprop": "groups|editcount|registration",
             }
-            yield from self.gen(list_params)
+            for user in self.api.list(list_params):
+                yield from self.gen_inserts_from_user(user)
 
 
     def get_rcusers(self, since):
