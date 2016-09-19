@@ -234,13 +234,13 @@ def update(api, db):
         return
 
     try:
-        rcpages = set(gen_rcpages(api, since))
+        rcpages = gen_rcpages(api, since)
     except ShortRecentChangesError:
         logger.warning("The recent changes table on the wiki has been recently purged, starting from scratch.")
         insert(api, db)
         return
 
-    if len(rcpages) > 0:
+    if rcpages:
         gen = gen_update(api, rcusers)
         db_execute(db, gen)
 

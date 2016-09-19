@@ -150,13 +150,13 @@ def update(api, db):
         return
 
     try:
-        rcusers = set(gen_rcusers(api, since))
+        rcusers = gen_rcusers(api, since)
     except ShortRecentChangesError:
         logger.warning("The recent changes table on the wiki has been recently purged, starting from scratch.")
         insert(api, db)
         return
 
-    if len(rcusers) > 0:
+    if rcusers:
         gen = gen_update(api, rcusers)
         db_execute(db, gen)
 
