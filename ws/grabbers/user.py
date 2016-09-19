@@ -16,7 +16,10 @@ def gen(api, list_params):
     for user in api.list(list_params):
         # skip invalid users (the logs might point to non-existing users)
         if "invalid" in user or "missing" in user:
-            # TODO: issue DELETE or at least warning, since this should never happen
+            logger.warning("Got an invalid username '{}' from the wiki server. "
+                           "The row will not be deleted locally, since this should have "
+                           "never happened. Blame MediaWiki for not using foreign key "
+                           "constraints in their database.".format(user["name"]))
             continue
 
         db_entry = {
