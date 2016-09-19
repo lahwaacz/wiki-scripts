@@ -59,7 +59,7 @@ def create_custom_tables(metadata, charset):
     Index("nsn_name", namespace_name.c.nsn_name, unique=True)
 
     ws_sync = Table("ws_sync", metadata,
-        Column("wss_table", Unicode(32), nullable=False, primary_key=True),
+        Column("wss_key", Unicode(32), nullable=False, primary_key=True),
         # timestamp of the last successful sync of the table
         Column("wss_timestamp", DateTime, nullable=False)
     )

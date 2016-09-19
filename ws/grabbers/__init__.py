@@ -38,7 +38,7 @@ class Grabber:
         ws_sync = self.db.metadata.tables["ws_sync"]
         ins = ws_sync.insert(mysql_on_duplicate_key_update=[ws_sync.c.wss_timestamp])
         entry = {
-            "wss_table": self.__class__.__name__,
+            "wss_key": self.__class__.__name__,
             "wss_timestamp": timestamp,
         }
 
@@ -52,7 +52,7 @@ class Grabber:
         """
         ws_sync = self.db.metadata.tables["ws_sync"]
         sel = select([ws_sync.c.wss_timestamp]) \
-              .where(ws_sync.c.wss_table == self.__class__.__name__)
+              .where(ws_sync.c.wss_key == self.__class__.__name__)
 
         conn = self.db.engine.connect()
         row = conn.execute(sel).fetchone()
