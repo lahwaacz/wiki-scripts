@@ -67,6 +67,9 @@ class AllUsersProps(CacheDb):
 
             for snippet in utils.list_chunks(users, self.api.max_ids_per_query):
                 for user in self.api.list(list="users", ususers="|".join(snippet), usprop="blockinfo|groups|editcount|registration"):
+                    # skip invalid users (the logs might point to non-existing users)
+                    if "invalid" in user or "missing" in user:
+                        continue
                     utils.bisect_insert_or_replace(self.data, user["name"], data_element=user, index_list=wrapped_names)
 
             self._update_recent_edit_counts(rcusers)
