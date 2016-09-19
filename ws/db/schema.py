@@ -252,6 +252,8 @@ def create_pages_tables(metadata, charset):
     Index("pt_namespace_title", protected_titles.c.pt_namespace, protected_titles.c.pt_title, unique=True)
     Index("pt_timestamp", protected_titles.c.pt_timestamp)
 
+
+def create_recomputable_tables(metadata, charset):
     category = Table("category", metadata,
         Column("cat_id", Integer, primary_key=True, nullable=False),
         Column("cat_title", UnicodeBinary(255), nullable=False),
@@ -271,8 +273,6 @@ def create_pages_tables(metadata, charset):
     )
     Index("rd_namespace_title_from", redirect.c.rd_namespace, redirect.c.rd_title, redirect.c.rd_from)
 
-
-def create_links_tables(metadata, charset):
     pagelinks = Table("pagelinks", metadata,
         Column("pl_from", Integer, ForeignKey("page.page_id"), nullable=False, server_default="0"),
         # TODO: useless, should be in view
