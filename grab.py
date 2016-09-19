@@ -6,8 +6,6 @@ from ws.grabbers import namespace, user, ipblocks, page, protected_titles, archi
 
 
 def main(api, db):
-    # twice to force a void update
-    namespace.update(api, db)
     namespace.update(api, db)
     pprint(namespace.select(db))
 
@@ -17,7 +15,7 @@ def main(api, db):
 
     ipblocks.update(api, db)
 
-    page.insert(api, db)
+    page.update(api, db)
     protected_titles.insert(api, db)
     archive.insert(api, db)
 #    revision.insert(api, db)
@@ -44,4 +42,6 @@ if __name__ == "__main__":
     api = API.from_argparser(args)
     db = Database.from_argparser(args)
 
+    # twice to force a void update
+    main(api, db)
     main(api, db)

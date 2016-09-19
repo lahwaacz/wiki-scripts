@@ -217,7 +217,7 @@ def create_pages_tables(metadata, charset):
     Index("page_redirect_namespace_len", page.c.page_is_redirect, page.c.page_namespace, page.c.page_len)
 
     page_props = Table("page_props", metadata,
-        Column("pp_page", Integer, ForeignKey("page.page_id"), nullable=False),
+        Column("pp_page", Integer, ForeignKey("page.page_id", ondelete="CASCADE"), nullable=False),
         Column("pp_propname", UnicodeBinary(60), nullable=False),
         Column("pp_value", Blob(charset=charset), nullable=False),
         Column("pp_sortkey", Float, server_default=None)
@@ -228,7 +228,7 @@ def create_pages_tables(metadata, charset):
 
     page_restrictions = Table("page_restrictions", metadata,
         Column("pr_id", Integer, primary_key=True, nullable=False),
-        Column("pr_page", Integer, ForeignKey("page.page_id"), nullable=False),
+        Column("pr_page", Integer, ForeignKey("page.page_id", ondelete="CASCADE"), nullable=False),
         Column("pr_type", UnicodeBinary(60), nullable=False),
         Column("pr_level", UnicodeBinary(60), nullable=False),
         Column("pr_cascade", SmallInteger, nullable=False),

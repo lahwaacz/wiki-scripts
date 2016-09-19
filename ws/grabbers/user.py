@@ -147,9 +147,9 @@ def update(api, db):
         return
 
     try:
-        rcusers = list(gen_rcusers(api, since))
+        rcusers = set(gen_rcusers(api, since))
     except ShortRecentChangesError:
-        logger.warning("The recent changes table on the wiki has been recently purged, starting from scratch. The recent edit count will not be available.")
+        logger.warning("The recent changes table on the wiki has been recently purged, starting from scratch.")
         insert(api, db)
         return
 
