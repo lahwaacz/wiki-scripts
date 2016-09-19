@@ -19,7 +19,7 @@ def gen(api):
 
             title = Title(api, page["title"])
 
-            # init for page table
+            # items for page table
             db_entry = {
                 "page_id": page["pageid"],
                 "page_namespace": page["ns"],
@@ -35,31 +35,33 @@ def gen(api):
                 "page_content_model": page["contentmodel"],
                 "page_lang": page["pagelanguage"],
             }
+            yield db_entry
 
-            # add items for page_props table
+            # items for page_props table
             for propname, value in page.get("pageprops", {}).items():
-                db_entry.update({
+                db_entry = {
                     "pp_page": page["pageid"],
                     "pp_propname": propname,
                     "pp_value": value,
                     # TODO: how should this be populated?
 #                    "pp_sortkey": 
-                })
+                }
+                yield db_entry
 
-            # add items for page_restrictions table
+            # items for page_restrictions table
             for pr in page.get("protection", []):
                 # drop entries caused by cascading protection
                 if "source" not in pr:
-                    db_entry.update({
+                    db_entry = {
                         "pr_page": page["pageid"],
                         "pr_type": pr["type"],
                         "pr_level": pr["level"],
                         "pr_cascade": "cascade" in pr,
                         "pr_user": None,    # unused
                         "pr_expiry": pr["expiry"],
-                    })
+                    }
+                    yield db_entry
 
-            yield db_entry
 
 def insert(api, db):
     page_ins = db.page.insert()
@@ -67,31 +69,45 @@ def insert(api, db):
     pr_ins = db.page_restrictions.insert()
 
     # delete everything and start over, otherwise the invalid rows would stay
-    # in the table
-    # (TODO: it may be possible to do this better way...)
+    # in the tables
     with db.engine.begin() as conn:
         conn.execute(db.page.delete())
         conn.execute(db.page_props.delete())
         conn.execute(db.page_restrictions.delete())
 
     for chunk in ws.utils.iter_chunks(gen(api), db.chunk_size):
-        entries = list(chunk)
+        # separate according to target table
+        page_entries = []
+        pp_entries = []
+        pr_entries = []
+        for entry in chunk:
+            if "page_id" in entry:
+                page_entries.append(entry)
+            elif "pp_page" in entry:
+                pp_entries.append(entry)
+            elif "pr_page" in entry:
+                pr_entries.append(entry)
+            else:  # pragma: no cover
+                raise Exception
 
         with db.engine.begin() as conn:
-            conn.execute(page_ins, entries)
-
-            pp_entries = [e for e in entries if "pp_page" in e]
-            if len(pp_entries) > 0:
+            if page_entries:
+                conn.execute(page_ins, page_entries)
+            if pp_entries:
                 conn.execute(pp_ins, pp_entries)
-
-            pr_entries = [e for e in entries if "pr_page" in e]
-            if len(pr_entries) > 0:
+            if pr_entries:
                 conn.execute(pr_ins, pr_entries)
 
-def select(db):
-    page_sel = db.page.select()
-    pp_sel = db.page_props.select()
-    pr_sel = db.page_restrictions.select()
 
-    # TODO: reconstructing the API entries will be hard, after all the data were fetched with a generator
+def update(api, db):
+    # TODO:
+    # examine the logs for updates - log types to check out:
+    #   move        (page)
+    #   delete      (page)
+    #   merge       (revision - or maybe page too?)
+    #   protect     (page_restrictions table)
+    #   import      (everything?)
+    #   patrol      (page)
+    #   suppress    (everything or just the logs?)
+    # + maybe recentchanges for new pages (and added/removed props)
     raise NotImplementedError
