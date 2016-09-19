@@ -9,13 +9,17 @@ def main(api, db):
     namespace.update(api, db)
     pprint(namespace.select(db))
 
-    user.update(api, db)
+    g = user.GrabberUsers(api, db)
+    g.update()
 
     # TODO: syncing the logs now would allow us to use it in the following syncs to avoid some queries
 
-    ipblocks.update(api, db)
+    g = ipblocks.GrabberIPBlocks(api, db)
+    g.update()
 
-    page.update(api, db)
+    g = page.GrabberPages(api, db)
+    g.update()
+
     protected_titles.insert(api, db)
     archive.insert(api, db)
 #    revision.insert(api, db)
