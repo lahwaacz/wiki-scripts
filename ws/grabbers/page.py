@@ -5,62 +5,66 @@ import random
 import ws.utils
 from ws.parser_helpers.title import Title
 
-def gen(api):
+def gen_from_page(api, page):
+    title = Title(api, page["title"])
+
+    # items for page table
+    db_entry = {
+        "page_id": page["pageid"],
+        "page_namespace": page["ns"],
+        # title is stored without the namespace prefix
+        "page_title": title.pagename,
+        "page_is_redirect": "redirect" in page,
+        "page_is_new": "new" in page,
+        "page_random": random.random(),
+        "page_touched": page["touched"],
+        "page_links_updated": None,
+        "page_latest": page["lastrevid"],
+        "page_len": page["length"],
+        "page_content_model": page["contentmodel"],
+        "page_lang": page["pagelanguage"],
+    }
+    yield "insert", db_entry
+
+    # items for page_props table
+    for propname, value in page.get("pageprops", {}).items():
+        db_entry = {
+            "pp_page": page["pageid"],
+            "pp_propname": propname,
+            "pp_value": value,
+            # TODO: how should this be populated?
+#            "pp_sortkey": 
+        }
+        yield "insert", db_entry
+
+    # items for page_restrictions table
+    for pr in page.get("protection", []):
+        # drop entries caused by cascading protection
+        if "source" not in pr:
+            db_entry = {
+                "pr_page": page["pageid"],
+                "pr_type": pr["type"],
+                "pr_level": pr["level"],
+                "pr_cascade": "cascade" in pr,
+                "pr_user": None,    # unused
+                "pr_expiry": pr["expiry"],
+            }
+            yield "insert", db_entry
+
+
+def gen_insert(api):
+    params = {
+        "generator": "allpages",
+        "gaplimit": "max",
+        "prop": "info|pageprops",
+        "inprop": "protection",
+    }
     for ns in api.site.namespaces.keys():
         if ns < 0:
             continue
-        for page in api.generator(
-                    generator="allpages",
-                    gaplimit="max",
-                    gapnamespace=ns,
-                    prop="info|pageprops",
-                    inprop="protection",
-                ):
-
-            title = Title(api, page["title"])
-
-            # items for page table
-            db_entry = {
-                "page_id": page["pageid"],
-                "page_namespace": page["ns"],
-                # title is stored without the namespace prefix
-                "page_title": title.pagename,
-                "page_is_redirect": "redirect" in page,
-                "page_is_new": "new" in page,
-                "page_random": random.random(),
-                "page_touched": page["touched"],
-                "page_links_updated": None,
-                "page_latest": page["lastrevid"],
-                "page_len": page["length"],
-                "page_content_model": page["contentmodel"],
-                "page_lang": page["pagelanguage"],
-            }
-            yield db_entry
-
-            # items for page_props table
-            for propname, value in page.get("pageprops", {}).items():
-                db_entry = {
-                    "pp_page": page["pageid"],
-                    "pp_propname": propname,
-                    "pp_value": value,
-                    # TODO: how should this be populated?
-#                    "pp_sortkey": 
-                }
-                yield db_entry
-
-            # items for page_restrictions table
-            for pr in page.get("protection", []):
-                # drop entries caused by cascading protection
-                if "source" not in pr:
-                    db_entry = {
-                        "pr_page": page["pageid"],
-                        "pr_type": pr["type"],
-                        "pr_level": pr["level"],
-                        "pr_cascade": "cascade" in pr,
-                        "pr_user": None,    # unused
-                        "pr_expiry": pr["expiry"],
-                    }
-                    yield db_entry
+        params["gapnamespace"] = ns
+        for page in api.generator(params):
+            yield from gen_from_page(api, page)
 
 
 def insert(api, db):
@@ -75,12 +79,13 @@ def insert(api, db):
         conn.execute(db.page_props.delete())
         conn.execute(db.page_restrictions.delete())
 
-    for chunk in ws.utils.iter_chunks(gen(api), db.chunk_size):
+    for chunk in ws.utils.iter_chunks(gen_insert(api), db.chunk_size):
         # separate according to target table
         page_entries = []
         pp_entries = []
         pr_entries = []
-        for entry in chunk:
+        for action, entry in chunk:
+            assert action == "insert"
             if "page_id" in entry:
                 page_entries.append(entry)
             elif "pp_page" in entry:
