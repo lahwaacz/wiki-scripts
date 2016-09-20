@@ -101,9 +101,7 @@ def create_users_tables(metadata, charset):
 
     ipblocks = Table("ipblocks", metadata,
         Column("ipb_id", Integer, primary_key=True, nullable=False),
-        # nullable due to mirroring
-#        Column("ipb_address", TinyBlob(charset=charset), nullable=False),
-        Column("ipb_address", TinyBlob(charset=charset)),
+        Column("ipb_address", TinyBlob(charset=charset), nullable=False),
         Column("ipb_user", Integer, ForeignKey("user.user_id", ondelete="CASCADE")),
         Column("ipb_by", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
         Column("ipb_by_text", UnicodeBinary(255), nullable=False, server_default=""),
