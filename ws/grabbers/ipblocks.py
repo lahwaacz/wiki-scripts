@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from sqlalchemy import bindparam
+
 import ws.utils
 
 from . import Grabber
@@ -32,6 +34,8 @@ class GrabberIPBlocks(Grabber):
                     db.ipblocks.c.ipb_allow_usertalk,
                     db.ipblocks.c.ipb_parent_block_id,
                 ]),
+            ("delete", "ipblocks"):
+                db.ipblocks.delete().where(db.ipblocks.c.ipb_address == bindparam("b_ipb_address")),
         }
 
 
@@ -99,10 +103,30 @@ class GrabberIPBlocks(Grabber):
             # extract target user name
             username = logevent["title"].split(":", maxsplit=1)[1]
             rcusers.add(username)
-            # TODO: handle unblocks (will need leprop=type and check logevent["action"])
+
+        # a mapping of ipb_address to set of ipb_id keys
+        rcblocks = {}
 
         del list_params["bkdir"]
         del list_params["bkstart"]
         for chunk in ws.utils.iter_chunks(rcusers, self.api.max_ids_per_query):
             list_params["bkusers"] = "|".join(chunk)
-            yield from self.gen(list_params)
+
+            # introspect the db_entry to handle unblocks
+            for action, table, db_entry in self.gen(list_params):
+                rcblocks.setdefault(db_entry["ipb_address"], set())
+                rcblocks[db_entry["ipb_address"]].add(db_entry["ipb_id"])
+                yield action, table, db_entry
+
+        # delete blocks for users that were not present in the bkusers= list
+        blocked_rcusers = set(rcblocks)
+        for user in rcusers - blocked_rcusers:
+            yield "delete", "ipblocks", {"b_ipb_address": user}
+
+        # handle partial unblocks (there is composite unique key)
+        for user, ipb_ids in rcblocks.items():
+            # we need to check a tuple of arbitrary length (i.e. the blocks
+            # to keep), so the queries can't be grouped
+            yield self.db.ipblocks.delete().where(
+                    (self.db.ipblocks.c.ipb_address == user) &
+                    self.db.ipblocks.c.ipb_id.notin_(ipb_ids))
