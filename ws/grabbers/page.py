@@ -47,7 +47,7 @@ class GrabberPages(Grabber):
                     db.page_restrictions.c.pr_expiry,
                 ]),
             ("delete", "page"):
-                db.page.delete().where(db.page.c.page_id == "?"),
+                db.page.delete().where(db.page.c.page_id == bindparam("b_page_id")),
             ("delete", "page_props"):
                 db.page_props.delete().where(
                     db.page_props.c.pp_page == bindparam("b_pp_page")),
@@ -111,7 +111,7 @@ class GrabberPages(Grabber):
         if "missing" in page:
             # deleted page - this will cause cascade deletion in
             # page_props and page_restrictions tables
-            yield "delete", "page", {"page_id": page["pageid"]}
+            yield "delete", "page", {"b_page_id": page["pageid"]}
         else:
             # delete outdated props
             props = set(page.get("pageprops", {}))
