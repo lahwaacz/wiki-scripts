@@ -18,6 +18,9 @@ Known incompatibilities from MediaWiki schema:
     archive.ar_text
     archive.ar_flags
 - Reordered columns in archive table to match the revision table.
+- Revamped the protected_titles table - removed unnecessary columns pt_user,
+  pt_reason and pt_timestamp since the information can be found in the logging
+  table. See https://phabricator.wikimedia.org/T65318#2654217 for reference.
 """
 
 # TODO:
@@ -238,17 +241,17 @@ def create_pages_tables(metadata, charset):
     Index("pr_level", page_restrictions.c.pr_level)
     Index("pr_cascade", page_restrictions.c.pr_cascade)
 
+    # MW incompatibility: removed unnecessary columns pt_user, pt_reason, pt_timestamp
+    #    (see: https://phabricator.wikimedia.org/T65318#2654217 )
+    # MW incompatibility: renamed pt_create_perm column to pt_level, moved above pt_expiry
+    #    (cf. page_restrictions.pr_level)
     protected_titles = Table("protected_titles", metadata,
         Column("pt_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("pt_title", UnicodeBinary(255), nullable=False),
-        Column("pt_user", Integer, ForeignKey("user.user_id"), nullable=False),
-        Column("pt_reason", UnicodeBinary(767)),
-        Column("pt_timestamp", MWTimestamp, nullable=False),
-        Column("pt_expiry", MWTimestamp, nullable=False, server_default=""),
-        Column("pt_create_perm", UnicodeBinary(60), nullable=False)
+        Column("pt_level", UnicodeBinary(60), nullable=False),
+        Column("pt_expiry", MWTimestamp, nullable=False, server_default="")
     )
     Index("pt_namespace_title", protected_titles.c.pt_namespace, protected_titles.c.pt_title, unique=True)
-    Index("pt_timestamp", protected_titles.c.pt_timestamp)
 
 
 def create_recomputable_tables(metadata, charset):
