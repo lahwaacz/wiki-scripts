@@ -155,17 +155,18 @@ class GrabberPages(Grabber):
 
     def gen_update(self, since):
         rcpages = self.get_rcpages(since)
-        logger.info("Fetching properties of {} modified pages...".format(len(rcpages)))
-        for chunk in ws.utils.iter_chunks(rcpages, self.api.max_ids_per_query):
-            params = {
-                "action": "query",
-                "pageids": "|".join(str(pageid) for pageid in chunk),
-                "prop": "info|pageprops",
-                "inprop": "protection",
-            }
-            for page in self.api.call_api(params)["pages"].values():
-                yield from self.gen_inserts_from_page(page)
-                yield from self.gen_deletes_from_page(page)
+        if rcpages:
+            logger.info("Fetching properties of {} modified pages...".format(len(rcpages)))
+            for chunk in ws.utils.iter_chunks(rcpages, self.api.max_ids_per_query):
+                params = {
+                    "action": "query",
+                    "pageids": "|".join(str(pageid) for pageid in chunk),
+                    "prop": "info|pageprops",
+                    "inprop": "protection",
+                }
+                for page in self.api.call_api(params)["pages"].values():
+                    yield from self.gen_inserts_from_page(page)
+                    yield from self.gen_deletes_from_page(page)
 
 
     def get_rcpages(self, since):

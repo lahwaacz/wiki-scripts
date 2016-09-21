@@ -99,15 +99,16 @@ class GrabberUsers(Grabber):
 
     def gen_update(self, since):
         rcusers = self.get_rcusers(since)
-        logger.info("Fetching properties of {} possibly modified user accounts...".format(len(rcusers)))
-        for chunk in ws.utils.iter_chunks(rcusers, self.api.max_ids_per_query):
-            list_params = {
-                "list": "users",
-                "ususers": "|".join(chunk),
-                "usprop": "groups|editcount|registration",
-            }
-            for user in self.api.list(list_params):
-                yield from self.gen_inserts_from_user(user)
+        if rcusers:
+            logger.info("Fetching properties of {} possibly modified user accounts...".format(len(rcusers)))
+            for chunk in ws.utils.iter_chunks(rcusers, self.api.max_ids_per_query):
+                list_params = {
+                    "list": "users",
+                    "ususers": "|".join(chunk),
+                    "usprop": "groups|editcount|registration",
+                }
+                for user in self.api.list(list_params):
+                    yield from self.gen_inserts_from_user(user)
 
 
     def get_rcusers(self, since):
