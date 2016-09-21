@@ -418,7 +418,7 @@ def create_siteinfo_tables(metadata, charset):
         # FIXME: logging table may contain rows with log_namespace < 0
         Column("log_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("log_title", UnicodeBinary(255), nullable=False, server_default=""),
-        # TODO: is it safe to make this a FK (with ON DELETE SET NULL)?
+        # this must NOT be a FK - pages can disappear and reappear, log entries are invariant
         Column("log_page", Integer),
         Column("log_comment", UnicodeBinary(767), nullable=False, server_default=""),
         Column("log_params", Blob(charset=charset), nullable=False),
