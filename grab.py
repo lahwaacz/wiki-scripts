@@ -20,14 +20,12 @@ def main(api, db):
     g = page.GrabberPages(api, db)
     g.update()
 
-    protected_titles.insert(api, db)
+    g = protected_titles.GrabberProtectedTitles(api, db)
+    g.update()
+
     archive.insert(api, db)
 #    revision.insert(api, db)
 #    revision.update(api, db)
-
-    for item in protected_titles.select(db):
-        print(item)
-    revision.select(db)
 
 
 if __name__ == "__main__":
