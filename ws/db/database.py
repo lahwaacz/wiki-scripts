@@ -35,23 +35,6 @@ class Database:
         self.metadata = MetaData(bind=self.engine)
         schema.create_tables(self.metadata, self.charset)
 
-        # custom tables
-        self.namespace = self.metadata.tables["namespace"]
-        self.namespace_name = self.metadata.tables["namespace_name"]
-
-        # supported tables
-        self.recentchanges = self.metadata.tables["recentchanges"]
-        self.user = self.metadata.tables["user"]
-        self.user_groups = self.metadata.tables["user_groups"]
-        self.ipblocks = self.metadata.tables["ipblocks"]
-        self.protected_titles = self.metadata.tables["protected_titles"]
-        self.page_props = self.metadata.tables["page_props"]
-        self.page_restrictions = self.metadata.tables["page_restrictions"]
-        self.page = self.metadata.tables["page"]
-        self.archive = self.metadata.tables["archive"]
-        self.revision = self.metadata.tables["revision"]
-        self.text = self.metadata.tables["text"]
-
     @staticmethod
     def make_url(username, password, host, database, **kwargs):
         """
@@ -104,6 +87,17 @@ class Database:
         """
         url = klass.make_url(args.db_user, args.db_password, args.db_host, args.db_name)
         return klass(url)
+
+    def __getattr__(self, table_name):
+        """
+        Access an existing table in the database.
+
+        :param str table_name: a (lowercase) name of the table
+        :returns: a :py:class:`sqlalchemy.schema.Table` instance
+        """
+        if table_name not in self.metadata.tables:
+            raise AttributeError("Table '{}' does not exist in the database.".format(table_name))
+        return self.metadata.tables[table_name]
 
 
 # The standard MERGE statement is not supported with the standard syntax in
