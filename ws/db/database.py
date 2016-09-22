@@ -105,18 +105,24 @@ class Database:
         return self.metadata.tables[table_name]
 
 
-# The standard MERGE statement is not supported with the standard syntax in
-# MySQL, SQLite and others.
-# https://en.wikipedia.org/wiki/Merge_(SQL)
-#
-# Note that statements involving REPLACE are nonstandard and invoke referential
-# actions on child rows (e.g. FOREIGN KEY ... ON DELETE CASCADE).
-
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import Insert
 
 @compiles(Insert, "mysql")
 def on_duplicate_key_update(insert, compiler, **kw):
+    """
+    An :py:mod:`sqlalchemy` compiler extension for the MySQL-specific
+    ``INSERT ... ON DUPLICATE KEY UPDATE`` clause.
+
+    This is our best chance at combining ``INSERT`` and ``UPDATE`` statements.
+    The standard `MERGE statement`_ is not supported with the standard syntax in
+    MySQL, SQLite and others.
+
+    Note that statements involving ``REPLACE`` are also nonstandard and invoke
+    referential actions on child rows (e.g. ``FOREIGN KEY ... ON DELETE CASCADE``).
+
+    .. _`MERGE statement`: https://en.wikipedia.org/wiki/Merge_(SQL)
+    """
     s = compiler.visit_insert(insert, **kw)
     if insert.kwargs["mysql_on_duplicate_key_update"]:
         columns = [c.name for c in insert.kwargs["mysql_on_duplicate_key_update"]]
