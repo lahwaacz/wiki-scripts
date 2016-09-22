@@ -28,8 +28,9 @@ class GrabberRecentChanges(Grabber):
                     db.recentchanges.c.rc_patrolled,
                     db.recentchanges.c.rc_deleted,
                 ]),
-            # TODO: delete too-old rows
-#            ("delete", "recentchanges"):
+            ("delete", "recentchanges"):
+                db.recentchanges.delete().where(
+                    db.recentchanges.c.rc_timestamp < bindparam("rc_cutoff_timestamp"))
         }
 
         self.rc_params = {
@@ -84,4 +85,6 @@ class GrabberRecentChanges(Grabber):
             yield from self.gen_inserts_from_rc(rc)
 
         # TODO: go through the new logevents and update previous patrolled changes etc.
-        # TODO: issue DELETE to purge too-old rows
+
+        # purge too-old rows
+        yield self.sql["delete", "recentchanges"], {"rc_cutoff_timestamp": ws.utils.format_date(self.api.oldest_recent_change)}
