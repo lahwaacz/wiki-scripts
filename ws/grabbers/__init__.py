@@ -14,8 +14,7 @@ class Grabber:
 
     # class attributes that should be overridden in subclasses
 
-    # Names of tables that are managed by this grabber. Should be ordered such
-    # that INSERT statements in this order don't cause constraint errors.
+    # Names of tables that are managed by this grabber.
     TARGET_TABLES = []
 
     def __init__(self, api, db):
