@@ -652,4 +652,5 @@ def create_tables(metadata, charset="utf8"):
     create_custom_tables(metadata, charset)
     create_users_tables(metadata, charset)
     create_pages_tables(metadata, charset)
+    create_recentchanges_tables(metadata, charset)
     metadata.create_all()

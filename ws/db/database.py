@@ -40,6 +40,7 @@ class Database:
         self.namespace_name = self.metadata.tables["namespace_name"]
 
         # supported tables
+        self.recentchanges = self.metadata.tables["recentchanges"]
         self.user = self.metadata.tables["user"]
         self.user_groups = self.metadata.tables["user_groups"]
         self.ipblocks = self.metadata.tables["ipblocks"]

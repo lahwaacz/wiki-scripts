@@ -2,12 +2,15 @@ from pprint import pprint
 
 from ws.client import API
 from ws.db.database import Database
-from ws.grabbers import namespace, user, ipblocks, page, protected_titles, archive, revision
+from ws.grabbers import namespace, recentchanges, user, ipblocks, page, protected_titles, archive, revision
 
 
 def main(api, db):
     namespace.update(api, db)
     pprint(namespace.select(db))
+
+    g = recentchanges.GrabberRecentChanges(api, db)
+    g.update()
 
     g = user.GrabberUsers(api, db)
     g.update()
