@@ -42,3 +42,9 @@ class DeferrableExecutionQueue:
         for statement, values in self.stmt_queues.items():
             self.conn.execute(statement, values)
         self.stmt_queues.clear()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.execute_deferred()

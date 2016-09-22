@@ -127,14 +127,11 @@ class Grabber:
 
     def db_execute(self, gen):
         with self.db.engine.begin() as conn:
-            dfe = DeferrableExecutionQueue(conn, self.db.chunk_size)
-
-            for item in gen:
-                if isinstance(item, tuple):
-                    # unpack the tuple
-                    dfe.execute(*item)
-                else:
-                    # probably a single value
-                    dfe.execute(item)
-
-            dfe.execute_deferred()
+            with DeferrableExecutionQueue(conn, self.db.chunk_size) as dfe:
+                for item in gen:
+                    if isinstance(item, tuple):
+                        # unpack the tuple
+                        dfe.execute(*item)
+                    else:
+                        # probably a single value
+                        dfe.execute(item)
