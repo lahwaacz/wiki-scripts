@@ -370,13 +370,13 @@ def create_recentchanges_tables(metadata, charset):
         Column("rc_log_action", UnicodeBinary(255)),
         Column("rc_params", Blob(charset=charset))
     )
-    Index("rc_timestamp", recentchanges.c._timestamp)
-    Index("rc_namespace_title", recentchanges.c._namespace, recentchanges.c._title)
-    Index("rc_cur_id", recentchanges.c._cur_id)
-    Index("new_name_timestamp", recentchanges.c._new, recentchanges.c._namespace, recentchanges.c._timestamp)
-    Index("rc_ip", recentchanges.c._ip)
-    Index("rc_ns_usertext", recentchanges.c._namespace, recentchanges.c._user_text)
-    Index("rc_user_text", recentchanges.c._user_text, recentchanges.c._timestamp)
+    Index("rc_timestamp", recentchanges.c.rc_timestamp)
+    Index("rc_namespace_title", recentchanges.c.rc_namespace, recentchanges.c.rc_title)
+    Index("rc_cur_id", recentchanges.c.rc_cur_id)
+    Index("new_name_timestamp", recentchanges.c.rc_new, recentchanges.c.rc_namespace, recentchanges.c.rc_timestamp)
+    Index("rc_ip", recentchanges.c.rc_ip)
+    Index("rc_ns_usertext", recentchanges.c.rc_namespace, recentchanges.c.rc_user_text)
+    Index("rc_user_text", recentchanges.c.rc_user_text, recentchanges.c.rc_timestamp)
 
     watchlist = Table("watchlist", metadata,
         Column("wl_user", Integer, ForeignKey("user.user_id"), nullable=False),
