@@ -13,6 +13,11 @@ from sqlalchemy.engine import Engine
 from . import schema
 
 class Database:
+    """
+    :param engine_or_url:
+        either an existing :py:class:`sqlalchemy.engine.Engine` instance or a
+        :py:class:`str` representing the URL created by :py:meth:`make_url`
+    """
 
     # it doesn't make sense to even test anything else
     charset = "utf8"
