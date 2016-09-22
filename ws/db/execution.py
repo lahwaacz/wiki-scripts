@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-from collections import OrderedDict
-
 class DeferrableExecutionQueue:
     """
     An execution wrapper which defers the execution of statements until the
@@ -31,7 +29,11 @@ class DeferrableExecutionQueue:
         self.conn = conn
         self.chunk_size = chunk_size
 
-        self.stmt_queues = OrderedDict()
+        # used for preserving order or executed statements
+        # (an OrderedDict won't help because we need to clear the dict and
+        # still preserve the keys that we remove)
+        self.ordered_keys = []
+        self.stmt_queues = {}
 
     def execute(self, statement, *multiparams, **params):
         """
@@ -43,6 +45,8 @@ class DeferrableExecutionQueue:
         if self.chunk_size == 1:
             self.conn.execute(statement, *multiparams, **params)
         else:
+            if statement not in self.ordered_keys:
+                self.ordered_keys.append(statement)
             q = self.stmt_queues.setdefault(statement, [])
             if multiparams:
                 q += multiparams
@@ -56,8 +60,11 @@ class DeferrableExecutionQueue:
         """
         Execute all deferred statements and clear the queue.
         """
-        for statement, values in self.stmt_queues.items():
-            self.conn.execute(statement, values)
+        for statement in self.ordered_keys:
+            if statement in self.stmt_queues:
+                self.conn.execute(statement, self.stmt_queues[statement])
+
+        # don't clear self.ordered_keys to preserve the order from first execution
         self.stmt_queues.clear()
 
     def __enter__(self):
