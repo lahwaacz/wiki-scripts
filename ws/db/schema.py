@@ -21,12 +21,12 @@ Known incompatibilities from MediaWiki schema:
 - Revamped the protected_titles table - removed unnecessary columns pt_user,
   pt_reason and pt_timestamp since the information can be found in the logging
   table. See https://phabricator.wikimedia.org/T65318#2654217 for reference.
+- Boolean columns use Boolean type instead of SmallInteger as in MediaWiki.
 """
 
 # TODO:
 # - most foreign keys are nullable in MW's PostgreSQL schema and have an ON DELETE clause
 # - some non-nullable columns have silly default values - if we don't know, let's make it NULL
-# - some boolean columns use SmallInteger instead of Boolean
 
 from sqlalchemy import Table, Column, ForeignKey, Index, PrimaryKeyConstraint
 from sqlalchemy.types import \
@@ -330,35 +330,44 @@ def create_recentchanges_tables(metadata, charset):
     # Instead of rc_namespace,rc_title there could be a foreign key to page.page_id,
     # but recentchanges is probably intended to hold entries even if the page has
     # been deleted in the meantime.
+    # We also don't set a foreign key constraint on rc_user for convenience, so that
+    # recentchanges can be populated independently of other tables, which can then
+    # use this for syncing.
     recentchanges = Table("recentchanges", metadata,
         Column("rc_id", Integer, primary_key=True, nullable=False),
         Column("rc_timestamp", MWTimestamp, nullable=False, server_default=""),
-        Column("rc_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
+        # fake foreign key (see note above): rc_user -> user.user_id
+        # in MediaWiki it's 0 for anonymous edits, initialization scripts and some mass imports
+        Column("rc_user", Integer),
         Column("rc_user_text", UnicodeBinary(255), nullable=False),
-        Column("rc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
+        # FIXME: can contain negative values
+        Column("rc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("rc_title", UnicodeBinary(255), nullable=False, server_default=""),
         Column("rc_comment", UnicodeBinary(767), nullable=False, server_default=""),
-        Column("rc_minor", SmallInteger, nullable=False, server_default="0"),
-        Column("rc_bot", SmallInteger, nullable=False, server_default="0"),
-        Column("rc_new", SmallInteger, nullable=False, server_default="0"),
+        Column("rc_minor", Boolean, nullable=False, server_default="0"),
+        Column("rc_bot", Boolean, nullable=False, server_default="0"),
+        Column("rc_new", Boolean, nullable=False, server_default="0"),
         # fake foreign key (see note above): rc_cur_id -> page.page_id
-        Column("rc_cur_id", Integer, nullable=False, server_default="0"),
-        # foreign key (see note above): rc_this_oldid -> revision.rev_id
-        Column("rc_this_oldid", Integer, nullable=False, server_default="0"),
-        # foreign key (see note above): rc_last_oldid -> revision.rev_id
-        Column("rc_last_oldid", Integer, nullable=False, server_default="0"),
-        # FIXME: MW defect: should be enum, instead there are some numeric constants
-        # (RC_EDIT,RC_NEW,RC_LOG,RC_EXTERNAL)
-        Column("rc_type", SmallInteger, nullable=False, server_default="0"),
-        Column("rc_source", UnicodeBinary(16), nullable=False, server_default=""),
-        Column("rc_patrolled", SmallInteger, nullable=False, server_default="0"),
-        Column("rc_ip", UnicodeBinary(40), nullable=False, server_default=""),
+        Column("rc_cur_id", Integer),
+        # fake foreign key (see note above): rc_this_oldid -> revision.rev_id
+        Column("rc_this_oldid", Integer),
+        # fake foreign key (see note above): rc_last_oldid -> revision.rev_id
+        Column("rc_last_oldid", Integer),
+        # TODO: MW 1.27 added a "categorize" value, see https://www.mediawiki.org/wiki/Manual:CategoryMembershipChanges
+        Column("rc_type", Enum("edit", "new", "log", "external"), nullable=False),
+        # MW incompatibility: nullable since it is not available via API
+        Column("rc_source", UnicodeBinary(16)),
+        Column("rc_patrolled", Boolean, nullable=False, server_default="0"),
+        # MW incompatibility: nullable since it is not available via API
+        Column("rc_ip", UnicodeBinary(40)),
         Column("rc_old_len", Integer),
         Column("rc_new_len", Integer),
+        # TODO: analogous to rev_deleted or log_deleted, should be Enum
         Column("rc_deleted", SmallInteger, nullable=False, server_default="0"),
-        Column("rc_logid", Integer, nullable=False, server_default="0"),
-        Column("rc_log_type", UnicodeBinary(255), server_default=None),
-        Column("rc_log_action", UnicodeBinary(255), server_default=None),
+        # fake foreign key (see note above): rc_logid -> logging.log_id
+        Column("rc_logid", Integer),
+        Column("rc_log_type", UnicodeBinary(255)),
+        Column("rc_log_action", UnicodeBinary(255)),
         Column("rc_params", Blob(charset=charset))
     )
     Index("rc_timestamp", recentchanges.c._timestamp)
