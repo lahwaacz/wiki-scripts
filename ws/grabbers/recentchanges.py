@@ -66,8 +66,7 @@ class GrabberRecentChanges(Grabber):
             "rc_logid": rc.get("logid"),
             "rc_log_type": rc.get("logtype"),
             "rc_log_action": rc.get("logaction"),
-            # TODO: has to be serialized
-#            "rc_params": rc.get("logparams"),
+            "rc_params": rc.get("logparams"),
         }
         yield self.sql["insert", "recentchanges"], db_entry
 

@@ -15,6 +15,8 @@ References:
  - http://docs.sqlalchemy.org/en/latest/core/custom_types.html
 """
 
+import json
+
 import sqlalchemy.types as types
 from sqlalchemy.dialects.mysql import TINYBLOB, BLOB, MEDIUMBLOB, LONGBLOB
 
@@ -127,3 +129,21 @@ class Base36(types.TypeDecorator):
         """
         n = base_dec(value, 36)
         return str(base_enc(n, 16), "ascii")
+
+
+class JSONEncodedDict(types.TypeDecorator):
+    """
+    Represents an immutable structure as a JSON-encoded string.
+    """
+
+    impl = types.UnicodeText
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            value = json.dumps(value)
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            value = json.loads(value)
+        return value

@@ -36,7 +36,7 @@ from sqlalchemy.dialects.mysql import MEDIUMTEXT
 
 from .sql_types import \
         TinyBlob, Blob, MediumBlob, UnicodeBinary, \
-        MWTimestamp, Base36
+        MWTimestamp, Base36, JSONEncodedDict
 
 
 def create_custom_tables(metadata, charset):
@@ -369,7 +369,10 @@ def create_recentchanges_tables(metadata, charset):
         Column("rc_logid", Integer),
         Column("rc_log_type", UnicodeBinary(255)),
         Column("rc_log_action", UnicodeBinary(255)),
-        Column("rc_params", Blob(charset=charset))
+        # MW incompatibility: In MediaWiki, log_params is a Blob which is supposed to
+        # hold either LF separated list or serialized PHP array. We store a JSON
+        # serialization of what the API gives us.
+        Column("rc_params", JSONEncodedDict)
     )
     Index("rc_timestamp", recentchanges.c.rc_timestamp)
     Index("rc_namespace_title", recentchanges.c.rc_namespace, recentchanges.c.rc_title)
@@ -432,7 +435,10 @@ def create_siteinfo_tables(metadata, charset):
         # this must NOT be a FK - pages can disappear and reappear, log entries are invariant
         Column("log_page", Integer),
         Column("log_comment", UnicodeBinary(767), nullable=False, server_default=""),
-        Column("log_params", Blob(charset=charset), nullable=False),
+        # MW incompatibility: In MediaWiki, log_params is a Blob which is supposed to
+        # hold either LF separated list or serialized PHP array. We store a JSON
+        # serialization of what the API gives us.
+        Column("log_params", JSONEncodedDict, nullable=False),
         Column("log_deleted", SmallInteger, nullable=False, server_default="0")
     )
     Index("log_type_time", logging.c.log_type, logging.c.log_timestamp)
