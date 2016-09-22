@@ -40,7 +40,22 @@ extensions = [
 
 autoclass_content = "both"
 autodoc_member_order = "bysource"
-autodoc_default_flags = ["members", "undoc-members", "private-members"]
+autodoc_default_flags = [
+    "members",
+    "undoc-members",
+    "private-members",
+    "special-members",
+]
+
+# exclude some special members
+# ref: http://stackoverflow.com/questions/3757500/connect-sphinx-autodoc-skip-member-to-my-function/21449475#21449475
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    exclusions = {'__weakref__', '__doc__', '__module__', '__dict__', '__init__'}
+    exclude = name in exclusions
+    return skip or exclude
+
+def setup(app):
+    app.connect('autodoc-skip-member', autodoc_skip_member)
 
 # When the second item is None, the inventory is loaded from <url>/objects.inv
 # see: http://sphinx-doc.org/ext/intersphinx.html#module-sphinx.ext.intersphinx
