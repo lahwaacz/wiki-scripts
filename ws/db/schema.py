@@ -341,7 +341,8 @@ def create_recentchanges_tables(metadata, charset):
         Column("rc_user", Integer),
         Column("rc_user_text", UnicodeBinary(255), nullable=False),
         # FIXME: can contain negative values
-        Column("rc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+#        Column("rc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        Column("rc_namespace", Integer, nullable=False),
         Column("rc_title", UnicodeBinary(255), nullable=False, server_default=""),
         Column("rc_comment", UnicodeBinary(767), nullable=False, server_default=""),
         Column("rc_minor", Boolean, nullable=False, server_default="0"),
@@ -425,7 +426,8 @@ def create_siteinfo_tables(metadata, charset):
         Column("log_user", Integer, ForeignKey("user.user_id", ondelete="SET NULL")),
         Column("log_user_text", UnicodeBinary(255), nullable=False, server_default=""),
         # FIXME: logging table may contain rows with log_namespace < 0
-        Column("log_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+#        Column("log_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        Column("log_namespace", Integer, nullable=False),
         Column("log_title", UnicodeBinary(255), nullable=False, server_default=""),
         # this must NOT be a FK - pages can disappear and reappear, log entries are invariant
         Column("log_page", Integer),
