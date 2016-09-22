@@ -13,7 +13,7 @@ class GrabberIPBlocks(Grabber):
     def __init__(self, api, db):
         super().__init__(api, db)
 
-        self.sql_constructs = {
+        self.sql = {
             ("insert", "ipblocks"):
                 db.ipblocks.insert(mysql_on_duplicate_key_update=[
                     db.ipblocks.c.ipb_address,
@@ -71,7 +71,7 @@ class GrabberIPBlocks(Grabber):
                 # not available via the API (and set only by autoblocks anyway)
                 "ipb_parent_block_id": None,
             }
-            yield "insert", "ipblocks", db_entry
+            yield self.sql["insert", "ipblocks"], db_entry
 
 
     def gen_insert(self):
@@ -115,15 +115,15 @@ class GrabberIPBlocks(Grabber):
             list_params["bkusers"] = "|".join(chunk)
 
             # introspect the db_entry to handle unblocks
-            for action, table, db_entry in self.gen(list_params):
+            for stmt, db_entry in self.gen(list_params):
                 rcblocks.setdefault(db_entry["ipb_address"], set())
                 rcblocks[db_entry["ipb_address"]].add(db_entry["ipb_id"])
-                yield action, table, db_entry
+                yield stmt, db_entry
 
         # delete blocks for users that were not present in the bkusers= list
         blocked_rcusers = set(rcblocks)
         for user in rcusers - blocked_rcusers:
-            yield "delete", "ipblocks", {"b_ipb_address": user}
+            yield self.sql["delete", "ipblocks"], {"b_ipb_address": user}
 
         # handle partial unblocks (there is composite unique key)
         for user, ipb_ids in rcblocks.items():

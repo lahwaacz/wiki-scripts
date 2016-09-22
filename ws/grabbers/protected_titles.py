@@ -19,7 +19,7 @@ class GrabberProtectedTitles(Grabber):
     def __init__(self, api, db):
         super().__init__(api, db)
 
-        self.sql_constructs = {
+        self.sql = {
             ("insert", "protected_titles"):
                 db.protected_titles.insert(mysql_on_duplicate_key_update=[
                     db.protected_titles.c.pt_level,
@@ -47,7 +47,7 @@ class GrabberProtectedTitles(Grabber):
                     "pt_level": pt["level"],
                     "pt_expiry": pt["expiry"],
                 }
-                yield "insert", "protected_titles", db_entry
+                yield self.sql["insert", "protected_titles"], db_entry
         else:
             # an element from list=protectedtitles
             db_entry = {
@@ -56,14 +56,14 @@ class GrabberProtectedTitles(Grabber):
                 "pt_level": page["level"],
                 "pt_expiry": page["expiry"],
             }
-            yield "insert", "protected_titles", db_entry
+            yield self.sql["insert", "protected_titles"], db_entry
 
     def gen_deletes_from_page(self, page):
         # creating a page removes any corresponding rows from protected_titles
         # also delete rows for unprotected title
         if "missing" not in page or not page["protection"]:
             title = Title(self.api, page["title"])
-            yield "delete", "protected_titles", {"b_pt_namespace": title.namespacenumber, "b_pt_title": title.pagename}
+            yield self.sql["delete", "protected_titles"], {"b_pt_namespace": title.namespacenumber, "b_pt_title": title.pagename}
 
     def gen_insert(self):
         pt_params = {

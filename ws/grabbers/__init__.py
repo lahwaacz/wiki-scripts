@@ -6,6 +6,7 @@ import logging
 from sqlalchemy import select
 
 from ws.client.api import ShortRecentChangesError
+from ws.db.execution import DeferrableExecutionQueue
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +24,6 @@ class Grabber:
 
         if not self.TARGET_TABLES:
             raise Exception("The {} class does not have TARGET_TABLES class attribute.".format(self.__class__.__name__))
-
-        # a mapping of ``(action, table)`` tuples to prepared SQL constructs
-        # (see self.gen_insert and self.gen_update for ``(action, table)`` tuples)
-        self.sql_constructs = {}
 
     def _set_sync_timestamp(self, timestamp):
         """
@@ -67,14 +64,17 @@ class Grabber:
 
         To be implemented in subclasses.
 
-        The yielded entries should have this format:
+        The yielded values are passed to :py:meth:`sqlalchemy.engine.Connection.execute`,
+        so the accepted formats for the values are:
 
-        - ``(action, table, entry)`` tuple, where ``action == "insert"``,
-          ``table`` is the target table and ``entry`` is a dict corresponding
-          to one row in ``table``. The SQL statement is constructed from
-          :py:attr:`self.sql_constructs` using the ``(action, table)``
-          tuple, entries are aggregated for the _executemany_ execution
-          strategy.
+        - ``(stmt, entry)`` tuple, where ``stmt`` is an object accepted by
+          sqlalchemy's execute method (e.g. plain string or an executable SQL
+          statement construct) and ``entry`` is a dict holding the bound
+          parameter values to be used in the execution. The execution is
+          deferred with :py:class:`ws.db.execution.DeferrableExecutionQueue`
+          to exploit the *executemany* execution strategy.
+        - Or it can yield ``stmt`` objects directly, if the *executemany*
+          execution strategy is not applicable.
         """
         raise NotImplementedError
 
@@ -85,20 +85,12 @@ class Grabber:
         To be implemented in subclasses.
 
         If :py:exc:`ws.client.api.ShortRecentChangesError` is raised while
-        executing this generator, :py:meth:`self.update` starts from scratch
-        with :py:meth:`self.insert`. The exception should be raised as soon as
+        executing this generator, :py:meth:`update` starts from scratch
+        with :py:meth:`insert`. The exception should be raised as soon as
         possible to save unnecessary work.
 
-        The yielded entries should have this format:
-
-        - ``(action, table, entry)`` tuple, where ``action`` is e.g. "insert",
-          ``table`` is the target table and ``entry`` is a dict corresponding
-          to one row in ``table``. The SQL statement is constructed from
-          :py:attr:`self.sql_constructs` using the ``(action, table)``
-          tuple, entries are aggregated for the _executemany_ execution
-          strategy.
-        - Or it can yield SQL statements directly, if the _executemany_
-          execution strategy is not applicable (e.g. for DELETE statements).
+        The yielded values should follow the same rules as the
+        :py:meth:`gen_insert` method.
         """
         raise NotImplementedError
 
@@ -134,51 +126,15 @@ class Grabber:
             return
 
     def db_execute(self, gen):
-        queues = {}
+        with self.db.engine.begin() as conn:
+            dfe = DeferrableExecutionQueue(conn, self.db.chunk_size)
 
-        # execute all queues, ordered by TARGET_TABLES to avoid errors due to
-        # failing foreign keys constraints
-        def exec_all():
-            for table in self.TARGET_TABLES:
-                for action, table_ in queues.keys():
-                    if table == table_:
-                        queues[action, table].execute()
+            for item in gen:
+                if isinstance(item, tuple):
+                    # unpack the tuple
+                    dfe.execute(*item)
+                else:
+                    # probably a single value
+                    dfe.execute(item)
 
-        for item in gen:
-            if isinstance(item, tuple):
-                action, table, entry = item
-                queues.setdefault( (action, table), DbExecutionQueue(self.db, self.sql_constructs[action, table]) )
-                q = queues[action, table]
-                need_exec = q.add_entry(entry)
-                if need_exec:
-                    # execute all queues, even if some are (very) short - otherwise
-                    # they may get out-of-sync and cause constraint errors
-                    exec_all()
-            else:
-                with self.db.engine.begin() as conn:
-                    conn.execute(item)
-
-        # finalize queues
-        exec_all()
-
-
-class DbExecutionQueue:
-    def __init__(self, db, stmt):
-        self.db = db
-        self.stmt = stmt
-        self.entries = []
-
-    def add_entry(self, entry):
-        """
-        :returns: if the queue should be executed
-        """
-        self.entries.append(entry)
-        if len(self.entries) >= self.db.chunk_size:
-            return True
-        return False
-
-    def execute(self):
-        if self.entries:
-            with self.db.engine.begin() as conn:
-                conn.execute(self.stmt, self.entries)
-            self.entries = []
+            dfe.execute_deferred()

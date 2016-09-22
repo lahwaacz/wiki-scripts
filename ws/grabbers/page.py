@@ -20,7 +20,7 @@ class GrabberPages(Grabber):
     def __init__(self, api, db):
         super().__init__(api, db)
 
-        self.sql_constructs = {
+        self.sql = {
             ("insert", "page"):
                 db.page.insert(mysql_on_duplicate_key_update=[
                     db.page.c.page_namespace,
@@ -79,7 +79,7 @@ class GrabberPages(Grabber):
             "page_content_model": page["contentmodel"],
             "page_lang": page["pagelanguage"],
         }
-        yield "insert", "page", db_entry
+        yield self.sql["insert", "page"], db_entry
 
         # items for page_props table
         for propname, value in page.get("pageprops", {}).items():
@@ -90,7 +90,7 @@ class GrabberPages(Grabber):
                 # TODO: how should this be populated?
 #                "pp_sortkey":
             }
-            yield "insert", "page_props", db_entry
+            yield self.sql["insert", "page_props"], db_entry
 
         # items for page_restrictions table
         for pr in page["protection"]:
@@ -104,14 +104,14 @@ class GrabberPages(Grabber):
                     "pr_user": None,    # unused
                     "pr_expiry": pr["expiry"],
                 }
-                yield "insert", "page_restrictions", db_entry
+                yield self.sql["insert", "page_restrictions"], db_entry
 
 
     def gen_deletes_from_page(self, page):
         if "missing" in page:
             # deleted page - this will cause cascade deletion in
             # page_props and page_restrictions tables
-            yield "delete", "page", {"b_page_id": page["pageid"]}
+            yield self.sql["delete", "page"], {"b_page_id": page["pageid"]}
         else:
             # delete outdated props
             props = set(page.get("pageprops", {}))
@@ -123,7 +123,7 @@ class GrabberPages(Grabber):
                         self.db.page_props.c.pp_propname.notin_(props))
             else:
                 # no props present - delete all rows with the pageid
-                yield "delete", "page_props", {"b_pp_page": page["pageid"]}
+                yield self.sql["delete", "page_props"], {"b_pp_page": page["pageid"]}
 
             # delete outdated restrictions
             applied = set(pr["type"] for pr in page["protection"])
@@ -135,7 +135,7 @@ class GrabberPages(Grabber):
                         self.db.page_restrictions.c.pr_type.notin_(applied))
             else:
                 # no restrictions applied - delete all rows with the pageid
-                yield "delete", "page_restrictions", {"b_pr_page": page["pageid"]}
+                yield self.sql["delete", "page_restrictions"], {"b_pr_page": page["pageid"]}
 
 
     def gen_insert(self):

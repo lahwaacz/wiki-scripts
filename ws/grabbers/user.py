@@ -22,7 +22,7 @@ class GrabberUsers(Grabber):
     def __init__(self, api, db):
         super().__init__(api, db)
 
-        self.sql_constructs = {
+        self.sql = {
             ("insert", "user"):
                 db.user.insert(mysql_on_duplicate_key_update=[
                     db.user.c.user_name,
@@ -55,7 +55,7 @@ class GrabberUsers(Grabber):
                 "user_registration": user["registration"],
                 "user_editcount": user["editcount"],
             }
-            yield "insert", "user", db_entry
+            yield self.sql["insert", "user"], db_entry
 
             extra_groups = set(user["groups"]) - implicit_groups
             for group in extra_groups:
@@ -63,7 +63,7 @@ class GrabberUsers(Grabber):
                     "ug_user": user["userid"],
                     "ug_group": group,
                 }
-                yield "insert", "user_groups", db_entry
+                yield self.sql["insert", "user_groups"], db_entry
 
 
     def gen_deletes_from_user(self, user):
@@ -84,7 +84,7 @@ class GrabberUsers(Grabber):
                         self.db.user_groups.c.ug_group.notin_(extra_groups))
             else:
                 # no groups - delete all rows with the userid
-                yield "delete", "user_groups", {"b_ug_user": user["userid"]}
+                yield self.sql["delete", "user_groups"], {"b_ug_user": user["userid"]}
 
 
     def gen_insert(self):
