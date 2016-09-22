@@ -4,14 +4,25 @@ from collections import OrderedDict
 
 class DeferrableExecutionQueue:
     """
-    TODO: add description
+    An execution wrapper which defers the execution of statements until the
+    queue is full.
 
-    Note: if multiple different statements are being deferred, their queues are
-    executed in the same order they were added, so statements from the second
-    queue can depend on the statements from the first queue and so on. As soon
-    as the size of any queue reaches the size limit, all queues are executed -
-    otherwise the queues may get out of sync and execution may hit constraint
-    errors.
+    This is useful to aggregate the values from Python generators to utilize
+    the *executemany* execution strategy.
+
+    .. note::
+        If multiple different statements are being deferred, their queues are
+        executed in the same order they were added, so statements from the
+        second queue can depend on the statements from the first queue and so
+        on. As soon as the size of any queue reaches the size limit, all queues
+        are executed - otherwise the queues may get out of sync and execution
+        may hit constraint errors.
+
+    :param sqlalchemy.engine.Connection conn:
+        a connection (with an established transaction) to the database where the
+        statements are executed
+    :param int chunk_size:
+        maximum queue size
     """
     def __init__(self, conn, chunk_size):
         if chunk_size <= 0:  # pragma: no cover
@@ -24,7 +35,10 @@ class DeferrableExecutionQueue:
 
     def execute(self, statement, *multiparams, **params):
         """
-        should mimic sqlalchemy's conn.execute, but with deferring
+        Adds a statement into the execution queue.
+
+        The semantics of the parameters is the same as of
+        :py:meth:`sqlalchemy.engine.Connection.execute`.
         """
         if self.chunk_size == 1:
             self.conn.execute(statement, *multiparams, **params)
@@ -39,6 +53,9 @@ class DeferrableExecutionQueue:
                 self.execute_deferred()
 
     def execute_deferred(self):
+        """
+        Execute all deferred statements and clear the queue.
+        """
         for statement, values in self.stmt_queues.items():
             self.conn.execute(statement, values)
         self.stmt_queues.clear()
