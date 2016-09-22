@@ -18,7 +18,7 @@ def is_ascii(text):
 
 # split ``list_`` into chunks of fixed length ``bs``
 def list_chunks(list_, bs):
-    return (list_[i:i+bs] for i in range(0, len(list_), bs))
+    return (list_[i: i + bs] for i in range(0, len(list_), bs))
 
 # yield from ``iterable`` by chunks of fixed length ``bs``
 # adjusted from http://stackoverflow.com/questions/24527006/split-a-generator-into-chunks-without-pre-walking-it/24527424#24527424

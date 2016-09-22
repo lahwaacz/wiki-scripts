@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
 
-import random
-import logging
-
 from sqlalchemy import bindparam
 
 import ws.utils
 from ws.parser_helpers.title import Title
-from ws.client.api import ShortRecentChangesError
 
 from . import Grabber
-
-logger = logging.getLogger(__name__)
 
 class GrabberRecentChanges(Grabber):
 

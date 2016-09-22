@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import sqlalchemy as sa
-
 def gen_namespace(api):
     for ns in api.site.namespaces.values():
         # don't store special namespaces in the database

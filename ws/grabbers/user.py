@@ -76,7 +76,7 @@ class GrabberUsers(Grabber):
                 "constraints in their database.".format(user["name"]))
         else:
             extra_groups = set(user["groups"]) - implicit_groups
-            if applied:
+            if extra_groups:
                 # we need to check a tuple of arbitrary length (i.e. the groups
                 # to keep), so the queries can't be grouped
                 yield self.db.user_groups.delete().where(
