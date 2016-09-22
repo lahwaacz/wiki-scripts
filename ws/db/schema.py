@@ -383,9 +383,9 @@ def create_recentchanges_tables(metadata, charset):
 
 def create_siteinfo_tables(metadata, charset):
     change_tag = Table("change_tag", metadata,
-        Column("ct_rc_id", Integer),
-        Column("ct_log_id", Integer),
-        Column("ct_rev_id", Integer),
+        Column("ct_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="SET NULL")),
+        Column("ct_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE")),
+        Column("ct_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE")),
         Column("ct_tag", Unicode(255), nullable=False),
         Column("ct_params", Blob(charset=charset))
     )
@@ -399,9 +399,9 @@ def create_siteinfo_tables(metadata, charset):
     )
 
     tag_summary = Table("tag_summary", metadata,
-        Column("ts_rc_id", Integer),
-        Column("ts_log_id", Integer),
-        Column("ts_rev_id", Integer),
+        Column("ts_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="SET NULL")),
+        Column("ts_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE")),
+        Column("ts_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE")),
         Column("ts_tags", MediumBlob(charset=charset), nullable=False)
     )
     Index("tag_summary_rc_id", tag_summary.c.ts_rc_id, unique=True)
