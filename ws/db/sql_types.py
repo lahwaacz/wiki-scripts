@@ -34,6 +34,8 @@ class _UnicodeConverter(types.TypeDecorator):
         return value
 
     def process_result_value(self, value, dialect):
+        if value is None:
+            return value
         return str(value, self.charset)
 
 
