@@ -100,6 +100,7 @@ class GrabberRecentChanges(Grabber):
             yield from self.gen_inserts_from_rc(rc)
 
         # TODO: go through the new logevents and update previous patrolled changes etc.
+        # and also the rc_deleted, including the DELETED_TEXT value (which will be a MW incompatibility)
 
         # purge too-old rows
         yield self.sql["delete", "recentchanges"], {"rc_cutoff_timestamp": ws.utils.format_date(self.api.oldest_recent_change)}

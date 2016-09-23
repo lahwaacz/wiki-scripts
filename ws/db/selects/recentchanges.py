@@ -28,8 +28,8 @@ def sanitize_params(params):
     assert "user" not in params or "excludeuser" not in params
 
     # MW incompatibility: "parsedcomment" prop is not supported
-    # TODO: MediaWiki API has also "redirect", "tags", "sha1" which require joins
-    assert params["prop"] <= {"user", "userid", "comment", "flags", "timestamp", "title", "ids", "sizes", "patrolled", "loginfo"}
+    # TODO: MediaWiki API has also "redirect", "tags", which require joins
+    assert params["prop"] <= {"user", "userid", "comment", "flags", "timestamp", "title", "ids", "sizes", "patrolled", "loginfo", "sha1"}
 
     # boolean flags
     # TODO: MediaWiki API has also "redirect" flag
@@ -95,10 +95,16 @@ def list(db, params=None, **kwargs):
         s.append_column(rc.c.rc_params)
 
     # joins
+    tail = rc
     if "title" in prop:
         nss = db.namespace_starname
-        s = s.select_from(rc.outerjoin(nss, rc.c.rc_namespace == nss.c.nss_id))
+        tail = tail.outerjoin(nss, rc.c.rc_namespace == nss.c.nss_id)
         s.append_column(nss.c.nss_name)
+    if "sha1" in prop:
+        rev = db.revision
+        tail = tail.outerjoin(rev, rc.c.rc_this_oldid == rev.c.rev_id)
+        s.append_column(rev.c.rev_sha1)
+    s = s.select_from(tail)
 
     # restrictions
     if params["dir"] == "older":
@@ -136,7 +142,7 @@ def list(db, params=None, **kwargs):
         if "anon" in show:
             s = s.where(rc.c.rc_user == None)
         elif "!anon" in show:
-            s = s.where(rc.c.rc_patrolled != None)
+            s = s.where(rc.c.rc_user != None)
 
     # order by
     if params["dir"] == "older":
@@ -168,6 +174,7 @@ def db_to_api(row):
         "rc_log_type": "logtype",
         "rc_log_action": "logaction",
         "rc_params": "logparams",
+        "rev_sha1": "sha1",
     }
     bool_flags = {
         "rc_minor": "minor",
