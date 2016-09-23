@@ -6,7 +6,8 @@ from ws.grabbers import namespace, recentchanges, user, ipblocks, page, protecte
 
 
 def main(api, db):
-    namespace.update(api, db)
+    g = namespace.GrabberNamespaces(api, db)
+    g.update()
     pprint(namespace.select(db))
 
     g = recentchanges.GrabberRecentChanges(api, db)

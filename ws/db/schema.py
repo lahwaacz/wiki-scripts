@@ -28,7 +28,8 @@ Known incompatibilities from MediaWiki schema:
 # - most foreign keys are nullable in MW's PostgreSQL schema and have an ON DELETE clause
 # - some non-nullable columns have silly default values - if we don't know, let's make it NULL
 
-from sqlalchemy import Table, Column, ForeignKey, Index, PrimaryKeyConstraint
+from sqlalchemy import \
+        Table, Column, ForeignKey, Index, PrimaryKeyConstraint, ForeignKeyConstraint
 from sqlalchemy.types import \
         Boolean, SmallInteger, Integer, BigInteger, Float, \
         Unicode, UnicodeText, Enum, DateTime
@@ -50,16 +51,33 @@ def create_custom_tables(metadata, charset):
         Column("ns_defaultcontentmodel", UnicodeBinary(32), server_default=None)
     )
 
-    # TODO: constraints on the boolean columns
+    # table for all namespace names
     namespace_name = Table("namespace_name", metadata,
         Column("nsn_id", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         # namespace prefixes are case-insensitive, just like the VARCHAR type
-        Column("nsn_name", Unicode(32), nullable=False),
-        Column("nsn_starname", Boolean, nullable=False, server_default="0"),
-        Column("nsn_canonical", Boolean, nullable=False, server_default="0"),
-        Column("nsn_alias", Boolean, nullable=False, server_default="0")
+        Column("nsn_name", Unicode(32), nullable=False)
     )
     Index("nsn_name", namespace_name.c.nsn_name, unique=True)
+
+    # table for default ("*") namespace names
+    namespace_starname = Table("namespace_starname", metadata,
+        Column("nss_id", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        Column("nss_name", Unicode(32), nullable=False),
+        ForeignKeyConstraint(["nss_id", "nss_name"],
+                             ["namespace_name.nsn_id", "namespace_name.nsn_name"],
+                             ondelete="CASCADE")
+    )
+    Index("ns_starname_id", namespace_starname.c.nss_id, unique=True)
+
+    # table for canonical namespace names
+    namespace_canonical = Table("namespace_canonical", metadata,
+        Column("nsc_id", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        Column("nsc_name", Unicode(32), nullable=False),
+        ForeignKeyConstraint(["nsc_id", "nsc_name"],
+                             ["namespace_name.nsn_id", "namespace_name.nsn_name"],
+                             ondelete="CASCADE")
+    )
+    Index("ns_canonical_id", namespace_canonical.c.nsc_id, unique=True)
 
     ws_sync = Table("ws_sync", metadata,
         Column("wss_key", Unicode(32), nullable=False, primary_key=True),

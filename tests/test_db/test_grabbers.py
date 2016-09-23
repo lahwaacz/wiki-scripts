@@ -11,9 +11,11 @@ def test_namespace(api, db):
     del ns[-1]
     del ns[-2]
 
-    namespace.update(api, db)
+    g = namespace.GrabberNamespaces(api, db)
+    g.update()
     assert namespace.select(db) == ns
 
     # void update for coverage
-    namespace.update(api, db)
+    g = namespace.GrabberNamespaces(api, db)
+    g.update()
     assert namespace.select(db) == ns
