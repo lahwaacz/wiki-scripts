@@ -6,14 +6,11 @@ from sqlalchemy import bindparam
 
 import ws.utils
 from ws.client.api import ShortRecentChangesError
+from ws.db.mw_constants import implicit_groups
 
 from . import Grabber
 
 logger = logging.getLogger(__name__)
-
-# FIXME: keep all MediaWiki constants in one place
-implicit_groups = {"*", "user"}
-
 
 class GrabberUsers(Grabber):
 

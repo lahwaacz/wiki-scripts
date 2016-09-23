@@ -193,6 +193,7 @@ def create_pages_tables(metadata, charset):
         Column("rev_user_text", UnicodeBinary(255), nullable=False, server_default=""),
         Column("rev_timestamp", MWTimestamp, nullable=False, server_default=""),
         Column("rev_minor_edit", SmallInteger, nullable=False, server_default="0"),
+        # TODO: analogous to log_deleted, should be Bitfield
         Column("rev_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("rev_len", Integer),
         # FIXME: should be set as FK, but that probably breaks archiving
@@ -382,7 +383,7 @@ def create_recentchanges_tables(metadata, charset):
         Column("rc_ip", UnicodeBinary(40)),
         Column("rc_old_len", Integer),
         Column("rc_new_len", Integer),
-        # TODO: analogous to rev_deleted or log_deleted, should be Enum
+        # TODO: analogous to rev_deleted or log_deleted, should be Bitfield
         Column("rc_deleted", SmallInteger, nullable=False, server_default="0"),
         # fake foreign key (see note above): rc_logid -> logging.log_id
         Column("rc_logid", Integer),
@@ -458,6 +459,7 @@ def create_siteinfo_tables(metadata, charset):
         # hold either LF separated list or serialized PHP array. We store a JSON
         # serialization of what the API gives us.
         Column("log_params", JSONEncodedDict, nullable=False),
+        # TODO: analogous to rev_deleted, should be Bitfield
         Column("log_deleted", SmallInteger, nullable=False, server_default="0")
     )
     Index("log_type_time", logging.c.log_type, logging.c.log_timestamp)

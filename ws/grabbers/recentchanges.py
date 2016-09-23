@@ -6,6 +6,7 @@ from sqlalchemy import bindparam
 
 import ws.utils
 from ws.parser_helpers.title import Title
+import ws.db.mw_constants as mwconst
 
 from . import Grabber
 
@@ -33,7 +34,7 @@ class GrabberRecentChanges(Grabber):
 
         self.rc_params = {
             "list": "recentchanges",
-            "rcprop": "title|ids|user|userid|flags|timestamp|comment|sizes|loginfo",
+            "rcprop": "title|ids|user|userid|flags|timestamp|comment|sizes|loginfo|sha1",
             "rclimit": "max",
         }
 
@@ -45,6 +46,18 @@ class GrabberRecentChanges(Grabber):
 
     def gen_inserts_from_rc(self, rc):
         title = Title(self.api, rc["title"])
+
+        rc_deleted = 0
+        if "sha1hidden" in rc:
+            rc_deleted |= mwconst.DELETED_TEXT
+        if "actionhidden" in rc:
+            rc_deleted |= mwconst.DELETED_ACTION
+        if "commenthidden" in rc:
+            rc_deleted |= mwconst.DELETED_COMMENT
+        if "userhidden" in rc:
+            rc_deleted |= mwconst.DELETED_USER
+        if "suppressed" in rc:
+            rc_deleted |= mwconst.DELETED_RESTRICTED
 
         db_entry = {
             "rc_id": rc["rcid"],
@@ -65,9 +78,7 @@ class GrabberRecentChanges(Grabber):
             "rc_patrolled": "patrolled" in rc,
             "rc_old_len": rc["oldlen"],
             "rc_new_len": rc["newlen"],
-            # TODO: combine "userhidden" in rc, "commenthidden" in rc, "actionhidden" in rc
-            # FIXME: we can't know if the revision text is deleted from list=recentchanges
-#            "rc_deleted":
+            "rc_deleted": rc_deleted,
             "rc_logid": rc.get("logid"),
             "rc_log_type": rc.get("logtype"),
             "rc_log_action": rc.get("logaction"),
