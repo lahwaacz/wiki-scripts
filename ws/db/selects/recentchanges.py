@@ -2,61 +2,64 @@
 
 from sqlalchemy import select
 
-def list(db,
-         start=None,
-         end=None,
-         dir="older",
-         namespace=None,
-         user=None,
-         excludeuser=None,
-# TODO
-#         tag=None,
-         prop=None,
-         show=None,
-         type=None):
-# TODO
-#         toponly=False,
-#         limit="max",
-#         continue_=None):
+def set_defaults(params):
+    params.setdefault("dir", "older")
+    params.setdefault("prop", {"title", "timestamp", "ids"})
+    params.setdefault("type", {"edit", "new", "log"})
+
+
+def sanitize_params(params):
+    assert set(params) <= {"start", "end", "dir", "namespace", "user", "excludeuser", "tag", "prop", "show", "type", "toponly", "limit", "continue"}
 
     # sanitize timestamp limits
-    assert dir in {"newer", "older"}
-    if dir == "older":
-        newest = start
-        oldest = end
+    assert params["dir"] in {"newer", "older"}
+    if params["dir"] == "older":
+        newest = params.get("start")
+        oldest = params.get("end")
     else:
-        newest = end
-        oldest = start
+        newest = params.get("end")
+        oldest = params.get("start")
     # None is uncomparable
     if oldest and newest:
         assert oldest < newest
 
-    assert user is None or excludeuser is None
+    assert "user" not in params or "excludeuser" not in params
 
-    if prop is None:
-        prop = {"title", "timestamp", "ids"}
     # MW incompatibility: "parsedcomment" prop is not supported
     # TODO: MediaWiki API has also "redirect", "tags", "sha1" which require joins
-    assert prop <= {"user", "userid", "comment", "flags", "timestamp", "title", "ids", "sizes", "patrolled", "loginfo"}
+    assert params["prop"] <= {"user", "userid", "comment", "flags", "timestamp", "title", "ids", "sizes", "patrolled", "loginfo"}
 
     # boolean flags
     # TODO: MediaWiki API has also "redirect" flag
-    if show is not None:
+    if "show" in params:
         flags = {"minor", "bot", "anon", "patrolled"}
         passed = set()
-        for flag in show:
+        for flag in params["show"]:
             assert flag in flags or "!" + flag in flags
             bare = flag.lstrip("!")
             assert bare not in passed
             passed.add(bare)
 
-    if type is None:
-        type = {"edit", "new", "log"}
-    assert type <= {"edit", "new", "log", "external"}
+    assert params["type"] <= {"edit", "new", "log", "external"}
 
+
+def list(db, params=None, **kwargs):
+    if params is None:
+        params = kwargs
+    elif not isinstance(params, dict):
+        raise ValueError("params must be dict or None")
+    elif kwargs and params:
+        raise ValueError("specifying 'params' and 'kwargs' at the same time is not supported")
+
+    set_defaults(params)
+    sanitize_params(params)
+
+    if {"tag", "toponly", "limit", "continue"} & set(params):
+        raise NotImplementedError
 
     rc = db.recentchanges
     columns = {rc.c.rc_type}
+    prop = params["prop"]
     if "user" in prop:
         columns.add(rc.c.rc_user_text)
     if "userid" in prop:
@@ -96,19 +99,26 @@ def list(db,
         s.append_column(nss.c.nss_name)
 
     # restrictions
+    if params["dir"] == "older":
+        newest = params.get("start")
+        oldest = params.get("end")
+    else:
+        newest = params.get("end")
+        oldest = params.get("start")
     if newest:
         s = s.where(rc.c.rc_timestamp < newest)
     if oldest:
         s = s.where(rc.c.rc_timestamp > oldest)
-    if namespace:
-        s = s.where(rc.c.rc_namespace == namespace)
-    if user:
-        s = s.where(rc.c.rc_user_text == user)
-    if excludeuser:
-        s = s.where(rc.c.rc_user_text != user)
-    s = s.where(rc.c.rc_type.in_(type))
+    if params.get("namespace"):
+        s = s.where(rc.c.rc_namespace == params.get("namespace"))
+    if params.get("user"):
+        s = s.where(rc.c.rc_user_text == params.get("user"))
+    if params.get("excludeuser"):
+        s = s.where(rc.c.rc_user_text != params.get("excludeuser"))
+    s = s.where(rc.c.rc_type.in_(params["type"]))
 
-    if show:
+    if "show" in params:
+        show = params["show"]
         if "minor" in show:
             s = s.where(rc.c.rc_minor == True)
         elif "!minor" in show:
@@ -127,7 +137,7 @@ def list(db,
             s = s.where(rc.c.rc_patrolled != None)
 
     # order by
-    if dir == "older":
+    if params["dir"] == "older":
         s = s.order_by(rc.c.rc_timestamp.desc(), rc.c.rc_id.desc())
     else:
         s = s.order_by(rc.c.rc_timestamp.asc(), rc.c.rc_id.desc())
