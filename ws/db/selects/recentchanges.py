@@ -58,39 +58,39 @@ def list(db, params=None, **kwargs):
         raise NotImplementedError
 
     rc = db.recentchanges
-    columns = {rc.c.rc_type}
+    s = select([rc.c.rc_type])
+
     prop = params["prop"]
     if "user" in prop:
-        columns.add(rc.c.rc_user_text)
+        s.append_column(rc.c.rc_user_text)
     if "userid" in prop:
-        columns.add(rc.c.rc_user)
+        s.append_column(rc.c.rc_user)
     if "comment" in prop:
-        columns.add(rc.c.rc_comment)
+        s.append_column(rc.c.rc_comment)
     if "flags" in prop:
-        columns.add(rc.c.rc_minor)
-        columns.add(rc.c.rc_bot)
-        columns.add(rc.c.rc_new)
+        s.append_column(rc.c.rc_minor)
+        s.append_column(rc.c.rc_bot)
+        s.append_column(rc.c.rc_new)
     if "timestamp" in prop:
-        columns.add(rc.c.rc_timestamp)
+        s.append_column(rc.c.rc_timestamp)
     if "title" in prop:
-        columns.add(rc.c.rc_namespace)
-        columns.add(rc.c.rc_title)
+        s.append_column(rc.c.rc_namespace)
+        s.append_column(rc.c.rc_title)
     if "ids" in prop:
-        columns.add(rc.c.rc_id)
-        columns.add(rc.c.rc_cur_id)
-        columns.add(rc.c.rc_this_oldid)
-        columns.add(rc.c.rc_last_oldid)
+        s.append_column(rc.c.rc_id)
+        s.append_column(rc.c.rc_cur_id)
+        s.append_column(rc.c.rc_this_oldid)
+        s.append_column(rc.c.rc_last_oldid)
     if "sizes" in prop:
-        columns.add(rc.c.rc_old_len)
-        columns.add(rc.c.rc_new_len)
+        s.append_column(rc.c.rc_old_len)
+        s.append_column(rc.c.rc_new_len)
     if "patrolled" in prop:
-        columns.add(rc.c.rc_patrolled)
+        s.append_column(rc.c.rc_patrolled)
     if "loginfo" in prop:
-        columns.add(rc.c.rc_logid)
-        columns.add(rc.c.rc_log_type)
-        columns.add(rc.c.rc_log_action)
-        columns.add(rc.c.rc_params)
-    s = select(columns)
+        s.append_column(rc.c.rc_logid)
+        s.append_column(rc.c.rc_log_type)
+        s.append_column(rc.c.rc_log_action)
+        s.append_column(rc.c.rc_params)
 
     # joins
     if "title" in prop:
