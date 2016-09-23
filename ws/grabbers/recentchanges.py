@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 
+import logging
+
 from sqlalchemy import bindparam
 
 import ws.utils
 from ws.parser_helpers.title import Title
 
 from . import Grabber
+
+logger = logging.getLogger(__name__)
 
 class GrabberRecentChanges(Grabber):
 
@@ -29,9 +33,15 @@ class GrabberRecentChanges(Grabber):
 
         self.rc_params = {
             "list": "recentchanges",
-            "rcprop": "title|ids|user|userid|flags|patrolled|timestamp|comment|sizes|loginfo",
+            "rcprop": "title|ids|user|userid|flags|timestamp|comment|sizes|loginfo",
             "rclimit": "max",
         }
+
+        if "patrol" in self.api.user.rights:
+            self.rc_params["rcprop"] += "|patrolled"
+        else:
+            logger.warning("You need the 'patrol' right to request the patrolled flag. "
+                           "Skipping it, but the sync will be incomplete.")
 
     def gen_inserts_from_rc(self, rc):
         title = Title(self.api, rc["title"])
