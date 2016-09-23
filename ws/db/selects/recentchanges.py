@@ -4,6 +4,7 @@ from sqlalchemy import select
 
 import ws.db.mw_constants as mwconst
 
+
 def set_defaults(params):
     params.setdefault("dir", "older")
     params.setdefault("prop", {"title", "timestamp", "ids"})
@@ -28,8 +29,7 @@ def sanitize_params(params):
     assert "user" not in params or "excludeuser" not in params
 
     # MW incompatibility: "parsedcomment" prop is not supported
-    # TODO: MediaWiki API has also "redirect", "tags", which require joins
-    assert params["prop"] <= {"user", "userid", "comment", "flags", "timestamp", "title", "ids", "sizes", "patrolled", "loginfo", "sha1"}
+    assert params["prop"] <= {"user", "userid", "comment", "flags", "timestamp", "title", "ids", "sizes", "patrolled", "loginfo", "sha1", "redirect", "tags"}
 
     # boolean flags
     # TODO: MediaWiki API has also "redirect" flag
@@ -46,6 +46,15 @@ def sanitize_params(params):
 
 
 def list(db, params=None, **kwargs):
+    """
+    .. note::
+        Parameters ``toponly=``, ``tag=``, ``prop=tags``, ``prop=sha1``,
+        ``prop=redirect``, ``show=redirect`` require joins with other tables,
+        so that information will not be present during mirroring.
+
+        Also ``prop=title`` requires join with the ``namespace_starname`` table
+        but that must be synchronized first anyway.
+    """
     if params is None:
         params = kwargs
     elif not isinstance(params, dict):
@@ -56,7 +65,9 @@ def list(db, params=None, **kwargs):
     set_defaults(params)
     sanitize_params(params)
 
-    if {"tag", "toponly", "limit", "continue"} & set(params):
+    if {"tag", "limit", "continue"} & set(params):
+        raise NotImplementedError
+    if "tags" in params["prop"]:
         raise NotImplementedError
 
     rc = db.recentchanges
@@ -104,9 +115,16 @@ def list(db, params=None, **kwargs):
         rev = db.revision
         tail = tail.outerjoin(rev, rc.c.rc_this_oldid == rev.c.rev_id)
         s.append_column(rev.c.rev_sha1)
+    if "toponly" in params or "redirect" in prop or {"redirect", "!redirect"} & params.get("show", set()):
+        page = db.page
+        tail = tail.outerjoin(page, rc.c.rc_namespace == page.c.page_namespace &
+                                    rc.c.rc_title == page.c.page_title)
+        s.append_column(page.c.page_is_redirect)
     s = s.select_from(tail)
 
     # restrictions
+    if "toponly" in params:
+        s = s.where(rc.c.rc_this_oldid == page.c.page_latest)
     if params["dir"] == "older":
         newest = params.get("start")
         oldest = params.get("end")
@@ -143,6 +161,11 @@ def list(db, params=None, **kwargs):
             s = s.where(rc.c.rc_user == None)
         elif "!anon" in show:
             s = s.where(rc.c.rc_user != None)
+        if "redirect" in show:
+            s = s.where(page.c.page_is_redirect == True)
+        elif "!redirect":
+            # Don't throw log entries out the window here
+            s = s.where(page.c.page_is_redirect == False | page.c.page_is_redirect == None)
 
     # order by
     if params["dir"] == "older":
@@ -181,6 +204,7 @@ def db_to_api(row):
         "rc_bot": "bot",
         "rc_new": "new",
         "rc_patrolled": "patrolled",
+        "page_is_redirect": "redirect",
     }
 
     api_entry = {}
