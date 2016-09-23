@@ -89,6 +89,12 @@ def list(db,
         columns.add(rc.c.rc_params)
     s = select(columns)
 
+    # joins
+    if "title" in prop:
+        nss = db.namespace_starname
+        s = s.select_from(rc.outerjoin(nss, rc.c.rc_namespace == nss.c.nss_id))
+        s.append_column(nss.c.nss_name)
+
     # restrictions
     if newest:
         s = s.where(rc.c.rc_timestamp < newest)
@@ -126,9 +132,55 @@ def list(db,
     else:
         s = s.order_by(rc.c.rc_timestamp.asc(), rc.c.rc_id.desc())
 
-    # TODO: transform the row into API format
-    # TODO: combine namespace name and rc_title (write another function reading from ws_namespace table)
     result = db.engine.execute(s)
     for row in result:
-        print(dict(row))
+        yield db_to_api(row)
     result.close()
+
+
+def db_to_api(row):
+    flags = {
+        "rc_id": "rcid",
+        "rc_timestamp": "timestamp",
+        "rc_user": "userid",
+        "rc_user_text": "user",
+        "rc_namespace": "ns",
+        "rc_comment": "comment",
+        "rc_cur_id": "pageid",
+        "rc_this_oldid": "revid",
+        "rc_last_oldid": "old_revid",
+        "rc_type": "type",
+        "rc_old_len": "oldlen",
+        "rc_new_len": "newlen",
+        # TODO
+#        "rc_deleted":
+        "rc_logid": "logid",
+        "rc_log_type": "logtype",
+        "rc_log_action": "logaction",
+        "rc_params": "logparams",
+    }
+    bool_flags = {
+        "rc_minor": "minor",
+        "rc_bot": "bot",
+        "rc_new": "new",
+        "rc_patrolled": "patrolled",
+    }
+
+    api_entry = {}
+    for key, value in row.items():
+        if key in flags:
+            api_key = flags[key]
+            api_entry[api_key] = value
+        elif key in bool_flags:
+            if value:
+                api_key = bool_flags[key]
+                api_entry[api_key] = ""
+
+    # this should be the only special value (for now)
+    if "nss_name" in row:
+        if row["nss_name"]:
+            api_entry["title"] = "{}:{}".format(row["nss_name"], row["rc_title"])
+        else:
+            api_entry["title"] = row["rc_title"]
+
+    return api_entry
