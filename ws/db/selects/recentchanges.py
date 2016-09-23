@@ -2,6 +2,8 @@
 
 from sqlalchemy import select
 
+import ws.db.mw_constants as mwconst
+
 def set_defaults(params):
     params.setdefault("dir", "older")
     params.setdefault("prop", {"title", "timestamp", "ids"})
@@ -58,7 +60,7 @@ def list(db, params=None, **kwargs):
         raise NotImplementedError
 
     rc = db.recentchanges
-    s = select([rc.c.rc_type])
+    s = select([rc.c.rc_type, rc.c.rc_deleted])
 
     prop = params["prop"]
     if "user" in prop:
@@ -162,8 +164,6 @@ def db_to_api(row):
         "rc_type": "type",
         "rc_old_len": "oldlen",
         "rc_new_len": "newlen",
-        # TODO
-#        "rc_deleted":
         "rc_logid": "logid",
         "rc_log_type": "logtype",
         "rc_log_action": "logaction",
@@ -188,11 +188,24 @@ def db_to_api(row):
                 api_key = bool_flags[key]
                 api_entry[api_key] = ""
 
-    # this should be the only special value (for now)
+    # add special values
     if "nss_name" in row:
         if row["nss_name"]:
             api_entry["title"] = "{}:{}".format(row["nss_name"], row["rc_title"])
         else:
             api_entry["title"] = row["rc_title"]
+    if "rc_user" in row and row["rc_user"] is None:
+        api_entry["anon"] = ""
+    # parse rc_deleted
+    if row["rc_deleted"] & mwconst.DELETED_TEXT and row["rc_type"] != "log":
+        api_entry["sha1hidden"] = ""
+    if row["rc_deleted"] & mwconst.DELETED_ACTION and row["rc_type"] == "log":
+        api_entry["actionhidden"] = ""
+    if row["rc_deleted"] & mwconst.DELETED_COMMENT:
+        api_entry["commenthidden"] = ""
+    if row["rc_deleted"] & mwconst.DELETED_USER:
+        api_entry["userhidden"] = ""
+    if row["rc_deleted"] & mwconst.DELETED_RESTRICTED:
+        api_entry["suppressed"] = ""
 
     return api_entry
