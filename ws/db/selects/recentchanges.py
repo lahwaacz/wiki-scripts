@@ -179,8 +179,10 @@ def db_to_api(row):
     api_entry = {}
     for key, value in row.items():
         if key in flags:
-            api_key = flags[key]
-            api_entry[api_key] = value
+            # don't add None (log info for edits etc.)
+            if value is not None:
+                api_key = flags[key]
+                api_entry[api_key] = value
         elif key in bool_flags:
             if value:
                 api_key = bool_flags[key]
