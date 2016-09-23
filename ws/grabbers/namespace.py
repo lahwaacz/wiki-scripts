@@ -35,8 +35,8 @@ class GrabberNamespaces(Grabber):
     def gen_insert(self):
         for ns in self.api.site.namespaces.values():
             # don't store special namespaces in the database
-            if ns["id"] < 0:
-                continue
+#            if ns["id"] < 0:
+#                continue
 
             ns_entry = {
                 "ns_id": ns["id"],

@@ -8,8 +8,8 @@ from ws.grabbers import namespace
 
 def test_namespace(api, db):
     ns = copy(api.site.namespaces)
-    del ns[-1]
-    del ns[-2]
+#    del ns[-1]
+#    del ns[-2]
 
     g = namespace.GrabberNamespaces(api, db)
     g.update()

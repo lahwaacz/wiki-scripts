@@ -41,6 +41,7 @@ from .sql_types import \
 
 
 def create_custom_tables(metadata, charset):
+    # FIXME: even special namespaces (with negative IDs) are currently included, but most foreign keys should be restricted to non-negative values
     namespace = Table("namespace", metadata,
         # can't be auto-incremented because we need to start from 0
         Column("ns_id", Integer, nullable=False, primary_key=True, autoincrement=False),
