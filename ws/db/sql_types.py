@@ -101,6 +101,8 @@ class MWTimestamp(types.TypeDecorator):
         Convert timestamp from database to MediaWiki format, i.e.
         20130105011652 --> 2013-01-05T01:16:52Z
         """
+        if value is None:
+            return value
         ts = str(value.rstrip(b"\0"), self.charset)
         if ts == "infinity":
             return ts
@@ -122,6 +124,8 @@ class Base36(types.TypeDecorator):
         """
         python -> db
         """
+        if value is None:
+            return value
         n = base_dec(bytes(value, "ascii"), 16)
         return base_enc(n, 36)
 
@@ -129,6 +133,8 @@ class Base36(types.TypeDecorator):
         """
         db -> python
         """
+        if value is None:
+            return value
         n = base_dec(value, 36)
         return str(base_enc(n, 16), "ascii")
 
