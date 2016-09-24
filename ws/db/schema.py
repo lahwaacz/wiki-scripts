@@ -397,7 +397,7 @@ def create_recentchanges_tables(metadata, charset):
     Index("rc_timestamp", recentchanges.c.rc_timestamp)
     Index("rc_namespace_title", recentchanges.c.rc_namespace, recentchanges.c.rc_title)
     Index("rc_cur_id", recentchanges.c.rc_cur_id)
-    Index("new_name_timestamp", recentchanges.c.rc_new, recentchanges.c.rc_namespace, recentchanges.c.rc_timestamp)
+    Index("rc_new_name_timestamp", recentchanges.c.rc_new, recentchanges.c.rc_namespace, recentchanges.c.rc_timestamp)
     Index("rc_ip", recentchanges.c.rc_ip)
     Index("rc_ns_usertext", recentchanges.c.rc_namespace, recentchanges.c.rc_user_text)
     Index("rc_user_text", recentchanges.c.rc_user_text, recentchanges.c.rc_timestamp)
