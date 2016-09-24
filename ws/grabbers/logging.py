@@ -56,7 +56,9 @@ class GrabberLogging(Grabber):
             "log_namespace": logevent["ns"],
             # title is stored without the namespace prefix
             "log_title": title.pagename,
-            "log_page": value_or_none(logevent["pageid"]),
+            # 'logpage' can be different from 'pageid', e.g. if the page was deleted
+            # in an old MediaWiki that did not preserve pageid and then restored
+            "log_page": value_or_none(logevent["logpage"]),
             "log_comment": logevent["comment"],
             "log_params": logevent["params"],
             "log_deleted": log_deleted,
