@@ -48,10 +48,18 @@ class GrabberPages(Grabber):
                 ]),
             ("delete", "page"):
                 db.page.delete().where(db.page.c.page_id == bindparam("b_page_id")),
-            ("delete", "page_props"):
+            ("delete-but-one", "page_props"):
+                db.page_props.delete().where(
+                    (db.page_props.c.pp_page == bindparam("b_pp_page")) &
+                    (db.page_props.c.pp_propname != bindparam("b_pp_propname"))),
+            ("delete-all", "page_props"):
                 db.page_props.delete().where(
                     db.page_props.c.pp_page == bindparam("b_pp_page")),
-            ("delete", "page_restrictions"):
+            ("delete-but-one", "page_restrictions"):
+                db.page_restrictions.delete().where(
+                    (db.page_restrictions.c.pr_page == bindparam("b_pr_page")) &
+                    (db.page_restrictions.c.pr_type != bindparam("b_pr_type"))),
+            ("delete-all", "page_restrictions"):
                 db.page_restrictions.delete().where(
                     db.page_restrictions.c.pr_page == bindparam("b_pr_page")),
         }
@@ -116,26 +124,34 @@ class GrabberPages(Grabber):
             # delete outdated props
             props = set(page.get("pageprops", {}))
             if props:
-                # we need to check a tuple of arbitrary length (i.e. the props to keep),
-                # so the queries can't be grouped
-                yield self.db.page_props.delete().where(
-                        (self.db.page_props.c.pp_page == page["pageid"]) &
-                        self.db.page_props.c.pp_propname.notin_(props))
+                if len(props) == 1:
+                    # optimized query using != instead of notin_
+                    yield self.sql["delete-but-one", "page_props"], {"b_pp_page": page["pageid"], "b_pp_propname": props.pop()}
+                else:
+                    # we need to check a tuple of arbitrary length (i.e. the props to keep),
+                    # so the queries can't be grouped
+                    yield self.db.page_props.delete().where(
+                            (self.db.page_props.c.pp_page == page["pageid"]) &
+                            self.db.page_props.c.pp_propname.notin_(props))
             else:
                 # no props present - delete all rows with the pageid
-                yield self.sql["delete", "page_props"], {"b_pp_page": page["pageid"]}
+                yield self.sql["delete-all", "page_props"], {"b_pp_page": page["pageid"]}
 
             # delete outdated restrictions
             applied = set(pr["type"] for pr in page["protection"])
             if applied:
-                # we need to check a tuple of arbitrary length (i.e. the restrictions
-                # to keep), so the queries can't be grouped
-                yield self.db.page_restrictions.delete().where(
-                        (self.db.page_restrictions.c.pr_page == page["pageid"]) &
-                        self.db.page_restrictions.c.pr_type.notin_(applied))
+                if len(applied) == 1:
+                    # optimized query using != instead of notin_
+                    yield self.sql["delete-but-one", "page_restrictions"], {"b_pr_page": page["pageid"], "b_pr_type": applied.pop()}
+                else:
+                    # we need to check a tuple of arbitrary length (i.e. the restrictions
+                    # to keep), so the queries can't be grouped
+                    yield self.db.page_restrictions.delete().where(
+                            (self.db.page_restrictions.c.pr_page == page["pageid"]) &
+                            self.db.page_restrictions.c.pr_type.notin_(applied))
             else:
                 # no restrictions applied - delete all rows with the pageid
-                yield self.sql["delete", "page_restrictions"], {"b_pr_page": page["pageid"]}
+                yield self.sql["delete-all", "page_restrictions"], {"b_pr_page": page["pageid"]}
 
 
     def gen_insert(self):
