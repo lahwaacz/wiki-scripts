@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 from sqlalchemy import select
+from sqlalchemy.sql import func
 
 import ws.db.mw_constants as mwconst
+from ws.utils import parse_date
 
 
 def set_defaults(params):
@@ -247,3 +249,13 @@ def db_to_api(row):
         api_entry["suppressed"] = ""
 
     return api_entry
+
+
+# TODO: this is needed only until list() supports limit parameter - then the caller can do the same as ws.client.api.API.oldest_recent_change
+def oldest_recent_change(db):
+    """
+    Get timestamp of the oldest change stored in the recentchanges table.
+    """
+    result = db.engine.execute(select( [func.min(db.recentchanges.c.rc_timestamp)] ))
+    timestamp = result.fetchone()[0]
+    return parse_date(timestamp)
