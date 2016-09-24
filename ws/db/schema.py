@@ -402,47 +402,6 @@ def create_recentchanges_tables(metadata, charset):
     Index("rc_ns_usertext", recentchanges.c.rc_namespace, recentchanges.c.rc_user_text)
     Index("rc_user_text", recentchanges.c.rc_user_text, recentchanges.c.rc_timestamp)
 
-    watchlist = Table("watchlist", metadata,
-        Column("wl_user", Integer, ForeignKey("user.user_id"), nullable=False),
-        # FIXME: MW defect: why is there not a FK to page.page_id?
-        Column("wl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("wl_title", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("wl_notificationtimestamp", MWTimestamp)
-    )
-    Index("wl_user", watchlist.c.wl_user, watchlist.c.wl_namespace, watchlist.c.wl_title, unique=True)
-    Index("wl_namespace_title", watchlist.c.wl_namespace, watchlist.c.wl_title)
-    Index("wl_user_notificationtimestamp", watchlist.c.wl_user, watchlist.c.wl_notificationtimestamp)
-
-
-def create_siteinfo_tables(metadata, charset):
-    change_tag = Table("change_tag", metadata,
-        Column("ct_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="SET NULL")),
-        Column("ct_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE")),
-        # FIXME: archiving
-        Column("ct_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE")),
-        Column("ct_tag", Unicode(255), nullable=False),
-        Column("ct_params", Blob(charset=charset))
-    )
-    Index("change_tag_rc_tag", change_tag.c.ct_rc_id, change_tag.c.ct_tag, unique=True)
-    Index("change_tag_log_tag", change_tag.c.ct_log_id, change_tag.c.ct_tag, unique=True)
-    Index("change_tag_rev_tag", change_tag.c.ct_rev_id, change_tag.c.ct_tag, unique=True)
-    Index("change_tag_tag_id", change_tag.c.ct_tag, change_tag.c.ct_rc_id, change_tag.c.change_tag.c.ct_rev_id, change_tag.c.ct_log_id)
-
-    valid_tag = Table("valid_tag", metadata,
-        Column("vt_tag", Unicode(255), primary_key=True, nullable=False)
-    )
-
-    tag_summary = Table("tag_summary", metadata,
-        Column("ts_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="SET NULL")),
-        Column("ts_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE")),
-        # FIXME: archiving
-        Column("ts_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE")),
-        Column("ts_tags", MediumBlob(charset=charset), nullable=False)
-    )
-    Index("tag_summary_rc_id", tag_summary.c.ts_rc_id, unique=True)
-    Index("tag_summary_log_id", tag_summary.c.ts_log_id, unique=True)
-    Index("tag_summary_rev_id", tag_summary.c.ts_rev_id, unique=True)
-
     logging = Table("logging", metadata,
         Column("log_id", Integer, primary_key=True, nullable=False),
         Column("log_type", UnicodeBinary(32), nullable=False, server_default=""),
@@ -474,7 +433,35 @@ def create_siteinfo_tables(metadata, charset):
     Index("log_user_text_type_time", logging.c.log_user_text, logging.c.log_type, logging.c.log_timestamp)
     Index("log_user_text_time", logging.c.log_user_text, logging.c.log_timestamp)
 
-    # TODO: log_search table
+
+def create_siteinfo_tables(metadata, charset):
+    change_tag = Table("change_tag", metadata,
+        Column("ct_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="SET NULL")),
+        Column("ct_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE")),
+        # FIXME: archiving
+        Column("ct_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE")),
+        Column("ct_tag", Unicode(255), nullable=False),
+        Column("ct_params", Blob(charset=charset))
+    )
+    Index("change_tag_rc_tag", change_tag.c.ct_rc_id, change_tag.c.ct_tag, unique=True)
+    Index("change_tag_log_tag", change_tag.c.ct_log_id, change_tag.c.ct_tag, unique=True)
+    Index("change_tag_rev_tag", change_tag.c.ct_rev_id, change_tag.c.ct_tag, unique=True)
+    Index("change_tag_tag_id", change_tag.c.ct_tag, change_tag.c.ct_rc_id, change_tag.c.change_tag.c.ct_rev_id, change_tag.c.ct_log_id)
+
+    valid_tag = Table("valid_tag", metadata,
+        Column("vt_tag", Unicode(255), primary_key=True, nullable=False)
+    )
+
+    tag_summary = Table("tag_summary", metadata,
+        Column("ts_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="SET NULL")),
+        Column("ts_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE")),
+        # FIXME: archiving
+        Column("ts_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE")),
+        Column("ts_tags", MediumBlob(charset=charset), nullable=False)
+    )
+    Index("tag_summary_rc_id", tag_summary.c.ts_rc_id, unique=True)
+    Index("tag_summary_log_id", tag_summary.c.ts_log_id, unique=True)
+    Index("tag_summary_rev_id", tag_summary.c.ts_rev_id, unique=True)
 
     site_stats = Table("site_stats", metadata,
         Column("ss_row_id", Integer, nullable=False),
@@ -519,6 +506,17 @@ def create_siteinfo_tables(metadata, charset):
         Column("iw_trans", SmallInteger, nullable=False, server_default="0")
     )
     Index("iw_prefix", interwiki.c.iw_prefix, unique=True)
+
+    watchlist = Table("watchlist", metadata,
+        Column("wl_user", Integer, ForeignKey("user.user_id"), nullable=False),
+        # FIXME: MW defect: why is there not a FK to page.page_id?
+        Column("wl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
+        Column("wl_title", UnicodeBinary(255), nullable=False, server_default=""),
+        Column("wl_notificationtimestamp", MWTimestamp)
+    )
+    Index("wl_user", watchlist.c.wl_user, watchlist.c.wl_namespace, watchlist.c.wl_title, unique=True)
+    Index("wl_namespace_title", watchlist.c.wl_namespace, watchlist.c.wl_title)
+    Index("wl_user_notificationtimestamp", watchlist.c.wl_user, watchlist.c.wl_notificationtimestamp)
 
 
 def create_multimedia_tables(metadata, charset):
