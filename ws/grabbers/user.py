@@ -7,6 +7,7 @@ from sqlalchemy import bindparam
 import ws.utils
 from ws.client.api import ShortRecentChangesError
 from ws.db.mw_constants import implicit_groups
+import ws.db.selects.recentchanges as rc
 
 from . import Grabber
 
@@ -122,19 +123,27 @@ class GrabberUsers(Grabber):
         # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
         # By default the max age is 13 weeks: if a larger timespan is requested
         # here, it's very important to warn that the changes are not available
-        if self.api.oldest_recent_change > since:
+#        if self.api.oldest_recent_change > since:
+        if rc.oldest_recent_change(self.db) > since:
             raise ShortRecentChangesError()
 
+#        rc_params = {
+#            "action": "query",
+#            "list": "recentchanges",
+#            "rctype": "edit|new|log",
+#            "rcprop": "user|title|loginfo",
+#            "rclimit": "max",
+#            "rcdir": "newer",
+#            "rcstart": since_f,
+#        }
+#        for change in self.api.list(rc_params):
         rc_params = {
-            "action": "query",
-            "list": "recentchanges",
-            "rctype": "edit|new|log",
-            "rcprop": "user|title|loginfo",
-            "rclimit": "max",
-            "rcdir": "newer",
-            "rcstart": since_f,
+            "type": {"edit", "new", "log"},
+            "prop": {"user", "title", "loginfo"},
+            "dir": "newer",
+            "start": since_f,
         }
-        for change in self.api.list(rc_params):
+        for change in rc.list(self.db, rc_params):
             # add the performer of the edit, newpage or log entry
             rcusers.add(change["user"])
 

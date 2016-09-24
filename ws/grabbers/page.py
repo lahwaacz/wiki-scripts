@@ -8,6 +8,7 @@ from sqlalchemy import bindparam
 import ws.utils
 from ws.parser_helpers.title import Title
 from ws.client.api import ShortRecentChangesError
+import ws.db.selects.recentchanges as rc
 
 from . import Grabber
 
@@ -193,19 +194,27 @@ class GrabberPages(Grabber):
         # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
         # By default the max age is 13 weeks: if a larger timespan is requested
         # here, it's very important to warn that the changes are not available
-        if self.api.oldest_recent_change > since:
+#        if self.api.oldest_recent_change > since:
+        if rc.oldest_recent_change(self.db) > since:
             raise ShortRecentChangesError()
 
+#        rc_params = {
+#            "action": "query",
+#            "list": "recentchanges",
+#            "rctype": "edit|new|log",
+#            "rcprop": "ids",
+#            "rclimit": "max",
+#            "rcdir": "newer",
+#            "rcstart": since_f,
+#        }
+#        for change in self.api.list(rc_params):
         rc_params = {
-            "action": "query",
-            "list": "recentchanges",
-            "rctype": "edit|new|log",
-            "rcprop": "ids",
-            "rclimit": "max",
-            "rcdir": "newer",
-            "rcstart": since_f,
+            "type": {"edit", "new", "log"},
+            "prop": {"ids"},
+            "dir": "newer",
+            "start": since_f,
         }
-        for change in self.api.list(rc_params):
+        for change in rc.list(self.db, rc_params):
             # add pageid for edits, new pages and target pages of log events
             rcpages.add(change["pageid"])
 
