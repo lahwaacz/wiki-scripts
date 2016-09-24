@@ -26,3 +26,8 @@ def iter_chunks(iterable, bs):
     iterator = iter(iterable)
     for first in iterator:
         yield itertools.chain([first], itertools.islice(iterator, bs - 1))
+
+def value_or_none(value):
+    if not value:
+        return None
+    return value

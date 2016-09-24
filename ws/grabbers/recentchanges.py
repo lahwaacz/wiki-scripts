@@ -4,7 +4,7 @@ import logging
 
 from sqlalchemy import bindparam
 
-import ws.utils
+from ws.utils import format_date, value_or_none
 from ws.parser_helpers.title import Title
 import ws.db.mw_constants as mwconst
 
@@ -62,7 +62,7 @@ class GrabberRecentChanges(Grabber):
         db_entry = {
             "rc_id": rc["rcid"],
             "rc_timestamp": rc["timestamp"],
-            "rc_user": rc["userid"],
+            "rc_user": value_or_none(rc["userid"]),
             "rc_user_text": rc["user"],
             "rc_namespace": rc["ns"],
             # title is stored without the namespace prefix
@@ -71,9 +71,9 @@ class GrabberRecentChanges(Grabber):
             "rc_minor": "minor" in rc,
             "rc_bot": "bot" in rc,
             "rc_new": "new" in rc,
-            "rc_cur_id": rc["pageid"],
-            "rc_this_oldid": rc["revid"],
-            "rc_last_oldid": rc["old_revid"],
+            "rc_cur_id": value_or_none(rc["pageid"]),
+            "rc_this_oldid": value_or_none(rc["revid"]),
+            "rc_last_oldid": value_or_none(rc["old_revid"]),
             "rc_type": rc["type"],
             "rc_patrolled": "patrolled" in rc,
             "rc_old_len": rc["oldlen"],
@@ -91,7 +91,7 @@ class GrabberRecentChanges(Grabber):
             yield from self.gen_inserts_from_rc(rc)
 
     def gen_update(self, since):
-        since_f = ws.utils.format_date(since)
+        since_f = format_date(since)
         params = self.rc_params.copy()
         params["rcdir"] = "newer"
         params["rcstart"] = since_f
@@ -103,4 +103,4 @@ class GrabberRecentChanges(Grabber):
         # and also the rc_deleted, including the DELETED_TEXT value (which will be a MW incompatibility)
 
         # purge too-old rows
-        yield self.sql["delete", "recentchanges"], {"rc_cutoff_timestamp": ws.utils.format_date(self.api.oldest_recent_change)}
+        yield self.sql["delete", "recentchanges"], {"rc_cutoff_timestamp": format_date(self.api.oldest_recent_change)}

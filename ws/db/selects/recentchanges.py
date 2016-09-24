@@ -215,14 +215,19 @@ def db_to_api(row):
         "rc_patrolled": "patrolled",
         "page_is_redirect": "redirect",
     }
+    # subset of flags for which 0 should be used instead of None
+    zeroable_flags = {"rc_user", "rc_cur_id", "rc_this_oldid", "rc_last_oldid"}
 
     api_entry = {}
     for key, value in row.items():
         if key in flags:
-            # don't add None (log info for edits etc.)
+            api_key = flags[key]
+            # normal keys are not added if the value is None
             if value is not None:
-                api_key = flags[key]
                 api_entry[api_key] = value
+            # some keys produce 0 instead of None
+            elif key in zeroable_flags:
+                api_entry[api_key] = 0
         elif key in bool_flags:
             if value:
                 api_key = bool_flags[key]
