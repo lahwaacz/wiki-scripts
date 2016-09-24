@@ -174,6 +174,12 @@ def list(db, params=None, **kwargs):
     else:
         s = s.order_by(rc.c.rc_timestamp.asc(), rc.c.rc_id.desc())
 
+    # index hint
+    index = "rc_timestamp"
+    if "user" in params:
+        index = "rc_user_text"
+    s = s.with_hint(rc, "USE INDEX ({})".format(index), "mysql")
+
     result = db.engine.execute(s)
     for row in result:
         yield db_to_api(row)
