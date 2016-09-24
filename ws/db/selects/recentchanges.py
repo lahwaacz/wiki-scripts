@@ -117,8 +117,8 @@ def list(db, params=None, **kwargs):
         s.append_column(rev.c.rev_sha1)
     if "toponly" in params or "redirect" in prop or {"redirect", "!redirect"} & params.get("show", set()):
         page = db.page
-        tail = tail.outerjoin(page, rc.c.rc_namespace == page.c.page_namespace &
-                                    rc.c.rc_title == page.c.page_title)
+        tail = tail.outerjoin(page, (rc.c.rc_namespace == page.c.page_namespace) &
+                                    (rc.c.rc_title == page.c.page_title))
         s.append_column(page.c.page_is_redirect)
     s = s.select_from(tail)
 
@@ -165,7 +165,8 @@ def list(db, params=None, **kwargs):
             s = s.where(page.c.page_is_redirect == True)
         elif "!redirect":
             # Don't throw log entries out the window here
-            s = s.where(page.c.page_is_redirect == False | page.c.page_is_redirect == None)
+            s = s.where( (page.c.page_is_redirect == False) |
+                         (page.c.page_is_redirect == None) )
 
     # order by
     if params["dir"] == "older":
