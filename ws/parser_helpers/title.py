@@ -185,6 +185,10 @@ class Title:
         """
         return self.iw
 
+    @iwprefix.setter
+    def iwprefix(self, value):
+        return self.set_iwprefix(value)
+
 
     @property
     def namespace(self):
@@ -192,6 +196,10 @@ class Title:
         Same as ``{{NAMESPACE}}``.
         """
         return self.ns
+
+    @namespace.setter
+    def namespace(self, value):
+        return self.set_namespace(value)
 
     @property
     def namespacenumber(self):
@@ -229,6 +237,29 @@ class Title:
         based on this attribute.
         """
         return self.pure
+
+    @pagename.setter
+    def pagename(self, value):
+        if not isinstance(value, str):
+            raise TypeError("pagename must be of type 'str'")
+
+        iw, ns, pure, anchor = self.iw, self.ns, self.pure, self.anchor
+        self.iw, self.ns, self.pure, self.anchor = None, None, None, None
+        try:
+            self.parse(value)
+        except InvalidTitleCharError:
+            self.iw, self.ns, self.pure, self.anchor = iw, ns, pure, anchor
+            raise
+        if (self.iw and not iw) or (self.ns and not ns) or self.anchor:
+            self.iw, self.ns, self.pure, self.anchor = iw, ns, pure, anchor
+            raise ValueError("tried to assign invalid pagename: {}".format(value))
+        self.iw, self.ns, self.anchor = iw, ns, anchor
+
+        # Set again with set_pagename, because e.g. if self.ns was initially
+        # "Help" and the user sets pagename to "Help:Foo", the result should be
+        # "Help:Help:Foo". This is not possible with plain self.parse above,
+        # because that way the second "Help:" would be stripped.
+        self.set_pagename(value)
 
     @property
     def fullpagename(self):
@@ -311,6 +342,10 @@ class Title:
         """
         return self.anchor
 
+    @sectionname.setter
+    def sectionname(self, value):
+        return self.set_sectionname(value)
+
 
     def dbtitle(self, expected_ns=None):
         """
@@ -341,42 +376,6 @@ class Title:
         if self.sectionname:
             title += "#" + self.sectionname
         return title
-
-
-    @iwprefix.setter
-    def iwprefix(self, value):
-        return self.set_iwprefix(value)
-
-    @namespace.setter
-    def namespace(self, value):
-        return self.set_namespace(value)
-
-    @pagename.setter
-    def pagename(self, value):
-        if not isinstance(value, str):
-            raise TypeError("pagename must be of type 'str'")
-
-        iw, ns, pure, anchor = self.iw, self.ns, self.pure, self.anchor
-        self.iw, self.ns, self.pure, self.anchor = None, None, None, None
-        try:
-            self.parse(value)
-        except InvalidTitleCharError:
-            self.iw, self.ns, self.pure, self.anchor = iw, ns, pure, anchor
-            raise
-        if (self.iw and not iw) or (self.ns and not ns) or self.anchor:
-            self.iw, self.ns, self.pure, self.anchor = iw, ns, pure, anchor
-            raise ValueError("tried to assign invalid pagename: {}".format(value))
-        self.iw, self.ns, self.anchor = iw, ns, anchor
-
-        # Set again with set_pagename, because e.g. if self.ns was initially
-        # "Help" and the user sets pagename to "Help:Foo", the result should be
-        # "Help:Help:Foo". This is not possible with plain self.parse above,
-        # because that way the second "Help:" would be stripped.
-        self.set_pagename(value)
-
-    @sectionname.setter
-    def sectionname(self, value):
-        return self.set_sectionname(value)
 
 
     def __eq__(self, other):
