@@ -43,7 +43,7 @@ def list(db, params=None, **kwargs):
     set_defaults(params)
     sanitize_params(params)
 
-    if {"tag", "limit", "continue"} & set(params):
+    if {"prefix", "tag", "limit", "continue"} & set(params):
         raise NotImplementedError
     if "tags" in params["prop"]:
         raise NotImplementedError
