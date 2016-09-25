@@ -65,8 +65,7 @@ class GrabberRecentChanges(Grabber):
             "rc_user": value_or_none(rc["userid"]),
             "rc_user_text": rc["user"],
             "rc_namespace": rc["ns"],
-            # title is stored without the namespace prefix
-            "rc_title": title.pagename,
+            "rc_title": title.dbtitle(rc["ns"]),
             "rc_comment": rc["comment"],
             "rc_minor": "minor" in rc,
             "rc_bot": "bot" in rc,

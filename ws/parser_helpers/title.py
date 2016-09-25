@@ -312,6 +312,37 @@ class Title:
         return self.anchor
 
 
+    def dbtitle(self, expected_ns=None):
+        """
+        Returns the title formatted for use in the database.
+
+        In practice it is something between :py:attr:`pagename` and
+        :py:attr:`fullpagename` to cover all the corner cases:
+
+        - If there is an interwiki prefix, it is included. Necessary for old
+          log entries from times when the current interwiki prefixes were not
+          in place.
+        - Namespace prefix is stripped if there is no interwiki prefix *and*
+          the parsed namespace number agrees with ``expected_ns``. This is to
+          cover the creation of new namespaces, e.g. pages ``Foo:Bar`` existing
+          first in the main namespace and then moved into a separate namespace,
+          ``Foo:``.
+        - Section anchor is included. Again necessary for old log entries,
+          apparently MediaWiki allowed ``#`` in user names at some point.
+
+        :param int expected_ns: expected namespace number
+        """
+        if not self.iw and (expected_ns is None or self.namespacenumber == expected_ns):
+            title = self._format("", "", self.pagename)
+        else:
+            title = self.fullpagename
+            # it's not an interwiki prefix -> capitalize first letter
+            title = title[0].upper() + title[1:]
+        if self.sectionname:
+            title += "#" + self.sectionname
+        return title
+
+
     @iwprefix.setter
     def iwprefix(self, value):
         return self.set_iwprefix(value)

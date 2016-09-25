@@ -76,8 +76,7 @@ class GrabberPages(Grabber):
         db_entry = {
             "page_id": page["pageid"],
             "page_namespace": page["ns"],
-            # title is stored without the namespace prefix
-            "page_title": title.pagename,
+            "page_title": title.dbtitle(page["ns"]),
             "page_is_redirect": "redirect" in page,
             "page_is_new": "new" in page,
             "page_random": random.random(),

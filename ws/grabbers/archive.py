@@ -13,8 +13,7 @@ def gen(api):
 
         db_entry = {
             "ar_namespace": page["ns"],
-            # title is stored without the namespace prefix
-            "ar_title": title.pagename,
+            "ar_title": title.dbtitle(page["ns"]),
             "ar_rev_id": rev["revid"],
             "ar_page_id": page["pageid"] if page["pageid"] else None,
             # ar_text_id will be set while populating the text table

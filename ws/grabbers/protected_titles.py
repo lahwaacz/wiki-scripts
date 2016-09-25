@@ -44,7 +44,7 @@ class GrabberProtectedTitles(Grabber):
                 assert pt["type"] == "create"
                 db_entry = {
                     "pt_namespace": title.namespacenumber,
-                    "pt_title": title.pagename,
+                    "pt_title": title.dbtitle(),
                     "pt_level": pt["level"],
                     "pt_expiry": pt["expiry"],
                 }
@@ -53,7 +53,7 @@ class GrabberProtectedTitles(Grabber):
             # an element from list=protectedtitles
             db_entry = {
                 "pt_namespace": title.namespacenumber,
-                "pt_title": title.pagename,
+                "pt_title": title.dbtitle(),
                 "pt_level": page["level"],
                 "pt_expiry": page["expiry"],
             }
@@ -64,7 +64,7 @@ class GrabberProtectedTitles(Grabber):
         # also delete rows for unprotected title
         if "missing" not in page or not page["protection"]:
             title = Title(self.api, page["title"])
-            yield self.sql["delete", "protected_titles"], {"b_pt_namespace": title.namespacenumber, "b_pt_title": title.pagename}
+            yield self.sql["delete", "protected_titles"], {"b_pt_namespace": title.namespacenumber, "b_pt_title": title.dbtitle()}
 
     def gen_insert(self):
         pt_params = {
