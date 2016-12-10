@@ -11,6 +11,7 @@ from ws.parser_helpers.title import canonicalize, Title
 import ws.ArchWiki.lang as lang
 from ws.interlanguage.CategoryGraph import CategoryGraph
 from ws.interlanguage.Categorization import Categorization
+from ws.interlanguage.Decategorization import Decategorization
 
 
 logger = logging.getLogger(__name__)
@@ -288,6 +289,8 @@ class TableOfContents:
         if self.cliargs.save is True:
             cat = Categorization(self.api)
             cat.fix_allpages()
+            decat = Decategorization(self.api)
+            decat.fix_allpages()
 
         # build category graph
         graph = CategoryGraph(self.api)

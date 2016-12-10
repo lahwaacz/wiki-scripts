@@ -2,6 +2,7 @@
 
 from ws.client import API
 from ws.interlanguage.Categorization import Categorization
+from ws.interlanguage.Decategorization import Decategorization
 from ws.interlanguage.CategoryGraph import CategoryGraph
 from ws.interlanguage.InterlanguageLinks import InterlanguageLinks
 
@@ -19,6 +20,8 @@ def main(args, api):
         # first fix categorization
         cat = Categorization(api)
         cat.fix_allpages()
+        decat = Decategorization(api)
+        decat.fix_allpages()
         # init wanted categories
         cg = CategoryGraph(api)
         cg.init_wanted_categories()
