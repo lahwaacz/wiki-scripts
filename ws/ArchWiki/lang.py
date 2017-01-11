@@ -50,8 +50,8 @@ __languages = [
     {"name": "Türkçe", "subtag": "tr", "english": "Turkish"},
     {"name": "Українська", "subtag": "uk", "english": "Ukrainian"},
     {"name": "Tiếng Việt", "subtag": "vi", "english": "Vietnamese"},
-    {"name": "简体中文", "subtag": "zh-cn", "english": "Chinese (Simplified)"},
-    {"name": "正體中文", "subtag": "zh-tw", "english": "Chinese (Traditional)"},
+    {"name": "简体中文", "subtag": "zh-hans", "english": "Chinese (Simplified)"},
+    {"name": "正體中文", "subtag": "zh-hant", "english": "Chinese (Traditional)"},
 ]
 # languages that have a category "Category:<lang>" on ArchWiki
 __category_languages = [
@@ -90,7 +90,7 @@ __rtl = ["ar", "he"]
 __interlanguage_external = ["de", "fa", "fi", "fr", "ja", "ro", "sv", "tr"]
 __interlanguage_internal = ["ar", "bg", "cs", "da", "el", "en", "es", "he", "hr",
                             "hu", "id", "it", "ko", "lt", "nl", "pl", "pt",
-                            "ru", "sk", "sr", "th", "uk", "zh-cn", "zh-tw"]
+                            "ru", "sk", "sr", "th", "uk", "zh-hans", "zh-hant"]
 
 
 # basic accessors and checkers
