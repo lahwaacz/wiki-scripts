@@ -175,7 +175,16 @@ class CategoryGraph:
             logger.warning("Cannot create category [[{}]]: {} category [[{}]] does not exist.".format(category, lang.get_local_language(), local))
             return
 
-        parents = [lang.format_title(lang.detect_language(p)[0], langname) for p in self.parents[local]]
+        def localized_category(cat, langname):
+            pure, lgn = lang.detect_language(cat)
+            if pure == "Category:Languages":
+                # this terminates the recursive creation
+                return pure
+            elif pure.lower() == "category:" + lgn.lower():
+                return "Category:{}".format(langname)
+            return lang.format_title(pure, langname)
+
+        parents = [localized_category(p, langname) for p in self.parents[local]]
         content = "\n".join("[[{}]]".format(p) for p in parents)
 
         self.api.create(title=category, text=content, summary="init wanted category")
