@@ -104,7 +104,8 @@ def get_section_headings(text):
     :returns: list of section headings (without the ``=`` marks)
     """
     # re.findall returns a list of tuples of the matched groups
-    matches = re.findall(r"^((\={1,6})\s*)([^\n]*?)(\s*(\2))$", text, flags=re.MULTILINE | re.DOTALL)
+    # gotcha: the line must start with '=', but does not have to end with '=' (trailing whitespace is ignored)
+    matches = re.findall(r"^((\={1,6})[^\S\n]*)([^\n]+?)([^\S\n]*(\2))[^\S\n]*$", text, flags=re.MULTILINE | re.DOTALL)
     return [match[2] for match in matches]
 
 def get_anchors(headings, pretty=False, suffix_sep="_"):

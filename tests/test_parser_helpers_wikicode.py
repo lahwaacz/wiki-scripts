@@ -278,6 +278,26 @@ class test_get_anchors:
         result = get_anchors(get_section_headings(snippet), pretty=True)
         assert result == expected
 
+    def test_invalid(self):
+        snippet = """
+== Section with trailing spaces ==  
+== Invalid 1 ==  foo
+== 
+  Invalid 2 ==
+== Invalid 3
+  ==
+== 
+  Invalid 4
+  ==
+== Invalid 5
+ foo ==
+"""
+        expected = [
+            "Section with trailing spaces",
+        ]
+        result = get_anchors(get_section_headings(snippet), pretty=True)
+        assert result == expected
+
 class test_ensure_flagged:
     def test_add(self):
         wikicode = mwparserfromhell.parse("[[foo]]")
