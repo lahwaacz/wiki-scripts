@@ -81,7 +81,7 @@ class ExtlinkRules:
     replacements = [
         # Arch bug tracker
         (re.escape("https://bugs.archlinux.org/task/") + "(\d+)",
-            "FS *#{0}", 0, "{{{{Bug|{0}}}}}"),
+            "(FS|flyspray) *#?{0}", 0, "{{{{Bug|{0}}}}}"),
 
         # official packages, with and without alternative text
         (r"https?\:\/\/(?:www\.)?archlinux\.org\/packages\/[\w-]+\/(?:any|i686|x86_64)\/([a-zA-Z0-9@._+-]+)\/?",
