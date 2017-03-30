@@ -96,9 +96,9 @@ class ExtlinkRules:
             None, 0, "{{{{AUR|{0}}}}}"),
 
         # Wikipedia interwiki
-        (r"https?\:\/\/en\.wikipedia\.org\/wiki\/([^\]]+)",
+        (r"https?\:\/\/en\.wikipedia\.org\/wiki\/([^\]\?]+)",
             ".*", 0, "[[wikipedia:{0}|{1}]]"),
-        (r"https?\:\/\/en\.wikipedia\.org\/wiki\/([^\]]+)",
+        (r"https?\:\/\/en\.wikipedia\.org\/wiki\/([^\]\?]+)",
             None, 0, "[[wikipedia:{0}]]"),
 
         # change http:// to https:// for archlinux.org and wikipedia.org (do it at the bottom, i.e. with least priority)
@@ -119,7 +119,7 @@ class ExtlinkRules:
     def extlink_regex(self):
         general = self.api.site.general
         regex = re.escape(general["server"] + general["articlepath"].split("$1")[0])
-        regex += "(?P<pagename>\S+)"
+        regex += "(?P<pagename>[^\s\?]+)"
         return re.compile(regex)
 
     @staticmethod
