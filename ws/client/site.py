@@ -23,7 +23,7 @@ class Site(Meta):
             "magicwords", "interwikimap", "dbrepllag", "statistics", "usergroups",
             "libraries", "extensions", "fileextensions", "rightsinfo", "restrictions",
             "languages", "skins", "extensiontags", "functionhooks", "showhooks",
-            "variables", "protocols", "defaultoptions"}
+            "variables", "protocols", "defaultoptions", "uploaddialog"}
 
     def __init__(self, api):
         super().__init__(api)

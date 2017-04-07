@@ -17,13 +17,11 @@ class test_site:
             "base": "https://wiki.archlinux.org/index.php/Main_page",
             "sitename": "ArchWiki",
             "logo": "https://wiki.archlinux.org/skins/archlinux/archlogo.png",
-            "generator": "MediaWiki 1.26.4",
-            "phpversion": "7.0.9",
+            "generator": "MediaWiki 1.28.0",
+            "phpversion": "7.1.3",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
-            "dbversion": "5.7.13-6",
-            "git-hash": "7c2a4c95e1d96bc56d00fd133fa537acc1346f5b",
-            "git-branch": "master",
+            "dbversion": "5.7.17-11-log",
             "imagewhitelistenabled": "",
             "langconversion": "",
             "titleconversion": "",
@@ -33,9 +31,13 @@ class test_site:
             "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
             "invalidusernamechars": "@:",
             "case": "first-letter",
+            "allcentralidlookupproviders": ["local"],
+            "centralidlookupprovider": "local",
             "lang": "en",
             "fallback": [],
             "fallback8bitEncoding": "windows-1252",
+            "fixarabicunicode": "",
+            "fixmalayalamunicode": "",
             "writeapi": "",
             "timezone": "UTC",
             "timeoffset": 0,
@@ -46,6 +48,10 @@ class test_site:
             "server": "https://wiki.archlinux.org",
             "servername": "wiki.archlinux.org",
             "wikiid": "archwiki",
+            "maxarticlesize": 2097152,
+            "magiclinks": [],
+            "interwikimagic": "",
+            "uploadsenabled": "",
             "maxuploadsize": 104857600,
             "minuploadchunksize": 1024,
             "thumblimits": [
@@ -116,7 +122,8 @@ class test_site:
                     "purge",
                     "sendemail",
                     "applychangetags",
-                    "changetags"
+                    "changetags",
+                    "editcontentmodel",
                 ]
             },
             {
@@ -163,7 +170,6 @@ class test_site:
                     "autopatrol",
                     "protect",
                     "editprotected",
-                    "proxyunbannable",
                     "rollback",
                     "upload",
                     "reupload",
@@ -182,6 +188,7 @@ class test_site:
                     "suppressredirect",
                     "mergehistory",
                     "managechangetags",
+                    "deletechangetags",
                     "deleterevision",
                     "writeapi",
                     "abusefilter-modify",
@@ -232,16 +239,18 @@ class test_site:
                 "description": "Challenge-response authentication",
                 "author": "Pierre Schmitz",
                 "url": "https://pierre-schmitz.com/",
-                "version": "2.3"
+                "version": "2.4"
             },
             {
-                "type": "antispam",
-                "name": "Abuse Filter",
-                "descriptionmsg": "abusefilter-desc",
-                "author": "Andrew Garrett, River Tarnell, Victor Vasiliev, Marius Hoch",
-                "url": "https://www.mediawiki.org/wiki/Extension:AbuseFilter",
+                "type": "other",
+                "name": "MobileFrontend",
+                "descriptionmsg": "mobile-frontend-desc",
+                "author": "Patrick Reilly, Max Semenik, Jon Robson, Arthur Richards, Brion Vibber, Juliusz Gonera, Ryan Kaldari, Florian Schmidt, Rob Moen, Sam Smith",
+                "url": "https://www.mediawiki.org/wiki/Extension:MobileFrontend",
+                "version": "1.0.0",
                 "license-name": "GPL-2.0+",
-                "license": "/index.php/Special:Version/License/Abuse_Filter"
+                "license": "/index.php/Special:Version/License/MobileFrontend",
+                "credits": "/index.php/Special:Version/Credits/MobileFrontend"
             },
             {
                 "type": "skin",
@@ -278,9 +287,18 @@ class test_site:
                 "descriptionmsg": "interwiki-desc",
                 "author": "Stephanie Amanda Stevens, Alexandre Emsenhuber, Robin Pepermans, Siebrand Mazeland, Platonides, Raimond Spekking, Sam Reed, Jack Phoenix, Calimonius the Estrange, ...",
                 "url": "https://www.mediawiki.org/wiki/Extension:Interwiki",
-                "version": "3.0 20140719",
+                "version": "3.1 20160307",
                 "license-name": "GPL-2.0+",
                 "license": "/index.php/Special:Version/License/Interwiki"
+            },
+            {
+                "type": "antispam",
+                "name": "Abuse Filter",
+                "descriptionmsg": "abusefilter-desc",
+                "author": "Andrew Garrett, River Tarnell, Victor Vasiliev, Marius Hoch",
+                "url": "https://www.mediawiki.org/wiki/Extension:AbuseFilter",
+                "license-name": "GPL-2.0+",
+                "license": "/index.php/Special:Version/License/Abuse_Filter"
             },
             {
                 "type": "parserhook",
@@ -305,7 +323,10 @@ class test_site:
             },
             {
                 "ext": "jpeg"
-            }
+            },
+            {
+                "ext": "webp"
+            },
         ],
         "rightsinfo": {
             "url": "",
@@ -335,6 +356,10 @@ class test_site:
                 "code": "archlinux",
                 "default": "",
                 "*": "ArchLinux"
+            },
+            {
+                "code": "minerva",
+                "*": "Minerva"
             },
             {
                 "code": "fallback",
@@ -401,6 +426,7 @@ class test_site:
             "forceeditsummary": 1,
             "gender": "unknown",
             "hideminor": 0,
+            "hidecategorization": 1,    # MW 1.28
             "hidepatrolled": 0,
             "imagesize": 2,
             "math": 1,
@@ -420,6 +446,7 @@ class test_site:
             "skin": "archlinux",
             "stubthreshold": 0,
             "thumbsize": 5,
+            "timecorrection": "System|0",   # MW 1.28
             "underline": 2,
             "uselivepreview": 0,
             "usenewrc": 1,
@@ -429,12 +456,15 @@ class test_site:
             "watchlistdays": 3,
             "watchlisthideanons": 0,
             "watchlisthidebots": 0,
+            "watchlisthidecategorization": 1,   # MW 1.28
             "watchlisthideliu": 0,
             "watchlisthideminor": 0,
             "watchlisthideown": 0,
             "watchlisthidepatrolled": 0,
+            "watchlistreloadautomatically": 0,  # MW 1.28
             "watchmoves": 0,
             "watchrollback": 0,
+            "watchuploads": 1,  # MW 1.28
             "wllimit": 250,
             "useeditwarning": 1,
             "prefershttps": 1,
@@ -449,21 +479,6 @@ class test_site:
             "variant-uz": "uz",
             "variant-zh": "zh",
             "searchNs0": True,
-            "searchNs1": False,
-            "searchNs2": False,
-            "searchNs3": False,
-            "searchNs4": False,
-            "searchNs5": False,
-            "searchNs6": False,
-            "searchNs7": False,
-            "searchNs8": False,
-            "searchNs9": False,
-            "searchNs10": False,
-            "searchNs11": False,
-            "searchNs12": False,
-            "searchNs13": False,
-            "searchNs14": False,
-            "searchNs15": False
         },
         "namespaces": {
             -2: {'*': 'Media', 'canonical': 'Media', 'case': 'first-letter', 'id': -2},
@@ -664,11 +679,12 @@ class test_site:
 	           'local': '',
 	           'prefix': 'pl',
 	           'url': 'https://wiki.archlinux.org/index.php/$1_(Polski)'},
+            'pmid': {'prefix': 'pmid', 'url': 'https://www.ncbi.nlm.nih.gov/pubmed/$1?dopt=Abstract'},
 	    'pt': {'language': 'português',
 	           'local': '',
 	           'prefix': 'pt',
 	           'url': 'https://wiki.archlinux.org/index.php/$1_(Portugu%C3%AAs)'},
-	    'rfc': {'prefix': 'rfc', 'url': 'http://www.rfc-editor.org/rfc/rfc$1.txt'},
+            'rfc': {'prefix': 'rfc', 'url': 'https://tools.ietf.org/html/rfc$1'},
 	    'ro': {'language': 'română',
 	           'local': '',
 	           'prefix': 'ro',
@@ -742,14 +758,14 @@ class test_site:
 	    'wmf': {'api': 'https://wikimediafoundation.org/w/api.php',
 	            'prefix': 'wmf',
 	            'url': 'https://wikimediafoundation.org/wiki/$1'},
-	    'zh-cn': {'language': '中文（中国大陆）\u200e',
-	              'local': '',
-	              'prefix': 'zh-cn',
-	              'url': 'https://wiki.archlinux.org/index.php/$1_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)'},
-	    'zh-tw': {'language': '中文（台灣）\u200e',
-	              'local': '',
-	              'prefix': 'zh-tw',
-	              'url': 'https://wiki.archlinux.org/index.php/$1_(%E6%AD%A3%E9%AB%94%E4%B8%AD%E6%96%87)'}
+	    'zh-hans': {'language': '中文（简体）\u200e',
+	                'local': '',
+	                'prefix': 'zh-hans',
+	                'url': 'https://wiki.archlinux.org/index.php/$1_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)'},
+	    'zh-hant': {'language': '中文（繁體）\u200e',
+	                'local': '',
+	                'prefix': 'zh-hant',
+	                'url': 'https://wiki.archlinux.org/index.php/$1_(%E6%AD%A3%E9%AB%94%E4%B8%AD%E6%96%87)'}
 	},
     }
 
@@ -777,6 +793,6 @@ class test_site:
 
     def test_interlanguagemap(self, api):
         external_tags = ["de", "fa", "fi", "fr", "ja", "ro", "sv", "tr"]
-        internal_tags = ["ar", "bg", "cs", "da", "el", "en", "es", "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt", "ru", "sk", "sr", "th", "uk", "zh-cn", "zh-tw"]
+        internal_tags = ["ar", "bg", "cs", "da", "el", "en", "es", "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt", "ru", "sk", "sr", "th", "uk", "zh-hans", "zh-hant"]
         expected = set(external_tags + internal_tags)
         assert set(api.site.interlanguagemap) == expected
