@@ -23,23 +23,64 @@ __all__ = ["DEFAULT_UA", "Connection", "APIWrongAction", "APIJsonError", "APIErr
 
 DEFAULT_UA = "wiki-scripts/{version} ({url})".format(version=__version__, url=__url__)
 
-API_ACTIONS = {
-    "abusefiltercheckmatch", "abusefilterchecksyntax", "abusefilterevalexpression",
-    "abusefilterunblockautopromote", "block", "checktoken", "clearhasmsg", "compare",
-    "createaccount", "delete", "edit", "emailuser", "expandtemplates", "feedcontributions",
-    "feedrecentchanges", "feedwatchlist", "filerevert", "help", "imagerotate", "import",
-    "login", "logout", "managetags", "move", "opensearch", "options", "paraminfo", "parse",
-    "patrol", "protect", "purge", "query", "revisiondelete", "rollback", "rsd",
-    "setnotificationtimestamp", "stashedit", "tag", "tokens", "unblock", "undelete",
-    "upload", "userrights", "watch"
+GET_ACTIONS = {
+    'abusefiltercheckmatch',
+    'abusefilterchecksyntax',
+    'abusefilterevalexpression',
+    'checktoken',
+    'clearhasmsg',
+    'compare',
+    'expandtemplates',
+    'feedcontributions',
+    'feedrecentchanges',
+    'feedwatchlist',
+    'help',
+    'logout',
+    'mobileview',
+    'opensearch',
+    'paraminfo',
+    'parse',
+    'query',
+    'rsd',
+    'tokens',
 }
 POST_ACTIONS = {
-    "login", "createaccount", "purge", "setnotificationtimestamp", "rollback",
-    "delete", "undelete", "protect", "block", "unblock", "move", "edit", "upload",
-    "filerevert", "emailuser", "watch", "patrol", "import", "userrights", "options",
-    "imagerotate", "revisiondelete", "abusefilterunblockautopromote", "managetags", "tag",
-    "stashedit"
+    'abusefilterunblockautopromote',
+    'block',
+    'changeauthenticationdata',
+    'clientlogin',
+    'createaccount',
+    'cspreport',
+    'delete',
+    'edit',
+    'emailuser',
+    'filerevert',
+    'imagerotate',
+    'import',
+    'linkaccount',
+    'login',
+    'managetags',
+    'mergehistory',
+    'move',
+    'options',
+    'patrol',
+    'protect',
+    'purge',
+    'removeauthenticationdata',
+    'resetpassword',
+    'revisiondelete',
+    'rollback',
+    'setnotificationtimestamp',
+    'stashedit',
+    'tag',
+    'unblock',
+    'undelete',
+    'unlinkaccount',
+    'upload',
+    'userrights',
+    'watch',
 }
+API_ACTIONS = GET_ACTIONS | POST_ACTIONS
 
 class Connection:
     """
