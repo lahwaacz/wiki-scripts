@@ -42,11 +42,24 @@ class test_user:
             "remove-self": []
         },
         "editcount": 0,
-        "ratelimits": {},
+        "ratelimits": {
+            # rate limits for anonymous users
+            'changetag': {'ip': {'hits': 8, 'seconds': 60}},
+            'edit': {'ip': {'hits': 8, 'seconds': 60}},
+            'emailuser': {'ip': {'hits': 5, 'seconds': 86400}},
+            'linkpurge': {'ip': {'hits': 30, 'seconds': 60}},
+            'mailpassword': {'ip': {'hits': 5, 'seconds': 3600}},
+            'purge': {'ip': {'hits': 30, 'seconds': 60}},
+            'renderfile': {'ip': {'hits': 700, 'seconds': 30}},
+            'renderfile-nonstandard': {'ip': {'hits': 70, 'seconds': 30}},
+            'stashedit': {'ip': {'hits': 30, 'seconds': 60}},
+            'upload': {'ip': {'hits': 8, 'seconds': 60}},
+        },
         "email": "",
         "realname": "",
         "registrationdate": None,
         "unreadcount": 0,
+        "centralids": {"local": 0},
     }
 
     def test_coverage(self, api):
