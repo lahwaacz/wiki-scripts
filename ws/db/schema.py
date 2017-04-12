@@ -46,7 +46,7 @@ def create_custom_tables(metadata, charset):
     namespace = Table("namespace", metadata,
         # can't be auto-incremented because we need to start from 0
         Column("ns_id", Integer, nullable=False, primary_key=True, autoincrement=False),
-        Column("ns_case", Enum("first-letter", "case-sensitive"),  nullable=False),
+        Column("ns_case", Enum("first-letter", "case-sensitive", name="ns_case"),  nullable=False),
         Column("ns_content", Boolean, nullable=False, server_default="0"),
         Column("ns_subpages", Boolean, nullable=False, server_default="0"),
         Column("ns_nonincludable", Boolean, nullable=False, server_default="0"),
@@ -59,6 +59,7 @@ def create_custom_tables(metadata, charset):
         # namespace prefixes are case-insensitive, just like the VARCHAR type
         Column("nsn_name", Unicode(32), nullable=False)
     )
+    Index("nsn_id_name", namespace_name.c.nsn_id, namespace_name.c.nsn_name, unique=True)
     Index("nsn_name", namespace_name.c.nsn_name, unique=True)
 
     # table for default ("*") namespace names
@@ -343,7 +344,7 @@ def create_recomputable_tables(metadata, charset):
         Column("cl_sortkey", UnicodeBinary(255), nullable=False, server_default=""),
         Column("cl_timestamp", DateTime, nullable=False),
         Column("cl_collation", UnicodeBinary(32), nullable=False, server_default=""),
-        Column("cl_type", Enum("page", "subcat", "file"), nullable=False, server_default="page")
+        Column("cl_type", Enum("page", "subcat", "file", name="cl_type"), nullable=False, server_default="page")
     )
 
 
@@ -376,7 +377,7 @@ def create_recentchanges_tables(metadata, charset):
         # fake foreign key (see note above): rc_last_oldid -> revision.rev_id
         Column("rc_last_oldid", Integer),
         # TODO: MW 1.27 added a "categorize" value, see https://www.mediawiki.org/wiki/Manual:CategoryMembershipChanges
-        Column("rc_type", Enum("edit", "new", "log", "external"), nullable=False),
+        Column("rc_type", Enum("edit", "new", "log", "external", name="rc_type"), nullable=False),
         # MW incompatibility: nullable since it is not available via API
         Column("rc_source", UnicodeBinary(16)),
         Column("rc_patrolled", Boolean, nullable=False, server_default="0"),
