@@ -38,7 +38,7 @@ class Database:
         metadata.drop_all()
 
         self.metadata = MetaData(bind=self.engine)
-        schema.create_tables(self.metadata, self.charset)
+        schema.create_tables(self.metadata)
 
     @staticmethod
     def make_url(username, password, host, database, **kwargs):
