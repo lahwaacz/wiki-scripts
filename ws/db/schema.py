@@ -139,7 +139,7 @@ def create_users_tables(metadata, charset):
         # (but that's a bug, even reported somewhere)
         Column("ipb_range_start", TinyBlob(charset=charset)),
         Column("ipb_range_end", TinyBlob(charset=charset)),
-        Column("ipb_deleted", Boolean, nullable=False, server_default="0"),
+        Column("ipb_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("ipb_block_email", Boolean, nullable=False, server_default="0"),
         Column("ipb_allow_usertalk", Boolean, nullable=False, server_default="0"),
         Column("ipb_parent_block_id", Integer, ForeignKey("ipblocks.ipb_id", ondelete="CASCADE"), server_default=None)
