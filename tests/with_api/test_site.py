@@ -22,8 +22,6 @@ class test_site:
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
             "dbversion": "5.7.17-11-log",
-            "git-branch": "master",
-            "git-hash": "78cf703ef80e1c6b319968290d2a2913de88128c",
             "imagewhitelistenabled": "",
             "langconversion": "",
             "titleconversion": "",
@@ -787,6 +785,11 @@ class test_site:
         # FIXME: ugly hack...
         if isinstance(prop, dict) and "time" in prop:
             del prop["time"]
+        if propname == "general":
+            if "git-branch" in prop:
+                del prop["git-branch"]
+            if "git-hash" in prop:
+                del prop["git-hash"]
         assert prop == expected
 
     def test_invalid(self, api):
