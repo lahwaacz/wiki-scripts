@@ -222,8 +222,8 @@ def create_pages_tables(metadata, charset):
         Column("page_id", Integer, primary_key=True, nullable=False),
         Column("page_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("page_title", UnicodeBinary(255), nullable=False),
-        Column("page_is_redirect", SmallInteger, nullable=False, server_default="0"),
-        Column("page_is_new", SmallInteger, nullable=False, server_default="0"),
+        Column("page_is_redirect", Boolean, nullable=False, server_default="0"),
+        Column("page_is_new", Boolean, nullable=False, server_default="0"),
         Column("page_random", Float, nullable=False),
         Column("page_touched", MWTimestamp, nullable=False, server_default=""),
         Column("page_links_updated", MWTimestamp, server_default=None),
@@ -253,7 +253,7 @@ def create_pages_tables(metadata, charset):
         Column("pr_page", Integer, ForeignKey("page.page_id", ondelete="CASCADE"), nullable=False),
         Column("pr_type", UnicodeBinary(60), nullable=False),
         Column("pr_level", UnicodeBinary(60), nullable=False),
-        Column("pr_cascade", SmallInteger, nullable=False),
+        Column("pr_cascade", Boolean, nullable=False),
         Column("pr_user", Integer),
         Column("pr_expiry", MWTimestamp)
     )
