@@ -173,7 +173,7 @@ def create_pages_tables(metadata):
         Column("ar_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
         Column("ar_user_text", UnicodeBinary(255), nullable=False),
         Column("ar_timestamp", MWTimestamp, nullable=False, server_default=""),
-        Column("ar_minor_edit", SmallInteger, nullable=False, server_default="0"),
+        Column("ar_minor_edit", Boolean, nullable=False, server_default="0"),
         Column("ar_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("ar_len", Integer),
         Column("ar_parent_id", Integer, server_default=None),
@@ -195,7 +195,7 @@ def create_pages_tables(metadata):
         Column("rev_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
         Column("rev_user_text", UnicodeBinary(255), nullable=False, server_default=""),
         Column("rev_timestamp", MWTimestamp, nullable=False, server_default=""),
-        Column("rev_minor_edit", SmallInteger, nullable=False, server_default="0"),
+        Column("rev_minor_edit", Boolean, nullable=False, server_default="0"),
         # TODO: analogous to log_deleted, should be Bitfield
         Column("rev_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("rev_len", Integer),
