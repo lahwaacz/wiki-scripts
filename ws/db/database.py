@@ -30,7 +30,7 @@ class Database:
         if isinstance(engine_or_url, Engine):
             self.engine = engine_or_url
         else:
-            self.engine = create_engine(engine_or_url, echo=True)
+            self.engine = create_engine(engine_or_url, echo=True, implicit_returning=False)
 
         # TODO: only for testing
         metadata = MetaData(bind=self.engine)
@@ -136,6 +136,9 @@ def on_conflict_update(insert, compiler, **kw):
     return s
 Insert.argument_for("mysql", "on_conflict_update", None)
 
+# FIXME: this always appends to the sqlalchemy's query, but we should insert the clause before the RETURNING clause:
+# https://www.postgresql.org/docs/current/static/sql-insert.html
+# (as a workaround we pass implicit_returning=False to create_engine to avoid the RETURNING clauses)
 @compiles(Insert, "postgresql")
 def on_conflict_update(insert, compiler, **kw):
     """
