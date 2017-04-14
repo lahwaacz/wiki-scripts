@@ -8,7 +8,7 @@ from . import Grabber
 
 class GrabberIPBlocks(Grabber):
 
-    TARGET_TABLES = ["ipblocks"]
+    INSERT_PREDELETE_TABLES = ["ipblocks"]
 
     def __init__(self, api, db):
         super().__init__(api, db)

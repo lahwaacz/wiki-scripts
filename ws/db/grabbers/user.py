@@ -15,7 +15,10 @@ logger = logging.getLogger(__name__)
 
 class GrabberUsers(Grabber):
 
-    TARGET_TABLES = ["user", "user_groups"]
+    # We never delete from the user table, otherwise FK constraints might kick in.
+    # If we find out that MediaWiki sometimes deletes from the user table, it
+    # should be handled differently.
+    INSERT_PREDELETE_TABLES = ["user_groups"]
 
     def __init__(self, api, db):
         super().__init__(api, db)

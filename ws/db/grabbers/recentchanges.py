@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class GrabberRecentChanges(Grabber):
 
-    TARGET_TABLES = ["recentchanges"]
+    INSERT_PREDELETE_TABLES = ["recentchanges"]
 
     def __init__(self, api, db):
         super().__init__(api, db)

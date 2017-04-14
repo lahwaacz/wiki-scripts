@@ -14,15 +14,14 @@ class Grabber:
 
     # class attributes that should be overridden in subclasses
 
-    # Names of tables that are managed by this grabber.
-    TARGET_TABLES = []
+    # Names of tables that should be pre-deleted before inserting into them.
+    # Tables from which even MediaWiki never deletes (e.g. logging) should not
+    # be here.
+    INSERT_PREDELETE_TABLES = []
 
     def __init__(self, api, db):
         self.api = api
         self.db = db
-
-        if not self.TARGET_TABLES:
-            raise Exception("The {} class does not have TARGET_TABLES class attribute.".format(self.__class__.__name__))
 
     def _set_sync_timestamp(self, timestamp, conn=None):
         """
@@ -104,7 +103,7 @@ class Grabber:
         # delete everything and start over, otherwise the invalid rows would
         # stay in the tables
         with self.db.engine.begin() as conn:
-            for table in self.TARGET_TABLES:
+            for table in self.INSERT_PREDELETE_TABLES:
                 conn.execute(self.db.metadata.tables[table].delete())
 
         sync_timestamp = datetime.datetime.utcnow()

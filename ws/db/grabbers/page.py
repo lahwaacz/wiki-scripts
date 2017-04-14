@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class GrabberPages(Grabber):
 
-    TARGET_TABLES = ["page", "page_props", "page_restrictions"]
+    INSERT_PREDELETE_TABLES = ["page", "page_props", "page_restrictions"]
 
     def __init__(self, api, db):
         super().__init__(api, db)

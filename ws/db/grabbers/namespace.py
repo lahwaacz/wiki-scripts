@@ -4,8 +4,6 @@ from . import Grabber
 
 class GrabberNamespaces(Grabber):
 
-    TARGET_TABLES = ["namespace", "namespace_name", "namespace_starname", "namespace_canonical"]
-
     def __init__(self, api, db):
         super().__init__(api, db)
 

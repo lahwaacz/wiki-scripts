@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class GrabberProtectedTitles(Grabber):
 
-    TARGET_TABLES = ["protected_titles"]
+    INSERT_PREDELETE_TABLES = ["protected_titles"]
 
     def __init__(self, api, db):
         super().__init__(api, db)
