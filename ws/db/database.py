@@ -49,10 +49,15 @@ class Database:
         :param str database: database name
         :param dict kwargs: additional parameters added to the query string part
         """
-        kwargs["charset"] = Database.charset
+#        dialect, driver = "mysql", "pymysql"
+        dialect, driver = "postgresql", "psycopg2"
+        if dialect == "mysql":
+            kwargs["charset"] = Database.charset
         params = "&".join("{0}={1}".format(k, v) for k, v in kwargs.items())
-        return "mysql+pymysql://{username}:{password}@{host}/{database}?{params}" \
-               .format(username=username,
+        return "{dialect}+{driver}://{username}:{password}@{host}/{database}?{params}" \
+               .format(dialect=dialect,
+                       driver=driver,
+                       username=username,
                        password=password,
                        host=host,
                        database=database,
