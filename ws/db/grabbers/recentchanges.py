@@ -21,12 +21,14 @@ class GrabberRecentChanges(Grabber):
 
         self.sql = {
             ("insert", "recentchanges"):
-                db.recentchanges.insert(mysql_on_duplicate_key_update=[
-                    # this should be the only columns that may change in the table
-                    db.recentchanges.c.rc_new,
-                    db.recentchanges.c.rc_patrolled,
-                    db.recentchanges.c.rc_deleted,
-                ]),
+                db.recentchanges.insert(
+                    on_conflict_constraint=[db.recentchanges.c.rc_id],
+                    on_conflict_update=[
+                        # this should be the only columns that may change in the table
+                        db.recentchanges.c.rc_new,
+                        db.recentchanges.c.rc_patrolled,
+                        db.recentchanges.c.rc_deleted,
+                    ]),
             ("delete", "recentchanges"):
                 db.recentchanges.delete().where(
                     db.recentchanges.c.rc_timestamp < bindparam("rc_cutoff_timestamp"))

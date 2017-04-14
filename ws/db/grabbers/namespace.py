@@ -11,25 +11,33 @@ class GrabberNamespaces(Grabber):
 
         self.sql = {
             ("insert", "namespace"):
-                db.namespace.insert(mysql_on_duplicate_key_update=[
-                    db.namespace.c.ns_case,
-                    db.namespace.c.ns_content,
-                    db.namespace.c.ns_subpages,
-                    db.namespace.c.ns_nonincludable,
-                    db.namespace.c.ns_defaultcontentmodel,
-                ]),
+                db.namespace.insert(
+                    on_conflict_constraint=[db.namespace.c.ns_id],
+                    on_conflict_update=[
+                        db.namespace.c.ns_case,
+                        db.namespace.c.ns_content,
+                        db.namespace.c.ns_subpages,
+                        db.namespace.c.ns_nonincludable,
+                        db.namespace.c.ns_defaultcontentmodel,
+                    ]),
             ("insert", "namespace_name"):
-                db.namespace_name.insert(mysql_on_duplicate_key_update=[
-                    db.namespace_name.c.nsn_id,
-                ]),
+                db.namespace_name.insert(
+                    on_conflict_constraint=[db.namespace_name.c.nsn_name],
+                    on_conflict_update=[
+                        db.namespace_name.c.nsn_id,
+                    ]),
             ("insert", "namespace_starname"):
-                db.namespace_starname.insert(mysql_on_duplicate_key_update=[
-                    db.namespace_starname.c.nss_name,
-                ]),
+                db.namespace_starname.insert(
+                    on_conflict_constraint=[db.namespace_starname.c.nss_id],
+                    on_conflict_update=[
+                        db.namespace_starname.c.nss_name,
+                    ]),
             ("insert", "namespace_canonical"):
-                db.namespace_canonical.insert(mysql_on_duplicate_key_update=[
-                    db.namespace_canonical.c.nsc_name,
-                ]),
+                db.namespace_canonical.insert(
+                    on_conflict_constraint=[db.namespace_canonical.c.nsc_id],
+                    on_conflict_update=[
+                        db.namespace_canonical.c.nsc_name,
+                    ]),
         }
 
     def gen_insert(self):

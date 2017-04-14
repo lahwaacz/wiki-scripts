@@ -15,25 +15,27 @@ class GrabberIPBlocks(Grabber):
 
         self.sql = {
             ("insert", "ipblocks"):
-                db.ipblocks.insert(mysql_on_duplicate_key_update=[
-                    db.ipblocks.c.ipb_address,
-                    db.ipblocks.c.ipb_user,
-                    db.ipblocks.c.ipb_by,
-                    db.ipblocks.c.ipb_by_text,
-                    db.ipblocks.c.ipb_reason,
-                    db.ipblocks.c.ipb_timestamp,
-                    db.ipblocks.c.ipb_auto,
-                    db.ipblocks.c.ipb_anon_only,
-                    db.ipblocks.c.ipb_create_account,
-                    db.ipblocks.c.ipb_enable_autoblock,
-                    db.ipblocks.c.ipb_expiry,
-                    db.ipblocks.c.ipb_range_start,
-                    db.ipblocks.c.ipb_range_end,
-                    db.ipblocks.c.ipb_deleted,
-                    db.ipblocks.c.ipb_block_email,
-                    db.ipblocks.c.ipb_allow_usertalk,
-                    db.ipblocks.c.ipb_parent_block_id,
-                ]),
+                db.ipblocks.insert(
+                    on_conflict_constraint=[db.ipblocks.c.ipb_id],
+                    on_conflict_update=[
+                        db.ipblocks.c.ipb_address,
+                        db.ipblocks.c.ipb_user,
+                        db.ipblocks.c.ipb_by,
+                        db.ipblocks.c.ipb_by_text,
+                        db.ipblocks.c.ipb_reason,
+                        db.ipblocks.c.ipb_timestamp,
+                        db.ipblocks.c.ipb_auto,
+                        db.ipblocks.c.ipb_anon_only,
+                        db.ipblocks.c.ipb_create_account,
+                        db.ipblocks.c.ipb_enable_autoblock,
+                        db.ipblocks.c.ipb_expiry,
+                        db.ipblocks.c.ipb_range_start,
+                        db.ipblocks.c.ipb_range_end,
+                        db.ipblocks.c.ipb_deleted,
+                        db.ipblocks.c.ipb_block_email,
+                        db.ipblocks.c.ipb_allow_usertalk,
+                        db.ipblocks.c.ipb_parent_block_id,
+                    ]),
             ("delete", "ipblocks"):
                 db.ipblocks.delete().where(db.ipblocks.c.ipb_address == bindparam("b_ipb_address")),
         }

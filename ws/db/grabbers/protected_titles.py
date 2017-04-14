@@ -22,10 +22,15 @@ class GrabberProtectedTitles(Grabber):
 
         self.sql = {
             ("insert", "protected_titles"):
-                db.protected_titles.insert(mysql_on_duplicate_key_update=[
-                    db.protected_titles.c.pt_level,
-                    db.protected_titles.c.pt_expiry,
-                ]),
+                db.protected_titles.insert(
+                    on_conflict_constraint=[
+                        db.protected_titles.c.pt_namespace,
+                        db.protected_titles.c.pt_title,
+                    ],
+                    on_conflict_update=[
+                        db.protected_titles.c.pt_level,
+                        db.protected_titles.c.pt_expiry,
+                    ]),
             ("delete", "protected_titles"):
                 db.protected_titles.delete().where(
                     (db.protected_titles.c.pt_namespace == bindparam("b_pt_namespace")) &

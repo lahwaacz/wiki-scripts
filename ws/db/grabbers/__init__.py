@@ -35,7 +35,10 @@ class Grabber:
             execution of the SQL query
         """
         ws_sync = self.db.metadata.tables["ws_sync"]
-        ins = ws_sync.insert(mysql_on_duplicate_key_update=[ws_sync.c.wss_timestamp])
+        ins = ws_sync.insert(
+                    on_conflict_constraint=[ws_sync.c.wss_key],
+                    on_conflict_update=[ws_sync.c.wss_timestamp]
+                )
         entry = {
             "wss_key": self.__class__.__name__,
             "wss_timestamp": timestamp,

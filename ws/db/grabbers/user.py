@@ -22,18 +22,24 @@ class GrabberUsers(Grabber):
 
         self.sql = {
             ("insert", "user"):
-                db.user.insert(mysql_on_duplicate_key_update=[
-                    db.user.c.user_name,
-                    db.user.c.user_registration,
-                    db.user.c.user_editcount,
-                ]),
+                db.user.insert(
+                    on_conflict_constraint=[db.user.c.user_id],
+                    on_conflict_update=[
+                        db.user.c.user_name,
+                        db.user.c.user_registration,
+                        db.user.c.user_editcount,
+                    ]),
             ("insert", "user_groups"):
-                # It would have been fine to use INSERT IGNORE here (probably
-                # also specific to MySQL), but it generates a warning for every
-                # ignored row.
-                db.user_groups.insert(mysql_on_duplicate_key_update=[
-                    db.user_groups.c.ug_group
-                ]),
+                # It would have been fine to use INSERT IGNORE here, but MySQL
+                # generates a warning for every ignored row.
+                db.user_groups.insert(
+                    on_conflict_constraint=[
+                        db.user_groups.c.ug_user,
+                        db.user_groups.c.ug_group
+                    ],
+                    on_conflict_update=[
+                        db.user_groups.c.ug_group
+                    ]),
             ("delete", "user_groups"):
                 db.user_groups.delete().where(
                     db.user_groups.c.ug_user == bindparam("b_ug_user")),

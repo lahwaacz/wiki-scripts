@@ -114,7 +114,7 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import Insert
 
 @compiles(Insert, "mysql")
-def on_duplicate_key_update(insert, compiler, **kw):
+def on_conflict_update(insert, compiler, **kw):
     """
     An :py:mod:`sqlalchemy` compiler extension for the MySQL-specific
     ``INSERT ... ON DUPLICATE KEY UPDATE`` clause.
@@ -129,9 +129,26 @@ def on_duplicate_key_update(insert, compiler, **kw):
     .. _`MERGE statement`: https://en.wikipedia.org/wiki/Merge_(SQL)
     """
     s = compiler.visit_insert(insert, **kw)
-    if insert.kwargs["mysql_on_duplicate_key_update"]:
-        columns = [c.name for c in insert.kwargs["mysql_on_duplicate_key_update"]]
+    if "on_conflict_update" in insert.kwargs:
+        columns = [c.name for c in insert.kwargs["on_conflict_update"]]
         values = ", ".join("{0}=VALUES({0})".format(c) for c in columns)
         return s + " ON DUPLICATE KEY UPDATE " + values
     return s
-Insert.argument_for("mysql", "on_duplicate_key_update", None)
+Insert.argument_for("mysql", "on_conflict_update", None)
+
+@compiles(Insert, "postgresql")
+def on_conflict_update(insert, compiler, **kw):
+    """
+    https://www.postgresql.org/docs/current/static/sql-insert.html#SQL-ON-CONFLICT
+    """
+    s = compiler.visit_insert(insert, **kw)
+    if "on_conflict_update" in insert.kwargs:
+        # unlike MySQL, PostgreSQL 9.6 does not support "any" constraint
+        # http://stackoverflow.com/questions/35786354/postgres-upsert-on-any-constraint
+        assert "on_conflict_constraint" in insert.kwargs
+        constraint = ",".join(c.name for c in insert.kwargs["on_conflict_constraint"])
+        columns = [c.name for c in insert.kwargs["on_conflict_update"]]
+        values = ", ".join("{0}=excluded.{0}".format(c) for c in columns)
+        return s + " ON CONFLICT ({0}) DO UPDATE SET ".format(constraint) + values
+    return s
+Insert.argument_for("postgresql", "on_conflict_update", None)

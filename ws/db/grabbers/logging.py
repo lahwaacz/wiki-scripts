@@ -21,10 +21,12 @@ class GrabberLogging(Grabber):
 
         self.sql = {
             ("insert", "logging"):
-                db.logging.insert(mysql_on_duplicate_key_update=[
-                    # this should be the only column that may change in the table
-                    db.logging.c.log_deleted,
-                ]),
+                db.logging.insert(
+                    on_conflict_constraint=[db.logging.c.log_id],
+                    on_conflict_update=[
+                        # this should be the only column that may change in the table
+                        db.logging.c.log_deleted,
+                    ]),
         }
 
         self.le_params = {
