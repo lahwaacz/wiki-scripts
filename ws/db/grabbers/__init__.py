@@ -24,12 +24,15 @@ class Grabber:
         if not self.TARGET_TABLES:
             raise Exception("The {} class does not have TARGET_TABLES class attribute.".format(self.__class__.__name__))
 
-    def _set_sync_timestamp(self, timestamp):
+    def _set_sync_timestamp(self, timestamp, conn=None):
         """
         Set a last-sync timestamp for the grabber. Writes into the custom
         ``ws_sync`` tyble.
 
         :param datetime.datetime timestamp: the new timestamp
+        :param conn: an existing :py:obj:`sqlalchemy.engine.Connection` or
+            :py:obj:`sqlalchemy.engine.Transaction` object to be re-used for
+            execution of the SQL query
         """
         ws_sync = self.db.metadata.tables["ws_sync"]
         ins = ws_sync.insert(mysql_on_duplicate_key_update=[ws_sync.c.wss_timestamp])
@@ -38,8 +41,9 @@ class Grabber:
             "wss_timestamp": timestamp,
         }
 
-        with self.db.engine.begin() as conn:
-            conn.execute(ins, entry)
+        if conn is None:
+            conn = self.db.engine.connect()
+        conn.execute(ins, entry)
 
     def _get_sync_timestamp(self):
         """
@@ -103,9 +107,7 @@ class Grabber:
         sync_timestamp = datetime.datetime.utcnow()
 
         gen = self.gen_insert()
-        self.db_execute(gen)
-
-        self._set_sync_timestamp(sync_timestamp)
+        self._execute(gen, sync_timestamp)
 
     def update(self):
         sync_timestamp = datetime.datetime.utcnow()
@@ -116,15 +118,13 @@ class Grabber:
 
         try:
             gen = self.gen_update(since)
-            self.db_execute(gen)
-
-            self._set_sync_timestamp(sync_timestamp)
+            self._execute(gen, sync_timestamp)
         except ShortRecentChangesError:
             logger.warning("The recent changes table on the wiki has been recently purged, starting from scratch.")
             self.insert()
             return
 
-    def db_execute(self, gen):
+    def _execute(self, gen, sync_timestamp):
         with self.db.engine.begin() as conn:
             with DeferrableExecutionQueue(conn, self.db.chunk_size) as dfe:
                 for item in gen:
@@ -134,3 +134,6 @@ class Grabber:
                     else:
                         # probably a single value
                         dfe.execute(item)
+
+            # set the sync timestamp, in the same transaction as the data
+            self._set_sync_timestamp(sync_timestamp, conn)
