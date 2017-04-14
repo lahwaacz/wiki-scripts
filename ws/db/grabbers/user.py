@@ -86,6 +86,13 @@ class GrabberUsers(Grabber):
 
 
     def gen_insert(self):
+        # Create a dummy user to satisfy FK contraints, especially with revisions
+        dummy = {
+            "user_id": 0,
+            "user_name": "__wiki_scripts_dummy_user__",
+        }
+        yield self.sql["insert", "user"], dummy
+
         list_params = {
             "list": "allusers",
             "aulimit": "max",
