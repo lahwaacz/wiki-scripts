@@ -30,7 +30,7 @@ Known incompatibilities from MediaWiki schema:
 # - some non-nullable columns have silly default values - if we don't know, let's make it NULL
 
 from sqlalchemy import \
-        Table, Column, ForeignKey, Index, PrimaryKeyConstraint, ForeignKeyConstraint
+        Table, Column, ForeignKey, Index, PrimaryKeyConstraint, ForeignKeyConstraint, CheckConstraint
 from sqlalchemy.types import \
         Boolean, SmallInteger, Integer, BigInteger, Float, \
         Unicode, UnicodeText, Enum, DateTime
@@ -92,6 +92,8 @@ def create_custom_tables(metadata):
 
 def create_users_tables(metadata):
     user = Table("user", metadata,
+        # In MediaWiki it's 0 for anonymous edits, initialization scripts and some mass imports.
+        # We'll add a dummy user with user_id == 0 before populating the table.
         Column("user_id", Integer, primary_key=True, nullable=False),
         Column("user_name", UnicodeBinary(255), nullable=False, server_default=""),
         Column("user_real_name", UnicodeBinary(255), nullable=False, server_default=""),
@@ -118,17 +120,18 @@ def create_users_tables(metadata):
     Index("user_email", user.c.user_email, mysql_length=50)
 
     user_groups = Table("user_groups", metadata,
-        Column("ug_user", Integer, ForeignKey("user.user_id"), nullable=False),
+        Column("ug_user", Integer, ForeignKey("user.user_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("ug_group", UnicodeBinary(255), nullable=False),
-        PrimaryKeyConstraint("ug_user", "ug_group")
+        PrimaryKeyConstraint("ug_user", "ug_group"),
+        CheckConstraint("ug_user > 0", name="check_user")
     )
     Index("ug_group", user_groups.c.ug_group)
 
     ipblocks = Table("ipblocks", metadata,
         Column("ipb_id", Integer, primary_key=True, nullable=False),
         Column("ipb_address", TinyBlob, nullable=False),
-        Column("ipb_user", Integer, ForeignKey("user.user_id", ondelete="CASCADE")),
-        Column("ipb_by", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
+        Column("ipb_user", Integer, ForeignKey("user.user_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
+        Column("ipb_by", Integer, ForeignKey("user.user_id", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("ipb_by_text", UnicodeBinary(255), nullable=False, server_default=""),
         Column("ipb_reason", UnicodeBinary(767), nullable=False),
         Column("ipb_timestamp", MWTimestamp, nullable=False, server_default=""),
@@ -144,7 +147,8 @@ def create_users_tables(metadata):
         Column("ipb_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("ipb_block_email", Boolean, nullable=False, server_default="0"),
         Column("ipb_allow_usertalk", Boolean, nullable=False, server_default="0"),
-        Column("ipb_parent_block_id", Integer, ForeignKey("ipblocks.ipb_id", ondelete="CASCADE"), server_default=None)
+        Column("ipb_parent_block_id", Integer, ForeignKey("ipblocks.ipb_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED"), server_default=None),
+        CheckConstraint("ipb_user > 0", name="check_user")
     )
     Index("ipb_address", ipblocks.c.ipb_address, ipblocks.c.ipb_user, ipblocks.c.ipb_auto, ipblocks.c.ipb_anon_only, mysql_length={"ipb_address": 255}, unique=True)
     Index("ipb_user", ipblocks.c.ipb_user)
@@ -167,12 +171,12 @@ def create_pages_tables(metadata):
         # for preserving revision.rev_id
         Column("ar_rev_id", Integer),
         # like revision.rev_page, but nullable because pages deleted prior to MW 1.11 have NULL
-        Column("ar_page_id", Integer, ForeignKey("page.page_id")),
-        Column("ar_text_id", Integer, ForeignKey("text.old_id")),
+        Column("ar_page_id", Integer, ForeignKey("page.page_id", deferrable=True, initially="DEFERRED")),
+        Column("ar_text_id", Integer, ForeignKey("text.old_id", deferrable=True, initially="DEFERRED")),
         Column("ar_comment", UnicodeBinary(767), nullable=False),
-        Column("ar_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
+        Column("ar_user", Integer, ForeignKey("user.user_id", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("ar_user_text", UnicodeBinary(255), nullable=False),
-        Column("ar_timestamp", MWTimestamp, nullable=False, server_default=""),
+        Column("ar_timestamp", MWTimestamp, nullable=False),
         Column("ar_minor_edit", Boolean, nullable=False, server_default="0"),
         Column("ar_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("ar_len", Integer),
@@ -183,18 +187,18 @@ def create_pages_tables(metadata):
     )
     Index("ar_name_title_timestamp", archive.c.ar_namespace, archive.c.ar_title, archive.c.ar_timestamp)
     Index("ar_usertext_timestamp", archive.c.ar_user_text, archive.c.ar_timestamp)
-    Index("ar_revid", archive.c.ar_rev_id)
+    Index("ar_revid", archive.c.ar_rev_id, unique=True)
 
     revision = Table("revision", metadata,
         Column("rev_id", Integer, primary_key=True, nullable=False),
         # TODO: check how this works for deleted pages (MW's PostgreSQL schema has the foreign key, so it's probably OK)
-        Column("rev_page", Integer, ForeignKey("page.page_id"), nullable=False),
+        Column("rev_page", Integer, ForeignKey("page.page_id", deferrable=True, initially="DEFERRED"), nullable=False),
         # MW incompatibility: set as nullable so that we can sync metadata and text separately
-        Column("rev_text_id", Integer, ForeignKey("text.old_id")),
+        Column("rev_text_id", Integer, ForeignKey("text.old_id", deferrable=True, initially="DEFERRED")),
         Column("rev_comment", UnicodeBinary(767), nullable=False),
-        Column("rev_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
-        Column("rev_user_text", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("rev_timestamp", MWTimestamp, nullable=False, server_default=""),
+        Column("rev_user", Integer, ForeignKey("user.user_id", deferrable=True, initially="DEFERRED"), nullable=False),
+        Column("rev_user_text", UnicodeBinary(255), nullable=False),
+        Column("rev_timestamp", MWTimestamp, nullable=False),
         Column("rev_minor_edit", Boolean, nullable=False, server_default="0"),
         # TODO: analogous to log_deleted, should be Bitfield
         Column("rev_deleted", SmallInteger, nullable=False, server_default="0"),
@@ -227,7 +231,7 @@ def create_pages_tables(metadata):
         Column("page_is_redirect", Boolean, nullable=False, server_default="0"),
         Column("page_is_new", Boolean, nullable=False, server_default="0"),
         Column("page_random", Float, nullable=False),
-        Column("page_touched", MWTimestamp, nullable=False, server_default=""),
+        Column("page_touched", MWTimestamp, nullable=False),
         Column("page_links_updated", MWTimestamp, server_default=None),
         # FIXME: MW defect: key to revision.rev_id, breaks relationship
         Column("page_latest", Integer, nullable=False),
@@ -241,7 +245,7 @@ def create_pages_tables(metadata):
     Index("page_redirect_namespace_len", page.c.page_is_redirect, page.c.page_namespace, page.c.page_len)
 
     page_props = Table("page_props", metadata,
-        Column("pp_page", Integer, ForeignKey("page.page_id", ondelete="CASCADE"), nullable=False),
+        Column("pp_page", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("pp_propname", UnicodeBinary(60), nullable=False),
         Column("pp_value", Blob, nullable=False),
         Column("pp_sortkey", Float, server_default=None)
@@ -252,7 +256,7 @@ def create_pages_tables(metadata):
 
     page_restrictions = Table("page_restrictions", metadata,
         Column("pr_id", Integer, primary_key=True, nullable=False),
-        Column("pr_page", Integer, ForeignKey("page.page_id", ondelete="CASCADE"), nullable=False),
+        Column("pr_page", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("pr_type", UnicodeBinary(60), nullable=False),
         Column("pr_level", UnicodeBinary(60), nullable=False),
         Column("pr_cascade", Boolean, nullable=False),
@@ -360,7 +364,6 @@ def create_recentchanges_tables(metadata):
         Column("rc_id", Integer, primary_key=True, nullable=False),
         Column("rc_timestamp", MWTimestamp, nullable=False, server_default=""),
         # fake foreign key (see note above): rc_user -> user.user_id
-        # in MediaWiki it's 0 for anonymous edits, initialization scripts and some mass imports
         Column("rc_user", Integer),
         Column("rc_user_text", UnicodeBinary(255), nullable=False),
         # FIXME: can contain negative values
@@ -410,7 +413,7 @@ def create_recentchanges_tables(metadata):
         Column("log_type", UnicodeBinary(32), nullable=False, server_default=""),
         Column("log_action", UnicodeBinary(32), nullable=False, server_default=""),
         Column("log_timestamp", MWTimestamp, nullable=False, server_default="19700101000000"),
-        Column("log_user", Integer, ForeignKey("user.user_id", ondelete="SET NULL")),
+        Column("log_user", Integer, ForeignKey("user.user_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
         Column("log_user_text", UnicodeBinary(255), nullable=False, server_default=""),
         # FIXME: logging table may contain rows with log_namespace < 0
 #        Column("log_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
