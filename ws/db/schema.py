@@ -38,7 +38,7 @@ from sqlalchemy.dialects.mysql import MEDIUMTEXT
 
 from .sql_types import \
         TinyBlob, Blob, MediumBlob, UnicodeBinary, \
-        MWTimestamp, Base36, JSONEncodedDict
+        MWTimestamp, SHA1, JSONEncodedDict
 
 
 def create_custom_tables(metadata):
@@ -181,7 +181,7 @@ def create_pages_tables(metadata):
         Column("ar_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("ar_len", Integer),
         Column("ar_parent_id", Integer, server_default=None),
-        Column("ar_sha1", Base36(32), nullable=False, server_default=""),
+        Column("ar_sha1", SHA1, nullable=False, server_default=""),
         Column("ar_content_model", UnicodeBinary(32), server_default=None),
         Column("ar_content_format", UnicodeBinary(64), server_default=None)
     )
@@ -206,7 +206,7 @@ def create_pages_tables(metadata):
         # FIXME: should be set as FK, but that probably breaks archiving
 #        Column("rev_parent_id", Integer, ForeignKey("revision.rev_id", ondelete="SET NULL"), server_default=None),
         Column("rev_parent_id", Integer, server_default=None),
-        Column("rev_sha1", Base36(32), nullable=False, server_default=""),
+        Column("rev_sha1", SHA1, nullable=False, server_default=""),
         Column("rev_content_model", UnicodeBinary(32), server_default=None),
         Column("rev_content_format", UnicodeBinary(64), server_default=None),
     )
@@ -541,7 +541,7 @@ def create_multimedia_tables(metadata):
         Column("img_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
         Column("img_user_text", UnicodeBinary(255), nullable=False),
         Column("img_timestamp", MWTimestamp, nullable=False, server_default=""),
-        Column("img_sha1", Base36(32), nullable=False, server_default="")
+        Column("img_sha1", SHA1, nullable=False, server_default="")
     )
     Index("img_usertext_timestamp", image.c.img_user_text, image.c.img_timestamp)
     Index("img_size", image.c.img_size)
@@ -565,7 +565,7 @@ def create_multimedia_tables(metadata):
         Column("oi_major_mime", Enum("unknown", "application", "audio", "image", "text", "video", "message", "model", "multipart", "chemical"), nullable=False, server_default="unknown"),
         Column("oi_minor_mime", UnicodeBinary(100), nullable=False, server_default="unknown"),
         Column("oi_deleted", SmallInteger, nullable=False, server_default="0"),
-        Column("oi_sha1", Base36(32), nullable=False, server_default="")
+        Column("oi_sha1", SHA1, nullable=False, server_default="")
     )
     Index("oi_usertext_timestamp", oldimage.c.oi_user_text, oldimage.c.oi_timestamp)
     Index("oi_name_timestamp", oldimage.c.oi_name, oldimage.c.oi_timestamp)
@@ -595,7 +595,7 @@ def create_multimedia_tables(metadata):
         Column("fa_timestamp", MWTimestamp, server_default=""),
         Column("fa_deleted", SmallInteger, nullable=False,
                server_default="0"),
-        Column("fa_sha1", Base36(32), nullable=False, server_default="")
+        Column("fa_sha1", SHA1, nullable=False, server_default="")
     )
     Index("fa_name", filearchive.c.fa_name, filearchive.c.fa_timestamp)
     Index("fa_storage_group", filearchive.c.fa_storage_group, filearchive.c.fa_storage_key)
@@ -618,7 +618,7 @@ def create_unused_tables(metadata):
         Column("job_attempts", Integer, nullable=False, server_default="0"),
         Column("job_token", UnicodeBinary(32), nullable=False, server_default=""),
         Column("job_token_timestamp", MWTimestamp, server_default=None),
-        Column("job_sha1", Base36(32), nullable=False, server_default="")
+        Column("job_sha1", SHA1, nullable=False, server_default="")
     )
 
     objectcache = Table("objectcache", metadata,

@@ -148,7 +148,7 @@ class MWTimestamp(types.TypeDecorator):
         return r
 
 
-# TODO: drop along with MySQL support, Base36 should use LargeBinary or String directly
+# TODO: drop along with MySQL support, SHA1 should use the underlying type directly
 class Binary(types.TypeDecorator):
     """ "Small" binary for mysql dialect, LargeBinary for others. """
 
@@ -165,14 +165,18 @@ class Binary(types.TypeDecorator):
             return dialect.type_descriptor(types.LargeBinary(length=self.length))
 
 
-class Base36(types.TypeDecorator):
+class SHA1(types.TypeDecorator):
     """
-    Convertor between base36 number and Python str.
+    Convertor for the SHA1 hashes.
 
-    For example MediaWiki stores SHA1 sums this way.
+    In MediaWiki they are represented as a base36-encoded number in the database
+    and as a hexadecimal string in the API.
+
+    In both forms the encoded string has to be padded with zeros to fixed
+    length - 31 digits in base36, 40 digits in hex.
     """
 
-    impl = Binary
+    impl = Binary(31)
 
     def process_bind_param(self, value, dialect):
         """
@@ -181,7 +185,7 @@ class Base36(types.TypeDecorator):
         if value is None:
             return value
         n = base_dec(bytes(value, "ascii"), 16)
-        return base_enc(n, 36)
+        return base_enc(n, 36).zfill(31)
 
     def process_result_value(self, value, dialect):
         """
@@ -190,7 +194,7 @@ class Base36(types.TypeDecorator):
         if value is None:
             return value
         n = base_dec(value, 36)
-        return str(base_enc(n, 16), "ascii")
+        return str(base_enc(n, 16), "ascii").zfill(40)
 
 
 # TODO: PostgreSQL has a JSON type, psycopg2 might have native conversion. We could also use the HSTORE type.
