@@ -23,20 +23,46 @@ from sqlalchemy.dialects.mysql import TINYBLOB, BLOB, MEDIUMBLOB, LONGBLOB
 from ws.utils import base_enc, base_dec
 
 
+# TODO: drop along with MySQL support
 class _UnicodeConverter(types.TypeDecorator):
-    def __init__(self, *args, charset="utf8", **kwargs):
-        super().__init__(*args, **kwargs)
-        self.charset = charset
+    def __init__(self, *args, **kwargs):
+        # we need to pass the parameters to the underlying type in load_dialect_impl ourselves
+        super().__init__()
+        self._args = args
+        self._kwargs = kwargs
+        self.charset = "utf8"
 
     def process_bind_param(self, value, dialect):
-        if isinstance(value, str):
-            return bytes(value, self.charset)
-        return value
+        # use native unicode conversion for dialects where we use textual types
+        if dialect.name == "postgresql":
+            return value
+        else:
+            if isinstance(value, str):
+                return bytes(value, self.charset)
+            return value
 
     def process_result_value(self, value, dialect):
-        if value is None:
+        # use native unicode conversion for dialects where we use textual types
+        if dialect.name == "postgresql":
             return value
-        return str(value, self.charset)
+        else:
+            if value is None:
+                return value
+            return str(value, self.charset)
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "mysql":
+            # MySQL has some weird textual types regarding collation,
+            # so MediaWiki uses binary types (*BLOBs, VARBINARY etc.)
+            return dialect.type_descriptor(self.impl)
+        elif dialect.name == "postgresql":
+            # PostgreSQL does not have *BLOB types, but TEXT is very good
+            # (also used by MediaWiki), plus psycopg2 has native support
+            # for unicode conversion
+            return dialect.type_descriptor(types.UnicodeText(*self._args, **self._kwargs))
+        else:
+            # generic variable-length binary
+            return dialect.type_descriptor(types.LargeBinary(*self._args, **self._kwargs))
 
 
 class TinyBlob(_UnicodeConverter):
@@ -71,18 +97,30 @@ class UnicodeBinary(_UnicodeConverter):
     """
     VARBINARY with automatic conversion to Python str.
     """
-    impl = types.VARBINARY
+    impl = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "mysql":
+            # MySQL has some weird textual types regarding collation,
+            # so MediaWiki uses binary types (*BLOBs, VARBINARY etc.)
+            return dialect.type_descriptor(types.VARBINARY(*self._args, **self._kwargs))
+        else:
+            # otherwise use VARCHAR with driver's native unicode encoding
+            return dialect.type_descriptor(types.VARCHAR(*self._args, **self._kwargs))
 
 
+# TODO: switch to types.DateTime (without timezone) and do the serialization to string on the API side
 class MWTimestamp(types.TypeDecorator):
     """
     Custom type for representing MediaWiki timestamps.
+
+    MediaWiki uses BINARY(14) on MySQL and TIMESTAMPTZ on PostgreSQL.
     """
 
-    impl = types.BINARY(14)
-
-    def __init__(self, charset="utf8"):
-        self.charset = charset
+    impl = types.String(14)
 
     def process_bind_param(self, value, dialect):
         """
@@ -94,21 +132,37 @@ class MWTimestamp(types.TypeDecorator):
         # TODO: there should be some validation (which would probably make this very slow)
         # special values like "infinity" are handled implicitly
         value = value.replace('-', '').replace('T', '').replace(':', '').replace('Z', '')
-        return bytes(value, self.charset)
+        return value
 
-    def process_result_value(self, value, dialect):
+    def process_result_value(self, ts, dialect):
         """
         Convert timestamp from database to MediaWiki format, i.e.
         20130105011652 --> 2013-01-05T01:16:52Z
         """
-        if value is None:
-            return value
-        ts = str(value.rstrip(b"\0"), self.charset)
+        if ts is None:
+            return ts
         if ts == "infinity":
             return ts
         r = ts[:4] + "-" + ts[4:6] + "-" + ts[6:8] + "T" + \
             ts[8:10] + ":" + ts[10:12] + ":" + ts[12:14] + "Z"
         return r
+
+
+# TODO: drop along with MySQL support, Base36 should use LargeBinary or String directly
+class Binary(types.TypeDecorator):
+    """ "Small" binary for mysql dialect, LargeBinary for others. """
+
+    impl = None
+
+    def __init__(self, length=None):
+        super().__init__()
+        self.length = length
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "mysql":
+            return dialect.type_descriptor(types.BINARY(length=self.length))
+        else:
+            return dialect.type_descriptor(types.LargeBinary(length=self.length))
 
 
 class Base36(types.TypeDecorator):
@@ -118,7 +172,7 @@ class Base36(types.TypeDecorator):
     For example MediaWiki stores SHA1 sums this way.
     """
 
-    impl = types.BINARY
+    impl = Binary
 
     def process_bind_param(self, value, dialect):
         """
@@ -139,6 +193,7 @@ class Base36(types.TypeDecorator):
         return str(base_enc(n, 16), "ascii")
 
 
+# TODO: PostgreSQL has a JSON type, psycopg2 might have native conversion. We could also use the HSTORE type.
 class JSONEncodedDict(types.TypeDecorator):
     """
     Represents an immutable structure as a JSON-encoded string.
