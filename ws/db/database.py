@@ -3,8 +3,9 @@
 """
 Prerequisites:
 
-1. A pre-configured MySQL database backend with separate database and account.
-2. One of the many drivers supported by sqlalchemy, e.g. pymysql.
+1. A pre-configured MySQL or PostgreSQL database backend with separate database
+   and account.
+2. One of the many drivers supported by sqlalchemy, e.g. pymysql or psycopg2.
 """
 
 from sqlalchemy import create_engine, MetaData, select
@@ -108,6 +109,17 @@ class Database:
         if table_name not in self.metadata.tables:
             raise AttributeError("Table '{}' does not exist in the database.".format(table_name))
         return self.metadata.tables[table_name]
+
+
+# Fix for DEFERRABLE foreign keys on MySQL,
+# see http://docs.sqlalchemy.org/en/latest/dialects/mysql.html#foreign-key-arguments-to-avoid
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.schema import ForeignKeyConstraint
+
+@compiles(ForeignKeyConstraint, "mysql")
+def process(element, compiler, **kw):
+    element.deferrable = element.initially = None
+    return compiler.visit_foreign_key_constraint(element, **kw)
 
 
 from sqlalchemy.ext.compiler import compiles
