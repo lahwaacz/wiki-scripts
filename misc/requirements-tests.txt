@@ -1,9 +1,6 @@
 pytest
 pytest-cov
-# wait for 0.15.1, https://github.com/ClearcodeHQ/pytest-dbfixtures/pull/190
+# FIXME: pytest-dbfixtures is a "metapackage", but apparently the components have to be specified manually
 #pytest-dbfixtures
-git+https://github.com/lahwaacz/pytest-dbfixtures.git
-
-#pytest-sqlalchemy
-# we need git master due to https://github.com/toirl/pytest-sqlalchemy/commit/5de970864cb42377b5dfb6530fd0fdfee8d2c4b1
-git+https://github.com/toirl/pytest-sqlalchemy.git
+pytest-mysql
+pytest-postgresql
