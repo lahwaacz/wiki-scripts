@@ -7,6 +7,18 @@ Version 1.2
 Unreleased
 (`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.1...master>`__)
 
+- Large refactoring: :py:mod:`ws.core` renamed to :py:mod:`ws.client`, created
+  :py:mod:`ws.utils`, :py:mod:`ws.statistics`, :py:mod:`ws.interlanguage`
+- Added :py:mod:`ws.client.site`, :py:mod:`ws.client.user` and
+  :py:mod:`ws.client.redirects` modules, :py:class:`ws.client.api.API` has
+  attributes with the appropriate instances for the current wiki.
+- Improved parsing of page titles -- fixed many bugs, extended test suite, added
+  checking of legal characters, handling of namespace aliases.
+- Added :py:mod:`ws.autopage` submodule.
+- Switched from :py:mod:`nose` to :py:mod:`pytest` for testing.
+- Added :py:mod:`ws.db` and :py:mod:`ws.grabbers` modules (still highly
+  experimental).
+
 Version 1.1
 -----------
 
