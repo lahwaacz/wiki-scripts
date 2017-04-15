@@ -42,16 +42,17 @@ class Database:
         schema.create_tables(self.metadata)
 
     @staticmethod
-    def make_url(username, password, host, database, **kwargs):
+    def make_url(dialect, driver, username, password, host, database, **kwargs):
         """
+        :param str dialect: an SQL dialect, e.g. ``mysql`` or ``postgresql``
+        :param str driver: a driver for given SQL dialect supported by
+            :py:mod:`sqlalchemy`, e.g. ``pymysql`` or ``psycopg2``
         :param str username: username for database connection
         :param str password: password for database connection
         :param str host: hostname of the database server
         :param str database: database name
         :param dict kwargs: additional parameters added to the query string part
         """
-#        dialect, driver = "mysql", "pymysql"
-        dialect, driver = "postgresql", "psycopg2"
         if dialect == "mysql":
             kwargs["charset"] = Database.charset
         params = "&".join("{0}={1}".format(k, v) for k, v in kwargs.items())
@@ -76,6 +77,10 @@ class Database:
         """
         import ws.config
         group = argparser.add_argument_group(title="Database parameters")
+        group.add_argument("--db-dialect", metavar="DIALECT", choices=["mysql", "postgresql"],
+                help="an SQL dialect (default: %(default)s)")
+        group.add_argument("--db-driver", metavar="DRIVER",
+                help="a driver for given SQL dialect supported by sqlalchemy (default: %(default)s)")
         group.add_argument("--db-user", metavar="USER",
                 help="username for database connection (default: %(default)s)")
         group.add_argument("--db-password", metavar="PASSWORD",
@@ -96,7 +101,7 @@ class Database:
             contains the arguments set by :py:meth:`Connection.set_argparser`.
         :returns: an instance of :py:class:`Connection`
         """
-        url = klass.make_url(args.db_user, args.db_password, args.db_host, args.db_name)
+        url = klass.make_url(args.db_dialect, args.db_driver, args.db_user, args.db_password, args.db_host, args.db_name)
         return klass(url)
 
     def __getattr__(self, table_name):
