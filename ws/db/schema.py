@@ -22,7 +22,8 @@ Known incompatibilities from MediaWiki schema:
   pt_reason and pt_timestamp since the information can be found in the logging
   table. See https://phabricator.wikimedia.org/T65318#2654217 for reference.
 - Boolean columns use Boolean type instead of SmallInteger as in MediaWiki.
-- Unknown/invalid IDs are represented by NULL instead of 0.
+- Unknown/invalid IDs are represented by NULL instead of 0. Except for user_id,
+  where we add a dummy user with id = 0 to represent anonymous users.
 """
 
 # TODO:

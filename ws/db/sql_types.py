@@ -3,16 +3,34 @@
 """
 Custom types with automatic convertors.
 
-Note that we can't use *TEXT instead of *BLOB types, nor *CHAR instead of
-*BINARY, because although they have the same size and hold an encoding for
-automatic conversion, all server-side operations are case-insensitive.
+Advantages of textual types:
+    - natural for the representation of textual (Unicode) data
 
-For compatibility with MediaWiki schema we keep custom timestamp converters
-instead of using the TIMESTAMP SQL type.
+Disadvantages of textual types:
+    - subject to encoding and collation
 
-References:
- - http://dev.mysql.com/doc/refman/5.7/en/blob.html
- - http://docs.sqlalchemy.org/en/latest/core/custom_types.html
+Advantages of binary types:
+    - complete control over the data representation and conversion to Python
+      objects
+    - length is in bytes, so there is no storage overhead for ASCII-only data
+
+In MySQL, textual types (*TEXT, *CHAR) represent Unicode strings, but all utf8
+collations are case-insensitive: http://stackoverflow.com/a/4558736/4180822
+On the other hand, binary types (*BLOB, *BINARY) are treated as "byte strings",
+i.e. ASCII text with binary collation.
+
+In PostgreSQL, the binary type (bytea) does not represent "strings", i.e. there
+are much less operations and functions defined on bytea then in MySQL for
+binary strings. By using the textual types, we also benefit from native
+conversion functions in the sqlalchemy driver (e.g. psycopg2).
+
+TODO: MediaWiki's PostgreSQL schema uses TEXT for just about everyting, i.e. no
+      VARCHAR. PostreSQL's manual says that there is no performance difference
+      between char(n), varchar(n) and text:
+          https://www.postgresql.org/docs/current/static/datatype-character.html
+      We should probably drop the length limits as well to make migrations easy.
+      Plus, the MySQL limits are in *bytes*, whereas textual types are measured
+      in characters.
 """
 
 import json
@@ -52,13 +70,8 @@ class _UnicodeConverter(types.TypeDecorator):
 
     def load_dialect_impl(self, dialect):
         if dialect.name == "mysql":
-            # MySQL has some weird textual types regarding collation,
-            # so MediaWiki uses binary types (*BLOBs, VARBINARY etc.)
             return dialect.type_descriptor(self.impl)
         elif dialect.name == "postgresql":
-            # PostgreSQL does not have *BLOB types, but TEXT is very good
-            # (also used by MediaWiki), plus psycopg2 has native support
-            # for unicode conversion
             return dialect.type_descriptor(types.UnicodeText(*self._args, **self._kwargs))
         else:
             # generic variable-length binary
@@ -104,8 +117,6 @@ class UnicodeBinary(_UnicodeConverter):
 
     def load_dialect_impl(self, dialect):
         if dialect.name == "mysql":
-            # MySQL has some weird textual types regarding collation,
-            # so MediaWiki uses binary types (*BLOBs, VARBINARY etc.)
             return dialect.type_descriptor(types.VARBINARY(*self._args, **self._kwargs))
         else:
             # otherwise use VARCHAR with driver's native unicode encoding
@@ -113,6 +124,7 @@ class UnicodeBinary(_UnicodeConverter):
 
 
 # TODO: switch to types.DateTime (without timezone) and do the serialization to string on the API side
+# TODO: find out how to use the infinity constant: https://www.postgresql.org/docs/9.6/static/datatype-datetime.html#DATATYPE-DATETIME-SPECIAL-TABLE
 class MWTimestamp(types.TypeDecorator):
     """
     Custom type for representing MediaWiki timestamps.
