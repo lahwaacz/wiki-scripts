@@ -21,14 +21,12 @@ class GrabberRecentChanges(Grabber):
 
         self.sql = {
             ("insert", "recentchanges"):
-                db.recentchanges.insert(
-                    on_conflict_constraint=[db.recentchanges.c.rc_id],
-                    on_conflict_update=[
-                        # this should be the only columns that may change in the table
-                        db.recentchanges.c.rc_new,
-                        db.recentchanges.c.rc_patrolled,
-                        db.recentchanges.c.rc_deleted,
-                    ]),
+                # updates are handled separately
+                db.recentchanges.insert(on_conflict_do_nothing=True),
+            ("update-patrolled", "recentchanges"):
+                db.recentchanges.update().\
+                        values(rc_patrolled=True).\
+                        where(db.recentchanges.c.rc_this_oldid == bindparam("_revid")),
             ("delete", "recentchanges"):
                 db.recentchanges.delete().where(
                     db.recentchanges.c.rc_timestamp < bindparam("rc_cutoff_timestamp"))
@@ -38,6 +36,14 @@ class GrabberRecentChanges(Grabber):
             "list": "recentchanges",
             "rcprop": "title|ids|user|userid|flags|timestamp|comment|sizes|loginfo|sha1",
             "rclimit": "max",
+        }
+
+        # patrol logs have to be fetched from the logevents list
+        self.le_params = {
+            "list": "logevents",
+            "leaction": "patrol/patrol",
+            "leprop": "type|details",
+            "lelimit": "max",
         }
 
         if "patrol" in self.api.user.rights:
@@ -87,6 +93,13 @@ class GrabberRecentChanges(Grabber):
         }
         yield self.sql["insert", "recentchanges"], db_entry
 
+    def gen_updates_from_le(self, logevent):
+        if logevent["type"] == "patrol" and logevent["action"] == "patrol":
+            db_entry = {
+                "_revid": logevent["params"]["curid"],
+            }
+            yield self.sql["update-patrolled", "recentchanges"], db_entry
+
     def gen_insert(self):
         for rc in self.api.list(self.rc_params):
             yield from self.gen_inserts_from_rc(rc)
@@ -100,8 +113,17 @@ class GrabberRecentChanges(Grabber):
         for rc in self.api.list(params):
             yield from self.gen_inserts_from_rc(rc)
 
-        # TODO: go through the new logevents and update previous patrolled changes etc.
-        # and also the rc_deleted, including the DELETED_TEXT value (which will be a MW incompatibility)
+        # patrol logs are not recorded in the recentchanges table, so we need to
+        # go through logging via the API, because it has not been synced yet
+        params = self.le_params.copy()
+        params["ledir"] = "newer"
+        params["lestart"] = since_f
+
+        for le in self.api.list(params):
+            yield from self.gen_updates_from_le(le)
+
+        # TODO: go through the new logevents in the local recentchanges table and update rc_deleted,
+        # including the DELETED_TEXT value (which will be a MW incompatibility)
 
         # purge too-old rows
         yield self.sql["delete", "recentchanges"], {"rc_cutoff_timestamp": format_date(self.api.oldest_recent_change)}
