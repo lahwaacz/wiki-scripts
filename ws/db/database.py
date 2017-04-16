@@ -10,6 +10,7 @@ Prerequisites:
 
 from sqlalchemy import create_engine, MetaData, select
 from sqlalchemy.engine import Engine
+import sqlalchemy.event
 
 from . import schema
 
@@ -32,6 +33,23 @@ class Database:
             self.engine = engine_or_url
         else:
             self.engine = create_engine(engine_or_url, echo=True, implicit_returning=False)
+
+        # connect event handler for the MySQL engine
+        # reference: http://docs.sqlalchemy.org/en/latest/core/events.html#sqlalchemy.events.PoolEvents
+        if self.engine.name == "mysql":
+            def listenerForMySQL(dbapi_con, connection_record, connection_proxy):
+                modes = [
+                    # Without this, MySQL will silently insert invalid values in the
+                    # database, causing very long debugging sessions in the long run
+                    # https://www.enricozini.org/blog/2012/tips/sa-sqlmode-traditional/
+                    "TRADITIONAL",
+                    # we want to be able to set 0 as an auto-increment ID
+                    # https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html#sqlmode_no_auto_value_on_zero
+                    "NO_AUTO_VALUE_ON_ZERO",
+                ]
+                cur = dbapi_con.cursor()
+                cur.execute("SET SESSION sql_mode='{}'".format(",".join(modes)))
+            sqlalchemy.event.listen(self.engine, "checkout", listenerForMySQL)
 
         # TODO: only for testing
         metadata = MetaData(bind=self.engine)
