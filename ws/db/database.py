@@ -149,7 +149,7 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import Insert
 
 @compiles(Insert, "mysql")
-def on_conflict_update(insert, compiler, **kw):
+def on_conflict_handler(insert, compiler, **kw):
     """
     An :py:mod:`sqlalchemy` compiler extension for the MySQL-specific
     ``INSERT ... ON DUPLICATE KEY UPDATE`` clause.
@@ -163,19 +163,26 @@ def on_conflict_update(insert, compiler, **kw):
 
     .. _`MERGE statement`: https://en.wikipedia.org/wiki/Merge_(SQL)
     """
-    s = compiler.visit_insert(insert, **kw)
     if "on_conflict_update" in insert.kwargs:
+        s = compiler.visit_insert(insert, **kw)
         columns = [c.name for c in insert.kwargs["on_conflict_update"]]
         values = ", ".join("{0}=VALUES({0})".format(c) for c in columns)
         return s + " ON DUPLICATE KEY UPDATE " + values
-    return s
-Insert.argument_for("mysql", "on_conflict_update", None)
+    elif insert.kwargs.get("on_conflict_do_nothing") is True:
+        # INSERT IGNORE ...
+        return compiler.visit_insert(insert.prefix_with("IGNORE"), **kw)
+    return compiler.visit_insert(insert, **kw)
+# TODO: argument_for creates arguments like mysql_on_conflict_update, we need one name for all
+#Insert.argument_for("mysql", "on_conflict_update", None)
+#Insert.argument_for("mysql", "on_conflict_do_nothing", None)
 
 # FIXME: this always appends to the sqlalchemy's query, but we should insert the clause before the RETURNING clause:
 # https://www.postgresql.org/docs/current/static/sql-insert.html
 # (as a workaround we pass implicit_returning=False to create_engine to avoid the RETURNING clauses)
+# TODO: to fix the above, we could use sqlalchemy's on_conflict_do_{update,nothing} extensions and reimplement the wrappers for mysql:
+# http://docs.sqlalchemy.org/en/rel_1_1/dialects/postgresql.html?highlight=upsert#insert-on-conflict-upsert
 @compiles(Insert, "postgresql")
-def on_conflict_update(insert, compiler, **kw):
+def on_conflict_handler(insert, compiler, **kw):
     """
     https://www.postgresql.org/docs/current/static/sql-insert.html#SQL-ON-CONFLICT
     """
@@ -188,5 +195,10 @@ def on_conflict_update(insert, compiler, **kw):
         columns = [c.name for c in insert.kwargs["on_conflict_update"]]
         values = ", ".join("{0}=excluded.{0}".format(c) for c in columns)
         return s + " ON CONFLICT ({0}) DO UPDATE SET ".format(constraint) + values
+    elif insert.kwargs.get("on_conflict_do_nothing") is True:
+        return s + " ON CONFLICT DO NOTHING"
     return s
-Insert.argument_for("postgresql", "on_conflict_update", None)
+# TODO: argument_for creates arguments like postgresql_on_conflict_update, we need one name for all
+#Insert.argument_for("postgresql", "on_conflict_constraint", None)
+#Insert.argument_for("postgresql", "on_conflict_update", None)
+#Insert.argument_for("postgresql", "on_conflict_do_nothing", None)
