@@ -828,7 +828,6 @@ android-wear-sources-20
 android-wear-x86-system-image-20
 android-x86-system-image-10
 android-x86-system-image-16
-android-x86-system-image-17
 android-x86-system-image-18
 android-x86-system-image-19-unofficial
 android-x86-system-image-20
@@ -1406,7 +1405,6 @@ asmaa
 asmjit
 asmttpd-git
 asmx
-asp
 asp-audit
 aspectc++
 aspectc++-svn
@@ -1797,7 +1795,6 @@ avr-libc-user-manual
 avr32-gnu-toolchain
 avr32_gnu_toolchain
 avr32studio
-avr8-burn-o-mat
 avra-git
 avrdude-arduino
 avrdude-ftdi
@@ -3049,7 +3046,6 @@ brutal-file-manager
 brutaldoom
 brutallegend
 brutalwars
-brutefir
 brutez
 bsdnt-git
 bsdsfv
@@ -3092,7 +3088,6 @@ btrfs-progs-unstable-integration
 btrfs-progs-unstable-integration-git
 btsyncindicator
 bubbman2
-bubbros
 buc
 bucardo
 bud
@@ -20896,7 +20891,6 @@ liborfa-hg
 liborigin1
 libosinfo
 libosip2-debug
-libosmocore-git
 libosmscout-all-git
 libosso1-wz
 libotf-cvs
@@ -22715,7 +22709,6 @@ madx-svn
 maelstrom-git
 maescools-catacomb-snatch-git
 mafalda-svn
-magarena
 magazynier
 mage
 magento2
@@ -24421,7 +24414,6 @@ modpoll
 modprobed_db
 modsecurity-apache
 modsecurity27-apache
-modtree
 modular_decomposition
 modulyzer-svn
 mog
@@ -24978,7 +24970,6 @@ muon
 muon-frameworks
 muon-frameworks-git
 muon-git
-mup
 mupad
 mupad-packages
 muparserx-dev-static
@@ -25971,7 +25962,6 @@ nodejs-egs
 nodejs-eslint
 nodejs-etymologycli
 nodejs-fanyicli
-nodejs-generator-react-webpack
 nodejs-gettext-handlebars
 nodejs-git-run-git
 nodejs-gittio
@@ -26096,7 +26086,6 @@ norwood-git
 nose-django
 nosexunit
 nosr-git
-nostromo
 nostromo-icon-theme
 nostromo_n5x
 nosync
@@ -26156,7 +26145,6 @@ notion-styles-thinviolet
 notion-xft
 notipy-fork
 notmuch
-notmuch-git
 notmuch-mutt
 notmuchsync-git
 nottoomuch-addresses
@@ -27395,7 +27383,6 @@ openttd-bin-1.3.2
 openttd-bin-1.4.4
 openttd-cargodist
 openttd-springpp
-openttd-svn
 openttd-trunk
 openttd-trunk-bin
 openttd-yapp
@@ -27559,7 +27546,6 @@ os-autoinst-git
 os-prober
 osc-build-archlinux
 osc-build-git
-osc-git
 osc-source_validator-git
 oscada
 oscam
@@ -27887,7 +27873,6 @@ pacopa
 pacorder
 pacpal
 pacparser
-pacpl
 pacpl-amarok
 pacpl-d3lphin
 pacruft-git
@@ -28523,7 +28508,6 @@ perl-bot-training
 perl-bot-training-megahal
 perl-bot-training-starcraft
 perl-browser
-perl-bsd-resource
 perl-business-isbn
 perl-business-isbn-data
 perl-business-ismn
@@ -28545,7 +28529,6 @@ perl-catalyst-view-email
 perl-catalyst-view-excel-template-plus
 perl-catalyst-view-gd
 perl-catalystx-simplelogin
-perl-cddb
 perl-cgi-application-plugin-autorunmode
 perl-cgi-application-plugin-forward
 perl-cgi-application-plugin-tt
@@ -31351,7 +31334,6 @@ pyrescene
 pyrit
 pyrobase
 pyrocore
-pyromaths
 pyroom-bzr
 pyroom-spellcheck
 pyrseas
@@ -31467,7 +31449,6 @@ python-asyncio
 python-audiere
 python-audio-tools
 python-audioprocessing
-python-augeas
 python-authkit
 python-auto-resizing-text-edit
 python-auto-resizing-text-edit-git
@@ -32074,7 +32055,6 @@ python-orange-svn
 python-ordered-set-git
 python-os-client-config
 python-oset
-python-oslo-concurrency
 python-oslo-i18n
 python-oslo-serialization
 python-oslo-utils
@@ -32821,7 +32801,6 @@ python2-circus
 python2-ciscoconfparse
 python2-cjklib
 python2-ckanclient
-python2-clamd
 python2-clang
 python2-clang-git
 python2-clepy
@@ -32836,7 +32815,6 @@ python2-clint
 python2-clouddns-git
 python2-cloudfiles
 python2-cloudfiles-git
-python2-cluster
 python2-cmd2
 python2-cocos2d
 python2-code-chat-git
@@ -33006,7 +32984,6 @@ python2-epd-oss
 python2-epub-builder
 python2-epub-git
 python2-erlastic-git
-python2-esmre
 python2-espeak
 python2-espeak-bzr
 python2-ethumb
@@ -33152,7 +33129,6 @@ python2-gtkchart-git
 python2-gtkspellcheck
 python2-gtkspellcheck-git
 python2-gudev
-python2-guess-language
 python2-gviz_api
 python2-gwebsockets-git
 python2-h5py
@@ -33388,7 +33364,6 @@ python2-novaclient-git
 python2-npyscreen
 python2-nrftool-git
 python2-nsgt
-python2-ntlm
 python2-ntplib
 python2-numba-git
 python2-numdisplay
@@ -33469,7 +33444,6 @@ python2-pelican-git
 python2-pexif
 python2-pgmagick
 python2-phonenumbers
-python2-phply
 python2-picos
 python2-pifacenetctl
 python2-pil
@@ -37758,7 +37732,6 @@ ruby-ruby-ogginfo
 ruby-ruby-protocol-buffers
 ruby-ruby-usb
 ruby-ruby_core_source
-ruby-rubygems-tasks
 ruby-rubygsm
 ruby-rubyinline
 ruby-rubyntlm-0.1
@@ -37854,7 +37827,6 @@ ruby-term-ansicolor
 ruby-termios
 ruby-test-kitchen
 ruby-test-kitchen-1.0
-ruby-test-unit
 ruby-text-format
 ruby-text-hyphen
 ruby-therubyracer
@@ -43050,7 +43022,6 @@ ufr2
 ufraw-cvs
 ufs-tools
 ufsd-module
-ufsutils
 ufw-frontends-gtk
 ufw-python3
 ugene-binary
