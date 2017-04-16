@@ -90,6 +90,9 @@ class GrabberPages(Grabber):
             "page_namespace": page["ns"],
             "page_title": title.dbtitle(page["ns"]),
             "page_is_redirect": "redirect" in page,
+            # Note that this is unrelated to marking pages in Special:NewPages as "patrolled",
+            # this field means that the page has only one revision or has not been edited since
+            # being restored - see https://www.mediawiki.org/wiki/Manual:Page_table#page_is_new
             "page_is_new": "new" in page,
             "page_random": random.random(),
             "page_touched": page["touched"],
@@ -227,14 +230,12 @@ class GrabberPages(Grabber):
         }
         for change in rc.list(self.db, rc_params):
             # add pageid for edits, new pages and target pages of log events
+            # (this implicitly handles all move, protect, delete actions)
             rcpages.add(change["pageid"])
 
             # TODO: examine logs (needs rcprop=loginfo)
-            # move, protect, delete are handled by the above
-            # these deserve special treatment
             #   merge       (revision - or maybe page too?)
             #   import      (everything?)
-            #   patrol      (page)  (not in recentchanges! so we can't know when a page loses its 'new' flag)
             #   suppress    (everything?)
 #            if change["type"] == "log":
 #                if change["logtype"] == "merge":
