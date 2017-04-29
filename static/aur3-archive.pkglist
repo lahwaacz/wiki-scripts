@@ -988,7 +988,6 @@ apiextractor
 apigen-latest
 apigen2
 apitrace
-apk-tools
 apk-tools-bin
 apk-tools-static
 apkanalyser-git
@@ -2827,7 +2826,6 @@ boxer
 boxfs
 boxfs-svn
 bpkg
-bpm-tools
 bpmcounter
 bpmdj
 bprolog
@@ -2945,7 +2943,6 @@ brother-dcpj132w
 brother-dcpj152w
 brother-dcpj525w
 brother-dcpj715w-cups
-brother-dcpj925dw
 brother-fax1940cn-cupswrapper
 brother-fax1940cn-lpr
 brother-hl2070n
@@ -5555,7 +5552,6 @@ csympy-git
 csync
 csync-git
 csync-owncloud
-ct
 ctags-ada
 ctags-css
 ctags-d
@@ -6392,7 +6388,6 @@ dirhelp-git
 dirjud-python-dpms
 dirogg
 dirsize
-disable-resolved-llmnr
 disablegss
 disc-cover
 disco
@@ -8022,7 +8017,6 @@ emacs-ruby-mode
 emacs-ruby-style
 emacs-rudel-git
 emacs-rudel-svn
-emacs-s
 emacs-sass-mode-git
 emacs-scala-mode
 emacs-scala-mode-indent-fix
@@ -11806,7 +11800,6 @@ gnome-themes-standard-git
 gnome-thumbnailer-geogebra
 gnome-tweak-tool-git
 gnome-typing-break-bzr
-gnome-usage-git
 gnome-user-docs-git
 gnome-vfs-libgcrypt
 gnome-vfs-no-hal
@@ -15452,7 +15445,6 @@ hgview-hg
 hh
 hhh
 hhk-emulate
-hhpc-git
 hhvm-pgsql
 hhvm-pgsql-git
 hhvm_36
@@ -16083,7 +16075,6 @@ ices
 ices-kh
 icesndcfg
 icets
-iceweasel
 iceweasel-bin
 iceweasel-extension-archforumsearch-it
 iceweasel-extension-archsearch
@@ -16271,7 +16262,6 @@ iceweasel-il18n-vi
 iceweasel-il18n-zh-cn
 iceweasel-il18n-zh-tw
 iceweasel-il18n-zu
-iceweasel-l10n-fr
 iceweasel-libre
 iceweasel-sync
 icewing-svn
@@ -17538,7 +17528,6 @@ jtwitter
 juank
 jubatus
 jubler
-juce
 juce-git
 juced-plugins
 jucy
@@ -21402,7 +21391,6 @@ libvisual-xmms
 libvm68k
 libvmath-svn
 libvmdk
-libvmime
 libvmime-svn
 libvoikko
 libvorbis-svn
@@ -22286,7 +22274,6 @@ lua-oopango
 lua-oopango-git
 lua-peg
 lua-penlight
-lua-penlight-git
 lua-say
 lua-sdl2
 lua-signal
@@ -22331,7 +22318,6 @@ lua51-pc
 lua51-repl
 lua51-resty-redis
 lua51-sec-prosody
-lua51-signal
 lua51-socket-devel
 lua51-socket-prosody
 lua51-sql-mysql
@@ -25307,7 +25293,6 @@ nanomsg
 nanomsg-python-git
 nanoparticles-git
 nanoserv
-nanovg-git
 nanoweb
 nanozip
 nanq
@@ -26088,7 +26073,6 @@ nosexunit
 nosr-git
 nostromo-icon-theme
 nostromo_n5x
-nosync
 nosystem-git
 not
 notably
@@ -28517,7 +28501,6 @@ perl-cache-memcached-libmemcached
 perl-cam-pdf
 perl-cassandra-simple
 perl-cassandra-simple-git
-perl-catalyst-action-rest
 perl-catalyst-component-accept_context
 perl-catalyst-component-acceptcontext
 perl-catalyst-plugin-customerrormessage
@@ -29670,7 +29653,6 @@ pidgin-appindicator
 pidgin-attentionbutton
 pidgin-audacious-remote
 pidgin-autoresize
-pidgin-birthday-reminder
 pidgin-blinklight
 pidgin-bot-sentry
 pidgin-capsnot-svn
@@ -29791,7 +29773,6 @@ pieppiep-git
 piet
 pifacecad
 pifacecommon
-pifs-git
 pig
 pigale
 pigeonhole-extprograms-hg
@@ -30443,7 +30424,6 @@ powiedz
 pp-git
 ppasskeeper
 ppasskeeper-git
-ppastats
 ppc64-xenon-binutils-git
 ppc64-xenon-gcc-base-git
 ppc64-xenon-gcc-elf-git
@@ -33290,7 +33270,6 @@ python2-meta-git
 python2-mezzanine
 python2-microfiber
 python2-middlestorm-hg
-python2-midi
 python2-midi-git
 python2-migrate-havana
 python2-milk
@@ -34298,7 +34277,6 @@ qcon
 qconf
 qconf-svn
 qconnman-ui-git
-qcontrol
 qct
 qct-hg
 qcustomplot
@@ -35058,7 +35036,6 @@ qxmpp-wilink
 qxneur
 qxneur-git
 qxorm
-qxw
 qyotodevelop-git
 qyzis
 qzdl-git
@@ -37358,7 +37335,6 @@ ruby-gnome2-all
 ruby-gnomeprint
 ruby-gnomeprintui
 ruby-gnomevfs
-ruby-gnuplot
 ruby-god
 ruby-googlecharts
 ruby-gosu
@@ -38268,7 +38244,6 @@ sbcd
 sbcl-git
 sbcl-run-program-fix
 sbcl-with-debugger
-sbf_flash
 sbmanager-git
 sbox2-git
 sbsigntool-git
@@ -38781,7 +38756,6 @@ setconf
 setconf-py3
 sethostid
 settimezone-git
-seturgent
 setv4l
 sexcoin-qt-git
 sextractor
@@ -40049,7 +40023,6 @@ ssa-utils
 ssax-sxml-bigloo
 ssd
 ssdw
-sselp
 ssh-config
 ssh-contact
 ssh-ident
@@ -42521,7 +42494,6 @@ ttf-noto-hebrew
 ttf-noto-svn
 ttf-nuosu-sil
 ttf-oblivion
-ttf-octicons
 ttf-okolaks
 ttf-oldstandard
 ttf-one-ring
@@ -45773,7 +45745,6 @@ xchatosd
 xcircuit-devel
 xclip-svn
 xcm
-xcmenu-git
 xcommand
 xcompmgr-dana
 xcompmgr_tint2-git
@@ -45976,7 +45947,6 @@ xf86-input-synaptics-sony-vp
 xf86-input-synaptics-ubuntu
 xf86-input-synaptics-xrandr
 xf86-input-synlx40
-xf86-input-tslib
 xf86-input-tuio-git
 xf86-input-wiimote-git
 xf86-input-xwiimote
@@ -46163,7 +46133,6 @@ xfconf-git
 xfdashboard-dev
 xfdesktop-4.11
 xfdesktop-dev
-xfdesktop-git
 xfdesktop-git-garcon
 xfdesktop-git-gio
 xfdesktop-standalone
