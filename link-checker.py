@@ -9,7 +9,6 @@
 #   detect self-redirects (definitely interactive only)
 #   changes rejected interactively should be logged
 #   warn if the link leads to an archived page
-#   mark links with broken fragment with {{Broken fragment}}
 
 import difflib
 import re
@@ -23,6 +22,7 @@ from ws.utils import LazyProperty
 import ws.cache
 import ws.utils
 from ws.interactive import edit_interactive, require_login, InteractiveQuit
+from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.encodings import dotencode
 from ws.parser_helpers.title import canonicalize, Title, InvalidTitleCharError
@@ -588,9 +588,10 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
     # article status templates, lowercase
     skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
 
-    def __init__(self, api, cache_dir, interactive=False, first=None, title=None, langnames=None):
-        # ensure that we are authenticated
-        require_login(api)
+    def __init__(self, api, cache_dir, interactive=False, dry_run=False, first=None, title=None, langnames=None):
+        if not dry_run:
+            # ensure that we are authenticated
+            require_login(api)
 
         # init inherited
         ExtlinkRules.__init__(self)
@@ -598,6 +599,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
 
         self.api = api
         self.interactive = interactive
+        self.dry_run = dry_run
 
         # parameters for self.run()
         self.first = first
@@ -614,6 +616,8 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         group = argparser.add_argument_group(title="script parameters")
         group.add_argument("-i", "--interactive", action="store_true",
                 help="enables interactive mode")
+        group.add_argument("--dry-run", action="store_true",
+                help="enables dry-run mode (changes are only shown and discarded)")
         mode = group.add_mutually_exclusive_group()
         mode.add_argument("--first", default=None, metavar="TITLE",
                 help="the title of the first page to be processed")
@@ -635,7 +639,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
             langnames = {lang.langname_for_tag(tag) for tag in tags}
         else:
             langnames = set()
-        return klass(api, args.cache_dir, interactive=args.interactive, first=args.first, title=args.title, langnames=langnames)
+        return klass(api, args.cache_dir, interactive=args.interactive, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames)
 
     def update_page(self, src_title, text):
         """
@@ -686,13 +690,19 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
 
     def _edit(self, title, pageid, text_new, text_old, timestamp, edit_summary):
         if text_old != text_new:
-            try:
-                if self.interactive is False:
-                    self.api.edit(title, pageid, text_new, timestamp, edit_summary, bot="")
-                else:
-                    edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, edit_summary, bot="")
-            except APIError as e:
-                pass
+            if self.dry_run:
+                diff = diff_highlighted(text_old, text_new, title + ".old", title + ".new", timestamp, "<utcnow>")
+                print(diff)
+                print("Edit summary:  " + edit_summary)
+                print("(edit discarded due to --dry-run)")
+            else:
+                try:
+                    if self.interactive is False:
+                        self.api.edit(title, pageid, text_new, timestamp, edit_summary, bot="")
+                    else:
+                        edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, edit_summary, bot="")
+                except APIError as e:
+                    pass
 
     def process_page(self, title):
         result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", titles=title)
