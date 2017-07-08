@@ -53,8 +53,8 @@ class test_api:
             next(api.query_continue(params={"foo": 0}, bar=1))
 
     def test_list_pagepropnames(self, api):
-        expected = ["displaytitle", "hiddencat", "newsectionlink", "noeditsection", "noindex", "notoc"]
-        pagepropnames = [d["propname"] for d in api.list(list="pagepropnames")]
+        expected = {"displaytitle", "forcetoc", "hiddencat", "newsectionlink", "noeditsection", "noindex", "notoc"}
+        pagepropnames = {d["propname"] for d in api.list(list="pagepropnames")}
         assert pagepropnames == expected
 
     def test_list_dummy(self, api):
