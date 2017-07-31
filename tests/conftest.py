@@ -5,7 +5,8 @@ import pytest
 from ws.client.api import API
 from ws.db.database import Database
 
-from fixtures.mysql import mysql_proc, sqlalchemy_connect_url, engine
+#from fixtures.mysql import mysql_proc, sqlalchemy_connect_url, engine
+from fixtures.postgresql import postgresql_proc, postgresql, engine
 
 @pytest.fixture(scope="session")
 def api():
@@ -19,7 +20,7 @@ def api():
     session = API.make_session(ssl_verify=ssl_verify)
     return API(api_url, index_url, session)
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def db(engine):
     """
     Return a Database instance bound to the engine fixture.

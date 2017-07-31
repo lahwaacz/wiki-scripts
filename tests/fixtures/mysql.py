@@ -1,8 +1,9 @@
 #! /usr/bin/env python3
 
 import pytest
-from pytest_dbfixtures.factories.mysql import mysql_proc
-import pytest_sqlalchemy
+# FIXME: this is found in the docs, but does not work
+#from pytest_dbfixtures import factories
+from pytest_mysql import factories
 import sqlalchemy
 from sqlalchemy.engine.url import make_url
 from copy import copy
@@ -10,18 +11,13 @@ from copy import copy
 # FIXME: probably an Arch bug
 mysql_init = "/usr/bin/mysql_install_db --basedir=/usr"
 
-mysql_proc = mysql_proc(port=(3000, 4000), params="--skip-sync-frm", logs_prefix="pytest-", init_executable=mysql_init)
-#mysql = factories.mysql("mysql_proc")
+mysql_proc = factories.mysql_proc(port=(3000, 4000), params="--skip-sync-frm", logs_prefix="pytest-", init_executable=mysql_init)
 
 user = "root"
 password = ""
 db_name = "wiki-scripts"
 db_charset = "utf8"
 db_collation = "utf8_general_ci"
-
-# override fixtures from pytest_sqlalchemy
-# https://github.com/toirl/pytest-sqlalchemy/blob/master/pytest_sqlalchemy.py
-# TODO: at this point we don't need that package anymore
 
 @pytest.fixture(scope="session")
 def sqlalchemy_connect_url(mysql_proc):
