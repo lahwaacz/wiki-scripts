@@ -62,19 +62,23 @@ class GrabberRecentChanges(Grabber):
             rc_deleted |= mwconst.DELETED_ACTION
         if "commenthidden" in rc:
             rc_deleted |= mwconst.DELETED_COMMENT
+            # FIXME: either this or make the column nullable or require the "viewsuppressed" right for syncing
+            rc.setdefault("comment", "")
         if "userhidden" in rc:
             rc_deleted |= mwconst.DELETED_USER
+            # FIXME: either this or make the column nullable or require the "viewsuppressed" right for syncing
+            rc.setdefault("user", "")
         if "suppressed" in rc:
             rc_deleted |= mwconst.DELETED_RESTRICTED
 
         db_entry = {
             "rc_id": rc["rcid"],
             "rc_timestamp": rc["timestamp"],
-            "rc_user": value_or_none(rc["userid"]),
-            "rc_user_text": rc["user"],
+            "rc_user": rc.get("userid"),  # may be hidden due to rc_deleted
+            "rc_user_text": rc["user"],  # may be hidden due to rc_deleted
             "rc_namespace": rc["ns"],
             "rc_title": title.dbtitle(rc["ns"]),
-            "rc_comment": rc["comment"],
+            "rc_comment": rc["comment"],  # may be hidden due to rc_deleted
             "rc_minor": "minor" in rc,
             "rc_bot": "bot" in rc,
             "rc_new": "new" in rc,
