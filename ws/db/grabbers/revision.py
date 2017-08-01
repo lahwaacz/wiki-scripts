@@ -175,12 +175,12 @@ class GrabberRevisions(Grabber):
 
         le_params = {
             "type": "delete",
-            "prop": {"type", "details"},
+            "prop": {"type", "details", "title"},
             "dir": "newer",
             "start": since_f,
         }
         for le in logevents.list(self.db, le_params):
-            if logevent["type"] == "delete":
+            if le["type"] == "delete":
                 deleted_pages.add(le["title"])
 
         # TODO: handle delete/undelete actions - move the rows between archive and revision tables
