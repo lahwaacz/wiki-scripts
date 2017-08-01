@@ -131,3 +131,5 @@ class GrabberRecentChanges(Grabber):
 
         # purge too-old rows
         yield self.sql["delete", "recentchanges"], {"rc_cutoff_timestamp": format_date(self.api.oldest_recent_change)}
+
+        # FIXME: rolled-back edits are automatically patrolled, but there does not seem to be any way to detect this

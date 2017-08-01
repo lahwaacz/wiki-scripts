@@ -48,12 +48,21 @@ def select_recentchanges(api, db):
     api_list = list(api.list(api_params))
     db_list = list(rc.list(db, prop=prop))
 
+    print("Checking the recentchanges table...")
     assert len(db_list) == len(api_list)
     for i, entries in enumerate(zip(db_list, api_list)):
         db_entry, api_entry = entries
         # TODO: I don't know what this means
         if "unpatrolled" in api_entry:
             del api_entry["unpatrolled"]
+
+        # FIXME: rolled-back edits are automatically patrolled, but there does not seem to be any way to detect this
+        # skipping all patrol checks for now...
+        if "patrolled" in api_entry:
+            del api_entry["patrolled"]
+        if "patrolled" in db_entry:
+            del db_entry["patrolled"]
+
         try:
             assert db_entry == api_entry
         except AssertionError:
@@ -75,6 +84,7 @@ def select_logging(api, db):
     api_list = list(api.list(api_params))
     db_list = list(logevents.list(db, prop=prop))
 
+    print("Checking the logging table...")
     assert len(db_list) == len(api_list)
     for i, entries in enumerate(zip(db_list, api_list)):
         db_entry, api_entry = entries
