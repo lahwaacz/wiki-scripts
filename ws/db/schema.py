@@ -35,7 +35,6 @@ from sqlalchemy import \
 from sqlalchemy.types import \
         Boolean, SmallInteger, Integer, BigInteger, Float, \
         Unicode, UnicodeText, Enum, DateTime
-from sqlalchemy.dialects.mysql import MEDIUMTEXT
 
 from .sql_types import \
         TinyBlob, Blob, MediumBlob, UnicodeBinary, \
@@ -653,12 +652,13 @@ def create_unused_tables(metadata):
         Column("si_page", Integer, nullable=False),
         Column("si_title", Unicode(255), nullable=False, server_default=""),
         # not binary in MediaWiki !!!
-        Column("si_text", MEDIUMTEXT(charset="utf8"), nullable=False),
+        Column("si_text", UnicodeText, nullable=False),
         mysql_engine="MyISAM"
     )
 
     transcache = Table("transcache", metadata,
         Column("tc_url", UnicodeBinary(255), nullable=False),
+        # not binary in MediaWiki !!!
         Column("tc_contents", UnicodeText),
         Column("tc_time", MWTimestamp, nullable=False)
     )
