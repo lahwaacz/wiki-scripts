@@ -171,7 +171,8 @@ def create_pages_tables(metadata):
         # for preserving revision.rev_id
         Column("ar_rev_id", Integer),
         # like revision.rev_page, but nullable because pages deleted prior to MW 1.11 have NULL
-        Column("ar_page_id", Integer, ForeignKey("page.page_id", deferrable=True, initially="DEFERRED")),
+        # (not a FK because archived pages don't exist in page)
+        Column("ar_page_id", Integer),
         Column("ar_text_id", Integer, ForeignKey("text.old_id", deferrable=True, initially="DEFERRED")),
         Column("ar_comment", UnicodeBinary(767), nullable=False),
         Column("ar_user", Integer, ForeignKey("user.user_id", deferrable=True, initially="DEFERRED"), nullable=False),

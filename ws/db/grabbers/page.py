@@ -3,7 +3,7 @@
 import random
 import logging
 
-from sqlalchemy import bindparam
+import sqlalchemy as sa
 
 import ws.utils
 from ws.parser_helpers.title import Title
@@ -60,22 +60,55 @@ class GrabberPages(Grabber):
                         db.page_restrictions.c.pr_expiry,
                     ]),
             ("delete", "page"):
-                db.page.delete().where(db.page.c.page_id == bindparam("b_page_id")),
+                db.page.delete().where(db.page.c.page_id == sa.bindparam("b_page_id")),
             ("delete-but-one", "page_props"):
                 db.page_props.delete().where(
-                    (db.page_props.c.pp_page == bindparam("b_pp_page")) &
-                    (db.page_props.c.pp_propname != bindparam("b_pp_propname"))),
+                    (db.page_props.c.pp_page == sa.bindparam("b_pp_page")) &
+                    (db.page_props.c.pp_propname != sa.bindparam("b_pp_propname"))),
             ("delete-all", "page_props"):
                 db.page_props.delete().where(
-                    db.page_props.c.pp_page == bindparam("b_pp_page")),
+                    db.page_props.c.pp_page == sa.bindparam("b_pp_page")),
             ("delete-but-one", "page_restrictions"):
                 db.page_restrictions.delete().where(
-                    (db.page_restrictions.c.pr_page == bindparam("b_pr_page")) &
-                    (db.page_restrictions.c.pr_type != bindparam("b_pr_type"))),
+                    (db.page_restrictions.c.pr_page == sa.bindparam("b_pr_page")) &
+                    (db.page_restrictions.c.pr_type != sa.bindparam("b_pr_type"))),
             ("delete-all", "page_restrictions"):
                 db.page_restrictions.delete().where(
-                    db.page_restrictions.c.pr_page == bindparam("b_pr_page")),
+                    db.page_restrictions.c.pr_page == sa.bindparam("b_pr_page")),
         }
+
+        # build query to move data from the revision table into archive
+        deleted_revisions = self.db.revision.delete() \
+            .where(self.db.revision.c.rev_page == sa.bindparam("b_rev_page")) \
+            .returning(*self.db.revision.c._all_columns) \
+            .cte("deleted_revisions")
+        columns = [
+                self.db.page.c.page_namespace,
+                self.db.page.c.page_title,
+                deleted_revisions.c.rev_id,
+                deleted_revisions.c.rev_page,
+                deleted_revisions.c.rev_text_id,
+                deleted_revisions.c.rev_comment,
+                deleted_revisions.c.rev_user,
+                deleted_revisions.c.rev_user_text,
+                deleted_revisions.c.rev_timestamp,
+                deleted_revisions.c.rev_minor_edit,
+                deleted_revisions.c.rev_deleted,
+                deleted_revisions.c.rev_len,
+                deleted_revisions.c.rev_parent_id,
+                deleted_revisions.c.rev_sha1,
+                deleted_revisions.c.rev_content_model,
+                deleted_revisions.c.rev_content_format,
+            ]
+        select = sa.select(columns).select_from(
+                deleted_revisions.join(self.db.page, deleted_revisions.c.rev_page == self.db.page.c.page_id)
+            )
+        insert = self.db.archive.insert().from_select(
+            # populate all columns except ar_id
+            self.db.archive.c._all_columns[1:],
+            select
+        )
+        self.sql["move", "revision"] = insert
 
 
     def gen_inserts_from_page(self, page):
@@ -132,6 +165,9 @@ class GrabberPages(Grabber):
 
     def gen_deletes_from_page(self, page):
         if "missing" in page:
+            # move relevant revisions from the revision table into archive
+            yield self.sql["move", "revision"], {"b_rev_page": page["pageid"]}
+
             # deleted page - this will cause cascade deletion in
             # page_props and page_restrictions tables
             yield self.sql["delete", "page"], {"b_page_id": page["pageid"]}

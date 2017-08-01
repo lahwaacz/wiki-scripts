@@ -183,8 +183,7 @@ class GrabberRevisions(Grabber):
             if le["type"] == "delete":
                 deleted_pages.add(le["title"])
 
-        # TODO: handle delete/undelete actions - move the rows between archive and revision tables
-        # (in the archive table the rows might already be there due to the prop=deletedrevisions
+        # TODO: handle undelete actions - move the rows between archive and revision tables (deletes are handled in page)
 
         # TODO: update rev_deleted and ar_deleted
         # TODO: handle merge and unmerge
