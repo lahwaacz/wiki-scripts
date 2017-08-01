@@ -18,7 +18,7 @@ class test_site:
             "sitename": "ArchWiki",
             "logo": "https://wiki.archlinux.org/skins/archlinux/archlogo.png",
             "generator": "MediaWiki 1.28.2",
-            "phpversion": "7.1.6",
+            "phpversion": "7.1.7",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
             "dbversion": "5.7.18-15-log",
