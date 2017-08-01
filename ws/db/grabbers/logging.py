@@ -51,6 +51,7 @@ class GrabberLogging(Grabber):
             "log_type": logevent["type"],
             "log_action": logevent["action"],
             "log_timestamp": logevent["timestamp"],
+            # This assumes that anonymous users can't create log events, so all "0" from the API are from deleted users
             "log_user": value_or_none(logevent["userid"]),
             "log_user_text": logevent["user"],
             "log_namespace": logevent["ns"],

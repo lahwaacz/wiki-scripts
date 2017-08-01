@@ -8,6 +8,7 @@ from sqlalchemy.sql import func
 import ws.utils
 from ws.utils import format_date, value_or_none
 from ws.parser_helpers.title import Title
+from ws.db.selects import logevents
 
 from . import Grabber
 
@@ -154,17 +155,36 @@ class GrabberRevisions(Grabber):
     def gen_update(self, since):
         since_f = format_date(since)
 
+        # TODO: make sure that the updates from the API don't create a duplicate row with a new ID in the text table
+
         arv_params = self.arv_params.copy()
         arv_params["arvdir"] = "newer"
         arv_params["arvstart"] = since_f
         for page in self.api.list(arv_params):
             yield from self.gen_revisions(page)
 
-# FIXME: MW defect: adrstart can be used only along with adruser
-#        adr_params = self.adr_params.copy()
-#        adr_params["adrdir"] = "newer"
-#        adr_params["adrstart"] = since_f
-#        for page in self.api.list(adr_params):
-#            yield from self.gen_deletedrevisions(page)
+        # MW defect: it is not possible to use list=alldeletedrevisions to get all new
+        # deleted revisions the same way as normal revisions, because adrstart can be
+        # used only along with adruser (archive.ar_timestamp is not indexed separately).
+        #
+        # To work around this, we realize that new deleted revisions can appear only by
+        # deleting an existing page, which creates an entry in the logging table. We
+        # still need to query the API with prop=deletedrevisions to get even the
+        # revisions that were created and deleted since the last sync.
+        deleted_pages = set()
 
-        # TODO: go through the new logevents and update changed revisions (delete, merge)
+        le_params = {
+            "type": "delete",
+            "prop": {"type", "details"},
+            "dir": "newer",
+            "start": since_f,
+        }
+        for le in logevents.list(self.db, le_params):
+            if logevent["type"] == "delete":
+                deleted_pages.add(le["title"])
+
+        # TODO: handle delete/undelete actions - move the rows between archive and revision tables
+        # (in the archive table the rows might already be there due to the prop=deletedrevisions
+
+        # TODO: update rev_deleted and ar_deleted
+        # TODO: handle merge and unmerge
