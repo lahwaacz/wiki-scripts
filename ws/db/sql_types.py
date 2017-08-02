@@ -69,13 +69,14 @@ class MWTimestamp(types.TypeDecorator):
         Python -> database
         """
         assert dialect.name == "postgresql"
-        if value is None:
-            return value
-        assert isinstance(value, datetime.datetime)
+        # sometimes MediaWiki yields "" instead of None...
+        if not value:
+            return None
+        assert isinstance(value, datetime.datetime), value
         if value == datetime.datetime.max:
-            return b"'infinity'::date"
+            return "infinity"
         elif value == datetime.datetime.min:
-            return b"'-infinity'::date"
+            return "-infinity"
         else:
             return value
 
@@ -86,9 +87,9 @@ class MWTimestamp(types.TypeDecorator):
         assert dialect.name == "postgresql"
         if value is None:
             return value
-        if value == b"'infinity'::date":
+        if value == "infinity":
             return datetime.datetime.max
-        elif value == b"'-infinity'::date":
+        elif value == "-infinity":
             return datetime.datetime.min
         else:
             return value
