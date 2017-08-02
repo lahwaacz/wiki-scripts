@@ -111,12 +111,14 @@ class Grabber:
         gen = self.gen_insert()
         self._execute(gen, sync_timestamp)
 
-    def update(self):
+    def update(self, *, since=None):
         sync_timestamp = datetime.datetime.utcnow()
-        since = self._get_sync_timestamp()
+
         if since is None:
-            self.insert()
-            return
+            since = self._get_sync_timestamp()
+            if since is None:
+                self.insert()
+                return
 
         try:
             gen = self.gen_update(since)
