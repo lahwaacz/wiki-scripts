@@ -35,9 +35,9 @@ class Database:
             self.engine = create_engine(engine_or_url, echo=True, implicit_returning=False)
 
         # TODO: only for testing
-        metadata = MetaData(bind=self.engine)
-        metadata.reflect()
-        metadata.drop_all()
+#        metadata = MetaData(bind=self.engine)
+#        metadata.reflect()
+#        metadata.drop_all()
 
         self.metadata = MetaData(bind=self.engine)
         schema.create_tables(self.metadata)
