@@ -3,37 +3,47 @@ from pprint import pprint
 from ws.client import API
 from ws.interactive import require_login
 from ws.db.database import Database
-from ws.db.grabbers import namespace, recentchanges, user, ipblocks, page, protected_titles, revision
-import ws.db.grabbers.logging as log  # 'logging' would conflict with the stdlib module
-import ws.db.selects.recentchanges as rc
-from ws.db.selects import logevents
+
+import ws.db.grabbers as grabbers
+import ws.db.grabbers.namespace
+import ws.db.grabbers.recentchanges
+import ws.db.grabbers.user
+import ws.db.grabbers.ipblocks
+import ws.db.grabbers.page
+import ws.db.grabbers.protected_titles
+import ws.db.grabbers.revision
+import ws.db.grabbers.logging
+
+import ws.db.selects as selects
+import ws.db.selects.recentchanges
+import ws.db.selects.logevents
 
 
 def main(api, db):
-    g = namespace.GrabberNamespaces(api, db)
+    g = grabbers.namespace.GrabberNamespaces(api, db)
     g.update()
-    pprint(namespace.select(db))
+    pprint(grabbers.namespace.select(db))
 
     # TODO: if no recent change has been added, it's safe to assume that the other tables are up to date as well
-    g = recentchanges.GrabberRecentChanges(api, db)
+    g = grabbers.recentchanges.GrabberRecentChanges(api, db)
     g.update()
 
-    g = user.GrabberUsers(api, db)
+    g = grabbers.user.GrabberUsers(api, db)
     g.update()
 
-    g = log.GrabberLogging(api, db)
+    g = grabbers.logging.GrabberLogging(api, db)
     g.update()
 
-    g = ipblocks.GrabberIPBlocks(api, db)
+    g = grabbers.ipblocks.GrabberIPBlocks(api, db)
     g.update()
 
-    g = page.GrabberPages(api, db)
+    g = grabbers.page.GrabberPages(api, db)
     g.update()
 
-    g = protected_titles.GrabberProtectedTitles(api, db)
+    g = grabbers.protected_titles.GrabberProtectedTitles(api, db)
     g.update()
 
-    g = revision.GrabberRevisions(api, db)
+    g = grabbers.revision.GrabberRevisions(api, db)
     g.update()
 
 
@@ -46,7 +56,7 @@ def select_recentchanges(api, db):
     }
 
     api_list = list(api.list(api_params))
-    db_list = list(rc.list(db, prop=prop))
+    db_list = list(selects.recentchanges.list(db, prop=prop))
 
     print("Checking the recentchanges table...")
     assert len(db_list) == len(api_list)
@@ -82,7 +92,7 @@ def select_logging(api, db):
     }
 
     api_list = list(api.list(api_params))
-    db_list = list(logevents.list(db, prop=prop))
+    db_list = list(selects.logevents.list(db, prop=prop))
 
     print("Checking the logging table...")
     assert len(db_list) == len(api_list)
