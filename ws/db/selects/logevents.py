@@ -119,7 +119,7 @@ def list(db, params=None, **kwargs):
     if params["dir"] == "older":
         s = s.order_by(log.c.log_timestamp.desc(), log.c.log_id.desc())
     else:
-        s = s.order_by(log.c.log_timestamp.asc(), log.c.log_id.desc())
+        s = s.order_by(log.c.log_timestamp.asc(), log.c.log_id.asc())
 
     result = db.engine.execute(s)
     for row in result:
