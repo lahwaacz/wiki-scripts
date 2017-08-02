@@ -13,7 +13,6 @@ from ws.client import API, APIError
 from ws.interactive import require_login
 from ws.autopage import AutoPage
 from ws.wikitable import Wikitable
-from ws.utils import parse_date
 import ws.cache
 
 from ws.statistics.UserStatsModules import UserStatsModules
@@ -248,7 +247,7 @@ divided by the number of days between the user's first and last edits.
                 name = user["name"]
                 # There seems to be users without registration date (?!?) TODO: investigate
                 if user["registration"]:
-                    registration = parse_date(user["registration"])
+                    registration = user["registration"]
                 else:
                     registration = None
                 longest_streak, current_streak = self.modules.get_streaks(name)

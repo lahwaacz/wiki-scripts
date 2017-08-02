@@ -6,7 +6,6 @@ import logging
 import mwparserfromhell
 
 from ws.interactive import edit_interactive
-from ws.utils import parse_date
 
 logger = logging.getLogger(__name__)
 
@@ -114,9 +113,9 @@ class AutoPage:
         """
         utcnow = datetime.datetime.utcnow()
         if strip_time is False:
-            delta = utcnow - parse_date(self.timestamps[self.title])
+            delta = utcnow - self.timestamps[self.title]
         else:
-            delta = utcnow.date() - parse_date(self.timestamps[self.title]).date()
+            delta = utcnow.date() - self.timestamps[self.title].date()
         return delta >= min_interval
 
     def save(self, edit_summary, interactive=False, **kwargs):

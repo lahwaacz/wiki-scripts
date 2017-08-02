@@ -11,7 +11,7 @@ import hashlib
 from ws.client import API
 import ws.ArchWiki.lang
 from ws.parser_helpers.title import Title
-from ws.utils import is_ascii, parse_date, list_chunks
+from ws.utils import is_ascii, list_chunks
 
 class Downloader:
     extension = "mediawiki"
@@ -88,7 +88,7 @@ class Downloader:
             title = page["title"]
             fname = self.get_local_filename(title, self.output_directory)
             self.files.append(fname)
-            timestamp = parse_date(page["touched"])
+            timestamp = page["touched"]
             if self.needs_update(fname, timestamp):
                 print("  [new rev found] %s" % title)
                 to_be_updated.append( (title, page["pageid"], fname) )

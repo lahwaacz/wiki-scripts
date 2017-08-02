@@ -6,7 +6,7 @@ import matplotlib as mpl
 
 from ws.client import API
 import ws.cache
-from ws.utils import parse_date, range_by_days
+from ws.utils import range_by_days
 
 from ws.statistics.UserStatsModules import UserStatsModules
 
@@ -36,7 +36,7 @@ def plot_setup(title="", ylabel="edits"):
     return ax
 
 def plot_revisions(ax, revisions, label):
-    timestamps = [parse_date(revision["timestamp"]) for revision in revisions]
+    timestamps = [revision["timestamp"] for revision in revisions]
 
     # construct an array of bin edges, one bin per day
     bin_edges = range_by_days(timestamps[0], timestamps[-1])
@@ -62,7 +62,7 @@ def plot_revisions(ax, revisions, label):
 def plot_logs(ax, line, logs):
     color = line.get_color()
     for log in logs:
-        x = mpl.dates.date2num(parse_date(log["timestamp"]))
+        x = mpl.dates.date2num(log["timestamp"])
         y = np.interp(x, line._x, line._y)
         ax.plot(x, y, "o", color=color)
         labels = []

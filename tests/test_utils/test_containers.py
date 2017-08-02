@@ -133,3 +133,54 @@ class test_find_caseless:
     def test_notfound(self, what, where, from_target):
         with pytest.raises(ValueError):
             find_caseless(what, where, from_target)
+
+class test_gen_nested_values:
+    def test_1(self):
+        struct = {
+            "a": "b",
+            "c": {
+                "d": "e",
+                "f": [
+                    "g",
+                    {
+                        "h": "i",
+                        "j": "k",
+                    },
+                ],
+            }
+        }
+        result = list(gen_nested_values(struct))
+        expected = [
+            (["a"], "b"),
+            (["c", "d"], "e"),
+            (["c", "f", 0], "g"),
+            (["c", "f", 1, "h"], "i"),
+            (["c", "f", 1, "j"], "k"),
+        ]
+        assert result == expected
+
+    def test_2(self):
+        struct = [
+            "a",
+            {
+                "c": {
+                    "d": "e",
+                    "f": [
+                        "g",
+                        {
+                            "h": "i",
+                            "j": "k",
+                        },
+                    ],
+                }
+            }
+        ]
+        result = list(gen_nested_values(struct))
+        expected = [
+            ([0], "a"),
+            ([1, "c", "d"], "e"),
+            ([1, "c", "f", 0], "g"),
+            ([1, "c", "f", 1, "h"], "i"),
+            ([1, "c", "f", 1, "j"], "k"),
+        ]
+        assert result == expected

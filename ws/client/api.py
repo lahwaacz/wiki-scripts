@@ -3,7 +3,7 @@
 import hashlib
 import logging
 
-from ..utils import RateLimited, LazyProperty, parse_date
+from ..utils import RateLimited, LazyProperty
 
 from .connection import Connection, APIError
 from .site import Site
@@ -164,8 +164,7 @@ class API(Connection):
             "continue": "",  # needed only to silence stupid deprecation warning
         }
         result = self.call_api(params)
-        timestamp = result["recentchanges"][0]["timestamp"]
-        return parse_date(timestamp)
+        return result["recentchanges"][0]["timestamp"]
 
 
     def query_continue(self, params=None, **kwargs):

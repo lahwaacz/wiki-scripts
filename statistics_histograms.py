@@ -9,7 +9,7 @@ import logging
 
 from ws.client import API
 import ws.cache
-from ws.utils import parse_date, range_by_months
+from ws.utils import range_by_months
 
 logger = logging.getLogger(__name__)
 
@@ -60,9 +60,9 @@ def create_histograms(revisions):
     from matplotlib.dates import date2num
 
     # list of timestamps for each revision
-    timestamps = [parse_date(revision["timestamp"]) for revision in revisions]
+    timestamps = [revision["timestamp"] for revision in revisions]
     # alternatively exclude bots
-#    timestamps = [parse_date(revision["timestamp"]) for revision in revisions if revision["user"] not in ["Kynikos.bot", "Lahwaacz.bot", "Strcat"]]
+#    timestamps = [revision["timestamp"] for revision in revisions if revision["user"] not in ["Kynikos.bot", "Lahwaacz.bot", "Strcat"]]
 
     # construct an array of bin edges, one bin per calendar month
     bin_edges = range_by_months(timestamps[0], timestamps[-1])

@@ -4,8 +4,6 @@ import datetime
 import itertools
 import heapq
 
-import ws.utils as utils
-
 __all__ = ["UserStatsModules"]
 
 class UserStatsModules:
@@ -27,7 +25,7 @@ class UserStatsModules:
 
         rev_condition = lambda r: True
         if self.round_to_midnight is True:
-            rev_condition = lambda r: utils.parse_date(r["timestamp"]) <= self.today
+            rev_condition = lambda r: r["timestamp"] <= self.today
 
         def _inner_generator(revisions):
             return (r for r in revisions if rev_condition(r))
@@ -75,7 +73,7 @@ class UserStatsModules:
         def _streak(revision):
             """ Return streak ID number for given revision.
             """
-            date = utils.parse_date(revision["timestamp"]).date()
+            date = revision["timestamp"].date()
 
             # check if new streak starts
             if _streak.prev_date is None or date - _streak.prev_date > datetime.timedelta(days=1):
@@ -93,7 +91,7 @@ class UserStatsModules:
         def _length(streak):
             """ Return the length of given streak in days.
             """
-            delta = utils.parse_date(streak[-1]["timestamp"]) - utils.parse_date(streak[0]["timestamp"])
+            delta = streak[-1]["timestamp"] - streak[0]["timestamp"]
             return delta.days + 1
 
         # objects holding the revisions in the streak
@@ -116,8 +114,8 @@ class UserStatsModules:
         if longest_length > 0:
             longest = {
                 "length": longest_length,
-                "start": utils.parse_date(longest_streak[0]["timestamp"]).date(),
-                "end": utils.parse_date(longest_streak[-1]["timestamp"]).date(),
+                "start": longest_streak[0]["timestamp"].date(),
+                "end": longest_streak[-1]["timestamp"].date(),
                 "editcount": len(longest_streak),
             }
         else:
@@ -125,11 +123,11 @@ class UserStatsModules:
 
         # check if the last edit has been made at most 24 hours ago (or, when
         # round_to_midnight is True, at most on the previous UTC day)
-        if self.today - utils.parse_date(current_streak[-1]["timestamp"]) <= datetime.timedelta(days=1):
+        if self.today - current_streak[-1]["timestamp"] <= datetime.timedelta(days=1):
             current = {
                 "length": current_length,
-                "start": utils.parse_date(current_streak[0]["timestamp"]).date(),
-                "end": utils.parse_date(current_streak[-1]["timestamp"]).date(),
+                "start": current_streak[0]["timestamp"].date(),
+                "end": current_streak[-1]["timestamp"].date(),
                 "editcount": len(current_streak),
             }
         else:
@@ -160,7 +158,7 @@ class UserStatsModules:
             a ``float`` value of the average edits per day between the first and last edit dates
         """
         revisions = self.revisions_groups[user]
-        delta = utils.parse_date(revisions[-1]["timestamp"]) - utils.parse_date(revisions[0]["timestamp"])
+        delta = revisions[-1]["timestamp"] - revisions[0]["timestamp"]
         return len(revisions) / (delta.days + 1)
 
     def total_edit_count(self, user):

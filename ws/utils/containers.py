@@ -1,6 +1,9 @@
 #! /usr/bin/env python3
 
 import bisect
+import datetime
+
+from .datetime_ import parse_date
 
 class ListOfDictsAttrWrapper(object):
     """ A list-like wrapper around list of dicts, operating on a given attribute.
@@ -85,3 +88,45 @@ def find_caseless(what, where, from_target=False):
                 return item
             return what
     raise ValueError
+
+def gen_nested_values(indict, keys=None):
+    """
+    Generator yielding all values stored in a nested structure of dicts, lists
+    and tuples.
+    """
+    keys = keys[:] if keys else []
+    if isinstance(indict, dict):
+        for key, value in indict.items():
+            yield from gen_nested_values(value, keys=keys + [key])
+    elif isinstance(indict, list) or isinstance(indict, tuple):
+        for i, value in enumerate(indict):
+            yield from gen_nested_values(value, keys=keys + [i])
+    else:
+        yield keys, indict
+
+def convert_timestamps_in_struct(struct):
+    """
+    Convert all timestamps in a nested structure from str to
+    datetime.datetime.
+    """
+    def set_ts(struct, keys, value):
+        for k in keys[:-1]:
+            struct = struct[k]
+        struct[keys[-1]] = value
+
+    for keys, value in gen_nested_values(struct):
+        if isinstance(value, str):
+            if value.lower() == "infinity":
+                set_ts(struct, keys, datetime.datetime.max)
+            elif value.lower() == "-infinity":
+                set_ts(struct, keys, datetime.datetime.min)
+            elif value.lower() == "indefinite":
+                set_ts(struct, keys, None)
+            elif (len(value) == 20 and value[4] == "-" and value[7] == "-" and
+                    value[10] == "T" and value[13] == ":" and value[16] == ":"
+                    and value[19] == "Z"):
+                try:
+                    ts = parse_date(value)
+                except ValueError:
+                    continue
+                set_ts(struct, keys, ts)

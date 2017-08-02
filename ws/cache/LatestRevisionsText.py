@@ -88,9 +88,7 @@ class LatestRevisionsText(CacheDb):
             pageid = page["pageid"]
             try:
                 db_page = utils.bisect_find(self.data[ns], title, index_list=wrapped_titles)
-                timestamp = utils.parse_date(page["touched"])
-                db_timestamp = utils.parse_date(db_page["touched"])
-                if timestamp > db_timestamp:
+                if page["touched"] > db_page["touched"]:
                     pageids.append(page["pageid"])
             except IndexError:
                 # not found in db, needs update

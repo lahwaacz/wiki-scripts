@@ -4,7 +4,6 @@ import os.path
 import datetime
 
 from ws.client import API
-from ws.utils import parse_date
 
 api_url = "https://wiki.archlinux.org/api.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
@@ -33,7 +32,7 @@ for user in users:
         user["avgeditsperday"] = 0
         continue
 
-    delta = now - parse_date(user["registration"])
+    delta = now - user["registration"]
     user["avgeditsperday"] = user["editcount"] / delta.days if delta.days != 0 else user["editcount"]
 
 #users.sort(key=lambda u: u["editcount"], reverse=True)

@@ -15,7 +15,7 @@ import http.cookiejar as cookielib
 import logging
 
 from ws import __version__, __url__
-from ..utils import RateLimited
+from ..utils import RateLimited, convert_timestamps_in_struct
 
 logger = logging.getLogger(__name__)
 
@@ -286,6 +286,8 @@ class Connection:
             for warning in result["warnings"].values():
                 msg += "\n* {}".format(warning["*"])
             logger.warning(msg)
+
+        convert_timestamps_in_struct(result)
 
         if expand_result is True:
             if action in result:
