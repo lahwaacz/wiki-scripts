@@ -25,11 +25,11 @@ Known incompatibilities from MediaWiki schema:
 - Unknown/invalid IDs are represented by NULL instead of 0. Except for user_id,
   where we add a dummy user with id = 0 to represent anonymous users.
 - Removed default values from all timestamp columns.
+- Removed silly default values - if we don't know, let's make it NULL.
 """
 
 # TODO:
 # - most foreign keys are nullable in MW's PostgreSQL schema and have an ON DELETE clause
-# - some non-nullable columns have silly default values - if we don't know, let's make it NULL
 
 from sqlalchemy import \
         Table, Column, ForeignKey, Index, PrimaryKeyConstraint, ForeignKeyConstraint, CheckConstraint
@@ -96,16 +96,11 @@ def create_users_tables(metadata):
         # In MediaWiki it's 0 for anonymous edits, initialization scripts and some mass imports.
         # We'll add a dummy user with user_id == 0 before populating the table.
         Column("user_id", Integer, primary_key=True, nullable=False),
-        Column("user_name", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("user_real_name", UnicodeBinary(255), nullable=False, server_default=""),
-        # MW incompatibility: set to nullable since passwords are not part of mirroring
-#        Column("user_password", TinyBlob, nullable=False),
-#        Column("user_newpassword", TinyBlob, nullable=False),
+        Column("user_name", UnicodeBinary(255), nullable=False),
+        Column("user_real_name", UnicodeBinary(255)),
         Column("user_password", TinyBlob),
         Column("user_newpassword", TinyBlob),
         Column("user_newpass_time", MWTimestamp),
-        # nullable for the same reason as passwords
-#        Column("user_email", TinyBlob, nullable=False),
         Column("user_email", TinyBlob),
         Column("user_touched", MWTimestamp),
         Column("user_token", UnicodeBinary(32)),
@@ -297,7 +292,7 @@ def create_recomputable_tables(metadata):
     redirect = Table("redirect", metadata,
         Column("rd_from", Integer, ForeignKey("page.page_id"), primary_key=True, nullable=False, server_default="0"),
         Column("rd_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("rd_title", UnicodeBinary(255), nullable=False, server_default=""),
+        Column("rd_title", UnicodeBinary(255), nullable=False),
         Column("rd_interwiki", Unicode(32)),
         Column("rd_fragment", UnicodeBinary(255))
     )
@@ -308,13 +303,13 @@ def create_recomputable_tables(metadata):
         # TODO: useless, should be in view
         Column("pl_from_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
         Column("pl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("pl_title", UnicodeBinary(255), nullable=False, server_default="")
+        Column("pl_title", UnicodeBinary(255), nullable=False)
     )
 
     iwlinks = Table("iwlinks", metadata,
         Column("iwl_from", Integer, ForeignKey("page.page_id"), nullable=False, server_default="0"),
         Column("iwl_prefix", UnicodeBinary(20), nullable=False, server_default=""),
-        Column("iwl_title", UnicodeBinary(255), nullable=False, server_default=""),
+        Column("iwl_title", UnicodeBinary(255), nullable=False),
     )
 
     externallinks = Table("externallinks", metadata,
@@ -326,14 +321,14 @@ def create_recomputable_tables(metadata):
 
     langlinks = Table("langlinks", metadata,
         Column("ll_from", Integer, ForeignKey("page.page_id"), nullable=False, server_default="0"),
-        Column("ll_lang", UnicodeBinary(20), nullable=False, server_default=""),
-        Column("ll_title", UnicodeBinary(255), nullable=False, server_default="")
+        Column("ll_lang", UnicodeBinary(20), nullable=False),
+        Column("ll_title", UnicodeBinary(255), nullable=False)
     )
 
     imagelinks = Table("imagelinks", metadata,
         Column("il_from", Integer, ForeignKey("page.page_id"), nullable=False, server_default="0"),
         Column("il_from_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("il_to", UnicodeBinary(255), nullable=False, server_default="")
+        Column("il_to", UnicodeBinary(255), nullable=False)
     )
 
     templatelinks = Table("templatelinks", metadata,
@@ -341,14 +336,14 @@ def create_recomputable_tables(metadata):
         # TODO: useless, should be in view
         Column("tl_from_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
         Column("tl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("tl_title", UnicodeBinary(255), nullable=False, server_default="")
+        Column("tl_title", UnicodeBinary(255), nullable=False)
     )
 
     categorylinks = Table("categorylinks", metadata,
-        Column("cl_from", Integer, ForeignKey("page.page_id"), nullable=False, server_default="0"),
-        Column("cl_to", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("cl_sortkey", UnicodeBinary(230), nullable=False, server_default=""),
-        Column("cl_sortkey", UnicodeBinary(255), nullable=False, server_default=""),
+        Column("cl_from", Integer, ForeignKey("page.page_id"), nullable=False),
+        Column("cl_to", UnicodeBinary(255), nullable=False),
+        Column("cl_sortkey", UnicodeBinary(230), nullable=False),
+        Column("cl_sortkey_prefix", UnicodeBinary(255), nullable=False),
         Column("cl_timestamp", DateTime, nullable=False),
         Column("cl_collation", UnicodeBinary(32), nullable=False, server_default=""),
         Column("cl_type", Enum("page", "subcat", "file", name="cl_type"), nullable=False, server_default="page")
@@ -371,8 +366,8 @@ def create_recentchanges_tables(metadata):
         # FIXME: can contain negative values
 #        Column("rc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("rc_namespace", Integer, nullable=False),
-        Column("rc_title", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("rc_comment", UnicodeBinary(767), nullable=False, server_default=""),
+        Column("rc_title", UnicodeBinary(255), nullable=False),
+        Column("rc_comment", UnicodeBinary(767), nullable=False),
         Column("rc_minor", Boolean, nullable=False, server_default="0"),
         Column("rc_bot", Boolean, nullable=False, server_default="0"),
         Column("rc_new", Boolean, nullable=False, server_default="0"),
@@ -412,18 +407,18 @@ def create_recentchanges_tables(metadata):
 
     logging = Table("logging", metadata,
         Column("log_id", Integer, primary_key=True, nullable=False),
-        Column("log_type", UnicodeBinary(32), nullable=False, server_default=""),
-        Column("log_action", UnicodeBinary(32), nullable=False, server_default=""),
+        Column("log_type", UnicodeBinary(32), nullable=False),
+        Column("log_action", UnicodeBinary(32), nullable=False),
         Column("log_timestamp", MWTimestamp, nullable=False),
         Column("log_user", Integer, ForeignKey("user.user_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
-        Column("log_user_text", UnicodeBinary(255), nullable=False, server_default=""),
+        Column("log_user_text", UnicodeBinary(255), nullable=False),
         # FIXME: logging table may contain rows with log_namespace < 0
 #        Column("log_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("log_namespace", Integer, nullable=False),
-        Column("log_title", UnicodeBinary(255), nullable=False, server_default=""),
+        Column("log_title", UnicodeBinary(255), nullable=False),
         # this must NOT be a FK - pages can disappear and reappear, log entries are invariant
         Column("log_page", Integer),
-        Column("log_comment", UnicodeBinary(767), nullable=False, server_default=""),
+        Column("log_comment", UnicodeBinary(767), nullable=False),
         # MW incompatibility: In MediaWiki, log_params is a Blob which is supposed to
         # hold either LF separated list or serialized PHP array. We store a JSON
         # serialization of what the API gives us.
@@ -478,6 +473,7 @@ def create_siteinfo_tables(metadata):
         Column("ss_total_pages", BigInteger, server_default="-1"),
         Column("ss_users", BigInteger, server_default="-1"),
         Column("ss_active_users", BigInteger, server_default="-1"),
+        Column("ss_admins", BigInteger, server_default="-1"),
         Column("ss_images", Integer, server_default="0")
     )
 
@@ -519,7 +515,7 @@ def create_siteinfo_tables(metadata):
         Column("wl_user", Integer, ForeignKey("user.user_id"), nullable=False),
         # FIXME: MW defect: why is there not a FK to page.page_id?
         Column("wl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("wl_title", UnicodeBinary(255), nullable=False, server_default=""),
+        Column("wl_title", UnicodeBinary(255), nullable=False),
         Column("wl_notificationtimestamp", MWTimestamp)
     )
     Index("wl_user", watchlist.c.wl_user, watchlist.c.wl_namespace, watchlist.c.wl_title, unique=True)
@@ -529,18 +525,17 @@ def create_siteinfo_tables(metadata):
 
 def create_multimedia_tables(metadata):
     image = Table("image", metadata,
-        Column("img_name", UnicodeBinary(255), nullable=False, primary_key=True, server_default=""),
-        Column("img_size", Integer, nullable=False, server_default="0"),
-        Column("img_width", Integer, nullable=False, server_default="0"),
-        Column("img_height", Integer, nullable=False, server_default="0"),
-        Column("img_metadata", MediumBlob, nullable=False),
-        Column("img_bits", Integer, nullable=False,
-               server_default="0"),
+        Column("img_name", UnicodeBinary(255), nullable=False, primary_key=True),
+        Column("img_size", Integer, nullable=False),
+        Column("img_width", Integer, nullable=False),
+        Column("img_height", Integer, nullable=False),
+        Column("img_metadata", MediumBlob, nullable=False, server_default=""),
+        Column("img_bits", Integer, nullable=False),
         Column("img_media_type", Enum("UNKNOWN", "BITMAP", "DRAWING", "AUDIO", "VIDEO", "MULTIMEDIA", "OFFICE", "BLOB", "EXECUTABLE", "ARCHIVE")),
         Column("img_major_mime", Enum("unknown", "application", "audio", "image", "text", "video", "message", "model", "multipart", "chemical"), nullable=False, server_default="unknown"),
         Column("img_minor_mime", UnicodeBinary(100), nullable=False, server_default="unknown"),
         Column("img_description", UnicodeBinary(767), nullable=False),
-        Column("img_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
+        Column("img_user", Integer, ForeignKey("user.user_id"), nullable=False),
         Column("img_user_text", UnicodeBinary(255), nullable=False),
         Column("img_timestamp", MWTimestamp, nullable=False),
         Column("img_sha1", SHA1, nullable=False, server_default="")
@@ -552,17 +547,17 @@ def create_multimedia_tables(metadata):
     Index("img_media_mime", image.c.img_media_type, image.c.img_major_mime, image.c.img_minor_mime)
 
     oldimage = Table("oldimage", metadata,
-        Column("oi_name", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("oi_archive_name", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("oi_size", Integer, nullable=False, server_default="0"),
-        Column("oi_width", Integer, nullable=False, server_default="0"),
-        Column("oi_height", Integer, nullable=False, server_default="0"),
-        Column("oi_bits", Integer, nullable=False, server_default="0"),
+        Column("oi_name", UnicodeBinary(255), nullable=False),
+        Column("oi_archive_name", UnicodeBinary(255), nullable=False),
+        Column("oi_size", Integer, nullable=False),
+        Column("oi_width", Integer, nullable=False),
+        Column("oi_height", Integer, nullable=False),
+        Column("oi_bits", Integer, nullable=False),
         Column("oi_description", UnicodeBinary(767), nullable=False),
-        Column("oi_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
+        Column("oi_user", Integer, ForeignKey("user.user_id"), nullable=False),
         Column("oi_user_text", UnicodeBinary(255), nullable=False),
         Column("oi_timestamp", MWTimestamp, nullable=False),
-        Column("oi_metadata", MediumBlob, nullable=False),
+        Column("oi_metadata", MediumBlob, nullable=False, server_default=""),
         Column("oi_media_type", Enum("UNKNOWN", "BITMAP", "DRAWING", "AUDIO", "VIDEO", "MULTIMEDIA", "OFFICE", "BLOB", "EXECUTABLE", "ARCHIVE")),
         Column("oi_major_mime", Enum("unknown", "application", "audio", "image", "text", "video", "message", "model", "multipart", "chemical"), nullable=False, server_default="unknown"),
         Column("oi_minor_mime", UnicodeBinary(100), nullable=False, server_default="unknown"),
@@ -576,27 +571,26 @@ def create_multimedia_tables(metadata):
 
     filearchive = Table("filearchive", metadata,
         Column("fa_id", Integer, primary_key=True, nullable=False),
-        Column("fa_name", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("fa_archive_name", UnicodeBinary(255), server_default=""),
+        Column("fa_name", UnicodeBinary(255), nullable=False),
+        Column("fa_archive_name", UnicodeBinary(255)),
         Column("fa_storage_group", UnicodeBinary(16)),
-        Column("fa_storage_key", UnicodeBinary(64), server_default=""),
+        Column("fa_storage_key", UnicodeBinary(64)),
         Column("fa_deleted_user", Integer, ForeignKey("user.user_id")),
         Column("fa_deleted_timestamp", MWTimestamp),
-        Column("fa_deleted_reason", UnicodeBinary(767), server_default=""),
-        Column("fa_size", Integer, server_default="0"),
-        Column("fa_width", Integer, server_default="0"),
-        Column("fa_height", Integer, server_default="0"),
-        Column("fa_metadata", MediumBlob),
-        Column("fa_bits", Integer, server_default="0"),
+        Column("fa_deleted_reason", UnicodeBinary(767)),
+        Column("fa_size", Integer),
+        Column("fa_width", Integer),
+        Column("fa_height", Integer),
+        Column("fa_metadata", MediumBlob, server_default=""),
+        Column("fa_bits", Integer),
         Column("fa_media_type", Enum("UNKNOWN", "BITMAP", "DRAWING", "AUDIO", "VIDEO", "MULTIMEDIA", "OFFICE", "BLOB", "EXECUTABLE", "ARCHIVE")),
         Column("fa_major_mime", Enum("unknown", "application", "audio", "image", "text", "video", "message", "model", "multipart", "chemical"), server_default="unknown"),
         Column("fa_minor_mime", UnicodeBinary(100), server_default="unknown"),
         Column("fa_description", UnicodeBinary(767)),
-        Column("fa_user", Integer, ForeignKey("user.user_id"), server_default="0"),
+        Column("fa_user", Integer, ForeignKey("user.user_id")),
         Column("fa_user_text", UnicodeBinary(255)),
         Column("fa_timestamp", MWTimestamp),
-        Column("fa_deleted", SmallInteger, nullable=False,
-               server_default="0"),
+        Column("fa_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("fa_sha1", SHA1, nullable=False, server_default="")
     )
     Index("fa_name", filearchive.c.fa_name, filearchive.c.fa_timestamp)
@@ -611,7 +605,7 @@ def create_multimedia_tables(metadata):
 def create_unused_tables(metadata):
     job = Table("job", metadata,
         Column("job_id", Integer, primary_key=True, nullable=False),
-        Column("job_cmd", UnicodeBinary(60), nullable=False, server_default=""),
+        Column("job_cmd", UnicodeBinary(60), nullable=False),
         Column("job_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("job_title", UnicodeBinary(255), nullable=False),
         Column("job_timestamp", MWTimestamp),
@@ -624,16 +618,16 @@ def create_unused_tables(metadata):
     )
 
     objectcache = Table("objectcache", metadata,
-        Column("keyname", UnicodeBinary(255), primary_key=True, nullable=False, server_default=""),
+        Column("keyname", UnicodeBinary(255), primary_key=True, nullable=False),
         Column("value", MediumBlob),
         Column("exptime", DateTime)
     )
 
     querycache = Table("querycache", metadata,
         Column("qc_type", UnicodeBinary(32), nullable=False),
-        Column("qc_value", Integer, nullable=False, server_default="0"),
-        Column("qc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("qc_title", UnicodeBinary(255), nullable=False, server_default="")
+        Column("qc_value", Integer, nullable=False),
+        Column("qc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        Column("qc_title", UnicodeBinary(255), nullable=False)
     )
 
     querycachetwo = Table("querycachetwo", metadata,
@@ -646,7 +640,7 @@ def create_unused_tables(metadata):
     )
 
     querycache_info = Table("querycache_info", metadata,
-        Column("qci_type", UnicodeBinary(32), nullable=False, server_default=""),
+        Column("qci_type", UnicodeBinary(32), nullable=False),
         Column("qci_timestamp", MWTimestamp, nullable=False)
     )
 
