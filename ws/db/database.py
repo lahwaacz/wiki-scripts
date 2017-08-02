@@ -3,9 +3,9 @@
 """
 Prerequisites:
 
-1. A pre-configured MySQL or PostgreSQL database backend with separate database
-   and account.
-2. One of the many drivers supported by sqlalchemy, e.g. pymysql or psycopg2.
+1. A pre-configured PostgreSQL database backend with separate database and
+   user account.
+2. One of the many drivers supported by sqlalchemy, e.g. psycopg2.
 """
 
 from sqlalchemy import create_engine, MetaData, select
@@ -34,23 +34,6 @@ class Database:
         else:
             self.engine = create_engine(engine_or_url, echo=True, implicit_returning=False)
 
-        # connect event handler for the MySQL engine
-        # reference: http://docs.sqlalchemy.org/en/latest/core/events.html#sqlalchemy.events.PoolEvents
-        if self.engine.name == "mysql":
-            def listenerForMySQL(dbapi_con, connection_record, connection_proxy):
-                modes = [
-                    # Without this, MySQL will silently insert invalid values in the
-                    # database, causing very long debugging sessions in the long run
-                    # https://www.enricozini.org/blog/2012/tips/sa-sqlmode-traditional/
-                    "TRADITIONAL",
-                    # we want to be able to set 0 as an auto-increment ID
-                    # https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html#sqlmode_no_auto_value_on_zero
-                    "NO_AUTO_VALUE_ON_ZERO",
-                ]
-                cur = dbapi_con.cursor()
-                cur.execute("SET SESSION sql_mode='{}'".format(",".join(modes)))
-            sqlalchemy.event.listen(self.engine, "checkout", listenerForMySQL)
-
         # TODO: only for testing
         metadata = MetaData(bind=self.engine)
         metadata.reflect()
@@ -62,17 +45,16 @@ class Database:
     @staticmethod
     def make_url(dialect, driver, username, password, host, database, **kwargs):
         """
-        :param str dialect: an SQL dialect, e.g. ``mysql`` or ``postgresql``
+        :param str dialect: an SQL dialect (only ``postgresql`` is supported)
         :param str driver: a driver for given SQL dialect supported by
-            :py:mod:`sqlalchemy`, e.g. ``pymysql`` or ``psycopg2``
+            :py:mod:`sqlalchemy`, e.g. ``psycopg2``
         :param str username: username for database connection
         :param str password: password for database connection
         :param str host: hostname of the database server
         :param str database: database name
         :param dict kwargs: additional parameters added to the query string part
         """
-        if dialect == "mysql":
-            kwargs["charset"] = Database.charset
+        assert dialect == "postgresql"
         params = "&".join("{0}={1}".format(k, v) for k, v in kwargs.items())
         return "{dialect}+{driver}://{username}:{password}@{host}/{database}?{params}" \
                .format(dialect=dialect,
@@ -95,7 +77,7 @@ class Database:
         """
         import ws.config
         group = argparser.add_argument_group(title="Database parameters")
-        group.add_argument("--db-dialect", metavar="DIALECT", choices=["mysql", "postgresql"],
+        group.add_argument("--db-dialect", metavar="DIALECT", choices=["postgresql"],
                 help="an SQL dialect (default: %(default)s)")
         group.add_argument("--db-driver", metavar="DRIVER",
                 help="a driver for given SQL dialect supported by sqlalchemy (default: %(default)s)")
@@ -134,52 +116,13 @@ class Database:
         return self.metadata.tables[table_name]
 
 
-# Fix for DEFERRABLE foreign keys on MySQL,
-# see http://docs.sqlalchemy.org/en/latest/dialects/mysql.html#foreign-key-arguments-to-avoid
-from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.schema import ForeignKeyConstraint
-
-@compiles(ForeignKeyConstraint, "mysql")
-def process(element, compiler, **kw):
-    element.deferrable = element.initially = None
-    return compiler.visit_foreign_key_constraint(element, **kw)
-
-
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import Insert
-
-@compiles(Insert, "mysql")
-def on_conflict_handler(insert, compiler, **kw):
-    """
-    An :py:mod:`sqlalchemy` compiler extension for the MySQL-specific
-    ``INSERT ... ON DUPLICATE KEY UPDATE`` clause.
-
-    This is our best chance at combining ``INSERT`` and ``UPDATE`` statements.
-    The standard `MERGE statement`_ is not supported with the standard syntax in
-    MySQL, SQLite and others.
-
-    Note that statements involving ``REPLACE`` are also nonstandard and invoke
-    referential actions on child rows (e.g. ``FOREIGN KEY ... ON DELETE CASCADE``).
-
-    .. _`MERGE statement`: https://en.wikipedia.org/wiki/Merge_(SQL)
-    """
-    if "on_conflict_update" in insert.kwargs:
-        s = compiler.visit_insert(insert, **kw)
-        columns = [c.name for c in insert.kwargs["on_conflict_update"]]
-        values = ", ".join("{0}=VALUES({0})".format(c) for c in columns)
-        return s + " ON DUPLICATE KEY UPDATE " + values
-    elif insert.kwargs.get("on_conflict_do_nothing") is True:
-        # INSERT IGNORE ...
-        return compiler.visit_insert(insert.prefix_with("IGNORE"), **kw)
-    return compiler.visit_insert(insert, **kw)
-# TODO: argument_for creates arguments like mysql_on_conflict_update, we need one name for all
-#Insert.argument_for("mysql", "on_conflict_update", None)
-#Insert.argument_for("mysql", "on_conflict_do_nothing", None)
 
 # FIXME: this always appends to the sqlalchemy's query, but we should insert the clause before the RETURNING clause:
 # https://www.postgresql.org/docs/current/static/sql-insert.html
 # (as a workaround we pass implicit_returning=False to create_engine to avoid the RETURNING clauses)
-# TODO: to fix the above, we could use sqlalchemy's on_conflict_do_{update,nothing} extensions and reimplement the wrappers for mysql:
+# TODO: to fix the above, we could use sqlalchemy's on_conflict_do_{update,nothing} extensions
 # http://docs.sqlalchemy.org/en/rel_1_1/dialects/postgresql.html?highlight=upsert#insert-on-conflict-upsert
 @compiles(Insert, "postgresql")
 def on_conflict_handler(insert, compiler, **kw):

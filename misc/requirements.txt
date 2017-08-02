@@ -6,7 +6,6 @@ git+https://github.com/kynikos/lib.py.configfile.git#egg=configfile&subdirectory
 # database
 sqlalchemy
 # TODO: optional deps?
-pymysql
 psycopg2
 
 # optional deps

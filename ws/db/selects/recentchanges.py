@@ -4,7 +4,6 @@ from sqlalchemy import select
 from sqlalchemy.sql import func
 
 import ws.db.mw_constants as mwconst
-from ws.utils import parse_date
 
 
 def set_defaults(params):
@@ -262,5 +261,4 @@ def oldest_recent_change(db):
     Get timestamp of the oldest change stored in the recentchanges table.
     """
     result = db.engine.execute(select( [func.min(db.recentchanges.c.rc_timestamp)] ))
-    timestamp = result.fetchone()[0]
-    return parse_date(timestamp)
+    return result.fetchone()[0]

@@ -24,6 +24,7 @@ Known incompatibilities from MediaWiki schema:
 - Boolean columns use Boolean type instead of SmallInteger as in MediaWiki.
 - Unknown/invalid IDs are represented by NULL instead of 0. Except for user_id,
   where we add a dummy user with id = 0 to represent anonymous users.
+- Removed default values from all timestamp columns.
 """
 
 # TODO:
@@ -51,7 +52,7 @@ def create_custom_tables(metadata):
         Column("ns_content", Boolean, nullable=False, server_default="0"),
         Column("ns_subpages", Boolean, nullable=False, server_default="0"),
         Column("ns_nonincludable", Boolean, nullable=False, server_default="0"),
-        Column("ns_defaultcontentmodel", UnicodeBinary(32), server_default=None)
+        Column("ns_defaultcontentmodel", UnicodeBinary(32))
     )
 
     # table for all namespace names
@@ -100,24 +101,24 @@ def create_users_tables(metadata):
         # MW incompatibility: set to nullable since passwords are not part of mirroring
 #        Column("user_password", TinyBlob, nullable=False),
 #        Column("user_newpassword", TinyBlob, nullable=False),
-        Column("user_password", TinyBlob, server_default=None),
-        Column("user_newpassword", TinyBlob, server_default=None),
+        Column("user_password", TinyBlob),
+        Column("user_newpassword", TinyBlob),
         Column("user_newpass_time", MWTimestamp),
         # nullable for the same reason as passwords
 #        Column("user_email", TinyBlob, nullable=False),
-        Column("user_email", TinyBlob, server_default=None),
-        Column("user_touched", MWTimestamp, nullable=False, server_default=""),
-        Column("user_token", UnicodeBinary(32), nullable=False, server_default=""),
+        Column("user_email", TinyBlob),
+        Column("user_touched", MWTimestamp),
+        Column("user_token", UnicodeBinary(32)),
         Column("user_email_authenticated", MWTimestamp),
         Column("user_email_token", UnicodeBinary(32)),
         Column("user_email_token_expires", MWTimestamp),
         Column("user_registration", MWTimestamp),
         Column("user_editcount", Integer),
-        Column("user_password_expires", MWTimestamp, server_default=None)
+        Column("user_password_expires", MWTimestamp)
     )
     Index("user_name", user.c.user_name, unique=True)
     Index("user_email_token", user.c.user_email_token)
-    Index("user_email", user.c.user_email, mysql_length=50)
+    Index("user_email", user.c.user_email)
 
     user_groups = Table("user_groups", metadata,
         Column("ug_user", Integer, ForeignKey("user.user_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
@@ -134,12 +135,12 @@ def create_users_tables(metadata):
         Column("ipb_by", Integer, ForeignKey("user.user_id", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("ipb_by_text", UnicodeBinary(255), nullable=False, server_default=""),
         Column("ipb_reason", UnicodeBinary(767), nullable=False),
-        Column("ipb_timestamp", MWTimestamp, nullable=False, server_default=""),
+        Column("ipb_timestamp", MWTimestamp, nullable=False),
         Column("ipb_auto", Boolean, nullable=False, server_default="0"),
         Column("ipb_anon_only", Boolean, nullable=False, server_default="0"),
         Column("ipb_create_account", Boolean, nullable=False, server_default="1"),
         Column("ipb_enable_autoblock", Boolean, nullable=False, server_default="1"),
-        Column("ipb_expiry", MWTimestamp, nullable=False, server_default=""),
+        Column("ipb_expiry", MWTimestamp, nullable=False),
         # MW incompatibility: set to nullable, although they're not nullable in MW
         # (but that's a bug, even reported somewhere)
         Column("ipb_range_start", TinyBlob),
@@ -147,12 +148,12 @@ def create_users_tables(metadata):
         Column("ipb_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("ipb_block_email", Boolean, nullable=False, server_default="0"),
         Column("ipb_allow_usertalk", Boolean, nullable=False, server_default="0"),
-        Column("ipb_parent_block_id", Integer, ForeignKey("ipblocks.ipb_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED"), server_default=None),
+        Column("ipb_parent_block_id", Integer, ForeignKey("ipblocks.ipb_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
         CheckConstraint("ipb_user > 0", name="check_user")
     )
-    Index("ipb_address", ipblocks.c.ipb_address, ipblocks.c.ipb_user, ipblocks.c.ipb_auto, ipblocks.c.ipb_anon_only, mysql_length={"ipb_address": 255}, unique=True)
+    Index("ipb_address", ipblocks.c.ipb_address, ipblocks.c.ipb_user, ipblocks.c.ipb_auto, ipblocks.c.ipb_anon_only, unique=True)
     Index("ipb_user", ipblocks.c.ipb_user)
-    Index("ipb_range", ipblocks.c.ipb_range_start, ipblocks.c.ipb_range_end, mysql_length={"ipb_range_start": 8, "ipb_range_end": 8})
+    Index("ipb_range", ipblocks.c.ipb_range_start, ipblocks.c.ipb_range_end)
     Index("ipb_timestamp", ipblocks.c.ipb_timestamp)
     Index("ipb_expiry", ipblocks.c.ipb_expiry)
     Index("ipb_parent_block_id", ipblocks.c.ipb_parent_block_id)
@@ -181,10 +182,10 @@ def create_pages_tables(metadata):
         Column("ar_minor_edit", Boolean, nullable=False, server_default="0"),
         Column("ar_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("ar_len", Integer),
-        Column("ar_parent_id", Integer, server_default=None),
+        Column("ar_parent_id", Integer),
         Column("ar_sha1", SHA1, nullable=False, server_default=""),
-        Column("ar_content_model", UnicodeBinary(32), server_default=None),
-        Column("ar_content_format", UnicodeBinary(64), server_default=None)
+        Column("ar_content_model", UnicodeBinary(32)),
+        Column("ar_content_format", UnicodeBinary(64))
     )
     Index("ar_name_title_timestamp", archive.c.ar_namespace, archive.c.ar_title, archive.c.ar_timestamp)
     Index("ar_usertext_timestamp", archive.c.ar_user_text, archive.c.ar_timestamp)
@@ -205,11 +206,11 @@ def create_pages_tables(metadata):
         Column("rev_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("rev_len", Integer),
         # FIXME: should be set as FK, but that probably breaks archiving
-#        Column("rev_parent_id", Integer, ForeignKey("revision.rev_id", ondelete="SET NULL"), server_default=None),
-        Column("rev_parent_id", Integer, server_default=None),
+#        Column("rev_parent_id", Integer, ForeignKey("revision.rev_id", ondelete="SET NULL")),
+        Column("rev_parent_id", Integer),
         Column("rev_sha1", SHA1, nullable=False, server_default=""),
-        Column("rev_content_model", UnicodeBinary(32), server_default=None),
-        Column("rev_content_format", UnicodeBinary(64), server_default=None),
+        Column("rev_content_model", UnicodeBinary(32)),
+        Column("rev_content_format", UnicodeBinary(64)),
     )
     Index("rev_page_id", revision.c.rev_page, revision.c.rev_id, unique=True)
     Index("rev_timestamp", revision.c.rev_timestamp)
@@ -233,12 +234,12 @@ def create_pages_tables(metadata):
         Column("page_is_new", Boolean, nullable=False, server_default="0"),
         Column("page_random", Float, nullable=False),
         Column("page_touched", MWTimestamp, nullable=False),
-        Column("page_links_updated", MWTimestamp, server_default=None),
+        Column("page_links_updated", MWTimestamp),
         # FIXME: MW defect: key to revision.rev_id, breaks relationship
         Column("page_latest", Integer, nullable=False),
         Column("page_len", Integer, nullable=False),
-        Column("page_content_model", UnicodeBinary(32), server_default=None),
-        Column("page_lang", UnicodeBinary(35), server_default=None)
+        Column("page_content_model", UnicodeBinary(32)),
+        Column("page_lang", UnicodeBinary(35))
     )
     Index("page_namespace_title", page.c.page_namespace, page.c.page_title, unique=True)
     Index("page_random", page.c.page_random)
@@ -249,7 +250,7 @@ def create_pages_tables(metadata):
         Column("pp_page", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("pp_propname", UnicodeBinary(60), nullable=False),
         Column("pp_value", Blob, nullable=False),
-        Column("pp_sortkey", Float, server_default=None)
+        Column("pp_sortkey", Float)
     )
     Index("pp_page_propname", page_props.c.pp_page, page_props.c.pp_propname, unique=True)
     Index("pp_propname_page", page_props.c.pp_propname, page_props.c.pp_page, unique=True)
@@ -277,7 +278,7 @@ def create_pages_tables(metadata):
         Column("pt_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("pt_title", UnicodeBinary(255), nullable=False),
         Column("pt_level", UnicodeBinary(60), nullable=False),
-        Column("pt_expiry", MWTimestamp, nullable=False, server_default="")
+        Column("pt_expiry", MWTimestamp, nullable=False)
     )
     Index("pt_namespace_title", protected_titles.c.pt_namespace, protected_titles.c.pt_title, unique=True)
 
@@ -297,8 +298,8 @@ def create_recomputable_tables(metadata):
         Column("rd_from", Integer, ForeignKey("page.page_id"), primary_key=True, nullable=False, server_default="0"),
         Column("rd_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
         Column("rd_title", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("rd_interwiki", Unicode(32), server_default=None),
-        Column("rd_fragment", UnicodeBinary(255), server_default=None)
+        Column("rd_interwiki", Unicode(32)),
+        Column("rd_fragment", UnicodeBinary(255))
     )
     Index("rd_namespace_title_from", redirect.c.rd_namespace, redirect.c.rd_title, redirect.c.rd_from)
 
@@ -363,7 +364,7 @@ def create_recentchanges_tables(metadata):
     # use this for syncing.
     recentchanges = Table("recentchanges", metadata,
         Column("rc_id", Integer, primary_key=True, nullable=False),
-        Column("rc_timestamp", MWTimestamp, nullable=False, server_default=""),
+        Column("rc_timestamp", MWTimestamp, nullable=False),
         # fake foreign key (see note above): rc_user -> user.user_id
         Column("rc_user", Integer),
         Column("rc_user_text", UnicodeBinary(255), nullable=False),
@@ -413,7 +414,7 @@ def create_recentchanges_tables(metadata):
         Column("log_id", Integer, primary_key=True, nullable=False),
         Column("log_type", UnicodeBinary(32), nullable=False, server_default=""),
         Column("log_action", UnicodeBinary(32), nullable=False, server_default=""),
-        Column("log_timestamp", MWTimestamp, nullable=False, server_default="19700101000000"),
+        Column("log_timestamp", MWTimestamp, nullable=False),
         Column("log_user", Integer, ForeignKey("user.user_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
         Column("log_user_text", UnicodeBinary(255), nullable=False, server_default=""),
         # FIXME: logging table may contain rows with log_namespace < 0
@@ -535,13 +536,13 @@ def create_multimedia_tables(metadata):
         Column("img_metadata", MediumBlob, nullable=False),
         Column("img_bits", Integer, nullable=False,
                server_default="0"),
-        Column("img_media_type", Enum("UNKNOWN", "BITMAP", "DRAWING", "AUDIO", "VIDEO", "MULTIMEDIA", "OFFICE", "BLOB", "EXECUTABLE", "ARCHIVE"), server_default=None),
+        Column("img_media_type", Enum("UNKNOWN", "BITMAP", "DRAWING", "AUDIO", "VIDEO", "MULTIMEDIA", "OFFICE", "BLOB", "EXECUTABLE", "ARCHIVE")),
         Column("img_major_mime", Enum("unknown", "application", "audio", "image", "text", "video", "message", "model", "multipart", "chemical"), nullable=False, server_default="unknown"),
         Column("img_minor_mime", UnicodeBinary(100), nullable=False, server_default="unknown"),
         Column("img_description", UnicodeBinary(767), nullable=False),
         Column("img_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
         Column("img_user_text", UnicodeBinary(255), nullable=False),
-        Column("img_timestamp", MWTimestamp, nullable=False, server_default=""),
+        Column("img_timestamp", MWTimestamp, nullable=False),
         Column("img_sha1", SHA1, nullable=False, server_default="")
     )
     Index("img_usertext_timestamp", image.c.img_user_text, image.c.img_timestamp)
@@ -560,9 +561,9 @@ def create_multimedia_tables(metadata):
         Column("oi_description", UnicodeBinary(767), nullable=False),
         Column("oi_user", Integer, ForeignKey("user.user_id"), nullable=False, server_default="0"),
         Column("oi_user_text", UnicodeBinary(255), nullable=False),
-        Column("oi_timestamp", MWTimestamp, nullable=False, server_default=""),
+        Column("oi_timestamp", MWTimestamp, nullable=False),
         Column("oi_metadata", MediumBlob, nullable=False),
-        Column("oi_media_type", Enum("UNKNOWN", "BITMAP", "DRAWING", "AUDIO", "VIDEO", "MULTIMEDIA", "OFFICE", "BLOB", "EXECUTABLE", "ARCHIVE"), server_default=None),
+        Column("oi_media_type", Enum("UNKNOWN", "BITMAP", "DRAWING", "AUDIO", "VIDEO", "MULTIMEDIA", "OFFICE", "BLOB", "EXECUTABLE", "ARCHIVE")),
         Column("oi_major_mime", Enum("unknown", "application", "audio", "image", "text", "video", "message", "model", "multipart", "chemical"), nullable=False, server_default="unknown"),
         Column("oi_minor_mime", UnicodeBinary(100), nullable=False, server_default="unknown"),
         Column("oi_deleted", SmallInteger, nullable=False, server_default="0"),
@@ -570,7 +571,7 @@ def create_multimedia_tables(metadata):
     )
     Index("oi_usertext_timestamp", oldimage.c.oi_user_text, oldimage.c.oi_timestamp)
     Index("oi_name_timestamp", oldimage.c.oi_name, oldimage.c.oi_timestamp)
-    Index("oi_name_archive_name", oldimage.c.oi_name, oldimage.c.oi_archive_name, mysql_length={"oi_archive_name": 14})
+    Index("oi_name_archive_name", oldimage.c.oi_name, oldimage.c.oi_archive_name)
     Index("oi_sha1", oldimage.c.oi_sha1)
 
     filearchive = Table("filearchive", metadata,
@@ -580,20 +581,20 @@ def create_multimedia_tables(metadata):
         Column("fa_storage_group", UnicodeBinary(16)),
         Column("fa_storage_key", UnicodeBinary(64), server_default=""),
         Column("fa_deleted_user", Integer, ForeignKey("user.user_id")),
-        Column("fa_deleted_timestamp", MWTimestamp, server_default=""),
+        Column("fa_deleted_timestamp", MWTimestamp),
         Column("fa_deleted_reason", UnicodeBinary(767), server_default=""),
         Column("fa_size", Integer, server_default="0"),
         Column("fa_width", Integer, server_default="0"),
         Column("fa_height", Integer, server_default="0"),
         Column("fa_metadata", MediumBlob),
         Column("fa_bits", Integer, server_default="0"),
-        Column("fa_media_type", Enum("UNKNOWN", "BITMAP", "DRAWING", "AUDIO", "VIDEO", "MULTIMEDIA", "OFFICE", "BLOB", "EXECUTABLE", "ARCHIVE"), server_default=None),
+        Column("fa_media_type", Enum("UNKNOWN", "BITMAP", "DRAWING", "AUDIO", "VIDEO", "MULTIMEDIA", "OFFICE", "BLOB", "EXECUTABLE", "ARCHIVE")),
         Column("fa_major_mime", Enum("unknown", "application", "audio", "image", "text", "video", "message", "model", "multipart", "chemical"), server_default="unknown"),
         Column("fa_minor_mime", UnicodeBinary(100), server_default="unknown"),
         Column("fa_description", UnicodeBinary(767)),
         Column("fa_user", Integer, ForeignKey("user.user_id"), server_default="0"),
         Column("fa_user_text", UnicodeBinary(255)),
-        Column("fa_timestamp", MWTimestamp, server_default=""),
+        Column("fa_timestamp", MWTimestamp),
         Column("fa_deleted", SmallInteger, nullable=False,
                server_default="0"),
         Column("fa_sha1", SHA1, nullable=False, server_default="")
@@ -613,12 +614,12 @@ def create_unused_tables(metadata):
         Column("job_cmd", UnicodeBinary(60), nullable=False, server_default=""),
         Column("job_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("job_title", UnicodeBinary(255), nullable=False),
-        Column("job_timestamp", MWTimestamp, server_default=None),
+        Column("job_timestamp", MWTimestamp),
         Column("job_params", Blob, nullable=False),
         Column("job_random", Integer, nullable=False, server_default="0"),
         Column("job_attempts", Integer, nullable=False, server_default="0"),
         Column("job_token", UnicodeBinary(32), nullable=False, server_default=""),
-        Column("job_token_timestamp", MWTimestamp, server_default=None),
+        Column("job_token_timestamp", MWTimestamp),
         Column("job_sha1", SHA1, nullable=False, server_default="")
     )
 
@@ -646,15 +647,7 @@ def create_unused_tables(metadata):
 
     querycache_info = Table("querycache_info", metadata,
         Column("qci_type", UnicodeBinary(32), nullable=False, server_default=""),
-        Column("qci_timestamp", MWTimestamp, nullable=False, server_default="19700101000000")
-    )
-
-    searchindex = Table("searchindex", metadata,
-        Column("si_page", Integer, nullable=False),
-        Column("si_title", Unicode(255), nullable=False, server_default=""),
-        # not binary in MediaWiki !!!
-        Column("si_text", UnicodeText, nullable=False),
-        mysql_engine="MyISAM"
+        Column("qci_timestamp", MWTimestamp, nullable=False)
     )
 
     transcache = Table("transcache", metadata,
@@ -679,7 +672,7 @@ def create_unused_tables(metadata):
     user_newtalk = Table("user_newtalk", metadata,
         Column("user_id", Integer, ForeignKey("user.user_id")),
         Column("user_ip", UnicodeBinary(40)),
-        Column("user_last_timestamp", MWTimestamp, server_default=None)
+        Column("user_last_timestamp", MWTimestamp)
     )
     Index("un_user_id", user_newtalk.c.user_id)
     Index("un_user_ip", user_newtalk.c.user_ip)

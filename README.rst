@@ -92,13 +92,12 @@ The following are required only by some scripts:
 
 Optional dependencies:
 
-- MySQL or PostgreSQL server, `SQLAlchemy`_ and a driver such as `PyMySQL`_ or
-  `Psycopg2`_ (for local database caching) (experimental)
+- PostgreSQL server, `SQLAlchemy`_ and a driver such as `Psycopg2`_
+  (for local database caching) (experimental)
 - `Tk/Tcl`_ (for copying the output of ``statistics.py`` to the clipboard)
 - `colorlog`_ (for colorized logging output)
 
 .. _SQLAlchemy: http://www.sqlalchemy.org/
-.. _PyMySQL: https://github.com/PyMySQL/PyMySQL
 .. _Psycopg2: http://initd.org/psycopg/
 .. _Tk/Tcl: https://docs.python.org/3.4/library/tk.html
 .. _colorlog: https://github.com/borntyping/python-colorlog

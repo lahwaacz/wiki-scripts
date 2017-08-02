@@ -23,158 +23,75 @@ In PostgreSQL, the binary type (bytea) does not represent "strings", i.e. there
 are much less operations and functions defined on bytea then in MySQL for
 binary strings. By using the textual types, we also benefit from native
 conversion functions in the sqlalchemy driver (e.g. psycopg2).
-
-TODO: MediaWiki's PostgreSQL schema uses TEXT for just about everyting, i.e. no
-      VARCHAR. PostreSQL's manual says that there is no performance difference
-      between char(n), varchar(n) and text:
-          https://www.postgresql.org/docs/current/static/datatype-character.html
-      We should probably drop the length limits as well to make migrations easy.
-      Plus, the MySQL limits are in *bytes*, whereas textual types are measured
-      in characters.
 """
 
 import json
+import datetime
 
 import sqlalchemy.types as types
-from sqlalchemy.dialects.mysql import TINYBLOB, BLOB, MEDIUMBLOB, LONGBLOB
 
 from ws.utils import base_enc, base_dec
 
 
-# TODO: drop along with MySQL support
-class _UnicodeConverter(types.TypeDecorator):
+# TODO: drop the MySQL-like aliases and use the underlying type directly in the schema
+TinyBlob = types.UnicodeText
+Blob = types.UnicodeText
+MediumBlob = types.UnicodeText
+LongBlob = types.UnicodeText
+
+# MediaWiki's PostgreSQL schema uses TEXT for just about everyting, i.e. no
+# VARCHAR. PostreSQL's manual says that there is no performance difference
+# between char(n), varchar(n) and text:
+#     https://www.postgresql.org/docs/current/static/datatype-character.html
+# We should probably drop the length limits as well to make migrations easy.
+# Plus, the MySQL limits are in *bytes*, whereas textual types are measured in
+# characters. Therefore we follow the PostgreSQL schema and use TEXT instead of
+# VARCHAR.
+class UnicodeBinary(types.TypeDecorator):
+    impl = types.UnicodeText
     def __init__(self, *args, **kwargs):
-        # we need to pass the parameters to the underlying type in load_dialect_impl ourselves
-        super().__init__()
-        self._args = args
-        self._kwargs = kwargs
-        self.charset = "utf8"
-
-    def process_bind_param(self, value, dialect):
-        # use native unicode conversion for dialects where we use textual types
-        if dialect.name == "postgresql":
-            return value
-        else:
-            if isinstance(value, str):
-                return bytes(value, self.charset)
-            return value
-
-    def process_result_value(self, value, dialect):
-        # use native unicode conversion for dialects where we use textual types
-        if dialect.name == "postgresql":
-            return value
-        else:
-            if value is None:
-                return value
-            return str(value, self.charset)
-
-    def load_dialect_impl(self, dialect):
-        if dialect.name == "mysql":
-            return dialect.type_descriptor(self.impl)
-        elif dialect.name == "postgresql":
-            return dialect.type_descriptor(types.UnicodeText(*self._args, **self._kwargs))
-        else:
-            # generic variable-length binary
-            return dialect.type_descriptor(types.LargeBinary(*self._args, **self._kwargs))
-
-
-class TinyBlob(_UnicodeConverter):
-    """
-    TINYBLOB with automatic conversion to Python str.
-    """
-    impl = TINYBLOB
-
-
-class Blob(_UnicodeConverter):
-    """
-    BLOB with automatic conversion to Python str.
-    """
-    impl = BLOB
-
-
-class MediumBlob(_UnicodeConverter):
-    """
-    MEDIUMBLOB with automatic conversion to Python str.
-    """
-    impl = MEDIUMBLOB
-
-
-class LongBlob(_UnicodeConverter):
-    """
-    LONGBLOB with automatic conversion to Python str.
-    """
-    impl = LONGBLOB
-
-
-class UnicodeBinary(_UnicodeConverter):
-    """
-    VARBINARY with automatic conversion to Python str.
-    """
-    impl = None
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def load_dialect_impl(self, dialect):
-        if dialect.name == "mysql":
-            return dialect.type_descriptor(types.VARBINARY(*self._args, **self._kwargs))
-        else:
-            # otherwise use VARCHAR with driver's native unicode encoding
-            return dialect.type_descriptor(types.VARCHAR(*self._args, **self._kwargs))
+        super().__init__(**kwargs)
 
 
 # TODO: switch to types.DateTime (without timezone) and do the serialization to string on the API side
 # TODO: find out how to use the infinity constant: https://www.postgresql.org/docs/9.6/static/datatype-datetime.html#DATATYPE-DATETIME-SPECIAL-TABLE
 class MWTimestamp(types.TypeDecorator):
     """
-    Custom type for representing MediaWiki timestamps.
-
-    MediaWiki uses BINARY(14) on MySQL and TIMESTAMPTZ on PostgreSQL.
+    Convertor for TIMESTAMP handling infinite values.
     """
 
-    impl = types.String(14)
+    # MW incompatibility: MediaWiki's PostgreSQL schema uses TIMESTAMPTZ instead
+    # of TIMESTAMP.
+    impl = types.DateTime(timezone=False)
 
     def process_bind_param(self, value, dialect):
         """
-        Convert timestamp from MediaWiki to database format, i.e.
-        2013-01-05T01:16:52Z --> 20130105011652
+        Python -> database
         """
+        assert dialect.name == "postgresql"
         if value is None:
             return value
-        # TODO: there should be some validation (which would probably make this very slow)
-        # special values like "infinity" are handled implicitly
-        value = value.replace('-', '').replace('T', '').replace(':', '').replace('Z', '')
-        return value
-
-    def process_result_value(self, ts, dialect):
-        """
-        Convert timestamp from database to MediaWiki format, i.e.
-        20130105011652 --> 2013-01-05T01:16:52Z
-        """
-        if ts is None:
-            return ts
-        if ts == "infinity":
-            return ts
-        r = ts[:4] + "-" + ts[4:6] + "-" + ts[6:8] + "T" + \
-            ts[8:10] + ":" + ts[10:12] + ":" + ts[12:14] + "Z"
-        return r
-
-
-# TODO: drop along with MySQL support, SHA1 should use the underlying type directly
-class Binary(types.TypeDecorator):
-    """ "Small" binary for mysql dialect, LargeBinary for others. """
-
-    impl = None
-
-    def __init__(self, length=None):
-        super().__init__()
-        self.length = length
-
-    def load_dialect_impl(self, dialect):
-        if dialect.name == "mysql":
-            return dialect.type_descriptor(types.BINARY(length=self.length))
+        assert isinstance(value, datetime.datetime)
+        if value == datetime.datetime.max:
+            return b"'infinity'::date"
+        elif value == datetime.datetime.min:
+            return b"'-infinity'::date"
         else:
-            return dialect.type_descriptor(types.LargeBinary(length=self.length))
+            return value
+
+    def process_result_value(self, value, dialect):
+        """
+        database -> python
+        """
+        assert dialect.name == "postgresql"
+        if value is None:
+            return value
+        if value == b"'infinity'::date":
+            return datetime.datetime.max
+        elif value == b"'-infinity'::date":
+            return datetime.datetime.min
+        else:
+            return value
 
 
 class SHA1(types.TypeDecorator):
@@ -188,7 +105,8 @@ class SHA1(types.TypeDecorator):
     length - 31 digits in base36, 40 digits in hex.
     """
 
-    impl = Binary(31)
+#    impl = types.BINARY(length=31)
+    impl = types.LargeBinary(length=31)
 
     def process_bind_param(self, value, dialect):
         """
