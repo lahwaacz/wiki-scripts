@@ -53,8 +53,6 @@ class UnicodeBinary(types.TypeDecorator):
         super().__init__(**kwargs)
 
 
-# TODO: switch to types.DateTime (without timezone) and do the serialization to string on the API side
-# TODO: find out how to use the infinity constant: https://www.postgresql.org/docs/9.6/static/datatype-datetime.html#DATATYPE-DATETIME-SPECIAL-TABLE
 class MWTimestamp(types.TypeDecorator):
     """
     Convertor for TIMESTAMP handling infinite values.
@@ -128,7 +126,7 @@ class SHA1(types.TypeDecorator):
         return str(base_enc(n, 16), "ascii").zfill(40)
 
 
-# TODO: PostgreSQL has a JSON type, psycopg2 might have native conversion. We could also use the HSTORE type.
+# TODO: PostgreSQL has a native JSON type, but it probably can't store timestamps in values
 class JSONEncodedDict(types.TypeDecorator):
     """
     Represents an immutable structure as a JSON-encoded string.

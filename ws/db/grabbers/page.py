@@ -7,7 +7,6 @@ import sqlalchemy as sa
 
 import ws.utils
 from ws.parser_helpers.title import Title
-from ws.client.api import ShortRecentChangesError
 from ws.db.selects import recentchanges, logevents
 
 from . import Grabber
