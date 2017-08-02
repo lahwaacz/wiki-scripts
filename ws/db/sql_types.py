@@ -30,7 +30,7 @@ import datetime
 
 import sqlalchemy.types as types
 
-from ws.utils import base_enc, base_dec
+from ws.utils import base_enc, base_dec, DatetimeEncoder, datetime_parser
 
 
 # TODO: drop the MySQL-like aliases and use the underlying type directly in the schema
@@ -137,10 +137,10 @@ class JSONEncodedDict(types.TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         if value is not None:
-            value = json.dumps(value)
+            value = json.dumps(value, cls=DatetimeEncoder)
         return value
 
     def process_result_value(self, value, dialect):
         if value is not None:
-            value = json.loads(value)
+            value = json.loads(value, object_hook=datetime_parser)
         return value

@@ -107,7 +107,6 @@ class GrabberProtectedTitles(Grabber):
                     yield from self.gen_deletes_from_page(page)
 
     def get_rctitles(self, since):
-        since_f = ws.utils.format_date(since)
         rctitles = set()
 
         # Items in the recentchanges table are periodically purged according to
@@ -125,14 +124,14 @@ class GrabberProtectedTitles(Grabber):
 #            "rcprop": "ids|title|loginfo",
 #            "rclimit": "max",
 #            "rcdir": "newer",
-#            "rcstart": since_f,
+#            "rcstart": since,
 #        }
 #        for change in self.api.list(rc_params):
         rc_params = {
             "type": {"new", "log"},
             "prop": {"ids", "title", "loginfo"},
             "dir": "newer",
-            "start": since_f,
+            "start": since,
         }
         for change in rc.list(self.db, rc_params):
             if change["type"] == "log":

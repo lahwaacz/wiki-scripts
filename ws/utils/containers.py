@@ -3,7 +3,7 @@
 import bisect
 import datetime
 
-from .datetime_ import parse_date
+from .datetime_ import parse_date, format_date
 
 class ListOfDictsAttrWrapper(object):
     """ A list-like wrapper around list of dicts, operating on a given attribute.
@@ -104,7 +104,7 @@ def gen_nested_values(indict, keys=None):
     else:
         yield keys, indict
 
-def convert_timestamps_in_struct(struct):
+def parse_timestamps_in_struct(struct):
     """
     Convert all timestamps in a nested structure from str to
     datetime.datetime.
@@ -130,3 +130,17 @@ def convert_timestamps_in_struct(struct):
                 except ValueError:
                     continue
                 set_ts(struct, keys, ts)
+
+def serialize_timestamps_in_struct(struct):
+    """
+    Convert all timestamps in a nested structure from str to
+    datetime.datetime.
+    """
+    def set_ts(struct, keys, value):
+        for k in keys[:-1]:
+            struct = struct[k]
+        struct[keys[-1]] = value
+
+    for keys, value in gen_nested_values(struct):
+        if isinstance(value, datetime.datetime):
+            set_ts(struct, keys, format_date(value))

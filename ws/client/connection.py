@@ -13,9 +13,10 @@ and making requests.
 import requests
 import http.cookiejar as cookielib
 import logging
+import copy
 
 from ws import __version__, __url__
-from ..utils import RateLimited, convert_timestamps_in_struct
+from ..utils import RateLimited, parse_timestamps_in_struct, serialize_timestamps_in_struct
 
 logger = logging.getLogger(__name__)
 
@@ -263,6 +264,10 @@ class Connection:
         if action == "help":
             params["wrap"] = "1"
 
+        # serialize timestamps
+        params = copy.deepcopy(params)
+        serialize_timestamps_in_struct(params)
+
         # select HTTP method and call the API
         if action in POST_ACTIONS:
             # passing `params` to `data` will cause form-encoding to take place,
@@ -287,7 +292,8 @@ class Connection:
                 msg += "\n* {}".format(warning["*"])
             logger.warning(msg)
 
-        convert_timestamps_in_struct(result)
+        # parse timestamps
+        parse_timestamps_in_struct(result)
 
         if expand_result is True:
             if action in result:

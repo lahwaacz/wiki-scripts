@@ -5,6 +5,7 @@ import itertools
 from .base_enc import *
 from .containers import *
 from .datetime_ import *
+from .json import *
 from .lazy import *
 from .rate import *
 

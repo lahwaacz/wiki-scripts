@@ -4,7 +4,7 @@ import logging
 
 from sqlalchemy import bindparam
 
-from ws.utils import format_date, value_or_none
+from ws.utils import value_or_none
 from ws.parser_helpers.title import Title
 import ws.db.mw_constants as mwconst
 
@@ -109,10 +109,9 @@ class GrabberRecentChanges(Grabber):
             yield from self.gen_inserts_from_rc(rc)
 
     def gen_update(self, since):
-        since_f = format_date(since)
         params = self.rc_params.copy()
         params["rcdir"] = "newer"
-        params["rcstart"] = since_f
+        params["rcstart"] = since
 
         for rc in self.api.list(params):
             yield from self.gen_inserts_from_rc(rc)
@@ -121,7 +120,7 @@ class GrabberRecentChanges(Grabber):
         # go through logging via the API, because it has not been synced yet
         params = self.le_params.copy()
         params["ledir"] = "newer"
-        params["lestart"] = since_f
+        params["lestart"] = since
 
         for le in self.api.list(params):
             yield from self.gen_updates_from_le(le)
@@ -130,6 +129,6 @@ class GrabberRecentChanges(Grabber):
         # including the DELETED_TEXT value (which will be a MW incompatibility)
 
         # purge too-old rows
-        yield self.sql["delete", "recentchanges"], {"rc_cutoff_timestamp": format_date(self.api.oldest_recent_change)}
+        yield self.sql["delete", "recentchanges"], {"rc_cutoff_timestamp": self.api.oldest_recent_change}
 
         # FIXME: rolled-back edits are automatically patrolled, but there does not seem to be any way to detect this

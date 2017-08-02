@@ -18,6 +18,10 @@ Unreleased
 - Switched from :py:mod:`nose` to :py:mod:`pytest` for testing.
 - Added :py:mod:`ws.db` and :py:mod:`ws.grabbers` modules (still highly
   experimental).
+- Transparent automatic conversion of timestamp strings into the Python's
+  :py:mod:`datetime.datetime` objects. As a result, manual calls to the
+  :py:func:`ws.utils.parse_date` and :py:func:`ws.utils.format_date` functions
+  should not be necessary when working with the API.
 
 Version 1.1
 -----------

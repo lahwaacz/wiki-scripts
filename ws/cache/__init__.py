@@ -12,7 +12,7 @@ import hashlib
 import datetime
 import logging
 
-from ws.utils import convert_timestamps_in_struct
+from ws.utils import parse_timestamps_in_struct, DatetimeEncoder, datetime_parser
 
 logger = logging.getLogger(__name__)
 
@@ -20,36 +20,6 @@ def md5sum(bytes_):
     h = hashlib.md5()
     h.update(bytes_)
     return h.hexdigest()
-
-class DatetimeEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if (isinstance(obj, datetime.datetime) or
-            isinstance(obj, datetime.date) or
-            isinstance(obj, datetime.timedelta)):
-            return repr(obj)
-        else:
-            return super(DateTimeEncoder, self).default(obj)
-
-def datetime_parser(dct):
-    for k, v in dct.items():
-        if isinstance(v, str) and v.startswith("datetime.") and v.endswith(")"):
-            v = v[:-1]
-            items = v.split("(", maxsplit=1)[1]
-            args = []
-            for i in items.split(","):
-                try:
-                    args.append(int(i.strip()))
-                except ValueError:
-                    continue
-            if not args:
-                continue
-            if v.startswith("datetime.datetime("):
-                dct[k] = datetime.datetime(*args)
-            elif v.startswith("datetime.date("):
-                dct[k] = datetime.date(*args)
-            elif v.startswith("datetime.timedelta("):
-                dct[k] = datetime.timedelta(*args)
-    return dct
 
 class CacheDb:
     """
@@ -124,7 +94,7 @@ class CacheDb:
 
             self.data = json.loads(s.decode("utf-8"), object_hook=datetime_parser)
             # manual conversion is necessary only for migration
-            convert_timestamps_in_struct(self.data)
+            parse_timestamps_in_struct(self.data)
         else:
             self.init(key)
 

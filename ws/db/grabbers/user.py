@@ -132,7 +132,6 @@ class GrabberUsers(Grabber):
         :param datetime.datetime since: timestamp of the last update
         :returns: a set of user names
         """
-        since_f = ws.utils.format_date(since)
         rcusers = set()
 
         # Items in the recentchanges table are periodically purged according to
@@ -150,14 +149,14 @@ class GrabberUsers(Grabber):
 #            "rcprop": "user|title|loginfo",
 #            "rclimit": "max",
 #            "rcdir": "newer",
-#            "rcstart": since_f,
+#            "rcstart": since,
 #        }
 #        for change in self.api.list(rc_params):
         rc_params = {
             "type": {"edit", "new", "log"},
             "prop": {"user", "title", "loginfo"},
             "dir": "newer",
-            "start": since_f,
+            "start": since,
         }
         for change in rc.list(self.db, rc_params):
             # add the performer of the edit, newpage or log entry

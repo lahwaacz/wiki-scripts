@@ -4,7 +4,7 @@ import logging
 
 from sqlalchemy import bindparam
 
-from ws.utils import format_date, value_or_none
+from ws.utils import value_or_none
 from ws.parser_helpers.title import Title
 import ws.db.mw_constants as mwconst
 
@@ -70,10 +70,9 @@ class GrabberLogging(Grabber):
             yield from self.gen_inserts_from_logevent(logevent)
 
     def gen_update(self, since):
-        since_f = format_date(since)
         params = self.le_params.copy()
         params["ledir"] = "newer"
-        params["lestart"] = since_f
+        params["lestart"] = since
 
         for logevent in self.api.list(params):
             yield from self.gen_inserts_from_logevent(logevent)

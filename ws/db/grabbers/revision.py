@@ -6,7 +6,7 @@ import sqlalchemy
 from sqlalchemy.sql import func
 
 import ws.utils
-from ws.utils import format_date, value_or_none
+from ws.utils import value_or_none
 from ws.parser_helpers.title import Title
 from ws.db.selects import logevents
 
@@ -153,13 +153,11 @@ class GrabberRevisions(Grabber):
             yield from self.gen_deletedrevisions(page)
 
     def gen_update(self, since):
-        since_f = format_date(since)
-
         # TODO: make sure that the updates from the API don't create a duplicate row with a new ID in the text table
 
         arv_params = self.arv_params.copy()
         arv_params["arvdir"] = "newer"
-        arv_params["arvstart"] = since_f
+        arv_params["arvstart"] = since
         for page in self.api.list(arv_params):
             yield from self.gen_revisions(page)
 
@@ -177,7 +175,7 @@ class GrabberRevisions(Grabber):
             "type": "delete",
             "prop": {"type", "details", "title"},
             "dir": "newer",
-            "start": since_f,
+            "start": since,
         }
         for le in logevents.list(self.db, le_params):
             if le["type"] == "delete":

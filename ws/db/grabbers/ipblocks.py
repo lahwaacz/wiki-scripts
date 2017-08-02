@@ -86,22 +86,20 @@ class GrabberIPBlocks(Grabber):
 
 
     def gen_update(self, since):
-        since_f = ws.utils.format_date(since)
-
         # new blocks since the last sync
         list_params = {
             "list": "blocks",
             "bklimit": "max",
             "bkprop": "id|user|userid|by|byid|timestamp|expiry|reason|range|flags",
             "bkdir": "newer",
-            "bkstart": since_f,
+            "bkstart": since,
         }
         yield from self.gen(list_params)
 
         # also examine the logs for possible reblocks or unblocks
         # TODO: this could be done after the logs are synced in the local database
         rcusers = set()
-        for logevent in self.api.list(list="logevents", letype="block", leprop="title", lelimit="max", ledir="newer", lestart=since_f):
+        for logevent in self.api.list(list="logevents", letype="block", leprop="title", lelimit="max", ledir="newer", lestart=since):
             # extract target user name
             username = logevent["title"].split(":", maxsplit=1)[1]
             rcusers.add(username)

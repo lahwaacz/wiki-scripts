@@ -250,14 +250,13 @@ class GrabberPages(Grabber):
 
 
     def get_rcpages(self, since):
-        since_f = ws.utils.format_date(since)
         rcpages = set()
 
         rc_params = {
             "type": {"edit", "new", "log"},
             "prop": {"ids"},
             "dir": "newer",
-            "start": since_f,
+            "start": since,
         }
         for change in recentchanges.list(self.db, rc_params):
             # add pageid for edits, new pages and target pages of log events
@@ -275,13 +274,12 @@ class GrabberPages(Grabber):
         return rcpages
 
     def get_logpages(self, since):
-        since_f = ws.utils.format_date(since)
         modified = set()
 
         le_params = {
             "prop": {"type", "details", "ids"},
             "dir": "newer",
-            "start": since_f,
+            "start": since,
         }
         for le in logevents.list(self.db, le_params):
             if le["type"] in {"delete", "protect", "move"}:
