@@ -117,9 +117,6 @@ class Blockbot:
         start = datetime.datetime.utcnow() - datetime.timedelta(days=1)
 
         while True:
-            # drop microseconds (included in the default format string, but MediaWiki does not like it)
-            start -= datetime.timedelta(microseconds=start.microsecond)
-
             try:
                 start2 = datetime.datetime.utcnow()
                 pages = self.api.generator(generator="recentchanges", grcstart=start, grcdir="newer", grcshow="unpatrolled", grclimit="max", prop="revisions", rvprop="ids|timestamp|user|comment|content")

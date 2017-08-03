@@ -69,8 +69,6 @@ def test_recentchanges(api, db):
 def test_logging(api, db):
     # fixed timestamps for reproducible and fast tests
     now = datetime.datetime.utcnow()
-    # drop microseconds (included in the default format string, but MediaWiki does not like it)
-    now -= datetime.timedelta(microseconds=now.microsecond)
     since = now - datetime.timedelta(days=100)
 
     g = grabbers.namespace.GrabberNamespaces(api, db)
