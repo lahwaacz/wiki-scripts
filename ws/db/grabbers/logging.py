@@ -2,7 +2,7 @@
 
 import logging
 
-from sqlalchemy import bindparam
+import sqlalchemy as sa
 
 from ws.utils import value_or_none
 from ws.parser_helpers.title import Title
@@ -17,14 +17,16 @@ class GrabberLogging(Grabber):
     def __init__(self, api, db):
         super().__init__(api, db)
 
+        ins_logging = sa.dialects.postgresql.insert(db.logging)
+
         self.sql = {
             ("insert", "logging"):
-                db.logging.insert(
-                    on_conflict_constraint=[db.logging.c.log_id],
-                    on_conflict_update=[
+                ins_logging.on_conflict_do_update(
+                    index_elements=[db.logging.c.log_id],
+                    set_={
                         # this should be the only column that may change in the table
-                        db.logging.c.log_deleted,
-                    ]),
+                        "log_deleted": ins_logging.excluded.log_deleted,
+                    }),
         }
 
         self.le_params = {

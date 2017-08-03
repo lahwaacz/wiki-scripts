@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from sqlalchemy import bindparam
+import sqlalchemy as sa
 
 import ws.utils
 
@@ -13,31 +13,33 @@ class GrabberIPBlocks(Grabber):
     def __init__(self, api, db):
         super().__init__(api, db)
 
+        ins_ipblocks = sa.dialects.postgresql.insert(db.ipblocks)
+
         self.sql = {
             ("insert", "ipblocks"):
-                db.ipblocks.insert(
-                    on_conflict_constraint=[db.ipblocks.c.ipb_id],
-                    on_conflict_update=[
-                        db.ipblocks.c.ipb_address,
-                        db.ipblocks.c.ipb_user,
-                        db.ipblocks.c.ipb_by,
-                        db.ipblocks.c.ipb_by_text,
-                        db.ipblocks.c.ipb_reason,
-                        db.ipblocks.c.ipb_timestamp,
-                        db.ipblocks.c.ipb_auto,
-                        db.ipblocks.c.ipb_anon_only,
-                        db.ipblocks.c.ipb_create_account,
-                        db.ipblocks.c.ipb_enable_autoblock,
-                        db.ipblocks.c.ipb_expiry,
-                        db.ipblocks.c.ipb_range_start,
-                        db.ipblocks.c.ipb_range_end,
-                        db.ipblocks.c.ipb_deleted,
-                        db.ipblocks.c.ipb_block_email,
-                        db.ipblocks.c.ipb_allow_usertalk,
-                        db.ipblocks.c.ipb_parent_block_id,
-                    ]),
+                ins_ipblocks.on_conflict_do_update(
+                    constraint=db.ipblocks.primary_key,
+                    set_={
+                        "ipb_address":          ins_ipblocks.excluded.ipb_address,
+                        "ipb_user":             ins_ipblocks.excluded.ipb_user,
+                        "ipb_by":               ins_ipblocks.excluded.ipb_by,
+                        "ipb_by_text":          ins_ipblocks.excluded.ipb_by_text,
+                        "ipb_reason":           ins_ipblocks.excluded.ipb_reason,
+                        "ipb_timestamp":        ins_ipblocks.excluded.ipb_timestamp,
+                        "ipb_auto":             ins_ipblocks.excluded.ipb_auto,
+                        "ipb_anon_only":        ins_ipblocks.excluded.ipb_anon_only,
+                        "ipb_create_account":   ins_ipblocks.excluded.ipb_create_account,
+                        "ipb_enable_autoblock": ins_ipblocks.excluded.ipb_enable_autoblock,
+                        "ipb_expiry":           ins_ipblocks.excluded.ipb_expiry,
+                        "ipb_range_start":      ins_ipblocks.excluded.ipb_range_start,
+                        "ipb_range_end":        ins_ipblocks.excluded.ipb_range_end,
+                        "ipb_deleted":          ins_ipblocks.excluded.ipb_deleted,
+                        "ipb_block_email":      ins_ipblocks.excluded.ipb_block_email,
+                        "ipb_allow_usertalk":   ins_ipblocks.excluded.ipb_allow_usertalk,
+                        "ipb_parent_block_id":  ins_ipblocks.excluded.ipb_parent_block_id,
+                    }),
             ("delete", "ipblocks"):
-                db.ipblocks.delete().where(db.ipblocks.c.ipb_address == bindparam("b_ipb_address")),
+                db.ipblocks.delete().where(db.ipblocks.c.ipb_address == sa.bindparam("b_ipb_address")),
         }
 
 

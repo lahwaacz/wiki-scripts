@@ -2,7 +2,7 @@
 
 import logging
 
-from sqlalchemy import bindparam
+import sqlalchemy as sa
 
 from ws.utils import value_or_none
 from ws.parser_helpers.title import Title
@@ -19,17 +19,19 @@ class GrabberRecentChanges(Grabber):
     def __init__(self, api, db):
         super().__init__(api, db)
 
+        ins_rc = sa.dialects.postgresql.insert(db.recentchanges)
+
         self.sql = {
             ("insert", "recentchanges"):
                 # updates are handled separately
-                db.recentchanges.insert(on_conflict_do_nothing=True),
+                ins_rc.on_conflict_do_nothing(),
             ("update-patrolled", "recentchanges"):
                 db.recentchanges.update().\
                         values(rc_patrolled=True).\
-                        where(db.recentchanges.c.rc_this_oldid == bindparam("_revid")),
+                        where(db.recentchanges.c.rc_this_oldid == sa.bindparam("_revid")),
             ("delete", "recentchanges"):
                 db.recentchanges.delete().where(
-                    db.recentchanges.c.rc_timestamp < bindparam("rc_cutoff_timestamp"))
+                    db.recentchanges.c.rc_timestamp < sa.bindparam("rc_cutoff_timestamp"))
         }
 
         self.rc_params = {

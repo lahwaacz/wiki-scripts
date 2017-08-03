@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import sqlalchemy as sa
+
 from . import Grabber
 
 class GrabberNamespaces(Grabber):
@@ -7,35 +9,40 @@ class GrabberNamespaces(Grabber):
     def __init__(self, api, db):
         super().__init__(api, db)
 
+        ins_ns = sa.dialects.postgresql.insert(db.namespace)
+        ins_nsn = sa.dialects.postgresql.insert(db.namespace_name)
+        ins_nss = sa.dialects.postgresql.insert(db.namespace_starname)
+        ins_nsc = sa.dialects.postgresql.insert(db.namespace_canonical)
+
         self.sql = {
             ("insert", "namespace"):
-                db.namespace.insert(
-                    on_conflict_constraint=[db.namespace.c.ns_id],
-                    on_conflict_update=[
-                        db.namespace.c.ns_case,
-                        db.namespace.c.ns_content,
-                        db.namespace.c.ns_subpages,
-                        db.namespace.c.ns_nonincludable,
-                        db.namespace.c.ns_defaultcontentmodel,
-                    ]),
+                ins_ns.on_conflict_do_update(
+                    constraint=db.namespace.primary_key,
+                    set_={
+                        "ns_case":                ins_ns.excluded.ns_case,
+                        "ns_content":             ins_ns.excluded.ns_content,
+                        "ns_subpages":            ins_ns.excluded.ns_subpages,
+                        "ns_nonincludable":       ins_ns.excluded.ns_nonincludable,
+                        "ns_defaultcontentmodel": ins_ns.excluded.ns_defaultcontentmodel,
+                    }),
             ("insert", "namespace_name"):
-                db.namespace_name.insert(
-                    on_conflict_constraint=[db.namespace_name.c.nsn_name],
-                    on_conflict_update=[
-                        db.namespace_name.c.nsn_id,
-                    ]),
+                ins_nsn.on_conflict_do_update(
+                    index_elements=[db.namespace_name.c.nsn_name],
+                    set_={
+                        "nsn_id": ins_nsn.excluded.nsn_id,
+                    }),
             ("insert", "namespace_starname"):
-                db.namespace_starname.insert(
-                    on_conflict_constraint=[db.namespace_starname.c.nss_id],
-                    on_conflict_update=[
-                        db.namespace_starname.c.nss_name,
-                    ]),
+                ins_nss.on_conflict_do_update(
+                    index_elements=[db.namespace_starname.c.nss_id],
+                    set_={
+                        "nss_name": ins_nss.excluded.nss_name,
+                    }),
             ("insert", "namespace_canonical"):
-                db.namespace_canonical.insert(
-                    on_conflict_constraint=[db.namespace_canonical.c.nsc_id],
-                    on_conflict_update=[
-                        db.namespace_canonical.c.nsc_name,
-                    ]),
+                ins_nsc.on_conflict_do_update(
+                    index_elements=[db.namespace_canonical.c.nsc_id],
+                    set_={
+                        "nsc_name": ins_nsc.excluded.nsc_name,
+                    }),
         }
 
     def gen_insert(self):

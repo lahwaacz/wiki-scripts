@@ -2,7 +2,7 @@
 
 import logging
 
-from sqlalchemy import bindparam
+import sqlalchemy as sa
 
 import ws.utils
 from ws.client.api import ShortRecentChangesError
@@ -23,29 +23,23 @@ class GrabberUsers(Grabber):
     def __init__(self, api, db):
         super().__init__(api, db)
 
+        ins_user = sa.dialects.postgresql.insert(db.user)
+        ins_user_groups = sa.dialects.postgresql.insert(db.user_groups)
+
         self.sql = {
             ("insert", "user"):
-                db.user.insert(
-                    on_conflict_constraint=[db.user.c.user_id],
-                    on_conflict_update=[
-                        db.user.c.user_name,
-                        db.user.c.user_registration,
-                        db.user.c.user_editcount,
-                    ]),
+                ins_user.on_conflict_do_update(
+                    index_elements=[db.user.c.user_id],
+                    set_={
+                        "user_name":         ins_user.excluded.user_name,
+                        "user_registration": ins_user.excluded.user_registration,
+                        "user_editcount":    ins_user.excluded.user_editcount,
+                    }),
             ("insert", "user_groups"):
-                # It would have been fine to use INSERT IGNORE here, but MySQL
-                # generates a warning for every ignored row.
-                db.user_groups.insert(
-                    on_conflict_constraint=[
-                        db.user_groups.c.ug_user,
-                        db.user_groups.c.ug_group
-                    ],
-                    on_conflict_update=[
-                        db.user_groups.c.ug_group
-                    ]),
+                ins_user_groups.on_conflict_do_nothing(),
             ("delete", "user_groups"):
                 db.user_groups.delete().where(
-                    db.user_groups.c.ug_user == bindparam("b_ug_user")),
+                    db.user_groups.c.ug_user == sa.bindparam("b_ug_user")),
         }
 
 

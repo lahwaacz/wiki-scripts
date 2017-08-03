@@ -2,8 +2,7 @@
 
 import logging
 
-import sqlalchemy
-from sqlalchemy.sql import func
+import sqlalchemy as sa
 
 import ws.utils
 from ws.utils import value_or_none
@@ -22,30 +21,34 @@ class GrabberRevisions(Grabber):
         super().__init__(api, db)
         self.with_content = with_content
 
+        ins_text = sa.dialects.postgresql.insert(db.text)
+        ins_revision = sa.dialects.postgresql.insert(db.revision)
+        ins_archive = sa.dialects.postgresql.insert(db.archive)
+
         self.sql = {
             ("insert", "text"):
-                db.text.insert(
-                    on_conflict_constraint=[db.text.c.old_id],
-                    on_conflict_update=[
-                        db.text.c.old_text,
-                        db.text.c.old_flags,
-                    ]),
+                ins_text.on_conflict_do_update(
+                    constraint=db.text.primary_key,
+                    set_={
+                        "old_text":  ins_text.excluded.old_text,
+                        "old_flags": ins_text.excluded.old_flags,
+                    }),
             ("insert", "revision"):
-                db.revision.insert(
-                    on_conflict_constraint=[db.revision.c.rev_id],
-                    on_conflict_update=[
+                ins_revision.on_conflict_do_update(
+                    constraint=db.revision.primary_key,
+                    set_={
                         # this should be the only columns that may change in the table
-                        db.revision.c.rev_deleted,
+                        "rev_deleted": ins_revision.excluded.rev_deleted,
                         # TODO: merging might change rev_page and rev_parent_id
-                    ]),
+                    }),
             ("insert", "archive"):
-                db.archive.insert(
-                    on_conflict_constraint=[db.archive.c.ar_rev_id],
-                    on_conflict_update=[
+                ins_archive.on_conflict_do_update(
+                    index_elements=[db.archive.c.ar_rev_id],
+                    set_={
                         # this should be the only columns that may change in the table
-                        db.archive.c.ar_deleted,
+                        "rev_deleted": ins_archive.excluded.ar_deleted,
                         # TODO: merging might change ar_page_id and rev_parent_id
-                    ]),
+                    }),
         }
 
         props = "ids|timestamp|flags|user|userid|comment|size|sha1|contentmodel"
@@ -75,7 +78,7 @@ class GrabberRevisions(Grabber):
 
     # TODO: text.old_id is auto-increment, but revision.rev_text_id has to be set accordingly. SQL should be able to do it automatically.
     def _get_text_id(self, conn):
-        result = conn.execute(sqlalchemy.select( [func.max(self.db.text.c.old_id)] ))
+        result = conn.execute(sqlalchemy.select( [sa.sql.func.max(self.db.text.c.old_id)] ))
         value = result.fetchone()[0]
         if value is None:
             value = 0

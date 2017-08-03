@@ -20,44 +20,48 @@ class GrabberPages(Grabber):
     def __init__(self, api, db):
         super().__init__(api, db)
 
+        ins_page = sa.dialects.postgresql.insert(db.page)
+        ins_page_props = sa.dialects.postgresql.insert(db.page_props)
+        ins_page_restrictions = sa.dialects.postgresql.insert(db.page_restrictions)
+
         self.sql = {
             ("insert", "page"):
-                db.page.insert(
-                    on_conflict_constraint=[db.page.c.page_id],
-                    on_conflict_update=[
-                        db.page.c.page_namespace,
-                        db.page.c.page_title,
-                        db.page.c.page_is_redirect,
-                        db.page.c.page_is_new,
-                        db.page.c.page_random,
-                        db.page.c.page_touched,
-                        db.page.c.page_links_updated,
-                        db.page.c.page_latest,
-                        db.page.c.page_len,
-                        db.page.c.page_content_model,
-                        db.page.c.page_lang,
-                    ]),
+                ins_page.on_conflict_do_update(
+                    constraint=db.page.primary_key,
+                    set_={
+                        "page_namespace":     ins_page.excluded.page_namespace,
+                        "page_title":         ins_page.excluded.page_title,
+                        "page_is_redirect":   ins_page.excluded.page_is_redirect,
+                        "page_is_new":        ins_page.excluded.page_is_new,
+                        "page_random":        ins_page.excluded.page_random,
+                        "page_touched":       ins_page.excluded.page_touched,
+                        "page_links_updated": ins_page.excluded.page_links_updated,
+                        "page_latest":        ins_page.excluded.page_latest,
+                        "page_len":           ins_page.excluded.page_len,
+                        "page_content_model": ins_page.excluded.page_content_model,
+                        "page_lang":          ins_page.excluded.page_lang,
+                    }),
             ("insert", "page_props"):
-                db.page_props.insert(
-                    on_conflict_constraint=[
+                ins_page_props.on_conflict_do_update(
+                    index_elements=[
                         db.page_props.c.pp_page,
                         db.page_props.c.pp_propname,
                     ],
-                    on_conflict_update=[
-                        db.page_props.c.pp_value,
-                    ]),
+                    set_={
+                        "pp_value": ins_page_props.excluded.pp_value,
+                    }),
             ("insert", "page_restrictions"):
-                db.page_restrictions.insert(
-                    on_conflict_constraint=[
+                ins_page_restrictions.on_conflict_do_update(
+                    index_elements=[
                         db.page_restrictions.c.pr_page,
                         db.page_restrictions.c.pr_type,
                     ],
-                    on_conflict_update=[
-                        db.page_restrictions.c.pr_level,
-                        db.page_restrictions.c.pr_cascade,
-                        db.page_restrictions.c.pr_user,
-                        db.page_restrictions.c.pr_expiry,
-                    ]),
+                    set_={
+                        "pr_level":   ins_page_restrictions.excluded.pr_level,
+                        "pr_cascade": ins_page_restrictions.excluded.pr_cascade,
+                        "pr_user":    ins_page_restrictions.excluded.pr_user,
+                        "pr_expiry":  ins_page_restrictions.excluded.pr_expiry,
+                    }),
             ("delete", "page"):
                 db.page.delete().where(db.page.c.page_id == sa.bindparam("b_page_id")),
             ("delete-but-one", "page_props"):

@@ -2,7 +2,7 @@
 
 import logging
 
-from sqlalchemy import bindparam
+import sqlalchemy as sa
 
 import ws.utils
 from ws.parser_helpers.title import Title
@@ -20,21 +20,23 @@ class GrabberProtectedTitles(Grabber):
     def __init__(self, api, db):
         super().__init__(api, db)
 
+        ins_pt = sa.dialects.postgresql.insert(db.protected_titles)
+
         self.sql = {
             ("insert", "protected_titles"):
-                db.protected_titles.insert(
-                    on_conflict_constraint=[
+                ins_pt.on_conflict_do_update(
+                    index_elements=[
                         db.protected_titles.c.pt_namespace,
                         db.protected_titles.c.pt_title,
                     ],
-                    on_conflict_update=[
-                        db.protected_titles.c.pt_level,
-                        db.protected_titles.c.pt_expiry,
-                    ]),
+                    set_={
+                        "pt_level":  ins_pt.excluded.pt_level,
+                        "pt_expiry": ins_pt.excluded.pt_expiry,
+                    }),
             ("delete", "protected_titles"):
                 db.protected_titles.delete().where(
-                    (db.protected_titles.c.pt_namespace == bindparam("b_pt_namespace")) &
-                    (db.protected_titles.c.pt_title == bindparam("b_pt_title"))),
+                    (db.protected_titles.c.pt_namespace == sa.bindparam("b_pt_namespace")) &
+                    (db.protected_titles.c.pt_title == sa.bindparam("b_pt_title"))),
         }
 
     def gen_inserts_from_pt_or_page(self, page):

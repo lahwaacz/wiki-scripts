@@ -32,7 +32,7 @@ class Database:
         if isinstance(engine_or_url, Engine):
             self.engine = engine_or_url
         else:
-            self.engine = create_engine(engine_or_url, echo=True, implicit_returning=False)
+            self.engine = create_engine(engine_or_url, echo=True)
 
         # TODO: only for testing
 #        metadata = MetaData(bind=self.engine)
@@ -114,34 +114,3 @@ class Database:
         if table_name not in self.metadata.tables:
             raise AttributeError("Table '{}' does not exist in the database.".format(table_name))
         return self.metadata.tables[table_name]
-
-
-from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import Insert
-
-# FIXME: this always appends to the sqlalchemy's query, but we should insert the clause before the RETURNING clause:
-# https://www.postgresql.org/docs/current/static/sql-insert.html
-# (as a workaround we pass implicit_returning=False to create_engine to avoid the RETURNING clauses)
-# TODO: to fix the above, we could use sqlalchemy's on_conflict_do_{update,nothing} extensions
-# http://docs.sqlalchemy.org/en/rel_1_1/dialects/postgresql.html?highlight=upsert#insert-on-conflict-upsert
-@compiles(Insert, "postgresql")
-def on_conflict_handler(insert, compiler, **kw):
-    """
-    https://www.postgresql.org/docs/current/static/sql-insert.html#SQL-ON-CONFLICT
-    """
-    s = compiler.visit_insert(insert, **kw)
-    if "on_conflict_update" in insert.kwargs:
-        # unlike MySQL, PostgreSQL 9.6 does not support "any" constraint
-        # http://stackoverflow.com/questions/35786354/postgres-upsert-on-any-constraint
-        assert "on_conflict_constraint" in insert.kwargs
-        constraint = ",".join(c.name for c in insert.kwargs["on_conflict_constraint"])
-        columns = [c.name for c in insert.kwargs["on_conflict_update"]]
-        values = ", ".join("{0}=excluded.{0}".format(c) for c in columns)
-        return s + " ON CONFLICT ({0}) DO UPDATE SET ".format(constraint) + values
-    elif insert.kwargs.get("on_conflict_do_nothing") is True:
-        return s + " ON CONFLICT DO NOTHING"
-    return s
-# TODO: argument_for creates arguments like postgresql_on_conflict_update, we need one name for all
-#Insert.argument_for("postgresql", "on_conflict_constraint", None)
-#Insert.argument_for("postgresql", "on_conflict_update", None)
-#Insert.argument_for("postgresql", "on_conflict_do_nothing", None)

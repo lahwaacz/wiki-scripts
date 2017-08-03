@@ -4,6 +4,7 @@ import datetime
 import logging
 
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert
 
 from ws.client.api import ShortRecentChangesError
 from ws.db.execution import DeferrableExecutionQueue
@@ -34,9 +35,10 @@ class Grabber:
             execution of the SQL query
         """
         ws_sync = self.db.metadata.tables["ws_sync"]
-        ins = ws_sync.insert(
-                    on_conflict_constraint=[ws_sync.c.wss_key],
-                    on_conflict_update=[ws_sync.c.wss_timestamp]
+        ins = insert(ws_sync)
+        ins = ins.on_conflict_do_update(
+                    constraint=ws_sync.primary_key,
+                    set_={"wss_timestamp": ins.excluded.wss_timestamp}
                 )
         entry = {
             "wss_key": self.__class__.__name__,
