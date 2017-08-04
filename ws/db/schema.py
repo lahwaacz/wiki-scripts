@@ -8,7 +8,8 @@ Known incompatibilities from MediaWiki schema:
   a MediaWiki database directly. This wouldn't be possible even theoretically,
   since the database can contain serialized PHP objects etc.
 - Added some custom tables.
-- Enforced foreign key constraints (not present in MediaWiki's MySQL schema).
+- Enforced foreign key constraints, including namespaces stored in custom
+  tables, and some check constraints.
 - Columns not available via the API (e.g. user passwords) are nullable, since
   they are not part of the mirroring process. Likewise revision.rev_text_id
   is nullable so that we can sync metadata and text separately.
@@ -43,8 +44,8 @@ from .sql_types import \
 
 
 def create_custom_tables(metadata):
-    # FIXME: even special namespaces (with negative IDs) are currently included, but most foreign keys should be restricted to non-negative values
-    # maybe pg's inheritance is the solution?   https://www.postgresql.org/docs/current/static/ddl-inherit.html
+    # Even special namespaces (with negative IDs) are included, because the recentchanges and logging tables reference them.
+    # But most foreign keys should be restricted to non-negative values using a CHECK constraint.
     namespace = Table("namespace", metadata,
         # can't be auto-incremented because we need to start from 0
         Column("ns_id", Integer, nullable=False, primary_key=True, autoincrement=False),
@@ -180,7 +181,8 @@ def create_pages_tables(metadata):
         Column("ar_parent_id", Integer),
         Column("ar_sha1", SHA1, nullable=False, server_default=""),
         Column("ar_content_model", UnicodeBinary(32)),
-        Column("ar_content_format", UnicodeBinary(64))
+        Column("ar_content_format", UnicodeBinary(64)),
+        CheckConstraint("ar_namespace >= 0", name="check_namespace")
     )
     Index("ar_name_title_timestamp", archive.c.ar_namespace, archive.c.ar_title, archive.c.ar_timestamp)
     Index("ar_usertext_timestamp", archive.c.ar_user_text, archive.c.ar_timestamp)
@@ -188,7 +190,6 @@ def create_pages_tables(metadata):
 
     revision = Table("revision", metadata,
         Column("rev_id", Integer, primary_key=True, nullable=False),
-        # TODO: check how this works for deleted pages (MW's PostgreSQL schema has the foreign key, so it's probably OK)
         Column("rev_page", Integer, ForeignKey("page.page_id", deferrable=True, initially="DEFERRED"), nullable=False),
         # MW incompatibility: set as nullable so that we can sync metadata and text separately
         Column("rev_text_id", Integer, ForeignKey("text.old_id", deferrable=True, initially="DEFERRED")),
@@ -234,7 +235,8 @@ def create_pages_tables(metadata):
         Column("page_latest", Integer, nullable=False),
         Column("page_len", Integer, nullable=False),
         Column("page_content_model", UnicodeBinary(32)),
-        Column("page_lang", UnicodeBinary(35))
+        Column("page_lang", UnicodeBinary(35)),
+        CheckConstraint("page_namespace >= 0", name="check_namespace")
     )
     Index("page_namespace_title", page.c.page_namespace, page.c.page_title, unique=True)
     Index("page_random", page.c.page_random)
@@ -273,7 +275,8 @@ def create_pages_tables(metadata):
         Column("pt_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("pt_title", UnicodeBinary(255), nullable=False),
         Column("pt_level", UnicodeBinary(60), nullable=False),
-        Column("pt_expiry", MWTimestamp, nullable=False)
+        Column("pt_expiry", MWTimestamp, nullable=False),
+        CheckConstraint("pt_namespace >= 0", name="check_namespace")
     )
     Index("pt_namespace_title", protected_titles.c.pt_namespace, protected_titles.c.pt_title, unique=True)
 
@@ -294,7 +297,8 @@ def create_recomputable_tables(metadata):
         Column("rd_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
         Column("rd_title", UnicodeBinary(255), nullable=False),
         Column("rd_interwiki", Unicode(32)),
-        Column("rd_fragment", UnicodeBinary(255))
+        Column("rd_fragment", UnicodeBinary(255)),
+        CheckConstraint("rd_namespace >= 0", name="check_namespace")
     )
     Index("rd_namespace_title_from", redirect.c.rd_namespace, redirect.c.rd_title, redirect.c.rd_from)
 
@@ -303,7 +307,9 @@ def create_recomputable_tables(metadata):
         # TODO: useless, should be in view
         Column("pl_from_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
         Column("pl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("pl_title", UnicodeBinary(255), nullable=False)
+        Column("pl_title", UnicodeBinary(255), nullable=False),
+        CheckConstraint("pl_from_namespace >= 0", name="check_from_namespace"),
+        CheckConstraint("pl_namespace >= 0", name="check_namespace")
     )
 
     iwlinks = Table("iwlinks", metadata,
@@ -328,7 +334,8 @@ def create_recomputable_tables(metadata):
     imagelinks = Table("imagelinks", metadata,
         Column("il_from", Integer, ForeignKey("page.page_id"), nullable=False, server_default="0"),
         Column("il_from_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("il_to", UnicodeBinary(255), nullable=False)
+        Column("il_to", UnicodeBinary(255), nullable=False),
+        CheckConstraint("il_namespace >= 0", name="check_namespace")
     )
 
     templatelinks = Table("templatelinks", metadata,
@@ -336,7 +343,9 @@ def create_recomputable_tables(metadata):
         # TODO: useless, should be in view
         Column("tl_from_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
         Column("tl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("tl_title", UnicodeBinary(255), nullable=False)
+        Column("tl_title", UnicodeBinary(255), nullable=False),
+        CheckConstraint("tl_from_namespace >= 0", name="check_from_namespace"),
+        CheckConstraint("tl_namespace >= 0", name="check_namespace")
     )
 
     categorylinks = Table("categorylinks", metadata,
@@ -363,9 +372,8 @@ def create_recentchanges_tables(metadata):
         # fake foreign key (see note above): rc_user -> user.user_id
         Column("rc_user", Integer),
         Column("rc_user_text", UnicodeBinary(255), nullable=False),
-        # FIXME: can contain negative values
-#        Column("rc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
-        Column("rc_namespace", Integer, nullable=False),
+        # recentchanges table may contain rows with rc_namespace < 0
+        Column("rc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("rc_title", UnicodeBinary(255), nullable=False),
         Column("rc_comment", UnicodeBinary(767), nullable=False),
         Column("rc_minor", Boolean, nullable=False, server_default="0"),
@@ -412,9 +420,8 @@ def create_recentchanges_tables(metadata):
         Column("log_timestamp", MWTimestamp, nullable=False),
         Column("log_user", Integer, ForeignKey("user.user_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
         Column("log_user_text", UnicodeBinary(255), nullable=False),
-        # FIXME: logging table may contain rows with log_namespace < 0
-#        Column("log_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
-        Column("log_namespace", Integer, nullable=False),
+        # logging table may contain rows with log_namespace < 0
+        Column("log_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("log_title", UnicodeBinary(255), nullable=False),
         # this must NOT be a FK - pages can disappear and reappear, log entries are invariant
         Column("log_page", Integer),
@@ -513,10 +520,11 @@ def create_siteinfo_tables(metadata):
 
     watchlist = Table("watchlist", metadata,
         Column("wl_user", Integer, ForeignKey("user.user_id"), nullable=False),
-        # FIXME: MW defect: why is there not a FK to page.page_id?
+        # not a FK to page.page_id, because delete+undelete should not remove entries from the watchlist
         Column("wl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
         Column("wl_title", UnicodeBinary(255), nullable=False),
-        Column("wl_notificationtimestamp", MWTimestamp)
+        Column("wl_notificationtimestamp", MWTimestamp),
+        CheckConstraint("wl_namespace >= 0", name="check_namespace")
     )
     Index("wl_user", watchlist.c.wl_user, watchlist.c.wl_namespace, watchlist.c.wl_title, unique=True)
     Index("wl_namespace_title", watchlist.c.wl_namespace, watchlist.c.wl_title)
@@ -614,7 +622,8 @@ def create_unused_tables(metadata):
         Column("job_attempts", Integer, nullable=False, server_default="0"),
         Column("job_token", UnicodeBinary(32), nullable=False, server_default=""),
         Column("job_token_timestamp", MWTimestamp),
-        Column("job_sha1", SHA1, nullable=False, server_default="")
+        Column("job_sha1", SHA1, nullable=False, server_default=""),
+        CheckConstraint("job_namespace >= 0", name="check_namespace")
     )
 
     objectcache = Table("objectcache", metadata,
@@ -627,7 +636,8 @@ def create_unused_tables(metadata):
         Column("qc_type", UnicodeBinary(32), nullable=False),
         Column("qc_value", Integer, nullable=False),
         Column("qc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
-        Column("qc_title", UnicodeBinary(255), nullable=False)
+        Column("qc_title", UnicodeBinary(255), nullable=False),
+        CheckConstraint("qc_namespace >= 0", name="check_namespace")
     )
 
     querycachetwo = Table("querycachetwo", metadata,
@@ -636,7 +646,9 @@ def create_unused_tables(metadata):
         Column("qcc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
         Column("qcc_title", UnicodeBinary(255), nullable=False, server_default=""),
         Column("qcc_namespacetwo", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("qcc_titletwo", UnicodeBinary(255), nullable=False, server_default="")
+        Column("qcc_titletwo", UnicodeBinary(255), nullable=False, server_default=""),
+        CheckConstraint("qcc_namespace >= 0", name="check_namespace"),
+        CheckConstraint("qcc_namespacetwo >= 0", name="check_namespacetwo")
     )
 
     querycache_info = Table("querycache_info", metadata,
