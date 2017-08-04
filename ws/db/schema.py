@@ -176,6 +176,7 @@ def create_pages_tables(metadata):
         Column("ar_user_text", UnicodeBinary(255), nullable=False),
         Column("ar_timestamp", MWTimestamp, nullable=False),
         Column("ar_minor_edit", Boolean, nullable=False, server_default="0"),
+        # TODO: analogous to rev_deleted, should be Bitfield
         Column("ar_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("ar_len", Integer),
         Column("ar_parent_id", Integer),

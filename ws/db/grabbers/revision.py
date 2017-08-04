@@ -46,8 +46,8 @@ class GrabberRevisions(Grabber):
                     index_elements=[db.archive.c.ar_rev_id],
                     set_={
                         # this should be the only columns that may change in the table
-                        "rev_deleted": ins_archive.excluded.ar_deleted,
-                        # TODO: merging might change ar_page_id and rev_parent_id
+                        "ar_deleted": ins_archive.excluded.ar_deleted,
+                        # TODO: merging might change ar_page_id and ar_parent_id
                     }),
         }
 
