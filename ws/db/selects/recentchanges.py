@@ -136,8 +136,9 @@ def list(db, params=None, **kwargs):
         s = s.where(rc.c.rc_timestamp < newest)
     if oldest:
         s = s.where(rc.c.rc_timestamp > oldest)
-    if params.get("namespace"):
-        s = s.where(rc.c.rc_namespace == params.get("namespace"))
+    if "namespace" in params:
+        # FIXME: namespace can be a '|'-delimited list
+        s = s.where(rc.c.rc_namespace == params["namespace"])
     if params.get("user"):
         s = s.where(rc.c.rc_user_text == params.get("user"))
     if params.get("excludeuser"):
@@ -173,7 +174,7 @@ def list(db, params=None, **kwargs):
     if params["dir"] == "older":
         s = s.order_by(rc.c.rc_timestamp.desc(), rc.c.rc_id.desc())
     else:
-        s = s.order_by(rc.c.rc_timestamp.asc(), rc.c.rc_id.desc())
+        s = s.order_by(rc.c.rc_timestamp.asc(), rc.c.rc_id.asc())
 
     # index hint
     index = "rc_timestamp"
