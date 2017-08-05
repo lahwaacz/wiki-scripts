@@ -17,6 +17,7 @@ import ws.db.grabbers.logging
 import ws.db.selects as selects
 import ws.db.selects.recentchanges
 import ws.db.selects.logevents
+import ws.db.selects.allpages
 
 
 def main(api, db):
@@ -108,6 +109,35 @@ def select_logging(api, db):
             raise
 
 
+def select_allpages(api, db):
+    api_params = {
+        "list": "allpages",
+        "aplimit": "max",
+    }
+
+    api_list = list(api.list(api_params))
+    db_list = list(selects.allpages.list(db))
+
+    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
+    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
+    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
+    api_list.sort(key=lambda item: item["pageid"])
+    db_list.sort(key=lambda item: item["pageid"])
+
+    print("Checking the page table...")
+    assert len(db_list) == len(api_list)
+    for i, entries in enumerate(zip(db_list, api_list)):
+        db_entry, api_entry = entries
+        try:
+            assert db_entry == api_entry
+        except AssertionError:
+            print("db_entry:")
+            pprint(db_entry)
+            print("api_entry:")
+            pprint(api_entry)
+            raise
+
+
 if __name__ == "__main__":
     import ws.config
     import ws.logging
@@ -132,3 +162,4 @@ if __name__ == "__main__":
 
     select_recentchanges(api, db)
     select_logging(api, db)
+    select_allpages(api, db)

@@ -13,6 +13,7 @@ import ws.db.grabbers.page
 import ws.db.selects as selects
 import ws.db.selects.recentchanges
 import ws.db.selects.logevents
+import ws.db.selects.allpages
 
 # TODO: monkeypatch api.site.namespaces to avoid API queries
 
@@ -95,6 +96,30 @@ def test_logging(api, db):
     db_list = list(selects.logevents.list(db, prop=prop, dir="newer", start=since, end=now))
 
     # don't assert the whole lists, otherwise the diff engine won't finish in finite time
+    assert len(db_list) == len(api_list)
+    for i, entries in enumerate(zip(db_list, api_list)):
+        db_entry, api_entry = entries
+        assert db_entry == api_entry
+
+def test_allpages(api, db):
+    g = grabbers.namespace.GrabberNamespaces(api, db)
+    g.update()
+    g = grabbers.page.GrabberPages(api, db)
+    g.update()
+
+    api_params = {
+        "list": "allpages",
+        "aplimit": "max",
+    }
+
+    api_list = list(api.list(api_params))
+    db_list = list(selects.allpages.list(db))
+
+    # FIXME: hack around the unknown remote collation
+    api_list.sort(key=lambda item: item["pageid"])
+    db_list.sort(key=lambda item: item["pageid"])
+
+    print("Checking the page table...")
     assert len(db_list) == len(api_list)
     for i, entries in enumerate(zip(db_list, api_list)):
         db_entry, api_entry = entries

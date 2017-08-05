@@ -3,8 +3,10 @@
 """
 Prerequisites:
 
-1. A pre-configured PostgreSQL database backend with separate database and
-   user account.
+1. A pre-configured PostgreSQL database backend with separate database and user
+   account. The database should be created with the "C" collation, e.g. create
+   the database with
+   `createdb -E UNICODE -l C -T template0 -O username dbname`
 2. One of the many drivers supported by sqlalchemy, e.g. psycopg2.
 """
 
