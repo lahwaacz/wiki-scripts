@@ -260,6 +260,7 @@ def create_pages_tables(metadata):
         Column("pr_type", UnicodeBinary(60), nullable=False),
         Column("pr_level", UnicodeBinary(60), nullable=False),
         Column("pr_cascade", Boolean, nullable=False),
+        # unused even in MW, reserved for the future
         Column("pr_user", Integer),
         Column("pr_expiry", MWTimestamp)
     )
