@@ -254,10 +254,11 @@ class GrabberPages(Grabber):
 
     def get_rcpages(self, since):
         rcpages = set()
+        rctitles = set()
 
         rc_params = {
             "type": {"edit", "new", "log"},
-            "prop": {"ids"},
+            "prop": {"ids", "loginfo", "title"},
             "dir": "newer",
             "start": since,
         }
@@ -266,6 +267,12 @@ class GrabberPages(Grabber):
             # (this implicitly handles all move, protect, delete actions)
             rcpages.add(change["pageid"])
 
+            if change["type"] == "log":
+                # Moving a page creates a "move" log event, but not a "new" log event for the
+                # redirect, so we have to extract the new page ID manually.
+                if change["logaction"] == "move":
+                    rctitles.add(change["title"])
+
             # TODO: examine logs (needs rcprop=loginfo)
             #   merge       (revision - or maybe page too?)
             #   import      (everything?)
@@ -273,6 +280,18 @@ class GrabberPages(Grabber):
 #            if change["type"] == "log":
 #                if change["logtype"] == "merge":
 #                    ...
+
+        # resolve titles to IDs (we actually need to call the API, see above)
+        if rctitles:
+            for chunk in ws.utils.iter_chunks(rctitles, self.api.max_ids_per_query):
+                params = {
+                    "action": "query",
+                    "titles": "|".join(chunk),
+                }
+                for page in self.api.call_api(params)["pages"].values():
+                    # skip missing pages (we don't detect "move without leaving a redirect" until here)
+                    if "pageid" in page:
+                        rcpages.add(page["pageid"])
 
         return rcpages
 
