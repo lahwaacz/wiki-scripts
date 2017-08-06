@@ -273,14 +273,6 @@ class GrabberPages(Grabber):
                 if change["logaction"] == "move":
                     rctitles.add(change["title"])
 
-            # TODO: examine logs (needs rcprop=loginfo)
-            #   merge       (revision - or maybe page too?)
-            #   import      (everything?)
-            #   suppress    (everything?)
-#            if change["type"] == "log":
-#                if change["logtype"] == "merge":
-#                    ...
-
         # resolve titles to IDs (we actually need to call the API, see above)
         if rctitles:
             for chunk in ws.utils.iter_chunks(rctitles, self.api.max_ids_per_query):
