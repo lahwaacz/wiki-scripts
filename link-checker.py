@@ -418,11 +418,12 @@ class WikilinkRules:
             return None
 
         # resolve redirects
+        anchor_on_redirect_to_section = False
         if _target_title in self.api.redirects.map:
             _new_title = Title(self.api, self.api.redirects.resolve(_target_title))
             if _new_title.sectionname:
-                logger.warning("skipping {} (section fragment placed on a redirect to possibly different section)".format(wikilink))
-                return None
+                logger.warning("warning: section fragment placed on a redirect to possibly different section: {}".format(wikilink))
+                anchor_on_redirect_to_section = True
             _target_ns = _new_title.namespacenumber
             _target_title = _new_title.fullpagename
 
@@ -447,6 +448,13 @@ class WikilinkRules:
 
         anchor = dotencode(title.sectionname)
         needs_fix = True
+
+        # handle double-anchor redirects first
+        if anchor_on_redirect_to_section is True:
+            if anchor in anchors:
+                return True
+            else:
+                return False
 
         # try exact match first
         if anchor in anchors:
