@@ -685,6 +685,23 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
                 continue
             self.update_wikilink(wikicode, wikilink, src_title, summary_parts)
 
+        for template in wikicode.ifilter_templates(recursive=True):
+            # skip links inside article status templates
+            parent = wikicode.get(wikicode.index(wikilink, recursive=True))
+            if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
+                continue
+            _pure_template = lang.detect_language(str(template.name))[0]
+            if _pure_template.lower() in {"related", "related2"}:
+                target = template.get(1)
+                # temporarily convert the {{Related}} to wikilink to reuse the update code
+                wl = mwparserfromhell.nodes.wikilink.Wikilink(str(target))
+                wikicode.replace(template, wl)
+                # update
+                self.update_wikilink(wikicode, wl, src_title, summary_parts)
+                # replace back
+                target.value = str(wl.title)
+                wikicode.replace(wl, template)
+
         # deduplicate and keep order
         parts = set()
         parts_add = parts.add
