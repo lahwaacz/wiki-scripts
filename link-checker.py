@@ -687,7 +687,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
 
         for template in wikicode.ifilter_templates(recursive=True):
             # skip links inside article status templates
-            parent = wikicode.get(wikicode.index(wikilink, recursive=True))
+            parent = wikicode.get(wikicode.index(template, recursive=True))
             if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
                 continue
             _pure_template = lang.detect_language(str(template.name))[0]
