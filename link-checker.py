@@ -636,6 +636,9 @@ class ManTemplateRules:
             explicit_url = None
 
         def check_url(url):
+            if url.startswith("ftp://"):
+                logger.error("The FTP protocol is not supported by the requests module. URL: {}".format(url))
+                return True
             if url in self.cache_valid_urls:
                 return True
             elif url in self.cache_invalid_urls:
