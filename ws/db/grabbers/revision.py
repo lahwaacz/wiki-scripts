@@ -49,7 +49,39 @@ class GrabberRevisions(Grabber):
                         "ar_deleted": ins_archive.excluded.ar_deleted,
                         # TODO: merging might change ar_page_id and ar_parent_id
                     }),
+            # query for updating archive.ar_page_id
+            ("update", "archive.ar_page_id"):
+                db.archive.update() \
+                    .where(sa.and_(db.archive.c.ar_namespace == sa.bindparam("b_namespace"),
+                                   db.archive.c.ar_title == sa.bindparam("b_title")))
         }
+
+        # build query to move data from the archive table into revision
+        deleted_revisions = self.db.archive.delete() \
+            .where(self.db.archive.c.ar_page_id == sa.bindparam("b_page_id")) \
+            .returning(*self.db.archive.c._all_columns) \
+            .cte("deleted_revisions")
+        columns = [
+                deleted_revisions.c.ar_rev_id,
+                deleted_revisions.c.ar_page_id,
+                deleted_revisions.c.ar_text_id,
+                deleted_revisions.c.ar_comment,
+                deleted_revisions.c.ar_user,
+                deleted_revisions.c.ar_user_text,
+                deleted_revisions.c.ar_timestamp,
+                deleted_revisions.c.ar_minor_edit,
+                deleted_revisions.c.ar_deleted,
+                deleted_revisions.c.ar_len,
+                deleted_revisions.c.ar_parent_id,
+                deleted_revisions.c.ar_sha1,
+                deleted_revisions.c.ar_content_model,
+                deleted_revisions.c.ar_content_format,
+            ]
+        insert = self.db.revision.insert().from_select(
+            self.db.revision.c._all_columns,
+            sa.select(columns).select_from(deleted_revisions)
+        )
+        self.sql["move", "revision"] = insert
 
         props = "ids|timestamp|flags|user|userid|comment|size|sha1|contentmodel"
         if self.with_content is True:
@@ -126,6 +158,7 @@ class GrabberRevisions(Grabber):
                 "ar_namespace": page["ns"],
                 "ar_title": title.dbtitle(page["ns"]),
                 "ar_rev_id": rev["revid"],
+                # NOTE: list=alldeletedrevisions always returns 0
                 "ar_page_id": value_or_none(page["pageid"]),
                 "ar_comment": rev["comment"],
                 "ar_user": rev["userid"],
@@ -164,15 +197,8 @@ class GrabberRevisions(Grabber):
         for page in self.api.list(arv_params):
             yield from self.gen_revisions(page)
 
-        # MW defect: it is not possible to use list=alldeletedrevisions to get all new
-        # deleted revisions the same way as normal revisions, because adrstart can be
-        # used only along with adruser (archive.ar_timestamp is not indexed separately).
-        #
-        # To work around this, we realize that new deleted revisions can appear only by
-        # deleting an existing page, which creates an entry in the logging table. We
-        # still need to query the API with prop=deletedrevisions to get even the
-        # revisions that were created and deleted since the last sync.
         deleted_pages = set()
+        undeleted_pages = set()
 
         le_params = {
             "type": "delete",
@@ -182,9 +208,31 @@ class GrabberRevisions(Grabber):
         }
         for le in logevents.list(self.db, le_params):
             if le["type"] == "delete":
-                deleted_pages.add(le["title"])
+                if le["action"] == "delete":
+                    deleted_pages.add(le["title"])
+                elif le["action"] == "restore":
+                    undeleted_pages.add((le["title"], le["pageid"]))
 
-        # TODO: handle undelete actions - move the rows between archive and revision tables (deletes are handled in page)
+        # handle undelete - move the rows from archive to revision (deletes are handled in the page grabber)
+        for _title, pageid in undeleted_pages:
+            # ar_page_id is apparently not visible via list=alldeletedrevisions,
+            # so we have to update it here first
+            title = Title(self.api, _title)
+            ns = title.namespacenumber
+            dbtitle = title.dbtitle(ns),
+            yield self.sql["update", "archive.ar_page_id"], {"b_namespace": ns, "b_title": dbtitle, "ar_page_id": pageid}
+            # move the updated rows from archive to revision
+            yield self.sql["move", "revision"], {"b_page_id": pageid}
+
+        # MW defect: it is not possible to use list=alldeletedrevisions to get all new
+        # deleted revisions the same way as normal revisions, because adrstart can be
+        # used only along with adruser (archive.ar_timestamp is not indexed separately).
+        #
+        # To work around this, we realize that new deleted revisions can appear only by
+        # deleting an existing page, which creates an entry in the logging table. We
+        # still need to query the API with prop=deletedrevisions to get even the
+        # revisions that were created and deleted since the last sync.
+        # TODO: implement this note
 
         # TODO: update rev_deleted and ar_deleted
         # TODO: handle merge and unmerge

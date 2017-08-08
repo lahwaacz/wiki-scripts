@@ -138,6 +138,21 @@ def select_allpages(api, db):
             raise
 
 
+def select_current_revisions(api, db):
+    import sqlalchemy as sa
+    page = db.page
+    rev = db.revision
+    s = sa.select([page.c.page_namespace, page.c.page_title, page.c.page_latest])
+    s = s.select_from(page.outerjoin(rev, page.c.page_latest == rev.c.rev_id))
+    s = s.where(rev.c.rev_id == None)
+    result = db.engine.execute(s)
+    if result.rowcount != 0:
+        print("Pages with missing current revision:")
+        for row in result:
+            print(row)
+        assert False, "There were pages with missing current revision."
+
+
 if __name__ == "__main__":
     import ws.config
     import ws.logging
@@ -163,3 +178,4 @@ if __name__ == "__main__":
     select_recentchanges(api, db)
     select_logging(api, db)
     select_allpages(api, db)
+    select_current_revisions(api, db)
