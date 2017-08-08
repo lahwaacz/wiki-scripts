@@ -14,7 +14,9 @@ import difflib
 import re
 import logging
 import contextlib
+import datetime
 
+import requests
 import mwparserfromhell
 
 from ws.client import API, APIError
@@ -24,7 +26,7 @@ import ws.utils
 from ws.interactive import edit_interactive, require_login, InteractiveQuit
 from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
-from ws.parser_helpers.encodings import dotencode
+from ws.parser_helpers.encodings import dotencode, queryencode
 from ws.parser_helpers.title import canonicalize, Title, InvalidTitleCharError
 from ws.parser_helpers.wikicode import get_section_headings, get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template
 
@@ -590,13 +592,66 @@ class WikilinkRules:
             self.collapse_whitespace(wikicode, wikilink)
 
 
-class LinkChecker(ExtlinkRules, WikilinkRules):
+class ManTemplateRules:
+    url_template = "http://man7.org/linux/man-pages/man{secnum}/{pagename}.{secnum}.html"
+
+    def __init__(self, timeout, max_retries):
+        self.timeout = timeout
+        self.session = requests.Session()
+        adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
+        self.session.mount("https://", adapter)
+        self.session.mount("http://", adapter)
+
+    def update_man_template(self, wikicode, template):
+        if template.name.lower() != "man":
+            return
+
+        now = datetime.datetime.utcnow()
+        deadlink_params = [str(now.year), str(now.month), str(now.day)]
+
+        if not template.has(1, ignore_empty=True) or not template.has(2, ignore_empty=True):
+            ensure_flagged_by_template(wikicode, template, "Dead link", *deadlink_params, overwrite_parameters=False)
+            return
+
+        url = self.url_template.format(secnum=template.get(1), pagename=queryencode(template.get(2)))
+        if template.has(3):
+            url += "#{}".format(queryencode(template.get(3)))
+        if template.has("url"):
+            explicit_url = template.get("url").value
+        else:
+            explicit_url = None
+
+        def check_url(url):
+            response = self.session.get(url, timeout=self.timeout)
+            if response.status_code == 200:
+                return True
+            elif response.status_code >= 400:
+                return False
+            else:
+                raise NotImplementedError("Unexpected status code {} for man page URL: {}".format(response.status_code, url))
+
+        # check if the template parameters form a valid URL
+        if check_url(url):
+            ensure_unflagged_by_template(wikicode, template, "Dead link")
+            # remove explicit url= parameter - not necessary
+            if explicit_url is not None:
+                template.remove("url")
+        elif explicit_url is None:
+            ensure_flagged_by_template(wikicode, template, "Dead link", *deadlink_params, overwrite_parameters=False)
+        elif explicit_url != "":
+            if check_url(explicit_url):
+                ensure_unflagged_by_template(wikicode, template, "Dead link")
+            else:
+                ensure_flagged_by_template(wikicode, template, "Dead link", *deadlink_params, overwrite_parameters=False)
+
+
+class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
 
     skip_pages = ["Table of contents", "Help:Editing", "ArchWiki:Reports", "ArchWiki:Requests", "ArchWiki:Statistics"]
     # article status templates, lowercase
     skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
 
-    def __init__(self, api, cache_dir, interactive=False, dry_run=False, first=None, title=None, langnames=None):
+    def __init__(self, api, cache_dir, interactive=False, dry_run=False, first=None, title=None, langnames=None, connection_timeout=30, max_retries=3):
         if not dry_run:
             # ensure that we are authenticated
             require_login(api)
@@ -604,6 +659,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         # init inherited
         ExtlinkRules.__init__(self)
         WikilinkRules.__init__(self, api, cache_dir, interactive)
+        ManTemplateRules.__init__(self, connection_timeout, max_retries)
 
         self.api = api
         self.interactive = interactive
@@ -647,7 +703,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
             langnames = {lang.langname_for_tag(tag) for tag in tags}
         else:
             langnames = set()
-        return klass(api, args.cache_dir, interactive=args.interactive, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames)
+        return klass(api, args.cache_dir, interactive=args.interactive, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames, connection_timeout=args.connection_timeout, max_retries=args.connection_max_retries)
 
     def update_page(self, src_title, text):
         """
@@ -668,15 +724,15 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
         wikicode = mwparserfromhell.parse(text, skip_style_tags=True)
         summary_parts = []
 
+        summary = get_edit_checker(wikicode, summary_parts)
+
         for extlink in wikicode.ifilter_external_links(recursive=True):
             # skip links inside article status templates
             parent = wikicode.get(wikicode.index(extlink, recursive=True))
             if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
                 continue
-            self.update_extlink(wikicode, extlink)
-
-        if text != str(wikicode):
-            summary_parts.append("replaced external links")
+            with summary("replaced external links"):
+                self.update_extlink(wikicode, extlink)
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
             # skip links inside article status templates
@@ -704,6 +760,9 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
                 # replace back
                 target.value = str(wl.title)
                 wikicode.replace(wl, template)
+            elif template.name.lower() == "man":
+                with summary("updated man page links"):
+                    self.update_man_template(wikicode, template)
 
         # deduplicate and keep order
         parts = set()
