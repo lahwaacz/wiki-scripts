@@ -692,9 +692,9 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
                 continue
             _pure_template = lang.detect_language(str(template.name))[0]
             if _pure_template.lower() in {"related", "related2"}:
-                target = template.get(1)
+                target = template.get(1).value
                 # temporarily convert the {{Related}} to wikilink to reuse the update code
-                wl = mwparserfromhell.nodes.wikilink.Wikilink(str(target))
+                wl = mwparserfromhell.nodes.wikilink.Wikilink(target)
                 wikicode.replace(template, wl)
                 # update
                 self.update_wikilink(wikicode, wl, src_title, summary_parts)
