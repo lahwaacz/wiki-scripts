@@ -152,7 +152,7 @@ def get_anchors(headings, pretty=False, suffix_sep="_"):
         anchors[i] = anchor
     return anchors
 
-def ensure_flagged_by_template(wikicode, node, template_name, *template_parameters):
+def ensure_flagged_by_template(wikicode, node, template_name, *template_parameters, overwrite_parameters=True):
     """
     Makes sure that ``node`` in ``wikicode`` is immediately (except for
     whitespace) followed by a template with ``template_name`` and optional
@@ -176,7 +176,11 @@ def ensure_flagged_by_template(wikicode, node, template_name, *template_paramete
     assert(isinstance(flag, mwparserfromhell.nodes.Template))
 
     if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches(template_name):
-        wikicode.replace(adjacent, flag)
+        # in case of {{Dead link}} we want to preserve the original parameters
+        if overwrite_parameters is True:
+            wikicode.replace(adjacent, flag)
+        else:
+            flag = adjacent
     else:
         wikicode.insert_after(node, flag)
 

@@ -329,6 +329,12 @@ class test_ensure_flagged:
         flag = ensure_flagged_by_template(wikicode, link, "bar", "2=param1", "1=param2")
         assert str(wikicode) == "[[foo]] {{bar|2=param1|1=param2}}"
 
+    def test_dead_link(self):
+        wikicode = mwparserfromhell.parse("[[foo]]{{Dead link|2000|01|01}}")
+        link = wikicode.nodes[0]
+        flag = ensure_flagged_by_template(wikicode, link, "Dead link", "2017", "2", "3", overwrite_parameters=False)
+        assert str(wikicode) == "[[foo]]{{Dead link|2000|01|01}}"
+
 class test_ensure_unflagged:
     def test_noop(self):
         wikicode = mwparserfromhell.parse("[[foo]]")
