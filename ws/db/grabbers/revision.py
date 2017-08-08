@@ -213,6 +213,10 @@ class GrabberRevisions(Grabber):
                 elif le["action"] == "restore":
                     undeleted_pages.add((le["title"], le["pageid"]))
 
+        # symmetric difference - simplify delete after undelete and undelete after delete
+        deleted_pages = set(page for page in deleted_pages if page not in undeleted_pages)
+        undeleted_pages = set(t for t in undeleted_pages if t[0] not in deleted_pages)
+
         # handle undelete - move the rows from archive to revision (deletes are handled in the page grabber)
         for _title, pageid in undeleted_pages:
             # ar_page_id is apparently not visible via list=alldeletedrevisions,
