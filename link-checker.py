@@ -225,6 +225,8 @@ class WikilinkRules:
                 self.db_copy[str(ns)] = self.db[str(ns)]
         self.db.dump()
 
+        self.void_update_cache = set()
+
     def check_trivial(self, wikilink):
         """
         Perform trivial simplification, replace `[[Foo|foo]]` with `[[foo]]`.
@@ -544,6 +546,10 @@ class WikilinkRules:
                 wikilink.title = wikilink.title.rstrip()
 
     def update_wikilink(self, wikicode, wikilink, src_title, summary_parts):
+        if str(wikilink) in self.void_update_cache:
+            logger.debug("Skipping wikilink {} due to void-update cache.".format(wikilink))
+            return
+
         title = Title(self.api, wikilink.title)
         # skip interlanguage links (handled by interlanguage.py)
         if title.iwprefix in self.api.site.interlanguagemap.keys():
@@ -591,6 +597,10 @@ class WikilinkRules:
             # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
             self.collapse_whitespace(wikicode, wikilink)
 
+        # cache context-less, correct wikilinks that don't need any update
+        if title.pagename and len(summary_parts) == 0 and anchor_result is True:
+            self.void_update_cache.add(str(wikilink))
+
 
 class ManTemplateRules:
     url_template = "http://man7.org/linux/man-pages/man{secnum}/{pagename}.{secnum}.html"
@@ -601,6 +611,9 @@ class ManTemplateRules:
         adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
         self.session.mount("https://", adapter)
         self.session.mount("http://", adapter)
+
+        self.cache_valid_urls = set()
+        self.cache_invalid_urls = set()
 
     def update_man_template(self, wikicode, template):
         if template.name.lower() != "man":
@@ -623,10 +636,16 @@ class ManTemplateRules:
             explicit_url = None
 
         def check_url(url):
+            if url in self.cache_valid_urls:
+                return True
+            elif url in self.cache_invalid_urls:
+                return False
             response = self.session.get(url, timeout=self.timeout)
             if response.status_code == 200:
+                self.cache_valid_urls.add(url)
                 return True
             elif response.status_code >= 400:
+                self.cache_invalid_urls.add(url)
                 return False
             else:
                 raise NotImplementedError("Unexpected status code {} for man page URL: {}".format(response.status_code, url))
