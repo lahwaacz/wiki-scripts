@@ -5,7 +5,6 @@
 #   how hard is skipping code blocks?
 
 # TODO:
-#   skip category links, article status templates
 #   detect self-redirects (definitely interactive only)
 #   changes rejected interactively should be logged
 #   warn if the link leads to an archived page
