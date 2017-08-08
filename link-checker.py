@@ -614,11 +614,11 @@ class ManTemplateRules:
             ensure_flagged_by_template(wikicode, template, "Dead link", *deadlink_params, overwrite_parameters=False)
             return
 
-        url = self.url_template.format(secnum=template.get(1), pagename=queryencode(template.get(2)))
+        url = self.url_template.format(secnum=template.get(1).value.strip(), pagename=queryencode(template.get(2).value.strip()))
         if template.has(3):
-            url += "#{}".format(queryencode(template.get(3)))
+            url += "#{}".format(queryencode(template.get(3).value.strip()))
         if template.has("url"):
-            explicit_url = template.get("url").value
+            explicit_url = template.get("url").value.strip()
         else:
             explicit_url = None
 
