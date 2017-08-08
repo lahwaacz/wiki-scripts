@@ -159,7 +159,7 @@ class GrabberRevisions(Grabber):
                 "ar_title": title.dbtitle(page["ns"]),
                 "ar_rev_id": rev["revid"],
                 # NOTE: list=alldeletedrevisions always returns 0
-                "ar_page_id": value_or_none(page["pageid"]),
+                "ar_page_id": value_or_none(page.get("pageid")),
                 "ar_comment": rev["comment"],
                 "ar_user": rev["userid"],
                 "ar_user_text": rev["user"],
@@ -236,7 +236,25 @@ class GrabberRevisions(Grabber):
         # deleting an existing page, which creates an entry in the logging table. We
         # still need to query the API with prop=deletedrevisions to get even the
         # revisions that were created and deleted since the last sync.
-        # TODO: implement this note
+        for chunk in ws.utils.iter_chunks(deleted_pages, self.api.max_ids_per_query):
+            params = {
+                "action": "query",
+                "titles": "|".join(chunk),
+                "prop": "deletedrevisions",
+                "drvprop": self.adr_params["adrprop"],
+                "drvlimit": "max",
+                "drvstart": since,
+                "drvdir": "newer",
+            }
+            result = self.api.call_api(params, expand_result=False)
+            # TODO: handle 'drvcontinue'
+            if "drvcontinue" in result:
+                raise NotImplementedError("Handling of the 'drvcontinue' parameter is not implemented.")
+            for page in result["query"]["pages"].values():
+                if "deletedrevisions" in page:
+                    # update the dict for gen_deletedrevisions to understand
+                    page["revisions"] = page.pop("deletedrevisions")
+                    yield from self.gen_deletedrevisions(page)
 
         # TODO: update rev_deleted and ar_deleted
         # TODO: handle merge and unmerge
