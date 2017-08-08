@@ -659,7 +659,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
             and edit_summary is the description of performed changes
         """
         # FIXME: ideally "DeveloperWiki:" would be a proper namespace
-        if src_title in self.skip_pages or src_title.startswith("DeveloperWiki:"):
+        if lang.detect_language(src_title)[0] in self.skip_pages or src_title.startswith("DeveloperWiki:"):
             logger.info("Skipping blacklisted page [[{}]]".format(src_title))
             return text, ""
 
