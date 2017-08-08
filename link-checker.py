@@ -400,10 +400,6 @@ class WikilinkRules:
         if title.sectionname == "":
             return None
 
-        # FIXME: indecisive due to missing expansion of transclusions
-        if title.pagename.startswith("List of applications"):
-            return None
-
         # determine target page
         if title.fullpagename:
             _target_ns = title.namespacenumber
@@ -426,6 +422,10 @@ class WikilinkRules:
                 anchor_on_redirect_to_section = True
             _target_ns = _new_title.namespacenumber
             _target_title = _new_title.fullpagename
+
+        # FIXME: indecisive due to missing expansion of transclusions
+        if _target_title.startswith("List of applications"):
+            return None
 
         # lookup target page content
         # TODO: pulling revisions from cache does not expand templates
