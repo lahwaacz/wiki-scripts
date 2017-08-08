@@ -607,7 +607,8 @@ class ManTemplateRules:
             return
 
         now = datetime.datetime.utcnow()
-        deadlink_params = [str(now.year), str(now.month), str(now.day)]
+        deadlink_params = [now.year, now.month, now.day]
+        deadlink_params = ["{:02d}".format(i) for i in deadlink_params]
 
         if not template.has(1, ignore_empty=True) or not template.has(2, ignore_empty=True):
             ensure_flagged_by_template(wikicode, template, "Dead link", *deadlink_params, overwrite_parameters=False)
