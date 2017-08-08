@@ -382,7 +382,12 @@ class WikilinkRules:
 
         # skip if only the case of the first letter is different
         if wikilink.title[1:] != new[1:]:
+            first_letter = wikilink.title[0]
             wikilink.title = new
+            # preserve the case of the first letter if the rest differs only in spaces/underscores
+            # (e.g. don't replace [[environment_variables]] with [[Environment variables]])
+            if wikilink.title[1:].replace(" ", "_") == new[1:].replace(" ", "_"):
+                wikilink.title = first_letter + wikilink.title[1:]
             title.parse(wikilink.title)
 
     def check_anchor(self, wikilink, title, srcpage):
