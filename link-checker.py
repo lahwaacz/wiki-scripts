@@ -686,6 +686,9 @@ class LinkChecker(ExtlinkRules, WikilinkRules):
             self.update_wikilink(wikicode, wikilink, src_title, summary_parts)
 
         for template in wikicode.ifilter_templates(recursive=True):
+            # skip templates that may be added or removed
+            if str(template.name) in {"Broken section link"}:
+                continue
             # skip links inside article status templates
             parent = wikicode.get(wikicode.index(template, recursive=True))
             if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
