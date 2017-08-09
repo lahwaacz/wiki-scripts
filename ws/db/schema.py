@@ -340,7 +340,7 @@ def create_revisions_tables(metadata):
         Column("tag_name", Unicode(255), nullable=False),
         Column("tag_displayname", Unicode(255), nullable=False),
         Column("tag_description", UnicodeText),
-        Column("tag_active", Boolean, nullable=False, server_default=True)
+        Column("tag_active", Boolean, nullable=False, server_default="1")
     )
 
     # MW incompatibility: MediaWiki stores the tag name (ct_tag) instead of the foreign key to ct_tag_id
