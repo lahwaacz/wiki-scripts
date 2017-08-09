@@ -198,7 +198,7 @@ class GrabberRevisions(Grabber):
             yield from self.gen_revisions(page)
 
         deleted_pages = set()
-        undeleted_pages = set()
+        undeleted_pages = {}
 
         le_params = {
             "type": "delete",
@@ -210,15 +210,17 @@ class GrabberRevisions(Grabber):
             if le["type"] == "delete":
                 if le["action"] == "delete":
                     deleted_pages.add(le["title"])
+                    # keep only the most recent action
+                    if le["title"] in undeleted_pages:
+                        del undeleted_pages[le["title"]]
                 elif le["action"] == "restore":
-                    undeleted_pages.add((le["title"], le["pageid"]))
-
-        # symmetric difference - simplify delete after undelete and undelete after delete
-        deleted_pages = set(page for page in deleted_pages if page not in undeleted_pages)
-        undeleted_pages = set(t for t in undeleted_pages if t[0] not in deleted_pages)
+                    undeleted_pages[le["title"]] = le["pageid"]
+                    # keep only the most recent action
+                    if le["title"] in deleted_pages:
+                        deleted_pages.remove(le["title"])
 
         # handle undelete - move the rows from archive to revision (deletes are handled in the page grabber)
-        for _title, pageid in undeleted_pages:
+        for _title, pageid in undeleted_pages.items():
             # ar_page_id is apparently not visible via list=alldeletedrevisions,
             # so we have to update it here first
             title = Title(self.api, _title)
