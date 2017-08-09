@@ -27,7 +27,14 @@ Known incompatibilities from MediaWiki schema:
   where we add a dummy user with id = 0 to represent anonymous users.
 - Removed default values from all timestamp columns.
 - Removed silly default values - if we don't know, let's make it NULL.
-- Revamped the tags tables.
+- Revamped the tags tables:
+    - Besides the tag name, we need to store everything that MediaWiki generates
+      or stores elsewhere.
+    - The change_tag table was split into tagged_recentchange, tagged_logevent,
+      tagged_revision and tagged_archived_revision. Foreign keys on the other
+      tables are enforced.
+    - The equivalent of the tag_summary table does not exist, we can live with
+      the GROUP BY queries.
 """
 
 # TODO:
@@ -103,6 +110,14 @@ def create_site_tables(metadata):
         Column("iw_trans", SmallInteger, nullable=False, server_default="0")
     )
     Index("iw_prefix", interwiki.c.iw_prefix, unique=True)
+
+    tag = Table("tag", metadata,
+        Column("tag_id", Integer, primary_key=True, nullable=False),
+        Column("tag_name", Unicode(255), nullable=False),
+        Column("tag_displayname", Unicode(255), nullable=False),
+        Column("tag_description", UnicodeText),
+        Column("tag_active", Boolean, nullable=False, server_default="1")
+    )
 
 
 def create_recentchanges_tables(metadata):
@@ -188,6 +203,18 @@ def create_recentchanges_tables(metadata):
     Index("log_type_action", logging.c.log_type, logging.c.log_action, logging.c.log_timestamp)
     Index("log_user_text_type_time", logging.c.log_user_text, logging.c.log_type, logging.c.log_timestamp)
     Index("log_user_text_time", logging.c.log_user_text, logging.c.log_timestamp)
+
+    tagged_recentchange = Table("tagged_recentchange", metadata,
+        Column("tgrc_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        Column("tgrc_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
+        PrimaryKeyConstraint("tgrc_tag_id", "tgrc_rc_id")
+    )
+
+    tagged_logevent = Table("tagged_logevent", metadata,
+        Column("tgle_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        Column("tgle_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
+        PrimaryKeyConstraint("tgle_tag_id", "tgle_log_id")
+    )
 
 
 def create_users_tables(metadata):
@@ -334,33 +361,17 @@ def create_revisions_tables(metadata):
         Column("old_flags", TinyBlob, nullable=False)
     )
 
-    # MW incompatibility: MediaWiki does not store anything but the tag name in its 'valid_tag' table
-    valid_tag = Table("tag", metadata,
-        Column("tag_id", Integer, primary_key=True, nullable=False),
-        Column("tag_name", Unicode(255), nullable=False),
-        Column("tag_displayname", Unicode(255), nullable=False),
-        Column("tag_description", UnicodeText),
-        Column("tag_active", Boolean, nullable=False, server_default="1")
+    tagged_revision = Table("tagged_revision", metadata,
+        Column("tgrev_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        Column("tgrev_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
+        PrimaryKeyConstraint("tgrev_tag_id", "tgrev_rev_id")
     )
 
-    # MW incompatibility: MediaWiki stores the tag name (ct_tag) instead of the foreign key to ct_tag_id
-    change_tag = Table("change_tag", metadata,
-        Column("ct_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
-        Column("ct_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
-        Column("ct_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
-        Column("ct_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
-        Column("ct_ar_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
-        # optional tag parameters (some extensions store the source and target language for translations)
-        Column("ct_params", Blob)
+    tagged_archived_revision = Table("tagged_archived_revision", metadata,
+        Column("tgar_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        Column("tgar_rev_id", Integer, ForeignKey("archive.ar_rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
+        PrimaryKeyConstraint("tgar_tag_id", "tgar_rev_id")
     )
-    Index("change_tag_id_rc", change_tag.c.ct_tag_id, change_tag.c.ct_rc_id, unique=True)
-    Index("change_tag_id_log", change_tag.c.ct_tag_id, change_tag.c.ct_log_id, unique=True)
-    Index("change_tag_id_rev", change_tag.c.ct_tag_id, change_tag.c.ct_rev_id, unique=True)
-    Index("change_tag_id_ar_rev", change_tag.c.ct_tag_id, change_tag.c.ct_ar_rev_id, unique=True)
-    Index("change_tag_ids", change_tag.c.ct_tag_id, change_tag.c.ct_rc_id, change_tag.c.ct_log_id, change_tag.c.ct_rev_id, change_tag.c.ct_ar_rev_id)
-
-    # MW incompatibility: MediaWiki maintains one more table with tags aggregated per revision,
-    # we just try to live with the correct solution using GROUP BY
 
 
 def create_pages_tables(metadata):
