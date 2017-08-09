@@ -115,20 +115,9 @@ class GrabberProtectedTitles(Grabber):
         # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
         # By default the max age is 13 weeks: if a larger timespan is requested
         # here, it's very important to warn that the changes are not available
-#        if self.api.oldest_recent_change > since:
         if rc.oldest_recent_change(self.db) > since:
             raise ShortRecentChangesError()
 
-#        rc_params = {
-#            "action": "query",
-#            "list": "recentchanges",
-#            "rctype": "new|log",
-#            "rcprop": "ids|title|loginfo",
-#            "rclimit": "max",
-#            "rcdir": "newer",
-#            "rcstart": since,
-#        }
-#        for change in self.api.list(rc_params):
         rc_params = {
             "type": {"new", "log"},
             "prop": {"ids", "title", "loginfo"},
