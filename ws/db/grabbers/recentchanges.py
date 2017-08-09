@@ -111,11 +111,15 @@ class GrabberRecentChanges(Grabber):
             yield from self.gen_inserts_from_rc(rc)
 
     def gen_update(self, since):
+        # other tables are up-to-date unless new rows are added to recentchanges
+        self.update_other_tables = False
+
         params = self.rc_params.copy()
         params["rcdir"] = "newer"
         params["rcstart"] = since
 
         for rc in self.api.list(params):
+            self.update_other_tables = True
             yield from self.gen_inserts_from_rc(rc)
 
         # patrol logs are not recorded in the recentchanges table, so we need to
@@ -125,6 +129,7 @@ class GrabberRecentChanges(Grabber):
         params["lestart"] = since
 
         for le in self.api.list(params):
+            self.update_other_tables = True
             yield from self.gen_updates_from_le(le)
 
         # TODO: go through the new logevents in the local recentchanges table and update rc_deleted,

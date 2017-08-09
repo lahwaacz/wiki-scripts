@@ -27,9 +27,12 @@ def main(api, db):
     g.update()
     pprint(grabbers.namespace.select(db))
 
-    # TODO: if no recent change has been added, it's safe to assume that the other tables are up to date as well
     g = grabbers.recentchanges.GrabberRecentChanges(api, db)
     g.update()
+
+    # if no recent change has been added, it's safe to assume that the other tables are up to date as well
+    if g.update_other_tables is False:
+        return
 
     g = grabbers.user.GrabberUsers(api, db)
     g.update()

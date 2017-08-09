@@ -24,6 +24,9 @@ class Grabber:
         self.api = api
         self.db = db
 
+        # GrabberRecentChanges can set this to False to indicate that other tables don't have to be updated
+        self.update_other_tables = True
+
     def _set_sync_timestamp(self, timestamp, conn=None):
         """
         Set a last-sync timestamp for the grabber. Writes into the custom
@@ -128,7 +131,6 @@ class Grabber:
         except ShortRecentChangesError:
             logger.warning("The recent changes table on the wiki has been recently purged, starting from scratch.")
             self.insert()
-            return
 
     def _execute(self, gen, sync_timestamp):
         with self.db.engine.begin() as conn:
