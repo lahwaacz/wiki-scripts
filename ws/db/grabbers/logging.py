@@ -18,6 +18,7 @@ class GrabberLogging(Grabber):
         super().__init__(api, db)
 
         ins_logging = sa.dialects.postgresql.insert(db.logging)
+        ins_tgle = sa.dialects.postgresql.insert(db.tagged_logevent)
 
         self.sql = {
             ("insert", "logging"):
@@ -27,11 +28,18 @@ class GrabberLogging(Grabber):
                         # this should be the only column that may change in the table
                         "log_deleted": ins_logging.excluded.log_deleted,
                     }),
+            ("insert", "tagged_logevent"):
+                ins_tgle.values(
+                    tgle_log_id=sa.bindparam("b_log_id"),
+                    tgle_tag_id=sa.select([db.tag.c.tag_id]) \
+                                    .select_from(db.tag) \
+                                    .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
+                    .on_conflict_do_nothing()
         }
 
         self.le_params = {
             "list": "logevents",
-            "leprop": "title|ids|type|user|userid|timestamp|comment|details",
+            "leprop": "title|ids|type|user|userid|timestamp|comment|details|tags",
             "lelimit": "max",
         }
 
@@ -66,6 +74,13 @@ class GrabberLogging(Grabber):
             "log_deleted": log_deleted,
         }
         yield self.sql["insert", "logging"], db_entry
+
+        for tag_name in logevent.get("tags", []):
+            db_entry = {
+                "b_log_id": logevent["logid"],
+                "b_tag_name": tag_name,
+            }
+            yield self.sql["insert", "tagged_logevent"], db_entry
 
     def gen_insert(self):
         for logevent in self.api.list(self.le_params):
