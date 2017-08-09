@@ -93,6 +93,103 @@ def create_custom_tables(metadata):
     )
 
 
+def create_site_tables(metadata):
+    interwiki = Table("interwiki", metadata,
+        Column("iw_prefix", Unicode(32), nullable=False),
+        Column("iw_url", Blob, nullable=False),
+        Column("iw_api", Blob, nullable=False),
+        Column("iw_wikiid", Unicode(64), nullable=False),
+        Column("iw_local", Boolean, nullable=False),
+        Column("iw_trans", SmallInteger, nullable=False, server_default="0")
+    )
+    Index("iw_prefix", interwiki.c.iw_prefix, unique=True)
+
+
+def create_recentchanges_tables(metadata):
+    # Instead of rc_namespace,rc_title there could be a foreign key to page.page_id,
+    # but recentchanges is probably intended to hold entries even if the page has
+    # been deleted in the meantime.
+    # We also don't set a foreign key constraint on rc_user for convenience, so that
+    # recentchanges can be populated independently of other tables, which can then
+    # use this for syncing.
+    recentchanges = Table("recentchanges", metadata,
+        Column("rc_id", Integer, primary_key=True, nullable=False),
+        Column("rc_timestamp", MWTimestamp, nullable=False),
+        # fake foreign key (see note above): rc_user -> user.user_id
+        Column("rc_user", Integer),
+        Column("rc_user_text", UnicodeBinary(255), nullable=False),
+        # recentchanges table may contain rows with rc_namespace < 0
+        Column("rc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        Column("rc_title", UnicodeBinary(255), nullable=False),
+        Column("rc_comment", UnicodeBinary(767), nullable=False),
+        Column("rc_minor", Boolean, nullable=False, server_default="0"),
+        Column("rc_bot", Boolean, nullable=False, server_default="0"),
+        Column("rc_new", Boolean, nullable=False, server_default="0"),
+        # fake foreign key (see note above): rc_cur_id -> page.page_id
+        Column("rc_cur_id", Integer),
+        # fake foreign key (see note above): rc_this_oldid -> revision.rev_id
+        Column("rc_this_oldid", Integer),
+        # fake foreign key (see note above): rc_last_oldid -> revision.rev_id
+        Column("rc_last_oldid", Integer),
+        # TODO: MW 1.27 added a "categorize" value, see https://www.mediawiki.org/wiki/Manual:CategoryMembershipChanges
+        Column("rc_type", Enum("edit", "new", "log", "external", name="rc_type"), nullable=False),
+        # MW incompatibility: nullable since it is not available via API
+        Column("rc_source", UnicodeBinary(16)),
+        Column("rc_patrolled", Boolean, nullable=False, server_default="0"),
+        # MW incompatibility: nullable since it is not available via API
+        Column("rc_ip", UnicodeBinary(40)),
+        Column("rc_old_len", Integer),
+        Column("rc_new_len", Integer),
+        # TODO: analogous to rev_deleted or log_deleted, should be Bitfield
+        Column("rc_deleted", SmallInteger, nullable=False, server_default="0"),
+        # fake foreign key (see note above): rc_logid -> logging.log_id
+        Column("rc_logid", Integer),
+        Column("rc_log_type", UnicodeBinary(255)),
+        Column("rc_log_action", UnicodeBinary(255)),
+        # MW incompatibility: In MediaWiki, log_params is a Blob which is supposed to
+        # hold either LF separated list or serialized PHP array. We store a JSON
+        # serialization of what the API gives us.
+        Column("rc_params", JSONEncodedDict)
+    )
+    Index("rc_timestamp", recentchanges.c.rc_timestamp)
+    Index("rc_namespace_title", recentchanges.c.rc_namespace, recentchanges.c.rc_title)
+    Index("rc_cur_id", recentchanges.c.rc_cur_id)
+    Index("rc_new_name_timestamp", recentchanges.c.rc_new, recentchanges.c.rc_namespace, recentchanges.c.rc_timestamp)
+    Index("rc_ip", recentchanges.c.rc_ip)
+    Index("rc_ns_usertext", recentchanges.c.rc_namespace, recentchanges.c.rc_user_text)
+    Index("rc_user_text", recentchanges.c.rc_user_text, recentchanges.c.rc_timestamp)
+
+    logging = Table("logging", metadata,
+        Column("log_id", Integer, primary_key=True, nullable=False),
+        Column("log_type", UnicodeBinary(32), nullable=False),
+        Column("log_action", UnicodeBinary(32), nullable=False),
+        Column("log_timestamp", MWTimestamp, nullable=False),
+        Column("log_user", Integer, ForeignKey("user.user_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
+        Column("log_user_text", UnicodeBinary(255), nullable=False),
+        # logging table may contain rows with log_namespace < 0
+        Column("log_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        Column("log_title", UnicodeBinary(255), nullable=False),
+        # this must NOT be a FK - pages can disappear and reappear, log entries are invariant
+        Column("log_page", Integer),
+        Column("log_comment", UnicodeBinary(767), nullable=False),
+        # MW incompatibility: In MediaWiki, log_params is a Blob which is supposed to
+        # hold either LF separated list or serialized PHP array. We store a JSON
+        # serialization of what the API gives us.
+        Column("log_params", JSONEncodedDict, nullable=False),
+        # TODO: analogous to rev_deleted, should be Bitfield
+        Column("log_deleted", SmallInteger, nullable=False, server_default="0")
+    )
+    Index("log_type_time", logging.c.log_type, logging.c.log_timestamp)
+    Index("log_user_time", logging.c.log_user, logging.c.log_timestamp)
+    Index("log_page_time", logging.c.log_namespace, logging.c.log_title, logging.c.log_timestamp)
+    Index("log_time", logging.c.log_timestamp)
+    Index("log_user_type_time", logging.c.log_user, logging.c.log_type, logging.c.log_timestamp)
+    Index("log_page_id_time", logging.c.log_page, logging.c.log_timestamp)
+    Index("log_type_action", logging.c.log_type, logging.c.log_action, logging.c.log_timestamp)
+    Index("log_user_text_type_time", logging.c.log_user_text, logging.c.log_type, logging.c.log_timestamp)
+    Index("log_user_text_time", logging.c.log_user_text, logging.c.log_timestamp)
+
+
 def create_users_tables(metadata):
     user = Table("user", metadata,
         # In MediaWiki it's 0 for anonymous edits, initialization scripts and some mass imports.
@@ -265,6 +362,7 @@ def create_revisions_tables(metadata):
     # MW incompatibility: MediaWiki maintains one more table with tags aggregated per revision,
     # we just try to live with the correct solution using GROUP BY
 
+
 def create_pages_tables(metadata):
     # MW incompatibility: removed page.page_restrictions column (unused since MW 1.9)
     page = Table("page", metadata,
@@ -403,103 +501,6 @@ def create_recomputable_tables(metadata):
         Column("cl_collation", UnicodeBinary(32), nullable=False, server_default=""),
         Column("cl_type", Enum("page", "subcat", "file", name="cl_type"), nullable=False, server_default="page")
     )
-
-
-def create_recentchanges_tables(metadata):
-    # Instead of rc_namespace,rc_title there could be a foreign key to page.page_id,
-    # but recentchanges is probably intended to hold entries even if the page has
-    # been deleted in the meantime.
-    # We also don't set a foreign key constraint on rc_user for convenience, so that
-    # recentchanges can be populated independently of other tables, which can then
-    # use this for syncing.
-    recentchanges = Table("recentchanges", metadata,
-        Column("rc_id", Integer, primary_key=True, nullable=False),
-        Column("rc_timestamp", MWTimestamp, nullable=False),
-        # fake foreign key (see note above): rc_user -> user.user_id
-        Column("rc_user", Integer),
-        Column("rc_user_text", UnicodeBinary(255), nullable=False),
-        # recentchanges table may contain rows with rc_namespace < 0
-        Column("rc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
-        Column("rc_title", UnicodeBinary(255), nullable=False),
-        Column("rc_comment", UnicodeBinary(767), nullable=False),
-        Column("rc_minor", Boolean, nullable=False, server_default="0"),
-        Column("rc_bot", Boolean, nullable=False, server_default="0"),
-        Column("rc_new", Boolean, nullable=False, server_default="0"),
-        # fake foreign key (see note above): rc_cur_id -> page.page_id
-        Column("rc_cur_id", Integer),
-        # fake foreign key (see note above): rc_this_oldid -> revision.rev_id
-        Column("rc_this_oldid", Integer),
-        # fake foreign key (see note above): rc_last_oldid -> revision.rev_id
-        Column("rc_last_oldid", Integer),
-        # TODO: MW 1.27 added a "categorize" value, see https://www.mediawiki.org/wiki/Manual:CategoryMembershipChanges
-        Column("rc_type", Enum("edit", "new", "log", "external", name="rc_type"), nullable=False),
-        # MW incompatibility: nullable since it is not available via API
-        Column("rc_source", UnicodeBinary(16)),
-        Column("rc_patrolled", Boolean, nullable=False, server_default="0"),
-        # MW incompatibility: nullable since it is not available via API
-        Column("rc_ip", UnicodeBinary(40)),
-        Column("rc_old_len", Integer),
-        Column("rc_new_len", Integer),
-        # TODO: analogous to rev_deleted or log_deleted, should be Bitfield
-        Column("rc_deleted", SmallInteger, nullable=False, server_default="0"),
-        # fake foreign key (see note above): rc_logid -> logging.log_id
-        Column("rc_logid", Integer),
-        Column("rc_log_type", UnicodeBinary(255)),
-        Column("rc_log_action", UnicodeBinary(255)),
-        # MW incompatibility: In MediaWiki, log_params is a Blob which is supposed to
-        # hold either LF separated list or serialized PHP array. We store a JSON
-        # serialization of what the API gives us.
-        Column("rc_params", JSONEncodedDict)
-    )
-    Index("rc_timestamp", recentchanges.c.rc_timestamp)
-    Index("rc_namespace_title", recentchanges.c.rc_namespace, recentchanges.c.rc_title)
-    Index("rc_cur_id", recentchanges.c.rc_cur_id)
-    Index("rc_new_name_timestamp", recentchanges.c.rc_new, recentchanges.c.rc_namespace, recentchanges.c.rc_timestamp)
-    Index("rc_ip", recentchanges.c.rc_ip)
-    Index("rc_ns_usertext", recentchanges.c.rc_namespace, recentchanges.c.rc_user_text)
-    Index("rc_user_text", recentchanges.c.rc_user_text, recentchanges.c.rc_timestamp)
-
-    logging = Table("logging", metadata,
-        Column("log_id", Integer, primary_key=True, nullable=False),
-        Column("log_type", UnicodeBinary(32), nullable=False),
-        Column("log_action", UnicodeBinary(32), nullable=False),
-        Column("log_timestamp", MWTimestamp, nullable=False),
-        Column("log_user", Integer, ForeignKey("user.user_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
-        Column("log_user_text", UnicodeBinary(255), nullable=False),
-        # logging table may contain rows with log_namespace < 0
-        Column("log_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
-        Column("log_title", UnicodeBinary(255), nullable=False),
-        # this must NOT be a FK - pages can disappear and reappear, log entries are invariant
-        Column("log_page", Integer),
-        Column("log_comment", UnicodeBinary(767), nullable=False),
-        # MW incompatibility: In MediaWiki, log_params is a Blob which is supposed to
-        # hold either LF separated list or serialized PHP array. We store a JSON
-        # serialization of what the API gives us.
-        Column("log_params", JSONEncodedDict, nullable=False),
-        # TODO: analogous to rev_deleted, should be Bitfield
-        Column("log_deleted", SmallInteger, nullable=False, server_default="0")
-    )
-    Index("log_type_time", logging.c.log_type, logging.c.log_timestamp)
-    Index("log_user_time", logging.c.log_user, logging.c.log_timestamp)
-    Index("log_page_time", logging.c.log_namespace, logging.c.log_title, logging.c.log_timestamp)
-    Index("log_time", logging.c.log_timestamp)
-    Index("log_user_type_time", logging.c.log_user, logging.c.log_type, logging.c.log_timestamp)
-    Index("log_page_id_time", logging.c.log_page, logging.c.log_timestamp)
-    Index("log_type_action", logging.c.log_type, logging.c.log_action, logging.c.log_timestamp)
-    Index("log_user_text_type_time", logging.c.log_user_text, logging.c.log_type, logging.c.log_timestamp)
-    Index("log_user_text_time", logging.c.log_user_text, logging.c.log_timestamp)
-
-
-def create_siteinfo_tables(metadata):
-    interwiki = Table("interwiki", metadata,
-        Column("iw_prefix", Unicode(32), nullable=False),
-        Column("iw_url", Blob, nullable=False),
-        Column("iw_api", Blob, nullable=False),
-        Column("iw_wikiid", Unicode(64), nullable=False),
-        Column("iw_local", Boolean, nullable=False),
-        Column("iw_trans", SmallInteger, nullable=False, server_default="0")
-    )
-    Index("iw_prefix", interwiki.c.iw_prefix, unique=True)
 
 
 def create_multimedia_tables(metadata):
@@ -699,8 +700,9 @@ def create_unused_tables(metadata):
 
 def create_tables(metadata):
     create_custom_tables(metadata)
+    create_site_tables(metadata)
+    create_recentchanges_tables(metadata)
     create_users_tables(metadata)
     create_revisions_tables(metadata)
     create_pages_tables(metadata)
-    create_recentchanges_tables(metadata)
     metadata.create_all()
