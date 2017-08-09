@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-from sqlalchemy import select
-from sqlalchemy.sql import func
+import sqlalchemy as sa
 
 import ws.db.mw_constants as mwconst
 
@@ -66,13 +65,11 @@ def list(db, params=None, **kwargs):
     set_defaults(params)
     sanitize_params(params)
 
-    if {"tag", "limit", "continue"} & set(params):
-        raise NotImplementedError
-    if "tags" in params["prop"]:
+    if {"limit", "continue"} & set(params):
         raise NotImplementedError
 
     rc = db.recentchanges
-    s = select([rc.c.rc_type, rc.c.rc_deleted])
+    s = sa.select([rc.c.rc_type, rc.c.rc_deleted])
 
     prop = params["prop"]
     if "user" in prop:
@@ -121,6 +118,19 @@ def list(db, params=None, **kwargs):
         tail = tail.outerjoin(page, (rc.c.rc_namespace == page.c.page_namespace) &
                                     (rc.c.rc_title == page.c.page_title))
         s.append_column(page.c.page_is_redirect)
+    if "tag" in params or "tags" in prop:
+        tag = db.tag
+        tgrc = db.tagged_recentchange
+        # aggregate all tag names corresponding to the same revision into an array
+        # (basically 'SELECT tgrc_rc_id, array_agg(tag_name) FROM tag JOIN tagged_recentchange GROUP BY tgrc_rc_id')
+        # TODO: make a materialized view for this
+        tag_names = sa.select([tgrc.c.tgrc_rc_id,
+                               sa.func.array_agg(tag.c.tag_name).label("tag_names")]) \
+                        .select_from(tag.join(tgrc, tag.c.tag_id == tgrc.c.tgrc_tag_id)) \
+                        .group_by(tgrc.c.tgrc_rc_id) \
+                        .cte("tag_names")
+        tail = tail.outerjoin(tag_names, rc.c.rc_id == tag_names.c.tgrc_rc_id)
+        s.append_column(tag_names.c.tag_names)
     s = s.select_from(tail)
 
     # restrictions
@@ -252,6 +262,10 @@ def db_to_api(row):
         api_entry["userhidden"] = ""
     if row["rc_deleted"] & mwconst.DELETED_RESTRICTED:
         api_entry["suppressed"] = ""
+    # set tags to [] instead of None
+    if "tag_names" in row:
+        api_entry["tags"] = row["tag_names"] or []
+        api_entry["tags"].sort()
 
     return api_entry
 
@@ -261,5 +275,5 @@ def oldest_recent_change(db):
     """
     Get timestamp of the oldest change stored in the recentchanges table.
     """
-    result = db.engine.execute(select( [func.min(db.recentchanges.c.rc_timestamp)] ))
+    result = db.engine.execute(sa.select( [sa.func.min(db.recentchanges.c.rc_timestamp)] ))
     return result.fetchone()[0]
