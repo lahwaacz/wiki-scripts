@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-from sqlalchemy import select
-from sqlalchemy.sql import func
+import sqlalchemy as sa
 
 import ws.db.mw_constants as mwconst
 
@@ -43,13 +42,11 @@ def list(db, params=None, **kwargs):
     set_defaults(params)
     sanitize_params(params)
 
-    if {"prefix", "tag", "limit", "continue"} & set(params):
-        raise NotImplementedError
-    if "tags" in params["prop"]:
+    if {"prefix", "limit", "continue"} & set(params):
         raise NotImplementedError
 
     log = db.logging
-    s = select([log.c.log_deleted])
+    s = sa.select([log.c.log_deleted])
 
     prop = params["prop"]
     if "user" in prop:
@@ -87,6 +84,25 @@ def list(db, params=None, **kwargs):
         user = db.user
         tail = tail.outerjoin(user, log.c.log_user == user.c.user_id)
         s.append_column(user.c.user_name)
+    if "tags" in prop:
+        tag = db.tag
+        tgle = db.tagged_logevent
+        # aggregate all tag names corresponding to the same revision into an array
+        # (basically 'SELECT tgle_log_id, array_agg(tag_name) FROM tag JOIN tagged_logevent GROUP BY tgle_log_id')
+        # TODO: make a materialized view for this
+        tag_names = sa.select([tgle.c.tgle_log_id,
+                               sa.func.array_agg(tag.c.tag_name).label("tag_names")]) \
+                        .select_from(tag.join(tgle, tag.c.tag_id == tgle.c.tgle_tag_id)) \
+                        .group_by(tgle.c.tgle_log_id) \
+                        .cte("tag_names")
+        tail = tail.outerjoin(tag_names, log.c.log_id == tag_names.c.tgle_log_id)
+        if "tags" in prop:
+            s.append_column(tag_names.c.tag_names)
+    if "tag" in params:
+        tag = db.tag
+        tgle = db.tagged_logevent
+        tail = tail.join(tgle, log.c.log_id == tgle.c.tgle_log_id)
+        s = s.where(tgle.c.tgle_tag_id == sa.select([tag.c.tag_id]).where(tag.c.tag_name == params["tag"]))
     s = s.select_from(tail)
 
     # restrictions
@@ -180,5 +196,9 @@ def db_to_api(row):
         api_entry["userhidden"] = ""
     if row["log_deleted"] & mwconst.DELETED_RESTRICTED:
         api_entry["suppressed"] = ""
+    # set tags to [] instead of None
+    if "tag_names" in row:
+        api_entry["tags"] = row["tag_names"] or []
+        api_entry["tags"].sort()
 
     return api_entry
