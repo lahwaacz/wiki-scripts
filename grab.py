@@ -76,7 +76,7 @@ def _check_lists(db_list, api_list):
 
 
 def select_recentchanges(api, db):
-    prop = {"title", "ids", "user", "userid", "flags", "timestamp", "comment", "sizes", "loginfo", "patrolled", "sha1", "redirect"}
+    prop = {"title", "ids", "user", "userid", "flags", "timestamp", "comment", "sizes", "loginfo", "patrolled", "sha1", "redirect", "tags"}
     api_params = {
         "list": "recentchanges",
         "rcprop": "|".join(prop),
@@ -105,7 +105,7 @@ def select_recentchanges(api, db):
 
 
 def select_logging(api, db):
-    prop = {"user", "userid", "comment", "timestamp", "title", "ids", "type", "details"}
+    prop = {"user", "userid", "comment", "timestamp", "title", "ids", "type", "details", "tags"}
     api_params = {
         "list": "logevents",
         "leprop": "|".join(prop),
