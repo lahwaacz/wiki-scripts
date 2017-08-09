@@ -27,6 +27,7 @@ Known incompatibilities from MediaWiki schema:
   where we add a dummy user with id = 0 to represent anonymous users.
 - Removed default values from all timestamp columns.
 - Removed silly default values - if we don't know, let's make it NULL.
+- Revamped the tags tables.
 """
 
 # TODO:
@@ -461,33 +462,33 @@ def create_recentchanges_tables(metadata):
 
 
 def create_siteinfo_tables(metadata):
+    # MW incompatibility: MediaWiki does not store anything but the tag name in its 'valid_tag' table
+    valid_tag = Table("tag", metadata,
+        Column("tag_id", Integer, primary_key=True, nullable=False),
+        Column("tag_name", Unicode(255), nullable=False),
+        Column("tag_displayname", Unicode(255), nullable=False),
+        Column("tag_description", UnicodeText),
+        Column("tag_active", Boolean, nullable=False, server_default=True)
+    )
+
+    # MW incompatibility: MediaWiki stores the tag name (ct_tag) instead of the foreign key to ct_tag_id
     change_tag = Table("change_tag", metadata,
+        Column("ct_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE"), nullable=False),
         Column("ct_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="SET NULL")),
         Column("ct_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE")),
-        # FIXME: archiving
         Column("ct_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE")),
-        Column("ct_tag", Unicode(255), nullable=False),
+        Column("ct_ar_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE")),
+        # optional tag parameters (some extensions store the source and target language for translations)
         Column("ct_params", Blob)
     )
-    Index("change_tag_rc_tag", change_tag.c.ct_rc_id, change_tag.c.ct_tag, unique=True)
-    Index("change_tag_log_tag", change_tag.c.ct_log_id, change_tag.c.ct_tag, unique=True)
-    Index("change_tag_rev_tag", change_tag.c.ct_rev_id, change_tag.c.ct_tag, unique=True)
-    Index("change_tag_tag_id", change_tag.c.ct_tag, change_tag.c.ct_rc_id, change_tag.c.change_tag.c.ct_rev_id, change_tag.c.ct_log_id)
+    Index("change_tag_id_rc", change_tag.c.ct_tag_id, change_tag.c.ct_rc_id, unique=True)
+    Index("change_tag_id_log", change_tag.c.ct_tag_id, change_tag.c.ct_log_id, unique=True)
+    Index("change_tag_id_rev", change_tag.c.ct_tag_id, change_tag.c.ct_rev_id, unique=True)
+    Index("change_tag_id_ar_rev", change_tag.c.ct_tag_id, change_tag.c.ct_ar_rev_id, unique=True)
+    Index("change_tag_ids", change_tag.c.ct_tag_id, change_tag.c.ct_rc_id, change_tag.c.ct_log_id, change_tag.c.ct_rev_id, change_tag.c.ct_ar_rev_id)
 
-    valid_tag = Table("valid_tag", metadata,
-        Column("vt_tag", Unicode(255), primary_key=True, nullable=False)
-    )
-
-    tag_summary = Table("tag_summary", metadata,
-        Column("ts_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="SET NULL")),
-        Column("ts_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE")),
-        # FIXME: archiving
-        Column("ts_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE")),
-        Column("ts_tags", MediumBlob, nullable=False)
-    )
-    Index("tag_summary_rc_id", tag_summary.c.ts_rc_id, unique=True)
-    Index("tag_summary_log_id", tag_summary.c.ts_log_id, unique=True)
-    Index("tag_summary_rev_id", tag_summary.c.ts_rev_id, unique=True)
+    # MW incompatibility: MediaWiki maintains one more table with tags aggregated per revision,
+    # we just try to live with the correct solution using GROUP BY
 
     interwiki = Table("interwiki", metadata,
         Column("iw_prefix", Unicode(32), nullable=False),
