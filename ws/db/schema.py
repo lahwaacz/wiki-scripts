@@ -169,7 +169,7 @@ def create_users_tables(metadata):
 #    Index("wl_user_notificationtimestamp", watchlist.c.wl_user, watchlist.c.wl_notificationtimestamp)
 
 
-def create_pages_tables(metadata):
+def create_revisions_tables(metadata):
     # MW incompatibility:
     # - removed ar_text, ar_flags columns
     # - reordered columns to match the revision table
@@ -237,6 +237,35 @@ def create_pages_tables(metadata):
         Column("old_flags", TinyBlob, nullable=False)
     )
 
+    # MW incompatibility: MediaWiki does not store anything but the tag name in its 'valid_tag' table
+    valid_tag = Table("tag", metadata,
+        Column("tag_id", Integer, primary_key=True, nullable=False),
+        Column("tag_name", Unicode(255), nullable=False),
+        Column("tag_displayname", Unicode(255), nullable=False),
+        Column("tag_description", UnicodeText),
+        Column("tag_active", Boolean, nullable=False, server_default=True)
+    )
+
+    # MW incompatibility: MediaWiki stores the tag name (ct_tag) instead of the foreign key to ct_tag_id
+    change_tag = Table("change_tag", metadata,
+        Column("ct_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        Column("ct_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
+        Column("ct_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
+        Column("ct_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
+        Column("ct_ar_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
+        # optional tag parameters (some extensions store the source and target language for translations)
+        Column("ct_params", Blob)
+    )
+    Index("change_tag_id_rc", change_tag.c.ct_tag_id, change_tag.c.ct_rc_id, unique=True)
+    Index("change_tag_id_log", change_tag.c.ct_tag_id, change_tag.c.ct_log_id, unique=True)
+    Index("change_tag_id_rev", change_tag.c.ct_tag_id, change_tag.c.ct_rev_id, unique=True)
+    Index("change_tag_id_ar_rev", change_tag.c.ct_tag_id, change_tag.c.ct_ar_rev_id, unique=True)
+    Index("change_tag_ids", change_tag.c.ct_tag_id, change_tag.c.ct_rc_id, change_tag.c.ct_log_id, change_tag.c.ct_rev_id, change_tag.c.ct_ar_rev_id)
+
+    # MW incompatibility: MediaWiki maintains one more table with tags aggregated per revision,
+    # we just try to live with the correct solution using GROUP BY
+
+def create_pages_tables(metadata):
     # MW incompatibility: removed page.page_restrictions column (unused since MW 1.9)
     page = Table("page", metadata,
         Column("page_id", Integer, primary_key=True, nullable=False),
@@ -462,34 +491,6 @@ def create_recentchanges_tables(metadata):
 
 
 def create_siteinfo_tables(metadata):
-    # MW incompatibility: MediaWiki does not store anything but the tag name in its 'valid_tag' table
-    valid_tag = Table("tag", metadata,
-        Column("tag_id", Integer, primary_key=True, nullable=False),
-        Column("tag_name", Unicode(255), nullable=False),
-        Column("tag_displayname", Unicode(255), nullable=False),
-        Column("tag_description", UnicodeText),
-        Column("tag_active", Boolean, nullable=False, server_default=True)
-    )
-
-    # MW incompatibility: MediaWiki stores the tag name (ct_tag) instead of the foreign key to ct_tag_id
-    change_tag = Table("change_tag", metadata,
-        Column("ct_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
-        Column("ct_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
-        Column("ct_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
-        Column("ct_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
-        Column("ct_ar_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
-        # optional tag parameters (some extensions store the source and target language for translations)
-        Column("ct_params", Blob)
-    )
-    Index("change_tag_id_rc", change_tag.c.ct_tag_id, change_tag.c.ct_rc_id, unique=True)
-    Index("change_tag_id_log", change_tag.c.ct_tag_id, change_tag.c.ct_log_id, unique=True)
-    Index("change_tag_id_rev", change_tag.c.ct_tag_id, change_tag.c.ct_rev_id, unique=True)
-    Index("change_tag_id_ar_rev", change_tag.c.ct_tag_id, change_tag.c.ct_ar_rev_id, unique=True)
-    Index("change_tag_ids", change_tag.c.ct_tag_id, change_tag.c.ct_rc_id, change_tag.c.ct_log_id, change_tag.c.ct_rev_id, change_tag.c.ct_ar_rev_id)
-
-    # MW incompatibility: MediaWiki maintains one more table with tags aggregated per revision,
-    # we just try to live with the correct solution using GROUP BY
-
     interwiki = Table("interwiki", metadata,
         Column("iw_prefix", Unicode(32), nullable=False),
         Column("iw_url", Blob, nullable=False),
@@ -699,6 +700,7 @@ def create_unused_tables(metadata):
 def create_tables(metadata):
     create_custom_tables(metadata)
     create_users_tables(metadata)
+    create_revisions_tables(metadata)
     create_pages_tables(metadata)
     create_recentchanges_tables(metadata)
     metadata.create_all()
