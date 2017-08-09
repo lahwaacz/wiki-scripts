@@ -154,6 +154,19 @@ def create_users_tables(metadata):
     Index("ipb_expiry", ipblocks.c.ipb_expiry)
     Index("ipb_parent_block_id", ipblocks.c.ipb_parent_block_id)
 
+    # TODO: prepared for a custom watchlist browser
+#    watchlist = Table("watchlist", metadata,
+#        Column("wl_user", Integer, ForeignKey("user.user_id"), nullable=False),
+#        # not a FK to page.page_id, because delete+undelete should not remove entries from the watchlist
+#        Column("wl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
+#        Column("wl_title", UnicodeBinary(255), nullable=False),
+#        Column("wl_notificationtimestamp", MWTimestamp),
+#        CheckConstraint("wl_namespace >= 0", name="check_namespace")
+#    )
+#    Index("wl_user", watchlist.c.wl_user, watchlist.c.wl_namespace, watchlist.c.wl_title, unique=True)
+#    Index("wl_namespace_title", watchlist.c.wl_namespace, watchlist.c.wl_title)
+#    Index("wl_user_notificationtimestamp", watchlist.c.wl_user, watchlist.c.wl_notificationtimestamp)
+
 
 def create_pages_tables(metadata):
     # MW incompatibility:
@@ -485,18 +498,6 @@ def create_siteinfo_tables(metadata):
         Column("iw_trans", SmallInteger, nullable=False, server_default="0")
     )
     Index("iw_prefix", interwiki.c.iw_prefix, unique=True)
-
-    watchlist = Table("watchlist", metadata,
-        Column("wl_user", Integer, ForeignKey("user.user_id"), nullable=False),
-        # not a FK to page.page_id, because delete+undelete should not remove entries from the watchlist
-        Column("wl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("wl_title", UnicodeBinary(255), nullable=False),
-        Column("wl_notificationtimestamp", MWTimestamp),
-        CheckConstraint("wl_namespace >= 0", name="check_namespace")
-    )
-    Index("wl_user", watchlist.c.wl_user, watchlist.c.wl_namespace, watchlist.c.wl_title, unique=True)
-    Index("wl_namespace_title", watchlist.c.wl_namespace, watchlist.c.wl_title)
-    Index("wl_user_notificationtimestamp", watchlist.c.wl_user, watchlist.c.wl_notificationtimestamp)
 
 
 def create_multimedia_tables(metadata):
