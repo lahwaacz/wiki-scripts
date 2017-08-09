@@ -7,6 +7,7 @@ from ws.db.database import Database
 
 import ws.db.grabbers as grabbers
 import ws.db.grabbers.namespace
+import ws.db.grabbers.tags
 import ws.db.grabbers.recentchanges
 import ws.db.grabbers.user
 import ws.db.grabbers.ipblocks
@@ -25,7 +26,9 @@ import ws.db.selects.protectedtitles
 def main(api, db):
     g = grabbers.namespace.GrabberNamespaces(api, db)
     g.update()
-    pprint(grabbers.namespace.select(db))
+
+    g = grabbers.tags.GrabberTags(api, db)
+    g.update()
 
     g = grabbers.recentchanges.GrabberRecentChanges(api, db)
     g.update()
