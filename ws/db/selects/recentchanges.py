@@ -118,7 +118,7 @@ def list(db, params=None, **kwargs):
         tail = tail.outerjoin(page, (rc.c.rc_namespace == page.c.page_namespace) &
                                     (rc.c.rc_title == page.c.page_title))
         s.append_column(page.c.page_is_redirect)
-    if "tag" in params or "tags" in prop:
+    if "tags" in prop:
         tag = db.tag
         tgrc = db.tagged_recentchange
         # aggregate all tag names corresponding to the same revision into an array
@@ -130,7 +130,13 @@ def list(db, params=None, **kwargs):
                         .group_by(tgrc.c.tgrc_rc_id) \
                         .cte("tag_names")
         tail = tail.outerjoin(tag_names, rc.c.rc_id == tag_names.c.tgrc_rc_id)
-        s.append_column(tag_names.c.tag_names)
+        if "tags" in prop:
+            s.append_column(tag_names.c.tag_names)
+    if "tag" in params:
+        tag = db.tag
+        tgrc = db.tagged_recentchange
+        tail = tail.join(tgrc, rc.c.rc_id == tgrc.c.tgrc_rc_id)
+        s = s.where(tgrc.c.tgrc_tag_id == sa.select([tag.c.tag_id]).where(tag.c.tag_name == params["tag"]))
     s = s.select_from(tail)
 
     # restrictions
