@@ -20,23 +20,31 @@ class GrabberRecentChanges(Grabber):
         super().__init__(api, db)
 
         ins_rc = sa.dialects.postgresql.insert(db.recentchanges)
+        ins_tgrc = sa.dialects.postgresql.insert(db.tagged_recentchange)
 
         self.sql = {
             ("insert", "recentchanges"):
                 # updates are handled separately
                 ins_rc.on_conflict_do_nothing(),
             ("update-patrolled", "recentchanges"):
-                db.recentchanges.update().\
-                        values(rc_patrolled=True).\
-                        where(db.recentchanges.c.rc_this_oldid == sa.bindparam("_revid")),
+                db.recentchanges.update() \
+                        .values(rc_patrolled=True) \
+                        .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("_revid")),
             ("delete", "recentchanges"):
                 db.recentchanges.delete().where(
-                    db.recentchanges.c.rc_timestamp < sa.bindparam("rc_cutoff_timestamp"))
+                    db.recentchanges.c.rc_timestamp < sa.bindparam("rc_cutoff_timestamp")),
+            ("insert", "tagged_recentchange"):
+                ins_tgrc.values(
+                    tgrc_rc_id=sa.bindparam("b_rc_id"),
+                    tgrc_tag_id=sa.select([db.tag.c.tag_id]) \
+                                    .select_from(db.tag) \
+                                    .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
+                    .on_conflict_do_nothing()
         }
 
         self.rc_params = {
             "list": "recentchanges",
-            "rcprop": "title|ids|user|userid|flags|timestamp|comment|sizes|loginfo|sha1",
+            "rcprop": "title|ids|user|userid|flags|timestamp|comment|sizes|loginfo|sha1|tags",
             "rclimit": "max",
         }
 
@@ -98,6 +106,13 @@ class GrabberRecentChanges(Grabber):
             "rc_params": rc.get("logparams"),
         }
         yield self.sql["insert", "recentchanges"], db_entry
+
+        for tag_name in rc.get("tags", []):
+            db_entry = {
+                "b_rc_id": rc["rcid"],
+                "b_tag_name": tag_name,
+            }
+            yield self.sql["insert", "tagged_recentchange"], db_entry
 
     def gen_updates_from_le(self, logevent):
         if logevent["type"] == "patrol" and logevent["action"] == "patrol":
