@@ -24,6 +24,12 @@ import ws.db.selects.protectedtitles
 
 
 def main(api, db):
+    # if no recent change has been added, it's safe to assume that the other tables are up to date as well
+    g = grabbers.recentchanges.GrabberRecentChanges(api, db)
+    if g.needs_update() is False:
+        print("No changes are needed according to the recentchanges table.")
+        return
+
     g = grabbers.namespace.GrabberNamespaces(api, db)
     g.update()
 
@@ -32,10 +38,6 @@ def main(api, db):
 
     g = grabbers.recentchanges.GrabberRecentChanges(api, db)
     g.update()
-
-    # if no recent change has been added, it's safe to assume that the other tables are up to date as well
-    if g.update_other_tables is False:
-        return
 
     g = grabbers.user.GrabberUsers(api, db)
     g.update()

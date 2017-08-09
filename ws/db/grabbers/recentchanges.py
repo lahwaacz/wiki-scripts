@@ -7,6 +7,7 @@ import sqlalchemy as sa
 from ws.utils import value_or_none
 from ws.parser_helpers.title import Title
 import ws.db.mw_constants as mwconst
+import ws.db.selects.recentchanges as rcsel
 
 from . import Grabber
 
@@ -125,16 +126,18 @@ class GrabberRecentChanges(Grabber):
         for rc in self.api.list(self.rc_params):
             yield from self.gen_inserts_from_rc(rc)
 
-    def gen_update(self, since):
-        # other tables are up-to-date unless new rows are added to recentchanges
-        self.update_other_tables = False
+    def needs_update(self):
+        """
+        Returns ``True`` iff there are some recent changes to be fetched from the wiki.
+        """
+        return self.api.get_newest_rc_timestamp() > rcsel.newest_rc_timestamp(self.db)
 
+    def gen_update(self, since):
         params = self.rc_params.copy()
         params["rcdir"] = "newer"
         params["rcstart"] = since
 
         for rc in self.api.list(params):
-            self.update_other_tables = True
             yield from self.gen_inserts_from_rc(rc)
 
         # patrol logs are not recorded in the recentchanges table, so we need to
@@ -144,13 +147,12 @@ class GrabberRecentChanges(Grabber):
         params["lestart"] = since
 
         for le in self.api.list(params):
-            self.update_other_tables = True
             yield from self.gen_updates_from_le(le)
 
         # TODO: go through the new logevents in the local recentchanges table and update rc_deleted,
         # including the DELETED_TEXT value (which will be a MW incompatibility)
 
         # purge too-old rows
-        yield self.sql["delete", "recentchanges"], {"rc_cutoff_timestamp": self.api.oldest_recent_change}
+        yield self.sql["delete", "recentchanges"], {"rc_cutoff_timestamp": self.api.oldest_rc_timestamp}
 
         # FIXME: rolled-back edits are automatically patrolled, but there does not seem to be any way to detect this

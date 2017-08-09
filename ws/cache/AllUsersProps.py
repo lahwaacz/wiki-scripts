@@ -125,7 +125,7 @@ class AllUsersProps(CacheDb):
         # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
         # By default the max age is 13 weeks: if a larger timespan is requested
         # here, it's very important to warn that the changes are not available
-        if self.api.oldest_recent_change > firstday:
+        if self.api.oldest_rc_timestamp > firstday:
             raise ShortRecentChangesError()
 
         # save as meta data, only when not raising

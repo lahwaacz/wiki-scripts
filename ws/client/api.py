@@ -143,7 +143,7 @@ class API(Connection):
         return result["recentchanges"][0]["revid"]
 
     @property
-    def oldest_recent_change(self):
+    def oldest_rc_timestamp(self):
         """
         A timestamp of the oldest entry stored in the ``recentchanges`` table.
 
@@ -160,6 +160,21 @@ class API(Connection):
             "list": "recentchanges",
             "rcprop": "timestamp",
             "rcdir": "newer",
+            "rclimit": "1",
+            "continue": "",  # needed only to silence stupid deprecation warning
+        }
+        result = self.call_api(params)
+        return result["recentchanges"][0]["timestamp"]
+
+    def get_newest_rc_timestamp(self):
+        """
+        Returns a timestamp of the newest entry stored in the ``recentchanges`` table.
+        """
+        params = {
+            "action": "query",
+            "list": "recentchanges",
+            "rcprop": "timestamp",
+            "rcdir": "older",
             "rclimit": "1",
             "continue": "",  # needed only to silence stupid deprecation warning
         }

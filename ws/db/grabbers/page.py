@@ -228,7 +228,7 @@ class GrabberPages(Grabber):
         # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
         # By default the max age is 13 weeks: if a larger timespan is requested
         # here, we need to look into the logging table instead of recentchanges.
-        rc_oldest = recentchanges.oldest_recent_change(self.db)
+        rc_oldest = recentchanges.oldest_rc_timestamp(self.db)
         if rc_oldest > since:
             pages = self.get_logpages(since)
         else:

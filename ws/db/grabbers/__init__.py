@@ -24,9 +24,6 @@ class Grabber:
         self.api = api
         self.db = db
 
-        # GrabberRecentChanges can set this to False to indicate that other tables don't have to be updated
-        self.update_other_tables = True
-
     def _set_sync_timestamp(self, timestamp, conn=None):
         """
         Set a last-sync timestamp for the grabber. Writes into the custom

@@ -132,7 +132,7 @@ class GrabberUsers(Grabber):
         # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
         # By default the max age is 13 weeks: if a larger timespan is requested
         # here, it's very important to warn that the changes are not available
-        if rc.oldest_recent_change(self.db) > since:
+        if rc.oldest_rc_timestamp(self.db) > since:
             raise ShortRecentChangesError()
 
         rc_params = {

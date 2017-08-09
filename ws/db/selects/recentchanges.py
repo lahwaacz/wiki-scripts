@@ -276,10 +276,17 @@ def db_to_api(row):
     return api_entry
 
 
-# TODO: this is needed only until list() supports limit parameter - then the caller can do the same as ws.client.api.API.oldest_recent_change
-def oldest_recent_change(db):
+# TODO: this is needed only until list() supports limit parameter - then the caller can do the same as ws.client.api.API.oldest_rc_timestamp
+def oldest_rc_timestamp(db):
     """
     Get timestamp of the oldest change stored in the recentchanges table.
     """
     result = db.engine.execute(sa.select( [sa.func.min(db.recentchanges.c.rc_timestamp)] ))
+    return result.fetchone()[0]
+
+def newest_rc_timestamp(db):
+    """
+    Get timestamp of the newest change stored in the recentchanges table.
+    """
+    result = db.engine.execute(sa.select( [sa.func.max(db.recentchanges.c.rc_timestamp)] ))
     return result.fetchone()[0]
