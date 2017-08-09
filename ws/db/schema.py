@@ -476,41 +476,6 @@ def create_siteinfo_tables(metadata):
     Index("tag_summary_log_id", tag_summary.c.ts_log_id, unique=True)
     Index("tag_summary_rev_id", tag_summary.c.ts_rev_id, unique=True)
 
-    site_stats = Table("site_stats", metadata,
-        Column("ss_row_id", Integer, nullable=False),
-        Column("ss_total_edits", BigInteger, server_default="0"),
-        Column("ss_good_articles", BigInteger, server_default="0"),
-        Column("ss_total_pages", BigInteger, server_default="-1"),
-        Column("ss_users", BigInteger, server_default="-1"),
-        Column("ss_active_users", BigInteger, server_default="-1"),
-        Column("ss_admins", BigInteger, server_default="-1"),
-        Column("ss_images", Integer, server_default="0")
-    )
-
-    sites = Table("sites", metadata,
-        Column("site_id", Integer, nullable=False, primary_key=True),
-        Column("site_global_key", UnicodeBinary(32), nullable=False),
-        Column("site_type", UnicodeBinary(32), nullable=False),
-        Column("site_group", UnicodeBinary(32), nullable=False),
-        Column("site_source", UnicodeBinary(32), nullable=False),
-        Column("site_language", UnicodeBinary(32), nullable=False),
-        Column("site_protocol", UnicodeBinary(32), nullable=False),
-        Column("site_domain", Unicode(255), nullable=False),
-        Column("site_data", Blob, nullable=False),
-        Column("site_forward", Boolean, nullable=False),
-        Column("site_config", Blob, nullable=False),
-    )
-    Index("sites_global_key", sites.c.site_global_key, unique=True)
-    Index("sites_type", sites.c.site_type)
-    Index("sites_group", sites.c.site_group)
-    Index("sites_source", sites.c.site_source)
-    Index("sites_language", sites.c.site_language)
-    Index("sites_protocol", sites.c.site_protocol)
-    Index("sites_domain", sites.c.site_domain)
-    Index("sites_forward", sites.c.site_forward)
-
-    # TODO: site_identifiers table
-
     interwiki = Table("interwiki", metadata,
         Column("iw_prefix", Unicode(32), nullable=False),
         Column("iw_url", Blob, nullable=False),
@@ -614,6 +579,48 @@ def create_multimedia_tables(metadata):
 
 
 def create_unused_tables(metadata):
+    # we don't sync the site stats - the values are inconsistent even in MW
+    site_stats = Table("site_stats", metadata,
+        Column("ss_row_id", Integer, nullable=False),
+        # on the ArchWiki, ss_total_edits is greater than the max revision ID
+        Column("ss_total_edits", BigInteger, server_default="0"),
+        # an approximation anyway
+        Column("ss_good_articles", BigInteger, server_default="0"),
+        Column("ss_total_pages", BigInteger, server_default="-1"),
+        # see https://lists.archlinux.org/pipermail/arch-general/2014-February/034923.html
+        Column("ss_users", BigInteger, server_default="-1"),
+        # see https://wiki.archlinux.org/index.php/ArchWiki_talk:Statistics#Number_of_active_users
+        Column("ss_active_users", BigInteger, server_default="-1"),
+        # deprecated since MW 1.5
+        Column("ss_admins", BigInteger, server_default="-1"),
+        Column("ss_images", Integer, server_default="0")
+    )
+
+    # as of MW 1.28, the 'sites' and 'site_identifiers' tables are not visible through the API
+    sites = Table("sites", metadata,
+        Column("site_id", Integer, nullable=False, primary_key=True),
+        Column("site_global_key", UnicodeBinary(32), nullable=False),
+        Column("site_type", UnicodeBinary(32), nullable=False),
+        Column("site_group", UnicodeBinary(32), nullable=False),
+        Column("site_source", UnicodeBinary(32), nullable=False),
+        Column("site_language", UnicodeBinary(32), nullable=False),
+        Column("site_protocol", UnicodeBinary(32), nullable=False),
+        Column("site_domain", Unicode(255), nullable=False),
+        Column("site_data", Blob, nullable=False),
+        Column("site_forward", Boolean, nullable=False),
+        Column("site_config", Blob, nullable=False),
+    )
+    Index("sites_global_key", sites.c.site_global_key, unique=True)
+    Index("sites_type", sites.c.site_type)
+    Index("sites_group", sites.c.site_group)
+    Index("sites_source", sites.c.site_source)
+    Index("sites_language", sites.c.site_language)
+    Index("sites_protocol", sites.c.site_protocol)
+    Index("sites_domain", sites.c.site_domain)
+    Index("sites_forward", sites.c.site_forward)
+
+    # TODO: site_identifiers table
+
     job = Table("job", metadata,
         Column("job_id", Integer, primary_key=True, nullable=False),
         Column("job_cmd", UnicodeBinary(60), nullable=False),
