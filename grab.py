@@ -1,4 +1,5 @@
 from pprint import pprint
+import datetime
 
 from ws.client import API
 from ws.interactive import require_login
@@ -18,6 +19,7 @@ import ws.db.selects as selects
 import ws.db.selects.recentchanges
 import ws.db.selects.logevents
 import ws.db.selects.allpages
+import ws.db.selects.protectedtitles
 
 
 def main(api, db):
@@ -48,6 +50,23 @@ def main(api, db):
     g.update()
 
 
+def _check_entries(db_entry, api_entry):
+    try:
+        assert db_entry == api_entry
+    except AssertionError:
+        print("db_entry:")
+        pprint(db_entry)
+        print("api_entry:")
+        pprint(api_entry)
+        raise
+
+def _check_lists(db_list, api_list):
+    assert len(db_list) == len(api_list)
+    for i, entries in enumerate(zip(db_list, api_list)):
+        db_entry, api_entry = entries
+        _check_entries(db_entry, api_entry)
+
+
 def select_recentchanges(api, db):
     prop = {"title", "ids", "user", "userid", "flags", "timestamp", "comment", "sizes", "loginfo", "patrolled", "sha1", "redirect"}
     api_params = {
@@ -74,14 +93,7 @@ def select_recentchanges(api, db):
         if "patrolled" in db_entry:
             del db_entry["patrolled"]
 
-        try:
-            assert db_entry == api_entry
-        except AssertionError:
-            print("db_entry:")
-            pprint(db_entry)
-            print("api_entry:")
-            pprint(api_entry)
-            raise
+        _check_entries(db_entry, api_entry)
 
 
 def select_logging(api, db):
@@ -96,17 +108,7 @@ def select_logging(api, db):
     db_list = list(selects.logevents.list(db, prop=prop))
 
     print("Checking the logging table...")
-    assert len(db_list) == len(api_list)
-    for i, entries in enumerate(zip(db_list, api_list)):
-        db_entry, api_entry = entries
-        try:
-            assert db_entry == api_entry
-        except AssertionError:
-            print("db_entry:")
-            pprint(db_entry)
-            print("api_entry:")
-            pprint(api_entry)
-            raise
+    _check_lists(db_list, api_list)
 
 
 def select_allpages(api, db):
@@ -125,17 +127,28 @@ def select_allpages(api, db):
     db_list.sort(key=lambda item: item["pageid"])
 
     print("Checking the page table...")
-    assert len(db_list) == len(api_list)
-    for i, entries in enumerate(zip(db_list, api_list)):
-        db_entry, api_entry = entries
-        try:
-            assert db_entry == api_entry
-        except AssertionError:
-            print("db_entry:")
-            pprint(db_entry)
-            print("api_entry:")
-            pprint(api_entry)
-            raise
+    _check_lists(db_list, api_list)
+
+
+def select_protected_titles(api, db):
+    prop = {"timestamp", "user", "userid", "comment", "expiry", "level"}
+    api_params = {
+        "list": "protectedtitles",
+        "ptlimit": "max",
+        "ptprop": "|".join(prop),
+    }
+
+    api_list = list(api.list(api_params))
+    db_list = list(selects.protectedtitles.list(db, prop=prop))
+
+    for db_entry, api_entry in zip(db_list, api_list):
+        # the timestamps may be off by couple of seconds, because we're looking in the logging table
+        if "timestamp" in db_entry and "timestamp" in api_entry:
+            if abs(db_entry["timestamp"] - api_entry["timestamp"]) <= datetime.timedelta(seconds=1):
+                db_entry["timestamp"] = api_entry["timestamp"]
+
+    print("Checking the protected_titles table...")
+    _check_lists(db_list, api_list)
 
 
 def select_current_revisions(api, db):
@@ -179,3 +192,4 @@ if __name__ == "__main__":
     select_logging(api, db)
     select_allpages(api, db)
     select_current_revisions(api, db)
+    select_protected_titles(api, db)
