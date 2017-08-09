@@ -473,11 +473,11 @@ def create_siteinfo_tables(metadata):
 
     # MW incompatibility: MediaWiki stores the tag name (ct_tag) instead of the foreign key to ct_tag_id
     change_tag = Table("change_tag", metadata,
-        Column("ct_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE"), nullable=False),
-        Column("ct_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="SET NULL")),
-        Column("ct_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE")),
-        Column("ct_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE")),
-        Column("ct_ar_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE")),
+        Column("ct_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        Column("ct_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
+        Column("ct_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
+        Column("ct_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
+        Column("ct_ar_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
         # optional tag parameters (some extensions store the source and target language for translations)
         Column("ct_params", Blob)
     )
