@@ -44,7 +44,7 @@ from sqlalchemy import \
         Table, Column, ForeignKey, Index, PrimaryKeyConstraint, ForeignKeyConstraint, CheckConstraint
 from sqlalchemy.types import \
         Boolean, SmallInteger, Integer, BigInteger, Float, \
-        Unicode, UnicodeText, Enum, DateTime
+        Unicode, UnicodeText, Enum, DateTime, ARRAY
 
 from .sql_types import \
         TinyBlob, Blob, MediumBlob, UnicodeBinary, \
@@ -116,8 +116,11 @@ def create_site_tables(metadata):
         Column("tag_name", Unicode(255), nullable=False),
         Column("tag_displayname", Unicode(255), nullable=False),
         Column("tag_description", UnicodeText),
-        Column("tag_active", Boolean, nullable=False, server_default="1")
+        Column("tag_defined", Boolean, nullable=False, server_default="1"),
+        Column("tag_active", Boolean, nullable=False, server_default="1"),
+        Column("tag_source", ARRAY(UnicodeText))
     )
+    Index("tag_name", tag.c.tag_name, unique=True)
 
 
 def create_recentchanges_tables(metadata):
@@ -215,6 +218,9 @@ def create_recentchanges_tables(metadata):
         Column("tgle_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
         PrimaryKeyConstraint("tgle_tag_id", "tgle_log_id")
     )
+
+    # TODO: create materialized views tagged_recentchange_tgname, tagged_logevent_tgname
+    # (basically 'SELECT tgrc_rc_id, array_agg(tag_name) FROM tag JOIN tagged_recentchange GROUP BY tgrc_rc_id')
 
 
 def create_users_tables(metadata):
@@ -372,6 +378,9 @@ def create_revisions_tables(metadata):
         Column("tgar_rev_id", Integer, ForeignKey("archive.ar_rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
         PrimaryKeyConstraint("tgar_tag_id", "tgar_rev_id")
     )
+
+    # TODO: create materialized views tagged_revision_tgname, tagged_archived_revision_tgname
+    # (basically 'SELECT tgrev_rev_id, array_agg(tag_name) FROM tag JOIN tagged_revision GROUP BY tgrev_rev_id')
 
 
 def create_pages_tables(metadata):
