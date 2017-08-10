@@ -53,33 +53,33 @@ class GrabberRevisions(Grabber):
             ("update", "archive.ar_page_id"):
                 db.archive.update() \
                     .where(sa.and_(db.archive.c.ar_namespace == sa.bindparam("b_namespace"),
-                                   db.archive.c.ar_title == sa.bindparam("b_title")))
+                                   db.archive.c.ar_title == sa.bindparam("b_title"))),
         }
 
         # build query to move data from the archive table into revision
-        deleted_revisions = self.db.archive.delete() \
-            .where(self.db.archive.c.ar_page_id == sa.bindparam("b_page_id")) \
-            .returning(*self.db.archive.c._all_columns) \
-            .cte("deleted_revisions")
+        deleted_revision = db.archive.delete() \
+            .where(db.archive.c.ar_page_id == sa.bindparam("b_page_id")) \
+            .returning(*db.archive.c._all_columns) \
+            .cte("deleted_revision")
         columns = [
-                deleted_revisions.c.ar_rev_id,
-                deleted_revisions.c.ar_page_id,
-                deleted_revisions.c.ar_text_id,
-                deleted_revisions.c.ar_comment,
-                deleted_revisions.c.ar_user,
-                deleted_revisions.c.ar_user_text,
-                deleted_revisions.c.ar_timestamp,
-                deleted_revisions.c.ar_minor_edit,
-                deleted_revisions.c.ar_deleted,
-                deleted_revisions.c.ar_len,
-                deleted_revisions.c.ar_parent_id,
-                deleted_revisions.c.ar_sha1,
-                deleted_revisions.c.ar_content_model,
-                deleted_revisions.c.ar_content_format,
+                deleted_revision.c.ar_rev_id,
+                deleted_revision.c.ar_page_id,
+                deleted_revision.c.ar_text_id,
+                deleted_revision.c.ar_comment,
+                deleted_revision.c.ar_user,
+                deleted_revision.c.ar_user_text,
+                deleted_revision.c.ar_timestamp,
+                deleted_revision.c.ar_minor_edit,
+                deleted_revision.c.ar_deleted,
+                deleted_revision.c.ar_len,
+                deleted_revision.c.ar_parent_id,
+                deleted_revision.c.ar_sha1,
+                deleted_revision.c.ar_content_model,
+                deleted_revision.c.ar_content_format,
             ]
-        insert = self.db.revision.insert().from_select(
-            self.db.revision.c._all_columns,
-            sa.select(columns).select_from(deleted_revisions)
+        insert = db.revision.insert().from_select(
+            db.revision.c._all_columns,
+            sa.select(columns).select_from(deleted_revision)
         )
         self.sql["move", "revision"] = insert
 

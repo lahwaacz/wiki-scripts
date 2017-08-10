@@ -81,34 +81,34 @@ class GrabberPages(Grabber):
         }
 
         # build query to move data from the revision table into archive
-        deleted_revisions = self.db.revision.delete() \
-            .where(self.db.revision.c.rev_page == sa.bindparam("b_rev_page")) \
-            .returning(*self.db.revision.c._all_columns) \
-            .cte("deleted_revisions")
+        deleted_revision = db.revision.delete() \
+            .where(db.revision.c.rev_page == sa.bindparam("b_rev_page")) \
+            .returning(*db.revision.c._all_columns) \
+            .cte("deleted_revision")
         columns = [
-                self.db.page.c.page_namespace,
-                self.db.page.c.page_title,
-                deleted_revisions.c.rev_id,
-                deleted_revisions.c.rev_page,
-                deleted_revisions.c.rev_text_id,
-                deleted_revisions.c.rev_comment,
-                deleted_revisions.c.rev_user,
-                deleted_revisions.c.rev_user_text,
-                deleted_revisions.c.rev_timestamp,
-                deleted_revisions.c.rev_minor_edit,
-                deleted_revisions.c.rev_deleted,
-                deleted_revisions.c.rev_len,
-                deleted_revisions.c.rev_parent_id,
-                deleted_revisions.c.rev_sha1,
-                deleted_revisions.c.rev_content_model,
-                deleted_revisions.c.rev_content_format,
+                db.page.c.page_namespace,
+                db.page.c.page_title,
+                deleted_revision.c.rev_id,
+                deleted_revision.c.rev_page,
+                deleted_revision.c.rev_text_id,
+                deleted_revision.c.rev_comment,
+                deleted_revision.c.rev_user,
+                deleted_revision.c.rev_user_text,
+                deleted_revision.c.rev_timestamp,
+                deleted_revision.c.rev_minor_edit,
+                deleted_revision.c.rev_deleted,
+                deleted_revision.c.rev_len,
+                deleted_revision.c.rev_parent_id,
+                deleted_revision.c.rev_sha1,
+                deleted_revision.c.rev_content_model,
+                deleted_revision.c.rev_content_format,
             ]
         select = sa.select(columns).select_from(
-                deleted_revisions.join(self.db.page, deleted_revisions.c.rev_page == self.db.page.c.page_id)
+                deleted_revision.join(db.page, deleted_revision.c.rev_page == db.page.c.page_id)
             )
-        insert = self.db.archive.insert().from_select(
+        insert = db.archive.insert().from_select(
             # populate all columns except ar_id
-            self.db.archive.c._all_columns[1:],
+            db.archive.c._all_columns[1:],
             select
         )
         self.sql["move", "revision"] = insert

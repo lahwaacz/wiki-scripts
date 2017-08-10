@@ -40,7 +40,7 @@ class GrabberRecentChanges(Grabber):
                     tgrc_tag_id=sa.select([db.tag.c.tag_id]) \
                                     .select_from(db.tag) \
                                     .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
-                    .on_conflict_do_nothing()
+                    .on_conflict_do_nothing(),
         }
 
         self.rc_params = {
