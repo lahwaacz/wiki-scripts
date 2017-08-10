@@ -104,8 +104,8 @@ def create_site_tables(metadata):
     # MW incompatibility: dropped the iw_wikiid column
     interwiki = Table("interwiki", metadata,
         Column("iw_prefix", Unicode(32), primary_key=True, nullable=False),
-        Column("iw_url", Blob, nullable=False),
-        Column("iw_api", Blob, nullable=False),
+        Column("iw_url", UnicodeText, nullable=False),
+        Column("iw_api", UnicodeText),
         Column("iw_local", Boolean, nullable=False),
         Column("iw_trans", Boolean, nullable=False, server_default="0")
     )

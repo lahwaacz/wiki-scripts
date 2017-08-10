@@ -8,6 +8,7 @@ from ws.db.database import Database
 import ws.db.grabbers as grabbers
 import ws.db.grabbers.namespace
 import ws.db.grabbers.tags
+import ws.db.grabbers.interwiki
 import ws.db.grabbers.recentchanges
 import ws.db.grabbers.user
 import ws.db.grabbers.ipblocks
@@ -43,6 +44,9 @@ def main(api, db):
     g.update()
 
     g = grabbers.logging.GrabberLogging(api, db)
+    g.update()
+
+    g = grabbers.interwiki.GrabberInterwiki(api, db)
     g.update()
 
     g = grabbers.ipblocks.GrabberIPBlocks(api, db)
