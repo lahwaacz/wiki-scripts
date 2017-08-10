@@ -34,7 +34,7 @@ class Database:
         if isinstance(engine_or_url, Engine):
             self.engine = engine_or_url
         else:
-            self.engine = create_engine(engine_or_url, echo=True)
+            self.engine = create_engine(engine_or_url, echo=False)
 
         # TODO: only for testing
 #        metadata = MetaData(bind=self.engine)
