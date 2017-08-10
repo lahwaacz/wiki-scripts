@@ -5,6 +5,7 @@ import datetime
 
 import ws.db.grabbers as grabbers
 import ws.db.grabbers.namespace
+import ws.db.grabbers.tags
 import ws.db.grabbers.recentchanges
 import ws.db.grabbers.user
 import ws.db.grabbers.logging
@@ -33,6 +34,8 @@ def test_namespace(api, db):
 
 def test_recentchanges(api, db):
     g = grabbers.namespace.GrabberNamespaces(api, db)
+    g.update()
+    g = grabbers.tags.GrabberTags(api, db)
     g.update()
     g = grabbers.recentchanges.GrabberRecentChanges(api, db)
     g.update()
@@ -73,6 +76,8 @@ def test_logging(api, db):
     since = now - datetime.timedelta(days=100)
 
     g = grabbers.namespace.GrabberNamespaces(api, db)
+    g.update()
+    g = grabbers.tags.GrabberTags(api, db)
     g.update()
     g = grabbers.user.GrabberUsers(api, db)
     g.update()
