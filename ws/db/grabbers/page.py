@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import random
-import logging
 
 import sqlalchemy as sa
 
@@ -10,8 +9,6 @@ from ws.parser_helpers.title import Title
 from ws.db.selects import recentchanges, logevents
 
 from . import Grabber
-
-logger = logging.getLogger(__name__)
 
 class GrabberPages(Grabber):
 
@@ -253,7 +250,6 @@ class GrabberPages(Grabber):
             pages = self.get_rcpages(since)
 
         if pages:
-            logger.info("Fetching properties of {} modified pages...".format(len(pages)))
             for chunk in ws.utils.iter_chunks(pages, self.api.max_ids_per_query):
                 params = {
                     "action": "query",

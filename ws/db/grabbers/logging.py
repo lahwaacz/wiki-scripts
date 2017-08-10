@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import logging
-
 import sqlalchemy as sa
 
 from ws.utils import value_or_none
@@ -9,8 +7,6 @@ from ws.parser_helpers.title import Title
 import ws.db.mw_constants as mwconst
 
 from . import Grabber
-
-logger = logging.getLogger(__name__)
 
 class GrabberLogging(Grabber):
 

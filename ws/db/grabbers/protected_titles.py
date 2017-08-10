@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import logging
-
 import sqlalchemy as sa
 
 import ws.utils
@@ -10,8 +8,6 @@ from ws.client.api import ShortRecentChangesError
 import ws.db.selects.recentchanges as rc
 
 from . import Grabber
-
-logger = logging.getLogger(__name__)
 
 class GrabberProtectedTitles(Grabber):
 
@@ -94,7 +90,6 @@ class GrabberProtectedTitles(Grabber):
         # rare action so the query will always be short enough even with titles.
         # TODO: force POST only for this one query?
         if rctitles:
-            logger.info("Fetching {} protected titles...".format(len(rctitles)))
             for chunk in ws.utils.iter_chunks(rctitles, self.api.max_ids_per_query):
                 params = {
                     "action": "query",

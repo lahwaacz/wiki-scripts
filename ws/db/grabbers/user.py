@@ -108,7 +108,6 @@ class GrabberUsers(Grabber):
     def gen_update(self, since):
         rcusers = self.get_rcusers(since)
         if rcusers:
-            logger.info("Fetching properties of {} possibly modified user accounts...".format(len(rcusers)))
             for chunk in ws.utils.iter_chunks(rcusers, self.api.max_ids_per_query):
                 list_params = {
                     "list": "users",
