@@ -24,6 +24,8 @@ class GrabberRevisions(Grabber):
         ins_text = sa.dialects.postgresql.insert(db.text)
         ins_revision = sa.dialects.postgresql.insert(db.revision)
         ins_archive = sa.dialects.postgresql.insert(db.archive)
+        ins_tgrev = sa.dialects.postgresql.insert(db.tagged_revision)
+        ins_tgar = sa.dialects.postgresql.insert(db.tagged_archived_revision)
 
         self.sql = {
             ("insert", "text"):
@@ -49,6 +51,20 @@ class GrabberRevisions(Grabber):
                         "ar_deleted": ins_archive.excluded.ar_deleted,
                         # TODO: merging might change ar_page_id and ar_parent_id
                     }),
+            ("insert", "tagged_revision"):
+                ins_tgrev.values(
+                    tgrev_rev_id=sa.bindparam("b_rev_id"),
+                    tgrev_tag_id=sa.select([db.tag.c.tag_id]) \
+                                    .select_from(db.tag) \
+                                    .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
+                    .on_conflict_do_nothing(),
+            ("insert", "tagged_archived_revision"):
+                ins_tgar.values(
+                    tgar_rev_id=sa.bindparam("b_rev_id"),
+                    tgar_tag_id=sa.select([db.tag.c.tag_id]) \
+                                    .select_from(db.tag) \
+                                    .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
+                    .on_conflict_do_nothing(),
             # query for updating archive.ar_page_id
             ("update", "archive.ar_page_id"):
                 db.archive.update() \
@@ -83,18 +99,32 @@ class GrabberRevisions(Grabber):
         )
         self.sql["move", "revision"] = insert
 
-        props = "ids|timestamp|flags|user|userid|comment|size|sha1|contentmodel"
+        # build query to move data from the tagged_archived_revision table into tagged_revision
+        deleted_tagged_archived_revision = db.tagged_archived_revision.delete() \
+            .where(db.tagged_archived_revision.c.tgar_rev_id.in_(
+                        sa.select([db.archive.c.ar_rev_id]) \
+                            .select_from(db.archive) \
+                            .where(db.archive.c.ar_page_id == sa.bindparam("b_page_id"))
+                        )
+                    ) \
+            .returning(*db.tagged_archived_revision.c._all_columns) \
+            .cte("deleted_tagged_archived_revision")
+        insert = db.tagged_revision.insert().from_select(
+            db.tagged_revision.c._all_columns,
+            deleted_tagged_archived_revision.select()
+        )
+        self.sql["move", "tagged_archived_revision"] = insert
+
+        props = "ids|timestamp|flags|user|userid|comment|size|sha1|contentmodel|tags"
         if self.with_content is True:
             props += "|content"
 
-        # TODO: tags
         self.arv_params = {
             "list": "allrevisions",
             "arvprop": props,
             "arvlimit": "max",
         }
 
-        # TODO: tags
         self.adr_params = {
             "list": "alldeletedrevisions",
             "adrprop": props,
@@ -151,6 +181,13 @@ class GrabberRevisions(Grabber):
 
             yield self.sql["insert", "revision"], db_entry
 
+            for tag_name in rev.get("tags", []):
+                db_entry = {
+                    "b_rev_id": rev["revid"],
+                    "b_tag_name": tag_name,
+                }
+                yield self.sql["insert", "tagged_revision"], db_entry
+
     def gen_deletedrevisions(self, page):
         title = Title(self.api, page["title"])
         for rev in page["revisions"]:
@@ -178,6 +215,13 @@ class GrabberRevisions(Grabber):
                 yield from self.gen_text(rev, text_id)
 
             yield self.sql["insert", "archive"], db_entry
+
+            for tag_name in rev.get("tags", []):
+                db_entry = {
+                    "b_rev_id": rev["revid"],
+                    "b_tag_name": tag_name,
+                }
+                yield self.sql["insert", "tagged_archived_revision"], db_entry
 
     # TODO: write custom insert and update methods, use discontinued API queries and wrap each chunk in a separate transaction
     # TODO: generalize the above even for logging table
@@ -227,6 +271,8 @@ class GrabberRevisions(Grabber):
             ns = title.namespacenumber
             dbtitle = title.dbtitle(ns),
             yield self.sql["update", "archive.ar_page_id"], {"b_namespace": ns, "b_title": dbtitle, "ar_page_id": pageid}
+            # move tags first
+            yield self.sql["move", "tagged_archived_revision"], {"b_page_id": pageid}
             # move the updated rows from archive to revision
             yield self.sql["move", "revision"], {"b_page_id": pageid}
 

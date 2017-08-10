@@ -113,6 +113,22 @@ class GrabberPages(Grabber):
         )
         self.sql["move", "revision"] = insert
 
+        # build query to move data from the tagged_revision table into tagged_archived_revision
+        deleted_tagged_revision = db.tagged_revision.delete() \
+            .where(db.tagged_revision.c.tgrev_rev_id.in_(
+                        sa.select([db.revision.c.rev_id]) \
+                            .select_from(db.revision) \
+                            .where(db.revision.c.rev_page == sa.bindparam("b_rev_page"))
+                        )
+                    ) \
+            .returning(*db.tagged_revision.c._all_columns) \
+            .cte("deleted_tagged_revision")
+        insert = db.tagged_archived_revision.insert().from_select(
+            db.tagged_archived_revision.c._all_columns,
+            deleted_tagged_revision.select()
+        )
+        self.sql["move", "tagged_revision"] = insert
+
 
     def gen_inserts_from_page(self, page):
         if "missing" in page:
@@ -168,6 +184,8 @@ class GrabberPages(Grabber):
 
     def gen_deletes_from_page(self, page):
         if "missing" in page:
+            # move tags first
+            yield self.sql["move", "tagged_revision"], {"b_rev_page": page["pageid"]}
             # move relevant revisions from the revision table into archive
             yield self.sql["move", "revision"], {"b_rev_page": page["pageid"]}
 
