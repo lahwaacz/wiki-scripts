@@ -101,15 +101,14 @@ def create_custom_tables(metadata):
 
 
 def create_site_tables(metadata):
+    # MW incompatibility: dropped the iw_wikiid column
     interwiki = Table("interwiki", metadata,
-        Column("iw_prefix", Unicode(32), nullable=False),
+        Column("iw_prefix", Unicode(32), primary_key=True, nullable=False),
         Column("iw_url", Blob, nullable=False),
         Column("iw_api", Blob, nullable=False),
-        Column("iw_wikiid", Unicode(64), nullable=False),
         Column("iw_local", Boolean, nullable=False),
-        Column("iw_trans", SmallInteger, nullable=False, server_default="0")
+        Column("iw_trans", Boolean, nullable=False, server_default="0")
     )
-    Index("iw_prefix", interwiki.c.iw_prefix, unique=True)
 
     tag = Table("tag", metadata,
         Column("tag_id", Integer, primary_key=True, nullable=False),
