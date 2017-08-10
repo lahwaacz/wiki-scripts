@@ -30,6 +30,7 @@ def sanitize_params(params):
     if "namespace" in params:
         assert isinstance(params["namespace"], set)
     if "level" in params:
+        # TODO: check against levels in siprop=restrictions
         assert params["level"] <= {"autoconfirmed", "sysop"}
 
     # MW incompatibility: "parsedcomment" prop is not supported

@@ -40,6 +40,7 @@ def sanitize_params(params):
     if "prlevel" in params:
         assert "prtype" in params, "prlevel may not be used without prtype"
         # MW incompatibility: MediaWiki accepts even "" and "*", but discards them
+        # TODO: check against levels in siprop=restrictions
         assert params["prlevel"] <= {"autoconfirmed", "sysop"}
     assert params["prexpiry"] in {"all", "definite", "indefinite"}
     assert params["prfiltercascade"] in {"all", "cascading", "noncascading"}
