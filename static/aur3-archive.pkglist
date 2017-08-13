@@ -1408,7 +1408,6 @@ aspectj
 aspell-af
 aspell-ar
 aspell-az
-aspell-be
 aspell-bn
 aspell-de-alt
 aspell-el
@@ -2119,7 +2118,6 @@ bcchat
 bcdrip
 bcel-tools
 bcf-manager
-bcloud
 bcmstat
 bcompare-beta
 bcp
@@ -2482,7 +2480,6 @@ bitsharesx
 bitsharesx-git
 bitsharesx-gui-git
 bitstormlite
-bitstream-git
 bitswash
 bitten-svn
 bitthief
@@ -2906,7 +2903,6 @@ brother-dcp365cn
 brother-dcp375cw
 brother-dcp385c
 brother-dcp387c
-brother-dcp395cn
 brother-dcp6690cw
 brother-dcp6690cw-cups
 brother-dcp6690cw-lpr
@@ -4513,7 +4509,6 @@ cleanlooks-phenix-gtk-theme-git
 clearbox-app
 clearcache-git
 clearlooks-bluecurve-gtk-theme
-clearlooks-phenix-gtk-theme-git
 clearlooksosx-icon-theme
 clearwaita-gtk-theme
 clearwaita-light-gtk-theme
@@ -12905,7 +12900,6 @@ gtmess-beta
 gtmess-sounds
 gtodo
 gtodo2
-gtop
 gtorrent
 gtorrent-core
 gtorrent-gtk
@@ -16750,7 +16744,6 @@ iputils-caps
 ipv6-toolkit-git
 ipv6_nat
 ipv6gen
-ipv6toolkit
 ipv6tunnel
 ipvsadm
 ipwireless_cs
@@ -19757,7 +19750,6 @@ lib32-libxkbcommon
 lib32-libxklavier
 lib32-libxslt
 lib32-libyaml
-lib32-libzip
 lib32-llvm-amdgpu-git
 lib32-llvm-amdgpu-svn
 lib32-lua51
@@ -20044,7 +20036,6 @@ libbruteforce
 libbsb
 libbsc
 libbsd
-libbsd-git
 libbson
 libbtbb-dev
 libbtctl
@@ -22737,7 +22728,6 @@ manjaro-fussion-icon-theme
 manjaro-green-slim-theme
 manjaro-settings-manager
 manny
-manokwari-git
 manpages-cpp
 manpages-de
 manpages-zh
@@ -23619,7 +23609,6 @@ mingw-w64-headers-secure
 mingw-w64-headers-svn
 mingw-w64-id3lib
 mingw-w64-ilibusbx
-mingw-w64-irrlicht
 mingw-w64-isl
 mingw-w64-jbigkit
 mingw-w64-json-c
@@ -24089,7 +24078,6 @@ mistelix
 mistelix-git
 mistis-fonts
 mistlib-git
-mistserver-git
 mit-barnowl
 mit-zephyr
 mit_gnu_scheme
@@ -24802,7 +24790,6 @@ multibandcompressor-faust
 multibit
 multibit-new
 multiboot
-multicat
 multicd
 multicd.sh
 multiconv
@@ -24861,7 +24848,6 @@ mupen64plus-input-sdl-git
 mupen64plus-input-sdl-hg
 mupen64plus-meta-git
 mupen64plus-meta-hg
-mupen64plus-rsp-cxd4-git
 mupen64plus-rsp-hle-git
 mupen64plus-rsp-hle-hg
 mupen64plus-rsp-z64
@@ -27187,7 +27173,6 @@ openspades-data-git
 openspc
 openspeak-client
 openspeak-server
-openspin
 opensr-git
 opensrf
 opensrf-git
@@ -39567,7 +39552,6 @@ speedpwn-git
 speedstep-centrino
 speedtch
 speedtest-cli
-speex-git
 speex-svn
 spell
 spf
@@ -45175,7 +45159,6 @@ wp-archivebot
 wp_tray
 wpa_auto
 wpa_supplicant-beta
-wpa_supplicant-git
 wpa_supplicant-libeap
 wpa_supplicant-no-roaming
 wpa_supplicant-ps3
@@ -45500,7 +45483,6 @@ xc3sprog
 xc8-toolchain-bin
 xcas-bin
 xcb-ewmh
-xcb-imdkit-git
 xcb-man-pages-git
 xcb-util-all
 xcb-util-git
@@ -45825,7 +45807,6 @@ xfce-theme-numix-extra-colors
 xfce-utils-4.8.3
 xfce-utils-devel
 xfce-utils-git
-xfce4-appfinder-git
 xfce4-appmenu-plugin
 xfce4-axe-theme
 xfce4-axiom-theme
