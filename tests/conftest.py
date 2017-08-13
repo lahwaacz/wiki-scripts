@@ -5,7 +5,7 @@ import pytest
 from ws.client.api import API
 from ws.db.database import Database
 
-from fixtures.postgresql import postgresql_proc, postgresql, engine
+from fixtures.postgresql import *
 
 @pytest.fixture(scope="session")
 def api():
@@ -20,8 +20,8 @@ def api():
     return API(api_url, index_url, session)
 
 @pytest.fixture(scope="function")
-def db(engine):
+def db(pg_engine):
     """
     Return a Database instance bound to the engine fixture.
     """
-    return Database(engine)
+    return Database(pg_engine)

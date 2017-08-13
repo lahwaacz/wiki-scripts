@@ -13,5 +13,7 @@ postgresql_proc = factories.postgresql_proc(logs_prefix="pytest-", executable=pg
 postgresql = factories.postgresql("postgresql_proc", db=db_name)
 
 @pytest.fixture(scope="function")
-def engine(postgresql):
+def pg_engine(postgresql):
     return sqlalchemy.create_engine("postgresql+psycopg2://", poolclass=sqlalchemy.pool.StaticPool, creator=lambda: postgresql)
+
+__all__ = ("postgresql_proc", "postgresql", "pg_engine")
