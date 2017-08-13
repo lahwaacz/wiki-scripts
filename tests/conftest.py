@@ -5,7 +5,6 @@ import pytest
 from ws.client.api import API
 from ws.db.database import Database
 
-#from fixtures.mysql import mysql_proc, sqlalchemy_connect_url, engine
 from fixtures.postgresql import postgresql_proc, postgresql, engine
 
 @pytest.fixture(scope="session")
