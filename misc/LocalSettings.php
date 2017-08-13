@@ -58,6 +58,11 @@ $wgShellLocale = "en_US.utf8";
 
 $wgGroupPermissions['*']['createaccount'] = false;
 $wgGroupPermissions['sysop']['deletelogentry'] = true;
+$wgGroupPermissions['sysop']['deleterevision'] = true;
+
+# Interwiki extension
+wfLoadExtension( 'Interwiki' );
+$wgGroupPermissions['sysop']['interwiki'] = true;
 
 $wgJobRunRate = 1;
 $wgRunJobsAsync = 1;
