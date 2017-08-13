@@ -3,6 +3,7 @@
 import os.path
 
 import sqlalchemy as sa
+import pytest
 
 def test_server_root(mw_server_root):
 #    print("MediaWiki server root is {}".format(mw_server_root))
@@ -38,6 +39,8 @@ def test_mw_api(mediawiki):
     for right in expected_rights:
         assert right in api.user.rights
 
+# ignore "SAWarning: Predicate of partial index page_main_title ignored during reflection" etc.
+@pytest.mark.filterwarnings("ignore:Predicate of partial index")
 def test_mw_db(mediawiki):
     db_engine = mediawiki.db_engine
     metadata = sa.MetaData(bind=db_engine, reflect=True)
