@@ -115,8 +115,10 @@ def mediawiki(mw_nginx_proc, postgresql_proc):
     master_engine = sa.create_engine(master_url, isolation_level="AUTOCOMMIT")
     conn = master_engine.connect()
     conn.execute("CREATE DATABASE {}".format(_mw_db_name))
-    conn.execute("CREATE USER {} WITH PASSWORD '{}'".format(_mw_db_user, _mw_db_password))
-    conn.execute("GRANT ALL PRIVILEGES ON DATABASE {} TO {}".format(_mw_db_name, _mw_db_user))
+    r = conn.execute("SELECT count(*) FROM pg_user WHERE usename = '{}'".format(_mw_db_user))
+    if r.fetchone()[0] == 0:
+        conn.execute("CREATE USER {} WITH PASSWORD '{}'".format(_mw_db_user, _mw_db_password))
+        conn.execute("GRANT ALL PRIVILEGES ON DATABASE {} TO {}".format(_mw_db_name, _mw_db_user))
     conn.close()
 
     # execute MediaWiki's tables.sql
