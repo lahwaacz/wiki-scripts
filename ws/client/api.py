@@ -36,33 +36,15 @@ class API(Connection):
 
         .. _`MediaWiki#API:Login`: https://www.mediawiki.org/wiki/API:Login
         """
-        def do_login(self, username, password, token=None):
-            """
-            Login function that handles CSRF protection, see MediaWiki bug 23076:
-            https://bugzilla.wikimedia.org/show_bug.cgi?id=23076
-
-            :returns: ``True`` on successful login, otherwise ``False``
-            """
-            data = {
-                "action": "login",
-                "lgname": username,
-                "lgpassword": password
-            }
-            if token:
-                data["lgtoken"] = token
-            result = self.call_api(data)
-            if result["result"] == "Success":
-                return True
-            elif result["result"] == "NeedToken" and not token:
-                return do_login(self, username, password, result["token"])
-            else:
-                return False
-
         # reset the properties related to login
         del self.user
         del self.max_ids_per_query
 
-        status = do_login(self, username, password)
+        # get token and log in
+        token = self.call_api(action="query", meta="tokens", type="login")["tokens"]["logintoken"]
+        result = self.call_api(action="login", lgname=username, lgpassword=password, lgtoken=token)
+        status = result["result"] == "Success"
+
         if status is True and self.user.is_loggedin:
             return True
         logger.warn("Failed login attempt for user '{}'".format(username))
