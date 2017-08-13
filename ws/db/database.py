@@ -10,9 +10,7 @@ Prerequisites:
 2. One of the many drivers supported by sqlalchemy, e.g. psycopg2.
 """
 
-from sqlalchemy import create_engine, MetaData, select
-from sqlalchemy.engine import Engine
-import sqlalchemy.event
+import sqlalchemy as sa
 
 from . import schema
 
@@ -31,41 +29,20 @@ class Database:
         # limit for continuation
         self.chunk_size = 5000
 
-        if isinstance(engine_or_url, Engine):
+        if isinstance(engine_or_url, sa.engine.Engine):
             self.engine = engine_or_url
         else:
-            self.engine = create_engine(engine_or_url, echo=False)
+            self.engine = sa.create_engine(engine_or_url, echo=False)
+
+        assert self.engine.name == "postgresql"
 
         # TODO: only for testing
-#        metadata = MetaData(bind=self.engine)
+#        metadata = sa.MetaData(bind=self.engine)
 #        metadata.reflect()
 #        metadata.drop_all()
 
-        self.metadata = MetaData(bind=self.engine)
+        self.metadata = sa.MetaData(bind=self.engine)
         schema.create_tables(self.metadata)
-
-    @staticmethod
-    def make_url(dialect, driver, username, password, host, database, **kwargs):
-        """
-        :param str dialect: an SQL dialect (only ``postgresql`` is supported)
-        :param str driver: a driver for given SQL dialect supported by
-            :py:mod:`sqlalchemy`, e.g. ``psycopg2``
-        :param str username: username for database connection
-        :param str password: password for database connection
-        :param str host: hostname of the database server
-        :param str database: database name
-        :param dict kwargs: additional parameters added to the query string part
-        """
-        assert dialect == "postgresql"
-        params = "&".join("{0}={1}".format(k, v) for k, v in kwargs.items())
-        return "{dialect}+{driver}://{username}:{password}@{host}/{database}?{params}" \
-               .format(dialect=dialect,
-                       driver=driver,
-                       username=username,
-                       password=password,
-                       host=host,
-                       database=database,
-                       params=params)
 
     @staticmethod
     def set_argparser(argparser):
@@ -89,6 +66,8 @@ class Database:
                 help="password for database connection (default: %(default)s)")
         group.add_argument("--db-host", metavar="HOST",
                 help="hostname of the database server (default: %(default)s)")
+        group.add_argument("--db-port", metavar="PORT",
+                help="port on which the database server listens (default: %(default)s)")
         group.add_argument("--db-name", metavar="DATABASE",
                 help="name of the database (default: %(default)s)")
 
@@ -103,7 +82,14 @@ class Database:
             contains the arguments set by :py:meth:`Connection.set_argparser`.
         :returns: an instance of :py:class:`Connection`
         """
-        url = klass.make_url(args.db_dialect, args.db_driver, args.db_user, args.db_password, args.db_host, args.db_name)
+        # The format is basically "{dialect}+{driver}://{username}:{password}@{host}:{port}/{database}?{params}",
+        # but the URL class is suitable for omitting empty defaults.
+        url = sa.engine.url.URL("{}+{}".format(args.db_dialect, args.db_driver),
+                                username=args.db_user,
+                                password=args.db_password,
+                                host=args.db_host,
+                                port=args.db_port,
+                                database=args.db_name)
         return klass(url)
 
     def __getattr__(self, table_name):
