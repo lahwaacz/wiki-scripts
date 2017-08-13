@@ -39,6 +39,7 @@ Known incompatibilities from MediaWiki schema:
 
 # TODO:
 # - most foreign keys are nullable in MW's PostgreSQL schema and have an ON DELETE clause
+# - read https://www.postgresql.org/docs/current/static/indexes.html and invent better indexes
 
 from sqlalchemy import \
         Table, Column, ForeignKey, Index, PrimaryKeyConstraint, ForeignKeyConstraint, CheckConstraint
