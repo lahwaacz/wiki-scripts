@@ -2,6 +2,8 @@
 
 import os.path
 
+import sqlalchemy as sa
+
 def test_server_root(mw_server_root):
 #    print("MediaWiki server root is {}".format(mw_server_root))
     assert os.path.isdir(mw_server_root)
@@ -35,3 +37,23 @@ def test_mw_api(mediawiki):
     # pytest's assertion does not show diff for subset checks...
     for right in expected_rights:
         assert right in api.user.rights
+
+def test_mw_db(mediawiki):
+    db_engine = mediawiki.db_engine
+    metadata = sa.MetaData(bind=db_engine, reflect=True)
+    conn = db_engine.connect()
+
+    assert "mwuser" in metadata.tables
+    t_user = metadata.tables["mwuser"]
+    s = sa.select([t_user.c.user_id, t_user.c.user_name])
+    result = conn.execute(s)
+    users = set()
+    for u in result:
+        users.add(tuple(u))
+
+    # get the user connected to the API
+    my_id = mediawiki.api.user.id
+    my_name = mediawiki.api.user.name
+
+    assert users == {(0, "Anonymous"),
+                     (my_id, my_name)}
