@@ -107,7 +107,7 @@ Optional dependencies:
 Dependencies for running the tests:
 
 - `tox`_
-- `Nginx`_, `PHP`_, `PHP-FPM`_, `PostgreSQL`
+- `Nginx`_, `PHP`_, `PHP-FPM`_, `PostgreSQL`_
 - Necessary Python packages are installed automatically in the virtual
   environments.
 
