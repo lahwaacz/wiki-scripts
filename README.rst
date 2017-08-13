@@ -79,7 +79,8 @@ Requirements
 
 The following are required only by some scripts:
 
-- `WikEdDiff`_ (for highlighting differences between revisions in interactive mode)
+- `WikEdDiff`_ (for highlighting differences between revisions in interactive
+  mode)
 - `Pygments`_ (alternative highlighter when WikEdDiff is not available)
 - `pyalpm`_ (for ``update-package-templates.py``)
 - `NumPy`_ and `matplotlib`_ (for ``statistics_histograms.py``)
@@ -92,25 +93,36 @@ The following are required only by some scripts:
 
 Optional dependencies:
 
-- PostgreSQL server, `SQLAlchemy`_ and a driver such as `Psycopg2`_
+- `PostgreSQL`_ server, `SQLAlchemy`_ and a driver such as `Psycopg2`_
   (for local database caching) (experimental)
 - `Tk/Tcl`_ (for copying the output of ``statistics.py`` to the clipboard)
 - `colorlog`_ (for colorized logging output)
 
+.. _PostgreSQL: https://www.postgresql.org/
 .. _SQLAlchemy: http://www.sqlalchemy.org/
 .. _Psycopg2: http://initd.org/psycopg/
 .. _Tk/Tcl: https://docs.python.org/3.4/library/tk.html
 .. _colorlog: https://github.com/borntyping/python-colorlog
 
-Tools used for development:
+Dependencies for running the tests:
+
+- `tox`_
+- `Nginx`_, `PHP`_, `PHP-FPM`_, `PostgreSQL`
+- Necessary Python packages are installed automatically in the virtual
+  environments.
+
+.. _tox: https://testrun.org/tox/latest/
+.. _Nginx: http://nginx.org/
+.. _PHP: http://php.net/
+.. _PHP-FPM: https://php-fpm.org/
+
+Other tools used for development:
 
 - `sphinx`_
 - `fabric`_
-- `tox`_ (other dependencies are installed in the virtual environments)
 
 .. _sphinx: http://sphinx-doc.org/
 .. _fabric: http://www.fabfile.org/
-.. _tox: https://testrun.org/tox/latest/
 
 .. install-section-end
 
