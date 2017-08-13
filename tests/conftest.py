@@ -6,6 +6,7 @@ from ws.client.api import API
 from ws.db.database import Database
 
 from fixtures.postgresql import *
+from fixtures.mediawiki import *
 
 @pytest.fixture(scope="session")
 def api():
