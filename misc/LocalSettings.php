@@ -64,5 +64,5 @@ $wgRunJobsAsync = 1;
 
 
 # debugging
-$wgShowDBErrorBacktrace = true;
-$wgShowExceptionDetails = true;
+#$wgShowDBErrorBacktrace = true;
+#$wgShowExceptionDetails = true;
