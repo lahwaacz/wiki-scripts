@@ -25,9 +25,6 @@ __all__ = ["DEFAULT_UA", "Connection", "APIWrongAction", "APIJsonError", "APIErr
 DEFAULT_UA = "wiki-scripts/{version} ({url})".format(version=__version__, url=__url__)
 
 GET_ACTIONS = {
-    'abusefiltercheckmatch',
-    'abusefilterchecksyntax',
-    'abusefilterevalexpression',
     'checktoken',
     'clearhasmsg',
     'compare',
@@ -37,17 +34,14 @@ GET_ACTIONS = {
     'feedwatchlist',
     'help',
     'logout',
-    'mobileview',
     'opensearch',
     'paraminfo',
     'parse',
     'query',
     'rsd',
     'tokens',
-    'webapp-manifest',  # from MobileFrontend
 }
 POST_ACTIONS = {
-    'abusefilterunblockautopromote',
     'block',
     'changeauthenticationdata',
     'clientlogin',

@@ -81,7 +81,7 @@ class MediaWikiFixtureInstance:
             return self._data[attr]
         raise AttributeError("Invalid attribute: {}".format(attr))
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def mediawiki(mw_nginx_proc, postgresql_proc):
     # always write the config to reflect its possible updates
     local_settings_php = os.path.join(os.path.dirname(__file__), "../../misc/LocalSettings.php")
@@ -150,7 +150,11 @@ def mediawiki(mw_nginx_proc, postgresql_proc):
     index_url = "http://{host}:{port}/index.php".format(host=mw_nginx_proc.host, port=mw_nginx_proc.port)
     api = API(api_url, index_url, API.make_session())
     api.login(_mw_api_user, _mw_api_password)
-    yield MediaWikiFixtureInstance(api=api, db_engine=mw_engine)
+    yield MediaWikiFixtureInstance(
+            api=api,
+            db_engine=mw_engine,
+            hostname=mw_nginx_proc.host,
+        )
 
     # drop the database
     with master_engine.begin() as conn:
