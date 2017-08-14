@@ -81,9 +81,7 @@ class MediaWikiFixtureInstance:
             return self._data[attr]
         raise AttributeError("Invalid attribute: {}".format(attr))
 
-@pytest.fixture(scope="module")
-def mediawiki(mw_nginx_proc, postgresql_proc):
-    # always write the config to reflect its possible updates
+def _init_local_settings(mw_nginx_proc, postgresql_proc):
     local_settings_php = os.path.join(os.path.dirname(__file__), "../../misc/LocalSettings.php")
     assert os.path.isfile(local_settings_php)
     config = open(local_settings_php).read()
@@ -107,6 +105,7 @@ def mediawiki(mw_nginx_proc, postgresql_proc):
     output_settings.write(config)
     output_settings.close()
 
+def _init_mw_database(mw_nginx_proc, postgresql_proc):
     # create database and mediawiki user
     master_url = sa.engine.url.URL("postgresql+psycopg2",
                                    username=postgresql_proc.user,
@@ -145,6 +144,31 @@ def mediawiki(mw_nginx_proc, postgresql_proc):
     ]
     subprocess.run(cmd, cwd=mw_nginx_proc.server_root, check=True)
 
+    return mw_engine
+
+def _drop_mw_database(postgresql_proc):
+    master_url = sa.engine.url.URL("postgresql+psycopg2",
+                                   username=postgresql_proc.user,
+                                   host=postgresql_proc.host,
+                                   port=postgresql_proc.port)
+    master_engine = sa.create_engine(master_url, isolation_level="AUTOCOMMIT")
+    with master_engine.begin() as conn:
+        # We cannot drop the database while there are connections to it, so we
+        # first disallow new connections and terminate all connections to it.
+        conn.execute("UPDATE pg_database SET datallowconn=false WHERE datname = '{}'".format(_mw_db_name))
+        conn.execute("SELECT pg_terminate_backend(pg_stat_activity.pid) "
+                     "FROM pg_stat_activity WHERE pg_stat_activity.datname = '{}'"
+                     .format(_mw_db_name))
+        conn.execute("DROP DATABASE IF EXISTS {}".format(_mw_db_name))
+
+@pytest.fixture(scope="session")
+def mediawiki(mw_nginx_proc, postgresql_proc):
+    # always write the config to reflect its possible updates
+    _init_local_settings(mw_nginx_proc, postgresql_proc)
+
+    # init the database and users
+    mw_engine = _init_mw_database(mw_nginx_proc, postgresql_proc)
+
     # construct the API and Database objects that will be used in the tests
     api_url = "http://{host}:{port}/api.php".format(host=mw_nginx_proc.host, port=mw_nginx_proc.port)
     index_url = "http://{host}:{port}/index.php".format(host=mw_nginx_proc.host, port=mw_nginx_proc.port)
@@ -157,13 +181,26 @@ def mediawiki(mw_nginx_proc, postgresql_proc):
         )
 
     # drop the database
-    with master_engine.begin() as conn:
-        # We cannot drop the database while there are connections to it, so we
-        # first disallow new connections and terminate all connections to it.
-        conn.execute("UPDATE pg_database SET datallowconn=false WHERE datname = '{}'".format(_mw_db_name))
-        conn.execute("SELECT pg_terminate_backend(pg_stat_activity.pid) "
-                     "FROM pg_stat_activity WHERE pg_stat_activity.datname = '{}'"
-                     .format(_mw_db_name))
-        conn.execute("DROP DATABASE IF EXISTS {}".format(_mw_db_name))
+    _drop_mw_database(postgresql_proc)
 
-__all__ = ("mw_server_root", "mw_nginx_proc", "mediawiki")
+@pytest.fixture(scope="function")
+def clean_mediawiki(mediawiki, mw_nginx_proc, postgresql_proc):
+    """
+    A function-scope fixture based on ``mediawiki``.
+
+    Note that:
+    - the server root is inherited from/shared with the ``mediawiki`` fixture
+    - the SQL database is re-created from scratch to clear the content
+
+    Tests which don't care about the content should use ``mediawiki`` directly,
+    content-sensitive test can use ``clean_mediawiki``.
+    """
+    # DROP DATABASE is much faster than TRUNCATE on many tables
+    _drop_mw_database(postgresql_proc)
+    mw_engine = _init_mw_database(mw_nginx_proc, postgresql_proc)
+
+    # _drop_mw_database closed the original db_engine, so we assign the new one
+    mediawiki.db_engine = mw_engine
+    yield mediawiki
+
+__all__ = ("mw_server_root", "mw_nginx_proc", "mediawiki", "clean_mediawiki")
