@@ -198,7 +198,6 @@ if __name__ == "__main__":
 
     # twice to force a void update
     main(api, db)
-    main(api, db)
 
     select_recentchanges(api, db)
     select_logging(api, db)
