@@ -130,7 +130,10 @@ class GrabberRecentChanges(Grabber):
         """
         Returns ``True`` iff there are some recent changes to be fetched from the wiki.
         """
-        return self.api.get_newest_rc_timestamp() > rcsel.newest_rc_timestamp(self.db)
+        db_newest_rc_timestamp = rcsel.newest_rc_timestamp(self.db)
+        if db_newest_rc_timestamp is None:
+            return True
+        return self.api.get_newest_rc_timestamp() > db_newest_rc_timestamp
 
     def gen_update(self, since):
         params = self.rc_params.copy()
