@@ -17,7 +17,7 @@ class test_site:
             "base": "https://wiki.archlinux.org/index.php/Main_page",
             "sitename": "ArchWiki",
             "logo": "https://wiki.archlinux.org/skins/archlinux/archlogo.png",
-            "generator": "MediaWiki 1.28.2",
+            "generator": "MediaWiki 1.29.0",
             "phpversion": "7.1.8",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
@@ -84,7 +84,15 @@ class test_site:
                     "height": 1024
                 }
             ],
-            "favicon": "https://wiki.archlinux.org/favicon.ico"
+            "favicon": "https://wiki.archlinux.org/favicon.ico",
+            "galleryoptions": {     # MW 1.29
+                "captionLength": "",
+                "imageHeight": 120,
+                "imageWidth": 120,
+                "imagesPerRow": 0,
+                "mode": "traditional",
+                "showBytes": "",
+            },
         },
         "usergroups": [
             {
@@ -267,7 +275,7 @@ class test_site:
                 "descriptionmsg": "nuke-desc",
                 "author": "Brion Vibber, Jeroen De Dauw",
                 "url": "https://www.mediawiki.org/wiki/Extension:Nuke",
-                "version": "1.2.0",
+                "version": "1.3.0",
                 "license-name": "GPL-2.0+",
                 "license": "/index.php/Special:Version/License/Nuke"
             },
@@ -307,7 +315,7 @@ class test_site:
                 "author": "Tim Starling, Robert Rohde, Ross McClure, Juraj Simlovic",
                 "url": "https://www.mediawiki.org/wiki/Extension:ParserFunctions",
                 "version": "1.6.0",
-                "license-name": "GPL-2.0",
+                "license-name": "GPL-2.0+",
                 "license": "/index.php/Special:Version/License/ParserFunctions"
             }
         ],
@@ -438,6 +446,7 @@ class test_site:
             "previewonfirst": 0,
             "previewontop": 1,
             "rcdays": 7,
+            "rcenhancedfilters": 0,     # MW 1.29
             "rclimit": 50,
             "rows": 25,
             "showhiddencats": 0,
@@ -532,7 +541,8 @@ class test_site:
 	    10: {'*': 'Template',
 	         'canonical': 'Template',
 	         'case': 'first-letter',
-	         'id': 10},
+	         'id': 10,
+                 'subpages': ''},
 	    11: {'*': 'Template talk',
 	         'canonical': 'Template talk',
 	         'case': 'first-letter',

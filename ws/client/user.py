@@ -23,7 +23,7 @@ class User(Meta):
     properties = {"name", "id", "blockinfo", "hasmsg", "groups", "implicitgroups",
             "rights", "changeablegroups", "options", "editcount", "ratelimits",
             "email", "realname", "acceptlang", "registrationdate", "unreadcount",
-            "centralids"}
+            "centralids", "groupmemberships"}
     volatile_properties = {"hasmsg", "editcount", "unreadcount"}
     timeout = 3600
     volatile_timeout = 300

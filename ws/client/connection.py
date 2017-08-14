@@ -44,6 +44,7 @@ GET_ACTIONS = {
     'query',
     'rsd',
     'tokens',
+    'webapp-manifest',  # from MobileFrontend
 }
 POST_ACTIONS = {
     'abusefilterunblockautopromote',
@@ -72,6 +73,7 @@ POST_ACTIONS = {
     'revisiondelete',
     'rollback',
     'setnotificationtimestamp',
+    'setpagelanguage',  # MW 1.29
     'stashedit',
     'tag',
     'unblock',
@@ -79,6 +81,7 @@ POST_ACTIONS = {
     'unlinkaccount',
     'upload',
     'userrights',
+    'validatepassword',  # MW 1.29
     'watch',
 }
 API_ACTIONS = GET_ACTIONS | POST_ACTIONS

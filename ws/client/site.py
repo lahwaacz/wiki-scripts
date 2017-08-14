@@ -22,8 +22,8 @@ class Site(Meta):
     properties = {"general", "namespaces", "namespacealiases", "specialpagealiases",
             "magicwords", "interwikimap", "dbrepllag", "statistics", "usergroups",
             "libraries", "extensions", "fileextensions", "rightsinfo", "restrictions",
-            "languages", "skins", "extensiontags", "functionhooks", "showhooks",
-            "variables", "protocols", "defaultoptions", "uploaddialog"}
+            "languages", "languagevariants", "skins", "extensiontags", "functionhooks",
+            "showhooks", "variables", "protocols", "defaultoptions", "uploaddialog"}
 
     def __init__(self, api):
         super().__init__(api)
