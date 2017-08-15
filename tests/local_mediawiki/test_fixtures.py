@@ -18,6 +18,7 @@ def test_mw_api(mediawiki):
     assert "sysop" in api.user.groups
 
     expected_rights = {
+        "applychangetags",
         "createpage",
         "createtalk",
         "writeapi",
