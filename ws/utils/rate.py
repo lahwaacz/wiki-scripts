@@ -30,6 +30,8 @@ from functools import wraps
 import time
 import logging
 
+import ws
+
 logger = logging.getLogger(__name__)
 
 __all__ = ["RateLimited"]
@@ -43,6 +45,10 @@ def RateLimited(rate, per):
 
         @wraps(func)
         def rate_limit_func(*args, **kargs):
+            # no rate-limiting inside tests
+            if hasattr(ws, "_tests_are_running"):
+                return func(*args, **kargs)
+
             current = time.time()
             time_passed = current - last_check[0]
             last_check[0] = current

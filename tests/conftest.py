@@ -8,6 +8,15 @@ from ws.db.database import Database
 from fixtures.postgresql import *
 from fixtures.mediawiki import *
 
+# disable rate-limiting for tests
+def pytest_configure(config):
+    import ws
+    ws._tests_are_running = True
+
+def pytest_unconfigure(config):
+    import ws
+    del ws._tests_are_running
+
 @pytest.fixture(scope="session")
 def api():
     """
