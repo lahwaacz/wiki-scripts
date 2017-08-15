@@ -39,6 +39,7 @@ class API(Connection):
         # reset the properties related to login
         del self.user
         del self.max_ids_per_query
+        del self._csrftoken
 
         # get token and log in
         token = self.call_api(action="query", meta="tokens", type="login")["tokens"]["logintoken"]
