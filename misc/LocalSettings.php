@@ -53,6 +53,10 @@ $wgEnableSidebarCache = false;
 $wgUseFileCache = false;
 $wgFileCacheDirectory = false;
 
+# use APCU for object caching
+$wgMainCacheType    = CACHE_ACCEL;
+$wgSessionCacheType = CACHE_ACCEL;
+
 # misc
 $wgShellLocale = "en_US.utf8";
 
