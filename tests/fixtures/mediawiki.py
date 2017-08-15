@@ -166,14 +166,23 @@ class MediaWikiFixtureInstance:
                          .format(_mw_db_name))
             conn.execute("DROP DATABASE IF EXISTS {}".format(_mw_db_name))
 
-    def clean(self):
+    def clear(self):
         """
         Tests which need the wiki to be in a predictable state should call this
         method to drop all content and then build up what they need.
         """
-        # DROP DATABASE is much faster than TRUNCATE on many tables
-        self._drop_mw_database()
-        self._init_mw_database()
+        ## DROP DATABASE is much faster than TRUNCATE on all tables in the database
+        #self._drop_mw_database()
+        #self._init_mw_database()
+        ## we must relogin due to session cache
+        #self.api.login(_mw_api_user, _mw_api_password)
+        #assert self.api.user.is_loggedin
+
+        # DROP DATABASE messes up sessions and cache, so we just clear the
+        # tables that need to be cleared
+        truncate_tables = {"page", "page_restrictions", "page_props", "revision", "archive", "recentchanges"}
+        self.db_engine.execute("TRUNCATE TABLE {} RESTART IDENTITY CASCADE"
+                               .format(", ".join(truncate_tables)))
 
 @pytest.fixture(scope="session")
 def mediawiki(mw_nginx_proc, postgresql_proc):
