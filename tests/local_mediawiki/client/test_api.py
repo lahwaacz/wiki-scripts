@@ -62,12 +62,30 @@ class test_actions:
         api = mediawiki.api
         engine = mediawiki.db_engine
         created_titles = set()
-        for i in range(10):
+        for i in range(5):
             title = "Test {}".format(i)
             self._create_page(api, title)
             created_titles.add(title)
         self._check_titles_api(api, created_titles)
         self._check_titles_db(engine, created_titles)
+
+    def _get_content_api(self, api, title):
+        result = api.call_api(action="query", titles=title, prop="revisions", rvprop="content|timestamp")
+        page = list(result["pages"].values())[0]
+        text = page["revisions"][0]["*"]
+        timestamp = page["revisions"][0]["timestamp"]
+        return text, timestamp, page["pageid"]
+
+    def test_edit(self, mediawiki):
+        mediawiki.clear()
+        api = mediawiki.api
+        self._create_page(api, "Test page")
+        text, timestamp, pageid = self._get_content_api(api, "Test page")
+        text += text
+        api.edit("Test page", pageid, text, timestamp, "summary 1")
+        new_text, new_timestamp, new_pageid = self._get_content_api(api, "Test page")
+        assert new_pageid == pageid
+        assert new_text == text
 
 class test_query_continue:
     titles = ["Test {}".format(i) for i in range(10)]
