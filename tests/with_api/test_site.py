@@ -16,7 +16,7 @@ class test_site:
             "mainpage": "Main page",
             "base": "https://wiki.archlinux.org/index.php/Main_page",
             "sitename": "ArchWiki",
-            "logo": "https://wiki.archlinux.org/skins/archlinux/archlogo.png",
+            "logo": "https://wiki.archlinux.org/skins/ArchLinux/archlogo.png",
             "generator": "MediaWiki 1.29.0",
             "phpversion": "7.1.8",
             "phpsapi": "fpm-fcgi",
