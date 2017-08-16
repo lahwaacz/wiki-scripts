@@ -87,6 +87,15 @@ class test_actions:
         assert new_pageid == pageid
         assert new_text == text
 
+    def test_last_revision_id(self, mediawiki):
+        mediawiki.clear()
+        api = mediawiki.api
+        assert api.last_revision_id is None
+        self._create_page(api, "Test 1")
+        assert api.last_revision_id == 1
+        self._create_page(api, "Test 2")
+        assert api.last_revision_id == 2
+
 class test_query_continue:
     titles = ["Test {}".format(i) for i in range(10)]
 

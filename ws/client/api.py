@@ -118,12 +118,14 @@ class API(Connection):
             "action": "query",
             "list": "recentchanges",
             "rcprop": "ids",
-            "rctype": "edit",
+            "rctype": "edit|new",
             "rclimit": "1",
             "continue": "",  # needed only to silence stupid deprecation warning
         }
-        result = self.call_api(params)
-        return result["recentchanges"][0]["revid"]
+        recentchanges = self.call_api(params)["recentchanges"]
+        if len(recentchanges) == 0:
+            return None
+        return recentchanges[0]["revid"]
 
     @property
     def oldest_rc_timestamp(self):
