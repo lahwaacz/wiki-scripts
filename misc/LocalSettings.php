@@ -32,7 +32,7 @@ $wgSitename = "wiki-scripts tests";
 $wgServer = "http://localhost";
 $wgScriptPath = "";
 $wgStylePath = "/skins";
-$wgUsePathInfo = true;
+$wgUsePathInfo = false;     # TODO: maybe reconfigure nginx and enable this
 $wgScriptExtension = ".php";
 $wgStylePath = "$wgScriptPath/skins";
 
@@ -67,6 +67,9 @@ $wgGroupPermissions['sysop']['deleterevision'] = true;
 # Interwiki extension
 wfLoadExtension( 'Interwiki' );
 $wgGroupPermissions['sysop']['interwiki'] = true;
+
+# load default skin
+wfLoadSkin( 'Vector' );
 
 $wgJobRunRate = 1;
 $wgRunJobsAsync = 1;
