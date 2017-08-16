@@ -106,6 +106,7 @@ class MediaWikiFixtureInstance:
         config = replace_php_variable(config, "wgDBpassword", _mw_db_password)
         config = replace_php_variable(config, "wgDBhost", self._postgresql_proc.host)
         config = replace_php_variable(config, "wgDBport", self._postgresql_proc.port)
+        config = replace_php_variable(config, "wgServer", "http://{}:{}".format(self._mw_nginx_proc.host, self._mw_nginx_proc.port))
 
         output_settings = open(os.path.join(self._mw_nginx_proc.server_root, "LocalSettings.php"), "w")
         output_settings.write(config)
