@@ -196,8 +196,11 @@ if __name__ == "__main__":
 
     require_login(api)
 
-    # twice to force a void update
+    import time
+    time1 = time.time()
     main(api, db)
+    time2 = time.time()
+    print("Syncing took {:.2f} seconds.".format(time2 - time1))
 
     select_recentchanges(api, db)
     select_logging(api, db)
