@@ -79,6 +79,8 @@ class test_actions:
     def test_edit(self, mediawiki):
         mediawiki.clear()
         api = mediawiki.api
+        assert api.oldest_rc_timestamp is None
+        assert api.newest_rc_timestamp is None
         self._create_page(api, "Test page")
         text, timestamp, pageid = self._get_content_api(api, "Test page")
         text += text
@@ -86,6 +88,8 @@ class test_actions:
         new_text, new_timestamp, new_pageid = self._get_content_api(api, "Test page")
         assert new_pageid == pageid
         assert new_text == text
+        assert api.oldest_rc_timestamp == timestamp
+        assert api.newest_rc_timestamp == new_timestamp
 
     def test_last_revision_id(self, mediawiki):
         mediawiki.clear()

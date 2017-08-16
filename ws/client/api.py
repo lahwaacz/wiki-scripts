@@ -148,10 +148,13 @@ class API(Connection):
             "rclimit": "1",
             "continue": "",  # needed only to silence stupid deprecation warning
         }
-        result = self.call_api(params)
-        return result["recentchanges"][0]["timestamp"]
+        recentchanges = self.call_api(params)["recentchanges"]
+        if len(recentchanges) == 0:
+            return None
+        return recentchanges[0]["timestamp"]
 
-    def get_newest_rc_timestamp(self):
+    @property
+    def newest_rc_timestamp(self):
         """
         Returns a timestamp of the newest entry stored in the ``recentchanges`` table.
         """
@@ -163,8 +166,10 @@ class API(Connection):
             "rclimit": "1",
             "continue": "",  # needed only to silence stupid deprecation warning
         }
-        result = self.call_api(params)
-        return result["recentchanges"][0]["timestamp"]
+        recentchanges = self.call_api(params)["recentchanges"]
+        if len(recentchanges) == 0:
+            return None
+        return recentchanges[0]["timestamp"]
 
 
     def query_continue(self, params=None, **kwargs):
