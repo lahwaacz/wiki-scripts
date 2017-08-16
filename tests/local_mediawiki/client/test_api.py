@@ -62,10 +62,12 @@ class test_actions:
         api = mediawiki.api
         engine = mediawiki.db_engine
         created_titles = set()
+        assert api.last_revision_id is None
         for i in range(5):
             title = "Test {}".format(i)
             self._create_page(api, title)
             created_titles.add(title)
+            assert api.last_revision_id == i + 1
         self._check_titles_api(api, created_titles)
         self._check_titles_db(engine, created_titles)
 
@@ -90,15 +92,6 @@ class test_actions:
         assert new_text == text
         assert api.oldest_rc_timestamp == timestamp
         assert api.newest_rc_timestamp == new_timestamp
-
-    def test_last_revision_id(self, mediawiki):
-        mediawiki.clear()
-        api = mediawiki.api
-        assert api.last_revision_id is None
-        self._create_page(api, "Test 1")
-        assert api.last_revision_id == 1
-        self._create_page(api, "Test 2")
-        assert api.last_revision_id == 2
 
 class test_query_continue:
     titles = ["Test {}".format(i) for i in range(10)]
