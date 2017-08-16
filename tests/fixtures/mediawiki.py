@@ -120,11 +120,10 @@ class MediaWikiFixtureInstance:
                                        port=self._postgresql_proc.port)
         self._master_db_engine = sa.create_engine(master_url, isolation_level="AUTOCOMMIT")
         conn = self._master_db_engine.connect()
-        conn.execute("CREATE DATABASE {}".format(_mw_db_name))
         r = conn.execute("SELECT count(*) FROM pg_user WHERE usename = '{}'".format(_mw_db_user))
         if r.fetchone()[0] == 0:
             conn.execute("CREATE USER {} WITH PASSWORD '{}'".format(_mw_db_user, _mw_db_password))
-            conn.execute("GRANT ALL PRIVILEGES ON DATABASE {} TO {}".format(_mw_db_name, _mw_db_user))
+        conn.execute("CREATE DATABASE {} WITH OWNER {}".format(_mw_db_name, _mw_db_user))
         conn.close()
 
         # execute MediaWiki's tables.sql
@@ -134,7 +133,8 @@ class MediaWikiFixtureInstance:
                                    password=_mw_db_password,
                                    host=self._postgresql_proc.host,
                                    port=self._postgresql_proc.port)
-        self.db_engine = sa.create_engine(mw_url)
+        # use NullPool, so that we don't have to recreate the engine when we drop the database
+        self.db_engine = sa.create_engine(mw_url, poolclass=sa.pool.NullPool)
         tables = open(os.path.join(self._mw_nginx_proc.server_root, "maintenance/postgres/tables.sql"))
         with self.db_engine.begin() as conn:
             conn.execute(tables.read())
@@ -157,6 +157,14 @@ class MediaWikiFixtureInstance:
         self.api = API(api_url, index_url, API.make_session())
         self.api.login(_mw_api_user, _mw_api_password)
 
+        # save the database as a template for self.clear()
+        with self._master_db_engine.begin() as conn:
+            conn.execute("SELECT pg_terminate_backend(pg_stat_activity.pid) "
+                         "FROM pg_stat_activity WHERE pg_stat_activity.datname = '{}'"
+                         .format(_mw_db_name))
+            conn.execute("CREATE DATABASE {} WITH TEMPLATE {} OWNER {}"
+                         .format(_mw_db_name + "_template", _mw_db_name, _mw_db_user))
+
     def _drop_mw_database(self):
         with self._master_db_engine.begin() as conn:
             # We cannot drop the database while there are connections to it, so we
@@ -172,18 +180,13 @@ class MediaWikiFixtureInstance:
         Tests which need the wiki to be in a predictable state should call this
         method to drop all content and then build up what they need.
         """
-        ## DROP DATABASE is much faster than TRUNCATE on all tables in the database
-        #self._drop_mw_database()
-        #self._init_mw_database()
-        ## we must relogin due to session cache
-        #self.api.login(_mw_api_user, _mw_api_password)
-        #assert self.api.user.is_loggedin
-
-        # DROP DATABASE messes up sessions and cache, so we just clear the
-        # tables that need to be cleared
-        truncate_tables = {"page", "page_restrictions", "page_props", "revision", "archive", "recentchanges"}
-        self.db_engine.execute("TRUNCATE TABLE {} RESTART IDENTITY CASCADE"
-                               .format(", ".join(truncate_tables)))
+        # DROP DATABASE is much faster than TRUNCATE on all tables in the database.
+        # CREATE DATABASE ... WITH TEMPLATE ... is faster than full re-initialization
+        # and as a bonus does not mess up the session cache.
+        self._drop_mw_database()
+        with self._master_db_engine.begin() as conn:
+            conn.execute("CREATE DATABASE {} WITH TEMPLATE {} OWNER {}"
+                         .format(_mw_db_name, _mw_db_name + "_template", _mw_db_user))
 
 @pytest.fixture(scope="session")
 def mediawiki(mw_nginx_proc, postgresql_proc):
