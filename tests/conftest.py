@@ -42,6 +42,17 @@ class TestingDatabase(Database):
         self.metadata = sa.MetaData(bind=self.engine)
         schema.create_tables(self.metadata)
 
+    def dump(self, table=None):
+        if table is None:
+            raise NotImplementedError
+        else:
+            print("\nTable {} contains:".format(table.name))
+            result = self.engine.execute(table.select())
+            from pprint import pprint
+            for row in result:
+                pprint(row)
+        print()
+
 @pytest.fixture(scope="function")
 def db(pg_engine):
     """
