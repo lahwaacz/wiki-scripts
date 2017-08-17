@@ -9,3 +9,14 @@ Feature: Syncing the page tables
     Scenario: Syncing empty wiki
         When I sync the page tables
         Then the allpages lists should match
+
+    Scenario: Syncing page
+        When I create page "Test"
+        And I sync the page tables
+        Then the allpages lists should match
+
+    Scenario: Syncing page after empty
+        When I sync the page tables
+        And I create page "Test 1"
+        And I sync the page tables
+        Then the allpages lists should match

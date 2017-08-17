@@ -1,4 +1,4 @@
-from pytest_bdd import scenarios, given, when, then
+from pytest_bdd import scenarios, given, when, then, parsers
 
 import ws.db.grabbers as grabbers
 import ws.db.grabbers.namespace
@@ -24,6 +24,10 @@ def sync_page_tables(mediawiki, db):
     g = grabbers.page.GrabberPages(api, db)
     g.update()
 
+@when(parsers.parse("I create page \"{title}\""))
+def create_page(mediawiki, title):
+    mediawiki.api.create(title, title, title)
+
 @then("the allpages lists should match")
 def check_allpages_match(mediawiki, db):
     api_params = {
@@ -39,4 +43,3 @@ def check_allpages_match(mediawiki, db):
     db_list.sort(key=lambda item: item["pageid"])
 
     assert db_list == api_list
-    print(db_list)
