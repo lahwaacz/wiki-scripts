@@ -244,7 +244,7 @@ class GrabberPages(Grabber):
         # By default the max age is 13 weeks: if a larger timespan is requested
         # here, we need to look into the logging table instead of recentchanges.
         rc_oldest = recentchanges.oldest_rc_timestamp(self.db)
-        if rc_oldest > since:
+        if rc_oldest is None or rc_oldest > since:
             pages = self.get_logpages(since)
         else:
             pages = self.get_rcpages(since)
@@ -262,7 +262,7 @@ class GrabberPages(Grabber):
                     yield from self.gen_deletes_from_page(page)
 
         # get_logpages does not include normal edits, so we need to go through list=allpages again
-        if rc_oldest > since:
+        if rc_oldest is None or rc_oldest > since:
             yield from self.gen_insert()
 
 
