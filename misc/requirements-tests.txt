@@ -2,3 +2,4 @@ pytest
 pytest-cov
 pytest-postgresql
 pytest-nginx
+pytest-bdd

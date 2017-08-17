@@ -1,9 +1,11 @@
 #! /usr/bin/env python3
 
+import sqlalchemy as sa
 import pytest
 
 from ws.client.api import API
 from ws.db.database import Database
+import ws.db.schema as schema
 
 from fixtures.postgresql import *
 from fixtures.mediawiki import *
@@ -18,7 +20,7 @@ def pytest_unconfigure(config):
     del ws._tests_are_running
 
 @pytest.fixture(scope="session")
-def api():
+def api_archwiki():
     """
     Return an API instance with anonymous connection to wiki.archlinux.org
     """
@@ -29,9 +31,20 @@ def api():
     session = API.make_session(ssl_verify=ssl_verify)
     return API(api_url, index_url, session)
 
+class TestingDatabase(Database):
+    def clear(self):
+        # drop all existing tables
+        metadata = sa.MetaData(bind=self.engine)
+        metadata.reflect()
+        metadata.drop_all()
+
+        # recreate the tables
+        self.metadata = sa.MetaData(bind=self.engine)
+        schema.create_tables(self.metadata)
+
 @pytest.fixture(scope="function")
 def db(pg_engine):
     """
     Return a Database instance bound to the engine fixture.
     """
-    return Database(pg_engine)
+    return TestingDatabase(pg_engine)
