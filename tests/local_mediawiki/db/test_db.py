@@ -28,6 +28,19 @@ def sync_page_tables(mediawiki, db):
 def create_page(mediawiki, title):
     mediawiki.api.create(title, title, title)
 
+@when(parsers.parse("I move page \"{src_title}\" to \"{dest_title}\""))
+def move_page(mediawiki, src_title, dest_title):
+    # TODO: implement in API
+#    mediawiki.api.move(src_title, dest_title, "moved due to BDD tests")
+    params = {
+        "action": "move",
+        "from": src_title,
+        "to": dest_title,
+        "reason": "moved due to BDD tests",
+        "movetalk": "1",
+    }
+    mediawiki.api.call_with_csrftoken(params)
+
 @then("the allpages lists should match")
 def check_allpages_match(mediawiki, db):
     api_params = {
