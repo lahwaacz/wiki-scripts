@@ -113,9 +113,9 @@ def list(db, params=None, **kwargs):
         newest = params.get("end")
         oldest = params.get("start")
     if newest:
-        s = s.where(log.c.log_timestamp < newest)
+        s = s.where(log.c.log_timestamp <= newest)
     if oldest:
-        s = s.where(log.c.log_timestamp > oldest)
+        s = s.where(log.c.log_timestamp >= oldest)
     if params.get("namespace"):
         s = s.where(log.c.log_namespace == params.get("namespace"))
     # TODO: something befor the caller and this function should split off the namespace prefix and pass namespace number

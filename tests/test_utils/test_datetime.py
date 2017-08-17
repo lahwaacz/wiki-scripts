@@ -39,3 +39,19 @@ def test_range_by_months():
         datetime.date(2001, 3, 1),
     ]
     assert ran == expected
+
+def test_round_to_seconds():
+    dts = [
+        (datetime.datetime(2000, 1, 1, 1, 2, 3, 0),      datetime.datetime(2000, 1, 1, 1, 2, 3)),
+        (datetime.datetime(2000, 1, 1, 1, 2, 3, 100000), datetime.datetime(2000, 1, 1, 1, 2, 3)),
+        (datetime.datetime(2000, 1, 1, 1, 2, 3, 200000), datetime.datetime(2000, 1, 1, 1, 2, 3)),
+        (datetime.datetime(2000, 1, 1, 1, 2, 3, 300000), datetime.datetime(2000, 1, 1, 1, 2, 3)),
+        (datetime.datetime(2000, 1, 1, 1, 2, 3, 400000), datetime.datetime(2000, 1, 1, 1, 2, 3)),
+        (datetime.datetime(2000, 1, 1, 1, 2, 3, 500000), datetime.datetime(2000, 1, 1, 1, 2, 4)),
+        (datetime.datetime(2000, 1, 1, 1, 2, 3, 600000), datetime.datetime(2000, 1, 1, 1, 2, 4)),
+        (datetime.datetime(2000, 1, 1, 1, 2, 3, 700000), datetime.datetime(2000, 1, 1, 1, 2, 4)),
+        (datetime.datetime(2000, 1, 1, 1, 2, 3, 800000), datetime.datetime(2000, 1, 1, 1, 2, 4)),
+        (datetime.datetime(2000, 1, 1, 1, 2, 3, 900000), datetime.datetime(2000, 1, 1, 1, 2, 4)),
+    ]
+    for orig, rounded in dts:
+        assert round_to_seconds(orig) == rounded

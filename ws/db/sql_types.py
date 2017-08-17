@@ -30,7 +30,7 @@ import datetime
 
 import sqlalchemy.types as types
 
-from ws.utils import base_enc, base_dec, DatetimeEncoder, datetime_parser
+from ws.utils import base_enc, base_dec, DatetimeEncoder, datetime_parser, round_to_seconds
 
 
 # TODO: drop the MySQL-like aliases and use the underlying type directly in the schema
@@ -76,7 +76,10 @@ class MWTimestamp(types.TypeDecorator):
         elif value == datetime.datetime.min:
             return "-infinity"
         else:
-            return value
+            # MediaWiki rounds all timestamps to the nearest whole second.
+            # We need to do the same, otherwise the queries in tests might be
+            # off by one second, leaving out valid rows due to WHERE clauses.
+            return round_to_seconds(value)
 
     def process_result_value(self, value, dialect):
         """

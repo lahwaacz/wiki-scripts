@@ -149,9 +149,9 @@ def list(db, params=None, **kwargs):
         newest = params.get("end")
         oldest = params.get("start")
     if newest:
-        s = s.where(rc.c.rc_timestamp < newest)
+        s = s.where(rc.c.rc_timestamp <= newest)
     if oldest:
-        s = s.where(rc.c.rc_timestamp > oldest)
+        s = s.where(rc.c.rc_timestamp >= oldest)
     if "namespace" in params:
         # FIXME: namespace can be a '|'-delimited list
         s = s.where(rc.c.rc_namespace == params["namespace"])

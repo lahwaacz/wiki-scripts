@@ -102,9 +102,9 @@ def list(db, params=None, **kwargs):
         newest = params.get("end")
         oldest = params.get("start")
     if newest:
-        s = s.where(log.c.log_timestamp < newest)
+        s = s.where(log.c.log_timestamp <= newest)
     if oldest:
-        s = s.where(log.c.log_timestamp > oldest)
+        s = s.where(log.c.log_timestamp >= oldest)
     if "namespace" in params:
         s = s.where(log.c.log_namespace.in_(params["namespace"]))
     if "level" in params:

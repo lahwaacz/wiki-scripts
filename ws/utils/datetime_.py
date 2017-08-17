@@ -2,7 +2,7 @@
 
 import datetime
 
-__all__ = ["parse_date", "format_date", "range_by_days", "range_by_months"]
+__all__ = ["parse_date", "format_date", "range_by_days", "range_by_months", "round_to_seconds"]
 
 def parse_date(date):
     """
@@ -72,3 +72,10 @@ def range_by_months(first, last):
             first = datetime.date(first.year + 1, 1, 1)
     range_.append(first)    # rightmost
     return range_
+
+def round_to_seconds(dt):
+    if dt.microsecond >= 500000:
+        dt += datetime.timedelta(seconds=1, microseconds=-dt.microsecond)
+    else:
+        dt += datetime.timedelta(microseconds=-dt.microsecond)
+    return dt
