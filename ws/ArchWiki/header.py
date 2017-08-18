@@ -104,16 +104,27 @@ def get_header_parts(wikicode, magics=None, cats=None, langlinks=None, remove_fr
             if lang.is_interlanguage_tag(_prefix(langlink.title).lower()):
                 langlinks.append(mwparserfromhell.utils.parse_anything(langlink))
 
+    def _is_in_includeonly(node):
+        ancestors = wikicode.get_ancestors(node)
+        for a in ancestors:
+            if isinstance(a, mwparserfromhell.nodes.tag.Tag) and a.tag.matches("includeonly"):
+                return True
+        return False
+
     # count extracted header elements
     _extracted_count = 0
 
     for template in wikicode.filter_templates():
+        if _is_in_includeonly(template):
+            continue
         _pure, _ = lang.detect_language(str(template.name))
         if canonicalize(template.name) == "Lowercase title" or _prefix(template.name) == "DISPLAYTITLE" or _pure in ["Template", "Template:Template"]:
             _add_to_magics(template)
             _extracted_count += 1
 
     for link in wikicode.filter_wikilinks():
+        if _is_in_includeonly(link):
+            continue
         prefix = _prefix(link.title).lower()
         if prefix == "category":
             _add_to_cats(link)

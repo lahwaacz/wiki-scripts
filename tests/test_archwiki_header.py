@@ -172,3 +172,32 @@ Some other text [[link]]
         wikicode = mwparserfromhell.parse(snippet)
         with pytest.raises(HeaderError):
             fix_header(wikicode)
+
+    def test_includeonly(self):
+        snippet = """\
+<noinclude>
+[[el:Template:Translateme]]
+[[es:Template:Translateme]]
+[[ru:Template:Translateme]]
+[[zh-hans:Template:Translateme]]
+[[zh-hant:Template:Translateme]]
+{{Template}}
+</noinclude>
+<includeonly>
+[[Category:Foo]]
+</includeonly>
+"""
+        expected = """\
+<noinclude>
+{{Template}}
+[[el:Template:Translateme]]
+[[es:Template:Translateme]]
+[[ru:Template:Translateme]]
+[[zh-hans:Template:Translateme]]
+[[zh-hant:Template:Translateme]]
+</noinclude>
+<includeonly>
+[[Category:Foo]]
+</includeonly>
+"""
+        self._do_test(snippet, expected)
