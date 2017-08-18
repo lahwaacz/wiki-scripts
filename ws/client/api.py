@@ -304,15 +304,14 @@ class API(Connection):
             # create copy before adding token
             params = params.copy()
 
-        # ensure that the token is passed
-        params["token"] = self._csrftoken
-
         # max tries
         max_retries = 2
 
         retries = max_retries
         while retries > 0:
             try:
+                # ensure that the new token is passed when renewed
+                params["token"] = self._csrftoken
                 return self.call_api(params)
             except APIError as e:
                 retries -= 1
