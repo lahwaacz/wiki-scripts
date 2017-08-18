@@ -40,7 +40,7 @@ Feature: Syncing the page tables
 
     Scenario: Syncing page with displaytitle
         When I create page "Test"
-        And I edit page "Test" to contain "{{displaytitle:test}}"
+        And I edit page "Test" to contain "{{DISPLAYTITLE:test}}"
         And I sync the page tables
         Then the allpages lists should match
         # TODO: until we actually check the props...
@@ -49,7 +49,7 @@ Feature: Syncing the page tables
     Scenario: Syncing page with displaytitle after empty sync
         When I sync the page tables
         When I create page "Test"
-        And I edit page "Test" to contain "{{displaytitle:test}}"
+        And I edit page "Test" to contain "{{DISPLAYTITLE:test}}"
         And I sync the page tables
         Then the allpages lists should match
         # TODO: until we actually check the props...

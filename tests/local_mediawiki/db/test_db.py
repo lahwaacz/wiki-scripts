@@ -58,16 +58,29 @@ def move_page(mediawiki, src_title, dest_title, noredirect):
         params["noredirect"] = "1"
     mediawiki.api.call_with_csrftoken(params)
 
+def _get_content_api(api, title):
+    result = api.call_api(action="query", titles=title, prop="revisions", rvprop="content|timestamp")
+    page = list(result["pages"].values())[0]
+    text = page["revisions"][0]["*"]
+    timestamp = page["revisions"][0]["timestamp"]
+    return text, timestamp, page["pageid"]
+
 @when(parsers.parse("I edit page \"{title}\" to contain \"{content}\""))
 def edit_page(mediawiki, title, content):
     api = mediawiki.api
-    result = api.call_api(action="query", titles=title, prop="revisions", rvprop="content|timestamp")
-    page = list(result["pages"].values())[0]
-    pageid = page["pageid"]
-    timestamp = page["revisions"][0]["timestamp"]
-    old_text = page["revisions"][0]["*"]
+    old_text, timestamp, pageid = _get_content_api(api, title)
     assert content != old_text
-    api.edit(title, pageid, content, timestamp, "dummy summary")
+    api.edit(title, pageid, content, timestamp, "setting content to '{}'".format(content))
+    # Check that the page really contains what we want. It might actually fail
+    # due to the object cache persisting across mediawiki database resets...
+    new_text, _, _ = _get_content_api(api, title)
+    assert new_text == content
+
+# debugging step
+@when(parsers.parse("I wait {num:d} seconds"))
+def wait(num):
+    import time
+    time.sleep(num)
 
 @then("the allpages lists should match")
 def check_allpages_match(mediawiki, db):

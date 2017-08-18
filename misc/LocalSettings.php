@@ -53,8 +53,9 @@ $wgEnableSidebarCache = false;
 $wgUseFileCache = false;
 $wgFileCacheDirectory = false;
 
-# use APCU for object caching
-$wgMainCacheType    = CACHE_ACCEL;
+# no object cache, it break the tests because it persists across database resets
+$wgMainCacheType    = CACHE_NONE;
+# session cache has to be persistent, otherwise it would not be possible to log in
 $wgSessionCacheType = CACHE_ACCEL;
 
 # misc
