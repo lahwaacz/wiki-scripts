@@ -43,6 +43,8 @@ Feature: Syncing the page tables
         And I edit page "Test" to contain "{{displaytitle:test}}"
         And I sync the page tables
         Then the allpages lists should match
+        # TODO: until we actually check the props...
+        And the page_props table should not be empty
 
     Scenario: Syncing page with displaytitle after empty sync
         When I sync the page tables
@@ -50,6 +52,8 @@ Feature: Syncing the page tables
         And I edit page "Test" to contain "{{displaytitle:test}}"
         And I sync the page tables
         Then the allpages lists should match
+        # TODO: until we actually check the props...
+        And the page_props table should not be empty
 
     Scenario: Syncing moved page
         When I create page "Test 1"

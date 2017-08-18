@@ -1,3 +1,5 @@
+import sqlalchemy as sa
+
 from pytest_bdd import scenarios, given, when, then, parsers
 
 import ws.db.grabbers as grabbers
@@ -82,3 +84,10 @@ def check_allpages_match(mediawiki, db):
     db_list.sort(key=lambda item: item["pageid"])
 
     assert db_list == api_list
+
+@then(parsers.parse("the {table} table should not be empty"))
+def check_table_not_empty(db, table):
+    t = getattr(db, table)
+    s = sa.select([sa.func.count()]).select_from(t)
+    result = db.engine.execute(s).fetchone()
+    assert result[0] > 0, "The {} table is empty.".format(table)
