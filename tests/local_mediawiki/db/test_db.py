@@ -2,6 +2,9 @@ from pytest_bdd import scenarios, given, when, then, parsers
 
 import ws.db.grabbers as grabbers
 import ws.db.grabbers.namespace
+import ws.db.grabbers.recentchanges
+import ws.db.grabbers.user
+import ws.db.grabbers.logging
 import ws.db.grabbers.page
 import ws.db.selects as selects
 import ws.db.selects.allpages
@@ -14,22 +17,32 @@ def empty_mediawiki(mediawiki):
 
 @given("an empty wiki-scripts database")
 def empty_wsdb(db):
-    db.clear()
+    # TODO: the db is currently function-scoped, so clearing is useless
+#    db.clear()
+    pass
 
 @when("I sync the page tables")
 def sync_page_tables(mediawiki, db):
     api = mediawiki.api
     g = grabbers.namespace.GrabberNamespaces(api, db)
     g.update()
+    g = grabbers.recentchanges.GrabberRecentChanges(api, db)
+    g.update()
+    g = grabbers.user.GrabberUsers(api, db)
+    g.update()
+    g = grabbers.logging.GrabberLogging(api, db)
+    g.update()
     g = grabbers.page.GrabberPages(api, db)
     g.update()
 
 @when(parsers.parse("I create page \"{title}\""))
 def create_page(mediawiki, title):
-    mediawiki.api.create(title, title, title)
+    # all pages are created as empty
+    mediawiki.api.create(title, "", title)
 
-@when(parsers.parse("I move page \"{src_title}\" to \"{dest_title}\""))
-def move_page(mediawiki, src_title, dest_title):
+@when(parsers.re("I move page \"(?P<src_title>.+?)\" to \"(?P<dest_title>.+?)\"(?P<noredirect> without leaving a redirect)?"))
+def move_page(mediawiki, src_title, dest_title, noredirect):
+    noredirect = False if noredirect is None else True
     # TODO: implement in API
 #    mediawiki.api.move(src_title, dest_title, "moved due to BDD tests")
     params = {
@@ -39,7 +52,20 @@ def move_page(mediawiki, src_title, dest_title):
         "reason": "moved due to BDD tests",
         "movetalk": "1",
     }
+    if noredirect is True:
+        params["noredirect"] = "1"
     mediawiki.api.call_with_csrftoken(params)
+
+@when(parsers.parse("I edit page \"{title}\" to contain \"{content}\""))
+def edit_page(mediawiki, title, content):
+    api = mediawiki.api
+    result = api.call_api(action="query", titles=title, prop="revisions", rvprop="content|timestamp")
+    page = list(result["pages"].values())[0]
+    pageid = page["pageid"]
+    timestamp = page["revisions"][0]["timestamp"]
+    old_text = page["revisions"][0]["*"]
+    assert content != old_text
+    api.edit(title, pageid, content, timestamp, "dummy summary")
 
 @then("the allpages lists should match")
 def check_allpages_match(mediawiki, db):

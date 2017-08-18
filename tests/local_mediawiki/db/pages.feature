@@ -10,26 +10,73 @@ Feature: Syncing the page tables
         When I sync the page tables
         Then the allpages lists should match
 
-    Scenario: Syncing page
+    Scenario: Syncing empty page
         When I create page "Test"
         And I sync the page tables
         Then the allpages lists should match
 
-    Scenario: Syncing page after empty
+    Scenario: Syncing empty page after empty sync
         When I sync the page tables
         And I create page "Test"
         And I sync the page tables
         Then the allpages lists should match
 
+    Scenario: Syncing edited page
+        When I create page "Test"
+        And I edit page "Test" to contain "aaa"
+        And I sync the page tables
+        And I edit page "Test" to contain "bbb"
+        And I sync the page tables
+        Then the allpages lists should match
+
+    Scenario: Syncing edited page after empty sync
+        When I sync the page tables
+        And I create page "Test"
+        And I edit page "Test" to contain "aaa"
+        And I sync the page tables
+        And I edit page "Test" to contain "bbb"
+        And I sync the page tables
+        Then the allpages lists should match
+
+    Scenario: Syncing page with displaytitle
+        When I create page "Test"
+        And I edit page "Test" to contain "{{displaytitle:test}}"
+        And I sync the page tables
+        Then the allpages lists should match
+
+    Scenario: Syncing page with displaytitle after empty sync
+        When I sync the page tables
+        When I create page "Test"
+        And I edit page "Test" to contain "{{displaytitle:test}}"
+        And I sync the page tables
+        Then the allpages lists should match
+
     Scenario: Syncing moved page
         When I create page "Test 1"
+        And I edit page "Test 1" to contain "test"
         And I move page "Test 1" to "Test 2"
         And I sync the page tables
         Then the allpages lists should match
 
-    Scenario: Syncing moved page after empty
+    Scenario: Syncing moved page after empty sync
         When I sync the page tables
         And I create page "Test 1"
+        And I edit page "Test 1" to contain "test"
         And I move page "Test 1" to "Test 2"
+        And I sync the page tables
+        Then the allpages lists should match
+
+    Scenario: Syncing moved page without a redirect
+        When I create page "Test 1"
+        And I edit page "Test 1" to contain "test"
+        And I move page "Test 1" to "Test 2" without leaving a redirect
+        And I sync the page tables
+        Then the allpages lists should match
+
+    Scenario: Syncing moved page without a redirect after empty sync
+        When I sync the page tables
+        And I create page "Test 1"
+        And I edit page "Test 1" to contain "test"
+        And I move page "Test 1" to "Test 2" without leaving a redirect
         And I sync the page tables
         Then the allpages lists should match
