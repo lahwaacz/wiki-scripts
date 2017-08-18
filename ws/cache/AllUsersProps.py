@@ -123,7 +123,7 @@ class AllUsersProps(CacheDb):
 
         # Items in the recentchanges table are periodically purged according to
         # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
-        # By default the max age is 13 weeks: if a larger timespan is requested
+        # By default the max age is 90 days: if a larger timespan is requested
         # here, it's very important to warn that the changes are not available
         if self.api.oldest_rc_timestamp > firstday:
             raise ShortRecentChangesError()
