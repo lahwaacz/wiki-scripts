@@ -84,3 +84,24 @@ Feature: Syncing the page tables
         And I move page "Test 1" to "Test 2" without leaving a redirect
         And I sync the page tables
         Then the allpages lists should match
+
+    Scenario: Syncing deleted page
+        When I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I sync the page tables
+        And I delete page "Test"
+        And I sync the page tables
+        Then the allpages lists should match
+
+    Scenario: Syncing undeleted page
+        When I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I sync the page tables
+        And I delete page "Test"
+        And I sync the page tables
+        And I undelete page "Test"
+        And I sync the page tables
+        Then the allpages lists should match
+
+    # TODO: Syncing deleted page with displaytitle
+    # TODO: Syncing deleted protected page

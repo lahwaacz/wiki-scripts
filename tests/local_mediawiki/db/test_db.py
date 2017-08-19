@@ -76,6 +76,14 @@ def edit_page(mediawiki, title, content):
     new_text, _, _ = _get_content_api(api, title)
     assert new_text == content
 
+@when(parsers.parse("I delete page \"{title}\""))
+def delete_page(mediawiki, title):
+    mediawiki.api.call_with_csrftoken(action="delete", title=title)
+
+@when(parsers.parse("I undelete page \"{title}\""))
+def undelete_page(mediawiki, title):
+    mediawiki.api.call_with_csrftoken(action="undelete", title=title)
+
 # debugging step
 @when(parsers.parse("I wait {num:d} seconds"))
 def wait(num):
