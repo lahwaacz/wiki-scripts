@@ -58,14 +58,7 @@ Feature: Syncing the page tables
     Scenario: Syncing moved page
         When I create page "Test 1"
         And I edit page "Test 1" to contain "test"
-        And I move page "Test 1" to "Test 2"
         And I sync the page tables
-        Then the allpages lists should match
-
-    Scenario: Syncing moved page after empty sync
-        When I sync the page tables
-        And I create page "Test 1"
-        And I edit page "Test 1" to contain "test"
         And I move page "Test 1" to "Test 2"
         And I sync the page tables
         Then the allpages lists should match
@@ -73,14 +66,7 @@ Feature: Syncing the page tables
     Scenario: Syncing moved page without a redirect
         When I create page "Test 1"
         And I edit page "Test 1" to contain "test"
-        And I move page "Test 1" to "Test 2" without leaving a redirect
         And I sync the page tables
-        Then the allpages lists should match
-
-    Scenario: Syncing moved page without a redirect after empty sync
-        When I sync the page tables
-        And I create page "Test 1"
-        And I edit page "Test 1" to contain "test"
         And I move page "Test 1" to "Test 2" without leaving a redirect
         And I sync the page tables
         Then the allpages lists should match
