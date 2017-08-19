@@ -76,6 +76,22 @@ def edit_page(mediawiki, title, content):
     new_text, _, _ = _get_content_api(api, title)
     assert new_text == content
 
+@when(parsers.parse("I protect page \"{title}\""))
+def protect_page(mediawiki, title):
+    mediawiki.api.call_with_csrftoken(action="protect", title=title, protections="edit=sysop|move=sysop")
+
+@when(parsers.parse("I unprotect page \"{title}\""))
+def unprotect_page(mediawiki, title):
+    mediawiki.api.call_with_csrftoken(action="protect", title=title, protections="edit=all|move=all")
+
+@when(parsers.parse("I partially protect page \"{title}\""))
+def protect_page(mediawiki, title):
+    mediawiki.api.call_with_csrftoken(action="protect", title=title, protections="edit=sysop")
+
+@when(parsers.parse("I partially unprotect page \"{title}\""))
+def unprotect_page(mediawiki, title):
+    mediawiki.api.call_with_csrftoken(action="protect", title=title, protections="edit=all")
+
 @when(parsers.parse("I delete page \"{title}\""))
 def delete_page(mediawiki, title):
     mediawiki.api.call_with_csrftoken(action="delete", title=title)

@@ -55,6 +55,46 @@ Feature: Syncing the page tables
         # TODO: until we actually check the props...
         And the page_props table should not be empty
 
+    Scenario: Syncing protected page
+        When I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I sync the page tables
+        And I protect page "Test"
+        And I sync the page tables
+        Then the allpages lists should match
+        # TODO: until we actually check the protections...
+        And the page_restrictions table should not be empty
+
+    Scenario: Syncing unprotected page
+        When I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I sync the page tables
+        And I protect page "Test"
+        And I sync the page tables
+        And I unprotect page "Test"
+        And I sync the page tables
+        Then the allpages lists should match
+
+    Scenario: Syncing partially protected page
+        When I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I sync the page tables
+        And I partially protect page "Test"
+        And I sync the page tables
+        Then the allpages lists should match
+        # TODO: until we actually check the protections...
+        And the page_restrictions table should not be empty
+
+    Scenario: Syncing partially unprotected page
+        When I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I sync the page tables
+        And I protect page "Test"
+        And I sync the page tables
+        And I partially unprotect page "Test"
+        And I sync the page tables
+        Then the allpages lists should match
+
     Scenario: Syncing moved page
         When I create page "Test 1"
         And I edit page "Test 1" to contain "test"
