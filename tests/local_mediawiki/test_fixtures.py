@@ -40,11 +40,13 @@ def test_mw_api(mediawiki):
     for right in expected_rights:
         assert right in api.user.rights
 
-# ignore "SAWarning: Predicate of partial index page_main_title ignored during reflection" etc.
-@pytest.mark.filterwarnings("ignore:Predicate of partial index")
 def test_mw_db(mediawiki):
     db_engine = mediawiki.db_engine
-    metadata = sa.MetaData(bind=db_engine, reflect=True)
+    metadata = sa.MetaData(bind=db_engine)
+    # ignore "SAWarning: Predicate of partial index foo ignored during reflection"
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=sa.exc.SAWarning)
+        metadata.reflect()
     conn = db_engine.connect()
 
     assert "mwuser" in metadata.tables

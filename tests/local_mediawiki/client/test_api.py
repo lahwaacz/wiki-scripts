@@ -46,7 +46,11 @@ class test_actions:
         assert titles == set(expected_titles)
 
     def _check_titles_db(self, engine, expected_titles):
-        metadata = sa.MetaData(bind=engine, reflect=True)
+        metadata = sa.MetaData(bind=engine)
+        # ignore "SAWarning: Predicate of partial index foo ignored during reflection"
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=sa.exc.SAWarning)
+            metadata.reflect()
         conn = engine.connect()
         t = metadata.tables["page"]
         # we assume that the tests work only with the main namespace
@@ -55,8 +59,6 @@ class test_actions:
         titles = set(row[0] for row in result)
         assert titles == set(t.replace(" ", "_") for t in expected_titles)
 
-    # ignore "SAWarning: Predicate of partial index page_main_title ignored during reflection" etc.
-    @pytest.mark.filterwarnings("ignore:Predicate of partial index")
     def test_create(self, mediawiki):
         mediawiki.clear()
         api = mediawiki.api
