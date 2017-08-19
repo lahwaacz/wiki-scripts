@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
-import sqlalchemy as sa
+import warnings
 
+import sqlalchemy as sa
 import pytest
 
 from ws.client.api import LoginFailed
