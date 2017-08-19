@@ -3,6 +3,8 @@
 from copy import copy
 import datetime
 
+import pytest
+
 import ws.db.grabbers as grabbers
 import ws.db.grabbers.namespace
 import ws.db.grabbers.tags
@@ -18,6 +20,7 @@ import ws.db.selects.allpages
 
 # TODO: monkeypatch api.site.namespaces to avoid API queries
 
+@pytest.mark.skip(reason="useless test, needs to be migrated to python-bdd")
 def test_namespace(api, db):
     ns = copy(api.site.namespaces)
 #    del ns[-1]
@@ -32,6 +35,7 @@ def test_namespace(api, db):
     g.update()
     assert grabbers.namespace.select(db) == ns
 
+@pytest.mark.skip(reason="useless test, needs to be migrated to python-bdd")
 def test_recentchanges(api, db):
     g = grabbers.namespace.GrabberNamespaces(api, db)
     g.update()
@@ -70,6 +74,7 @@ def test_recentchanges(api, db):
 
         assert db_entry == api_entry
 
+@pytest.mark.skip(reason="useless test, needs to be migrated to python-bdd")
 def test_logging(api, db):
     # fixed timestamps for reproducible and fast tests
     now = datetime.datetime.utcnow()
@@ -106,6 +111,7 @@ def test_logging(api, db):
         db_entry, api_entry = entries
         assert db_entry == api_entry
 
+@pytest.mark.skip(reason="useless test, needs to be migrated to python-bdd")
 def test_allpages(api, db):
     g = grabbers.namespace.GrabberNamespaces(api, db)
     g.update()
