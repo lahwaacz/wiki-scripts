@@ -607,7 +607,7 @@ class WikilinkRules:
 
 
 class ManTemplateRules:
-    url_template = "http://man7.org/linux/man-pages/man{secnum}/{pagename}.{secnum}.html"
+    url_template = "http://jlk.fjfi.cvut.cz/arch/manpages/man/{pagename}.{secnum}"
 
     def __init__(self, timeout, max_retries):
         self.timeout = timeout
