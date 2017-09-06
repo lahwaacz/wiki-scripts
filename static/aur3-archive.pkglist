@@ -1408,7 +1408,6 @@ aspectj
 aspell-af
 aspell-ar
 aspell-az
-aspell-bn
 aspell-de-alt
 aspell-el
 aspell-eo
@@ -1480,7 +1479,6 @@ astropong
 astxx
 astyle-doc
 astyle-kde
-astyle-svn
 asure
 asuro-flashtool
 asuroflash-con
@@ -1705,7 +1703,6 @@ autobuild
 autoconf-2.5
 autoconf-2.64
 autoconf-archive
-autoconf-git
 autodafe
 autodia
 autodkms
@@ -2810,7 +2807,6 @@ boxee-source
 boxer
 boxfs
 boxfs-svn
-bpkg
 bpmcounter
 bpmdj
 bprolog
@@ -3374,7 +3370,6 @@ canon-cndrvcups-lb
 canon-common-ufr2-cndrvcups
 canon-cque
 canon-pixma-mg5100-complete
-canon-pixma-mg6100-complete
 canon-pixma-mp237-complete
 canon-pixma-mx520-complete
 canon-ufr
@@ -4166,7 +4161,6 @@ chrome-pepper-flashplugin
 chrome-updater
 chromeos
 chromeos-devkeys
-chromeos-extra-fonts
 chromeos-pepper-flash
 chromeos-recovery-daisy
 chromeos-recovery-daisy-spring
@@ -5066,7 +5060,6 @@ connman_dmenu
 connme-git
 connmgr
 conntrack-tools
-conntrack-tools-git
 conoha-ojs
 conoha-vps
 conpalette
@@ -5151,7 +5144,6 @@ corebreach
 corel-aftershot-pro
 coreseek
 coreutils-acp
-coreutils-git
 coreutils-icp
 coreutils-static
 coreutils_academic
@@ -5919,7 +5911,6 @@ dbus-core-systemd-user-sessions
 dbus-daemon-proxy
 dbus-eudev
 dbus-explorer
-dbus-git
 dbus-inspector
 dbus-java
 dbus-rdynamic
@@ -6375,7 +6366,6 @@ diskimagery64
 diskimagery64-svn
 diskmoose-git
 disko
-diskscan-git
 diskspace-screenlet
 disksystemtray-git
 disktrim
@@ -8226,7 +8216,6 @@ episode-renamer-gui-git
 epistle
 epitech-mlx
 epoch-init-system
-epour
 epour-git
 epox-presenter
 epr-api-git
@@ -8804,7 +8793,6 @@ fchvt
 fcitx-anthy
 fcitx-anthy-git
 fcitx-bogo-git
-fcitx-chewing-git
 fcitx-cloudpinyin
 fcitx-cloudpinyin-git
 fcitx-configtool
@@ -11883,7 +11871,6 @@ gnustep-svn
 gnustep-terminal
 gnustep-theme-gnome-svn
 gnustep-theme-gtk-svn
-gnutls-git
 gnutls2
 gnutrition
 gnutu
@@ -12437,7 +12424,6 @@ gsimplecal
 gsl-git
 gsl-java
 gsl-ref-html
-gsl-shell
 gsl-shell-git
 gslimthemeviewer
 gslist
@@ -14772,7 +14758,6 @@ haskell-shellac-haskeline
 haskell-shellac-readline
 haskell-shellish
 haskell-shellmate
-haskell-shelly
 haskell-shoap
 haskell-shortcircuit
 haskell-show
@@ -16723,7 +16708,6 @@ ipsec-tools-checkpoint
 ipsec-tools-snapshot
 ipsec-tools-wild-char
 ipset
-ipset-git
 ipset-init
 ipset-new
 ipsvd
@@ -19789,7 +19773,6 @@ lib32-mingw-w64-pangomm
 lib32-mingw-w64-ptlib
 lib32-mingw-w64-wxmsw
 lib32-mingw-w64-wxmsw-static
-lib32-mjpegtools
 lib32-mpfr
 lib32-mpfr-dev
 lib32-myriad-music-plugin
@@ -20373,7 +20356,6 @@ libglfps
 libgll
 libglu
 libglu-git
-libglvnd-git
 libgmail-cvs
 libgmail-modified
 libgme-svn
@@ -20684,7 +20666,6 @@ libnih
 libnipper
 libnl-2
 libnl-dect-git
-libnl-git
 libnl-tiny
 libnl3
 libnm-qt
@@ -21014,7 +20995,6 @@ librgba-gtk-module
 librime
 librmath
 libroadnav
-librocket-git
 librouteros-git
 libroxml-git
 librpm-tizen
@@ -21110,7 +21090,6 @@ libsrs-git
 libsrs2
 libsrtp
 libss7
-libssh-git
 libssh2-git
 libst
 libstatgrab-ext4
@@ -21247,7 +21226,6 @@ libutf-hg
 libutillery
 libutvideo-git
 libuv
-libuv-git
 libuv-git2
 libuvc
 libv2
@@ -21420,7 +21398,6 @@ libxl
 libxlt
 libxml
 libxml-perl
-libxml2-git
 libxmlccwrap
 libxmlpatch
 libxmpps-git
@@ -21968,7 +21945,6 @@ logstash-forwarder-git
 logster-git
 logsurfer
 logtailer
-logtalk
 logtools
 logwatch-svn
 lokalize-frameworks-git
@@ -22517,7 +22493,6 @@ m17n-im-config
 m17n-lib-cvs
 m2300w
 m2t-svn
-m4-git
 m4baker
 m4ri
 m4rie
@@ -22940,7 +22915,6 @@ matio
 matplotlib2tikz-git
 matrem
 matrilineare-icon
-matrilineare-icon-theme
 matrixgl
 matsuri
 maude-bin
@@ -23292,7 +23266,6 @@ meow-qt
 meper
 mercator
 mercurial-forest
-mercurial-hg
 mercurial-histedit-hg
 mercurial-paste
 mercurial-reviewboard-hg
@@ -23699,10 +23672,8 @@ mingw-w64-serf
 mingw-w64-sfgui
 mingw-w64-smpeg-svn
 mingw-w64-soil
-mingw-w64-sparsehash
 mingw-w64-spheresim-git
 mingw-w64-sqlite3
-mingw-w64-szip
 mingw-w64-taglib
 mingw-w64-taglib-static
 mingw-w64-testsuite
@@ -25367,7 +25338,6 @@ nemo-share-git
 nengo
 neo4j
 neo4j-apoc
-neobundle-git
 neodivxlazarus
 neonlights
 neoraine
@@ -27659,7 +27629,6 @@ pacdrive
 pacfile
 pacfind-git
 pacgem-git
-pacget
 pacget-git
 pacgetnew
 pacgo-git
@@ -29221,7 +29190,6 @@ phantom-engine-git
 phantomjs
 phantomjs-1.8
 phantomjs-bin
-phantomjs-git
 phar-gui-git
 phare
 pharerouge
@@ -29373,7 +29341,6 @@ php-uuid
 php-varnish
 php-vld-svn
 php-xcache
-php-xdiff
 php-xss-maker
 php-yaf
 php-yaml-syck
@@ -30681,7 +30648,6 @@ pure-svn
 pureadmin
 puredata
 puredata-utils
-purescript-bin
 purify
 purple
 purple-groupblock
@@ -31313,7 +31279,6 @@ python-boomslang
 python-botocore
 python-bottle
 python-bottle-docs
-python-bottle-git
 python-bottle-mongo
 python-bottle-sqlalchemy
 python-bottle-sqlite
@@ -31627,7 +31592,6 @@ python-gltools
 python-gmpy2
 python-gnuplot-git
 python-googlechart
-python-googlemaps
 python-grako
 python-grako-hg
 python-grapefruit-git
@@ -32030,7 +31994,6 @@ python-pyke
 python-pykka
 python-pylast
 python-pylast-hg
-python-pylatex-git
 python-pylibftdi-hg
 python-pyliblzma
 python-pylibmc
@@ -33300,7 +33263,6 @@ python2-pthreading
 python2-ptpython
 python2-ptyprocess
 python2-pudb
-python2-pulp
 python2-pulsar
 python2-pulseaudio-git
 python2-putio
@@ -33612,7 +33574,6 @@ python2-sniffy-git
 python2-socketpool
 python2-socksipy-git
 python2-solartz
-python2-soundcloud-git
 python2-sourcelib-git
 python2-south-0.7
 python2-soya
@@ -35039,7 +35000,6 @@ ragel
 raggle
 rai-qt
 raid-monitor
-raidar
 rails
 rainbowcrack
 raincat
@@ -35164,7 +35124,6 @@ rbenv-default-gems
 rbenv-each-git
 rbenv-vars
 rbfu-git
-rblcheck
 rbldnsd
 rbook
 rbot
@@ -35703,7 +35662,6 @@ rofs-filtered
 rogg
 rogue
 roguedetector
-roguelegacy-hib
 roguestar-engine
 roguestar-gl
 rohc-bzr
@@ -39329,7 +39287,6 @@ socializer-git
 sock
 socket-tornad.io
 socket_plus_plus
-socketcand-git
 sockets
 socklog-dietlibc
 socklog-musl
@@ -42891,7 +42848,6 @@ uniconvertor-svn
 unicornscan
 unidata-decoders-perl
 unidic
-unifi
 unifi-controller
 unifiedkernel
 unifont
@@ -44650,7 +44606,6 @@ wavemon
 waveutils
 wavextract
 wavpack-beta
-wavpack-git
 wavtool-pl
 wax
 waxeye
