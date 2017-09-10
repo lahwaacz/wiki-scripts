@@ -1794,7 +1794,6 @@ avremote
 avrprog
 avsynthesis
 avxsynth-svn
-away
 awbot-git
 awbot-logr-git
 aweather
@@ -5830,7 +5829,6 @@ darkness-burg-theme
 darkplaces-svn
 darkplaces_rm-git
 darkradiant
-darkradiant-git
 darkscreen
 darktable-no-gconf
 darktable-xtrans2-git
@@ -6423,7 +6421,6 @@ divifund
 divvyup
 divx4linux
 divxconverter
-diylc
 diylc_beta
 django-1.4
 django-admin-honeypot
@@ -9074,7 +9071,6 @@ finit-arc-git
 finomaton
 finrecipes
 fio
-fiosign
 fipy-dev
 firebird-classic
 firebird-classicserver
@@ -9533,7 +9529,6 @@ fluxstyle-hg
 fluxstyle-svn
 fluxus
 flvget
-flvmeta
 flvplay
 flvtomp3
 flvtool2
@@ -19646,7 +19641,6 @@ lib32-libglademm
 lib32-libglfps
 lib32-libglu
 lib32-libgnome
-lib32-libgnome-keyring
 lib32-libgnomecanvas
 lib32-libgnomeui
 lib32-libgnutls26
@@ -20038,7 +20032,6 @@ libcamiface
 libcanberra-oss
 libcanberra-pulse-fake
 libcangjie-git
-libcap-git
 libcap-ng
 libcap-ng-svn
 libcapi20
@@ -20823,7 +20816,6 @@ libpostproc-git
 libpps
 libppswrapper
 libppswrapper-git
-libpri
 libproj4
 libprolooks
 libprolooks-git
@@ -21089,7 +21081,6 @@ libsres
 libsrs-git
 libsrs2
 libsrtp
-libss7
 libssh2-git
 libst
 libstatgrab-ext4
@@ -22028,7 +22019,6 @@ lrg
 lrmi
 lrnj
 lrzip
-lrzip-git
 ls-colors-solarized-git
 ls-usb
 ls_colors-git
@@ -22459,7 +22449,6 @@ lxterminal-gtk3
 lxterminal-gtk3-git
 lxterminal-ru
 ly2video
-lybniz
 lyd-git
 lynis
 lynsol
@@ -24025,7 +24014,6 @@ mipt
 mipt-gnome
 mipt-gnome-nvidia
 miracle
-miraclecast-git
 miraclecast-github
 miraclecast-libwfd-git
 mirage-patched-for-scroll
@@ -25484,7 +25472,6 @@ netkit
 netkit-bootparamd
 netkit-ntalk
 netkit-rwho
-netkit-telnet-ssl
 netlog
 netmapr
 netmask
@@ -28795,7 +28782,6 @@ perl-number-bytes-human
 perl-number-compare
 perl-number-range
 perl-object-accessor
-perl-object-pluggable
 perl-object-quick
 perl-object-simple
 perl-odf-lpod
@@ -28865,7 +28851,6 @@ perl-poe-component-client-mpd
 perl-poe-component-client-ping
 perl-poe-component-simpledbi
 perl-poe-component-snmp
-perl-poe-component-syndicator
 perl-poe-devel-benchmarker
 perl-poe-session-attributebased
 perl-poe-test-loops
@@ -37101,7 +37086,6 @@ ruby-github-markdown
 ruby-github_api
 ruby-github_api-0.10.1
 ruby-gitlab-grit-2.6.5
-ruby-gli
 ruby-glynn
 ruby-gnome2-all
 ruby-gnomeprint
@@ -37510,7 +37494,6 @@ ruby-sdl
 ruby-sdoc
 ruby-seed-fu
 ruby-selenium-webdriver
-ruby-semverse
 ruby-sequel-4.0
 ruby-serialport
 ruby-serialport-1.1
@@ -40808,7 +40791,6 @@ tbp
 tbp-cpack
 tbs-linux-drivers
 tbs-unofficial-dvb-drivers-git
-tbt
 tc-play
 tc-play-git
 tc-viewer
@@ -42562,7 +42544,6 @@ twpsk
 twurl
 twyt
 tx
-txr
 txsocksx-git
 txt2latex
 txt2pdbdoc
@@ -44757,7 +44738,6 @@ whitepixel
 whiterabbit-ttf
 whitey
 whizzytex
-whohas
 whois-debian
 whosthere-git
 whowatch
@@ -45510,7 +45490,6 @@ xcursor-ecliz
 xcursor-ecliz-arch
 xcursor-ecliz-full
 xcursor-fedora
-xcursor-grounation
 xcursor-gruppled-lite
 xcursor-gt3-light
 xcursor-gt3-light-small
