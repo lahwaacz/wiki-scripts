@@ -18,9 +18,9 @@ from .postgresql import postgresql_proc
 from ws.client.api import API
 
 _mw_ver = "1.29"
-_mw_rel = _mw_ver + ".0"
+_mw_rel = _mw_ver + ".1"
 _mw_url = "https://releases.wikimedia.org/mediawiki/" + _mw_ver + "/mediawiki-" + _mw_rel + ".tar.gz"
-_mw_sha256 = "285075ae9d8b2698af4e2922644a02c16ef5869e9e9eb86f0bd3a54640f559c0"
+_mw_sha256 = "752cbe4ea9d3fb1a83ac34eaec0b7dd20fc29ab985d36a850e01acddd757b70e"
 _mw_db_name = "mediawiki"
 _mw_db_user = "mediawiki"
 _mw_db_password = "very-secret-password"
