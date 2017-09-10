@@ -245,9 +245,21 @@ class GrabberPages(Grabber):
         # here, we need to look into the logging table instead of recentchanges.
         rc_oldest = recentchanges.oldest_rc_timestamp(self.db)
         if rc_oldest is None or rc_oldest > since:
-            pages = self.get_logpages(since)
+            delete_redir, pages = self.get_logpages(since)
         else:
-            pages = self.get_rcpages(since)
+            delete_redir, pages = self.get_rcpages(since)
+        keys = list(pages.keys())
+
+        # Move-over-redirect needs pre-deletion of the redirect, otherwise edits to
+        # the page would violate the page_namespace_title unique constraint.
+        for pageid in delete_redir:
+            # move tags first
+            yield self.sql["move", "tagged_revision"], {"b_rev_page": pageid}
+            # move relevant revisions from the revision table into archive
+            yield self.sql["move", "revision"], {"b_rev_page": pageid}
+            # deleted page - this will cause cascade deletion in
+            # page_props and page_restrictions tables
+            yield self.sql["delete", "page"], {"b_page_id": pageid}
 
         if pages:
             for chunk in ws.utils.iter_chunks(pages, self.api.max_ids_per_query):
@@ -257,9 +269,16 @@ class GrabberPages(Grabber):
                     "prop": "info|pageprops",
                     "inprop": "protection",
                 }
-                for page in self.api.call_api(params)["pages"].values():
-                    yield from self.gen_inserts_from_page(page)
+                pages = list(self.api.call_api(params)["pages"].values())
+
+                # ordering of SQL inserts is important for moved pages, but MediaWiki does
+                # not return ordered results for the pageids= parameter
+                pages.sort(key=lambda page: keys.index(page["pageid"]))
+
+                for page in pages:
+                    # deletes first, otherwise edit + move over redirect would fail
                     yield from self.gen_deletes_from_page(page)
+                    yield from self.gen_inserts_from_page(page)
 
         # get_logpages does not include normal edits, so we need to go through list=allpages again
         if rc_oldest is None or rc_oldest > since:
@@ -267,8 +286,9 @@ class GrabberPages(Grabber):
 
 
     def get_rcpages(self, since):
-        rcpages = set()
-        rctitles = set()
+        delete_redir = set()
+        rcpages = ws.utils.OrderedSet()
+        rctitles = ws.utils.OrderedSet()
 
         rc_params = {
             "type": {"edit", "new", "log"},
@@ -284,8 +304,12 @@ class GrabberPages(Grabber):
             if change["type"] == "log":
                 # Moving a page creates a "move" log event, but not a "new" log event for the
                 # redirect, so we have to extract the new page ID manually.
-                if change["logaction"] == "move":
+                if change["logtype"] == "move":
                     rctitles.add(change["title"])
+                # Move-over-redirect needs pre-deletion of the redirect, otherwise edits to
+                # the page would violate the page_namespace_title unique constraint.
+                if change["logaction"] == "delete_redir":
+                    delete_redir.add(change["pageid"])
 
         # resolve titles to IDs (we actually need to call the API, see above)
         if rctitles:
@@ -294,15 +318,23 @@ class GrabberPages(Grabber):
                     "action": "query",
                     "titles": "|".join(chunk),
                 }
-                for page in self.api.call_api(params)["pages"].values():
+                pages = list(self.api.call_api(params)["pages"].values())
+
+                # ordering of SQL inserts is important for moved pages, but MediaWiki does
+                # not return ordered results for the titles= parameter
+                keys = list(rctitles.keys())
+                pages.sort(key=lambda page: keys.index(page["title"]))
+
+                for page in pages:
                     # skip missing pages (we don't detect "move without leaving a redirect" until here)
                     if "pageid" in page:
                         rcpages.add(page["pageid"])
 
-        return rcpages
+        return delete_redir, rcpages
 
     def get_logpages(self, since):
-        modified = set()
+        delete_redir = set()
+        modified = ws.utils.OrderedSet()
 
         le_params = {
             "prop": {"type", "details", "ids"},
@@ -311,6 +343,9 @@ class GrabberPages(Grabber):
         }
         for le in logevents.list(self.db, le_params):
             if le["type"] in {"delete", "protect", "move"}:
-                modified.add(le["logpage"])
+                if le["action"] == "delete_redir":
+                    delete_redir.add(le["logpage"])
+                else:
+                    modified.add(le["logpage"])
 
-        return modified
+        return delete_redir, modified
