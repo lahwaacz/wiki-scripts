@@ -72,8 +72,9 @@ $wgGroupPermissions['sysop']['interwiki'] = true;
 # load default skin
 wfLoadSkin( 'Vector' );
 
-$wgJobRunRate = 1;
-$wgRunJobsAsync = 1;
+# try to enforce serialization of jobs
+$wgJobRunRate = 1000000;
+$wgRunJobsAsync = 0;
 
 
 # debugging
