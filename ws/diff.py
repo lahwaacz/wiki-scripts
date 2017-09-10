@@ -57,7 +57,8 @@ def diff_highlighted(old, new, fromfile="", tofile="", fromfiledate="", tofileda
     else:
         # splitlines() omits the '\n' char from each line, so we need to
         # explicitly set lineterm="", otherwise spacing would be inconsistent
-        diff = difflib.unified_diff(old.splitlines(), new.splitlines(), fromfile, tofile, fromfiledate, tofiledate, lineterm="")
+        diff = difflib.unified_diff(old.splitlines(), new.splitlines(), fromfile, tofile,
+                                    str(fromfiledate), str(tofiledate), lineterm="")
 
         text = "\n".join(diff)
         if _has_pygments is True:
