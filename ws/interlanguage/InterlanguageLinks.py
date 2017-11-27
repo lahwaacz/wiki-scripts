@@ -259,10 +259,19 @@ class InterlanguageLinks:
         # get all titles in the family
         tags, titles = self.titles_in_family(full_title)
         langlinks = set(zip(tags, titles))
-        # remove title of the page to be updated
+
         title, langname = lang.detect_language(full_title)
         tag = lang.tag_for_langname(langname)
+
+        # remove links to ArchWiki:Archive and translations
+        if title != "ArchWiki:Archive":
+            for _tag, _title in list(langlinks):
+                if _title == "ArchWiki:Archive":
+                    langlinks.remove((_tag, _title))
+
+        # remove title of the page to be updated
         langlinks.remove((tag, title))
+
         # transform to list, sort by the language tag
         langlinks = sorted(langlinks, key=lambda t: t[0])
         return langlinks
