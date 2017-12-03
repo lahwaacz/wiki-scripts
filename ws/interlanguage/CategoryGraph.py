@@ -194,5 +194,8 @@ class CategoryGraph:
             self.create_category(p)
 
     def init_wanted_categories(self):
+        logger.warning("Skipping init_wanted_categories because the WantedCategories query page is broken, see https://wiki.archlinux.org/index.php?title=Talk:Init&diff=500419&oldid=489777")
+        return
+
         for page in self.api.list(list="querypage", qppage="Wantedcategories", qplimit="max"):
             self.create_category(page["title"])
