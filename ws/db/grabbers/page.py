@@ -181,46 +181,40 @@ class GrabberPages(Grabber):
 
     def gen_deletes_from_page(self, page):
         if "missing" in page:
-            # move tags first
-            yield self.sql["move", "tagged_revision"], {"b_rev_page": page["pageid"]}
-            # move relevant revisions from the revision table into archive
-            yield self.sql["move", "revision"], {"b_rev_page": page["pageid"]}
+            # "missing" pages don't even have pageid, so there is nothing to do
+            return
 
-            # deleted page - this will cause cascade deletion in
-            # page_props and page_restrictions tables
-            yield self.sql["delete", "page"], {"b_page_id": page["pageid"]}
+        # delete outdated props
+        props = set(page.get("pageprops", {}))
+        if props:
+            if len(props) == 1:
+                # optimized query using != instead of notin_
+                yield self.sql["delete-but-one", "page_props"], {"b_pp_page": page["pageid"], "b_pp_propname": props.pop()}
+            else:
+                # we need to check a tuple of arbitrary length (i.e. the props to keep),
+                # so the queries can't be grouped
+                yield self.db.page_props.delete().where(
+                        (self.db.page_props.c.pp_page == page["pageid"]) &
+                        self.db.page_props.c.pp_propname.notin_(props))
         else:
-            # delete outdated props
-            props = set(page.get("pageprops", {}))
-            if props:
-                if len(props) == 1:
-                    # optimized query using != instead of notin_
-                    yield self.sql["delete-but-one", "page_props"], {"b_pp_page": page["pageid"], "b_pp_propname": props.pop()}
-                else:
-                    # we need to check a tuple of arbitrary length (i.e. the props to keep),
-                    # so the queries can't be grouped
-                    yield self.db.page_props.delete().where(
-                            (self.db.page_props.c.pp_page == page["pageid"]) &
-                            self.db.page_props.c.pp_propname.notin_(props))
-            else:
-                # no props present - delete all rows with the pageid
-                yield self.sql["delete-all", "page_props"], {"b_pp_page": page["pageid"]}
+            # no props present - delete all rows with the pageid
+            yield self.sql["delete-all", "page_props"], {"b_pp_page": page["pageid"]}
 
-            # delete outdated restrictions
-            applied = set(pr["type"] for pr in page["protection"])
-            if applied:
-                if len(applied) == 1:
-                    # optimized query using != instead of notin_
-                    yield self.sql["delete-but-one", "page_restrictions"], {"b_pr_page": page["pageid"], "b_pr_type": applied.pop()}
-                else:
-                    # we need to check a tuple of arbitrary length (i.e. the restrictions
-                    # to keep), so the queries can't be grouped
-                    yield self.db.page_restrictions.delete().where(
-                            (self.db.page_restrictions.c.pr_page == page["pageid"]) &
-                            self.db.page_restrictions.c.pr_type.notin_(applied))
+        # delete outdated restrictions
+        applied = set(pr["type"] for pr in page["protection"])
+        if applied:
+            if len(applied) == 1:
+                # optimized query using != instead of notin_
+                yield self.sql["delete-but-one", "page_restrictions"], {"b_pr_page": page["pageid"], "b_pr_type": applied.pop()}
             else:
-                # no restrictions applied - delete all rows with the pageid
-                yield self.sql["delete-all", "page_restrictions"], {"b_pr_page": page["pageid"]}
+                # we need to check a tuple of arbitrary length (i.e. the restrictions
+                # to keep), so the queries can't be grouped
+                yield self.db.page_restrictions.delete().where(
+                        (self.db.page_restrictions.c.pr_page == page["pageid"]) &
+                        self.db.page_restrictions.c.pr_type.notin_(applied))
+        else:
+            # no restrictions applied - delete all rows with the pageid
+            yield self.sql["delete-all", "page_restrictions"], {"b_pr_page": page["pageid"]}
 
 
     def gen_insert(self):
@@ -245,14 +239,15 @@ class GrabberPages(Grabber):
         # here, we need to look into the logging table instead of recentchanges.
         rc_oldest = recentchanges.oldest_rc_timestamp(self.db)
         if rc_oldest is None or rc_oldest > since:
-            delete_redir, pages = self.get_logpages(since)
+            delete_early, pages = self.get_logpages(since)
         else:
-            delete_redir, pages = self.get_rcpages(since)
+            delete_early, pages = self.get_rcpages(since)
         keys = list(pages.keys())
 
-        # Move-over-redirect needs pre-deletion of the redirect, otherwise edits to
-        # the page would violate the page_namespace_title unique constraint.
-        for pageid in delete_redir:
+        # Always delete beforehand, otherwise inserts might violate the
+        # page_namespace_title unique constraint (for example when an automatic
+        # or manual move-over-redirect has been made).
+        for pageid in delete_early:
             # move tags first
             yield self.sql["move", "tagged_revision"], {"b_rev_page": pageid}
             # move relevant revisions from the revision table into archive
@@ -286,7 +281,7 @@ class GrabberPages(Grabber):
 
 
     def get_rcpages(self, since):
-        delete_redir = set()
+        deleted_pageids = set()
         rcpages = ws.utils.OrderedSet()
         rctitles = ws.utils.OrderedSet()
 
@@ -306,10 +301,8 @@ class GrabberPages(Grabber):
                 # redirect, so we have to extract the new page ID manually.
                 if change["logtype"] == "move":
                     rctitles.add(change["title"])
-                # Move-over-redirect needs pre-deletion of the redirect, otherwise edits to
-                # the page would violate the page_namespace_title unique constraint.
-                if change["logaction"] == "delete_redir":
-                    delete_redir.add(change["pageid"])
+                elif change["logaction"] in {"delete_redir", "delete"}:
+                    deleted_pageids.add(change["pageid"])
 
         # resolve titles to IDs (we actually need to call the API, see above)
         if rctitles:
@@ -330,10 +323,10 @@ class GrabberPages(Grabber):
                     if "pageid" in page:
                         rcpages.add(page["pageid"])
 
-        return delete_redir, rcpages
+        return deleted_pageids, rcpages
 
     def get_logpages(self, since):
-        delete_redir = set()
+        deleted_pageids = set()
         modified = ws.utils.OrderedSet()
 
         le_params = {
@@ -343,9 +336,9 @@ class GrabberPages(Grabber):
         }
         for le in logevents.list(self.db, le_params):
             if le["type"] in {"delete", "protect", "move"}:
-                if le["action"] == "delete_redir":
-                    delete_redir.add(le["logpage"])
+                if change["logaction"] in {"delete_redir", "delete"}:
+                    deleted_pageids.add(change["logpage"])
                 else:
                     modified.add(le["logpage"])
 
-        return delete_redir, modified
+        return deleted_pageids, modified
