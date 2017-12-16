@@ -145,8 +145,6 @@ Feature: Syncing the page tables
         And I sync the page tables
         # edits around the move make it more difficult
         And I edit page "Test 1" to contain "test test"
-        # TODO: if the user deletes the redirect manually, syncing will fail because
-        # we check only for delete_redir and not the usual delete action
         And I move page "Test 1" to "Test 2"
         And I edit page "Test 2" to contain "test"
         And I sync the page tables
