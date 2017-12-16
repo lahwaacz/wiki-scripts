@@ -36,6 +36,10 @@ class DoubleRedirects:
         wl_target.text = None
         text_new = str(wikicode)
 
+        # also add Category:Archive to the redirect
+        if target.startswith("ArchWiki:Archive"):
+            text_new = text_new.rstrip() + "\n[[Category:Archive]]"
+
         if text_old != text_new:
             self.api.edit(title, page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 
