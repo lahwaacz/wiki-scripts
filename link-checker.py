@@ -607,7 +607,8 @@ class WikilinkRules:
 
 
 class ManTemplateRules:
-    url_template = "http://jlk.fjfi.cvut.cz/arch/manpages/man/{pagename}.{secnum}"
+    url_template = "http://jlk.fjfi.cvut.cz/arch/manpages/man/{pagename}.{section}"
+    url_template_nosection = "http://jlk.fjfi.cvut.cz/arch/manpages/man/{pagename}"
 
     def __init__(self, timeout, max_retries):
         self.timeout = timeout
@@ -627,11 +628,14 @@ class ManTemplateRules:
         deadlink_params = [now.year, now.month, now.day]
         deadlink_params = ["{:02d}".format(i) for i in deadlink_params]
 
-        if not template.has(1, ignore_empty=True) or not template.has(2, ignore_empty=True):
+        if not template.has(1) or not template.has(2, ignore_empty=True):
             ensure_flagged_by_template(wikicode, template, "Dead link", *deadlink_params, overwrite_parameters=False)
             return
 
-        url = self.url_template.format(secnum=template.get(1).value.strip(), pagename=queryencode(template.get(2).value.strip()))
+        if template.get(1).value.strip():
+            url = self.url_template.format(section=template.get(1).value.strip(), pagename=queryencode(template.get(2).value.strip()))
+        else:
+            url = self.url_template_nosection.format(pagename=queryencode(template.get(2).value.strip()))
         if template.has(3):
             url += "#{}".format(queryencode(template.get(3).value.strip()))
         if template.has("url"):
@@ -649,8 +653,17 @@ class ManTemplateRules:
                 return False
             response = self.session.get(url, timeout=self.timeout)
             if response.status_code == 200:
-                self.cache_valid_urls.add(url)
-                return True
+                # heuristics to get the missing section (redirect from some_page to some_page.1)
+                # WARNING: if the manual exists in multiple sections, the first one might not be the best
+                if len(response.history) == 1 and response.url.startswith(url + "."):
+                    # template parameter 1= should be empty
+                    assert not template.has(1, ignore_empty=True)
+                    template.add(1, response.url[len(url) + 1:])
+                    self.cache_valid_urls.add(response.url)
+                    return True
+                else:
+                    self.cache_valid_urls.add(url)
+                    return True
             elif response.status_code >= 400:
                 self.cache_invalid_urls.add(url)
                 return False
@@ -770,7 +783,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
 
         for template in wikicode.ifilter_templates(recursive=True):
             # skip templates that may be added or removed
-            if str(template.name) in {"Broken section link"}:
+            if str(template.name) in {"Broken section link", "Dead link"}:
                 continue
             # skip links inside article status templates
             parent = wikicode.get(wikicode.index(template, recursive=True))
