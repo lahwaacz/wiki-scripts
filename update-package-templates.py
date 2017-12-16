@@ -2,7 +2,6 @@
 
 # TODO:
 #   testing repos may contain new packages
-#   is Template:Grp x86_64 only? in that case warn about i686-only groups
 
 import os.path
 import datetime
@@ -44,9 +43,7 @@ Include = /etc/pacman.d/mirrorlist
 
 [community]
 Include = /etc/pacman.d/mirrorlist
-"""
 
-PACCONF64_SUFFIX = """
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 """
@@ -58,8 +55,7 @@ class PkgFinder:
         self.ssl_verify = ssl_verify
 
         self.aurpkgs = None
-        self.pacdb32 = self.pacdb_init(PACCONF, os.path.join(self.tmpdir, "pacdbpath32"), arch="i686")
-        self.pacdb64 = self.pacdb_init(PACCONF + PACCONF64_SUFFIX, os.path.join(self.tmpdir, "pacdbpath64"), arch="x86_64")
+        self.pacdb = self.pacdb_init(PACCONF, os.path.join(self.tmpdir, "pacdbpath"), arch="x86_64")
         self.aur_archived_pkgs = None
 
     def pacdb_init(self, config, dbpath, arch):
@@ -99,10 +95,8 @@ class PkgFinder:
         try:
             logger.info("Syncing AUR packages...")
             self.aurpkgs_refresh(self.aurpkgs_url)
-            logger.info("Syncing pacman database (i686)...")
-            self.pacdb_refresh(self.pacdb32)
-            logger.info("Syncing pacman database (x86_64)...")
-            self.pacdb_refresh(self.pacdb64)
+            logger.info("Syncing pacman database...")
+            self.pacdb_refresh(self.pacdb)
             return True
         except requests.exceptions.RequestException:
             logger.exception("Failed to download %s" % self.aurpkgs_url)
@@ -113,33 +107,31 @@ class PkgFinder:
 
     # try to find given package (in either 32bit or 64bit database)
     def find_pkg(self, pkgname, exact=True):
-        for pacdb in (self.pacdb64, self.pacdb32):
-            for db in pacdb.get_syncdbs():
-                if exact is True:
-                    pkg = db.get_pkg(pkgname)
-                    if pkg is not None and pkg.name == pkgname:
+        for db in self.pacdb.get_syncdbs():
+            if exact is True:
+                pkg = db.get_pkg(pkgname)
+                if pkg is not None and pkg.name == pkgname:
+                    return pkg
+            else:
+                # iterate over all packages (db.get_pkg does only exact match)
+                for pkg in db.pkgcache:
+                    # compare pkgnames in lowercase
+                    if pkg.name.lower() == pkgname.lower():
                         return pkg
-                else:
-                    # iterate over all packages (db.get_pkg does only exact match)
-                    for pkg in db.pkgcache:
-                        # compare pkgnames in lowercase
-                        if pkg.name.lower() == pkgname.lower():
-                            return pkg
         return None
 
     # try to find given group (in either 32bit or 64bit database)
     def find_grp(self, grpname, exact=True):
-        for pacdb in (self.pacdb64, self.pacdb32):
-            for db in pacdb.get_syncdbs():
-                if exact is True:
-                    grp = db.read_grp(grpname)
-                    if grp is not None and grp[0] == grpname:
+        for db in self.pacdb.get_syncdbs():
+            if exact is True:
+                grp = db.read_grp(grpname)
+                if grp is not None and grp[0] == grpname:
+                    return grp
+            else:
+                # iterate over all groups (db.read_grp does only exact match)
+                for grp in db.grpcache:
+                    if grp[0].lower() == grpname.lower():
                         return grp
-                else:
-                    # iterate over all groups (db.read_grp does only exact match)
-                    for grp in db.grpcache:
-                        if grp[0].lower() == grpname.lower():
-                            return grp
         return None
 
     # check that given package exists in AUR
@@ -156,15 +148,14 @@ class PkgFinder:
 
     # try to find a package that has given pkgname in its `replaces` array
     def find_replaces(self, pkgname, exact=True):
-        for pacdb in (self.pacdb64, self.pacdb32):
-            for db in pacdb.get_syncdbs():
-                # iterate over all packages (search like pacman -Ss is not enough when
-                # the pkgname is not proper keyword)
-                for pkg in db.pkgcache:
-                    if exact is True and pkgname in pkg.replaces:
-                        return pkg
-                    elif exact is False and pkgname.lower() in (_pkgname.lower() for _pkgname in pkg.replaces):
-                        return pkg
+        for db in self.pacdb.get_syncdbs():
+            # iterate over all packages (search like pacman -Ss is not enough when
+            # the pkgname is not proper keyword)
+            for pkg in db.pkgcache:
+                if exact is True and pkgname in pkg.replaces:
+                    return pkg
+                elif exact is False and pkgname.lower() in (_pkgname.lower() for _pkgname in pkg.replaces):
+                    return pkg
         return None
 
 
