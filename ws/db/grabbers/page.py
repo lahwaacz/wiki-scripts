@@ -336,8 +336,8 @@ class GrabberPages(Grabber):
         }
         for le in logevents.list(self.db, le_params):
             if le["type"] in {"delete", "protect", "move"}:
-                if change["logaction"] in {"delete_redir", "delete"}:
-                    deleted_pageids.add(change["logpage"])
+                if le["action"] in {"delete_redir", "delete"}:
+                    deleted_pageids.add(le["logpage"])
                 else:
                     modified.add(le["logpage"])
 
