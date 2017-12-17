@@ -54,7 +54,7 @@ def remove_and_squash(wikicode, obj):
     def _get_text(index):
         # the first node has no previous node, especially not the last node
         if index < 0:
-            return None
+            return None, None
         try:
             node = parent.get(index)
             # don't EVER remove whitespace from non-Text nodes (it would
@@ -62,18 +62,24 @@ def remove_and_squash(wikicode, obj):
             # and replacing the object with str, but we keep references to
             # the old nodes)
             if not isinstance(node, mwparserfromhell.nodes.text.Text):
-                return None
-            return node
+                return None, mwparserfromhell.nodes.text.Text
+            return node, mwparserfromhell.nodes.text.Text
         except IndexError:
-            return None
+            return None, None
 
-    prev = _get_text(index - 1)
-    next_ = _get_text(index)
+    prev, prev_cls = _get_text(index - 1)
+    next_, next_cls = _get_text(index)
 
     if prev is None and next_ is not None:
-        next_.value = next_.lstrip()
+        # strip only at the beginning of the document, not after non-text elements,
+        # see https://github.com/lahwaacz/wiki-scripts/issues/44
+        if prev_cls is None:
+            next_.value = next_.lstrip()
     elif prev is not None and next_ is None:
-        prev.value = prev.value.rstrip()
+        # strip only at the end of the document, not before non-text elements,
+        # see https://github.com/lahwaacz/wiki-scripts/issues/44
+        if next_cls is None:
+            prev.value = prev.value.rstrip()
     elif prev is not None and next_ is not None:
         if prev.endswith(" ") and next_.startswith(" "):
             prev.value = prev.rstrip(" ")
