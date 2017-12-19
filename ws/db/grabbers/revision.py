@@ -173,7 +173,8 @@ class GrabberRevisions(Grabber):
                 # TODO: read on page history merging
                 "rev_parent_id": rev.get("parentid"),
                 "rev_sha1": rev["sha1"],
-                "rev_content_model": rev["contentmodel"],
+                "rev_content_model": rev["contentmodel"],        # always available
+                "rev_content_format": rev.get("contentformat"),  # available iff content is available
             }
 
             if self.with_content is True:
