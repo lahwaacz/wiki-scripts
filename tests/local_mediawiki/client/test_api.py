@@ -69,6 +69,7 @@ class test_actions:
         for i in range(5):
             title = "Test {}".format(i)
             self._create_page(api, title)
+            mediawiki.run_jobs()
             created_titles.add(title)
             assert api.last_revision_id == i + 1
         self._check_titles_api(api, created_titles)

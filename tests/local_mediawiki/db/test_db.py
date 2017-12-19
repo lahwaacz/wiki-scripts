@@ -106,6 +106,14 @@ def wait(num):
     import time
     time.sleep(num)
 
+@when(parsers.parse("I make a null edit to page \"{title}\""))
+def null_edit(mediawiki, title):
+    mediawiki.api.call_with_csrftoken(action="edit", title=title, appendtext="")
+
+@when(parsers.parse("I execute MediaWiki jobs"))
+def run_jobs(mediawiki):
+    mediawiki.run_jobs()
+
 @then("the allpages lists should match")
 def check_allpages_match(mediawiki, db):
     api_params = {

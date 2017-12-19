@@ -41,6 +41,7 @@ Feature: Syncing the page tables
     Scenario: Syncing page with displaytitle
         When I create page "Test"
         And I edit page "Test" to contain "{{DISPLAYTITLE:test}}"
+        And I execute MediaWiki jobs
         And I sync the page tables
         Then the allpages lists should match
         # TODO: until we actually check the props...
@@ -50,6 +51,7 @@ Feature: Syncing the page tables
         When I sync the page tables
         When I create page "Test"
         And I edit page "Test" to contain "{{DISPLAYTITLE:test}}"
+        And I execute MediaWiki jobs
         And I sync the page tables
         Then the allpages lists should match
         # TODO: until we actually check the props...

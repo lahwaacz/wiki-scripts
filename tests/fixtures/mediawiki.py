@@ -188,6 +188,17 @@ class MediaWikiFixtureInstance:
             conn.execute("CREATE DATABASE {} WITH TEMPLATE {} OWNER {}"
                          .format(_mw_db_name, _mw_db_name + "_template", _mw_db_user))
 
+    def run_jobs(self):
+        cmd = [
+            "php",
+            "--php-ini",
+            _php_ini,
+            "maintenance/runJobs.php",
+        ]
+        subprocess.run(cmd, cwd=self._mw_nginx_proc.server_root, check=True)
+        del self.api.site
+        assert self.api.site.statistics["jobs"] == 0, "failed to execute all queued jobs"
+
 @pytest.fixture(scope="session")
 def mediawiki(mw_nginx_proc, postgresql_proc):
     instance = MediaWikiFixtureInstance(mw_nginx_proc, postgresql_proc)
