@@ -217,22 +217,22 @@ class test_title():
     }
 
     @pytest.mark.parametrize("src, expected", titles.items())
-    def test_constructor(self, api, src, expected):
-        title = Title(api, src)
+    def test_constructor(self, title_context, src, expected):
+        title = Title(title_context, src)
         for attr, value in expected.items():
             assert getattr(title, attr) == value
 
     @pytest.mark.parametrize("src, expected", titles.items())
-    def test_parse(self, api, src, expected):
-        title = Title(api, "")
+    def test_parse(self, title_context, src, expected):
+        title = Title(title_context, "")
         title.parse(src)
         for attr, value in expected.items():
             assert getattr(title, attr) == value
 
     @pytest.mark.parametrize("full, attrs", titles.items())
-    def test_setters(self, api, full, attrs):
-        expected = Title(api, full)
-        title = Title(api, "")
+    def test_setters(self, title_context, full, attrs):
+        expected = Title(title_context, full)
+        title = Title(title_context, "")
         title.iwprefix = attrs.get("iwprefix", "")
         title.namespace = attrs.get("namespace", "")
         title.pagename = attrs.get("pagename", "")
@@ -247,8 +247,8 @@ class test_title_setters():
 
     @staticmethod
     @pytest.fixture(scope="function")
-    def title(api):
-        return Title(api, "en:Help:Style#section")
+    def title(title_context):
+        return Title(title_context, "en:Help:Style#section")
 
 
     @pytest.mark.parametrize("attr", attributes)
@@ -256,9 +256,9 @@ class test_title_setters():
         with pytest.raises(TypeError):
             setattr(title, attr, 42)
 
-    def test_invalid_type_constructor(self, api):
+    def test_invalid_type_constructor(self, title_context):
         with pytest.raises(TypeError):
-            Title(api, 42)
+            Title(title_context, 42)
 
     def test_invalid_type_parse(self, title):
         with pytest.raises(TypeError):
@@ -308,8 +308,8 @@ class test_title_setters():
         assert str(title) == "en:Help:Main page#section"
 
     @pytest.mark.parametrize("pagename", ["en:Main page", "Help:Foo", "Main page#Section"])
-    def test_invalid_pagename(self, api, pagename):
-        title = Title(api, "")
+    def test_invalid_pagename(self, title_context, pagename):
+        title = Title(title_context, "")
         with pytest.raises(ValueError):
             title.pagename = pagename
 
@@ -322,8 +322,8 @@ class test_title_setters():
         assert str(title) == "en:Help:Style#another section"
 
 
-    def test_eq(self, api, title):
-        other_title = Title(api, "")
+    def test_eq(self, title_context, title):
+        other_title = Title(title_context, "")
         other_title.iwprefix = "en"
         other_title.namespace = "Help"
         other_title.pagename = "Style"
@@ -393,23 +393,23 @@ class test_title_valid_chars:
     ]
 
     @pytest.mark.parametrize("pagename", invalid_titles)
-    def test_invalid_chars(self, api, pagename):
+    def test_invalid_chars(self, title_context, pagename):
         with pytest.raises(InvalidTitleCharError):
-            Title(api, pagename)
+            Title(title_context, pagename)
 
     @pytest.mark.parametrize("pagename", invalid_titles)
-    def test_invalid_chars_setter(self, api, pagename):
-        title = Title(api, "")
+    def test_invalid_chars_setter(self, title_context, pagename):
+        title = Title(title_context, "")
         with pytest.raises(InvalidTitleCharError):
             title.pagename = pagename
 
     @pytest.mark.parametrize("pagename", valid_titles)
-    def test_valid_chars(self, api, pagename):
-        title = Title(api, pagename)
+    def test_valid_chars(self, title_context, pagename):
+        title = Title(title_context, pagename)
         assert title.pagename == pagename
 
     @pytest.mark.parametrize("pagename", valid_titles)
-    def test_valid_chars_setter(self, api, pagename):
-        title = Title(api, "")
+    def test_valid_chars_setter(self, title_context, pagename):
+        title = Title(title_context, "")
         title.pagename = pagename
         assert title.pagename == pagename

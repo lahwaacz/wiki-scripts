@@ -8,7 +8,7 @@ import mwparserfromhell
 from .encodings import _anchor_preprocess, urldecode
 from ..utils import find_caseless
 
-__all__ = ["canonicalize", "Title", "InvalidTitleCharError"]
+__all__ = ["canonicalize", "Context", "Title", "InvalidTitleCharError"]
 
 def canonicalize(title):
     """
@@ -33,6 +33,19 @@ def canonicalize(title):
     title = title[0].upper() + title[1:]
     return title
 
+class Context:
+    def __init__(self, api):  # pragma: no cover
+        self.interwikimap = api.site.interwikimap
+        self.namespacenames = api.site.namespacenames
+        self.namespaces = api.site.namespaces
+        self.legaltitlechars = api.site.general["legaltitlechars"]
+
+    def __eq__(self, other):  # pragma: no cover
+        return self.interwikimap == other.interwikimap and \
+               self.namespacenames == other.namespacenames and \
+               self.namespaces == other.namespaces and \
+               self.legaltitlechars == other.legaltitlechars
+
 class Title:
     """
     A helper class intended for easy manipulation with wiki titles. Title
@@ -41,19 +54,27 @@ class Title:
     interwiki prefixes, which is useful for parsing the wiki links on lower
     level than what :py:mod:`mwparserfromhell` provides (it does not take the
     wiki configuration into account). The functionality depends on the
-    :py:class:`API <ws.client.api.API>` class for the validation of interwiki and
-    namespace prefixes.
+    :py:class:`Context` class for the validation of interwiki and namespace
+    prefixes.
 
     .. _`MediaWiki code`: https://www.mediawiki.org/wiki/Manual:Title.php#Title_structure
     .. _`magic words`: https://www.mediawiki.org/wiki/Help:Magic_words#Page_names
     """
 
-    def __init__(self, api, title):
+    def __init__(self, context_or_api, title):
         """
-        :param api: an :py:class:`API <ws.client.api.API>` instance
-        :param title: a :py:obj:`str` or :py:class:`mwparserfromhell.wikicode.Wikicode` object
+        :param context_or_api:
+            an instance of :py:class:`Context` or :py:class:`API <ws.client.api.API>`
+        :param title:
+            a :py:obj:`str` or :py:class:`mwparserfromhell.wikicode.Wikicode` object
         """
-        self.api = api
+        if ( hasattr(context_or_api, "interwikimap") and
+             hasattr(context_or_api, "namespacenames") and
+             hasattr(context_or_api, "namespaces") and
+             hasattr(context_or_api, "legaltitlechars") ):  # pragma: no branch
+            self.context = context_or_api
+        else:  # pragma: no cover
+            self.context = Context(context_or_api)
 
         # Interwiki prefix (e.g. ``wikipedia``), lowercase
         self.iw = None
@@ -80,7 +101,7 @@ class Title:
             # TODO: this is not tested, just a wild guess
             iw = iw.replace(" ", "_")
             # check if it is valid interwiki prefix
-            self.iw = find_caseless(iw, self.api.site.interwikimap.keys(), from_target=True)
+            self.iw = find_caseless(iw, self.context.interwikimap.keys(), from_target=True)
         except ValueError:
             if iw == "":
                 self.iw = iw
@@ -93,9 +114,9 @@ class Title:
 
         try:
             ns = canonicalize(ns)
-            if self.iw == "" or "local" in self.api.site.interwikimap[self.iw]:
+            if self.iw == "" or "local" in self.context.interwikimap[self.iw]:
                 # check if it is valid namespace
-                self.ns = find_caseless(ns, self.api.site.namespacenames, from_target=True)
+                self.ns = find_caseless(ns, self.context.namespacenames, from_target=True)
             else:
                 self.ns = ns
         except ValueError:
@@ -115,7 +136,7 @@ class Title:
         pagename = urldecode(pagename)
         # FIXME: how does MediaWiki handle unicode titles?  https://phabricator.wikimedia.org/T139881
         # as a workaround, any UTF-8 character, which is not an ASCII character, is allowed
-        if re.search("[^{}\\u0100-\\uFFFF]".format(self.api.site.general["legaltitlechars"]), pagename):
+        if re.search("[^{}\\u0100-\\uFFFF]".format(self.context.legaltitlechars), pagename):
             raise InvalidTitleCharError("Given title contains illegal character(s): '{}'".format(pagename))
         # canonicalize title
         self.pure = canonicalize(pagename)
@@ -206,7 +227,7 @@ class Title:
         """
         Same as ``{{NAMESPACENUMBER}}``.
         """
-        return self.api.site.namespacenames[self.ns]
+        return self.context.namespacenames[self.ns]
 
     @property
     def articlespace(self):
@@ -216,7 +237,7 @@ class Title:
         ns_id = self.namespacenumber
         if ns_id % 2 == 0:
             return self.ns
-        return self.api.site.namespaces[ns_id - 1]["*"]
+        return self.context.namespaces[ns_id - 1]["*"]
 
     @property
     def talkspace(self):
@@ -226,7 +247,7 @@ class Title:
         ns_id = self.namespacenumber
         if ns_id % 2 == 1:
             return self.ns
-        return self.api.site.namespaces[ns_id + 1]["*"]
+        return self.context.namespaces[ns_id + 1]["*"]
 
 
     @property
@@ -379,7 +400,7 @@ class Title:
 
 
     def __eq__(self, other):
-        return self.api.api_url == other.api.api_url and \
+        return self.context == other.context and \
                self.iw == other.iw and \
                self.ns == other.ns and \
                self.pure == other.pure and \
