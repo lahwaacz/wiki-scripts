@@ -139,8 +139,9 @@ class GrabberRevisions(Grabber):
 #                           "Skipping it, but the sync will be incomplete.")
 
     # TODO: text.old_id is auto-increment, but revision.rev_text_id has to be set accordingly. SQL should be able to do it automatically.
-    def _get_text_id(self, conn):
-        result = conn.execute(sqlalchemy.select( [sa.sql.func.max(self.db.text.c.old_id)] ))
+    def _get_text_id_gen(self):
+        conn = self.db.engine.connect()
+        result = conn.execute(sa.select( [sa.sql.func.max(self.db.text.c.old_id)] ))
         value = result.fetchone()[0]
         if value is None:
             value = 0
@@ -157,6 +158,7 @@ class GrabberRevisions(Grabber):
         yield self.sql["insert", "text"], db_entry
 
     def gen_revisions(self, page):
+        text_id_gen = self._get_text_id_gen()
         for rev in page["revisions"]:
             db_entry = {
                 "rev_id": rev["revid"],
@@ -189,6 +191,7 @@ class GrabberRevisions(Grabber):
                 yield self.sql["insert", "tagged_revision"], db_entry
 
     def gen_deletedrevisions(self, page):
+        text_id_gen = self._get_text_id_gen()
         title = Title(self.api, page["title"])
         for rev in page["revisions"]:
             db_entry = {
