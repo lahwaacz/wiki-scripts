@@ -8,10 +8,12 @@ import ws.db.grabbers.recentchanges
 import ws.db.grabbers.user
 import ws.db.grabbers.logging
 import ws.db.grabbers.page
+import ws.db.grabbers.revision
 import ws.db.selects as selects
 import ws.db.selects.allpages
+import ws.db.selects.allrevisions
 
-scenarios("pages.feature")
+scenarios(".")
 
 @given("an api to an empty MediaWiki")
 def empty_mediawiki(mediawiki):
@@ -35,6 +37,8 @@ def sync_page_tables(mediawiki, db):
     g = grabbers.logging.GrabberLogging(api, db)
     g.update()
     g = grabbers.page.GrabberPages(api, db)
+    g.update()
+    g = grabbers.revision.GrabberRevisions(api, db)
     g.update()
 
 @when(parsers.parse("I create page \"{title}\""))
@@ -136,3 +140,17 @@ def check_table_not_empty(db, table):
     s = sa.select([sa.func.count()]).select_from(t)
     result = db.engine.execute(s).fetchone()
     assert result[0] > 0, "The {} table is empty.".format(table)
+
+@then("the revisions should match")
+def check_revisions_match(mediawiki, db):
+    prop = {"ids", "flags", "timestamp", "user", "userid", "size", "sha1", "contentmodel", "comment", "content", "tags"}
+    api_params = {
+        "list": "allrevisions",
+        "arvprop": "|".join(prop),
+        "arvlimit": "max",
+    }
+
+    api_list = list(mediawiki.api.list(api_params))
+    db_list = list(selects.allrevisions.list(db, prop=prop))
+
+    assert db_list == api_list
