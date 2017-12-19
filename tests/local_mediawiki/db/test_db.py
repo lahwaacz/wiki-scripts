@@ -38,7 +38,7 @@ def sync_page_tables(mediawiki, db):
     g.update()
     g = grabbers.page.GrabberPages(api, db)
     g.update()
-    g = grabbers.revision.GrabberRevisions(api, db)
+    g = grabbers.revision.GrabberRevisions(api, db, with_content=True)
     g.update()
 
 @when(parsers.parse("I create page \"{title}\""))
@@ -152,5 +152,16 @@ def check_revisions_match(mediawiki, db):
 
     api_list = list(mediawiki.api.list(api_params))
     db_list = list(selects.allrevisions.list(db, prop=prop))
+
+    # FIXME: hack until we have per-page grouping like MediaWiki
+    api_revisions = []
+    for page in api_list:
+        for rev in page["revisions"]:
+            rev["pageid"] = page["pageid"]
+            rev["ns"] = page["ns"]
+            rev["title"] = page["title"]
+            api_revisions.append(rev)
+    api_revisions.sort(key=lambda item: item["revid"], reverse=True)
+    api_list = api_revisions
 
     assert db_list == api_list
