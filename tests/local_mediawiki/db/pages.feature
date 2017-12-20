@@ -166,6 +166,37 @@ Feature: Syncing the page tables
         And the allpages lists should match
         And the revisions should match
 
+    Scenario: Syncing twice deleted page
+        When I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I delete page "Test"
+        And I create page "Test"
+        And I edit page "Test" to contain "test 2"
+        And I delete page "Test"
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match
+
+    Scenario: Syncing undeleted twice deleted page
+        When I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I delete page "Test"
+        And I create page "Test"
+        And I edit page "Test" to contain "test 2"
+        And I delete page "Test"
+        And I sync the page tables
+        And I undelete page "Test"
+
+        # FIXME: flaky test
+        And I wait 1 seconds
+        And I execute MediaWiki jobs
+
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match
+
     Scenario: Syncing page moved over a redirect
         When I create page "Test 2"
         And I edit page "Test 2" to contain "test"
@@ -182,4 +213,3 @@ Feature: Syncing the page tables
 
     # TODO: Syncing deleted page with displaytitle
     # TODO: Syncing deleted protected page
-    # TODO: Syncing multiple deleted pages with the same title (i.e. multiple revisions have the same ar_title, but different ar_page_id)
