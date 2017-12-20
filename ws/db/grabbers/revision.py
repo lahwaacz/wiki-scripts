@@ -206,7 +206,7 @@ class GrabberRevisions(Grabber):
                 "ar_minor_edit": "minor" in rev,
                 # TODO: ar_deleted
                 "ar_len": rev["size"],
-                # ar_parent_id is not visible through API
+                # ar_parent_id is not visible through API: https://phabricator.wikimedia.org/T183376
                 "ar_sha1": rev["sha1"],
                 "ar_content_model": rev["contentmodel"],
             }

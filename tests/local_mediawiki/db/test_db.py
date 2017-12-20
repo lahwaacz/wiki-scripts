@@ -164,4 +164,11 @@ def check_revisions_match(mediawiki, db):
     api_revisions.sort(key=lambda item: item["revid"], reverse=True)
     api_list = api_revisions
 
+    # FIXME: WTF, MediaWiki does not restore rev_parent_id when undeleting...
+    # https://phabricator.wikimedia.org/T183375
+    for rev in db_list:
+        del rev["parentid"]
+    for rev in api_list:
+        del rev["parentid"]
+
     assert db_list == api_list
