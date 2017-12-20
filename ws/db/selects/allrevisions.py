@@ -37,12 +37,8 @@ def sanitize_params(params):
 def list(db, params=None, **kwargs):
     """
     .. note::
-        Parameters ``toponly=``, ``tag=``, ``prop=tags``, ``prop=sha1``,
-        ``prop=redirect``, ``show=redirect`` require joins with other tables,
+        Parameters ...TODO... require joins with other tables,
         so that information will not be present during mirroring.
-
-        Also ``prop=title`` requires join with the ``namespace_starname`` table
-        but that must be synchronized first anyway.
     """
     if params is None:
         params = kwargs
