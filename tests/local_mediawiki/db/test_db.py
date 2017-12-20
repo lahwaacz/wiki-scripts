@@ -12,6 +12,7 @@ import ws.db.grabbers.revision
 import ws.db.selects as selects
 import ws.db.selects.allpages
 import ws.db.selects.allrevisions
+import ws.db.selects.alldeletedrevisions
 
 scenarios(".")
 
@@ -141,8 +142,7 @@ def check_table_not_empty(db, table):
     result = db.engine.execute(s).fetchone()
     assert result[0] > 0, "The {} table is empty.".format(table)
 
-@then("the revisions should match")
-def check_revisions_match(mediawiki, db):
+def _check_allrevisions(mediawiki, db):
     prop = {"ids", "flags", "timestamp", "user", "userid", "size", "sha1", "contentmodel", "comment", "content", "tags"}
     api_params = {
         "list": "allrevisions",
@@ -172,3 +172,42 @@ def check_revisions_match(mediawiki, db):
         del rev["parentid"]
 
     assert db_list == api_list
+
+def _check_alldeletedrevisions(mediawiki, db):
+    prop = {"ids", "flags", "timestamp", "user", "userid", "size", "sha1", "contentmodel", "comment", "content", "tags"}
+    api_params = {
+        "list": "alldeletedrevisions",
+        "adrprop": "|".join(prop),
+        "adrlimit": "max",
+    }
+
+    api_list = list(mediawiki.api.list(api_params))
+    db_list = list(selects.alldeletedrevisions.list(db, prop=prop))
+
+    # FIXME: hack until we have per-page grouping like MediaWiki
+    api_revisions = []
+    for page in api_list:
+        for rev in page["revisions"]:
+            rev["pageid"] = page["pageid"]
+            rev["ns"] = page["ns"]
+            rev["title"] = page["title"]
+            api_revisions.append(rev)
+    api_revisions.sort(key=lambda item: item["revid"], reverse=True)
+    api_list = api_revisions
+
+    for rev in db_list:
+        # FIXME: MediaWiki sets all pageids of deleted revisions to 0, see https://phabricator.wikimedia.org/T183398
+        rev["pageid"] = 0
+        # FIXME: ar_parent_id is not visible through the API: https://phabricator.wikimedia.org/T183376
+        del rev["parentid"]
+    # if another page with the same title has been created, new pageid is allocated for it
+    # and we don't get pageid=0 for the deleted revisions of the old page
+    for rev in api_list:
+        rev["pageid"] = 0
+
+    assert db_list == api_list
+
+@then("the revisions should match")
+def check_revisions_match(mediawiki, db):
+    _check_allrevisions(mediawiki, db)
+    _check_alldeletedrevisions(mediawiki, db)

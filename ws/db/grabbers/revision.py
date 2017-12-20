@@ -197,7 +197,7 @@ class GrabberRevisions(Grabber):
                 "ar_namespace": page["ns"],
                 "ar_title": title.dbtitle(page["ns"]),
                 "ar_rev_id": rev["revid"],
-                # NOTE: list=alldeletedrevisions always returns 0
+                # NOTE: list=alldeletedrevisions always returns 0: https://phabricator.wikimedia.org/T183398
                 "ar_page_id": value_or_none(page.get("pageid")),
                 "ar_comment": rev["comment"],
                 "ar_user": rev["userid"],

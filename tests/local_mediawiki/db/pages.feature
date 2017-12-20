@@ -171,3 +171,4 @@ Feature: Syncing the page tables
 
     # TODO: Syncing deleted page with displaytitle
     # TODO: Syncing deleted protected page
+    # TODO: Syncing multiple deleted pages with the same title (i.e. multiple revisions have the same ar_title, but different ar_page_id)
