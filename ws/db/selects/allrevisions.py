@@ -11,10 +11,9 @@ def set_defaults(params):
 
 
 def sanitize_params(params):
-    # MW incompatibility: arvgeneratexml is not supported (it is deprecated anyway)
+    # MW incompatibility: parameters related to content parsing are not supported (they are deprecated anyway)
     assert set(params) <= {"start", "end", "dir", "namespace", "user", "excludeuser", "prop", "limit", "continue",
-                           "expandtemplates", "parse", "section", "diffto", "difftotext", "difftotextpst", "contentformat",
-                           "generatetitles"}
+                           "section", "generatetitles"}
 
     # sanitize timestamp limits
     assert params["dir"] in {"newer", "older"}
@@ -50,8 +49,7 @@ def list(db, params=None, **kwargs):
     set_defaults(params)
     sanitize_params(params)
 
-    if {"expandtemplates", "parse", "section", "diffto", "difftotext", "difftotextpst", "contentformat",
-        "generatetitles", "limit", "continue"} & set(params):
+    if {"section", "generatetitles", "limit", "continue"} & set(params):
         raise NotImplementedError
 
     rev = db.revision
