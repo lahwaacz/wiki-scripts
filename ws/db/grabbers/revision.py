@@ -158,7 +158,6 @@ class GrabberRevisions(Grabber):
         yield self.sql["insert", "text"], db_entry
 
     def gen_revisions(self, page):
-        text_id_gen = self._get_text_id_gen()
         for rev in page["revisions"]:
             db_entry = {
                 "rev_id": rev["revid"],
@@ -178,7 +177,7 @@ class GrabberRevisions(Grabber):
             }
 
             if self.with_content is True:
-                text_id = next(text_id_gen)
+                text_id = next(self.text_id_gen)
                 db_entry["rev_text_id"] = text_id
                 yield from self.gen_text(rev, text_id)
 
@@ -192,7 +191,6 @@ class GrabberRevisions(Grabber):
                 yield self.sql["insert", "tagged_revision"], db_entry
 
     def gen_deletedrevisions(self, page):
-        text_id_gen = self._get_text_id_gen()
         title = Title(self.api, page["title"])
         for rev in page["revisions"]:
             db_entry = {
@@ -214,7 +212,7 @@ class GrabberRevisions(Grabber):
             }
 
             if self.with_content is True:
-                text_id = next(text_id_gen)
+                text_id = next(self.text_id_gen)
                 db_entry["rev_text_id"] = text_id
                 yield from self.gen_text(rev, text_id)
 
@@ -231,12 +229,18 @@ class GrabberRevisions(Grabber):
     # TODO: generalize the above even for logging table
 
     def gen_insert(self):
+        # we need one instance per transaction
+        self.text_id_gen = self._get_text_id_gen()
+
         for page in self.api.list(self.arv_params):
             yield from self.gen_revisions(page)
         for page in self.api.list(self.adr_params):
             yield from self.gen_deletedrevisions(page)
 
     def gen_update(self, since):
+        # we need one instance per transaction
+        self.text_id_gen = self._get_text_id_gen()
+
         # TODO: make sure that the updates from the API don't create a duplicate row with a new ID in the text table
 
         arv_params = self.arv_params.copy()
