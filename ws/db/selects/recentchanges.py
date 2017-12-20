@@ -130,8 +130,7 @@ def list(db, params=None, **kwargs):
                         .group_by(tgrc.c.tgrc_rc_id) \
                         .cte("tag_names")
         tail = tail.outerjoin(tag_names, rc.c.rc_id == tag_names.c.tgrc_rc_id)
-        if "tags" in prop:
-            s.append_column(tag_names.c.tag_names)
+        s.append_column(tag_names.c.tag_names)
     if "tag" in params:
         tag = db.tag
         tgrc = db.tagged_recentchange
