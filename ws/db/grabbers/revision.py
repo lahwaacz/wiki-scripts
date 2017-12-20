@@ -209,11 +209,12 @@ class GrabberRevisions(Grabber):
                 # ar_parent_id is not visible through API: https://phabricator.wikimedia.org/T183376
                 "ar_sha1": rev["sha1"],
                 "ar_content_model": rev["contentmodel"],
+                "ar_content_format": rev["contentformat"],
             }
 
             if self.with_content is True:
                 text_id = next(self.text_id_gen)
-                db_entry["rev_text_id"] = text_id
+                db_entry["ar_text_id"] = text_id
                 yield from self.gen_text(rev, text_id)
 
             yield self.sql["insert", "archive"], db_entry
