@@ -10,6 +10,7 @@ import ws.db.grabbers.logging
 import ws.db.grabbers.page
 import ws.db.grabbers.revision
 import ws.db.selects as selects
+import ws.db.selects.logevents
 import ws.db.selects.allpages
 import ws.db.selects.allrevisions
 import ws.db.selects.alldeletedrevisions
@@ -118,6 +119,20 @@ def null_edit(mediawiki, title):
 @when(parsers.parse("I execute MediaWiki jobs"))
 def run_jobs(mediawiki):
     mediawiki.run_jobs()
+
+@then("the logevents should match")
+def select_logging(mediawiki, db):
+    prop = {"user", "userid", "comment", "timestamp", "title", "ids", "type", "details", "tags"}
+    api_params = {
+        "list": "logevents",
+        "leprop": "|".join(prop),
+        "lelimit": "max",
+    }
+
+    api_list = list(mediawiki.api.list(api_params))
+    db_list = list(selects.logevents.list(db, prop=prop))
+
+    assert db_list == api_list
 
 @then("the allpages lists should match")
 def check_allpages_match(mediawiki, db):

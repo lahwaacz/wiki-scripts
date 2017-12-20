@@ -8,7 +8,8 @@ Feature: Syncing the page tables
 
     Scenario: Syncing empty wiki
         When I sync the page tables
-        Then the allpages lists should match
+        Then the logevents should match
+        And the allpages lists should match
         And the revisions should match
 
     Scenario: Syncing empty page
@@ -70,7 +71,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I protect page "Test"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the logevents should match
+        And the allpages lists should match
         # TODO: until we actually check the protections...
         And the page_restrictions table should not be empty
         And the revisions should match
@@ -83,7 +85,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I unprotect page "Test"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the logevents should match
+        And the allpages lists should match
         And the revisions should match
 
     Scenario: Syncing partially protected page
@@ -92,7 +95,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I partially protect page "Test"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the logevents should match
+        And the allpages lists should match
         # TODO: until we actually check the protections...
         And the page_restrictions table should not be empty
         And the revisions should match
@@ -105,7 +109,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I partially unprotect page "Test"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the logevents should match
+        And the allpages lists should match
         And the revisions should match
 
     Scenario: Syncing moved page
@@ -114,7 +119,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I move page "Test 1" to "Test 2"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the logevents should match
+        And the allpages lists should match
         And the revisions should match
 
     Scenario: Syncing moved page without a redirect
@@ -123,7 +129,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I move page "Test 1" to "Test 2" without leaving a redirect
         And I sync the page tables
-        Then the allpages lists should match
+        Then the logevents should match
+        And the allpages lists should match
         And the revisions should match
 
     Scenario: Syncing twice moved page
@@ -133,7 +140,8 @@ Feature: Syncing the page tables
         And I move page "Test 1" to "Test 2"
         And I move page "Test 2" to "Test 3"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the logevents should match
+        And the allpages lists should match
         And the revisions should match
 
     Scenario: Syncing deleted page
@@ -142,7 +150,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I delete page "Test"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the logevents should match
+        And the allpages lists should match
         And the revisions should match
 
     Scenario: Syncing undeleted page
@@ -153,7 +162,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I undelete page "Test"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the logevents should match
+        And the allpages lists should match
         And the revisions should match
 
     Scenario: Syncing page moved over a redirect
@@ -166,7 +176,8 @@ Feature: Syncing the page tables
         And I move page "Test 1" to "Test 2"
         And I edit page "Test 2" to contain "test"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the logevents should match
+        And the allpages lists should match
         And the revisions should match
 
     # TODO: Syncing deleted page with displaytitle
