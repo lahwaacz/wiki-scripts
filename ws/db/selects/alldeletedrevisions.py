@@ -161,7 +161,7 @@ def db_to_api(row):
         "ar_minor_edit": "minor",
     }
     # subset of flags for which 0 should be used instead of None
-    zeroable_flags = {"ar_user"}
+    zeroable_flags = {"ar_user", "ar_parent_id"}
 
     api_entry = {}
     for key, value in row.items():
