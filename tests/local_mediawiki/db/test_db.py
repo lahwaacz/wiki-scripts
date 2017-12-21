@@ -121,7 +121,7 @@ def run_jobs(mediawiki):
     mediawiki.run_jobs()
 
 @then("the logevents should match")
-def select_logging(mediawiki, db):
+def check_logging(mediawiki, db):
     prop = {"user", "userid", "comment", "timestamp", "title", "ids", "type", "details", "tags"}
     api_params = {
         "list": "logevents",
@@ -149,6 +149,13 @@ def check_allpages_match(mediawiki, db):
     db_list.sort(key=lambda item: item["pageid"])
 
     assert db_list == api_list
+
+@then(parsers.parse("the {table} table should be empty"))
+def check_table_not_empty(db, table):
+    t = getattr(db, table)
+    s = sa.select([sa.func.count()]).select_from(t)
+    result = db.engine.execute(s).fetchone()
+    assert result[0] == 0, "The {} table is not empty.".format(table)
 
 @then(parsers.parse("the {table} table should not be empty"))
 def check_table_not_empty(db, table):

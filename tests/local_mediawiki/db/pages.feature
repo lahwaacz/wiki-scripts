@@ -211,5 +211,29 @@ Feature: Syncing the page tables
         And the allpages lists should match
         And the revisions should match
 
-    # TODO: Syncing deleted page with displaytitle
-    # TODO: Syncing deleted protected page
+    Scenario: Syncing deleted page with displaytitle
+        When I create page "Test"
+        And I edit page "Test" to contain "{{DISPLAYTITLE:test}}"
+        And I execute MediaWiki jobs
+        And I sync the page tables
+        And I delete page "Test"
+        And I sync the page tables
+        Then the allpages lists should match
+        # TODO: until we actually check the props...
+        And the page_props table should be empty
+        And the revisions should match
+
+    Scenario: Syncing deleted protected page
+        When I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I sync the page tables
+        And I protect page "Test"
+        And I sync the page tables
+        And I delete page "Test"
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        # TODO: until we actually check the protections...
+        And the page_restrictions table should be empty
+        And the revisions should match
+
