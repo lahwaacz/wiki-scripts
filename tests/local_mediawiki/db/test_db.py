@@ -211,7 +211,8 @@ def _check_alldeletedrevisions(mediawiki, db):
     api_list = api_revisions
 
     for rev in db_list:
-        # FIXME: MediaWiki sets all pageids of deleted revisions to 0, see https://phabricator.wikimedia.org/T183398
+        # FIXME: MediaWiki returns either 0 or the ID of another page with the same title, which was created
+        # without undeleting the former revisions, see https://phabricator.wikimedia.org/T183398
         rev["pageid"] = 0
         # FIXME: ar_parent_id is not visible through the API: https://phabricator.wikimedia.org/T183376
         del rev["parentid"]

@@ -197,8 +197,9 @@ class GrabberRevisions(Grabber):
                 "ar_namespace": page["ns"],
                 "ar_title": title.dbtitle(page["ns"]),
                 "ar_rev_id": rev["revid"],
-                # NOTE: list=alldeletedrevisions always returns 0: https://phabricator.wikimedia.org/T183398
-                "ar_page_id": value_or_none(page.get("pageid")),
+                # ar_page_id is not visible through the API: https://phabricator.wikimedia.org/T183398
+                # (page["pageid"] is either 0 or the ID of a new page which was created without undeleting these revisions)
+                "ar_page_id": None,
                 "ar_comment": rev["comment"],
                 "ar_user": rev["userid"],
                 "ar_user_text": rev["user"],
