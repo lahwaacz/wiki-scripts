@@ -310,7 +310,7 @@ def create_revisions_tables(metadata):
         Column("ar_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("ar_title", UnicodeBinary(255), nullable=False),
         # for preserving revision.rev_id
-        Column("ar_rev_id", Integer),
+        Column("ar_rev_id", Integer, nullable=False),
         # like revision.rev_page, but nullable because pages deleted prior to MW 1.11 have NULL
         # (not a FK because archived pages don't exist in page)
         # NOTE: not visible via MW API
