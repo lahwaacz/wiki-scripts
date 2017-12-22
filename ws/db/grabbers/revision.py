@@ -70,6 +70,17 @@ class GrabberRevisions(Grabber):
                 db.archive.update() \
                     .where(sa.and_(db.archive.c.ar_namespace == sa.bindparam("b_namespace"),
                                    db.archive.c.ar_title == sa.bindparam("b_title"))),
+            ("merge", "revision"):
+                db.revision.update() \
+                    .where(sa.and_(db.revision.c.rev_page == sa.bindparam("b_src_page_id"),
+                                   # MW defect: timestamp-based merge points are not sufficient,
+                                   # see https://phabricator.wikimedia.org/T183501
+                                   db.revision.c.rev_timestamp <= sa.bindparam("b_mergepoint")))
+                    .values(rev_page=sa.select([db.page.c.page_id])
+                                .where(sa.and_(db.page.c.page_namespace == sa.bindparam("b_dest_ns"),
+                                               db.page.c.page_title == sa.bindparam("b_dest_title"))
+                                )
+                    ),
         }
 
         # build query to move data from the archive table into revision
@@ -253,14 +264,16 @@ class GrabberRevisions(Grabber):
 
         deleted_pages = set()
         undeleted_pages = {}
+        merged_pages = {}
+        moved_pages = set()
 
         le_params = {
-            "type": "delete",
-            "prop": {"type", "details", "title"},
+            "prop": {"type", "details", "title", "ids"},
             "dir": "newer",
             "start": since,
         }
         for le in logevents.list(self.db, le_params):
+            # check logevents for delete/undelete
             if le["type"] == "delete":
                 if le["action"] == "delete":
                     deleted_pages.add(le["title"])
@@ -268,10 +281,16 @@ class GrabberRevisions(Grabber):
                     if le["title"] in undeleted_pages:
                         del undeleted_pages[le["title"]]
                 elif le["action"] == "restore":
-                    undeleted_pages[le["title"]] = le["pageid"]
+                    undeleted_pages[le["title"]] = le["logpage"]
                     # keep only the most recent action
                     if le["title"] in deleted_pages:
                         deleted_pages.remove(le["title"])
+            # check logevents for merge
+            elif le["type"] == "merge":
+                merged_pages[le["logpage"]] = le["params"]
+            # we need also moved pages for a safeguard due to a MW defect (see below)
+            elif le["type"] == "move":
+                moved_pages.add(le["logpage"])
 
         # handle undelete - move the rows from archive to revision (deletes are handled in the page grabber)
         for _title, pageid in undeleted_pages.items():
@@ -314,5 +333,18 @@ class GrabberRevisions(Grabber):
                     page["revisions"] = page.pop("deletedrevisions")
                     yield from self.gen_deletedrevisions(page)
 
+        # handle merge
+        # MW defect: the target page ID is not present in the logevent, so we need to look up
+        # by namespace and title - see https://phabricator.wikimedia.org/T183504
+        # Hence, we abort if we see that the target page has been moved - in that case we
+        # cannot safely determine the target page. Let's hope it never happens in practice,
+        # sync as often as possible to avoid this.
+        for pageid, params in merged_pages.items():
+            if pageid in moved_pages:
+                raise NotImplementedError("Cannot merge revisions from [[{}]] to [[{}]]: target page has been moved.")
+            yield self.sql["merge", "revision"], {"b_src_page_id": pageid,
+                                                  "b_dest_ns": params["dest_ns"],
+                                                  "b_dest_title": params["dest_title"],
+                                                  "b_mergepoint": params["mergepoint"]}
+
         # TODO: update rev_deleted and ar_deleted
-        # TODO: handle merge and unmerge

@@ -187,11 +187,6 @@ Feature: Syncing the page tables
         And I delete page "Test"
         And I sync the page tables
         And I undelete page "Test"
-
-        # FIXME: flaky test
-        And I wait 1 seconds
-        And I execute MediaWiki jobs
-
         And I sync the page tables
         Then the logevents should match
         And the allpages lists should match
@@ -237,3 +232,26 @@ Feature: Syncing the page tables
         And the page_restrictions table should be empty
         And the revisions should match
 
+    Scenario: Syncing merged page
+        When I create page "Test 1"
+        And I edit page "Test 1" to contain "test 1"
+        And I create page "Test 2"
+        And I edit page "Test 2" to contain "test 2"
+        And I sync the page tables
+        And I merge page "Test 1" into "Test 2"
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match
+
+    Scenario: Syncing merged page into new page
+        When I create page "Test 1"
+        And I edit page "Test 1" to contain "test 1"
+        And I sync the page tables
+        And I create page "Test 2"
+        And I edit page "Test 2" to contain "test 2"
+        And I merge page "Test 1" into "Test 2"
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match

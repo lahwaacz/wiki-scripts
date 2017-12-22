@@ -121,6 +121,7 @@ class GrabberProtectedTitles(Grabber):
         }
         for change in rc.list(self.db, rc_params):
             if change["type"] == "log":
+                # note that pageid in recentchanges corresponds to log_page
                 if change["logtype"] == "protect" and change["pageid"] == 0:
                     rctitles.add(change["title"])
             elif change["type"] == "new":

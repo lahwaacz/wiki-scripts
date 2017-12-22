@@ -302,6 +302,7 @@ class GrabberPages(Grabber):
                 if change["logtype"] == "move":
                     rctitles.add(change["title"])
                 elif change["logaction"] in {"delete_redir", "delete"}:
+                    # note that pageid in recentchanges corresponds to log_page
                     deleted_pageids.add(change["pageid"])
 
         # resolve titles to IDs (we actually need to call the API, see above)

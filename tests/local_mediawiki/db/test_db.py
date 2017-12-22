@@ -101,10 +101,25 @@ def unprotect_page(mediawiki, title):
 @when(parsers.parse("I delete page \"{title}\""))
 def delete_page(mediawiki, title):
     mediawiki.api.call_with_csrftoken(action="delete", title=title)
+    # FIXME: running jobs is not necessary, but the call adds a small delay which stabilizes the tests
+    mediawiki.run_jobs()
 
 @when(parsers.parse("I undelete page \"{title}\""))
 def undelete_page(mediawiki, title):
     mediawiki.api.call_with_csrftoken(action="undelete", title=title)
+    # FIXME: running jobs is not necessary, but the call adds a small delay which stabilizes the tests
+    mediawiki.run_jobs()
+
+@when(parsers.parse("I merge page \"{source}\" into \"{target}\""))
+def merge_page(mediawiki, source, target):
+    params = {
+        "action": "mergehistory",
+        "from": source,
+        "to": target,
+    }
+    mediawiki.api.call_with_csrftoken(params)
+    # FIXME: running jobs is not necessary, but the call adds a small delay which stabilizes the tests
+    mediawiki.run_jobs()
 
 # debugging step
 @when(parsers.parse("I wait {num:d} seconds"))
