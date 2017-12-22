@@ -39,17 +39,15 @@ class GrabberRevisions(Grabber):
                 ins_revision.on_conflict_do_update(
                     constraint=db.revision.primary_key,
                     set_={
-                        # this should be the only columns that may change in the table
-                        "rev_deleted": ins_revision.excluded.rev_deleted,
-                        # TODO: merging might change rev_page and rev_parent_id
+                        # this should be the only column that may change with an insert query
+                        "rev_text_id": ins_revision.excluded.rev_text_id,
                     }),
             ("insert", "archive"):
                 ins_archive.on_conflict_do_update(
                     index_elements=[db.archive.c.ar_rev_id],
                     set_={
-                        # this should be the only columns that may change in the table
-                        "ar_deleted": ins_archive.excluded.ar_deleted,
-                        # TODO: merging might change ar_page_id and ar_parent_id
+                        # this should be the only column that may change with an insert query
+                        "ar_text_id": ins_archive.excluded.ar_text_id,
                     }),
             ("insert", "tagged_revision"):
                 ins_tgrev.values(
@@ -184,9 +182,8 @@ class GrabberRevisions(Grabber):
                 "rev_user_text": rev["user"],
                 "rev_timestamp": rev["timestamp"],
                 "rev_minor_edit": "minor" in rev,
-                # TODO: rev_deleted
+                # rev_deleted is set separately with an update query, see below
                 "rev_len": rev["size"],
-                # TODO: read on page history merging
                 "rev_parent_id": rev.get("parentid"),
                 "rev_sha1": rev["sha1"],
                 "rev_content_model": rev["contentmodel"],        # always available
@@ -222,7 +219,7 @@ class GrabberRevisions(Grabber):
                 "ar_user_text": rev["user"],
                 "ar_timestamp": rev["timestamp"],
                 "ar_minor_edit": "minor" in rev,
-                # TODO: ar_deleted
+                # ar_deleted is set separately with an update query, see below
                 "ar_len": rev["size"],
                 # ar_parent_id is not visible through API: https://phabricator.wikimedia.org/T183376
                 "ar_sha1": rev["sha1"],
