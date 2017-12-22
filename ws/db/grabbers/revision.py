@@ -226,8 +226,8 @@ class GrabberRevisions(Grabber):
                 "ar_len": rev["size"],
                 # ar_parent_id is not visible through API: https://phabricator.wikimedia.org/T183376
                 "ar_sha1": rev["sha1"],
-                "ar_content_model": rev["contentmodel"],
-                "ar_content_format": rev["contentformat"],
+                "ar_content_model": rev["contentmodel"],        # always available
+                "ar_content_format": rev.get("contentformat"),  # available iff content is available
             }
 
             if self.with_content is True:
