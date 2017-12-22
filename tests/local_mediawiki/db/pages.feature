@@ -255,3 +255,43 @@ Feature: Syncing the page tables
         Then the logevents should match
         And the allpages lists should match
         And the revisions should match
+
+    Scenario: Syncing deleted revision
+        When I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I sync the page tables
+        And I delete the newest revision of page "Test"
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match
+
+    Scenario: Syncing undeleted revision
+        When I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I delete the newest revision of page "Test"
+        And I sync the page tables
+        And I undelete the newest revision of page "Test"
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match
+
+    Scenario: Syncing deleted logevent
+        When I create tag "test"
+        And I sync the page tables
+        And I delete the first logevent
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match
+
+    Scenario: Syncing undeleted logevent
+        When I create tag "test"
+        And I delete the first logevent
+        And I sync the page tables
+        And I undelete the first logevent
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match

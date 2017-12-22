@@ -121,6 +121,63 @@ def merge_page(mediawiki, source, target):
     # FIXME: running jobs is not necessary, but the call adds a small delay which stabilizes the tests
     mediawiki.run_jobs()
 
+@when(parsers.parse("I delete the newest revision of page \"{title}\""))
+def delete_revision(mediawiki, title):
+    pages = mediawiki.api.call_api(action="query", titles=title, prop="info")["pages"]
+    revid = list(pages.values())[0]["lastrevid"]
+    params = {
+        "action": "revisiondelete",
+        "type": "revision",
+        "target": title,
+        "ids": revid,
+        "hide": "content|comment|user",
+    }
+    mediawiki.api.call_with_csrftoken(params)
+
+@when(parsers.parse("I undelete the newest revision of page \"{title}\""))
+def undelete_revision(mediawiki, title):
+    pages = mediawiki.api.call_api(action="query", titles=title, prop="info")["pages"]
+    revid = list(pages.values())[0]["lastrevid"]
+    params = {
+        "action": "revisiondelete",
+        "type": "revision",
+        "target": title,
+        "ids": revid,
+        "show": "content|comment|user",
+    }
+    mediawiki.api.call_with_csrftoken(params)
+
+@when(parsers.parse("I delete the first logevent"))
+def delete_revision(mediawiki):
+    logid = mediawiki.api.call_api(action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1)["logevents"][0]["logid"]
+    params = {
+        "action": "revisiondelete",
+        "type": "logging",
+        "ids": logid,
+        "hide": "content|comment|user",
+    }
+    mediawiki.api.call_with_csrftoken(params)
+
+@when(parsers.parse("I undelete the first logevent"))
+def delete_revision(mediawiki):
+    logid = mediawiki.api.call_api(action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1)["logevents"][0]["logid"]
+    params = {
+        "action": "revisiondelete",
+        "type": "logging",
+        "ids": logid,
+        "show": "content|comment|user",
+    }
+    mediawiki.api.call_with_csrftoken(params)
+
+@when(parsers.parse("I create tag \"{tag}\""))
+def create_tag(mediawiki, tag):
+    params = {
+        "action": "managetags",
+        "operation": "create",
+        "tag": tag,
+    }
+    mediawiki.api.call_with_csrftoken(params)
+
 # debugging step
 @when(parsers.parse("I wait {num:d} seconds"))
 def wait(num):

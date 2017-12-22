@@ -81,6 +81,12 @@ class GrabberRevisions(Grabber):
                                                db.page.c.page_title == sa.bindparam("b_dest_title"))
                                 )
                     ),
+            ("update", "rev_deleted"):
+                db.revision.update() \
+                    .where(db.revision.c.rev_id == sa.bindparam("b_revid")),
+            ("update", "ar_deleted"):
+                db.archive.update() \
+                    .where(db.archive.c.ar_rev_id == sa.bindparam("b_revid")),
         }
 
         # build query to move data from the archive table into revision
@@ -266,6 +272,7 @@ class GrabberRevisions(Grabber):
         undeleted_pages = {}
         merged_pages = {}
         moved_pages = set()
+        deleted_revisions = {}
 
         le_params = {
             "prop": {"type", "details", "title", "ids"},
@@ -285,6 +292,10 @@ class GrabberRevisions(Grabber):
                     # keep only the most recent action
                     if le["title"] in deleted_pages:
                         deleted_pages.remove(le["title"])
+                elif le["action"] == "revision":
+                    assert le["params"]["type"] == "revision"
+                    for revid in le["params"]["ids"]:
+                        deleted_revisions[revid] = le["params"]["new"]["bitmask"]
             # check logevents for merge
             elif le["type"] == "merge":
                 merged_pages[le["logpage"]] = le["params"]
@@ -347,4 +358,10 @@ class GrabberRevisions(Grabber):
                                                   "b_dest_title": params["dest_title"],
                                                   "b_mergepoint": params["mergepoint"]}
 
-        # TODO: update rev_deleted and ar_deleted
+        # update rev_deleted and ar_deleted
+        # Note that the log events do not tell if it applies to normal or archived revision,
+        # so we need to issue queries against both tables, even though each time only one
+        # will actually do something.
+        for revid, bitmask in deleted_revisions.items():
+            yield self.sql["update", "rev_deleted"], {"b_revid": revid, "rev_deleted": bitmask}
+            yield self.sql["update", "ar_deleted"], {"b_revid": revid, "ar_deleted": bitmask}

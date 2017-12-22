@@ -31,6 +31,9 @@ class GrabberLogging(Grabber):
                                     .select_from(db.tag) \
                                     .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
                     .on_conflict_do_nothing(),
+            ("update", "log_deleted"):
+                db.logging.update() \
+                    .where(db.logging.c.log_id == sa.bindparam("b_logid")),
         }
 
         self.le_params = {
@@ -87,7 +90,17 @@ class GrabberLogging(Grabber):
         params["ledir"] = "newer"
         params["lestart"] = since
 
-        for logevent in self.api.list(params):
-            yield from self.gen_inserts_from_logevent(logevent)
+        deleted_logevents = {}
 
-        # TODO: go through the new logevents and update log_deleted of previous logevents
+        for le in self.api.list(params):
+            yield from self.gen_inserts_from_logevent(le)
+
+            # save new deleted logevents
+            if le["type"] == "delete" and le["action"] == "event":
+                assert le["params"]["type"] == "logging"
+                for logid in le["params"]["ids"]:
+                    deleted_logevents[logid] = le["params"]["new"]["bitmask"]
+
+        # update log_deleted
+        for logid, bitmask in deleted_logevents.items():
+            yield self.sql["update", "log_deleted"], {"b_logid": logid, "log_deleted": bitmask}
