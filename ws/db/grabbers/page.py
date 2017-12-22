@@ -294,7 +294,8 @@ class GrabberPages(Grabber):
         for change in recentchanges.list(self.db, rc_params):
             # add pageid for edits, new pages and target pages of log events
             # (this implicitly handles all move, protect, delete actions)
-            rcpages.add(change["pageid"])
+            if change["pageid"] > 0:
+                rcpages.add(change["pageid"])
 
             if change["type"] == "log":
                 # Moving a page creates a "move" log event, but not a "new" log event for the
