@@ -4,6 +4,7 @@ from pytest_bdd import scenarios, given, when, then, parsers
 
 import ws.db.grabbers as grabbers
 import ws.db.grabbers.namespace
+import ws.db.grabbers.tags
 import ws.db.grabbers.recentchanges
 import ws.db.grabbers.user
 import ws.db.grabbers.logging
@@ -31,6 +32,8 @@ def empty_wsdb(db):
 def sync_page_tables(mediawiki, db):
     api = mediawiki.api
     g = grabbers.namespace.GrabberNamespaces(api, db)
+    g.update()
+    g = grabbers.tags.GrabberTags(api, db)
     g.update()
     g = grabbers.recentchanges.GrabberRecentChanges(api, db)
     g.update()
@@ -177,6 +180,68 @@ def create_tag(mediawiki, tag):
         "tag": tag,
     }
     mediawiki.api.call_with_csrftoken(params)
+
+def _api_get_revisions_of_page(api, title):
+    pages = api.call_api(action="query", titles=title, prop="revisions", rvprop="ids", rvlimit="max")["pages"]
+    page = list(pages.values())[0]
+    if "revisions" in page:
+        return [str(r["revid"]) for r in page["revisions"]]
+    return []
+
+def _api_get_deleted_revisions_of_page(api, title):
+    pages = api.call_api(action="query", titles=title, prop="deletedrevisions", drvprop="ids", drvlimit="max")["pages"]
+    page = list(pages.values())[0]
+    if "deletedrevisions" in page:
+        return [str(r["revid"]) for r in page["deletedrevisions"]]
+    return []
+
+@when(parsers.parse("I add tag \"{tag}\" to all revisions of page \"{title}\""))
+def tag_revisions(mediawiki, tag, title):
+    revids = _api_get_revisions_of_page(mediawiki.api, title) + \
+             _api_get_deleted_revisions_of_page(mediawiki.api, title)
+    assert revids
+    params = {
+        "action": "tag",
+        "revid": "|".join(revids),
+        "add": tag,
+    }
+    mediawiki.api.call_with_csrftoken(params)
+
+@when(parsers.parse("I remove tag \"{tag}\" from all revisions of page \"{title}\""))
+def untag_revisions(mediawiki, tag, title):
+    revids = _api_get_revisions_of_page(mediawiki.api, title) + \
+             _api_get_deleted_revisions_of_page(mediawiki.api, title)
+    assert revids
+    params = {
+        "action": "tag",
+        "revid": "|".join(revids),
+        "remove": tag,
+    }
+    mediawiki.api.call_with_csrftoken(params)
+
+@when(parsers.parse("I add tag \"{tag}\" to the first logevent"))
+def tag_logevent(mediawiki, tag):
+    logid = mediawiki.api.call_api(action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1)["logevents"][0]["logid"]
+    params = {
+        "action": "tag",
+        "logid": logid,
+        "add": tag,
+    }
+    mediawiki.api.call_with_csrftoken(params)
+    # FIXME: running jobs is not necessary, but the call adds a small delay which stabilizes the tests
+    mediawiki.run_jobs()
+
+@when(parsers.parse("I remove tag \"{tag}\" from the first logevent"))
+def untag_logevent(mediawiki, tag):
+    logid = mediawiki.api.call_api(action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1)["logevents"][0]["logid"]
+    params = {
+        "action": "tag",
+        "logid": logid,
+        "remove": tag,
+    }
+    mediawiki.api.call_with_csrftoken(params)
+    # FIXME: running jobs is not necessary, but the call adds a small delay which stabilizes the tests
+    mediawiki.run_jobs()
 
 # debugging step
 @when(parsers.parse("I wait {num:d} seconds"))

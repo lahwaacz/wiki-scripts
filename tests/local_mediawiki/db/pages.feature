@@ -295,3 +295,70 @@ Feature: Syncing the page tables
         Then the logevents should match
         And the allpages lists should match
         And the revisions should match
+
+    Scenario: Syncing tagged revisions
+        When I create tag "test-tag"
+        And I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I sync the page tables
+        And I add tag "test-tag" to all revisions of page "Test"
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match
+
+    Scenario: Syncing untagged revisions
+        When I create tag "test-tag"
+        And I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I add tag "test-tag" to all revisions of page "Test"
+        And I sync the page tables
+        And I remove tag "test-tag" from all revisions of page "Test"
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match
+
+    Scenario: Syncing tagged deleted revisions
+        When I create tag "test-tag"
+        And I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I delete page "Test"
+        And I sync the page tables
+        And I add tag "test-tag" to all revisions of page "Test"
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match
+
+    Scenario: Syncing untagged deleted revisions
+        When I create tag "test-tag"
+        And I create page "Test"
+        And I edit page "Test" to contain "test"
+        And I delete page "Test"
+        And I add tag "test-tag" to all revisions of page "Test"
+        And I sync the page tables
+        And I remove tag "test-tag" from all revisions of page "Test"
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match
+
+    Scenario: Syncing tagged logevent
+        When I create tag "test-tag"
+        And I sync the page tables
+        And I add tag "test-tag" to the first logevent
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match
+
+    Scenario: Syncing untagged logevent
+        When I create tag "test-tag"
+        And I add tag "test-tag" to the first logevent
+        And I sync the page tables
+        And I remove tag "test-tag" from the first logevent
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match

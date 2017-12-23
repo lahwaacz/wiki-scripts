@@ -53,16 +53,24 @@ class GrabberRevisions(Grabber):
                 ins_tgrev.values(
                     tgrev_rev_id=sa.bindparam("b_rev_id"),
                     tgrev_tag_id=sa.select([db.tag.c.tag_id]) \
-                                    .select_from(db.tag) \
-                                    .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
+                                        .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
                     .on_conflict_do_nothing(),
             ("insert", "tagged_archived_revision"):
                 ins_tgar.values(
                     tgar_rev_id=sa.bindparam("b_rev_id"),
                     tgar_tag_id=sa.select([db.tag.c.tag_id]) \
-                                    .select_from(db.tag) \
-                                    .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
+                                        .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
                     .on_conflict_do_nothing(),
+            ("delete", "tagged_revision"):
+                db.tagged_revision.delete() \
+                    .where(sa.and_(db.tagged_revision.c.tgrev_rev_id == sa.bindparam("b_rev_id"),
+                                   db.tagged_revision.c.tgrev_tag_id == sa.select([db.tag.c.tag_id]) \
+                                            .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
+            ("delete", "tagged_archived_revision"):
+                db.tagged_archived_revision.delete() \
+                    .where(sa.and_(db.tagged_archived_revision.c.tgar_rev_id == sa.bindparam("b_rev_id"),
+                                   db.tagged_archived_revision.c.tgar_tag_id == sa.select([db.tag.c.tag_id]) \
+                                            .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             # query for updating archive.ar_page_id
             ("update", "archive.ar_page_id"):
                 db.archive.update() \
@@ -259,17 +267,25 @@ class GrabberRevisions(Grabber):
 
         # TODO: make sure that the updates from the API don't create a duplicate row with a new ID in the text table
 
+        # save new revids for the tag updates
+        new_revids = set()
+        new_deleted_revids = set()
+
         arv_params = self.arv_params.copy()
         arv_params["arvdir"] = "newer"
         arv_params["arvstart"] = since
         for page in self.api.list(arv_params):
             yield from self.gen_revisions(page)
+            for rev in page["revisions"]:
+                new_revids.add(rev["revid"])
 
         deleted_pages = set()
         undeleted_pages = {}
         merged_pages = {}
         moved_pages = set()
         deleted_revisions = {}
+        added_tags = {}
+        removed_tags = {}
 
         le_params = {
             "prop": {"type", "details", "title", "ids"},
@@ -299,6 +315,28 @@ class GrabberRevisions(Grabber):
             # we need also moved pages for a safeguard due to a MW defect (see below)
             elif le["type"] == "move":
                 moved_pages.add(le["logpage"])
+            # check added/removed tags
+            elif le["type"] == "tag" and le["action"] == "update":
+                # skip tags for logevents
+                if "revid" in le["params"]:
+                    _revid = le["params"]["revid"]
+                    # skip new revids - tags for those are added in self.gen_revisions and self.gen_deletedrevisions
+                    if _revid not in new_revids and _revid not in new_deleted_revids:
+                        _added = set(le["params"]["tagsAdded"])
+                        _removed = set(le["params"]["tagsRemoved"])
+                        assert _added & _removed == set()
+                        for _tag in _added:
+                            if _tag in removed_tags.get(_revid, set()):
+                                removed_tags[_revid].remove(_tag)
+                            else:
+                                added_tags.setdefault(_revid, set())
+                                added_tags[_revid].add(_tag)
+                        for _tag in _removed:
+                            if _tag in added_tags.get(_revid, set()):
+                                added_tags[_revid].remove(_tag)
+                            else:
+                                removed_tags.setdefault(_revid, set())
+                                removed_tags[_revid].add(_tag)
 
         # handle undelete - move the rows from archive to revision (deletes are handled in the page grabber)
         for _title, pageid in undeleted_pages.items():
@@ -340,6 +378,8 @@ class GrabberRevisions(Grabber):
                     # update the dict for gen_deletedrevisions to understand
                     page["revisions"] = page.pop("deletedrevisions")
                     yield from self.gen_deletedrevisions(page)
+                    for rev in page["revisions"]:
+                        new_revids.add(rev["revid"])
 
         # handle merge
         # MW defect: the target page ID is not present in the logevent, so we need to look up
@@ -362,3 +402,34 @@ class GrabberRevisions(Grabber):
         for revid, bitmask in deleted_revisions.items():
             yield self.sql["update", "rev_deleted"], {"b_revid": revid, "rev_deleted": bitmask}
             yield self.sql["update", "ar_deleted"], {"b_revid": revid, "ar_deleted": bitmask}
+
+        # update tags
+        for revid, added in added_tags.items():
+            for tag in added:
+                # Note that the log events do not tell if it applies to normal or archived
+                # revision. For inserts we have to check it manually, otherwise we would
+                # get foreign key errors. Revisions added in this sync are skipped, so we
+                # don't mind if the queued queries were not executed yet.
+                db_entry = {
+                    "b_rev_id": revid,
+                    "b_tag_name": tag,
+                }
+                result = self.db.engine.execute(sa.select([
+                            sa.exists().where(self.db.revision.c.rev_id == revid)
+                        ]))
+                if result.fetchone()[0]:
+                    yield self.sql["insert", "tagged_revision"], db_entry
+                else:
+                    yield self.sql["insert", "tagged_archived_revision"], db_entry
+
+        for revid, removed in removed_tags.items():
+            for tag in removed:
+                # Note that the log events do not tell if it applies to normal or archived
+                # revision, so we issue queries against both tables, even though each time
+                # only one will actually do something.
+                db_entry = {
+                    "b_rev_id": revid,
+                    "b_tag_name": tag,
+                }
+                yield self.sql["delete", "tagged_revision"], db_entry
+                yield self.sql["delete", "tagged_archived_revision"], db_entry

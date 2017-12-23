@@ -28,9 +28,13 @@ class GrabberLogging(Grabber):
                 ins_tgle.values(
                     tgle_log_id=sa.bindparam("b_log_id"),
                     tgle_tag_id=sa.select([db.tag.c.tag_id]) \
-                                    .select_from(db.tag) \
                                     .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
                     .on_conflict_do_nothing(),
+            ("delete", "tagged_logevent"):
+                db.tagged_logevent.delete() \
+                    .where(sa.and_(db.tagged_logevent.c.tgle_log_id == sa.bindparam("b_log_id"),
+                                   db.tagged_logevent.c.tgle_tag_id == sa.select([db.tag.c.tag_id]) \
+                                            .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             ("update", "log_deleted"):
                 db.logging.update() \
                     .where(db.logging.c.log_id == sa.bindparam("b_logid")),
@@ -91,6 +95,8 @@ class GrabberLogging(Grabber):
         params["lestart"] = since
 
         deleted_logevents = {}
+        added_tags = {}
+        removed_tags = {}
 
         for le in self.api.list(params):
             yield from self.gen_inserts_from_logevent(le)
@@ -100,7 +106,43 @@ class GrabberLogging(Grabber):
                 assert le["params"]["type"] == "logging"
                 for logid in le["params"]["ids"]:
                     deleted_logevents[logid] = le["params"]["new"]["bitmask"]
+            # save added/removed tags
+            elif le["type"] == "tag" and le["action"] == "update":
+                # skip tags for revisions
+                if "logid" in le["params"]:
+                    _logid = le["params"]["logid"]
+                    _added = set(le["params"]["tagsAdded"])
+                    _removed = set(le["params"]["tagsRemoved"])
+                    assert _added & _removed == set()
+                    for _tag in _added:
+                        if _tag in removed_tags.get(_logid, set()):
+                            removed_tags[_logid].remove(_tag)
+                        else:
+                            added_tags.setdefault(_logid, set())
+                            added_tags[_logid].add(_tag)
+                    for _tag in _removed:
+                        if _tag in added_tags.get(_logid, set()):
+                            added_tags[_logid].remove(_tag)
+                        else:
+                            removed_tags.setdefault(_logid, set())
+                            removed_tags[_logid].add(_tag)
 
         # update log_deleted
         for logid, bitmask in deleted_logevents.items():
             yield self.sql["update", "log_deleted"], {"b_logid": logid, "log_deleted": bitmask}
+
+        # update tags
+        for logid, added in added_tags.items():
+            for tag in added:
+                db_entry = {
+                    "b_log_id": logid,
+                    "b_tag_name": tag,
+                }
+                yield self.sql["insert", "tagged_logevent"], db_entry
+        for logid, removed in removed_tags.items():
+            for tag in removed:
+                db_entry = {
+                    "b_log_id": logid,
+                    "b_tag_name": tag,
+                }
+                yield self.sql["delete", "tagged_logevent"], db_entry
