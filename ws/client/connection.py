@@ -52,7 +52,6 @@ POST_ACTIONS = {
     'emailuser',
     'filerevert',
     'imagerotate',
-    'import',
     'linkaccount',
     'login',
     'managetags',
@@ -73,12 +72,15 @@ POST_ACTIONS = {
     'unblock',
     'undelete',
     'unlinkaccount',
-    'upload',
     'userrights',
     'validatepassword',  # MW 1.29
     'watch',
 }
-API_ACTIONS = GET_ACTIONS | POST_ACTIONS
+MULTIPART_FORM_DATA = {
+    'import': {'xml'},
+    'upload': {'file', 'chunk'},
+}
+API_ACTIONS = GET_ACTIONS | POST_ACTIONS | set(MULTIPART_FORM_DATA.keys())
 
 class Connection:
     """
@@ -266,7 +268,13 @@ class Connection:
         serialize_timestamps_in_struct(params)
 
         # select HTTP method and call the API
-        if action in POST_ACTIONS:
+        if action in MULTIPART_FORM_DATA:
+            # parameters specified in MULTIPART_FORM_DATA have to be uploaded as "files"
+            files = dict((k, v) for k, v in params.items() if k in MULTIPART_FORM_DATA[action])
+            for k in files:
+                del params[k]
+            result = self.request("POST", self.api_url, data=params, files=files)
+        elif action in POST_ACTIONS:
             # passing `params` to `data` will cause form-encoding to take place,
             # which is necessary when editing pages longer than 8000 characters
             result = self.request("POST", self.api_url, data=params)
