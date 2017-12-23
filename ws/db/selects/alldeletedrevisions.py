@@ -183,7 +183,7 @@ def db_to_api(row):
         api_entry["title"] = "{}:{}".format(row["nss_name"], row["ar_title"])
     else:
         api_entry["title"] = row["ar_title"]
-    if "rev_user" in row and row["rev_user"] is None:
+    if api_entry.get("userid") == 0:
         api_entry["anon"] = ""
     # parse ar_deleted
     if row["ar_deleted"] & mwconst.DELETED_TEXT:

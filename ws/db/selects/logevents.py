@@ -185,7 +185,7 @@ def db_to_api(row):
     # use user name from the user table if available
     if "user_name" in row and row["user_name"]:
         api_entry["user"] = row["user_name"]
-    if "log_user" in row and row["log_user"] is None:
+    if api_entry.get("userid") == 0:
         api_entry["anon"] = ""
     # parse log_deleted
     if row["log_deleted"] & mwconst.DELETED_ACTION:
