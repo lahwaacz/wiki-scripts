@@ -1,5 +1,6 @@
-import sqlalchemy as sa
+import os.path
 
+import sqlalchemy as sa
 from pytest_bdd import scenarios, given, when, then, parsers
 
 import ws.db.grabbers as grabbers
@@ -241,6 +242,17 @@ def untag_logevent(mediawiki, tag):
     }
     mediawiki.api.call_with_csrftoken(params)
     # FIXME: running jobs is not necessary, but the call adds a small delay which stabilizes the tests
+    mediawiki.run_jobs()
+
+@when(parsers.parse("I import the testing dataset"))
+def import_dataset(mediawiki):
+    xml_file = os.path.join(os.path.dirname(__file__), "../../../misc/MediaWiki-import-data.xml")
+    xml = open(xml_file, "r").read()
+    params = {
+        "action": "import",
+        "xml": xml,
+    }
+    mediawiki.api.call_with_csrftoken(params)
     mediawiki.run_jobs()
 
 # debugging step

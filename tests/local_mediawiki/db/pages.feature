@@ -362,3 +362,21 @@ Feature: Syncing the page tables
         Then the logevents should match
         And the allpages lists should match
         And the revisions should match
+
+    Scenario: Syncing after import
+        When I sync the page tables
+        And I import the testing dataset
+        And I sync the page tables
+        Then the logevents should match
+        And the allpages lists should match
+        And the revisions should match
+
+# FIXME: fails because deleted pages cannot be queried by page IDs
+#    Scenario: Syncing after import and delete
+#        When I sync the page tables
+#        And I import the testing dataset
+#        And I delete page "Test"
+#        And I sync the page tables
+#        Then the logevents should match
+#        And the allpages lists should match
+#        And the revisions should match

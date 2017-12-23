@@ -286,6 +286,7 @@ class GrabberRevisions(Grabber):
         deleted_revisions = {}
         added_tags = {}
         removed_tags = {}
+        imported_pages = set()
 
         le_params = {
             "prop": {"type", "details", "title", "ids"},
@@ -309,6 +310,9 @@ class GrabberRevisions(Grabber):
                     assert le["params"]["type"] == "revision"
                     for revid in le["params"]["ids"]:
                         deleted_revisions[revid] = le["params"]["new"]["bitmask"]
+            # check imported pages
+            elif le["type"] == "import":
+                imported_pages.add(le["logpage"])
             # check logevents for merge
             elif le["type"] == "merge":
                 merged_pages[le["logpage"]] = le["params"]
@@ -374,6 +378,35 @@ class GrabberRevisions(Grabber):
             if "drvcontinue" in result:
                 raise NotImplementedError("Handling of the 'drvcontinue' parameter is not implemented.")
             for page in result["query"]["pages"].values():
+                if "deletedrevisions" in page:
+                    # update the dict for gen_deletedrevisions to understand
+                    page["revisions"] = page.pop("deletedrevisions")
+                    yield from self.gen_deletedrevisions(page)
+                    for rev in page["revisions"]:
+                        new_revids.add(rev["revid"])
+
+        # sync all revisions of imported pages
+        for chunk in ws.utils.iter_chunks(imported_pages, self.api.max_ids_per_query):
+            params = {
+                "action": "query",
+                "pageids": "|".join(str(i) for i in chunk),
+                "prop": "revisions|deletedrevisions",
+                "rvprop": self.arv_params["arvprop"],
+                "drvprop": self.adr_params["adrprop"],
+                "rvlimit": "max",
+                "drvlimit": "max",
+                "rvdir": "newer",
+                "drvdir": "newer",
+            }
+            result = self.api.call_api(params, expand_result=False)
+            # TODO: handle 'rvcontinue' and 'drvcontinue'
+            if "rvcontinue" in result or "drvcontinue" in result:
+                raise NotImplementedError("Handling of the 'rvcontinue' and 'drvcontinue' parameters is not implemented.")
+            for page in result["query"]["pages"].values():
+                if "revisions" in page:
+                    yield from self.gen_revisions(page)
+                    for rev in page["revisions"]:
+                        new_revids.add(rev["revid"])
                 if "deletedrevisions" in page:
                     # update the dict for gen_deletedrevisions to understand
                     page["revisions"] = page.pop("deletedrevisions")
