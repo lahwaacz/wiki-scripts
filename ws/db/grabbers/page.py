@@ -293,7 +293,7 @@ class GrabberPages(Grabber):
         }
         for change in recentchanges.list(self.db, rc_params):
             # add pageid for edits, new pages and target pages of log events
-            # (this implicitly handles all move, protect, delete actions)
+            # (this implicitly handles all move, protect, delete, import actions)
             if change["pageid"] > 0:
                 rcpages.add(change["pageid"])
 
@@ -337,7 +337,7 @@ class GrabberPages(Grabber):
             "start": since,
         }
         for le in logevents.list(self.db, le_params):
-            if le["type"] in {"delete", "protect", "move"}:
+            if le["type"] in {"delete", "protect", "move", "import"}:
                 if le["action"] in {"delete_redir", "delete"}:
                     deleted_pageids.add(le["logpage"])
                 else:
