@@ -346,15 +346,15 @@ class GrabberRevisions(Grabber):
                         for _tag in _added:
                             if _tag in removed_tags.get(_revid, set()):
                                 removed_tags[_revid].remove(_tag)
-                            else:
-                                added_tags.setdefault(_revid, set())
-                                added_tags[_revid].add(_tag)
+                            # always keep the last action
+                            added_tags.setdefault(_revid, set())
+                            added_tags[_revid].add(_tag)
                         for _tag in _removed:
                             if _tag in added_tags.get(_revid, set()):
                                 added_tags[_revid].remove(_tag)
-                            else:
-                                removed_tags.setdefault(_revid, set())
-                                removed_tags[_revid].add(_tag)
+                            # always keep the last action
+                            removed_tags.setdefault(_revid, set())
+                            removed_tags[_revid].add(_tag)
 
         # handle undelete - move the rows from archive to revision (deletes are handled in the page grabber)
         for _title, pageid in undeleted_pages.items():

@@ -131,15 +131,15 @@ class GrabberLogging(Grabber):
                     for _tag in _added:
                         if _tag in removed_tags.get(_logid, set()):
                             removed_tags[_logid].remove(_tag)
-                        else:
-                            added_tags.setdefault(_logid, set())
-                            added_tags[_logid].add(_tag)
+                        # always keep the last action
+                        added_tags.setdefault(_logid, set())
+                        added_tags[_logid].add(_tag)
                     for _tag in _removed:
                         if _tag in added_tags.get(_logid, set()):
                             added_tags[_logid].remove(_tag)
-                        else:
-                            removed_tags.setdefault(_logid, set())
-                            removed_tags[_logid].add(_tag)
+                        # always keep the last action
+                        removed_tags.setdefault(_logid, set())
+                        removed_tags[_logid].add(_tag)
 
         # update log_deleted
         for logid, bitmask in deleted_logevents.items():
