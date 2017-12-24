@@ -3539,7 +3539,6 @@ cd-circleprint
 cd2ogg
 cdargs-git
 cdbus-git
-cdcat
 cdcat-svn
 cdck
 cdcollect
@@ -4734,7 +4733,6 @@ cocos2d-x-2
 cocos2d-x-release
 cocotron-gcc-svn
 cocotron-hg
-code-git
 codeanalyst
 codeblocks-dbgbranch-svn
 codeblocks-fr
@@ -4959,7 +4957,6 @@ concorde
 concuerror-git
 concurrent_bondi
 concurrentlua
-conduit
 conduit-git
 cone
 conexus
@@ -5636,7 +5633,6 @@ cute-converter
 cutecom-qt4
 cutedrone-git
 cutegod
-cutegram
 cutegram-cn
 cuteinformer-git
 cutemupen-svn
@@ -6772,7 +6768,6 @@ doom3-darkmod
 doom3-hexen
 doom64ex-data
 doom64ex-svn
-doomcube
 doomi
 doomrl-lq
 doomrl-ogg
@@ -13002,7 +12997,6 @@ gwibber-service-sohu
 gwibber-unity
 gwibber3
 gwoffice-bzr
-gworkspace
 gworkspace.app-svn
 gwsmhg
 gwt
@@ -15183,7 +15177,6 @@ hdrprep
 hdrstack
 hdsync
 hdtracksdownloader
-hdtv
 hdx-normalmaps-git
 he220stat
 head-over-heels
@@ -20788,7 +20781,6 @@ libqtdbusmock-bzr
 libqtdbustest-bzr
 libqtdee
 libqtdee-bzr
-libqtelegram-ae
 libqtelegram-bzr
 libqtgconf
 libqtgconf-bzr
@@ -31633,7 +31625,6 @@ python-networkx
 python-nibabel-git
 python-nltk-git
 python-noise-git
-python-nose-progressive
 python-nose-timer
 python-nosejs
 python-nosenotify
@@ -31697,7 +31688,6 @@ python-pbldr
 python-pbs
 python-peewee
 python-pelican
-python-pep8
 python-pep8radius
 python-pexpect-u
 python-pgpmime-git
@@ -31940,7 +31930,6 @@ python-reddit-git
 python-redis
 python-redis-git
 python-redmine-git
-python-rednose
 python-relaxml
 python-renpy
 python-reportlab-svn
@@ -32088,7 +32077,6 @@ python-termbox-git
 python-termcolor
 python-terminado
 python-termsaver
-python-termstyle
 python-testoob
 python-testoob-svn
 python-testtools
@@ -34821,7 +34809,6 @@ rainy
 raitranslator
 raize
 rakarrack
-raknet
 raknet2
 raktpdf-git
 rakudo-moarvm
@@ -45468,7 +45455,6 @@ xf86-video-intel-xwayland-git
 xf86-video-intel-xwayland-git2
 xf86-video-ivtvfb
 xf86-video-mali
-xf86-video-mga
 xf86-video-modesetting
 xf86-video-modesetting-git
 xf86-video-nested-git
