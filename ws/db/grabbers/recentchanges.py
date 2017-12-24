@@ -27,10 +27,16 @@ class GrabberRecentChanges(Grabber):
             ("insert", "recentchanges"):
                 # updates are handled separately
                 ins_rc.on_conflict_do_nothing(),
-            ("update-patrolled", "recentchanges"):
+            ("update", "rc_patrolled"):
                 db.recentchanges.update() \
                         .values(rc_patrolled=True) \
-                        .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("_revid")),
+                        .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
+            ("update", "rc_deleted-b_revid"):
+                db.recentchanges.update() \
+                    .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
+            ("update", "rc_deleted-b_logid"):
+                db.recentchanges.update() \
+                    .where(db.recentchanges.c.rc_logid == sa.bindparam("b_log_id")),
             ("delete", "recentchanges"):
                 db.recentchanges.delete().where(
                     db.recentchanges.c.rc_timestamp < sa.bindparam("rc_cutoff_timestamp")),
@@ -47,14 +53,6 @@ class GrabberRecentChanges(Grabber):
             "list": "recentchanges",
             "rcprop": "title|ids|user|userid|flags|timestamp|comment|sizes|loginfo|sha1|tags",
             "rclimit": "max",
-        }
-
-        # patrol logs have to be fetched from the logevents list
-        self.le_params = {
-            "list": "logevents",
-            "leaction": "patrol/patrol",
-            "leprop": "type|details",
-            "lelimit": "max",
         }
 
         if "patrol" in self.api.user.rights:
@@ -115,12 +113,19 @@ class GrabberRecentChanges(Grabber):
             }
             yield self.sql["insert", "tagged_recentchange"], db_entry
 
+        # check logevents and and update rc_deleted of the past changes,
+        # including the DELETED_TEXT value (which is a MW incompatibility)
+        if rc.get("logtype") == "delete":
+            if rc.get("logaction") == "revision":
+                for revid in rc["logparams"]["ids"]:
+                    yield self.sql["update", "rc_deleted-b_revid"], {"b_rev_id": revid, "rc_deleted": rc["logparams"]["new"]["bitmask"]}
+            elif rc.get("logaction") == "event":
+                for logid in rc["logparams"]["ids"]:
+                    yield self.sql["update", "rc_deleted-b_logid"], {"b_log_id": logid, "rc_deleted": rc["logparams"]["new"]["bitmask"]}
+
     def gen_updates_from_le(self, logevent):
         if logevent["type"] == "patrol" and logevent["action"] == "patrol":
-            db_entry = {
-                "_revid": logevent["params"]["curid"],
-            }
-            yield self.sql["update-patrolled", "recentchanges"], db_entry
+            yield self.sql["update", "rc_patrolled"], {"b_rev_id": logevent["params"]["curid"]}
 
     def gen_insert(self):
         for rc in self.api.list(self.rc_params):
@@ -145,15 +150,21 @@ class GrabberRecentChanges(Grabber):
 
         # patrol logs are not recorded in the recentchanges table, so we need to
         # go through logging via the API, because it has not been synced yet
-        params = self.le_params.copy()
-        params["ledir"] = "newer"
-        params["lestart"] = since
-
+        params = {
+            "list": "logevents",
+            "leaction": "patrol/patrol",
+            "leprop": "type|details",
+            "lelimit": "max",
+            "ledir": "newer",
+            "lestart": since,
+        }
         for le in self.api.list(params):
             yield from self.gen_updates_from_le(le)
 
-        # TODO: go through the new logevents in the local recentchanges table and update rc_deleted,
-        # including the DELETED_TEXT value (which will be a MW incompatibility)
+        # tag/update events are not recorded in the recentchanges table, so we
+        # would need to go through list=logevents API query. But tags are not
+        # necessary for the synchronization, so we tag the recent changes from
+        # the logging and revision grabbers.
 
         # purge too-old rows
         yield self.sql["delete", "recentchanges"], {"rc_cutoff_timestamp": self.api.oldest_rc_timestamp}

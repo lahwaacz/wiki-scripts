@@ -26,6 +26,7 @@ class GrabberRevisions(Grabber):
         ins_archive = sa.dialects.postgresql.insert(db.archive)
         ins_tgrev = sa.dialects.postgresql.insert(db.tagged_revision)
         ins_tgar = sa.dialects.postgresql.insert(db.tagged_archived_revision)
+        ins_tgrc = sa.dialects.postgresql.insert(db.tagged_recentchange)
 
         self.sql = {
             ("insert", "text"):
@@ -61,6 +62,13 @@ class GrabberRevisions(Grabber):
                     tgar_tag_id=sa.select([db.tag.c.tag_id]) \
                                         .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
                     .on_conflict_do_nothing(),
+            ("insert", "tagged_recentchange"):
+                ins_tgrc.values(
+                    tgrc_rc_id=sa.select([db.recentchanges.c.rc_id]) \
+                                    .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
+                    tgrc_tag_id=sa.select([db.tag.c.tag_id]) \
+                                    .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
+                    .on_conflict_do_nothing(),
             ("delete", "tagged_revision"):
                 db.tagged_revision.delete() \
                     .where(sa.and_(db.tagged_revision.c.tgrev_rev_id == sa.bindparam("b_rev_id"),
@@ -70,6 +78,12 @@ class GrabberRevisions(Grabber):
                 db.tagged_archived_revision.delete() \
                     .where(sa.and_(db.tagged_archived_revision.c.tgar_rev_id == sa.bindparam("b_rev_id"),
                                    db.tagged_archived_revision.c.tgar_tag_id == sa.select([db.tag.c.tag_id]) \
+                                            .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
+            ("delete", "tagged_recentchange"):
+                db.tagged_recentchange.delete() \
+                    .where(sa.and_(db.tagged_recentchange.c.tgrc_rc_id == sa.select([db.recentchanges.c.rc_id]) \
+                                            .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
+                                   db.tagged_recentchange.c.tgrc_tag_id == sa.select([db.tag.c.tag_id]) \
                                             .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             # query for updating archive.ar_page_id
             ("update", "archive.ar_page_id"):
@@ -89,10 +103,10 @@ class GrabberRevisions(Grabber):
                     ),
             ("update", "rev_deleted"):
                 db.revision.update() \
-                    .where(db.revision.c.rev_id == sa.bindparam("b_revid")),
+                    .where(db.revision.c.rev_id == sa.bindparam("b_rev_id")),
             ("update", "ar_deleted"):
                 db.archive.update() \
-                    .where(db.archive.c.ar_rev_id == sa.bindparam("b_revid")),
+                    .where(db.archive.c.ar_rev_id == sa.bindparam("b_rev_id")),
         }
 
         # build query to move data from the archive table into revision
@@ -433,8 +447,8 @@ class GrabberRevisions(Grabber):
         # so we need to issue queries against both tables, even though each time only one
         # will actually do something.
         for revid, bitmask in deleted_revisions.items():
-            yield self.sql["update", "rev_deleted"], {"b_revid": revid, "rev_deleted": bitmask}
-            yield self.sql["update", "ar_deleted"], {"b_revid": revid, "ar_deleted": bitmask}
+            yield self.sql["update", "rev_deleted"], {"b_rev_id": revid, "rev_deleted": bitmask}
+            yield self.sql["update", "ar_deleted"], {"b_rev_id": revid, "ar_deleted": bitmask}
 
         # update tags
         for revid, added in added_tags.items():
@@ -454,6 +468,12 @@ class GrabberRevisions(Grabber):
                     yield self.sql["insert", "tagged_revision"], db_entry
                 else:
                     yield self.sql["insert", "tagged_archived_revision"], db_entry
+                # check if it is a recent change and tag it as well
+                result = self.db.engine.execute(sa.select([
+                            sa.exists().where(self.db.recentchanges.c.rc_this_oldid == revid)
+                        ]))
+                if result.fetchone()[0]:
+                    yield self.sql["insert", "tagged_recentchange"], db_entry
 
         for revid, removed in removed_tags.items():
             for tag in removed:
@@ -466,3 +486,4 @@ class GrabberRevisions(Grabber):
                 }
                 yield self.sql["delete", "tagged_revision"], db_entry
                 yield self.sql["delete", "tagged_archived_revision"], db_entry
+                yield self.sql["delete", "tagged_recentchange"], db_entry
