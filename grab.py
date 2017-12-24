@@ -22,6 +22,7 @@ import ws.db.selects.recentchanges
 import ws.db.selects.logevents
 import ws.db.selects.allpages
 import ws.db.selects.protectedtitles
+import ws.db.selects.allrevisions
 
 
 def main(api, db):
@@ -163,19 +164,41 @@ def select_protected_titles(api, db):
     _check_lists(db_list, api_list)
 
 
-def select_current_revisions(api, db):
-    import sqlalchemy as sa
-    page = db.page
-    rev = db.revision
-    s = sa.select([page.c.page_namespace, page.c.page_title, page.c.page_latest])
-    s = s.select_from(page.outerjoin(rev, page.c.page_latest == rev.c.rev_id))
-    s = s.where(rev.c.rev_id == None)
-    result = db.engine.execute(s)
-    if result.rowcount != 0:
-        print("Pages with missing current revision:")
-        for row in result:
-            print(row)
-        assert False, "There were pages with missing current revision."
+def select_revisions(api, db):
+    since = datetime.datetime.utcnow() - datetime.timedelta(days=30)
+
+    prop = {"ids", "flags", "timestamp", "user", "userid", "size", "sha1", "contentmodel", "comment", "tags"}
+    api_params = {
+        "list": "allrevisions",
+        "arvprop": "|".join(prop),
+        "arvlimit": "max",
+        "arvdir": "newer",
+        "arvstart": since,
+    }
+
+    api_list = list(api.list(api_params))
+    db_list = list(selects.allrevisions.list(db, prop=prop, dir="newer", start=since))
+
+    # FIXME: hack until we have per-page grouping like MediaWiki
+    api_revisions = []
+    for page in api_list:
+        for rev in page["revisions"]:
+            rev["pageid"] = page["pageid"]
+            rev["ns"] = page["ns"]
+            rev["title"] = page["title"]
+            api_revisions.append(rev)
+    api_revisions.sort(key=lambda item: item["revid"])
+    api_list = api_revisions
+
+    # FIXME: WTF, MediaWiki does not restore rev_parent_id when undeleting...
+    # https://phabricator.wikimedia.org/T183375
+    for rev in db_list:
+        del rev["parentid"]
+    for rev in api_list:
+        del rev["parentid"]
+
+    print("Checking the revision table...")
+    _check_lists(db_list, api_list)
 
 
 if __name__ == "__main__":
@@ -205,5 +228,5 @@ if __name__ == "__main__":
     select_recentchanges(api, db)
     select_logging(api, db)
     select_allpages(api, db)
-    select_current_revisions(api, db)
     select_protected_titles(api, db)
+    select_revisions(api, db)
