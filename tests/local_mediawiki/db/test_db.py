@@ -11,7 +11,9 @@ import ws.db.grabbers.user
 import ws.db.grabbers.logging
 import ws.db.grabbers.page
 import ws.db.grabbers.revision
+
 import ws.db.selects as selects
+import ws.db.selects.recentchanges
 import ws.db.selects.logevents
 import ws.db.selects.allpages
 import ws.db.selects.allrevisions
@@ -268,6 +270,20 @@ def null_edit(mediawiki, title):
 @when(parsers.parse("I execute MediaWiki jobs"))
 def run_jobs(mediawiki):
     mediawiki.run_jobs()
+
+@then("the recent changes should match")
+def check_recentchanges(mediawiki, db):
+    prop = {"title", "ids", "user", "userid", "flags", "timestamp", "comment", "sizes", "loginfo", "patrolled", "sha1", "redirect", "tags"}
+    api_params = {
+        "list": "recentchanges",
+        "rcprop": "|".join(prop),
+        "rclimit": "max",
+    }
+
+    api_list = list(mediawiki.api.list(api_params))
+    db_list = list(selects.recentchanges.list(db, prop=prop))
+
+    assert db_list == api_list
 
 @then("the logevents should match")
 def check_logging(mediawiki, db):

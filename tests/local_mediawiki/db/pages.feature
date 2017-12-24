@@ -8,21 +8,24 @@ Feature: Syncing the page tables
 
     Scenario: Syncing empty wiki
         When I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
     Scenario: Syncing empty page
         When I create page "Test"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the recent changes should match
+        And the allpages lists should match
         And the revisions should match
 
     Scenario: Syncing empty page after empty sync
         When I sync the page tables
         And I create page "Test"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the recent changes should match
+        And the allpages lists should match
         And the revisions should match
 
     Scenario: Syncing edited page
@@ -31,7 +34,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I edit page "Test" to contain "bbb"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the recent changes should match
+        And the allpages lists should match
         And the revisions should match
 
     Scenario: Syncing edited page after empty sync
@@ -41,7 +45,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I edit page "Test" to contain "bbb"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the recent changes should match
+        And the allpages lists should match
         And the revisions should match
 
     Scenario: Syncing page with displaytitle
@@ -49,7 +54,8 @@ Feature: Syncing the page tables
         And I edit page "Test" to contain "{{DISPLAYTITLE:test}}"
         And I execute MediaWiki jobs
         And I sync the page tables
-        Then the allpages lists should match
+        Then the recent changes should match
+        And the allpages lists should match
         # TODO: until we actually check the props...
         And the page_props table should not be empty
         And the revisions should match
@@ -60,7 +66,8 @@ Feature: Syncing the page tables
         And I edit page "Test" to contain "{{DISPLAYTITLE:test}}"
         And I execute MediaWiki jobs
         And I sync the page tables
-        Then the allpages lists should match
+        Then the recent changes should match
+        And the allpages lists should match
         # TODO: until we actually check the props...
         And the page_props table should not be empty
         And the revisions should match
@@ -71,7 +78,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I protect page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         # TODO: until we actually check the protections...
         And the page_restrictions table should not be empty
@@ -85,7 +93,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I unprotect page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -95,7 +104,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I partially protect page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         # TODO: until we actually check the protections...
         And the page_restrictions table should not be empty
@@ -109,7 +119,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I partially unprotect page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -119,7 +130,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I move page "Test 1" to "Test 2"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -129,7 +141,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I move page "Test 1" to "Test 2" without leaving a redirect
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -140,7 +153,8 @@ Feature: Syncing the page tables
         And I move page "Test 1" to "Test 2"
         And I move page "Test 2" to "Test 3"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -150,7 +164,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I delete page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -162,7 +177,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I undelete page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -174,7 +190,8 @@ Feature: Syncing the page tables
         And I edit page "Test" to contain "test 2"
         And I delete page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -188,7 +205,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I undelete page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -202,7 +220,8 @@ Feature: Syncing the page tables
         And I move page "Test 1" to "Test 2"
         And I edit page "Test 2" to contain "test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -213,7 +232,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I delete page "Test"
         And I sync the page tables
-        Then the allpages lists should match
+        Then the recent changes should match
+        And the allpages lists should match
         # TODO: until we actually check the props...
         And the page_props table should be empty
         And the revisions should match
@@ -226,7 +246,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I delete page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         # TODO: until we actually check the protections...
         And the page_restrictions table should be empty
@@ -240,7 +261,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I merge page "Test 1" into "Test 2"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -252,7 +274,8 @@ Feature: Syncing the page tables
         And I edit page "Test 2" to contain "test 2"
         And I merge page "Test 1" into "Test 2"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -262,7 +285,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I delete the newest revision of page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -273,7 +297,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I undelete the newest revision of page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -282,7 +307,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I delete the first logevent
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -292,7 +318,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I undelete the first logevent
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -303,7 +330,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I add tag "test-tag" to all revisions of page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -315,7 +343,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I remove tag "test-tag" from all revisions of page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -327,7 +356,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I add tag "test-tag" to all revisions of page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -340,7 +370,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I remove tag "test-tag" from all revisions of page "Test"
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -349,7 +380,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I add tag "test-tag" to the first logevent
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -359,7 +391,8 @@ Feature: Syncing the page tables
         And I sync the page tables
         And I remove tag "test-tag" from the first logevent
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -367,7 +400,8 @@ Feature: Syncing the page tables
         When I sync the page tables
         And I import the testing dataset
         And I sync the page tables
-        Then the logevents should match
+        Then the recent changes should match
+        And the logevents should match
         And the allpages lists should match
         And the revisions should match
 
@@ -377,6 +411,7 @@ Feature: Syncing the page tables
 #        And I import the testing dataset
 #        And I delete page "Test"
 #        And I sync the page tables
-#        Then the logevents should match
+#        Then the recent changes should match
+#        And the logevents should match
 #        And the allpages lists should match
 #        And the revisions should match
