@@ -9,11 +9,11 @@ from ws.client.api import ShortRecentChangesError
 from ws.db.mw_constants import implicit_groups
 import ws.db.selects as selects
 
-from . import Grabber
+from .GrabberBase import *
 
 logger = logging.getLogger(__name__)
 
-class GrabberUsers(Grabber):
+class GrabberUsers(GrabberBase):
 
     # We never delete from the user table, otherwise FK constraints might kick in.
     # If we find out that MediaWiki sometimes deletes from the user table, it

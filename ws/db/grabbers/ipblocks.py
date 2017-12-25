@@ -4,9 +4,9 @@ import sqlalchemy as sa
 
 import ws.utils
 
-from . import Grabber
+from .GrabberBase import *
 
-class GrabberIPBlocks(Grabber):
+class GrabberIPBlocks(GrabberBase):
 
     INSERT_PREDELETE_TABLES = ["ipblocks"]
 

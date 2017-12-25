@@ -8,15 +8,15 @@ import ws.utils
 from ws.utils import value_or_none
 from ws.parser_helpers.title import Title
 
-from . import Grabber
+from .GrabberBase import *
 
 logger = logging.getLogger(__name__)
 
 # TODO: allow syncing content independently from revisions
 # TODO: are truncated results due to PHP cache reflected by changing the query-continuation parameter accordingly or do we actually lose some revisions?
-class GrabberRevisions(Grabber):
+class GrabberRevisions(GrabberBase):
 
-    def __init__(self, api, db, with_content=False):
+    def __init__(self, api, db, *, with_content=False):
         super().__init__(api, db)
         self.with_content = with_content
 

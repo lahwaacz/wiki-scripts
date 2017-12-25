@@ -6,9 +6,9 @@ from ws.utils import value_or_none
 from ws.parser_helpers.title import Title
 import ws.db.mw_constants as mwconst
 
-from . import Grabber
+from .GrabberBase import *
 
-class GrabberLogging(Grabber):
+class GrabberLogging(GrabberBase):
 
     def __init__(self, api, db):
         super().__init__(api, db)

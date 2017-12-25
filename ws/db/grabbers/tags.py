@@ -4,9 +4,9 @@ import sqlalchemy as sa
 
 from ws.utils import value_or_none
 
-from . import Grabber
+from .GrabberBase import *
 
-class GrabberTags(Grabber):
+class GrabberTags(GrabberBase):
 
     def __init__(self, api, db):
         super().__init__(api, db)

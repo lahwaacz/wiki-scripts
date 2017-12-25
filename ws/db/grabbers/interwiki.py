@@ -2,9 +2,9 @@
 
 import sqlalchemy as sa
 
-from . import Grabber
+from .GrabberBase import *
 
-class GrabberInterwiki(Grabber):
+class GrabberInterwiki(GrabberBase):
 
     def __init__(self, api, db):
         super().__init__(api, db)

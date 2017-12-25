@@ -13,6 +13,7 @@ Prerequisites:
 import sqlalchemy as sa
 
 from . import schema
+from .grabbers import synchronize
 from .selects import query
 
 class Database:
@@ -103,6 +104,15 @@ class Database:
         if table_name not in self.metadata.tables:
             raise AttributeError("Table '{}' does not exist in the database.".format(table_name))
         return self.metadata.tables[table_name]
+
+    def sync_with_api(self, api, *, with_content=False):
+        """
+        Sync the local data with a remote MediaWiki instance.
+
+        :param ws.client.api.API api: interface to the remote MediaWiki instance
+        :param bool with_content: whether to synchronize the content of all revisions
+        """
+        return synchronize(self, api, with_content=with_content)
 
     def query(self, *args, **kwargs):
         """

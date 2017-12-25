@@ -7,9 +7,9 @@ from ws.parser_helpers.title import Title
 from ws.client.api import ShortRecentChangesError
 import ws.db.selects as selects
 
-from . import Grabber
+from .GrabberBase import *
 
-class GrabberProtectedTitles(Grabber):
+class GrabberProtectedTitles(GrabberBase):
 
     INSERT_PREDELETE_TABLES = ["protected_titles"]
 

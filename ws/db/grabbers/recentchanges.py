@@ -9,11 +9,11 @@ from ws.parser_helpers.title import Title
 import ws.db.mw_constants as mwconst
 import ws.db.selects as selects
 
-from . import Grabber
+from .GrabberBase import *
 
 logger = logging.getLogger(__name__)
 
-class GrabberRecentChanges(Grabber):
+class GrabberRecentChanges(GrabberBase):
 
     INSERT_PREDELETE_TABLES = ["recentchanges"]
 

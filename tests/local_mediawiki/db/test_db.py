@@ -3,15 +3,6 @@ import os.path
 import sqlalchemy as sa
 from pytest_bdd import scenarios, given, when, then, parsers
 
-import ws.db.grabbers as grabbers
-import ws.db.grabbers.namespace
-import ws.db.grabbers.tags
-import ws.db.grabbers.recentchanges
-import ws.db.grabbers.user
-import ws.db.grabbers.logging
-import ws.db.grabbers.page
-import ws.db.grabbers.revision
-
 scenarios(".")
 
 @given("an api to an empty MediaWiki")
@@ -24,23 +15,9 @@ def empty_wsdb(db):
 #    db.clear()
     pass
 
-@when("I sync the page tables")
+@when("I synchronize the wiki-scripts database")
 def sync_page_tables(mediawiki, db):
-    api = mediawiki.api
-    g = grabbers.namespace.GrabberNamespaces(api, db)
-    g.update()
-    g = grabbers.tags.GrabberTags(api, db)
-    g.update()
-    g = grabbers.recentchanges.GrabberRecentChanges(api, db)
-    g.update()
-    g = grabbers.user.GrabberUsers(api, db)
-    g.update()
-    g = grabbers.logging.GrabberLogging(api, db)
-    g.update()
-    g = grabbers.page.GrabberPages(api, db)
-    g.update()
-    g = grabbers.revision.GrabberRevisions(api, db, with_content=True)
-    g.update()
+    db.sync_with_api(mediawiki.api, with_content=True)
 
 @when(parsers.parse("I create page \"{title}\""))
 def create_page(mediawiki, title):

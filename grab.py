@@ -7,56 +7,6 @@ from ws.client import API
 from ws.interactive import require_login
 from ws.db.database import Database
 
-import ws.db.grabbers as grabbers
-import ws.db.grabbers.namespace
-import ws.db.grabbers.tags
-import ws.db.grabbers.interwiki
-import ws.db.grabbers.recentchanges
-import ws.db.grabbers.user
-import ws.db.grabbers.ipblocks
-import ws.db.grabbers.page
-import ws.db.grabbers.protected_titles
-import ws.db.grabbers.revision
-import ws.db.grabbers.logging
-
-
-def main(api, db):
-    # if no recent change has been added, it's safe to assume that the other tables are up to date as well
-    g = grabbers.recentchanges.GrabberRecentChanges(api, db)
-    if g.needs_update() is False:
-        print("No changes are needed according to the recentchanges table.")
-        return
-
-    g = grabbers.namespace.GrabberNamespaces(api, db)
-    g.update()
-
-    g = grabbers.tags.GrabberTags(api, db)
-    g.update()
-
-    g = grabbers.recentchanges.GrabberRecentChanges(api, db)
-    g.update()
-
-    g = grabbers.user.GrabberUsers(api, db)
-    g.update()
-
-    g = grabbers.logging.GrabberLogging(api, db)
-    g.update()
-
-    g = grabbers.interwiki.GrabberInterwiki(api, db)
-    g.update()
-
-    g = grabbers.ipblocks.GrabberIPBlocks(api, db)
-    g.update()
-
-    g = grabbers.page.GrabberPages(api, db)
-    g.update()
-
-    g = grabbers.protected_titles.GrabberProtectedTitles(api, db)
-    g.update()
-
-    g = grabbers.revision.GrabberRevisions(api, db)
-    g.update()
-
 
 def _check_entries(db_entry, api_entry):
     try:
@@ -225,7 +175,7 @@ if __name__ == "__main__":
 
     import time
     time1 = time.time()
-    main(api, db)
+    db.sync_with_api(api)
     time2 = time.time()
     print("Syncing took {:.2f} seconds.".format(time2 - time1))
 

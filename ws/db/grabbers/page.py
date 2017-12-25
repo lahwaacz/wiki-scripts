@@ -8,9 +8,9 @@ import ws.utils
 from ws.parser_helpers.title import Title
 import ws.db.selects as selects
 
-from . import Grabber
+from .GrabberBase import *
 
-class GrabberPages(Grabber):
+class GrabberPages(GrabberBase):
 
     INSERT_PREDELETE_TABLES = ["page", "page_props", "page_restrictions"]
 
