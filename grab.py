@@ -19,13 +19,6 @@ import ws.db.grabbers.protected_titles
 import ws.db.grabbers.revision
 import ws.db.grabbers.logging
 
-import ws.db.selects as selects
-import ws.db.selects.recentchanges
-import ws.db.selects.logevents
-import ws.db.selects.allpages
-import ws.db.selects.protectedtitles
-import ws.db.selects.allrevisions
-
 
 def main(api, db):
     # if no recent change has been added, it's safe to assume that the other tables are up to date as well
@@ -91,7 +84,7 @@ def select_recentchanges(api, db):
     }
 
     api_list = list(api.list(api_params))
-    db_list = list(selects.recentchanges.list(db, prop=prop))
+    db_list = list(db.query(list="recentchanges", prop=prop))
 
     # FIXME: some deleted pages stay in recentchanges, although according to the tests they should be deleted
     s = sa.select([db.page.c.page_id])
@@ -129,7 +122,7 @@ def select_logging(api, db):
     }
 
     api_list = list(api.list(api_params))
-    db_list = list(selects.logevents.list(db, prop=prop))
+    db_list = list(db.query(list="logevents", prop=prop))
 
     print("Checking the logging table...")
     _check_lists(db_list, api_list)
@@ -142,7 +135,7 @@ def select_allpages(api, db):
     }
 
     api_list = list(api.list(api_params))
-    db_list = list(selects.allpages.list(db))
+    db_list = list(db.query(list="allpages"))
 
     # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
     # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
@@ -163,7 +156,7 @@ def select_protected_titles(api, db):
     }
 
     api_list = list(api.list(api_params))
-    db_list = list(selects.protectedtitles.list(db, prop=prop))
+    db_list = list(db.query(list="protectedtitles", prop=prop))
 
     for db_entry, api_entry in zip(db_list, api_list):
         # the timestamps may be off by couple of seconds, because we're looking in the logging table
@@ -188,7 +181,7 @@ def select_revisions(api, db):
     }
 
     api_list = list(api.list(api_params))
-    db_list = list(selects.allrevisions.list(db, prop=prop, dir="newer", start=since))
+    db_list = list(db.query(list="allrevisions", prop=prop, dir="newer", start=since))
 
     # FIXME: hack until we have per-page grouping like MediaWiki
     api_revisions = []

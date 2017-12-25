@@ -7,7 +7,6 @@ import sqlalchemy as sa
 import ws.utils
 from ws.utils import value_or_none
 from ws.parser_helpers.title import Title
-from ws.db.selects import logevents
 
 from . import Grabber
 
@@ -303,11 +302,12 @@ class GrabberRevisions(Grabber):
         imported_pages = set()
 
         le_params = {
+            "list": "logevents",
             "prop": {"type", "details", "title", "ids"},
             "dir": "newer",
             "start": since,
         }
-        for le in logevents.list(self.db, le_params):
+        for le in self.db.query(le_params):
             # check logevents for delete/undelete
             if le["type"] == "delete":
                 if le["action"] == "delete":

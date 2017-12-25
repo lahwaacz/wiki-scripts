@@ -12,13 +12,6 @@ import ws.db.grabbers.logging
 import ws.db.grabbers.page
 import ws.db.grabbers.revision
 
-import ws.db.selects as selects
-import ws.db.selects.recentchanges
-import ws.db.selects.logevents
-import ws.db.selects.allpages
-import ws.db.selects.allrevisions
-import ws.db.selects.alldeletedrevisions
-
 scenarios(".")
 
 @given("an api to an empty MediaWiki")
@@ -281,7 +274,7 @@ def check_recentchanges(mediawiki, db):
     }
 
     api_list = list(mediawiki.api.list(api_params))
-    db_list = list(selects.recentchanges.list(db, prop=prop))
+    db_list = list(db.query(list="recentchanges", prop=prop))
 
     assert db_list == api_list
 
@@ -295,7 +288,7 @@ def check_logging(mediawiki, db):
     }
 
     api_list = list(mediawiki.api.list(api_params))
-    db_list = list(selects.logevents.list(db, prop=prop))
+    db_list = list(db.query(list="logevents", prop=prop))
 
     assert db_list == api_list
 
@@ -307,7 +300,7 @@ def check_allpages_match(mediawiki, db):
     }
 
     api_list = list(mediawiki.api.list(api_params))
-    db_list = list(selects.allpages.list(db))
+    db_list = list(db.query(list="allpages"))
 
     # FIXME: hack around the unknown remote collation
     api_list.sort(key=lambda item: item["pageid"])
@@ -338,7 +331,7 @@ def _check_allrevisions(mediawiki, db):
     }
 
     api_list = list(mediawiki.api.list(api_params))
-    db_list = list(selects.allrevisions.list(db, prop=prop))
+    db_list = list(db.query(list="allrevisions", prop=prop))
 
     # FIXME: hack until we have per-page grouping like MediaWiki
     api_revisions = []
@@ -369,7 +362,7 @@ def _check_alldeletedrevisions(mediawiki, db):
     }
 
     api_list = list(mediawiki.api.list(api_params))
-    db_list = list(selects.alldeletedrevisions.list(db, prop=prop))
+    db_list = list(db.query(list="alldeletedrevisions", prop=prop))
 
     # FIXME: hack until we have per-page grouping like MediaWiki
     api_revisions = []

@@ -5,7 +5,7 @@ import sqlalchemy as sa
 import ws.utils
 from ws.parser_helpers.title import Title
 from ws.client.api import ShortRecentChangesError
-import ws.db.selects.recentchanges as rc
+import ws.db.selects as selects
 
 from . import Grabber
 
@@ -110,16 +110,17 @@ class GrabberProtectedTitles(Grabber):
         # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
         # By default the max age is 90 days: if a larger timespan is requested
         # here, it's very important to warn that the changes are not available
-        if rc.oldest_rc_timestamp(self.db) > since:
+        if selects.oldest_rc_timestamp(self.db) > since:
             raise ShortRecentChangesError()
 
         rc_params = {
+            "list": "recentchanges",
             "type": {"new", "log"},
             "prop": {"ids", "title", "loginfo"},
             "dir": "newer",
             "start": since,
         }
-        for change in rc.list(self.db, rc_params):
+        for change in self.db.query(rc_params):
             if change["type"] == "log":
                 # note that pageid in recentchanges corresponds to log_page
                 if change["logtype"] == "protect" and change["pageid"] == 0:

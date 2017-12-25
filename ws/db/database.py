@@ -13,6 +13,7 @@ Prerequisites:
 import sqlalchemy as sa
 
 from . import schema
+from .selects import query
 
 class Database:
     """
@@ -102,6 +103,14 @@ class Database:
         if table_name not in self.metadata.tables:
             raise AttributeError("Table '{}' does not exist in the database.".format(table_name))
         return self.metadata.tables[table_name]
+
+    def query(self, *args, **kwargs):
+        """
+        Main interface for the MediaWiki-like database queries.
+
+        TODO: documentation of the parameters (or at least the differences from MediaWiki)
+        """
+        return query(self, *args, **kwargs)
 
 
 """

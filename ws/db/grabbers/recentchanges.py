@@ -7,7 +7,7 @@ import sqlalchemy as sa
 from ws.utils import value_or_none
 from ws.parser_helpers.title import Title
 import ws.db.mw_constants as mwconst
-import ws.db.selects.recentchanges as rcsel
+import ws.db.selects as selects
 
 from . import Grabber
 
@@ -135,7 +135,7 @@ class GrabberRecentChanges(Grabber):
         """
         Returns ``True`` iff there are some recent changes to be fetched from the wiki.
         """
-        db_newest_rc_timestamp = rcsel.newest_rc_timestamp(self.db)
+        db_newest_rc_timestamp = selects.newest_rc_timestamp(self.db)
         if db_newest_rc_timestamp is None:
             return True
         return self.api.newest_rc_timestamp > db_newest_rc_timestamp

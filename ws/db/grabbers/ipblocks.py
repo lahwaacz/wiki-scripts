@@ -3,7 +3,6 @@
 import sqlalchemy as sa
 
 import ws.utils
-from ws.db.selects import logevents
 
 from . import Grabber
 
@@ -102,12 +101,13 @@ class GrabberIPBlocks(Grabber):
         # also examine the logs for possible reblocks or unblocks
         rcusers = set()
         le_params = {
+            "list": "logevents",
             "type": "block",
             "prop": {"title"},
             "dir": "newer",
             "start": since,
         }
-        for logevent in logevents.list(self.db, le_params):
+        for logevent in self.db.query(le_params):
             # extract target user name
             username = logevent["title"].split(":", maxsplit=1)[1]
             rcusers.add(username)

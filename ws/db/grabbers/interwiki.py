@@ -2,8 +2,6 @@
 
 import sqlalchemy as sa
 
-from ws.db.selects import logevents
-
 from . import Grabber
 
 class GrabberInterwiki(Grabber):
@@ -56,11 +54,12 @@ class GrabberInterwiki(Grabber):
         # in which case there won't be any logevents. We don't care much about that...
 
         le_params = {
+            "list": "logevents",
             "prop": {"type", "details"},
             "dir": "newer",
             "start": since,
         }
-        for le in logevents.list(self.db, le_params):
+        for le in self.db.query(le_params):
             if le["type"] == "interwiki":
                 db_entry = self._transform_logevent_params(le["params"])
                 if le["action"] in {"iw_add", "iw_edit"}:

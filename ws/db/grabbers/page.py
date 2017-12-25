@@ -6,7 +6,7 @@ import sqlalchemy as sa
 
 import ws.utils
 from ws.parser_helpers.title import Title
-from ws.db.selects import recentchanges, logevents
+import ws.db.selects as selects
 
 from . import Grabber
 
@@ -242,7 +242,7 @@ class GrabberPages(Grabber):
         # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
         # By default the max age is 90 days: if a larger timespan is requested
         # here, we need to look into the logging table instead of recentchanges.
-        rc_oldest = recentchanges.oldest_rc_timestamp(self.db)
+        rc_oldest = selects.oldest_rc_timestamp(self.db)
         if rc_oldest is None or rc_oldest > since:
             delete_early, pages = self.get_logpages(since)
         else:
@@ -293,12 +293,13 @@ class GrabberPages(Grabber):
         rctitles = ws.utils.OrderedSet()
 
         rc_params = {
+            "list": "recentchanges",
             "type": {"edit", "new", "log"},
             "prop": {"ids", "loginfo", "title"},
             "dir": "newer",
             "start": since,
         }
-        for change in recentchanges.list(self.db, rc_params):
+        for change in self.db.query(rc_params):
             # add pageid for edits, new pages and target pages of log events
             # (this implicitly handles all move, protect, delete, import actions)
             if change["pageid"] > 0:
@@ -339,11 +340,12 @@ class GrabberPages(Grabber):
         modified = ws.utils.OrderedSet()
 
         le_params = {
+            "list": "logevents",
             "prop": {"type", "details", "ids"},
             "dir": "newer",
             "start": since,
         }
-        for le in logevents.list(self.db, le_params):
+        for le in self.db.query(le_params):
             if le["type"] in {"delete", "protect", "move", "import"}:
                 if le["action"] in {"delete_redir", "delete"}:
                     deleted_pageids.add(le["logpage"])
