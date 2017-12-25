@@ -453,10 +453,11 @@ class GrabberRevisions(Grabber):
         # update tags
         for revid, added in added_tags.items():
             for tag in added:
-                # Note that the log events do not tell if it applies to normal or archived
-                # revision. For inserts we have to check it manually, otherwise we would
-                # get foreign key errors. Revisions added in this sync are skipped, so we
-                # don't mind if the queued queries were not executed yet.
+                # Deleted revisions cannot be tagged in MediaWiki, but they might be
+                # undeleted, tagged, and deleted again before the sync. For inserts we
+                # have to check manually if it is normal or archived revision, otherwise
+                # we would get foreign key errors. New revisions added in this sync are
+                # skipped, so we don't mind if the queued queries were not executed yet.
                 db_entry = {
                     "b_rev_id": revid,
                     "b_tag_name": tag,
@@ -477,9 +478,8 @@ class GrabberRevisions(Grabber):
 
         for revid, removed in removed_tags.items():
             for tag in removed:
-                # Note that the log events do not tell if it applies to normal or archived
-                # revision, so we issue queries against both tables, even though each time
-                # only one will actually do something.
+                # we don't care if the revisions actually exist in the revision or archive
+                # or recentchanges tables, some queries will just not do anything
                 db_entry = {
                     "b_rev_id": revid,
                     "b_tag_name": tag,

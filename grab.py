@@ -1,6 +1,8 @@
 from pprint import pprint
 import datetime
 
+import sqlalchemy as sa
+
 from ws.client import API
 from ws.interactive import require_login
 from ws.db.database import Database
@@ -90,6 +92,15 @@ def select_recentchanges(api, db):
 
     api_list = list(api.list(api_params))
     db_list = list(selects.recentchanges.list(db, prop=prop))
+
+    # FIXME: some deleted pages stay in recentchanges, although according to the tests they should be deleted
+    s = sa.select([db.page.c.page_id])
+    current_pageids = {page["page_id"] for page in db.engine.execute(s)}
+    new_api_list = []
+    for rc in api_list:
+        if "logid" in rc or rc["pageid"] in current_pageids:
+            new_api_list.append(rc)
+    api_list = new_api_list
 
     print("Checking the recentchanges table...")
     assert len(db_list) == len(api_list)

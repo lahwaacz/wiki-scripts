@@ -352,10 +352,12 @@ Feature: Syncing the page tables
         When I create tag "test-tag"
         And I create page "Test"
         And I edit page "Test" to contain "test"
+        And I sync the page tables
+        # deleted revisions cannot be tagged in MediaWiki, so we delete after tagging
+        And I add tag "test-tag" to all revisions of page "Test"
         And I delete page "Test"
         And I sync the page tables
-        And I add tag "test-tag" to all revisions of page "Test"
-        And I sync the page tables
+        # FIXME: deleted pages are not shown in list=recentchanges
         Then the recent changes should match
         And the logevents should match
         And the allpages lists should match
@@ -365,10 +367,14 @@ Feature: Syncing the page tables
         When I create tag "test-tag"
         And I create page "Test"
         And I edit page "Test" to contain "test"
-        And I delete page "Test"
+        # deleted revisions cannot be tagged in MediaWiki, so we delete after tagging
         And I add tag "test-tag" to all revisions of page "Test"
+        And I delete page "Test"
         And I sync the page tables
+        # deleted revisions cannot be tagged in MediaWiki, so we undelete before tagging
+        And I undelete page "Test"
         And I remove tag "test-tag" from all revisions of page "Test"
+        And I delete page "Test"
         And I sync the page tables
         Then the recent changes should match
         And the logevents should match

@@ -75,6 +75,11 @@ class GrabberPages(Grabber):
             ("delete-all", "page_restrictions"):
                 db.page_restrictions.delete().where(
                     db.page_restrictions.c.pr_page == sa.bindparam("b_pr_page")),
+            ("delete", "deleted_recentchanges"):
+                db.recentchanges.delete().where(
+                    sa.and_(db.recentchanges.c.rc_logid == None,
+                            db.recentchanges.c.rc_cur_id.notin_(sa.select([db.page.c.page_id]))
+                    )),
         }
 
         # build query to move data from the revision table into archive
@@ -279,6 +284,8 @@ class GrabberPages(Grabber):
         if rc_oldest is None or rc_oldest > since:
             yield from self.gen_insert()
 
+        # delete recent changes whose pages were deleted
+        yield self.sql["delete", "deleted_recentchanges"]
 
     def get_rcpages(self, since):
         deleted_pageids = set()
