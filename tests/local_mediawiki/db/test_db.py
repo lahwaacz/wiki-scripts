@@ -127,10 +127,10 @@ def merge_page(mediawiki, source, target):
     # FIXME: running jobs is not necessary, but the call adds a small delay which stabilizes the tests
     mediawiki.run_jobs()
 
-@when(parsers.parse("I delete the newest revision of page \"{title}\""))
+@when(parsers.parse("I delete the oldest revision of page \"{title}\""))
 def delete_revision(mediawiki, title):
-    pages = mediawiki.api.call_api(action="query", titles=title, prop="info")["pages"]
-    revid = list(pages.values())[0]["lastrevid"]
+    pages = mediawiki.api.call_api(action="query", titles=title, prop="revisions", rvprop="ids", rvdir="newer", rvlimit=1)["pages"]
+    revid = list(pages.values())[0]["revisions"][0]["revid"]
     params = {
         "action": "revisiondelete",
         "type": "revision",
@@ -140,10 +140,10 @@ def delete_revision(mediawiki, title):
     }
     mediawiki.api.call_with_csrftoken(params)
 
-@when(parsers.parse("I undelete the newest revision of page \"{title}\""))
+@when(parsers.parse("I undelete the oldest revision of page \"{title}\""))
 def undelete_revision(mediawiki, title):
-    pages = mediawiki.api.call_api(action="query", titles=title, prop="info")["pages"]
-    revid = list(pages.values())[0]["lastrevid"]
+    pages = mediawiki.api.call_api(action="query", titles=title, prop="revisions", rvprop="ids", rvdir="newer", rvlimit=1)["pages"]
+    revid = list(pages.values())[0]["revisions"][0]["revid"]
     params = {
         "action": "revisiondelete",
         "type": "revision",

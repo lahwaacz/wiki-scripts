@@ -283,7 +283,7 @@ Feature: Syncing the page tables
         When I create page "Test"
         And I edit page "Test" to contain "test"
         And I sync the page tables
-        And I delete the newest revision of page "Test"
+        And I delete the oldest revision of page "Test"
         And I sync the page tables
         Then the recent changes should match
         And the logevents should match
@@ -293,9 +293,9 @@ Feature: Syncing the page tables
     Scenario: Syncing undeleted revision
         When I create page "Test"
         And I edit page "Test" to contain "test"
-        And I delete the newest revision of page "Test"
+        And I delete the oldest revision of page "Test"
         And I sync the page tables
-        And I undelete the newest revision of page "Test"
+        And I undelete the oldest revision of page "Test"
         And I sync the page tables
         Then the recent changes should match
         And the logevents should match

@@ -179,6 +179,7 @@ def db_to_api(row):
     # parse rev_deleted
     if row["rev_deleted"] & mwconst.DELETED_TEXT:
         api_entry["sha1hidden"] = ""
+        api_entry["texthidden"] = ""
     if row["rev_deleted"] & mwconst.DELETED_COMMENT:
         api_entry["commenthidden"] = ""
     if row["rev_deleted"] & mwconst.DELETED_USER:
