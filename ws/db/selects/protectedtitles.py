@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import datetime
-
 import sqlalchemy as sa
 
 import ws.db.mw_constants as mwconst
