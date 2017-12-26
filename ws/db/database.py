@@ -12,9 +12,8 @@ Prerequisites:
 
 import sqlalchemy as sa
 
-from . import schema
-from .grabbers import synchronize
-from .selects import query
+from . import schema, selects, grabbers
+from ..parser_helpers.title import Context, Title
 
 class Database:
     """
@@ -112,7 +111,7 @@ class Database:
         :param ws.client.api.API api: interface to the remote MediaWiki instance
         :param bool with_content: whether to synchronize the content of all revisions
         """
-        return synchronize(self, api, with_content=with_content)
+        return grabbers.synchronize(self, api, with_content=with_content)
 
     def query(self, *args, **kwargs):
         """
@@ -120,7 +119,23 @@ class Database:
 
         TODO: documentation of the parameters (or at least the differences from MediaWiki)
         """
-        return query(self, *args, **kwargs)
+        return selects.query(self, *args, **kwargs)
+
+    def Title(self, title):
+        """
+        Parse a MediaWiki title.
+
+        :param str title: page title to be parsed
+        :returns: a :py:class:`ws.parser_helpers.title.Title` object
+        """
+        iwmap = selects.get_interwikimap(self)
+        namespacenames = selects.get_namespacenames(self)
+        namespaces = selects.get_namespaces(self)
+        # legaltitlechars are not stored in the database, it will hardly ever
+        # change so let's just hardcode it
+        legaltitlechars = " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+"
+        context = Context(iwmap, namespacenames, namespaces, legaltitlechars)
+        return Title(context, title)
 
 
 """

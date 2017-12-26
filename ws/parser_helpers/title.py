@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import re
+from copy import deepcopy
 
 # only for explicit type check in Title.parse
 import mwparserfromhell
@@ -42,8 +43,15 @@ class Context:
 
     @classmethod
     def from_api(klass, api):  # pragma: no cover
+        # drop unnecessary information which is not stored in the database
+        # (this allows comparison with database-context titles)
+        iwmap = deepcopy(api.site.interwikimap)
+        for key, data in iwmap.items():
+            if "language" in data:
+                del data["language"]
+
         return klass(
-            api.site.interwikimap,
+            iwmap,
             api.site.namespacenames,
             api.site.namespaces,
             api.site.general["legaltitlechars"],

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from .namespaces import *
+from .interwiki import *
 from .recentchanges import *
 from .logevents import *
 from .allpages import *
