@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 from ws.client import API
-from ws.parser_helpers.title import Title
 
 def main(api):
     # get titles of all pages in 'Main', 'ArchWiki' and 'Help' namespaces
@@ -18,7 +17,7 @@ def main(api):
 
     # print talk pages of deleted pages
     for title in sorted(talks):
-        _title = Title(api, title)
+        _title = api.Title(title)
         if _title.articlepagename not in allpages:
             print("* [[%s]]" % title)
 

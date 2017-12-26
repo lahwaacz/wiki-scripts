@@ -9,7 +9,6 @@ from ws.client import APIError
 import ws.utils
 from ws.interactive import edit_interactive
 from ws.ArchWiki.header import get_header_parts, build_header
-from ws.parser_helpers.title import Title
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +64,7 @@ class Decategorization:
                 text_new = self.decategorize(page["title"], text_old)
 
                 if text_old != text_new:
-                    title = Title(self.api, page["title"])
+                    title = self.api.Title(page["title"])
                     if title.namespace == "User":
                         edit_summary = "user pages shall not be categorized, see [[Help:Style#User pages]]"
                     else:

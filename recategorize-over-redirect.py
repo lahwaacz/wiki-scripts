@@ -6,7 +6,6 @@ import logging
 import mwparserfromhell
 
 from ws.client import API
-from ws.parser_helpers.title import Title
 from ws.interactive import edit_interactive, ask_yesno
 
 logger = logging.getLogger(__name__)
@@ -23,13 +22,13 @@ class Recategorize:
         text_old = page["revisions"][0]["*"]
         timestamp = page["revisions"][0]["timestamp"]
 
-        source = Title(self.api, source)
+        source = self.api.Title(source)
         assert(source.namespace == "Category")
 
         logger.info("Parsing '{}'...".format(title))
         wikicode = mwparserfromhell.parse(text_old)
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
-            wl_title = Title(self.api, wikilink.title)
+            wl_title = self.api.Title(wikilink.title)
             if wl_title.namespace == "Category" and wl_title.pagename == source.pagename:
                 wikilink.title = target
         text_new = str(wikicode)
@@ -39,7 +38,7 @@ class Recategorize:
             self.api.edit(title, page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 
     def flag_for_deletion(self, title):
-        _title = Title(self.api, title)
+        _title = self.api.Title(title)
         assert(_title.namespace == "Category")
 
         result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", titles=title)
@@ -57,7 +56,7 @@ class Recategorize:
     def recategorize_over_redirect(self, category_namespace=14):
         # FIXME: the source_namespace parameter of redirects.fetch does not work, so we need to do manual filtering
         redirects = self.api.redirects.fetch()
-        catredirs = dict((key, value) for key, value in redirects.items() if Title(self.api, key).namespace == "Category")
+        catredirs = dict((key, value) for key, value in redirects.items() if self.api.Title(key).namespace == "Category")
         for source, target in catredirs.items():
             ans = ask_yesno("Recategorize pages from '{}' to '{}'?".format(source, target))
             if ans is False:

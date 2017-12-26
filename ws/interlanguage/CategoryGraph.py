@@ -4,7 +4,6 @@ import copy
 import logging
 
 import ws.ArchWiki.lang as lang
-from ws.parser_helpers.title import Title
 
 
 logger = logging.getLogger(__name__)
@@ -155,7 +154,7 @@ class CategoryGraph:
         yield lval, rval
 
     def create_category(self, category):
-        title = Title(self.api, category)
+        title = self.api.Title(category)
         if title.iwprefix or title.namespace != "Category":
             raise ValueError("Invalid category name: [[{}]]".format(category))
         # normalize name

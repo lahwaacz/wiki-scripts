@@ -3,7 +3,6 @@
 import sqlalchemy as sa
 
 from ws.utils import value_or_none
-from ws.parser_helpers.title import Title
 import ws.db.mw_constants as mwconst
 
 from .GrabberBase import *
@@ -61,7 +60,7 @@ class GrabberLogging(GrabberBase):
         }
 
     def gen_inserts_from_logevent(self, logevent):
-        title = Title(self.api, logevent["title"])
+        title = self.api.Title(logevent["title"])
 
         log_deleted = 0
         if "actionhidden" in logevent:

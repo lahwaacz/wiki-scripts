@@ -26,7 +26,7 @@ from ws.interactive import edit_interactive, require_login, InteractiveQuit
 from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.encodings import dotencode, queryencode
-from ws.parser_helpers.title import canonicalize, Title, InvalidTitleCharError
+from ws.parser_helpers.title import canonicalize, InvalidTitleCharError
 from ws.parser_helpers.wikicode import get_section_headings, get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template
 
 logger = logging.getLogger(__name__)
@@ -258,7 +258,7 @@ class WikilinkRules:
         # check if title is a redirect
         target = self.api.redirects.map.get(title.fullpagename)
         if target:
-            _title = Title(self.api, target)
+            _title = self.api.Title(target)
             _title.sectionname = title.sectionname
         else:
             _title = title
@@ -285,19 +285,19 @@ class WikilinkRules:
             return
 
         try:
-            text = Title(self.api, wikilink.text)
+            text = self.api.Title(wikilink.text)
         except InvalidTitleCharError:
             return
 
         target1 = self.api.redirects.map.get(title.fullpagename)
         target2 = self.api.redirects.map.get(text.fullpagename)
         if target1 is not None:
-            target1 = Title(self.api, target1)
+            target1 = self.api.Title(target1)
             # bail out if we lost the fragment
             if target1.sectionname != title.sectionname:
                 return
         if target2 is not None:
-            target2 = Title(self.api, target2)
+            target2 = self.api.Title(target2)
 
         if target1 is not None and target2 is not None:
             if target1 == target2:
@@ -413,7 +413,7 @@ class WikilinkRules:
             _target_ns = title.namespacenumber
             _target_title = title.fullpagename
         else:
-            src_title = Title(self.api, srcpage)
+            src_title = self.api.Title(srcpage)
             _target_ns = src_title.namespacenumber
             _target_title = src_title.fullpagename
 
@@ -424,7 +424,7 @@ class WikilinkRules:
         # resolve redirects
         anchor_on_redirect_to_section = False
         if _target_title in self.api.redirects.map:
-            _new_title = Title(self.api, self.api.redirects.resolve(_target_title))
+            _new_title = self.api.Title(self.api.redirects.resolve(_target_title))
             if _new_title.sectionname:
                 logger.warning("warning: section fragment placed on a redirect to possibly different section: {}".format(wikilink))
                 anchor_on_redirect_to_section = True
@@ -554,7 +554,7 @@ class WikilinkRules:
             logger.debug("Skipping wikilink {} due to void-update cache.".format(wikilink))
             return
 
-        title = Title(self.api, wikilink.title)
+        title = self.api.Title(wikilink.title)
         # skip interlanguage links (handled by interlanguage.py)
         if title.iwprefix in self.api.site.interlanguagemap.keys():
             return
@@ -847,7 +847,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
         # rewind to the right namespace (the API throws BadTitle error if the
         # namespace of apfrom does not match apnamespace)
         if apfrom is not None:
-            _title = Title(self.api, apfrom)
+            _title = self.api.Title(apfrom)
             if _title.namespacenumber not in namespaces:
                 logger.error("Valid namespaces for the --first option are {}.".format([self.api.site.namespaces[ns] for ns in namespaces]))
                 return

@@ -8,7 +8,6 @@ from ws.client import API
 import ws.cache
 import ws.utils
 from ws.parser_helpers.encodings import dotencode
-from ws.parser_helpers.title import Title
 from ws.parser_helpers.wikicode import get_section_headings, get_anchors
 
 def valid_sectionname(title, pages, wrapped_titles):
@@ -55,7 +54,7 @@ def main(api, db):
 
     for source in sorted(redirects.keys()):
         target = redirects[source]
-        title = Title(api, target)
+        title = api.Title(target)
 
         # limit to redirects with broken fragment
         if valid_sectionname(title, pages, wrapped_titles):

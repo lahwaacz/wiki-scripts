@@ -7,7 +7,7 @@ import logging
 from ws.client import API, APIError
 from ws.interactive import require_login
 from ws.autopage import AutoPage
-from ws.parser_helpers.title import canonicalize, Title
+from ws.parser_helpers.title import canonicalize
 import ws.ArchWiki.lang as lang
 from ws.interlanguage.CategoryGraph import CategoryGraph
 from ws.interlanguage.Categorization import Categorization
@@ -273,7 +273,7 @@ class TableOfContents:
             # skip catlinks without leading colon
             if not wikilink.title.startswith(":"):
                 continue
-            title = Title(self.api, wikilink.title)
+            title = self.api.Title(wikilink.title)
             if title.namespace == "Category" and wikilink.text:
                 # skip trivial cases to apply our defaults
                 pure, _ = lang.detect_language(title.pagename)

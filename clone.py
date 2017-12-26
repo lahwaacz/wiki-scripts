@@ -10,7 +10,6 @@ import hashlib
 
 from ws.client import API
 import ws.ArchWiki.lang
-from ws.parser_helpers.title import Title
 from ws.utils import is_ascii, list_chunks
 
 class Downloader:
@@ -34,7 +33,7 @@ class Downloader:
         Return file name where the given page should be stored, relative to `basepath`.
         """
         title, lang = ws.ArchWiki.lang.detect_language(title)
-        _title = Title(self.api, title)
+        _title = self.api.Title(title)
 
         # be safe and use '_' instead of ' ' in filenames (MediaWiki style)
         title = _title.pagename.replace(" ", "_")

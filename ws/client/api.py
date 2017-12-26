@@ -171,6 +171,18 @@ class API(Connection):
             return None
         return recentchanges[0]["timestamp"]
 
+    def Title(self, title):
+        """
+        Parse a MediaWiki title.
+
+        :param str title: page title to be parsed
+        :returns: a :py:class:`ws.parser_helpers.title.Title` object
+        """
+        # lazy import - ws.parser_helpers.title imports mwparserfromhell which is
+        # an optional dependency
+        from ..parser_helpers.title import Context, Title
+        return Title(Context.from_api(self), title)
+
 
     def query_continue(self, params=None, **kwargs):
         """

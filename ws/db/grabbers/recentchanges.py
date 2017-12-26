@@ -5,7 +5,6 @@ import logging
 import sqlalchemy as sa
 
 from ws.utils import value_or_none
-from ws.parser_helpers.title import Title
 import ws.db.mw_constants as mwconst
 import ws.db.selects as selects
 
@@ -62,7 +61,7 @@ class GrabberRecentChanges(GrabberBase):
                            "Skipping it, but the sync will be incomplete.")
 
     def gen_inserts_from_rc(self, rc):
-        title = Title(self.api, rc["title"])
+        title = self.api.Title(rc["title"])
 
         rc_deleted = 0
         if "sha1hidden" in rc:

@@ -5,7 +5,6 @@ import random
 import sqlalchemy as sa
 
 import ws.utils
-from ws.parser_helpers.title import Title
 import ws.db.selects as selects
 
 from .GrabberBase import *
@@ -136,7 +135,7 @@ class GrabberPages(GrabberBase):
         if "missing" in page:
             raise StopIteration
 
-        title = Title(self.api, page["title"])
+        title = self.api.Title(page["title"])
 
         # items for page table
         db_entry = {

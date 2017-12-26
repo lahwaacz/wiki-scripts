@@ -34,11 +34,20 @@ def canonicalize(title):
     return title
 
 class Context:
-    def __init__(self, api):  # pragma: no cover
-        self.interwikimap = api.site.interwikimap
-        self.namespacenames = api.site.namespacenames
-        self.namespaces = api.site.namespaces
-        self.legaltitlechars = api.site.general["legaltitlechars"]
+    def __init__(self, interwikimap, namespacenames, namespaces, legaltitlechars):
+        self.interwikimap = interwikimap
+        self.namespacenames = namespacenames
+        self.namespaces = namespaces
+        self.legaltitlechars = legaltitlechars
+
+    @classmethod
+    def from_api(klass, api):  # pragma: no cover
+        return klass(
+            api.site.interwikimap,
+            api.site.namespacenames,
+            api.site.namespaces,
+            api.site.general["legaltitlechars"],
+        )
 
     def __eq__(self, other):  # pragma: no cover
         return self.interwikimap == other.interwikimap and \
@@ -61,20 +70,14 @@ class Title:
     .. _`magic words`: https://www.mediawiki.org/wiki/Help:Magic_words#Page_names
     """
 
-    def __init__(self, context_or_api, title):
+    def __init__(self, context, title):
         """
-        :param context_or_api:
-            an instance of :py:class:`Context` or :py:class:`API <ws.client.api.API>`
+        :param Context context:
+            a context object for the parser
         :param title:
             a :py:obj:`str` or :py:class:`mwparserfromhell.wikicode.Wikicode` object
         """
-        if ( hasattr(context_or_api, "interwikimap") and
-             hasattr(context_or_api, "namespacenames") and
-             hasattr(context_or_api, "namespaces") and
-             hasattr(context_or_api, "legaltitlechars") ):  # pragma: no branch
-            self.context = context_or_api
-        else:  # pragma: no cover
-            self.context = Context(context_or_api)
+        self.context = context
 
         # Interwiki prefix (e.g. ``wikipedia``), lowercase
         self.iw = None

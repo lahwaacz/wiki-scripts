@@ -3,7 +3,6 @@
 import sqlalchemy as sa
 
 import ws.utils
-from ws.parser_helpers.title import Title
 from ws.client.api import ShortRecentChangesError
 import ws.db.selects as selects
 
@@ -39,7 +38,7 @@ class GrabberProtectedTitles(GrabberBase):
         """
         :param page: an element from either titles=... or list=protectedtitles API query
         """
-        title = Title(self.api, page["title"])
+        title = self.api.Title(page["title"])
 
         if "protection" in page:
             # an element from titles=... query -> check if it's a protected title
@@ -66,7 +65,7 @@ class GrabberProtectedTitles(GrabberBase):
         # creating a page removes any corresponding rows from protected_titles
         # also delete rows for unprotected title
         if "missing" not in page or not page["protection"]:
-            title = Title(self.api, page["title"])
+            title = self.api.Title(page["title"])
             yield self.sql["delete", "protected_titles"], {"b_pt_namespace": title.namespacenumber, "b_pt_title": title.dbtitle()}
 
     def gen_insert(self):
