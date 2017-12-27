@@ -60,7 +60,7 @@ class GrabberLogging(GrabberBase):
         }
 
     def gen_inserts_from_logevent(self, logevent):
-        title = self.api.Title(logevent["title"])
+        title = self.db.Title(logevent["title"])
 
         log_deleted = 0
         if "actionhidden" in logevent:

@@ -38,7 +38,7 @@ class GrabberProtectedTitles(GrabberBase):
         """
         :param page: an element from either titles=... or list=protectedtitles API query
         """
-        title = self.api.Title(page["title"])
+        title = self.db.Title(page["title"])
 
         if "protection" in page:
             # an element from titles=... query -> check if it's a protected title
@@ -65,7 +65,7 @@ class GrabberProtectedTitles(GrabberBase):
         # creating a page removes any corresponding rows from protected_titles
         # also delete rows for unprotected title
         if "missing" not in page or not page["protection"]:
-            title = self.api.Title(page["title"])
+            title = self.db.Title(page["title"])
             yield self.sql["delete", "protected_titles"], {"b_pt_namespace": title.namespacenumber, "b_pt_title": title.dbtitle()}
 
     def gen_insert(self):

@@ -224,7 +224,7 @@ class GrabberRevisions(GrabberBase):
                 yield self.sql["insert", "tagged_revision"], db_entry
 
     def gen_deletedrevisions(self, page):
-        title = self.api.Title(page["title"])
+        title = self.db.Title(page["title"])
         for rev in page["revisions"]:
             db_entry = {
                 "ar_namespace": page["ns"],
@@ -356,7 +356,7 @@ class GrabberRevisions(GrabberBase):
         for _title, pageid in undeleted_pages.items():
             # ar_page_id is apparently not visible via list=alldeletedrevisions,
             # so we have to update it here first
-            title = self.api.Title(_title)
+            title = self.db.Title(_title)
             ns = title.namespacenumber
             dbtitle = title.dbtitle(ns),
             yield self.sql["update", "archive.ar_page_id"], {"b_namespace": ns, "b_title": dbtitle, "ar_page_id": pageid}

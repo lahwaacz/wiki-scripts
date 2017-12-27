@@ -135,7 +135,7 @@ class GrabberPages(GrabberBase):
         if "missing" in page:
             raise StopIteration
 
-        title = self.api.Title(page["title"])
+        title = self.db.Title(page["title"])
 
         # items for page table
         db_entry = {

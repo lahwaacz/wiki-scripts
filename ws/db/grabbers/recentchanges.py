@@ -61,7 +61,7 @@ class GrabberRecentChanges(GrabberBase):
                            "Skipping it, but the sync will be incomplete.")
 
     def gen_inserts_from_rc(self, rc):
-        title = self.api.Title(rc["title"])
+        title = self.db.Title(rc["title"])
 
         rc_deleted = 0
         if "sha1hidden" in rc:
