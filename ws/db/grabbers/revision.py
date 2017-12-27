@@ -11,7 +11,6 @@ from .GrabberBase import *
 
 logger = logging.getLogger(__name__)
 
-# TODO: allow syncing content independently from revisions
 # TODO: are truncated results due to PHP cache reflected by changing the query-continuation parameter accordingly or do we actually lose some revisions?
 class GrabberRevisions(GrabberBase):
 
@@ -276,8 +275,6 @@ class GrabberRevisions(GrabberBase):
     def gen_update(self, since):
         # we need one instance per transaction
         self.text_id_gen = self._get_text_id_gen()
-
-        # TODO: make sure that the updates from the API don't create a duplicate row with a new ID in the text table
 
         # save new revids for the tag updates
         new_revids = set()
