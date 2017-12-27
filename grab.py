@@ -26,6 +26,8 @@ def _check_lists(db_list, api_list):
 
 
 def select_recentchanges(api, db):
+    print("Checking the recentchanges table...")
+
     prop = {"title", "ids", "user", "userid", "flags", "timestamp", "comment", "sizes", "loginfo", "patrolled", "sha1", "redirect", "tags"}
     api_params = {
         "list": "recentchanges",
@@ -45,7 +47,6 @@ def select_recentchanges(api, db):
             new_api_list.append(rc)
     api_list = new_api_list
 
-    print("Checking the recentchanges table...")
     assert len(db_list) == len(api_list)
     for i, entries in enumerate(zip(db_list, api_list)):
         db_entry, api_entry = entries
@@ -64,6 +65,8 @@ def select_recentchanges(api, db):
 
 
 def select_logging(api, db):
+    print("Checking the logging table...")
+
     prop = {"user", "userid", "comment", "timestamp", "title", "ids", "type", "details", "tags"}
     api_params = {
         "list": "logevents",
@@ -74,11 +77,12 @@ def select_logging(api, db):
     api_list = list(api.list(api_params))
     db_list = list(db.query(list="logevents", prop=prop))
 
-    print("Checking the logging table...")
     _check_lists(db_list, api_list)
 
 
 def select_allpages(api, db):
+    print("Checking the page table...")
+
     api_params = {
         "list": "allpages",
         "aplimit": "max",
@@ -93,11 +97,12 @@ def select_allpages(api, db):
     api_list.sort(key=lambda item: item["pageid"])
     db_list.sort(key=lambda item: item["pageid"])
 
-    print("Checking the page table...")
     _check_lists(db_list, api_list)
 
 
 def select_protected_titles(api, db):
+    print("Checking the protected_titles table...")
+
     prop = {"timestamp", "user", "userid", "comment", "expiry", "level"}
     api_params = {
         "list": "protectedtitles",
@@ -114,11 +119,12 @@ def select_protected_titles(api, db):
             if abs(db_entry["timestamp"] - api_entry["timestamp"]) <= datetime.timedelta(seconds=1):
                 db_entry["timestamp"] = api_entry["timestamp"]
 
-    print("Checking the protected_titles table...")
     _check_lists(db_list, api_list)
 
 
 def select_revisions(api, db):
+    print("Checking the revision table...")
+
     since = datetime.datetime.utcnow() - datetime.timedelta(days=30)
 
     prop = {"ids", "flags", "timestamp", "user", "userid", "size", "sha1", "contentmodel", "comment", "tags"}
@@ -151,8 +157,41 @@ def select_revisions(api, db):
     for rev in api_list:
         del rev["parentid"]
 
-    print("Checking the revision table...")
     _check_lists(db_list, api_list)
+
+
+def select_titles(api, db):
+    print("Checking individual titles...")
+
+    titles = ["Main page", "Nonexistent"]
+    pageids = [1,2,3,4,5]
+
+    api_list = api.call_api(action="query", titles="|".join(titles))["pages"]
+    db_list = list(db.query(titles=titles))
+
+    _check_lists(db_list, api_list)
+
+    api_dict = api.call_api(action="query", pageids="|".join(str(p) for p in pageids))["pages"]
+    api_list = list(api_dict.values())
+    api_list.sort(key=lambda p: ("missing" not in p, p["pageid"]))
+    db_list = list(db.query(pageids=pageids))
+
+    _check_lists(db_list, api_list)
+
+
+def check_titles(api, db):
+    titles = [
+        "Main page",
+        "en:Main page",
+        "wikipedia:Main page",
+        "wikipedia:en:Main page",
+        "Main page#section",
+        "en:Main page#section",
+        "wikipedia:Main page#section",
+        "wikipedia:en:Main page#section",
+    ]
+    for title in titles:
+        assert api.Title(title) == db.Title(title)
 
 
 if __name__ == "__main__":
@@ -178,6 +217,9 @@ if __name__ == "__main__":
     db.sync_with_api(api)
     time2 = time.time()
     print("Syncing took {:.2f} seconds.".format(time2 - time1))
+
+    select_titles(api, db)
+    check_titles(api, db)
 
     select_recentchanges(api, db)
     select_logging(api, db)
