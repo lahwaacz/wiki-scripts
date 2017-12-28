@@ -35,6 +35,7 @@ Known incompatibilities from MediaWiki schema:
       tables are enforced.
     - The equivalent of the tag_summary table does not exist, we can live with
       the GROUP BY queries.
+- Removed unused recentchanges.rc_ip column (not visible through the API).
 """
 
 # TODO:
@@ -154,8 +155,6 @@ def create_recentchanges_tables(metadata):
         # MW incompatibility: nullable since it is not available via API
         Column("rc_source", UnicodeBinary(16)),
         Column("rc_patrolled", Boolean, nullable=False, server_default="0"),
-        # MW incompatibility: nullable since it is not available via API
-        Column("rc_ip", UnicodeBinary(40)),
         Column("rc_old_len", Integer),
         Column("rc_new_len", Integer),
         # TODO: analogous to rev_deleted or log_deleted, should be Bitfield
@@ -173,7 +172,6 @@ def create_recentchanges_tables(metadata):
     Index("rc_namespace_title", recentchanges.c.rc_namespace, recentchanges.c.rc_title)
     Index("rc_cur_id", recentchanges.c.rc_cur_id)
     Index("rc_new_name_timestamp", recentchanges.c.rc_new, recentchanges.c.rc_namespace, recentchanges.c.rc_timestamp)
-    Index("rc_ip", recentchanges.c.rc_ip)
     Index("rc_ns_usertext", recentchanges.c.rc_namespace, recentchanges.c.rc_user_text)
     Index("rc_user_text", recentchanges.c.rc_user_text, recentchanges.c.rc_timestamp)
 
