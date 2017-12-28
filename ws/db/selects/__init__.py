@@ -58,8 +58,7 @@ def query_pageset(db, params):
 
     # report missing pages
     existing_pages = set()
-    # TODO: use some common executor
-    result = db.engine.execute(pageset)
+    result = s.execute_sql(ex)
     for row in result:
         if "titles" in params:
             existing_pages.add((row.page_namespace, row.page_title))
@@ -74,8 +73,7 @@ def query_pageset(db, params):
             if p not in existing_pages:
                 yield {"missing": "", "pageid": p}
 
-    # TODO: use some common executor
-    result = db.engine.execute(pageset)
+    result = s.execute_sql(pageset)
     for row in result:
         api_entry = s.db_to_api(row)
         for _s in extra_selects:
