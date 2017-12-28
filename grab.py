@@ -35,8 +35,8 @@ def select_recentchanges(api, db):
         "rclimit": "max",
     }
 
-    api_list = list(api.list(api_params))
     db_list = list(db.query(list="recentchanges", prop=prop))
+    api_list = list(api.list(api_params))
 
     # FIXME: some deleted pages stay in recentchanges, although according to the tests they should be deleted
     s = sa.select([db.page.c.page_id])
@@ -74,8 +74,8 @@ def select_logging(api, db):
         "lelimit": "max",
     }
 
-    api_list = list(api.list(api_params))
     db_list = list(db.query(list="logevents", prop=prop))
+    api_list = list(api.list(api_params))
 
     _check_lists(db_list, api_list)
 
@@ -88,8 +88,8 @@ def select_allpages(api, db):
         "aplimit": "max",
     }
 
-    api_list = list(api.list(api_params))
     db_list = list(db.query(list="allpages"))
+    api_list = list(api.list(api_params))
 
     # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
     # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
@@ -110,8 +110,8 @@ def select_protected_titles(api, db):
         "ptprop": "|".join(prop),
     }
 
-    api_list = list(api.list(api_params))
     db_list = list(db.query(list="protectedtitles", prop=prop))
+    api_list = list(api.list(api_params))
 
     for db_entry, api_entry in zip(db_list, api_list):
         # the timestamps may be off by couple of seconds, because we're looking in the logging table
@@ -136,8 +136,8 @@ def select_revisions(api, db):
         "arvstart": since,
     }
 
-    api_list = list(api.list(api_params))
     db_list = list(db.query(list="allrevisions", prop=prop, dir="newer", start=since))
+    api_list = list(api.list(api_params))
 
     # FIXME: hack until we have per-page grouping like MediaWiki
     api_revisions = []
@@ -166,8 +166,8 @@ def select_titles(api, db):
     titles = ["Main page", "Nonexistent"]
     pageids = [1,2,3,4,5]
 
-    api_list = api.call_api(action="query", titles="|".join(titles))["pages"]
     db_list = list(db.query(titles=titles))
+    api_list = api.call_api(action="query", titles="|".join(titles))["pages"]
 
     _check_lists(db_list, api_list)
 
