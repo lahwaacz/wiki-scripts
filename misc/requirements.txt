@@ -5,6 +5,7 @@ git+https://github.com/kynikos/lib.py.configfile.git#egg=configfile&subdirectory
 
 # database
 sqlalchemy
+alembic
 # TODO: optional deps?
 psycopg2
 

@@ -10,7 +10,10 @@ Prerequisites:
 2. One of the many drivers supported by sqlalchemy, e.g. psycopg2.
 """
 
+import os.path
+
 import sqlalchemy as sa
+import alembic.config
 
 from . import schema, selects, grabbers
 from ..parser_helpers.title import Context, Title
@@ -37,13 +40,19 @@ class Database:
 
         assert self.engine.name == "postgresql"
 
-        # TODO: only for testing
-#        metadata = sa.MetaData(bind=self.engine)
-#        metadata.reflect()
-#        metadata.drop_all()
-
         self.metadata = sa.MetaData(bind=self.engine)
         schema.create_tables(self.metadata)
+
+        insp = sa.engine.reflection.Inspector.from_engine(self.engine)
+        if not insp.get_table_names():
+            # Empty database - create all tables from scratch and stamp the
+            # most recent alembic revision as "head". From now on the database
+            # will have to be migrated by alembic. From the cookbook:
+            # http://alembic.zzzcomputing.com/en/latest/cookbook.html#building-an-up-to-date-database-from-scratch
+            self.metadata.create_all()
+            cfg_path = os.path.join(os.path.dirname(__file__), "../..", "alembic.ini")
+            alembic_cfg = alembic.config.Config(cfg_path)
+            alembic.command.stamp(alembic_cfg, "head")
 
     @staticmethod
     def set_argparser(argparser):

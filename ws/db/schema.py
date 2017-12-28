@@ -725,4 +725,3 @@ def create_tables(metadata):
     create_users_tables(metadata)
     create_revisions_tables(metadata)
     create_pages_tables(metadata)
-    metadata.create_all()
