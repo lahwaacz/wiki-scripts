@@ -35,7 +35,6 @@ Known incompatibilities from MediaWiki schema:
       tables are enforced.
     - The equivalent of the tag_summary table does not exist, we can live with
       the GROUP BY queries.
-- Removed unused recentchanges.rc_ip column (not visible through the API).
 """
 
 # TODO:
@@ -131,6 +130,7 @@ def create_recentchanges_tables(metadata):
     # We also don't set a foreign key constraint on rc_user for convenience, so that
     # recentchanges can be populated independently of other tables, which can then
     # use this for syncing.
+    # MW incompatibility: removed recentchanges.rc_ip column (not visible through the API)
     recentchanges = Table("recentchanges", metadata,
         Column("rc_id", Integer, primary_key=True, nullable=False),
         Column("rc_timestamp", MWTimestamp, nullable=False),
