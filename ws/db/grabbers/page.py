@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import random
-
 import sqlalchemy as sa
 
 import ws.utils
@@ -29,7 +27,6 @@ class GrabberPages(GrabberBase):
                         "page_title":         ins_page.excluded.page_title,
                         "page_is_redirect":   ins_page.excluded.page_is_redirect,
                         "page_is_new":        ins_page.excluded.page_is_new,
-                        "page_random":        ins_page.excluded.page_random,
                         "page_touched":       ins_page.excluded.page_touched,
                         "page_links_updated": ins_page.excluded.page_links_updated,
                         "page_latest":        ins_page.excluded.page_latest,
@@ -147,7 +144,6 @@ class GrabberPages(GrabberBase):
             # this field means that the page has only one revision or has not been edited since
             # being restored - see https://www.mediawiki.org/wiki/Manual:Page_table#page_is_new
             "page_is_new": "new" in page,
-            "page_random": random.random(),
             "page_touched": page["touched"],
             "page_links_updated": None,
             "page_latest": page["lastrevid"],

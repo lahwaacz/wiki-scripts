@@ -174,6 +174,7 @@ def create_recentchanges_tables(metadata):
     Index("rc_new_name_timestamp", recentchanges.c.rc_new, recentchanges.c.rc_namespace, recentchanges.c.rc_timestamp)
     Index("rc_ns_usertext", recentchanges.c.rc_namespace, recentchanges.c.rc_user_text)
     Index("rc_user_text", recentchanges.c.rc_user_text, recentchanges.c.rc_timestamp)
+    Index("rc_name_type_patrolled_timestamp", recentchanges.c.rc_namespace, recentchanges.c.rc_type, recentchanges.c.rc_patrolled, recentchanges.c.rc_timestamp)
 
     logging = Table("logging", metadata,
         Column("log_id", Integer, primary_key=True, nullable=False),
@@ -383,13 +384,13 @@ def create_revisions_tables(metadata):
 
 def create_pages_tables(metadata):
     # MW incompatibility: removed page.page_restrictions column (unused since MW 1.9)
+    # MW incompatibility: removed page.page_random column (useless for clients)
     page = Table("page", metadata,
         Column("page_id", Integer, primary_key=True, nullable=False),
         Column("page_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("page_title", UnicodeBinary(255), nullable=False),
         Column("page_is_redirect", Boolean, nullable=False, server_default="0"),
         Column("page_is_new", Boolean, nullable=False, server_default="0"),
-        Column("page_random", Float, nullable=False),
         Column("page_touched", MWTimestamp, nullable=False),
         Column("page_links_updated", MWTimestamp),
         # FIXME: MW defect: key to revision.rev_id, breaks relationship
@@ -400,7 +401,6 @@ def create_pages_tables(metadata):
         CheckConstraint("page_namespace >= 0", name="check_namespace")
     )
     Index("page_namespace_title", page.c.page_namespace, page.c.page_title, unique=True)
-    Index("page_random", page.c.page_random)
     Index("page_len", page.c.page_len)
     Index("page_redirect_namespace_len", page.c.page_is_redirect, page.c.page_namespace, page.c.page_len)
 
