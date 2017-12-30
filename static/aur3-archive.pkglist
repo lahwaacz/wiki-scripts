@@ -4,7 +4,6 @@
 0ad-sdl2-git
 0ad-svn
 0ad-svn-bin
-0trace
 0verkill
 0xffff-git
 115backup-gtk2
@@ -10963,7 +10962,6 @@ gld
 gle
 gle4
 gleanstick
-glee
 gleez
 gleez-cerber
 gleez-mango
@@ -11015,7 +11013,6 @@ glib2-ubuntu
 glib2-unstable
 glib2-wncksync-patch
 glibc-doc
-glibc-git
 glibench
 glibmm-git
 glickomania
@@ -11271,7 +11268,6 @@ gnome-documents-git
 gnome-dvb-daemon
 gnome-encfs-lespez-hg
 gnome-exotic-theme
-gnome-extra-meta
 gnome-fitness
 gnome-fix
 gnome-flags
@@ -11311,7 +11307,6 @@ gnome-media-player
 gnome-media-player-bzr
 gnome-menu-extended
 gnome-menus-git
-gnome-meta
 gnome-modem-manager
 gnome-mount-notify-osd
 gnome-mplayer-gtk2
@@ -20611,7 +20606,6 @@ libofetion-hg
 libogc-svn
 libogg2-svn
 liboggz
-liboggz-git
 liboggz10
 liboml-git
 libomxil
@@ -21141,8 +21135,6 @@ libv8-juice
 libva-driver-intel-g45-h264
 libva-driver-intel-git
 libva-freeworld
-libva-git
-libva-intel-driver-git
 libva-intel-driver-wayland
 libva-wayland
 libva-xvba-driver
@@ -21849,7 +21841,6 @@ logtailer
 logtools
 logwatch-svn
 lokalize-frameworks-git
-loki
 lolastfm
 lolbash
 lolcat
@@ -22430,7 +22421,6 @@ machinarium-demo
 machinarium-hib
 machine-update
 macht-git
-mackerel-agent
 macopix
 macopix-mascots
 macutils
@@ -24606,7 +24596,6 @@ mtd-utils-git
 mtd-utils_20090606
 mtdev
 mtdev-ubuntu
-mtftar
 mtink
 mtl4-svn
 mtmintkit
@@ -25489,7 +25478,6 @@ nexuiz-client-svn
 nexus-2
 nexus-font
 nexus-jetty-https
-nexus-oss
 nexus2
 nexuspersonal
 nfacct
@@ -31290,7 +31278,6 @@ python-eg-git
 python-elementary-svn
 python-elementtidy
 python-elixir
-python-elmextensions-git
 python-encutils
 python-enthought-chaco
 python-enthought-enable
@@ -31712,7 +31699,6 @@ python-ploader-git
 python-ply
 python-plyvel
 python-pmw
-python-podcastparser
 python-podsixnet-svn
 python-pointfree
 python-polib
@@ -32067,7 +32053,6 @@ python-syutil
 python-syutil-git
 python-tables-svn
 python-tabular
-python-tagpy
 python-tblib
 python-tempita
 python-templatemaker
@@ -34212,7 +34197,6 @@ qt5ct
 qtagconvert
 qtagger
 qtav
-qtav-git
 qtballit
 qtbase-git
 qtbitcointrader-svn
@@ -41739,7 +41723,6 @@ ttf-aegean
 ttf-aegyptus
 ttf-aerolite
 ttf-against-myself
-ttf-agave
 ttf-akkadian
 ttf-akkadian-only
 ttf-aksara-bali
@@ -45189,7 +45172,6 @@ xcb-util-git
 xcb-util-image-git
 xcb-util-keysyms-git
 xcb-util-wm-git
-xcdroast
 xcdroast-cdrecord
 xcfa_cli
 xchainkeys
