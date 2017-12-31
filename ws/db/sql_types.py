@@ -14,10 +14,10 @@ Advantages of binary types:
       objects
     - length is in bytes, so there is no storage overhead for ASCII-only data
 
-In MySQL, textual types (*TEXT, *CHAR) represent Unicode strings, but all utf8
-collations are case-insensitive: http://stackoverflow.com/a/4558736/4180822
-On the other hand, binary types (*BLOB, *BINARY) are treated as "byte strings",
-i.e. ASCII text with binary collation.
+In MySQL, textual types (``*TEXT``, ``*CHAR``) represent Unicode strings, but
+all utf8 collations are case-insensitive: http://stackoverflow.com/a/4558736/4180822
+On the other hand, binary types (``*BLOB``, ``*BINARY``) are treated as
+"byte strings", i.e. ASCII text with binary collation.
 
 In PostgreSQL, the binary type (bytea) does not represent "strings", i.e. there
 are much less operations and functions defined on bytea then in MySQL for

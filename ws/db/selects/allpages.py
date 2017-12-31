@@ -118,7 +118,7 @@ class AllPages(GeneratorBase):
     def get_pageset(self, titles=None, pageids=None):
         """
         :param list titles: list of :py:class:`ws.parser_helpers.title.Title` objects
-        :param list pageids: list of :py:obj:`int`s
+        :param list pageids: list of :py:obj:`int` objects
         """
         assert titles is not None or pageids is not None
         assert titles is None or pageids is None
