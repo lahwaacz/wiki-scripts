@@ -10,7 +10,7 @@ Unreleased
 Version 1.2
 -----------
 
-Unreleased
+`Released December 31, 2017 <https://github.com/lahwaacz/wiki-scripts/tree/1.2>`_
 (`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.1...1.2>`__)
 
 - Large refactoring: :py:mod:`ws.core` renamed to :py:mod:`ws.client`, created
@@ -34,7 +34,7 @@ Unreleased
 Version 1.1
 -----------
 
-`Released March 6, 2016 <https://github.com/lahwaacz/wiki-scripts/tree/1.0>`_
+`Released March 6, 2016 <https://github.com/lahwaacz/wiki-scripts/tree/1.1>`_
 (`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.0...1.1>`__)
 
 - Fixed handling of ``csrftoken``, it is now cached and automatically renewed as
