@@ -1,11 +1,17 @@
 Changelog
 =========
 
+Version 1.3
+-----------
+
+Unreleased
+(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.2...master>`__)
+
 Version 1.2
 -----------
 
 Unreleased
-(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.1...master>`__)
+(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.1...1.2>`__)
 
 - Large refactoring: :py:mod:`ws.core` renamed to :py:mod:`ws.client`, created
   :py:mod:`ws.utils`, :py:mod:`ws.statistics`, :py:mod:`ws.interlanguage`
@@ -16,8 +22,10 @@ Unreleased
   checking of legal characters, handling of namespace aliases.
 - Added :py:mod:`ws.autopage` submodule.
 - Switched from :py:mod:`nose` to :py:mod:`pytest` for testing.
-- Added :py:mod:`ws.db` and :py:mod:`ws.grabbers` modules (still highly
-  experimental).
+- Added :py:mod:`ws.db` module for the synchronization of a remote wiki into a
+  local PostgreSQL database. See the GitHub issue for more information:
+  https://github.com/lahwaacz/wiki-scripts/issues/35. This also means multiple
+  new dependencies, see the README file for details.
 - Transparent automatic conversion of timestamp strings into the Python's
   :py:mod:`datetime.datetime` objects. As a result, manual calls to the
   :py:func:`ws.utils.parse_date` and :py:func:`ws.utils.format_date` functions
