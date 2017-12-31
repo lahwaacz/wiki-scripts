@@ -1,0 +1,7 @@
+ws\.db\.grabbers\.namespace module
+==================================
+
+.. automodule:: ws.db.grabbers.namespace
+    :members:
+    :undoc-members:
+    :show-inheritance:

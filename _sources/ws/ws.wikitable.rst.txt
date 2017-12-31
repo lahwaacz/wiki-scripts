@@ -1,0 +1,7 @@
+ws\.wikitable module
+====================
+
+.. automodule:: ws.wikitable
+    :members:
+    :undoc-members:
+    :show-inheritance:

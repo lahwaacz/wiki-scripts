@@ -1,7 +1,0 @@
-ws.parser_helpers.title module
-==============================
-
-.. automodule:: ws.parser_helpers.title
-    :members:
-    :undoc-members:
-    :show-inheritance:

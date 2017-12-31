@@ -1,0 +1,201 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ws.db.grabbers.GrabberBase module &#8212; wiki-scripts 1.2 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ws.db.grabbers.interwiki module" href="ws.db.grabbers.interwiki.html" />
+    <link rel="prev" title="ws.db.grabbers package" href="ws.db.grabbers.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ws.db.grabbers.GrabberBase">
+<span id="ws-db-grabbers-grabberbase-module"></span><h1>ws.db.grabbers.GrabberBase module<a class="headerlink" href="#module-ws.db.grabbers.GrabberBase" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="ws.db.grabbers.GrabberBase.GrabberBase">
+<em class="property">class </em><code class="descclassname">ws.db.grabbers.GrabberBase.</code><code class="descname">GrabberBase</code><span class="sig-paren">(</span><em>api</em>, <em>db</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.GrabberBase.GrabberBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="ws.db.grabbers.GrabberBase.GrabberBase.INSERT_PREDELETE_TABLES">
+<code class="descname">INSERT_PREDELETE_TABLES</code><em class="property"> = []</em><a class="headerlink" href="#ws.db.grabbers.GrabberBase.GrabberBase.INSERT_PREDELETE_TABLES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.db.grabbers.GrabberBase.GrabberBase._set_sync_timestamp">
+<code class="descname">_set_sync_timestamp</code><span class="sig-paren">(</span><em>timestamp</em>, <em>conn=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.GrabberBase.GrabberBase._set_sync_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a last-sync timestamp for the grabber. Writes into the custom
+<code class="docutils literal"><span class="pre">ws_sync</span></code> tyble.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>timestamp</strong> (<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.6)"><em>datetime.datetime</em></a>) – the new timestamp</li>
+<li><strong>conn</strong> – an existing <a class="reference external" href="http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Connection" title="(in SQLAlchemy v1.2)"><code class="xref py py-obj docutils literal"><span class="pre">sqlalchemy.engine.Connection</span></code></a> or
+<a class="reference external" href="http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Transaction" title="(in SQLAlchemy v1.2)"><code class="xref py py-obj docutils literal"><span class="pre">sqlalchemy.engine.Transaction</span></code></a> object to be re-used for
+execution of the SQL query</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.db.grabbers.GrabberBase.GrabberBase._get_sync_timestamp">
+<code class="descname">_get_sync_timestamp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.GrabberBase.GrabberBase._get_sync_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a last-sync timestamp for the grabber. Reads from the custom
+<code class="docutils literal"><span class="pre">ws_sync</span></code> tyble.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.db.grabbers.GrabberBase.GrabberBase.gen_insert">
+<code class="descname">gen_insert</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.GrabberBase.GrabberBase.gen_insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator for database entries which assumes that the tables are
+empty.</p>
+<p>To be implemented in subclasses.</p>
+<p>The yielded values are passed to <a class="reference external" href="http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Connection.execute" title="(in SQLAlchemy v1.2)"><code class="xref py py-meth docutils literal"><span class="pre">sqlalchemy.engine.Connection.execute()</span></code></a>,
+so the accepted formats for the values are:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">(stmt,</span> <span class="pre">entry)</span></code> tuple, where <code class="docutils literal"><span class="pre">stmt</span></code> is an object accepted by
+sqlalchemy’s execute method (e.g. plain string or an executable SQL
+statement construct) and <code class="docutils literal"><span class="pre">entry</span></code> is a dict holding the bound
+parameter values to be used in the execution. The execution is
+deferred with <a class="reference internal" href="ws.db.execution.html#ws.db.execution.DeferrableExecutionQueue" title="ws.db.execution.DeferrableExecutionQueue"><code class="xref py py-class docutils literal"><span class="pre">ws.db.execution.DeferrableExecutionQueue</span></code></a>
+to exploit the <em>executemany</em> execution strategy.</li>
+<li>Or it can yield <code class="docutils literal"><span class="pre">stmt</span></code> objects directly, if the <em>executemany</em>
+execution strategy is not applicable.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.db.grabbers.GrabberBase.GrabberBase.gen_update">
+<code class="descname">gen_update</code><span class="sig-paren">(</span><em>since</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.GrabberBase.GrabberBase.gen_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator for database entries which assumes incremental updates.</p>
+<p>To be implemented in subclasses.</p>
+<p>If <code class="xref py py-exc docutils literal"><span class="pre">ws.client.api.ShortRecentChangesError</span></code> is raised while
+executing this generator, <a class="reference internal" href="#ws.db.grabbers.GrabberBase.GrabberBase.update" title="ws.db.grabbers.GrabberBase.GrabberBase.update"><code class="xref py py-meth docutils literal"><span class="pre">update()</span></code></a> starts from scratch
+with <a class="reference internal" href="#ws.db.grabbers.GrabberBase.GrabberBase.insert" title="ws.db.grabbers.GrabberBase.GrabberBase.insert"><code class="xref py py-meth docutils literal"><span class="pre">insert()</span></code></a>. The exception should be raised as soon as
+possible to save unnecessary work.</p>
+<p>The yielded values should follow the same rules as the
+<a class="reference internal" href="#ws.db.grabbers.GrabberBase.GrabberBase.gen_insert" title="ws.db.grabbers.GrabberBase.GrabberBase.gen_insert"><code class="xref py py-meth docutils literal"><span class="pre">gen_insert()</span></code></a> method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.db.grabbers.GrabberBase.GrabberBase.insert">
+<code class="descname">insert</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.GrabberBase.GrabberBase.insert" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.db.grabbers.GrabberBase.GrabberBase.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>*</em>, <em>since=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.GrabberBase.GrabberBase.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.db.grabbers.GrabberBase.GrabberBase._execute">
+<code class="descname">_execute</code><span class="sig-paren">(</span><em>gen</em>, <em>sync_timestamp</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.GrabberBase.GrabberBase._execute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/wiki-scripts.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../modules.html">API reference</a><ul>
+  <li><a href="ws.html">ws package</a><ul>
+  <li><a href="ws.db.html">ws.db package</a><ul>
+  <li><a href="ws.db.grabbers.html">ws.db.grabbers package</a><ul>
+      <li>Previous: <a href="ws.db.grabbers.html" title="previous chapter">ws.db.grabbers package</a></li>
+      <li>Next: <a href="ws.db.grabbers.interwiki.html" title="next chapter">ws.db.grabbers.interwiki module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/ws/ws.db.grabbers.GrabberBase.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014-2016, Jakub Klinkovský.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/ws/ws.db.grabbers.GrabberBase.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/lahwaacz/wiki-scripts" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

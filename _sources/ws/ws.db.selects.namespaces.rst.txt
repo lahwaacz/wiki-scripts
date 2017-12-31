@@ -1,0 +1,7 @@
+ws\.db\.selects\.namespaces module
+==================================
+
+.. automodule:: ws.db.selects.namespaces
+    :members:
+    :undoc-members:
+    :show-inheritance:

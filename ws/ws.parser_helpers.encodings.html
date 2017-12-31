@@ -1,31 +1,29 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>ws.parser_helpers.encodings module &#8212; wiki-scripts 1.1 documentation</title>
-    
+    <title>ws.parser_helpers.encodings module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
-    <link rel="up" title="ws.parser_helpers package" href="ws.parser_helpers.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ws.parser_helpers.title module" href="ws.parser_helpers.title.html" />
     <link rel="prev" title="ws.parser_helpers package" href="ws.parser_helpers.html" />
    
@@ -35,7 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -54,17 +52,17 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>str</strong> &#8211; the string to be encoded</li>
-<li><strong>escape_char</strong> &#8211; character to be used as escape (by default &#8216;%&#8217;)</li>
-<li><strong>encode_chars</strong> &#8211; the characters to be encoded; empty string means that
+<li><strong>str</strong> – the string to be encoded</li>
+<li><strong>escape_char</strong> – character to be used as escape (by default ‘%’)</li>
+<li><strong>encode_chars</strong> – the characters to be encoded; empty string means that
 all characters will be encoded unless explicitly skipped</li>
-<li><strong>skip_chars</strong> &#8211; characters to be skipped (applied after <code class="docutils literal"><span class="pre">encode_chars</span></code>)</li>
-<li><strong>special_map</strong> &#8211; a mapping overriding default encoding (applied after
+<li><strong>skip_chars</strong> – characters to be skipped (applied after <code class="docutils literal"><span class="pre">encode_chars</span></code>)</li>
+<li><strong>special_map</strong> – a mapping overriding default encoding (applied after
 both <code class="docutils literal"><span class="pre">encode_chars</span></code> and <code class="docutils literal"><span class="pre">skip_chars</span></code>)</li>
-<li><strong>charset</strong> &#8211; character set used to encode non-ASCII characters to byte
-sequence with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str.encode" title="(in Python v3.5)"><code class="xref py py-meth docutils literal"><span class="pre">str.encode()</span></code></a></li>
-<li><strong>errors</strong> &#8211; defines behaviour when encoding non-ASCII characters to bytes
-fails (passed to <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str.encode" title="(in Python v3.5)"><code class="xref py py-meth docutils literal"><span class="pre">str.encode()</span></code></a>)</li>
+<li><strong>charset</strong> – character set used to encode non-ASCII characters to byte
+sequence with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str.encode" title="(in Python v3.6)"><code class="xref py py-meth docutils literal"><span class="pre">str.encode()</span></code></a></li>
+<li><strong>errors</strong> – defines behaviour when encoding non-ASCII characters to bytes
+fails (passed to <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str.encode" title="(in Python v3.6)"><code class="xref py py-meth docutils literal"><span class="pre">str.encode()</span></code></a>)</li>
 </ul>
 </td>
 </tr>
@@ -81,20 +79,20 @@ fails (passed to <a class="reference external" href="https://docs.python.org/3/l
 <p class="last">The reversibility of the encoding depends on the parameters passed to
 <a class="reference internal" href="#ws.parser_helpers.encodings.encode" title="ws.parser_helpers.encodings.encode"><code class="xref py py-func docutils literal"><span class="pre">encode()</span></code></a>. Specifically, if the <cite>escape_char</cite> is not encoded,
 the operation is irreversible. Unfortunately MediaWiki does this with
-dot-encoding, so don&#8217;t even try to decode dot-encoded strings!</p>
+dot-encoding, so don’t even try to decode dot-encoded strings!</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>str</strong> &#8211; the string to be decoded</li>
-<li><strong>escape_char</strong> &#8211; character to be used as escape (by default &#8216;%&#8217;)</li>
-<li><strong>special_map</strong> &#8211; an analogue to the same parameter in <a class="reference internal" href="#ws.parser_helpers.encodings.encode" title="ws.parser_helpers.encodings.encode"><code class="xref py py-func docutils literal"><span class="pre">encode()</span></code></a>
+<li><strong>str</strong> – the string to be decoded</li>
+<li><strong>escape_char</strong> – character to be used as escape (by default ‘%’)</li>
+<li><strong>special_map</strong> – an analogue to the same parameter in <a class="reference internal" href="#ws.parser_helpers.encodings.encode" title="ws.parser_helpers.encodings.encode"><code class="xref py py-func docutils literal"><span class="pre">encode()</span></code></a>
 (the caller is responsible for inverting the mapping they passed to
 <a class="reference internal" href="#ws.parser_helpers.encodings.encode" title="ws.parser_helpers.encodings.encode"><code class="xref py py-func docutils literal"><span class="pre">encode()</span></code></a>)</li>
-<li><strong>charset</strong> &#8211; character set used to decode byte sequence with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes.decode" title="(in Python v3.5)"><code class="xref py py-meth docutils literal"><span class="pre">bytes.decode()</span></code></a></li>
-<li><strong>errors</strong> &#8211; defines behaviour when byte-decoding with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes.decode" title="(in Python v3.5)"><code class="xref py py-meth docutils literal"><span class="pre">bytes.decode()</span></code></a> fails</li>
+<li><strong>charset</strong> – character set used to decode byte sequence with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes.decode" title="(in Python v3.6)"><code class="xref py py-meth docutils literal"><span class="pre">bytes.decode()</span></code></a></li>
+<li><strong>errors</strong> – defines behaviour when byte-decoding with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes.decode" title="(in Python v3.6)"><code class="xref py py-meth docutils literal"><span class="pre">bytes.decode()</span></code></a> fails</li>
 </ul>
 </td>
 </tr>
@@ -110,7 +108,7 @@ dot-encoding, so don&#8217;t even try to decode dot-encoded strings!</p>
 <p class="first admonition-title">Note</p>
 <p class="last">The rules for handling special characters in section anchors are not
 well defined even upstream, see <a class="reference external" href="https://phabricator.wikimedia.org/T20431">T20431</a>. This function produces the
-actual anchor for the section, i.e. the ID of the heading&#8217;s span element
+actual anchor for the section, i.e. the ID of the heading’s span element
 (e.g. <code class="docutils literal"><span class="pre">&lt;span</span> <span class="pre">id=&quot;anchor&quot;</span> <span class="pre">...&gt;</span></code>).</p>
 </div>
 </dd></dl>
@@ -119,7 +117,7 @@ actual anchor for the section, i.e. the ID of the heading&#8217;s span element
 <dt id="ws.parser_helpers.encodings.urlencode">
 <code class="descclassname">ws.parser_helpers.encodings.</code><code class="descname">urlencode</code><span class="sig-paren">(</span><em>str_</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.encodings.urlencode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Standard URL encoding as described on <a class="reference external" href="https://en.wikipedia.org/wiki/Percent-encoding">Wikipedia</a>, which should correspond
-to the <code class="docutils literal"><span class="pre">PATH</span></code> style in the MediaWiki&#8217;s <a class="reference external" href="https://www.mediawiki.org/wiki/Manual:PAGENAMEE_encoding#Encodings_compared">comparison table</a>.</p>
+to the <code class="docutils literal"><span class="pre">PATH</span></code> style in the MediaWiki’s <a class="reference external" href="https://www.mediawiki.org/wiki/Manual:PAGENAMEE_encoding#Encodings_compared">comparison table</a>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -169,7 +167,7 @@ default URL encoding in MediaWiki since 1.17.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.parser_helpers.encodings.txt"
+      <li><a href="../_sources/ws/ws.parser_helpers.encodings.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -191,11 +189,11 @@ default URL encoding in MediaWiki since 1.17.</p>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/ws/ws.parser_helpers.encodings.txt"
+      <a href="../_sources/ws/ws.parser_helpers.encodings.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

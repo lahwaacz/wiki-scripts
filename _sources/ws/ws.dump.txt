@@ -1,7 +1,0 @@
-ws.dump module
-==============
-
-.. automodule:: ws.dump
-    :members:
-    :undoc-members:
-    :show-inheritance:

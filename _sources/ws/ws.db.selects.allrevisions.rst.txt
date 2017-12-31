@@ -1,0 +1,7 @@
+ws\.db\.selects\.allrevisions module
+====================================
+
+.. automodule:: ws.db.selects.allrevisions
+    :members:
+    :undoc-members:
+    :show-inheritance:

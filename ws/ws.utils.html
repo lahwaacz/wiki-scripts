@@ -1,32 +1,30 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>ws.utils package &#8212; wiki-scripts 1.1 documentation</title>
-    
+    <title>ws.utils package &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
-    <link rel="up" title="ws package" href="ws.html" />
-    <link rel="next" title="ws.utils.containers module" href="ws.utils.containers.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ws.utils.OrderedSet module" href="ws.utils.OrderedSet.html" />
     <link rel="prev" title="ws.parser_helpers.wikicode module" href="ws.parser_helpers.wikicode.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -35,7 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -60,12 +58,20 @@
 <code class="descclassname">ws.utils.</code><code class="descname">iter_chunks</code><span class="sig-paren">(</span><em>iterable</em>, <em>bs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.iter_chunks" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="function">
+<dt id="ws.utils.value_or_none">
+<code class="descclassname">ws.utils.</code><code class="descname">value_or_none</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.value_or_none" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="ws.utils.OrderedSet.html">ws.utils.OrderedSet module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ws.utils.base_enc.html">ws.utils.base_enc module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ws.utils.containers.html">ws.utils.containers module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ws.utils.datetime_.html">ws.utils.datetime_ module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ws.utils.json.html">ws.utils.json module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ws.utils.lazy.html">ws.utils.lazy module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ws.utils.rate.html">ws.utils.rate module</a></li>
 </ul>
@@ -96,7 +102,7 @@
   <li><a href="../modules.html">API reference</a><ul>
   <li><a href="ws.html">ws package</a><ul>
       <li>Previous: <a href="ws.parser_helpers.wikicode.html" title="previous chapter">ws.parser_helpers.wikicode module</a></li>
-      <li>Next: <a href="ws.utils.containers.html" title="next chapter">ws.utils.containers module</a></li>
+      <li>Next: <a href="ws.utils.OrderedSet.html" title="next chapter">ws.utils.OrderedSet module</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -105,7 +111,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.utils.txt"
+      <li><a href="../_sources/ws/ws.utils.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -127,11 +133,11 @@
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/ws/ws.utils.txt"
+      <a href="../_sources/ws/ws.utils.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

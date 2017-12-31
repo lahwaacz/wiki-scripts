@@ -1,0 +1,7 @@
+ws\.db\.selects\.protectedtitles module
+=======================================
+
+.. automodule:: ws.db.selects.protectedtitles
+    :members:
+    :undoc-members:
+    :show-inheritance:

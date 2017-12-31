@@ -1,0 +1,206 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ws.db.schema module &#8212; wiki-scripts 1.2 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ws.db.sql_types module" href="ws.db.sql_types.html" />
+    <link rel="prev" title="ws.db.mw_constants module" href="ws.db.mw_constants.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ws.db.schema">
+<span id="ws-db-schema-module"></span><h1>ws.db.schema module<a class="headerlink" href="#module-ws.db.schema" title="Permalink to this headline">¶</a></h1>
+<p>Known incompatibilities from MediaWiki schema:</p>
+<ul class="simple">
+<li>Not binary compatible, but stores the same data. Thus compatibility can be
+achieved via wiki-scripts &lt;-&gt; MWAPI interface, but wiki-scripts can’t read
+a MediaWiki database directly. This wouldn’t be possible even theoretically,
+since the database can contain serialized PHP objects etc.</li>
+<li>Added some custom tables.</li>
+<li>Enforced foreign key constraints, including namespaces stored in custom
+tables, and some check constraints.</li>
+<li>Columns not available via the API (e.g. user passwords) are nullable, since
+they are not part of the mirroring process. Likewise revision.rev_text_id
+is nullable so that we can sync metadata and text separately.</li>
+<li>user_groups table has primary key to avoid duplicate entries.</li>
+<li><dl class="first docutils">
+<dt>Removed columns that were deprecated even in MediaWiki:</dt>
+<dd>page.page_restrictions
+archive.ar_text
+archive.ar_flags</dd>
+</dl>
+</li>
+<li>Reordered columns in archive table to match the revision table.</li>
+<li>Revamped the protected_titles table - removed unnecessary columns pt_user,
+pt_reason and pt_timestamp since the information can be found in the logging
+table. See <a class="reference external" href="https://phabricator.wikimedia.org/T65318#2654217">https://phabricator.wikimedia.org/T65318#2654217</a> for reference.</li>
+<li>Boolean columns use Boolean type instead of SmallInteger as in MediaWiki.</li>
+<li>Unknown/invalid IDs are represented by NULL instead of 0. Except for user_id,
+where we add a dummy user with id = 0 to represent anonymous users.</li>
+<li>Removed default values from all timestamp columns.</li>
+<li>Removed silly default values - if we don’t know, let’s make it NULL.</li>
+<li><dl class="first docutils">
+<dt>Revamped the tags tables:</dt>
+<dd><ul class="first last">
+<li>Besides the tag name, we need to store everything that MediaWiki generates
+or stores elsewhere.</li>
+<li>The change_tag table was split into tagged_recentchange, tagged_logevent,
+tagged_revision and tagged_archived_revision. Foreign keys on the other
+tables are enforced.</li>
+<li>The equivalent of the tag_summary table does not exist, we can live with
+the GROUP BY queries.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="function">
+<dt id="ws.db.schema.create_custom_tables">
+<code class="descclassname">ws.db.schema.</code><code class="descname">create_custom_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_custom_tables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ws.db.schema.create_site_tables">
+<code class="descclassname">ws.db.schema.</code><code class="descname">create_site_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_site_tables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ws.db.schema.create_recentchanges_tables">
+<code class="descclassname">ws.db.schema.</code><code class="descname">create_recentchanges_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_recentchanges_tables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ws.db.schema.create_users_tables">
+<code class="descclassname">ws.db.schema.</code><code class="descname">create_users_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_users_tables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ws.db.schema.create_revisions_tables">
+<code class="descclassname">ws.db.schema.</code><code class="descname">create_revisions_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_revisions_tables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ws.db.schema.create_pages_tables">
+<code class="descclassname">ws.db.schema.</code><code class="descname">create_pages_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_pages_tables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ws.db.schema.create_recomputable_tables">
+<code class="descclassname">ws.db.schema.</code><code class="descname">create_recomputable_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_recomputable_tables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ws.db.schema.create_multimedia_tables">
+<code class="descclassname">ws.db.schema.</code><code class="descname">create_multimedia_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_multimedia_tables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ws.db.schema.create_unused_tables">
+<code class="descclassname">ws.db.schema.</code><code class="descname">create_unused_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_unused_tables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ws.db.schema.create_tables">
+<code class="descclassname">ws.db.schema.</code><code class="descname">create_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_tables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/wiki-scripts.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../modules.html">API reference</a><ul>
+  <li><a href="ws.html">ws package</a><ul>
+  <li><a href="ws.db.html">ws.db package</a><ul>
+      <li>Previous: <a href="ws.db.mw_constants.html" title="previous chapter">ws.db.mw_constants module</a></li>
+      <li>Next: <a href="ws.db.sql_types.html" title="next chapter">ws.db.sql_types module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/ws/ws.db.schema.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014-2016, Jakub Klinkovský.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/ws/ws.db.schema.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/lahwaacz/wiki-scripts" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

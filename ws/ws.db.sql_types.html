@@ -1,0 +1,260 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ws.db.sql_types module &#8212; wiki-scripts 1.2 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ws.interlanguage package" href="ws.interlanguage.html" />
+    <link rel="prev" title="ws.db.schema module" href="ws.db.schema.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ws.db.sql_types">
+<span id="ws-db-sql-types-module"></span><h1>ws.db.sql_types module<a class="headerlink" href="#module-ws.db.sql_types" title="Permalink to this headline">¶</a></h1>
+<p>Custom types with automatic convertors.</p>
+<dl class="docutils">
+<dt>Advantages of textual types:</dt>
+<dd><ul class="first last simple">
+<li>natural for the representation of textual (Unicode) data</li>
+</ul>
+</dd>
+<dt>Disadvantages of textual types:</dt>
+<dd><ul class="first last simple">
+<li>subject to encoding and collation</li>
+</ul>
+</dd>
+<dt>Advantages of binary types:</dt>
+<dd><ul class="first last simple">
+<li>complete control over the data representation and conversion to Python
+objects</li>
+<li>length is in bytes, so there is no storage overhead for ASCII-only data</li>
+</ul>
+</dd>
+</dl>
+<p>In MySQL, textual types (<code class="docutils literal"><span class="pre">*TEXT</span></code>, <code class="docutils literal"><span class="pre">*CHAR</span></code>) represent Unicode strings, but
+all utf8 collations are case-insensitive: <a class="reference external" href="http://stackoverflow.com/a/4558736/4180822">http://stackoverflow.com/a/4558736/4180822</a>
+On the other hand, binary types (<code class="docutils literal"><span class="pre">*BLOB</span></code>, <code class="docutils literal"><span class="pre">*BINARY</span></code>) are treated as
+“byte strings”, i.e. ASCII text with binary collation.</p>
+<p>In PostgreSQL, the binary type (bytea) does not represent “strings”, i.e. there
+are much less operations and functions defined on bytea then in MySQL for
+binary strings. By using the textual types, we also benefit from native
+conversion functions in the sqlalchemy driver (e.g. psycopg2).</p>
+<dl class="class">
+<dt id="ws.db.sql_types.UnicodeBinary">
+<em class="property">class </em><code class="descclassname">ws.db.sql_types.</code><code class="descname">UnicodeBinary</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.sql_types.UnicodeBinary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.sql.type_api.TypeDecorator</span></code></p>
+<dl class="attribute">
+<dt id="ws.db.sql_types.UnicodeBinary.impl">
+<code class="descname">impl</code><a class="headerlink" href="#ws.db.sql_types.UnicodeBinary.impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">UnicodeText</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ws.db.sql_types.MWTimestamp">
+<em class="property">class </em><code class="descclassname">ws.db.sql_types.</code><code class="descname">MWTimestamp</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.sql_types.MWTimestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.sql.type_api.TypeDecorator</span></code></p>
+<p>Convertor for TIMESTAMP handling infinite values.</p>
+<p>Construct a <code class="xref py py-class docutils literal"><span class="pre">TypeDecorator</span></code>.</p>
+<p>Arguments sent here are passed to the constructor
+of the class assigned to the <code class="docutils literal"><span class="pre">impl</span></code> class level attribute,
+assuming the <code class="docutils literal"><span class="pre">impl</span></code> is a callable, and the resulting
+object is assigned to the <code class="docutils literal"><span class="pre">self.impl</span></code> instance attribute
+(thus overriding the class attribute of the same name).</p>
+<p>If the class level <code class="docutils literal"><span class="pre">impl</span></code> is not a callable (the unusual case),
+it will be assigned to the same instance attribute ‘as-is’,
+ignoring those arguments passed to the constructor.</p>
+<p>Subclasses can override this to customize the generation
+of <code class="docutils literal"><span class="pre">self.impl</span></code> entirely.</p>
+<dl class="attribute">
+<dt id="ws.db.sql_types.MWTimestamp.impl">
+<code class="descname">impl</code><em class="property"> = DateTime()</em><a class="headerlink" href="#ws.db.sql_types.MWTimestamp.impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.db.sql_types.MWTimestamp.process_bind_param">
+<code class="descname">process_bind_param</code><span class="sig-paren">(</span><em>value</em>, <em>dialect</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.sql_types.MWTimestamp.process_bind_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>Python -&gt; database</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.db.sql_types.MWTimestamp.process_result_value">
+<code class="descname">process_result_value</code><span class="sig-paren">(</span><em>value</em>, <em>dialect</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.sql_types.MWTimestamp.process_result_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>database -&gt; python</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ws.db.sql_types.SHA1">
+<em class="property">class </em><code class="descclassname">ws.db.sql_types.</code><code class="descname">SHA1</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.sql_types.SHA1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.sql.type_api.TypeDecorator</span></code></p>
+<p>Convertor for the SHA1 hashes.</p>
+<p>In MediaWiki they are represented as a base36-encoded number in the database
+and as a hexadecimal string in the API.</p>
+<p>In both forms the encoded string has to be padded with zeros to fixed
+length - 31 digits in base36, 40 digits in hex.</p>
+<p>Construct a <code class="xref py py-class docutils literal"><span class="pre">TypeDecorator</span></code>.</p>
+<p>Arguments sent here are passed to the constructor
+of the class assigned to the <code class="docutils literal"><span class="pre">impl</span></code> class level attribute,
+assuming the <code class="docutils literal"><span class="pre">impl</span></code> is a callable, and the resulting
+object is assigned to the <code class="docutils literal"><span class="pre">self.impl</span></code> instance attribute
+(thus overriding the class attribute of the same name).</p>
+<p>If the class level <code class="docutils literal"><span class="pre">impl</span></code> is not a callable (the unusual case),
+it will be assigned to the same instance attribute ‘as-is’,
+ignoring those arguments passed to the constructor.</p>
+<p>Subclasses can override this to customize the generation
+of <code class="docutils literal"><span class="pre">self.impl</span></code> entirely.</p>
+<dl class="attribute">
+<dt id="ws.db.sql_types.SHA1.impl">
+<code class="descname">impl</code><em class="property"> = LargeBinary(length=31)</em><a class="headerlink" href="#ws.db.sql_types.SHA1.impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.db.sql_types.SHA1.process_bind_param">
+<code class="descname">process_bind_param</code><span class="sig-paren">(</span><em>value</em>, <em>dialect</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.sql_types.SHA1.process_bind_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>python -&gt; db</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.db.sql_types.SHA1.process_result_value">
+<code class="descname">process_result_value</code><span class="sig-paren">(</span><em>value</em>, <em>dialect</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.sql_types.SHA1.process_result_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>db -&gt; python</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ws.db.sql_types.JSONEncodedDict">
+<em class="property">class </em><code class="descclassname">ws.db.sql_types.</code><code class="descname">JSONEncodedDict</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.sql_types.JSONEncodedDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.sql.type_api.TypeDecorator</span></code></p>
+<p>Represents an immutable structure as a JSON-encoded string.</p>
+<p>Construct a <code class="xref py py-class docutils literal"><span class="pre">TypeDecorator</span></code>.</p>
+<p>Arguments sent here are passed to the constructor
+of the class assigned to the <code class="docutils literal"><span class="pre">impl</span></code> class level attribute,
+assuming the <code class="docutils literal"><span class="pre">impl</span></code> is a callable, and the resulting
+object is assigned to the <code class="docutils literal"><span class="pre">self.impl</span></code> instance attribute
+(thus overriding the class attribute of the same name).</p>
+<p>If the class level <code class="docutils literal"><span class="pre">impl</span></code> is not a callable (the unusual case),
+it will be assigned to the same instance attribute ‘as-is’,
+ignoring those arguments passed to the constructor.</p>
+<p>Subclasses can override this to customize the generation
+of <code class="docutils literal"><span class="pre">self.impl</span></code> entirely.</p>
+<dl class="attribute">
+<dt id="ws.db.sql_types.JSONEncodedDict.impl">
+<code class="descname">impl</code><a class="headerlink" href="#ws.db.sql_types.JSONEncodedDict.impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">UnicodeText</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.db.sql_types.JSONEncodedDict.process_bind_param">
+<code class="descname">process_bind_param</code><span class="sig-paren">(</span><em>value</em>, <em>dialect</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.sql_types.JSONEncodedDict.process_bind_param" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.db.sql_types.JSONEncodedDict.process_result_value">
+<code class="descname">process_result_value</code><span class="sig-paren">(</span><em>value</em>, <em>dialect</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.sql_types.JSONEncodedDict.process_result_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/wiki-scripts.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../modules.html">API reference</a><ul>
+  <li><a href="ws.html">ws package</a><ul>
+  <li><a href="ws.db.html">ws.db package</a><ul>
+      <li>Previous: <a href="ws.db.schema.html" title="previous chapter">ws.db.schema module</a></li>
+      <li>Next: <a href="ws.interlanguage.html" title="next chapter">ws.interlanguage package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/ws/ws.db.sql_types.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014-2016, Jakub Klinkovský.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/ws/ws.db.sql_types.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/lahwaacz/wiki-scripts" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

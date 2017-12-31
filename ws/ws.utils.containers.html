@@ -1,33 +1,31 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>ws.utils.containers module &#8212; wiki-scripts 1.1 documentation</title>
-    
+    <title>ws.utils.containers module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
-    <link rel="up" title="ws.utils package" href="ws.utils.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ws.utils.datetime_ module" href="ws.utils.datetime_.html" />
-    <link rel="prev" title="ws.utils package" href="ws.utils.html" />
+    <link rel="prev" title="ws.utils.base_enc module" href="ws.utils.base_enc.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -35,7 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -48,8 +46,18 @@
 <dl class="class">
 <dt id="ws.utils.containers.ListOfDictsAttrWrapper">
 <em class="property">class </em><code class="descclassname">ws.utils.containers.</code><code class="descname">ListOfDictsAttrWrapper</code><span class="sig-paren">(</span><em>dict_list</em>, <em>attr</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.ListOfDictsAttrWrapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A list-like wrapper around list of dicts, operating on a given attribute.</p>
+<dl class="method">
+<dt id="ws.utils.containers.ListOfDictsAttrWrapper.__getitem__">
+<code class="descname">__getitem__</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.ListOfDictsAttrWrapper.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.utils.containers.ListOfDictsAttrWrapper.__len__">
+<code class="descname">__len__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.ListOfDictsAttrWrapper.__len__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -61,9 +69,9 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data_list</strong> &#8211; list of elements to be returned from</li>
-<li><strong>key</strong> &#8211; element to be found in <code class="docutils literal"><span class="pre">index_list</span></code></li>
-<li><strong>index_list</strong> &#8211; an optional list of indexes where <code class="docutils literal"><span class="pre">key</span></code> is searched for,
+<li><strong>data_list</strong> – list of elements to be returned from</li>
+<li><strong>key</strong> – element to be found in <code class="docutils literal"><span class="pre">index_list</span></code></li>
+<li><strong>index_list</strong> – an optional list of indexes where <code class="docutils literal"><span class="pre">key</span></code> is searched for,
 by default <code class="docutils literal"><span class="pre">data_list</span></code> is taken. Has to be sorted.</li>
 </ul>
 </td>
@@ -71,7 +79,7 @@ by default <code class="docutils literal"><span class="pre">data_list</span></co
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">data_list[i]</span></code> if <code class="docutils literal"><span class="pre">index_list[i]</span> <span class="pre">==</span> <span class="pre">key</span></code></p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.5)"><strong>IndexError</strong></a> &#8211; when <code class="docutils literal"><span class="pre">key</span></code> is not found</p>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.6)"><strong>IndexError</strong></a> – when <code class="docutils literal"><span class="pre">key</span></code> is not found</p>
 </td>
 </tr>
 </tbody>
@@ -88,10 +96,10 @@ is found in the list, it is replaced.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data_list</strong> &#8211; list of elements to be inserted into</li>
-<li><strong>data_element</strong> &#8211; an element to be inserted. By default <code class="docutils literal"><span class="pre">key</span></code> is taken.</li>
-<li><strong>key</strong> &#8211; a key used for searching</li>
-<li><strong>index_list</strong> &#8211; an optional list of indexes where <code class="docutils literal"><span class="pre">key</span></code> is searched for,
+<li><strong>data_list</strong> – list of elements to be inserted into</li>
+<li><strong>data_element</strong> – an element to be inserted. By default <code class="docutils literal"><span class="pre">key</span></code> is taken.</li>
+<li><strong>key</strong> – a key used for searching</li>
+<li><strong>index_list</strong> – an optional list of indexes where <code class="docutils literal"><span class="pre">key</span></code> is searched for,
 by default <code class="docutils literal"><span class="pre">data_list</span></code> is taken. Has to be sorted.</li>
 </ul>
 </td>
@@ -115,17 +123,38 @@ by default <code class="docutils literal"><span class="pre">data_list</span></co
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>what</strong> &#8211; element to be found</li>
-<li><strong>where</strong> &#8211; a list/iterable for searching</li>
-<li><strong>from_target</strong> &#8211; if True, return the element from the list/iterable instead of <code class="docutils literal"><span class="pre">what</span></code></li>
+<li><strong>what</strong> – element to be found</li>
+<li><strong>where</strong> – a list/iterable for searching</li>
+<li><strong>from_target</strong> – if True, return the element from the list/iterable instead of <code class="docutils literal"><span class="pre">what</span></code></li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.5)"><strong>ValueError</strong></a> &#8211; when not found</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.6)"><strong>ValueError</strong></a> – when not found</p>
 </td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ws.utils.containers.gen_nested_values">
+<code class="descclassname">ws.utils.containers.</code><code class="descname">gen_nested_values</code><span class="sig-paren">(</span><em>indict</em>, <em>keys=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.gen_nested_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator yielding all values stored in a nested structure of dicts, lists
+and tuples.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ws.utils.containers.parse_timestamps_in_struct">
+<code class="descclassname">ws.utils.containers.</code><code class="descname">parse_timestamps_in_struct</code><span class="sig-paren">(</span><em>struct</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.parse_timestamps_in_struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert all timestamps in a nested structure from str to
+datetime.datetime.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ws.utils.containers.serialize_timestamps_in_struct">
+<code class="descclassname">ws.utils.containers.</code><code class="descname">serialize_timestamps_in_struct</code><span class="sig-paren">(</span><em>struct</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.serialize_timestamps_in_struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert all timestamps in a nested structure from str to
+datetime.datetime.</p>
 </dd></dl>
 
 </div>
@@ -145,7 +174,7 @@ by default <code class="docutils literal"><span class="pre">data_list</span></co
   <li><a href="../modules.html">API reference</a><ul>
   <li><a href="ws.html">ws package</a><ul>
   <li><a href="ws.utils.html">ws.utils package</a><ul>
-      <li>Previous: <a href="ws.utils.html" title="previous chapter">ws.utils package</a></li>
+      <li>Previous: <a href="ws.utils.base_enc.html" title="previous chapter">ws.utils.base_enc module</a></li>
       <li>Next: <a href="ws.utils.datetime_.html" title="next chapter">ws.utils.datetime_ module</a></li>
   </ul></li>
   </ul></li>
@@ -156,7 +185,7 @@ by default <code class="docutils literal"><span class="pre">data_list</span></co
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.utils.containers.txt"
+      <li><a href="../_sources/ws/ws.utils.containers.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -178,11 +207,11 @@ by default <code class="docutils literal"><span class="pre">data_list</span></co
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/ws/ws.utils.containers.txt"
+      <a href="../_sources/ws/ws.utils.containers.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

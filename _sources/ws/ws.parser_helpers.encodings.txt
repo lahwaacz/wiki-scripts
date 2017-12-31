@@ -1,7 +1,0 @@
-ws.parser_helpers.encodings module
-==================================
-
-.. automodule:: ws.parser_helpers.encodings
-    :members:
-    :undoc-members:
-    :show-inheritance:

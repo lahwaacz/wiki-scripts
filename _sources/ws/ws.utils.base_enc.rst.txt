@@ -1,0 +1,7 @@
+ws\.utils\.base\_enc module
+===========================
+
+.. automodule:: ws.utils.base_enc
+    :members:
+    :undoc-members:
+    :show-inheritance:

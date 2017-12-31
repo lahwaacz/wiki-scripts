@@ -1,0 +1,7 @@
+ws\.db\.grabbers\.user module
+=============================
+
+.. automodule:: ws.db.grabbers.user
+    :members:
+    :undoc-members:
+    :show-inheritance:

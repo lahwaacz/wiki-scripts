@@ -1,0 +1,7 @@
+ws\.db\.selects\.GeneratorBase module
+=====================================
+
+.. automodule:: ws.db.selects.GeneratorBase
+    :members:
+    :undoc-members:
+    :show-inheritance:

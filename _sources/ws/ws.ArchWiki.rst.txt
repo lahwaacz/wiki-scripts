@@ -1,0 +1,16 @@
+ws\.ArchWiki package
+====================
+
+.. automodule:: ws.ArchWiki
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   ws.ArchWiki.header
+   ws.ArchWiki.lang
+

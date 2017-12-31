@@ -1,31 +1,29 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>ws.cache.AllUsersProps module &#8212; wiki-scripts 1.1 documentation</title>
-    
+    <title>ws.cache.AllUsersProps module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
-    <link rel="up" title="ws.cache package" href="ws.cache.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ws.cache.LatestRevisionsText module" href="ws.cache.LatestRevisionsText.html" />
     <link rel="prev" title="ws.cache.AllRevisionsProps module" href="ws.cache.AllRevisionsProps.html" />
    
@@ -35,7 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -47,30 +45,22 @@
 <span id="ws-cache-allusersprops-module"></span><h1>ws.cache.AllUsersProps module<a class="headerlink" href="#module-ws.cache.AllUsersProps" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="ws.cache.AllUsersProps.AllUsersProps">
-<em class="property">class </em><code class="descclassname">ws.cache.AllUsersProps.</code><code class="descname">AllUsersProps</code><span class="sig-paren">(</span><em>api</em>, <em>cache_dir</em>, <em>autocommit=True</em>, <em>active_days=30</em>, <em>round_to_midnight=False</em>, <em>rc_err_hours=6</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps.AllUsersProps" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">ws.cache.AllUsersProps.</code><code class="descname">AllUsersProps</code><span class="sig-paren">(</span><em>api</em>, <em>cache_dir</em>, <em>autocommit=True</em>, <em>active_days=30</em>, <em>round_to_midnight=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps.AllUsersProps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ws.cache.html#ws.cache.CacheDb" title="ws.cache.CacheDb"><code class="xref py py-class docutils literal"><span class="pre">ws.cache.CacheDb</span></code></a></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>active_days</strong> &#8211; the time span in days to consider users as active</li>
-<li><strong>round_to_midnight</strong> &#8211; Whether to round timestamps to midnight when fetching recent changes. This
+<li><strong>active_days</strong> – the time span in days to consider users as active</li>
+<li><strong>round_to_midnight</strong> – Whether to round timestamps to midnight when fetching recent changes. This
 affects the <code class="docutils literal"><span class="pre">&quot;recenteditcount&quot;</span></code> property, but not the total <code class="docutils literal"><span class="pre">&quot;editcount&quot;</span></code>,
 which reflects the state as of the last update of the cache.</li>
-<li><strong>rc_err_hours</strong> &#8211; the maximum difference in hours allowed between the oldest retrieved
-recent change and the old end of the time span</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
-<dt id="ws.cache.AllUsersProps.AllUsersProps.mw_ts_format">
-<code class="descname">mw_ts_format</code><em class="property"> = '%Y-%m-%dT%H:%M:%SZ'</em><a class="headerlink" href="#ws.cache.AllUsersProps.AllUsersProps.mw_ts_format" title="Permalink to this definition">¶</a></dt>
-<dd><p>format for MediaWiki timestamps</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="ws.cache.AllUsersProps.AllUsersProps.init">
 <code class="descname">init</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps.AllUsersProps.init" title="Permalink to this definition">¶</a></dt>
@@ -78,7 +68,7 @@ recent change and the old end of the time span</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; ignored</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – ignored</td>
 </tr>
 </tbody>
 </table>
@@ -91,7 +81,7 @@ recent change and the old end of the time span</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; ignored</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – ignored</td>
 </tr>
 </tbody>
 </table>
@@ -162,7 +152,7 @@ and count their recent edits.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.cache.AllUsersProps.txt"
+      <li><a href="../_sources/ws/ws.cache.AllUsersProps.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -184,11 +174,11 @@ and count their recent edits.</p>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/ws/ws.cache.AllUsersProps.txt"
+      <a href="../_sources/ws/ws.cache.AllUsersProps.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

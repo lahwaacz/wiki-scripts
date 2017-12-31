@@ -1,0 +1,7 @@
+ws\.db\.selects\.SelectBase module
+==================================
+
+.. automodule:: ws.db.selects.SelectBase
+    :members:
+    :undoc-members:
+    :show-inheritance:

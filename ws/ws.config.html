@@ -1,31 +1,29 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>ws.config module &#8212; wiki-scripts 1.1 documentation</title>
-    
+    <title>ws.config module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
-    <link rel="up" title="ws package" href="ws.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ws.diff module" href="ws.diff.html" />
     <link rel="prev" title="ws.autopage module" href="ws.autopage.html" />
    
@@ -35,7 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -48,7 +46,7 @@
 <dl class="class">
 <dt id="ws.config.ConfigFileParser">
 <em class="property">class </em><code class="descclassname">ws.config.</code><code class="descname">ConfigFileParser</code><span class="sig-paren">(</span><em>top_level_arg</em>, <em>subname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.ConfigFileParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <dl class="method">
 <dt id="ws.config.ConfigFileParser.parse">
 <code class="descname">parse</code><span class="sig-paren">(</span><em>stream</em>, <em>context=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.ConfigFileParser.parse" title="Permalink to this definition">¶</a></dt>
@@ -64,7 +62,7 @@ converting them back to a string representing config file contents.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>items</strong> &#8211; an <code class="docutils literal"><span class="pre">OrderedDict</span></code> with items to be written to the config file</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>items</strong> – an <code class="docutils literal"><span class="pre">OrderedDict</span></code> with items to be written to the config file</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">contents of config file as a string</td>
 </tr>
@@ -98,18 +96,18 @@ converting them back to a string representing config file contents.</p>
 <dt id="ws.config.object_from_argparser">
 <code class="descclassname">ws.config.</code><code class="descname">object_from_argparser</code><span class="sig-paren">(</span><em>klass</em>, <em>subname=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.object_from_argparser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an instance of <code class="docutils literal"><span class="pre">klass</span></code> using its <code class="xref py py-meth docutils literal"><span class="pre">klass.from_argparser()</span></code>
-factory and a clean instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">argparse.ArgumentParser</span></code></a>. On top
+factory and a clean instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">argparse.ArgumentParser</span></code></a>. On top
 of that, logging interface is set up using the <a class="reference internal" href="ws.logging.html#module-ws.logging" title="ws.logging"><code class="xref py py-mod docutils literal"><span class="pre">ws.logging</span></code></a> module.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>klass</strong> &#8211; the class to instantiate</li>
-<li><strong>subname</strong> &#8211; The name of the subsection to be read from the configuration file
+<li><strong>klass</strong> – the class to instantiate</li>
+<li><strong>subname</strong> – The name of the subsection to be read from the configuration file
 (usually the name of the script). By default <code class="docutils literal"><span class="pre">sys.argv[0]</span></code> is taken.</li>
-<li><strong>args</strong> &#8211; passed to <code class="xref py py-class docutils literal"><span class="pre">argparse.ArgumentParser()</span></code> constructor</li>
-<li><strong>kwargs</strong> &#8211; passed to <code class="xref py py-class docutils literal"><span class="pre">argparse.ArgumentParser()</span></code> constructor</li>
+<li><strong>args</strong> – passed to <code class="xref py py-class docutils literal"><span class="pre">argparse.ArgumentParser()</span></code> constructor</li>
+<li><strong>kwargs</strong> – passed to <code class="xref py py-class docutils literal"><span class="pre">argparse.ArgumentParser()</span></code> constructor</li>
 </ul>
 </td>
 </tr>
@@ -146,7 +144,7 @@ of that, logging interface is set up using the <a class="reference internal" hre
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.config.txt"
+      <li><a href="../_sources/ws/ws.config.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -168,11 +166,11 @@ of that, logging interface is set up using the <a class="reference internal" hre
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/ws/ws.config.txt"
+      <a href="../_sources/ws/ws.config.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -1,0 +1,7 @@
+ws\.ArchWiki\.header module
+===========================
+
+.. automodule:: ws.ArchWiki.header
+    :members:
+    :undoc-members:
+    :show-inheritance:

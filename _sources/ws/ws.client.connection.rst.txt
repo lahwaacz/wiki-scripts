@@ -1,0 +1,7 @@
+ws\.client\.connection module
+=============================
+
+.. automodule:: ws.client.connection
+    :members:
+    :undoc-members:
+    :show-inheritance:

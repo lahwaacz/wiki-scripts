@@ -1,0 +1,7 @@
+ws\.autopage module
+===================
+
+.. automodule:: ws.autopage
+    :members:
+    :undoc-members:
+    :show-inheritance:

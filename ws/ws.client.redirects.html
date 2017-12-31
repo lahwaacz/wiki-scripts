@@ -1,31 +1,29 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>ws.client.redirects module &#8212; wiki-scripts 1.1 documentation</title>
-    
+    <title>ws.client.redirects module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
-    <link rel="up" title="ws.client package" href="ws.client.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ws.client.site module" href="ws.client.site.html" />
     <link rel="prev" title="ws.client.meta module" href="ws.client.meta.html" />
    
@@ -35,7 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -48,8 +46,8 @@
 <dl class="class">
 <dt id="ws.client.redirects.Redirects">
 <em class="property">class </em><code class="descclassname">ws.client.redirects.</code><code class="descname">Redirects</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.redirects.Redirects" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
-<p>General interface for working with MediaWiki&#8217;s redirects.</p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>General interface for working with MediaWiki’s redirects.</p>
 <p>MediaWiki provides multiple different queries for handling redirects, but
 they are all kind of awkward:</p>
 <ol class="arabic simple">
@@ -84,7 +82,7 @@ resolve redirects.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>source_namespaces</strong> (<a class="reference internal" href="ws.client.api.html#ws.client.api.API.list" title="ws.client.api.API.list"><em>list</em></a>) &#8211; <p>the namespace ID of the source title must be in this list in order
+<li><strong>source_namespaces</strong> (<a class="reference internal" href="ws.client.api.html#ws.client.api.API.list" title="ws.client.api.API.list"><em>list</em></a>) – <p>the namespace ID of the source title must be in this list in order
 to be included in the mapping (default is <code class="docutils literal"><span class="pre">[0]</span></code>, the magic word
 <code class="docutils literal"><span class="pre">&quot;all&quot;</span></code> will select all available namespaces)</p>
 <div class="admonition note">
@@ -93,7 +91,7 @@ to be included in the mapping (default is <code class="docutils literal"><span c
 Should be fixed in 1.27: <a class="reference external" href="https://phabricator.wikimedia.org/T113453">https://phabricator.wikimedia.org/T113453</a></p>
 </div>
 </li>
-<li><strong>target_namespaces</strong> (<a class="reference internal" href="ws.client.api.html#ws.client.api.API.list" title="ws.client.api.API.list"><em>list</em></a>) &#8211; the namespace ID of the target title must be in this list in order
+<li><strong>target_namespaces</strong> (<a class="reference internal" href="ws.client.api.html#ws.client.api.API.list" title="ws.client.api.API.list"><em>list</em></a>) – the namespace ID of the target title must be in this list in order
 to be included in the mapping (default is <code class="docutils literal"><span class="pre">&quot;all&quot;</span></code>, which will
 select all available namespaces)</li>
 </ul>
@@ -125,7 +123,7 @@ was not a redirect.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; the title to be resolved</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – the title to be resolved</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A string of the last non-redirect target page if <code class="docutils literal"><span class="pre">source</span></code> is a
 redirect page, otherwise <code class="docutils literal"><span class="pre">None</span></code>.</td>
@@ -164,7 +162,7 @@ redirect page, otherwise <code class="docutils literal"><span class="pre">None</
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.client.redirects.txt"
+      <li><a href="../_sources/ws/ws.client.redirects.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -186,11 +184,11 @@ redirect page, otherwise <code class="docutils literal"><span class="pre">None</
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/ws/ws.client.redirects.txt"
+      <a href="../_sources/ws/ws.client.redirects.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -1,0 +1,7 @@
+ws\.db\.grabbers\.GrabberBase module
+====================================
+
+.. automodule:: ws.db.grabbers.GrabberBase
+    :members:
+    :undoc-members:
+    :show-inheritance:

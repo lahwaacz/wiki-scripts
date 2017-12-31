@@ -1,0 +1,7 @@
+ws\.db\.execution module
+========================
+
+.. automodule:: ws.db.execution
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,27 @@
+ws\.db package
+==============
+
+.. automodule:: ws.db
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    ws.db.grabbers
+    ws.db.selects
+
+Submodules
+----------
+
+.. toctree::
+
+   ws.db.database
+   ws.db.execution
+   ws.db.mw_constants
+   ws.db.schema
+   ws.db.sql_types
+

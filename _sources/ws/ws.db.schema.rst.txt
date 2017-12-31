@@ -1,0 +1,7 @@
+ws\.db\.schema module
+=====================
+
+.. automodule:: ws.db.schema
+    :members:
+    :undoc-members:
+    :show-inheritance:

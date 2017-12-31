@@ -1,32 +1,30 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>ws.client.user module &#8212; wiki-scripts 1.1 documentation</title>
-    
+    <title>ws.client.user module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
-    <link rel="up" title="ws.client package" href="ws.client.html" />
-    <link rel="next" title="ws.interlanguage package" href="ws.interlanguage.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ws.db package" href="ws.db.html" />
     <link rel="prev" title="ws.client.tags module" href="ws.client.tags.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -35,7 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -64,12 +62,12 @@ except <a class="reference internal" href="#ws.client.user.User.volatile_propert
 
 <dl class="attribute">
 <dt id="ws.client.user.User.properties">
-<code class="descname">properties</code><em class="property"> = {'registrationdate', 'rights', 'unreadcount', 'changeablegroups', 'ratelimits', 'name', 'realname', 'options', 'groups', 'acceptlang', 'blockinfo', 'implicitgroups', 'editcount', 'email', 'hasmsg', 'id'}</em><a class="headerlink" href="#ws.client.user.User.properties" title="Permalink to this definition">¶</a></dt>
+<code class="descname">properties</code><em class="property"> = {'blockinfo', 'centralids', 'groupmemberships', 'registrationdate', 'id', 'name', 'groups', 'rights', 'changeablegroups', 'options', 'acceptlang', 'unreadcount', 'email', 'hasmsg', 'realname', 'editcount', 'implicitgroups', 'ratelimits'}</em><a class="headerlink" href="#ws.client.user.User.properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="ws.client.user.User.volatile_properties">
-<code class="descname">volatile_properties</code><em class="property"> = {'unreadcount', 'editcount', 'hasmsg'}</em><a class="headerlink" href="#ws.client.user.User.volatile_properties" title="Permalink to this definition">¶</a></dt>
+<code class="descname">volatile_properties</code><em class="property"> = {'hasmsg', 'editcount', 'unreadcount'}</em><a class="headerlink" href="#ws.client.user.User.volatile_properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -101,8 +99,8 @@ not (<code class="docutils literal"><span class="pre">False</span></code>).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>option</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; the option to be changed</li>
-<li><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; the value to be set (if empty, it will be reset to the default value)</li>
+<li><strong>option</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – the option to be changed</li>
+<li><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – the value to be set (if empty, it will be reset to the default value)</li>
 </ul>
 </td>
 </tr>
@@ -130,7 +128,7 @@ not (<code class="docutils literal"><span class="pre">False</span></code>).</p>
   <li><a href="ws.html">ws package</a><ul>
   <li><a href="ws.client.html">ws.client package</a><ul>
       <li>Previous: <a href="ws.client.tags.html" title="previous chapter">ws.client.tags module</a></li>
-      <li>Next: <a href="ws.interlanguage.html" title="next chapter">ws.interlanguage package</a></li>
+      <li>Next: <a href="ws.db.html" title="next chapter">ws.db package</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -140,7 +138,7 @@ not (<code class="docutils literal"><span class="pre">False</span></code>).</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.client.user.txt"
+      <li><a href="../_sources/ws/ws.client.user.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -162,11 +160,11 @@ not (<code class="docutils literal"><span class="pre">False</span></code>).</p>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/ws/ws.client.user.txt"
+      <a href="../_sources/ws/ws.client.user.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

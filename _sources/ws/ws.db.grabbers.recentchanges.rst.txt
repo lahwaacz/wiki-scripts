@@ -1,0 +1,7 @@
+ws\.db\.grabbers\.recentchanges module
+======================================
+
+.. automodule:: ws.db.grabbers.recentchanges
+    :members:
+    :undoc-members:
+    :show-inheritance:

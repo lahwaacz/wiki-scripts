@@ -1,0 +1,7 @@
+ws\.logging module
+==================
+
+.. automodule:: ws.logging
+    :members:
+    :undoc-members:
+    :show-inheritance:

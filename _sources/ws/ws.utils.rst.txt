@@ -1,0 +1,21 @@
+ws\.utils package
+=================
+
+.. automodule:: ws.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   ws.utils.OrderedSet
+   ws.utils.base_enc
+   ws.utils.containers
+   ws.utils.datetime_
+   ws.utils.json
+   ws.utils.lazy
+   ws.utils.rate
+

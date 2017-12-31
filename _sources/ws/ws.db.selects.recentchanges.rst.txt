@@ -1,0 +1,7 @@
+ws\.db\.selects\.recentchanges module
+=====================================
+
+.. automodule:: ws.db.selects.recentchanges
+    :members:
+    :undoc-members:
+    :show-inheritance:

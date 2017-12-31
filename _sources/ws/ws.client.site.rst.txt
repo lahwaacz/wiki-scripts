@@ -1,0 +1,7 @@
+ws\.client\.site module
+=======================
+
+.. automodule:: ws.client.site
+    :members:
+    :undoc-members:
+    :show-inheritance:

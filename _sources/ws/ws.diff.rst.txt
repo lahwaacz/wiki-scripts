@@ -1,0 +1,7 @@
+ws\.diff module
+===============
+
+.. automodule:: ws.diff
+    :members:
+    :undoc-members:
+    :show-inheritance:

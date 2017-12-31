@@ -1,7 +1,0 @@
-ws.cache.LatestRevisionsText module
-===================================
-
-.. automodule:: ws.cache.LatestRevisionsText
-    :members:
-    :undoc-members:
-    :show-inheritance:

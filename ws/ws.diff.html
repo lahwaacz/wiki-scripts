@@ -1,31 +1,29 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>ws.diff module &#8212; wiki-scripts 1.1 documentation</title>
-    
+    <title>ws.diff module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
-    <link rel="up" title="ws package" href="ws.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ws.dump module" href="ws.dump.html" />
     <link rel="prev" title="ws.config module" href="ws.config.html" />
    
@@ -35,7 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -51,7 +49,7 @@
 <dd><p>Returns a diff between two texts formatted with ANSI color sequences
 suitable for output in 256-color terminal.</p>
 <p>When available, the <code class="xref py py-mod docutils literal"><span class="pre">WikEdDiff</span></code> library and its
-<code class="xref py py-class docutils literal"><span class="pre">AnsiFormatter</span></code> is used. Otherwise the <a class="reference external" href="https://docs.python.org/3/library/difflib.html#module-difflib" title="(in Python v3.5)"><code class="xref py py-mod docutils literal"><span class="pre">difflib</span></code></a>
+<code class="xref py py-class docutils literal"><span class="pre">AnsiFormatter</span></code> is used. Otherwise the <a class="reference external" href="https://docs.python.org/3/library/difflib.html#module-difflib" title="(in Python v3.6)"><code class="xref py py-mod docutils literal"><span class="pre">difflib</span></code></a>
 module from the standard library is used to generate the diff in unified
 format and <code class="xref py py-mod docutils literal"><span class="pre">pygments</span></code> is used (when available) as the highlighter.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -59,12 +57,12 @@ format and <code class="xref py py-mod docutils literal"><span class="pre">pygme
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>old</strong> &#8211; text to compare (old revision)</li>
-<li><strong>new</strong> &#8211; text to compare (new revision)</li>
-<li><strong>fromfile</strong> &#8211; original file name (used as meta data to format diff header)</li>
-<li><strong>tofile</strong> &#8211; new file name (used as meta data to format diff header)</li>
-<li><strong>fromfiledate</strong> &#8211; original file timestamp (used as meta data to format diff header)</li>
-<li><strong>tofiledate</strong> &#8211; new file timestamp (used as meta data to format diff header)</li>
+<li><strong>old</strong> – text to compare (old revision)</li>
+<li><strong>new</strong> – text to compare (new revision)</li>
+<li><strong>fromfile</strong> – original file name (used as meta data to format diff header)</li>
+<li><strong>tofile</strong> – new file name (used as meta data to format diff header)</li>
+<li><strong>fromfiledate</strong> – original file timestamp (used as meta data to format diff header)</li>
+<li><strong>tofiledate</strong> – new file timestamp (used as meta data to format diff header)</li>
 </ul>
 </td>
 </tr>
@@ -78,13 +76,13 @@ format and <code class="xref py py-mod docutils literal"><span class="pre">pygme
 <dl class="class">
 <dt id="ws.diff.RevisionDiffer">
 <em class="property">class </em><code class="descclassname">ws.diff.</code><code class="descname">RevisionDiffer</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.diff.RevisionDiffer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Object for comparing revisions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>api</strong> &#8211; a <code class="xref py py-class docutils literal"><span class="pre">MediaWiki.api.API</span></code> instance to operate on</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>api</strong> – a <code class="xref py py-class docutils literal"><span class="pre">MediaWiki.api.API</span></code> instance to operate on</td>
 </tr>
 </tbody>
 </table>
@@ -101,8 +99,8 @@ timestamp fields, we show more.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>oldrevid</strong> &#8211; revision ID for old revision</li>
-<li><strong>newrevid</strong> &#8211; revision ID for new revision</li>
+<li><strong>oldrevid</strong> – revision ID for old revision</li>
+<li><strong>newrevid</strong> – revision ID for new revision</li>
 </ul>
 </td>
 </tr>
@@ -138,7 +136,7 @@ timestamp fields, we show more.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.diff.txt"
+      <li><a href="../_sources/ws/ws.diff.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -160,11 +158,11 @@ timestamp fields, we show more.</p>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/ws/ws.diff.txt"
+      <a href="../_sources/ws/ws.diff.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

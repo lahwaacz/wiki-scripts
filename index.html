@@ -1,30 +1,29 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>wiki-scripts documentation &#8212; wiki-scripts 1.1 documentation</title>
-    
+    <title>wiki-scripts documentation &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.1 documentation" href="#" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Configuration" href="configuration.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -33,7 +32,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -49,15 +48,17 @@ wiki powered by <a class="reference external" href="https://www.mediawiki.org/wi
 <div class="section" id="featured-scripts">
 <h2>Featured scripts<a class="headerlink" href="#featured-scripts" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
+<li><code class="docutils literal"><span class="pre">interlanguage.py</span></code>
+updates the interlanguage links based on the ArchWiki’s <a class="reference external" href="https://wiki.archlinux.org/index.php/Help:I18n">interlanguage map</a>
+and fixes categories of local pages.</li>
 <li><code class="docutils literal"><span class="pre">link-checker.py</span></code>
 parses all pages on the wiki and tries to fix broken wikilinks, simplify
 links over redirects and relative links, and to beautify them based on
-ArchWiki&#8217;s <a class="reference external" href="https://wiki.archlinux.org/index.php/Help:Style">style recommendations</a>.</li>
+ArchWiki’s <a class="reference external" href="https://wiki.archlinux.org/index.php/Help:Style">style recommendations</a>.</li>
 <li><code class="docutils literal"><span class="pre">statistics.py</span></code>
 generates automatic updates to the <a class="reference external" href="https://wiki.archlinux.org/index.php/ArchWiki:Statistics">ArchWiki:Statistics</a> page.</li>
-<li><code class="docutils literal"><span class="pre">interlanguage.py</span></code>
-updates the interlanguage links based on the ArchWiki&#8217;s <a class="reference external" href="https://wiki.archlinux.org/index.php/Help:I18n">interlanguage map</a>
-and fixes categories of local pages.</li>
+<li><code class="docutils literal"><span class="pre">toc.py</span></code>
+generates the <a class="reference external" href="https://wiki.archlinux.org/index.php/Table_of_contents">Table of contents</a> page and its localized versions.</li>
 <li><code class="docutils literal"><span class="pre">update-package-templates.py</span></code>
 finds broken links using the <a class="reference external" href="https://wiki.archlinux.org/index.php/Template:AUR">AUR</a>/<a class="reference external" href="https://wiki.archlinux.org/index.php/Template:Grp">Grp</a>/<a class="reference external" href="https://wiki.archlinux.org/index.php/Template:Pkg">Pkg</a> templates and tries to
 update them (for example when a package has been moved from the AUR to the
@@ -87,21 +88,28 @@ to be installed manually.</p>
 </ul>
 <p>The following are required only by some scripts:</p>
 <ul class="simple">
-<li><a class="reference external" href="https://github.com/lahwaacz/python-wikeddiff">WikEdDiff</a> (for highlighting differences between revisions in interactive mode)</li>
+<li><a class="reference external" href="https://github.com/lahwaacz/python-wikeddiff">WikEdDiff</a> (for highlighting differences between revisions in interactive
+mode)</li>
 <li><a class="reference external" href="http://pygments.org/">Pygments</a> (alternative highlighter when WikEdDiff is not available)</li>
 <li><a class="reference external" href="https://projects.archlinux.org/users/remy/pyalpm.git/">pyalpm</a> (for <code class="docutils literal"><span class="pre">update-package-templates.py</span></code>)</li>
 <li><a class="reference external" href="http://www.numpy.org/">NumPy</a> and <a class="reference external" href="http://matplotlib.org/">matplotlib</a> (for <code class="docutils literal"><span class="pre">statistics_histograms.py</span></code>)</li>
 </ul>
 <p>Optional dependencies:</p>
 <ul class="simple">
+<li><a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a> server, <a class="reference external" href="http://www.sqlalchemy.org/">SQLAlchemy</a>, <a class="reference external" href="http://alembic.zzzcomputing.com/en/latest/">Alembic</a> and a driver such as
+<a class="reference external" href="http://initd.org/psycopg/">Psycopg2</a> (for local database caching)</li>
 <li><a class="reference external" href="https://docs.python.org/3.4/library/tk.html">Tk/Tcl</a> (for copying the output of <code class="docutils literal"><span class="pre">statistics.py</span></code> to the clipboard)</li>
 <li><a class="reference external" href="https://github.com/borntyping/python-colorlog">colorlog</a> (for colorized logging output)</li>
 </ul>
-<p>Tools used for development:</p>
+<p>Dependencies for running the tests:</p>
 <ul class="simple">
-<li><a class="reference external" href="https://github.com/nose-devs/nose">nose</a></li>
-<li><a class="reference external" href="https://github.com/ask/nosecover3">nosecover3</a></li>
-<li><a class="reference external" href="https://pypi.python.org/pypi/flake8">flake8</a></li>
+<li><a class="reference external" href="https://testrun.org/tox/latest/">tox</a></li>
+<li><a class="reference external" href="http://nginx.org/">Nginx</a>, <a class="reference external" href="http://php.net/">PHP</a>, <a class="reference external" href="https://php-fpm.org/">PHP-FPM</a>, <a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a></li>
+<li>Necessary Python packages are installed automatically in the virtual
+environments.</li>
+</ul>
+<p>Other tools used for development:</p>
+<ul class="simple">
 <li><a class="reference external" href="http://sphinx-doc.org/">sphinx</a></li>
 <li><a class="reference external" href="http://www.fabfile.org/">fabric</a></li>
 </ul>
@@ -114,7 +122,7 @@ are quite inspirational.</p>
 <ul class="simple">
 <li><a class="reference external" href="https://github.com/ianweller/python-simplemediawiki">simplemediawiki</a> is the original inspiration for the core
 <a class="reference internal" href="ws/ws.client.connection.html#module-ws.client.connection" title="ws.client.connection"><code class="xref py py-mod docutils literal"><span class="pre">ws.client.connection</span></code></a> and (partially) <a class="reference internal" href="ws/ws.client.api.html#module-ws.client.api" title="ws.client.api"><code class="xref py py-mod docutils literal"><span class="pre">ws.client.api</span></code></a> modules.</li>
-<li>Some scripts are inspired by the <a class="reference external" href="https://github.com/kynikos/wiki-monkey">Wiki Monkey</a>&#8216;s plugins, but (obviously) were
+<li>Some scripts are inspired by the <a class="reference external" href="https://github.com/kynikos/wiki-monkey">Wiki Monkey</a>’s plugins, but (obviously) were
 written from scratch.</li>
 </ul>
 </div>
@@ -128,6 +136,7 @@ written from scratch.</li>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Writing new scripts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-3">Version 1.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-2">Version 1.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-1">Version 1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-0">Version 1.0</a></li>
@@ -139,6 +148,7 @@ written from scratch.</li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.ArchWiki.html">ws.ArchWiki package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.cache.html">ws.cache package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.client.html">ws.client package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws/ws.db.html">ws.db package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.interlanguage.html">ws.interlanguage package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.parser_helpers.html">ws.parser_helpers package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.utils.html">ws.utils package</a></li>
@@ -205,7 +215,7 @@ written from scratch.</li>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/index.txt"
+      <li><a href="_sources/index.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -227,11 +237,11 @@ written from scratch.</li>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/index.txt"
+      <a href="_sources/index.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -1,7 +1,0 @@
-ws.parser_helpers.wikicode module
-=================================
-
-.. automodule:: ws.parser_helpers.wikicode
-    :members:
-    :undoc-members:
-    :show-inheritance:

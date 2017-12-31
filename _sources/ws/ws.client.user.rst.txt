@@ -1,0 +1,7 @@
+ws\.client\.user module
+=======================
+
+.. automodule:: ws.client.user
+    :members:
+    :undoc-members:
+    :show-inheritance:

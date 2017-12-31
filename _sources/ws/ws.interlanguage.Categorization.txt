@@ -1,7 +1,0 @@
-ws.interlanguage.Categorization module
-======================================
-
-.. automodule:: ws.interlanguage.Categorization
-    :members:
-    :undoc-members:
-    :show-inheritance:

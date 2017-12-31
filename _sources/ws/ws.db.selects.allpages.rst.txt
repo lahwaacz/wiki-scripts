@@ -1,0 +1,7 @@
+ws\.db\.selects\.allpages module
+================================
+
+.. automodule:: ws.db.selects.allpages
+    :members:
+    :undoc-members:
+    :show-inheritance:

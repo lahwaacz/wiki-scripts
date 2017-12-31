@@ -1,31 +1,29 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>ws.parser_helpers.title module &#8212; wiki-scripts 1.1 documentation</title>
-    
+    <title>ws.parser_helpers.title module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.1 documentation" href="../index.html" />
-    <link rel="up" title="ws.parser_helpers package" href="ws.parser_helpers.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ws.parser_helpers.wikicode module" href="ws.parser_helpers.wikicode.html" />
     <link rel="prev" title="ws.parser_helpers.encodings module" href="ws.parser_helpers.encodings.html" />
    
@@ -35,7 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -64,33 +62,54 @@ is applied to the passed title as a whole.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> &#8211; a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or <a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> – a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or <a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.5)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> object</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> object</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="class">
+<dt id="ws.parser_helpers.title.Context">
+<em class="property">class </em><code class="descclassname">ws.parser_helpers.title.</code><code class="descname">Context</code><span class="sig-paren">(</span><em>interwikimap</em>, <em>namespacenames</em>, <em>namespaces</em>, <em>legaltitlechars</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="classmethod">
+<dt id="ws.parser_helpers.title.Context.from_api">
+<em class="property">classmethod </em><code class="descname">from_api</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Context.from_api" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.parser_helpers.title.Context.__eq__">
+<code class="descname">__eq__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Context.__eq__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Context.__hash__">
+<code class="descname">__hash__</code><em class="property"> = None</em><a class="headerlink" href="#ws.parser_helpers.title.Context.__hash__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="ws.parser_helpers.title.Title">
-<em class="property">class </em><code class="descclassname">ws.parser_helpers.title.</code><code class="descname">Title</code><span class="sig-paren">(</span><em>api</em>, <em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="descclassname">ws.parser_helpers.title.</code><code class="descname">Title</code><span class="sig-paren">(</span><em>context</em>, <em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A helper class intended for easy manipulation with wiki titles. Title
 parsing complies to the rules used in <a class="reference external" href="https://www.mediawiki.org/wiki/Manual:Title.php#Title_structure">MediaWiki code</a> and the interface is
 inspired by the <a class="reference external" href="https://www.mediawiki.org/wiki/Help:Magic_words#Page_names">magic words</a>. Besides namespace detection, we also parse
 interwiki prefixes, which is useful for parsing the wiki links on lower
 level than what <code class="xref py py-mod docutils literal"><span class="pre">mwparserfromhell</span></code> provides (it does not take the
 wiki configuration into account). The functionality depends on the
-<a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><code class="xref py py-class docutils literal"><span class="pre">API</span></code></a> class for the validation of interwiki and
-namespace prefixes.</p>
+<a class="reference internal" href="#ws.parser_helpers.title.Context" title="ws.parser_helpers.title.Context"><code class="xref py py-class docutils literal"><span class="pre">Context</span></code></a> class for the validation of interwiki and namespace
+prefixes.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>api</strong> &#8211; an <a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><code class="xref py py-class docutils literal"><span class="pre">API</span></code></a> instance</li>
-<li><strong>title</strong> &#8211; a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or <a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object</li>
+<li><strong>context</strong> (<a class="reference internal" href="#ws.parser_helpers.title.Context" title="ws.parser_helpers.title.Context"><em>Context</em></a>) – a context object for the parser</li>
+<li><strong>title</strong> – a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or <a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.5)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object</li>
 </ul>
 </td>
 </tr>
@@ -126,8 +145,8 @@ a string of full title instead of creating new instance.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_title</strong> &#8211; The full title to be parsed, either a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or
-<a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.4)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_title</strong> – The full title to be parsed, either a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> or
+<a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.5)"><code class="xref py py-class docutils literal"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a> object.</td>
 </tr>
 </tbody>
 </table>
@@ -137,6 +156,18 @@ a string of full title instead of creating new instance.</p>
 <dt id="ws.parser_helpers.title.Title._format">
 <code class="descname">_format</code><span class="sig-paren">(</span><em>pre</em>, <em>mid</em>, <em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title._format" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.iwprefix">
+<code class="descname">iwprefix</code><a class="headerlink" href="#ws.parser_helpers.title.Title.iwprefix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The interwiki prefix of the title.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.namespace">
+<code class="descname">namespace</code><a class="headerlink" href="#ws.parser_helpers.title.Title.namespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal"><span class="pre">{{NAMESPACE}}</span></code>.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="ws.parser_helpers.title.Title.namespacenumber">
@@ -154,6 +185,14 @@ a string of full title instead of creating new instance.</p>
 <dt id="ws.parser_helpers.title.Title.talkspace">
 <code class="descname">talkspace</code><a class="headerlink" href="#ws.parser_helpers.title.Title.talkspace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <code class="docutils literal"><span class="pre">{{TALKSPACE}}</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.pagename">
+<code class="descname">pagename</code><a class="headerlink" href="#ws.parser_helpers.title.Title.pagename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal"><span class="pre">{{PAGENAME}}</span></code>, drops the interwiki and namespace prefixes.
+The section anchor is not included. Other <code class="docutils literal"><span class="pre">*pagename</span></code> attributes are
+based on this attribute.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -213,26 +252,6 @@ for all namespaces.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="ws.parser_helpers.title.Title.iwprefix">
-<code class="descname">iwprefix</code><a class="headerlink" href="#ws.parser_helpers.title.Title.iwprefix" title="Permalink to this definition">¶</a></dt>
-<dd><p>The interwiki prefix of the title.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="ws.parser_helpers.title.Title.namespace">
-<code class="descname">namespace</code><a class="headerlink" href="#ws.parser_helpers.title.Title.namespace" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as <code class="docutils literal"><span class="pre">{{NAMESPACE}}</span></code>.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="ws.parser_helpers.title.Title.pagename">
-<code class="descname">pagename</code><a class="headerlink" href="#ws.parser_helpers.title.Title.pagename" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as <code class="docutils literal"><span class="pre">{{PAGENAME}}</span></code>, drops the interwiki and namespace prefixes.
-The section anchor is not included. Other <code class="docutils literal"><span class="pre">*pagename</span></code> attributes are
-based on this attribute.</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="ws.parser_helpers.title.Title.sectionname">
 <code class="descname">sectionname</code><a class="headerlink" href="#ws.parser_helpers.title.Title.sectionname" title="Permalink to this definition">¶</a></dt>
 <dd><p>The section anchor, usable in wiki links. It is passed through the
@@ -250,12 +269,61 @@ the target page.</p>
 </div>
 </dd></dl>
 
+<dl class="method">
+<dt id="ws.parser_helpers.title.Title.dbtitle">
+<code class="descname">dbtitle</code><span class="sig-paren">(</span><em>expected_ns=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title.dbtitle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the title formatted for use in the database.</p>
+<p>In practice it is something between <a class="reference internal" href="#ws.parser_helpers.title.Title.pagename" title="ws.parser_helpers.title.Title.pagename"><code class="xref py py-attr docutils literal"><span class="pre">pagename</span></code></a> and
+<a class="reference internal" href="#ws.parser_helpers.title.Title.fullpagename" title="ws.parser_helpers.title.Title.fullpagename"><code class="xref py py-attr docutils literal"><span class="pre">fullpagename</span></code></a> to cover all the corner cases:</p>
+<ul class="simple">
+<li>If there is an interwiki prefix, it is included. Necessary for old
+log entries from times when the current interwiki prefixes were not
+in place.</li>
+<li>Namespace prefix is stripped if there is no interwiki prefix <em>and</em>
+the parsed namespace number agrees with <code class="docutils literal"><span class="pre">expected_ns</span></code>. This is to
+cover the creation of new namespaces, e.g. pages <code class="docutils literal"><span class="pre">Foo:Bar</span></code> existing
+first in the main namespace and then moved into a separate namespace,
+<code class="docutils literal"><span class="pre">Foo:</span></code>.</li>
+<li>Section anchor is included. Again necessary for old log entries,
+apparently MediaWiki allowed <code class="docutils literal"><span class="pre">#</span></code> in user names at some point.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expected_ns</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – expected namespace number</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.parser_helpers.title.Title.__eq__">
+<code class="descname">__eq__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title.__eq__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ws.parser_helpers.title.Title.__hash__">
+<code class="descname">__hash__</code><em class="property"> = None</em><a class="headerlink" href="#ws.parser_helpers.title.Title.__hash__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.parser_helpers.title.Title.__repr__">
+<code class="descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ws.parser_helpers.title.Title.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.parser_helpers.title.Title.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the full representation of the title in the canonical form.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="exception">
 <dt id="ws.parser_helpers.title.InvalidTitleCharError">
 <em class="property">exception </em><code class="descclassname">ws.parser_helpers.title.</code><code class="descname">InvalidTitleCharError</code><a class="headerlink" href="#ws.parser_helpers.title.InvalidTitleCharError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
 <p>Raised when an invalid title is passed to <a class="reference internal" href="#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal"><span class="pre">Title</span></code></a>.</p>
 </dd></dl>
 
@@ -287,7 +355,7 @@ the target page.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.parser_helpers.title.txt"
+      <li><a href="../_sources/ws/ws.parser_helpers.title.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -309,11 +377,11 @@ the target page.</p>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/ws/ws.parser_helpers.title.txt"
+      <a href="../_sources/ws/ws.parser_helpers.title.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

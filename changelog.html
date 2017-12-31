@@ -1,30 +1,29 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Changelog &#8212; wiki-scripts 1.1 documentation</title>
-    
+    <title>Changelog &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/wiki-scripts.ico"/>
-    <link rel="top" title="wiki-scripts 1.1 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="API reference" href="modules.html" />
     <link rel="prev" title="Writing new scripts" href="tutorial.html" />
    
@@ -34,7 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -44,30 +43,44 @@
             
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="version-1-3">
+<h2>Version 1.3<a class="headerlink" href="#version-1-3" title="Permalink to this headline">¶</a></h2>
+<p>Unreleased
+(<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/compare/1.2...master">changes</a>)</p>
+</div>
 <div class="section" id="version-1-2">
 <h2>Version 1.2<a class="headerlink" href="#version-1-2" title="Permalink to this headline">¶</a></h2>
-<p>Unreleased
-(<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/compare/1.1...master">changes</a>)</p>
+<p><a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/tree/1.2">Released December 31, 2017</a>
+(<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/compare/1.1...1.2">changes</a>)</p>
 <ul class="simple">
 <li>Large refactoring: <code class="xref py py-mod docutils literal"><span class="pre">ws.core</span></code> renamed to <a class="reference internal" href="ws/ws.client.html#module-ws.client" title="ws.client"><code class="xref py py-mod docutils literal"><span class="pre">ws.client</span></code></a>, created
 <a class="reference internal" href="ws/ws.utils.html#module-ws.utils" title="ws.utils"><code class="xref py py-mod docutils literal"><span class="pre">ws.utils</span></code></a>, <code class="xref py py-mod docutils literal"><span class="pre">ws.statistics</span></code>, <a class="reference internal" href="ws/ws.interlanguage.html#module-ws.interlanguage" title="ws.interlanguage"><code class="xref py py-mod docutils literal"><span class="pre">ws.interlanguage</span></code></a></li>
 <li>Added <a class="reference internal" href="ws/ws.client.site.html#module-ws.client.site" title="ws.client.site"><code class="xref py py-mod docutils literal"><span class="pre">ws.client.site</span></code></a>, <a class="reference internal" href="ws/ws.client.user.html#module-ws.client.user" title="ws.client.user"><code class="xref py py-mod docutils literal"><span class="pre">ws.client.user</span></code></a> and
 <a class="reference internal" href="ws/ws.client.redirects.html#module-ws.client.redirects" title="ws.client.redirects"><code class="xref py py-mod docutils literal"><span class="pre">ws.client.redirects</span></code></a> modules, <a class="reference internal" href="ws/ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><code class="xref py py-class docutils literal"><span class="pre">ws.client.api.API</span></code></a> has
 attributes with the appropriate instances for the current wiki.</li>
-<li>Improved parsing of page titles &#8211; fixed many bugs, extended test suite, added
+<li>Improved parsing of page titles – fixed many bugs, extended test suite, added
 checking of legal characters, handling of namespace aliases.</li>
 <li>Added <a class="reference internal" href="ws/ws.autopage.html#module-ws.autopage" title="ws.autopage"><code class="xref py py-mod docutils literal"><span class="pre">ws.autopage</span></code></a> submodule.</li>
+<li>Switched from <code class="xref py py-mod docutils literal"><span class="pre">nose</span></code> to <code class="xref py py-mod docutils literal"><span class="pre">pytest</span></code> for testing.</li>
+<li>Added <a class="reference internal" href="ws/ws.db.html#module-ws.db" title="ws.db"><code class="xref py py-mod docutils literal"><span class="pre">ws.db</span></code></a> module for the synchronization of a remote wiki into a
+local PostgreSQL database. See the GitHub issue for more information:
+<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/issues/35">https://github.com/lahwaacz/wiki-scripts/issues/35</a>. This also means multiple
+new dependencies, see the README file for details.</li>
+<li>Transparent automatic conversion of timestamp strings into the Python’s
+<code class="xref py py-mod docutils literal"><span class="pre">datetime.datetime</span></code> objects. As a result, manual calls to the
+<code class="xref py py-func docutils literal"><span class="pre">ws.utils.parse_date()</span></code> and <code class="xref py py-func docutils literal"><span class="pre">ws.utils.format_date()</span></code> functions
+should not be necessary when working with the API.</li>
 </ul>
 </div>
 <div class="section" id="version-1-1">
 <h2>Version 1.1<a class="headerlink" href="#version-1-1" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/tree/1.0">Released March 6, 2016</a>
+<p><a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/tree/1.1">Released March 6, 2016</a>
 (<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/compare/1.0...1.1">changes</a>)</p>
 <ul class="simple">
 <li>Fixed handling of <code class="docutils literal"><span class="pre">csrftoken</span></code>, it is now cached and automatically renewed as
 indicated by the server responses.</li>
 <li>Partial interlanguage support for <code class="docutils literal"><span class="pre">update-package-templates.py</span></code>: localized
-templates &#8220;Broken package link&#8221; and &#8220;aur-mirror&#8221; are respected.</li>
+templates “Broken package link” and “aur-mirror” are respected.</li>
 <li>Added the <a class="reference internal" href="ws/ws.parser_helpers.title.html#module-ws.parser_helpers.title" title="ws.parser_helpers.title"><code class="xref py py-mod docutils literal"><span class="pre">ws.parser_helpers.title</span></code></a> module for parsing titles into
 <code class="docutils literal"><span class="pre">(iwprefix,</span> <span class="pre">namespace,</span> <span class="pre">pagename,</span> <span class="pre">sectionname)</span></code> and easy manipulation with
 the parts.</li>
@@ -84,7 +97,7 @@ block move support and splitting optimized for MediaWiki markup.
 <code class="docutils literal"><span class="pre">DISPLAYTITLE</span></code> property of pages and links to sections are checked base on
 the sections existing on the target page.</li>
 <li>Added <code class="docutils literal"><span class="pre">--connection-max-retries</span></code> and <code class="docutils literal"><span class="pre">--connection-timeout</span></code> options.</li>
-<li>Added <code class="docutils literal"><span class="pre">toc.py</span></code> script to update the &#8220;Table of contents&#8221; page on the wiki.</li>
+<li>Added <code class="docutils literal"><span class="pre">toc.py</span></code> script to update the “Table of contents” page on the wiki.</li>
 </ul>
 </div>
 <div class="section" id="version-1-0">
@@ -105,7 +118,7 @@ the <code class="docutils literal"><span class="pre">index.php</span></code> ent
 <li>Created the <code class="xref py py-class docutils literal"><span class="pre">ws.core.lazy.LazyProperty</span></code> decorator and made
 <code class="xref py py-attr docutils literal"><span class="pre">ws.core.api.API.is_loggedin</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">ws.core.api.API.user_rights</span></code>
 and <code class="xref py py-attr docutils literal"><span class="pre">ws.core.api.API.namespaces</span></code> proper properties.</li>
-<li>Started using the <a class="reference external" href="https://docs.python.org/3/library/logging.html#module-logging" title="(in Python v3.5)"><code class="xref py py-mod docutils literal"><span class="pre">logging</span></code></a> module for messages.</li>
+<li>Started using the <a class="reference external" href="https://docs.python.org/3/library/logging.html#module-logging" title="(in Python v3.6)"><code class="xref py py-mod docutils literal"><span class="pre">logging</span></code></a> module for messages.</li>
 <li>New unified configuration interface for all scripts, using the
 <a class="reference internal" href="ws/ws.config.html#module-ws.config" title="ws.config"><code class="xref py py-mod docutils literal"><span class="pre">ws.config</span></code></a> submodule. See <a class="reference external" href="configuration">Configuration</a> for
 details.<ul>
@@ -160,6 +173,7 @@ broken fragments by comparing dot-encoded fragments)</li>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
+<li><a class="reference internal" href="#version-1-3">Version 1.3</a></li>
 <li><a class="reference internal" href="#version-1-2">Version 1.2</a></li>
 <li><a class="reference internal" href="#version-1-1">Version 1.1</a></li>
 <li><a class="reference internal" href="#version-1-0">Version 1.0</a></li>
@@ -178,7 +192,7 @@ broken fragments by comparing dot-encoded fragments)</li>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/changelog.txt"
+      <li><a href="_sources/changelog.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -200,11 +214,11 @@ broken fragments by comparing dot-encoded fragments)</li>
       &copy;2014-2016, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/changelog.txt"
+      <a href="_sources/changelog.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -1,0 +1,7 @@
+ws\.db\.grabbers\.page module
+=============================
+
+.. automodule:: ws.db.grabbers.page
+    :members:
+    :undoc-members:
+    :show-inheritance:

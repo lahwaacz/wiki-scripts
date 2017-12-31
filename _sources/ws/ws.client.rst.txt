@@ -1,0 +1,21 @@
+ws\.client package
+==================
+
+.. automodule:: ws.client
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   ws.client.api
+   ws.client.connection
+   ws.client.meta
+   ws.client.redirects
+   ws.client.site
+   ws.client.tags
+   ws.client.user
+
