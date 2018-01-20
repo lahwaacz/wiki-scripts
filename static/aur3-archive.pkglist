@@ -5486,7 +5486,6 @@ csvutils
 csvutils2
 csympy-git
 csync
-csync-git
 csync-owncloud
 ctags-ada
 ctags-css
@@ -21791,7 +21790,6 @@ logitools-macro-git
 logitoolsd-git
 logjam
 logjam-andyshev-git
-logkeys
 logkeys-keymap
 logkeys-keymap-svn
 logkeys-keymaps
@@ -22613,7 +22611,6 @@ marisa-ruby
 markdoc
 markdown
 markdowner-bzr
-marker
 markov-cluster-algorithm
 marlin-bin
 marlin-bzr
@@ -26710,7 +26707,6 @@ opencl-nvidia-275xx
 opencl-nvidia-custom
 opencl-nvidia-ll
 opencl-nvidia-patched
-openclipart-png
 openclipart-png-daily
 openclonk-hg
 opencog-bzr
@@ -36706,7 +36702,6 @@ ruby-em-http-request
 ruby-em-socksify
 ruby-em-spec
 ruby-em-synchrony
-ruby-em-websocket
 ruby-enterprise
 ruby-enterprise-actionmailer
 ruby-enterprise-actionmailer-235
@@ -38238,7 +38233,6 @@ sfepy
 sfepy-git
 sfftobmp
 sfgui
-sfk
 sfl
 sfldoc
 sflphone
@@ -40071,7 +40065,6 @@ swap
 swapd
 swarmtv
 swatch
-swatchbooker
 swatchbooker-bzr
 swbis
 swclock
