@@ -1026,7 +1026,6 @@ apr_memcache
 apron-svn
 apron-svn-ocaml
 apslint
-apvlv-git
 apvlv-svn
 aqbanking-beta
 aqbanking-git
@@ -2909,7 +2908,6 @@ brother-dcpj715w-cups
 brother-fax1940cn-cupswrapper
 brother-fax1940cn-lpr
 brother-hl2070n
-brother-hl2130
 brother-hl2230
 brother-hl3040cn-cupswrapper
 brother-hl3040cn-lpr
@@ -3283,7 +3281,6 @@ calamares
 calamares-git
 calaos_base-git
 calaos_installer-git
-calc-git
 calcchecksum
 calccmd
 caled
@@ -9429,7 +9426,6 @@ flover
 flowblade-hg
 flowcanvas-svn
 flowd
-flower
 flrec
 fltk-giac
 fltk-rep
@@ -13769,7 +13765,6 @@ haskell-gsl-random
 haskell-gstreamer
 haskell-gtfs
 haskell-gtk
-haskell-gtk-traymanager
 haskell-gtk2hs-cast-glade
 haskell-gtk2hs-cast-glib
 haskell-gtk2hs-cast-gnomevfs
@@ -15016,7 +15011,6 @@ haskell-x11-xshape
 haskell-xattr
 haskell-xauth
 haskell-xcb-types
-haskell-xdg-basedir
 haskell-xformat
 haskell-xhb
 haskell-xhtml
@@ -20134,7 +20128,6 @@ libfdk-aac
 libfdk-aac-git
 libferrisstreams
 libferrisstreams-0.5.0
-libffado-svn
 libffi-compat
 libfingerprinter
 libfirm
@@ -24772,7 +24765,6 @@ mvsis
 mwcollectd-git
 mwf-designer-git
 mwf-designer-svn
-mwlib.rl
 mwt
 mwt-git
 mx
@@ -28951,7 +28943,6 @@ ph_bootsound
 phaedra
 phalcon-git
 phantom-engine-git
-phantomjs
 phantomjs-1.8
 phantomjs-bin
 phar-gui-git
@@ -31242,7 +31233,6 @@ python-erlport
 python-erlport-git
 python-errorhandler
 python-espeak-bzr
-python-ete
 python-etk-svn
 python-eunuchs-git
 python-evas-svn
@@ -32869,7 +32859,6 @@ python2-nibabel-git
 python2-nikola
 python2-nikola-git
 python2-nltk-git
-python2-nose-progressive
 python2-nose-timer
 python2-nosqlite
 python2-nosqlite-git
@@ -37222,7 +37211,6 @@ ruby-sequel-4.0
 ruby-serialport
 ruby-serialport-1.1
 ruby-session
-ruby-settingslogic
 ruby-sexp_processor-3.0
 ruby-sexp_processor-3.0.0
 ruby-shadow
@@ -44019,12 +44007,10 @@ vmodsynth-git
 vmpk
 vmsbackup
 vmtouch-git
-vmware-component-extractor-git
 vmware-modules
 vmware-server
 vmware-server-console
 vmware-server-modules
-vmware-tools
 vmware-usbarbitrator
 vmware-view-client
 vmware-view-client-usb
@@ -45470,7 +45456,6 @@ xfce4-session-nosystemd
 xfce4-session-ubuntu
 xfce4-settings-4.11
 xfce4-settings-devel-dpifix
-xfce4-settings-git
 xfce4-settings-pluggable
 xfce4-settings-reverse-multitap
 xfce4-shining-reprise-icon-theme
