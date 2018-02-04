@@ -3343,7 +3343,6 @@ canon-cndrvcups
 canon-cndrvcups-common
 canon-cndrvcups-lb
 canon-common-ufr2-cndrvcups
-canon-cque
 canon-pixma-mg5100-complete
 canon-pixma-mp237-complete
 canon-pixma-mx520-complete
@@ -13561,7 +13560,6 @@ haskell-dtrace
 haskell-dual-tree
 haskell-dwarf
 haskell-dynamic-state
-haskell-dyre
 haskell-dzen-utils
 haskell-edisonapi
 haskell-edisoncore
@@ -14021,7 +14019,6 @@ haskell-hssqlite3
 haskell-hssqlppp
 haskell-hssvn
 haskell-hstats
-haskell-hstringtemplate
 haskell-hstringtemplatehelpers
 haskell-hsvm
 haskell-hsx
@@ -14103,7 +14100,6 @@ haskell-interpolatedstring-qq
 haskell-intervals
 haskell-io-capture
 haskell-io-reactive
-haskell-io-storage
 haskell-ioctl
 haskell-ior
 haskell-iospec
@@ -27622,7 +27618,6 @@ panoglview
 panoptic-git
 panopticon
 panotour
-panotourpro
 pantheios
 pantheon-files
 pantheon-friends-bzr
@@ -28944,7 +28939,6 @@ phaedra
 phalcon-git
 phantom-engine-git
 phantomjs-1.8
-phantomjs-bin
 phar-gui-git
 phare
 pharerouge
@@ -32644,7 +32638,6 @@ python2-hachoir-hg
 python2-hamster-sqlite
 python2-hcluster
 python2-hcs_utils
-python2-healpy
 python2-heatclient-deb
 python2-helib-git
 python2-hesiod-git
@@ -34707,7 +34700,6 @@ raggle
 rai-qt
 raid-monitor
 rails
-rainbowcrack
 raincat
 raincat-bin
 raindrop-hg
@@ -35364,7 +35356,6 @@ rofi
 rofs-filtered
 rogg
 rogue
-roguedetector
 roguestar-engine
 roguestar-gl
 rohc-bzr
@@ -40656,7 +40647,6 @@ telepathy-nepomuk-service-git
 telepathy-pintxo-git
 telepathy-presence-applet-git
 telepathy-presence-dataengine-git
-telepathy-qt-git
 telepathy-qt4-git
 telepathy-qt5
 telepathy-qt5-mgehre-git
@@ -44886,7 +44876,6 @@ wync
 wync32
 wyneken
 wyrd-bzr
-wyslij-po
 wz2100legacy-git
 wzdftpd
 x-blasterdominator
