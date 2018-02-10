@@ -4674,7 +4674,6 @@ cnijfilter-common270
 cnijfilter-common320
 cnijfilter-full270
 cnijfilter-ip100
-cnijfilter-ip1800series
 cnijfilter-ip2200
 cnijfilter-ip2500series
 cnijfilter-ip2600
@@ -21707,7 +21706,6 @@ llvmlinux-git-git
 llvmlinux-toolchain-svn-git
 llvmpy-git
 lm1100
-lm4flash-git
 lm_sensors-f2a78m-conf
 lm_sensors-svn
 lmctfy
@@ -21945,7 +21943,6 @@ lua-epnf
 lua-eris
 lua-etree
 lua-ev-git
-lua-event
 lua-feedparser
 lua-ffi-git
 lua-flu-hg
@@ -28051,7 +28048,6 @@ perl-alien-libtermkey
 perl-alien-smoke-qt
 perl-alpm-git
 perl-ansicolor
-perl-anyevent-irc
 perl-apache-admin-config
 perl-apache-gallery
 perl-apache-htpasswd
@@ -28561,7 +28557,6 @@ perl-net-tclink
 perl-net-tftp
 perl-net-traceroute
 perl-net-traceroute-pureperl
-perl-net-twitter-lite
 perl-net-whois-ip
 perl-number-bytes-human
 perl-number-compare
@@ -32901,7 +32896,6 @@ python2-oslo-sphinx
 python2-oslo-utils
 python2-oslo-vmware
 python2-osmgpsmap
-python2-osprofiler
 python2-othman-git
 python2-pacmanprogressbar
 python2-pafy
@@ -33394,7 +33388,6 @@ python2-troveclient-havana
 python2-ttystatus-bzr
 python2-twine
 python2-twistar
-python2-twitter-git
 python2-twitter-hg
 python2-twitter-tools
 python2-twitter-tools-git
@@ -33838,7 +33831,6 @@ qgis-custom
 qgis-svn
 qgit-git-qt5
 qglk
-qgmailnotifier
 qgmailnotifier-svn
 qgnokii
 qgo2-svn
@@ -43004,7 +42996,6 @@ vboxguest-hook
 vboxhost-hook
 vbrfix-svn
 vc
-vc-dwim
 vc-git
 vcat-git
 vcd-db
