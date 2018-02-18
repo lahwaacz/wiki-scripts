@@ -315,7 +315,6 @@ addon-sdk-esr
 addon-sdk-git
 addon-sdk-stab
 addresses
-adduser-deb
 adduser-defaults
 ade-programme-gtk
 ade-programme-utils
@@ -3329,7 +3328,6 @@ camshot-svn
 camsource
 camstream
 can-modules-git
-can-utils
 can-utils-svn
 canaldailydownloader
 candc-svn
@@ -5188,7 +5186,6 @@ cplus
 cplus-dl
 cpm
 cpmjs
-cpod
 cpp-4.8-arm-linux-gnueabihf-bin
 cpp-annotations
 cpp-arm-linux-gnueabihf-bin
@@ -8780,7 +8777,6 @@ fcm
 fcmake-svn
 fcpp
 fcron
-fdclone
 fdesktoprecorder
 fdesktoprecorder-git
 fdk-aac
@@ -8802,7 +8798,6 @@ febootstrap
 febootstrap-git
 febootstrap.git
 fedone-hg
-fedora-arm-installer
 fedora-chroot
 fedora-xdg-menu-git
 fedoracoin-qt
@@ -9464,7 +9459,6 @@ fluxbox-style-erdbeer
 fluxbox-styles
 fluxbox-styles-boxwhore
 fluxfonts
-fluxgui
 fluxmenu
 fluxmod-styles-nightly
 fluxstyle-git
@@ -22853,7 +22847,6 @@ mcabber-module-yaubil-hg
 mcabber-modules
 mcabber-notify
 mcclient
-mcedit-git
 mcelog
 mcelog-git
 mci-git
@@ -24907,7 +24900,6 @@ nabi
 nacl
 nacl-toolchain-newlib
 naclys
-naconnect
 nad-git
 nadvsh
 nael
@@ -29724,7 +29716,6 @@ pmcma-git
 pmcyg
 pmdplay-git
 pmdtools
-pmidi
 pmmc-git
 pmpds-git
 pmplib
@@ -32384,7 +32375,6 @@ python2-devpi-client
 python2-devpi-common
 python2-devpi-server
 python2-dialog
-python2-dicttoxml
 python2-digest
 python2-dip-snapshot
 python2-dipy-git
@@ -33852,7 +33842,6 @@ qibuild-git
 qilqay
 qimageblitz-qt5-svn
 qimageviewer-git
-qimgv
 qin-git
 qinfo-svn
 qingy
@@ -36817,7 +36806,6 @@ ruby-guard-rspec
 ruby-guard-rubocop
 ruby-gyoku-0.4
 ruby-gyoku-1.0
-ruby-hashie
 ruby-hashie-2
 ruby-hashie-2.0
 ruby-hashr
@@ -38048,7 +38036,6 @@ seamonkey-nightly-unstable
 seamonkey-seatabx-sm21
 searchandrescue
 searchmoid-plasmoid
-searchmonkey-gtk
 searchmonkey-svn
 searchproviders-git
 secc-git
@@ -41602,7 +41589,6 @@ tstoolbox-git
 tstools
 tsukihime-en
 tsukuyomi
-tsuru
 tt-rss
 tt-rss-newsplus-plugin-git
 tt-rss-plugin-feediron
@@ -45132,7 +45118,6 @@ xcursor-gruppled-lite
 xcursor-gt3-light
 xcursor-gt3-light-small
 xcursor-gt3-small
-xcursor-hackneyed
 xcursor-haikuhand
 xcursor-harmony-black
 xcursor-harmony-white
