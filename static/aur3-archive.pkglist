@@ -1052,7 +1052,6 @@ arb
 arbaro
 arbtt
 arc-files
-arc-gtk-theme-git
 arc-nu-git
 arc-status
 arc-theme-git
@@ -4518,9 +4517,7 @@ clint
 cliofetion-hg
 clip2net
 clipandmerge
-clipbored-git
 clipit-git
-clipmanager
 clipmenu-git
 clipodder
 clipodder-git
@@ -17396,7 +17393,6 @@ kactivities-unstable
 kactivities4-fake
 kactus2
 kadmin-remctl
-kadnode
 kadu-0.11.3
 kadu-aur
 kadu-beta1
@@ -20070,7 +20066,6 @@ libebur128-git
 libebur128-nu774-git
 libechonest
 libechonest-git
-libechonest-qt5-git
 libechonest2
 libedstring-svn
 libee-git
@@ -27019,7 +27014,6 @@ openvas-manager
 openvas-manager-7
 openvas-scanner
 openvas-scanner-7
-openvas-scanner-systemd
 openvf-git
 openvpn-admin
 openvpn-authldap-plugin
@@ -28087,7 +28081,6 @@ perl-autoloader
 perl-autovivification
 perl-b-debug
 perl-b-hooks-endofscope
-perl-b-lint
 perl-bdb-wrapper
 perl-beancounter
 perl-biblio-citation-parser
@@ -32448,7 +32441,6 @@ python2-elpy
 python2-emacs-google-calendar
 python2-emaneeventlocation
 python2-emaneeventservice
-python2-emcee
 python2-emds-git
 python2-emeraldtree-hg
 python2-emf
@@ -34054,7 +34046,6 @@ qt4-solutions-git
 qt4-ubuntu
 qt46
 qt4creator
-qt4pas
 qt5
 qt5-3d-git
 qt5-connectivity-git
@@ -36377,7 +36368,6 @@ rtfetch
 rtfm
 rtiacquire-git
 rtinfo-git
-rtklib-git
 rtl-entropy-git
 rtl-wifi-svn
 rtl2832u-git
@@ -36993,7 +36983,6 @@ ruby-ole
 ruby-opal
 ruby-opal-jquery
 ruby-opal-rspec
-ruby-opener
 ruby-opengl
 ruby-openid
 ruby-optiflag
@@ -40334,7 +40323,6 @@ tadpole
 taeni
 taffybar-git
 tag2utf
-tagainijisho-git
 tagbkup
 tagesschau-git
 tagger
@@ -43697,7 +43685,6 @@ vim-tasklist
 vim-taskpaper
 vim-tbone-git
 vim-tcalc
-vim-tcomment
 vim-template
 vim-tex-pdf
 vim-tex_alt-git
@@ -44395,7 +44382,6 @@ wicked-git
 wide
 wifi-select
 wifi-select-git
-wificurse
 wifidog-auth
 wifidog-gateway
 wifidog-gateway-svn
