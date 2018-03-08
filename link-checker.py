@@ -178,11 +178,14 @@ class ExtlinkRules:
                         repl = "[{}]".format(repl)
                     wikicode.replace(extlink, repl)
                     return True
-                elif re.fullmatch(text_cond.format(*match.groups()), str(extlink.title).strip(), text_cond_flags):
-                    wikicode.replace(extlink, replacement.format(*match.groups(), extlink.title))
-                    return True
                 else:
-                    logger.warning("external link that should be replaced, but has custom alternative text: {}".format(extlink))
+                    groups = [re.escape(g) for g in match.groups()]
+                    alt_text = str(extlink.title).strip()
+                    if re.fullmatch(text_cond.format(*groups), alt_text, text_cond_flags):
+                        wikicode.replace(extlink, replacement.format(*match.groups(), extlink.title))
+                        return True
+                    else:
+                        logger.warning("external link that should be replaced, but has custom alternative text: {}".format(extlink))
         return False
 
     def update_extlink(self, wikicode, extlink):
