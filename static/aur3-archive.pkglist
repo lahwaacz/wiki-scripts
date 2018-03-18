@@ -4757,7 +4757,6 @@ coin-cbc
 coin-cgl
 coin-clp
 coin-doc
-coin-hg
 coin-ipopt
 coin-mp
 coin-or-clp
@@ -9532,7 +9531,6 @@ fontpage
 fonts-alee
 fonts-tweak-tool
 fonttools
-fontypython
 foo
 foo-plugins
 foo-uie-lyrics2
@@ -11834,7 +11832,6 @@ go-qml-git
 go-redigo
 go-redis
 go-release-hg
-go-revel
 go-sawsij
 go-sdl
 go-sdl-git
@@ -19489,7 +19486,6 @@ lib32-libc++abi
 lib32-libcaca
 lib32-libcap-ng
 lib32-libcda
-lib32-libcdio
 lib32-libcdio-paranoia
 lib32-libcl
 lib32-libcnbj
@@ -20823,7 +20819,6 @@ libretro-mednafen-lynx-git
 libretro-mednafen-pce-git
 libretro-mednafen-pcfx-git
 libretro-mednafen-snes-git
-libretro-mednafen-vb-git
 libretro-mess-git
 libretro-meteor-git
 libretro-modelviewer-git
@@ -21018,7 +21013,6 @@ libtorrent-svn
 libtorrent-unstable
 libtowitoko2
 libtpl
-libtranslate
 libtranslit
 libtsmux
 libtta++
@@ -22285,7 +22279,6 @@ lxsession-gtk3
 lxshortcut
 lxtask-gtk3
 lxtask-gtk3-git
-lxterminal-git
 lxterminal-gtk3
 lxterminal-gtk3-git
 lxterminal-ru
@@ -23209,7 +23202,6 @@ mic2-git
 michaelvis
 michel-orgmode
 mico
-micro_httpd
 microblog-purple
 microchip-fake-xclm
 microchip-mplab_bin
@@ -28902,7 +28894,6 @@ pgf-blur
 pgf-pie
 pgf-svn
 pgf-umlcd
-pgformatter-git
 pgfouine
 pgl-nogui
 pgmfindclip
@@ -32051,7 +32042,6 @@ python-vim
 python-vim-git
 python-virtkey
 python-virtualenv-commands
-python-vlc
 python-vo
 python-vpython
 python-waf
@@ -32838,7 +32828,6 @@ python2-novaclient-git
 python2-npyscreen
 python2-nrftool-git
 python2-nsgt
-python2-ntplib
 python2-numba-git
 python2-numdisplay
 python2-numeric
@@ -34954,7 +34943,6 @@ refind-x86_64
 refind-x86_64-git
 refit
 reflex
-reg
 regain-desktop
 regetron
 regex
@@ -37719,7 +37707,6 @@ scanmem
 scantailor-cli-git
 scantailor-enhanced-git
 scantailor-featured
-scantailor-git
 scapy
 scare
 scarface-extractor
@@ -38319,7 +38306,6 @@ shishi
 shkd-git
 shman
 shmupacabra
-shmux
 shnerkel
 shoc
 shocco-git
@@ -39862,7 +39848,6 @@ super-postak
 super-wingpanel-bzr
 super-wingpanel-unstable-bzr
 super_pi
-supercat
 supercollider
 supercollider-3.4-git
 supercollider-3.5-git
@@ -40024,7 +40009,6 @@ swfdec-mozilla
 swfdec-mozilla-devel
 swfdec-mozilla-git
 swftools-beta
-swftools-git
 swh-lv2
 swi-prolog
 swifer-git
@@ -40843,7 +40827,6 @@ themerrr-git
 themeselector
 theorur
 theory
-theos-git
 thepandacoin-qt
 thepandacoind
 therealtexas
@@ -41203,7 +41186,6 @@ top
 top-qt4
 topaz-nightly
 topbt
-topgit
 topgit-git
 tophat-bin
 topkata
@@ -41381,7 +41363,6 @@ transmission-qtbase-git
 transmission-remote-cli
 transmission-remote-gtk-svn
 transmission-remote-gtk2
-transmission-remote-gui
 transmission-remote-java
 transmission-sequential
 transmission-svn
@@ -46163,7 +46144,6 @@ zabbix-server-pgsql
 zabbix-server-sqlite
 zaebis
 zalc-git
-zam-plugins
 zamcomp-lv2-git
 zamplugins-git
 zams
