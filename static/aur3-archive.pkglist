@@ -1640,7 +1640,6 @@ aurel
 aurifere-git
 aurinstaller-git
 aurlizer
-aurman
 aurman-latest
 aurninja
 aurnotify
@@ -4751,7 +4750,6 @@ cogent
 cogito
 cogl
 cogscrobbler-hg
-coin
 coin-bcp
 coin-cbc
 coin-cgl
@@ -6162,7 +6160,6 @@ devolo-cockpit
 devpath-git
 devtodo-svn
 devtodo2-git
-dexed
 dexter-bzr
 dexter-contacts-bzr
 dfbpp
@@ -6181,7 +6178,6 @@ dfpl-git
 dfs
 dfu-programmer-svn
 dfu-util
-dfu-util-git
 dg-git
 dgen-sdl
 dgtal
@@ -9718,7 +9714,6 @@ freebasic-fbhelp
 freebasic-standalone
 freebirth
 freec
-freecad
 freecad-svn
 freecbr
 freecca
@@ -20309,7 +20304,6 @@ libixion
 libixp
 libixp-hg
 libjit
-libjit-git
 libjpeg-turbo-beta
 libjpeg-turbo-svn
 libjpeg6
@@ -20859,7 +20853,6 @@ libsandglass
 libsandglass-git
 libsapilektor
 libsass
-libsass-git
 libsbc-cvs
 libsbml42-layout-render
 libsbp-git
@@ -22578,7 +22571,6 @@ marisa-python2
 marisa-ruby
 markdoc
 markdown
-markdowner-bzr
 markov-cluster-algorithm
 marlin-bin
 marlin-bzr
@@ -25496,7 +25488,6 @@ ninit-boot-git
 ninix-aya
 ninja
 ninja-ide-beta
-ninja-ide-git
 ninja-open
 ninjam_client
 ninjam_server
@@ -26648,7 +26639,6 @@ openc6
 opencaesar3-git
 opencamlib-svn
 opencard
-opencascade
 opencascade-docs
 opencc
 opencc-gbgui
@@ -30972,7 +30962,6 @@ python-behaviour
 python-bento
 python-bert-git
 python-betterwalk-git
-python-bibtexparser-git
 python-bidi
 python-bigfloat-hg
 python-billiard
@@ -31744,9 +31733,7 @@ python-pyscard-svn
 python-pyserial-svn
 python-pysfml2-git
 python-pyside
-python-pyside-tools
 python-pysmf
-python-pysnmp
 python-pysnmp-mibs
 python-pysoy
 python-pyspda
@@ -32233,7 +32220,6 @@ python2-cairocffi
 python2-cairocffi-xcffib-git
 python2-cairoplot
 python2-cairoplot-gnome15
-python2-cairosvg
 python2-caja
 python2-camelot
 python2-can-hg
@@ -32620,7 +32606,6 @@ python2-html2text
 python2-html5lib
 python2-html5lib-hg
 python2-htmltag
-python2-htsql
 python2-http-parser
 python2-httpbin-git
 python2-httpie
@@ -33015,7 +33000,6 @@ python2-pyinterval
 python2-pyjade-git
 python2-pyjnius-git
 python2-pyjournalctl
-python2-pykcs11
 python2-pyke
 python2-pykka
 python2-pykka-git
@@ -33069,7 +33053,6 @@ python2-pyshp
 python2-pyshp-svn
 python2-pyside
 python2-pyside-git
-python2-pyside-tools
 python2-pysilc-git
 python2-pysilhouette
 python2-pysimplesoap-hg
@@ -33877,7 +33860,6 @@ qmetronome
 qmidiarp
 qmidiarp-cvs
 qmidicontrol
-qmidictl
 qmidicurves
 qmidiroute-cvs
 qmikroide
@@ -36554,7 +36536,6 @@ ruby-compass-core
 ruby-conductor
 ruby-configuration
 ruby-confluencer
-ruby-connection_pool
 ruby-contest
 ruby-cookiejar
 ruby-cool.io
@@ -39001,7 +38982,6 @@ sooparse-git
 sopcast-player-svn
 soprano
 soprano-git
-soqt
 soqt-doc
 sorcer-git
 sord
@@ -44064,7 +44044,6 @@ vtk
 vtk-doc
 vtk-python
 vtk-python-git
-vtk6
 vtrainr
 vtuner-hg
 vtuner-module-hg
