@@ -1995,7 +1995,6 @@ bash-completion-adb-git
 bash-completion-android
 bash-completion-android-git
 bash-completion-dart-git
-bash-completion-git
 bash-completion-gitflow
 bash-completion-gitflow-avh
 bash-completion-migemo
@@ -4456,7 +4455,6 @@ clay-git
 clay-hg
 clbin-git
 clcal
-clcbrowser-git
 cld-icon-theme
 cld-icons
 cld2-hg
@@ -4862,7 +4860,6 @@ compfused
 comphep
 compi16
 compicc
-compiz-bzr
 compiz-bzr-sam
 compiz-check
 compiz-cms-git
@@ -5319,7 +5316,6 @@ credis
 credis-svn
 creeper-world-2
 creeper-world-map-editor
-creeptd
 creepy-git
 creox
 crepo-git
@@ -8400,7 +8396,6 @@ evolution-unstable
 evolve-git
 evolve-journal-git
 evolvere-icon-theme
-evolvere-icons-git
 evopedia
 evopop-gtk-theme-yoyo
 evopop-icon-theme-git
@@ -10337,7 +10332,6 @@ gdk-pixbuf-xcf
 gdk-pixbuf2-git
 gdk-pixbuf2-gnome-3-10-git
 gdl-svn
-gdl2
 gdm-arc-colors
 gdm-archfamily
 gdm-git
@@ -15599,7 +15593,6 @@ hydrogend-git
 hyena
 hyena-git
 hync
-hypercube
 hyperdex-git
 hyperestraier
 hyperic-sigar
@@ -15664,7 +15657,6 @@ i8086emu
 i810switch
 i8kmonitor
 i8kutils-bzr
-iannix
 iannix-svn
 iat-git
 iaxclient
@@ -16334,7 +16326,6 @@ industrial-icon-theme
 industrialtango-theme
 indywiki
 inescapable
-infamousplugins
 inferno-os
 infiniteplatformer-bzr
 influx-cli-git
@@ -18355,7 +18346,6 @@ kglobalaccel
 kglwatersaver
 kgpg
 kgrab
-kgraphviewer-git
 kgrubeditor
 kguiaddons
 kguitar
@@ -23736,7 +23726,6 @@ minido
 minilibx
 minimodem-git
 minimum-suite-themes
-mininet-git
 mining-haze
 minionpro
 minipro
@@ -27036,7 +27025,6 @@ opera-ragnarok-labs
 opera-rc
 opera-snapshot
 opera-spell-pl
-opera-stable
 opera-standard-skin-netbook-git
 operprinting-ppds-postscript-ricoh
 ophcrack
@@ -30326,7 +30314,6 @@ pumpa-qt4
 pumpkin
 punch-time-tracking
 pup
-pup-bin
 pupdatenotifier
 puppet
 puppet-cleaner
@@ -30937,7 +30924,6 @@ python-asciitable
 python-ass
 python-astlib
 python-astroid-hg
-python-astroquery-git
 python-async
 python-asyncio
 python-audiere
@@ -33049,7 +33035,6 @@ python2-pyrasite-gui
 python2-pyrtm
 python2-pysdl2
 python2-pysfml2-git
-python2-pyshp
 python2-pyshp-svn
 python2-pyside
 python2-pyside-git
@@ -43364,7 +43349,6 @@ vim-hexhighlight
 vim-hg
 vim-hicurline
 vim-highlight
-vim-hoogle
 vim-htmlcmd
 vim-htmlhelper
 vim-htmljinja
