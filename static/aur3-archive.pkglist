@@ -402,7 +402,6 @@ aeroolib-vcs
 aerospike-client-c-git
 aerospike-git
 aescm
-aeskulap
 aeterean-a
 aether
 aether-bin
@@ -1248,14 +1247,12 @@ arm-frc-linux-gnueabi-eglibc-headers
 arm-frc-linux-gnueabi-gcc-stage1
 arm-frc-linux-gnueabi-gcc-stage2
 arm-linux-binutils
-arm-linux-gnueabi-binutils
 arm-linux-gnueabi-boost
 arm-linux-gnueabi-bzlib-static
 arm-linux-gnueabi-chipmunk
 arm-linux-gnueabi-confuse
 arm-linux-gnueabi-eglibc
 arm-linux-gnueabi-eglibc-headers
-arm-linux-gnueabi-gcc
 arm-linux-gnueabi-gcc-stage1
 arm-linux-gnueabi-gcc-stage2
 arm-linux-gnueabi-gettext
@@ -1398,7 +1395,6 @@ aspectc++
 aspectc++-svn
 aspectj
 aspell-af
-aspell-ar
 aspell-az
 aspell-de-alt
 aspell-el
@@ -1636,7 +1632,6 @@ aurcheck
 aurdl-git
 aurdown
 aurdownload
-aurel
 aurifere-git
 aurinstaller-git
 aurlizer
@@ -2925,7 +2920,6 @@ brother-lpr-mfc-5890cn
 brother-mfc-230c
 brother-mfc-235c
 brother-mfc-240c
-brother-mfc-255cw
 brother-mfc-295cn
 brother-mfc-465cn
 brother-mfc-495cw
@@ -5784,7 +5778,6 @@ darm-git
 dart-editor
 dart-editor-dev
 dart-sdk
-dart-sdk-dev
 dart-sdk-latest
 dart-trunk
 dartium-bin
@@ -6085,7 +6078,6 @@ derelict3-git
 derelict3-sdl2-git
 derelict3-util-git
 derive
-deroff
 derpity-gtk-theme
 des
 desc
@@ -7515,7 +7507,6 @@ editor-on-fire-svn
 editorconfig-core
 editorconfig-core-git
 editorelf-git
-editra
 editra-plugins-extra
 edje-svn
 edje-svn-arche17
@@ -7655,7 +7646,6 @@ elasticsearch
 elasticwolf
 elb-api-tools
 elchat2-hg
-electric
 electron
 electrum
 electrum-doge
@@ -8095,7 +8085,6 @@ entrance-svn
 entrance-themes
 entroband
 entropy-cvs
-enum4linux
 enumiax
 envee-git
 envelope-git
@@ -8813,7 +8802,6 @@ feh-trapd00r-git
 fekete-feher-icon-theme
 fekete-icon-theme
 femta
-fence-agents
 fenics-bzr
 fennec-bin
 ferite-git
@@ -9294,7 +9282,6 @@ flashbook
 flashcache-dkms-git
 flashcache-git
 flashcard
-flasher
 flashget
 flashgrab-git
 flashlight-git
@@ -9865,7 +9852,6 @@ fspanel
 fspanel-legacy
 fspc
 fspclient
-fsqlf-git
 fsquirrel
 fsresize-git
 fsrunner
@@ -10477,7 +10463,6 @@ gemdropx
 gemini-terminal
 geminirue
 gemrb
-gemrb-git
 gems
 gemwest
 gencfs
@@ -12053,7 +12038,6 @@ gplane-git
 gplcver
 gpmi
 gpodder-core
-gpodder-git
 gpodder2
 gpointing-device-settings-git
 gpomme
@@ -14347,7 +14331,6 @@ haskell-obj
 haskell-oeis
 haskell-ogl
 haskell-on-a-horse
-haskell-onetuple
 haskell-oo-prototypes
 haskell-open-pandoc
 haskell-open-witness
@@ -14503,7 +14486,6 @@ haskell-random
 haskell-random-access-list
 haskell-random-extras
 haskell-random-fu
-haskell-random-shuffle
 haskell-randomdotorg
 haskell-ranged-sets
 haskell-rangemin
@@ -14828,7 +14810,6 @@ haskell-tremulous-query
 haskell-triemap
 haskell-trifecta
 haskell-tttas
-haskell-tuple
 haskell-tv
 haskell-twilight-stm
 haskell-twofish
@@ -15247,7 +15228,6 @@ hid-atari-retrobit-dkms-git
 hid-aureal
 hid-holtek-mouse
 hidapi
-hidattack
 hidcur-git
 hide-pidgin-attention-button-git
 hidentd
@@ -15641,7 +15621,6 @@ i3bar-tree-git
 i3ipc-gjs
 i3ipc-glib
 i3ipc-lua
-i3ipc-python
 i3lock-capslock-disabled
 i3lock-libcairo
 i3lock-libcairo-git
@@ -16124,7 +16103,6 @@ ifplug-ng-git
 ifplugd-fixed
 ifreebudget
 ifshow-git
-ifstat
 ifstatus
 ifthenelse-git
 iftop-ipv6
@@ -16687,7 +16665,6 @@ iscan-legacy
 iscan-plugin-cx4400
 iscan-plugin-cx4400-fixed
 iscan-plugin-gt-f600
-iscan-plugin-gt-f700
 iscan-plugin-gt-x720
 iscan-plugin-gt-x770
 iscan-plugin-network-new
@@ -17414,7 +17391,6 @@ kancolletool-git
 kanjidic-git
 kanjipad
 kannasaver
-kannel
 kannel-mbuni
 kanola
 kant-kash3
@@ -19117,7 +19093,6 @@ latexila-git
 latexmath-freemind-plugin
 latexmk
 latt
-latvia-eid-middleware
 launchpadlib
 launchy-svn
 laurel-git
@@ -19445,7 +19420,6 @@ lib32-idnkit
 lib32-imlib2
 lib32-irrklang
 lib32-iscan-plugin-gt-9400
-lib32-isl
 lib32-jack1-git
 lib32-jack2-git
 lib32-jansson
@@ -19469,7 +19443,6 @@ lib32-libbonoboui
 lib32-libc++
 lib32-libc++abi
 lib32-libcaca
-lib32-libcap-ng
 lib32-libcda
 lib32-libcdio-paranoia
 lib32-libcl
@@ -20277,7 +20250,6 @@ libindicator3
 libinfinity-git
 libini
 libinput
-libinstpatch
 libinstpatch-svn
 libinstrudeo
 libintlize
@@ -20486,17 +20458,10 @@ libneil-hg
 libnemesi-git
 libnetdude
 libnetfilter_acct
-libnetfilter_acct-git
-libnetfilter_conntrack-git
-libnetfilter_cthelper-git
-libnetfilter_cttimeout-git
 libnetfilter_log
-libnetfilter_log-git
-libnetfilter_queue-git
 libnetworkd-git
 libnetworkmanager-notify-osd
 libnfc-svn
-libnfnetlink-git
 libnfo-hg
 libnfs
 libnfs-git
@@ -20803,7 +20768,6 @@ libretro-mednafen-lynx-git
 libretro-mednafen-pce-git
 libretro-mednafen-pcfx-git
 libretro-mednafen-snes-git
-libretro-mess-git
 libretro-meteor-git
 libretro-modelviewer-git
 libretro-modelviewer-location-git
@@ -21039,7 +21003,6 @@ libunwind
 libupnpp-git
 libupstart
 liburcu
-liburcu-git
 liburlmatch-git
 libusb-git
 libusb-testing
@@ -21051,7 +21014,6 @@ libutillery
 libutvideo-git
 libuv
 libuv-git2
-libuvc
 libv2
 libv8-convert
 libv8-juice
@@ -21437,7 +21399,6 @@ linux-fusion
 linux-fusion-git
 linux-git-nvidia
 linux-gk
-linux-gpib-svn
 linux-groovy
 linux-grsec
 linux-grsec-apparmor
@@ -22441,7 +22402,6 @@ makesite
 makeztxt
 makfa
 makinbakon
-mal-gtk-git
 mali-firmware
 mali-libs
 mali-opengles-emulator
@@ -22449,7 +22409,6 @@ mali-udev
 mali400
 maliit-framework
 maliit-plugins
-mallet
 maltego
 malwaredetect
 malys-uniblue-icons
@@ -23211,7 +23170,6 @@ midingsolo
 midiosc
 midirandomizer
 midisend
-midish
 midish-dev-snapshot
 midisheetmusic
 midisnoop
@@ -23425,7 +23383,6 @@ mingw-w64-pangomm
 mingw-w64-physfs
 mingw-w64-plibc
 mingw-w64-png++
-mingw-w64-poco
 mingw-w64-ppl
 mingw-w64-pthreads
 mingw-w64-python-native
@@ -23769,7 +23726,6 @@ mint-cinnamon-themes-git
 mint-common
 mint-elementary-icons
 mint-git
-mint-themes
 mint-themes-git
 mint-themes-gtk3-git
 mint-translations
@@ -24926,9 +24882,6 @@ narcissu
 narcissu-bin
 narcissu-en
 nasmx
-naspro-bridge-it
-naspro-bridges
-naspro-core
 nast
 nasty
 nasu-git
@@ -25237,7 +25190,6 @@ netgen
 netgen-svn
 netgo
 netgo_ng
-netgui
 nethack-combined
 nethack-curses
 nethack-el
@@ -25382,7 +25334,6 @@ nexus-jetty-https
 nexus2
 nexuspersonal
 nfacct
-nfacct-git
 nfblock
 nfcd-svn
 nfcutils
@@ -25538,7 +25489,6 @@ node-webkit-0.8.4
 node-xml-git
 node-xmpp
 nodeatlas
-nodeboxeditor
 nodejs-acs
 nodejs-alloy
 nodejs-alloy-git
@@ -25731,7 +25681,6 @@ notify-osd-normal-position
 notify-osd-xfconf-bzr
 notify-serve-git
 notify-sharp
-notifymuch-git
 notimetoexplain
 notion-styles-thinviolet
 notion-xft
@@ -26106,7 +26055,6 @@ obraz
 obrowser
 obs-build-tizen
 obs-git
-obs-service-format_spec_file-git
 obs-service-source_validator-git
 obs-studio
 obsession
@@ -26479,7 +26427,6 @@ onscripter-gbk-git
 onscripter-tools
 ontv
 ontv-git
-onyx
 ooc-git
 ooc-gtksourceview-git
 oolaboola
@@ -26503,7 +26450,6 @@ opag
 opale
 opcion
 open-axiom-svn
-open-cobol
 open-cobol-ce-svn
 open-cobol-ide
 open-fcoe
@@ -27871,7 +27817,6 @@ pdflib-lite
 pdfmasher-bin
 pdfmerge4unix
 pdfminer-svn
-pdfminer3k
 pdfmod
 pdfnup-gui
 pdfpc
@@ -28356,7 +28301,6 @@ perl-kinosearch
 perl-latex-decode
 perl-latex-driver
 perl-latex-table
-perl-latexml-git
 perl-lchown
 perl-lib-base
 perl-libnet
@@ -28395,7 +28339,6 @@ perl-mail-sendeasy
 perl-mail-spamassassin-plugin-openpgp
 perl-makefile-dom
 perl-makefile-parser
-perl-marc-charset
 perl-marc-crosswalk-dublincore
 perl-marc-file-xml
 perl-markup-unified
@@ -28995,7 +28938,6 @@ php-horde-translation
 php-horde-util
 php-htmlpurifier
 php-htscanner
-php-igbinary
 php-imagick-git
 php-intarray
 php-leveldb-git
@@ -29748,7 +29690,6 @@ polari
 polari-devel
 polarssl
 polarssl-git
-polenum
 policonnect
 policyd
 policykit-desktop-privileges-ubuntu
@@ -30207,7 +30148,6 @@ psi-otr
 psi-otr-tfh-berlin
 psi-otrplugin
 psi-otrplugin-tfh-berlin
-psi-plus
 psi-plus-otrplugin
 psi-plus-recources-git
 psi-qt5-git
@@ -30996,7 +30936,6 @@ python-carrot
 python-cartridge
 python-cassandra-driver
 python-cassandra-driver-git
-python-ccm
 python-cdent
 python-celery
 python-certifi
@@ -31414,7 +31353,6 @@ python-matplotlib-pyqt
 python-matrix-angular-sdk
 python-matrix-angular-sdk-git
 python-maxmind-db-reader-git
-python-maxminddb
 python-mccabe
 python-mcrypt
 python-mdp
@@ -31567,7 +31505,6 @@ python-piston-git
 python-pjsua
 python-pkginfo
 python-pki
-python-plac
 python-plaintable-git
 python-planout
 python-ploader-git
@@ -31806,7 +31743,6 @@ python-retrying
 python-reverend
 python-rhodecode
 python-rocket
-python-roman
 python-romkan-git
 python-rope
 python-ropevim
@@ -32007,7 +31943,6 @@ python-userwebkit
 python-utidylib
 python-uuid
 python-validate_email
-python-vatnumber
 python-vdirsyncer-git
 python-vec-git
 python-venusian
@@ -32219,7 +32154,6 @@ python2-cassandra-driver
 python2-cassandra-driver-git
 python2-casuarius
 python2-catkin_pkg-git
-python2-ccm
 python2-ccm-git
 python2-cctrl
 python2-cddb
@@ -35199,7 +35133,6 @@ risc-win32-git
 ristretto-mod
 ritx
 rivatv-cvs
-rivendell
 riverrun-git
 rivulet
 rk-basic-system-tools
@@ -37372,7 +37305,6 @@ ruijieclient-svn
 ruli
 rumus2
 run-free
-run-one
 run_bin32_gtk
 runabc
 runbench-bzr
@@ -37872,7 +37804,6 @@ scut
 scvim-svn
 scw
 scws
-scyther
 scythestat
 scythia
 sd_agent
@@ -38391,7 +38322,6 @@ simavr
 simavr-git
 simclist
 simcraft
-simdock
 simfy
 simgi
 simias
@@ -40659,7 +40589,6 @@ testtesradfdfd
 testtesrd
 testtesrdfdfdfa
 tetex
-tetgen
 tetradraw
 tetraproc
 tetrinet
@@ -43056,7 +42985,6 @@ vibed-git
 vibrantly-simple-icon-theme
 vice-ethernet
 vice-gnomeui
-vice-svn
 vice2.2-gnomeui
 viceplus
 vicious21
@@ -44147,7 +44075,6 @@ wavemon
 waveutils
 wavextract
 wavpack-beta
-wavtool-pl
 wax
 waxeye
 wayland
