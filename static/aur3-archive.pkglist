@@ -5538,7 +5538,6 @@ culmus-latex
 cultivation
 cultris2
 cuneiform-qt-git
-cup
 cupp
 cups-canon-3.00
 cups-eudev
@@ -10292,7 +10291,6 @@ gdb-qt4-pretty-git
 gdb-stl-views
 gdb2wdb-gem
 gdb75
-gdc-bin
 gdc-tango
 gdc1-hg
 gdc1-tango-svn
@@ -24031,7 +24029,6 @@ moleto-git
 molmol
 molsketch
 moltaqa-lib-bin
-mom
 moma
 moment-git
 momentics-ide-blackberry
@@ -26899,7 +26896,6 @@ openttd-32bpp-gfx
 openttd-32bpp-gfx-dev
 openttd-32bpp-gfx-extra
 openttd-beta
-openttd-bin
 openttd-bin-
 openttd-bin-1.3.2
 openttd-bin-1.4.4
@@ -34502,7 +34498,6 @@ r8168
 r8168-all
 r8168-bfs
 r8168-bridge-pl
-r8168-ck
 r8168-lqx
 r8168-openvz
 r8168-openvz-testing
@@ -38788,7 +38783,6 @@ sni-qt
 snip-git
 snipmate.vim
 snitter
-snoopy
 snort-sam
 snortrules
 snortsam
