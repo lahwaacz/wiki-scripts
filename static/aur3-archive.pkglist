@@ -939,7 +939,6 @@ apache-gost
 apache-harmony-jre
 apache-itk-chroot
 apache-ivy
-apache-jena
 apache-libcloud
 apache-mina
 apache-mina2
@@ -5433,7 +5432,6 @@ csindex
 csl-svn
 cslp
 csoap
-csound-git
 csound5
 csound5-cecilia
 csound5-cvs
@@ -10034,7 +10032,6 @@ gabriel-git
 gabriel-svn
 gabs-git
 gacc
-gadmin-bind
 gadmin-control-panel
 gadmin-dhcpd
 gadmin-httpd
@@ -20191,7 +20188,6 @@ libgpiv
 libgpod-git
 libgpod-git-iphone
 libgpod-sharp-git
-libgraph
 libgrapple
 libgrip
 libgrss
@@ -24213,7 +24209,6 @@ moxi
 moz-gcc-bin
 mozart
 mozart-git
-mozart2-bin
 mozc-fcitx
 mozc-svn
 mozilla-gnome-keyring-git
@@ -26535,7 +26530,6 @@ openbox-dyne-theme
 openbox-egtk-theme
 openbox-elementary-theme
 openbox-fawn-theme
-openbox-git
 openbox-git-random-placement
 openbox-laza-theme
 openbox-ledje-theme
@@ -28542,8 +28536,6 @@ perl-rdf-trineshortcuts
 perl-rdf-vcard-babelfish
 perl-readonly
 perl-redis-hiredis
-perl-redisdb
-perl-redisdb-parser
 perl-regexp-common
 perl-relative
 perl-resourcepool
@@ -28781,7 +28773,6 @@ pesterchum-git
 pet2tgz
 petite
 petite-chez-scheme-nothreads
-petri-foo-git
 petris
 petrus-blogger
 petsc-openmpi
@@ -33553,7 +33544,6 @@ pywapi
 pywbem
 pywc-git
 pyweather
-pyweb
 pywebkitgtk-pythonwebkit
 pywebkitgtk-svn
 pywebsocket-svn
@@ -34393,7 +34383,6 @@ r-biobase
 r-cairodevice
 r-car
 r-colorbrewer
-r-colorspace
 r-compositions
 r-cran-car
 r-cran-clustergeneration
@@ -34423,9 +34412,7 @@ r-cran-rocr
 r-cran-rv
 r-cran-showtext
 r-cran-sysfonts
-r-dbi
 r-deducer
-r-dichromat
 r-directlabels
 r-drc
 r-drm
@@ -34438,10 +34425,8 @@ r-flowcore
 r-flowstats
 r-flowviz
 r-geneplotter
-r-ggplot2
 r-gillespiessa
 r-graph
-r-gtable
 r-gtools
 r-gurobi
 r-iflow
@@ -34451,28 +34436,22 @@ r-itertools
 r-javagd
 r-jgr
 r-ks
-r-labeling
 r-latticeextra
 r-magic
 r-mathlib
 r-misc3d
 r-multcomp
-r-munsell
 r-mvoutlier
-r-mvtnorm
 r-mysql
 r-patched
 r-pcapp
 r-plotrix
-r-plyr
 r-project
 r-proto
 r-r_matlab
 r-r_methodss3
 r-r_oo
 r-reshape
-r-reshape2
-r-rgl
 r-rgtk2
 r-rjava
 r-robcompositions
@@ -34485,9 +34464,6 @@ r-tensora
 r-tkrplot
 r-usingr
 r-vimcom.plus
-r-xml
-r-xtable
-r-zoo
 r2-bindings
 r3broot-svn
 r592-driver
@@ -36969,7 +36945,6 @@ ruby-restfully
 ruby-rethinkdb
 ruby-retort
 ruby-retryable
-ruby-reverse_markdown
 ruby-rexec
 ruby-rhc
 ruby-riak-client
@@ -37623,7 +37598,6 @@ scheme-widget-library
 scheme2js
 schemer
 schemik
-schismtracker
 schismtracker-hg
 schmutz
 schnapps
@@ -46155,7 +46129,6 @@ zfs-git
 zfs-lts
 zfs-modules-dkms
 zfs-tools
-zfs-utils-git
 zfs-utils-lts
 zfs-utils-therp
 zfs-utils-therp-git
