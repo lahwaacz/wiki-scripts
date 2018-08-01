@@ -76,6 +76,13 @@ class GrabberPages(GrabberBase):
                     sa.and_(db.recentchanges.c.rc_logid == None,
                             db.recentchanges.c.rc_cur_id.notin_(sa.select([db.page.c.page_id]))
                     )),
+            ("update", "page_name"):
+                db.page.update().where(
+                        db.page.c.page_id == sa.bindparam("b_page_id")
+                    ).values(
+                        page_namespace=sa.bindparam("b_new_namespace"),
+                        page_title=sa.bindparam("b_new_title"),
+                    ),
         }
 
         # build query to move data from the revision table into archive
@@ -239,9 +246,9 @@ class GrabberPages(GrabberBase):
         # here, we need to look into the logging table instead of recentchanges.
         rc_oldest = selects.oldest_rc_timestamp(self.db)
         if rc_oldest is None or rc_oldest > since:
-            delete_early, pages = self.get_logpages(since)
+            delete_early, moved, pages = self.get_logpages(since)
         else:
-            delete_early, pages = self.get_rcpages(since)
+            delete_early, moved, pages = self.get_rcpages(since)
         keys = list(pages.keys())
 
         # Always delete beforehand, otherwise inserts might violate the
@@ -255,6 +262,18 @@ class GrabberPages(GrabberBase):
             # deleted page - this will cause cascade deletion in
             # page_props and page_restrictions tables
             yield self.sql["delete", "page"], {"b_page_id": pageid}
+
+        # Update all moved page titles beforehand, exactly in the order they
+        # happened on the wiki, otherwise inserts might violate the
+        # page_namespace_title unique constraint (for example when a page has
+        # been moved multiple times since the last sync).
+        for pageid, params in moved:
+            title = self.db.Title(params["target_title"])
+            yield self.sql["update", "page_name"], {
+                    "b_page_id": pageid,
+                    "b_new_namespace": params["target_ns"],
+                    "b_new_title": title.dbtitle(params["target_ns"]),
+                }
 
         if pages:
             for chunk in ws.utils.iter_chunks(pages, self.api.max_ids_per_query):
@@ -284,6 +303,7 @@ class GrabberPages(GrabberBase):
 
     def get_rcpages(self, since):
         deleted_pageids = set()
+        moved = []
         rcpages = ws.utils.OrderedSet()
         rctitles = ws.utils.OrderedSet()
 
@@ -296,7 +316,7 @@ class GrabberPages(GrabberBase):
         }
         for change in self.db.query(rc_params):
             # add pageid for edits, new pages and target pages of log events
-            # (this implicitly handles all move, protect, delete, import actions)
+            # (this implicitly handles all protect, delete, import actions)
             if change["pageid"] > 0:
                 rcpages.add(change["pageid"])
 
@@ -305,6 +325,7 @@ class GrabberPages(GrabberBase):
                 # redirect, so we have to extract the new page ID manually.
                 if change["logtype"] == "move":
                     rctitles.add(change["title"])
+                    moved.append((change["pageid"], change["logparams"]))
                 elif change["logaction"] in {"delete_redir", "delete"}:
                     # note that pageid in recentchanges corresponds to log_page
                     deleted_pageids.add(change["pageid"])
@@ -328,10 +349,11 @@ class GrabberPages(GrabberBase):
                     if "pageid" in page:
                         rcpages.add(page["pageid"])
 
-        return deleted_pageids, rcpages
+        return deleted_pageids, moved, rcpages
 
     def get_logpages(self, since):
         deleted_pageids = set()
+        moved = []
         modified = ws.utils.OrderedSet()
 
         le_params = {
@@ -346,5 +368,7 @@ class GrabberPages(GrabberBase):
                     deleted_pageids.add(le["logpage"])
                 else:
                     modified.add(le["logpage"])
+                    if le["action"] == "move":
+                        moved.append((le["logpage"], le["params"]))
 
-        return deleted_pageids, modified
+        return deleted_pageids, moved, modified
