@@ -579,7 +579,6 @@ alltray-stable
 almanah
 alock-svn
 alone-in-the-dark-1
-alpaca
 alpha
 alpng
 alpng-nozlib
@@ -1616,7 +1615,6 @@ aur-submit-git
 aur-sync
 aur3
 aur77i-git
-aura-git
 aura-wallpapers
 aura1-git
 auralquiz
@@ -2120,7 +2118,6 @@ beaker-git
 beamer-theme-supelec
 beamerscape_hg
 beamerthemediepen
-beansdb
 beansdb-git
 beansdb-svn
 bear-engine-git
@@ -2890,7 +2887,6 @@ brother-dcp8085dn
 brother-dcp8085dn-cupswrapper
 brother-dcp8085dn-lpr
 brother-dcp9270cdn
-brother-dcpj132w
 brother-dcpj525w
 brother-dcpj715w-cups
 brother-fax1940cn-cupswrapper
@@ -8491,7 +8487,6 @@ ez100pu-driver
 ezbl-git
 ezbounce
 ezdraw
-ezxml
 f-dark-icon-theme
 f-git
 f-spot-dev
@@ -8569,7 +8564,6 @@ fakenes
 fakeroot-ng
 fakeua-svn
 fakeuser
-fakturama
 falcon-apache2
 falcon-apache2-svn
 falcon-beta
@@ -8649,7 +8643,6 @@ faudioextractor
 fauhdlc
 faumachine
 faumachine-bios
-faur
 faust-lv2
 faust-with-extras
 faustworks
@@ -9032,7 +9025,6 @@ firefox-beta-bin-zh
 firefox-beta-fr
 firefox-beta-i18n
 firefox-beta-kde-opensuse
-firefox-bin
 firefox-bin-es-es
 firefox-branded-bin-es-es
 firefox-branded-bin-hu
@@ -12233,7 +12225,6 @@ grub-efi-x86_64-bzr
 grub-ext
 grub-gfx
 grub-gfx-themes
-grub-imageboot
 grub-legacy-efi-fedora
 grub-legacy-fedora-efi-x86_64-git
 grub-legacy-fedora-git
@@ -12641,7 +12632,6 @@ gtk2-git-ubuntu
 gtk2-globalmenu
 gtk2-gummygilouche-basic-theme
 gtk2-ia_ora
-gtk2-libwinmenu
 gtk2-metatheme-sonar
 gtk2-overlay-scrollbar
 gtk2-theme-black-fate
@@ -12764,7 +12754,6 @@ gtr
 gtranslate
 gtranslator-git
 gtranslator-stable
-gtrayicon
 gts-snapshot
 gtuxnes
 gtvg
@@ -12854,7 +12843,6 @@ gupnp-ui
 gupnp-vala
 guppy
 guppy-git
-gura
 gura-git
 gurgle
 gurlchecker
@@ -13051,7 +13039,6 @@ harmonyseq
 harmonyseq-bzr
 harmopy-git
 harry-git
-harvest
 harvid
 harvies-jukebox-svn
 hashalot
@@ -15179,7 +15166,6 @@ hexdump
 hexe
 hexer
 hexglass
-hexinject
 hexutils
 heybuddy-trunk-bzr
 heytrack
@@ -20405,7 +20391,6 @@ libmpdclient-git
 libmpeg3
 libmpq
 libmpris-git
-libmseed
 libmsn-svn
 libmspub
 libmtag
@@ -20769,7 +20754,6 @@ librgba-gtk-module
 librime
 librmath
 libroadnav
-librouteros-git
 libroxml-git
 librpm-tizen
 librsvg-latest
@@ -22384,7 +22368,6 @@ mali-udev
 mali400
 maliit-framework
 maliit-plugins
-maltego
 malwaredetect
 malys-uniblue-icons
 mamba
@@ -23297,7 +23280,6 @@ mingw-w64-ilibusbx
 mingw-w64-jbigkit
 mingw-w64-kissfft
 mingw-w64-lcms
-mingw-w64-libassuan
 mingw-w64-libbpg
 mingw-w64-libcsv
 mingw-w64-libdaala
@@ -24807,7 +24789,6 @@ naken430asm
 naken_asm
 nalfs
 nall
-nama
 nama-git
 namcap-reports
 namebar
@@ -25756,7 +25737,6 @@ numix-icons-theme-git
 numix-manjaro-themes-zmod
 numix-solarized-elegance-colors
 numix-square-xfwm4
-numix-themes-archblue
 numix-themes-tomorrow
 numix-themes-yellow
 numix-utouch-icon-theme-bzr
@@ -29586,7 +29566,6 @@ png++-svn
 png2theora-svn
 pngcrush
 pngdefry
-pnglite
 pngnq
 pngnq-svn
 pngrewrite
@@ -29816,7 +29795,6 @@ powertop-autotune-systemd
 powertop-sysfs
 powertop2
 powiedz
-pp-git
 ppasskeeper
 ppasskeeper-git
 ppc64-xenon-binutils-git
@@ -31246,7 +31224,6 @@ python-keystoneclient
 python-khayyam
 python-khayyam3
 python-kinterbasdb
-python-kitchen
 python-kivy
 python-kombu
 python-konch
@@ -31648,7 +31625,6 @@ python-pyyajl-git
 python-pyyaml
 python-pyzmail
 python-pyzmq
-python-qdarkstyle
 python-qfathom
 python-qiniu
 python-qrencode
@@ -31957,7 +31933,6 @@ python-xmltodict
 python-xmltodict-git
 python-xmms
 python-xmms-remote
-python-xmp-toolkit-git
 python-xmppony
 python-xmppony-hg
 python-xrandr
@@ -32047,7 +32022,6 @@ python2-billiard
 python2-binaryornot
 python2-binjitsu-git
 python2-biopython
-python2-biplist
 python2-bitcoin-abe-git
 python2-bitcoinlib-git
 python2-bitly-svn
@@ -34841,7 +34815,6 @@ repic
 replex
 replex-yacoto
 replicant-git
-repmgr
 repo
 repo-clean-xz
 repo-keep
@@ -36061,7 +36034,6 @@ rox-volume
 roy-git
 rp-l2tp
 rpc.rstatd
-rpcalc
 rpcalc-git
 rpccalc
 rpd
@@ -38032,7 +38004,6 @@ shadow-jack
 shadow-systemd
 shadowgrounds-demo
 shadowgrounds-survivor-demo
-shadowrunreturns-gog
 shadowsocks-go
 shadowsocks-go-git
 shadowsocks-gui
@@ -38515,7 +38486,6 @@ slimplayer-git
 slimrat-gui
 slimrat-svn
 slingshot-bzr
-slinktool
 slipstream
 slipstream-data
 slipstream-mod-manager-git
@@ -39180,7 +39150,6 @@ squid-legacy
 squid-mysql
 squid-radius
 squid3
-squidclamav
 squidguard-1.4
 squidguard-beta
 squidpurge
@@ -43695,7 +43664,6 @@ vixn
 vixn-git
 vizzy-flash-tracer
 vjde
-vk4xmpp-git
 vkfs
 vkfs-svn
 vkget
@@ -43735,7 +43703,6 @@ vloopback-svn
 vlsub
 vm
 vmaid
-vmail
 vmbuilder
 vmips
 vmkit-svn
@@ -45204,13 +45171,11 @@ xfce4-volstatus-icon
 xfce4-volumed-git
 xfce4-wavelan-plugin-git
 xfce4-whiskermenu-plugin
-xfce4-windowck-plugin-git
 xfce4-xfapplet-plugin
 xfce4-xfapplet-plugin-mate
 xfce4-xmms-plugin-git
 xfce4-xquisite-icon-theme
 xfce4-xubuntustudio-icon-theme
-xfconf-git
 xfdashboard-dev
 xfdesktop-4.11
 xfdesktop-dev
@@ -45362,7 +45327,6 @@ xllmnrd
 xlm-sysinfo
 xlnl
 xlockblank
-xlockless
 xlogo-lang
 xls2txt
 xlsh-git
