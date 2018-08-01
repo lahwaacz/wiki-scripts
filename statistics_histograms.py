@@ -32,7 +32,7 @@ def plot_date_bars(bin_data, bin_edges, title, ylabel, fname):
     from matplotlib.dates import date2num, num2date
     from matplotlib import ticker
 
-#    fig = plt.figure()
+    plt.figure()  # clear previous figure
     plt.title(title)
     plt.xlabel("date")
     plt.ylabel(ylabel)
@@ -44,7 +44,7 @@ def plot_date_bars(bin_data, bin_edges, title, ylabel, fname):
     plt.gca().xaxis.set_major_formatter(ticker.FuncFormatter(lambda numdate, _: num2date(numdate).strftime('%Y-%m-%d')))
     plt.gcf().autofmt_xdate()
     plt.tick_params(axis="x", which="both", direction="out")
-    plt.xticks([date2num(ts) for ts in bin_edges if ts.month % 6 == 1])
+    plt.xticks([date2num(ts) for ts in bin_edges if ts.month % 12 == 1])
 
     plt.savefig(fname, papertype="a4")
 

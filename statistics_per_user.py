@@ -93,7 +93,7 @@ if __name__ == "__main__":
     api = API.from_argparser(args)
     db = ws.cache.AllRevisionsProps(api, args.cache_dir)
 
-    users = ["Alad", "Fengchao", "Indigo", "Kynikos", "Lahwaacz"]
+    users = ["Alad", "Fengchao", "Indigo", "Kynikos", "Lahwaacz", "Lonaowna"]
 
     usm = UserStatsModules(db)
     all_logs = get_logevents(api)
