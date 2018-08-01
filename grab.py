@@ -191,7 +191,10 @@ def check_titles(api, db):
         "wikipedia:en:Main page#section",
     ]
     for title in titles:
-        assert api.Title(title) == db.Title(title)
+        api_title = api.Title(title)
+        db_title = db.Title(title)
+        assert api_title.context == db_title.context
+        assert api_title == db_title
 
 
 if __name__ == "__main__":
