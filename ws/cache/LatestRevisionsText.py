@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-# TODO: rvprop=timestamp ??
-
 import logging
 
 from . import CacheDb
@@ -31,7 +29,7 @@ class LatestRevisionsText(CacheDb):
         # not necessary to wrap in each iteration since lists are mutable
         wrapped_titles = utils.ListOfDictsAttrWrapper(self.data[ns], "title")
 
-        allpages = self.api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, prop="info|revisions", rvprop="content")
+        allpages = self.api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, prop="info|revisions", rvprop="content|timestamp")
         for page in allpages:
             # the same page may be yielded multiple times with different pieces
             # of the information, hence the utils.dmerge
@@ -67,7 +65,7 @@ class LatestRevisionsText(CacheDb):
             wrapped_titles = utils.ListOfDictsAttrWrapper(self.data[ns], "title")
 
             for snippet in utils.list_chunks(for_update, self.api.max_ids_per_query):
-                result = self.api.call_api(action="query", pageids="|".join(str(pageid) for pageid in snippet), prop="info|revisions", rvprop="content")
+                result = self.api.call_api(action="query", pageids="|".join(str(pageid) for pageid in snippet), prop="info|revisions", rvprop="content|timestamp")
                 for page in result["pages"].values():
                     utils.bisect_insert_or_replace(self.data[ns], page["title"], data_element=page, index_list=wrapped_titles)
 
