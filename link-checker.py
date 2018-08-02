@@ -19,9 +19,9 @@ import requests
 import mwparserfromhell
 
 from ws.client import API, APIError
+from ws.db.database import Database
+from ws.CacheWrapper import CacheWrapper
 from ws.utils import LazyProperty
-import ws.cache
-import ws.utils
 from ws.interactive import edit_interactive, require_login, InteractiveQuit
 from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
@@ -64,53 +64,6 @@ def get_edit_checker(wikicode, summary_parts):
             if text != str(wikicode):
                 summary_parts.append(summary)
     return checker
-
-
-class CacheWrapper:
-    def __init__(self, *, db=None, api=None, cache_dir=None):
-        self.db = db
-        self.api = api
-        self.cache_dir = cache_dir
-
-        if db is not None:
-            raise NotImplementedError("Fetching from the SQL database is not implemented yet.")
-        elif api is not None and cache_dir is not None:
-            self.db = ws.cache.LatestRevisionsText(api, self.cache_dir, autocommit=False)
-            # create shallow copy of the db to trigger update only the first time
-            # and not at every access
-            self.db_copy = {}
-            for ns in self.api.site.namespaces.keys():
-                if ns >= 0:
-                    self.db_copy[str(ns)] = self.db[str(ns)]
-            self.db.dump()
-        elif api is not None:
-            raise NotImplementedError("Fetching from the API is not implemented yet.")
-        else:
-            raise ValueError("At least one of the arguments must be supplied. Note that `cache_dir` requires `api` too.")
-
-    def get_page_content(self, title):
-        """
-        :param title: an instance of :py:class:`ws.parser_helpers.title.Title`
-        :raises: :py:exc:`IndexError` if the page does not exist
-        :returns: the current content of the specified page
-        """
-        if self.cache_dir is not None:
-            pages = self.db_copy[str(title.namespacenumber)]
-            wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
-            page = ws.utils.bisect_find(pages, title.fullpagename, index_list=wrapped_titles)
-            return page["revisions"][0]["*"]
-
-    def get_page_timestamp(self, title):
-        """
-        :param title: an instance of :py:class:`ws.parser_helpers.title.Title`
-        :raises: :py:exc:`IndexError` if the page does not exist
-        :returns: the current revision timestamp of the specified page
-        """
-        if self.cache_dir is not None:
-            pages = self.db_copy[str(title.namespacenumber)]
-            wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
-            page = ws.utils.bisect_find(pages, title.fullpagename, index_list=wrapped_titles)
-            return page["revisions"][0]["timestamp"]
 
 
 class ExtlinkRules:
@@ -251,8 +204,9 @@ class WikilinkRules:
     - alternative text is intentional, no replacements there
     """
 
-    def __init__(self, api, cache_dir, interactive=False):
+    def __init__(self, api, db, *, cache_dir=None, interactive=False):
         self.api = api
+        self.db = db
         self.interactive = interactive
 
         # mapping of canonical titles to displaytitles
@@ -264,7 +218,7 @@ class WikilinkRules:
                 self.displaytitles[page["title"]] = page["displaytitle"]
 
         # cache of latest revisions' content
-        self.cache = CacheWrapper(api=api, cache_dir=cache_dir)
+        self.cache = CacheWrapper(api, db, cache_dir=cache_dir)
 
         self.void_update_cache = set()
 
@@ -724,17 +678,18 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
     # article status templates, lowercase
     skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
 
-    def __init__(self, api, cache_dir, interactive=False, dry_run=False, first=None, title=None, langnames=None, connection_timeout=30, max_retries=3):
+    def __init__(self, api, db, cache_dir, interactive=False, dry_run=False, first=None, title=None, langnames=None, connection_timeout=30, max_retries=3):
         if not dry_run:
             # ensure that we are authenticated
             require_login(api)
 
         # init inherited
         ExtlinkRules.__init__(self)
-        WikilinkRules.__init__(self, api, cache_dir, interactive)
+        WikilinkRules.__init__(self, api, db, cache_dir=cache_dir, interactive=interactive)
         ManTemplateRules.__init__(self, connection_timeout, max_retries)
 
         self.api = api
+        self.db = db
         self.interactive = interactive
         self.dry_run = dry_run
 
@@ -749,6 +704,8 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
         present_groups = [group.title for group in argparser._action_groups]
         if "Connection parameters" not in present_groups:
             API.set_argparser(argparser)
+        if "Database parameters" not in present_groups:
+            Database.set_argparser(argparser)
 
         group = argparser.add_argument_group(title="script parameters")
         group.add_argument("-i", "--interactive", action="store_true",
@@ -764,9 +721,11 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
                 help="comma-separated list of language tags to process (default: all, choices: {})".format(lang.get_internal_tags()))
 
     @classmethod
-    def from_argparser(klass, args, api=None):
+    def from_argparser(klass, args, api=None, db=None):
         if api is None:
             api = API.from_argparser(args)
+        if db is None:
+            db = Database.from_argparser(args)
         if args.lang:
             tags = args.lang.split(",")
             for tag in tags:
@@ -776,7 +735,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
             langnames = {lang.langname_for_tag(tag) for tag in tags}
         else:
             langnames = set()
-        return klass(api, args.cache_dir, interactive=args.interactive, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames, connection_timeout=args.connection_timeout, max_retries=args.connection_max_retries)
+        return klass(api, db, args.cache_dir, interactive=args.interactive, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames, connection_timeout=args.connection_timeout, max_retries=args.connection_max_retries)
 
     def update_page(self, src_title, text):
         """
