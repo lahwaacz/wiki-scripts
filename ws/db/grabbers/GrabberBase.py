@@ -128,7 +128,7 @@ class GrabberBase:
             gen = self.gen_update(since)
             self._execute(gen, sync_timestamp)
         except ShortRecentChangesError:
-            logger.warning("The recent changes table on the wiki has been recently purged, starting from scratch.")
+            logger.warning("The recent changes table on the wiki has been recently purged, so {} must start from scratch.".format(self.__class__.__name__))
             self.insert()
 
     def _execute(self, gen, sync_timestamp):
