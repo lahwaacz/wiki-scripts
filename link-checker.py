@@ -66,6 +66,53 @@ def get_edit_checker(wikicode, summary_parts):
     return checker
 
 
+class CacheWrapper:
+    def __init__(self, *, db=None, api=None, cache_dir=None):
+        self.db = db
+        self.api = api
+        self.cache_dir = cache_dir
+
+        if db is not None:
+            raise NotImplementedError("Fetching from the SQL database is not implemented yet.")
+        elif api is not None and cache_dir is not None:
+            self.db = ws.cache.LatestRevisionsText(api, self.cache_dir, autocommit=False)
+            # create shallow copy of the db to trigger update only the first time
+            # and not at every access
+            self.db_copy = {}
+            for ns in self.api.site.namespaces.keys():
+                if ns >= 0:
+                    self.db_copy[str(ns)] = self.db[str(ns)]
+            self.db.dump()
+        elif api is not None:
+            raise NotImplementedError("Fetching from the API is not implemented yet.")
+        else:
+            raise ValueError("At least one of the arguments must be supplied. Note that `cache_dir` requires `api` too.")
+
+    def get_page_content(self, title):
+        """
+        :param title: an instance of :py:class:`ws.parser_helpers.title.Title`
+        :raises: :py:exc:`IndexError` if the page does not exist
+        :returns: the current content of the specified page
+        """
+        if self.cache_dir is not None:
+            pages = self.db_copy[str(title.namespacenumber)]
+            wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
+            page = ws.utils.bisect_find(pages, title.fullpagename, index_list=wrapped_titles)
+            return page["revisions"][0]["*"]
+
+    def get_page_timestamp(self, title):
+        """
+        :param title: an instance of :py:class:`ws.parser_helpers.title.Title`
+        :raises: :py:exc:`IndexError` if the page does not exist
+        :returns: the current revision timestamp of the specified page
+        """
+        if self.cache_dir is not None:
+            pages = self.db_copy[str(title.namespacenumber)]
+            wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
+            page = ws.utils.bisect_find(pages, title.fullpagename, index_list=wrapped_titles)
+            return page["revisions"][0]["timestamp"]
+
+
 class ExtlinkRules:
 
     retype = type(re.compile(""))
@@ -206,7 +253,6 @@ class WikilinkRules:
 
     def __init__(self, api, cache_dir, interactive=False):
         self.api = api
-        self.cache_dir = cache_dir
         self.interactive = interactive
 
         # mapping of canonical titles to displaytitles
@@ -218,14 +264,7 @@ class WikilinkRules:
                 self.displaytitles[page["title"]] = page["displaytitle"]
 
         # cache of latest revisions' content
-        self.db = ws.cache.LatestRevisionsText(api, self.cache_dir, autocommit=False)
-        # create shallow copy of the db to trigger update only the first time
-        # and not at every access
-        self.db_copy = {}
-        for ns in self.api.site.namespaces.keys():
-            if ns >= 0:
-                self.db_copy[str(ns)] = self.db[str(ns)]
-        self.db.dump()
+        self.cache = CacheWrapper(api=api, cache_dir=cache_dir)
 
         self.void_update_cache = set()
 
@@ -413,42 +452,33 @@ class WikilinkRules:
 
         # determine target page
         if title.fullpagename:
-            _target_ns = title.namespacenumber
-            _target_title = title.fullpagename
+            _target_title = title
         else:
-            src_title = self.api.Title(srcpage)
-            _target_ns = src_title.namespacenumber
-            _target_title = src_title.fullpagename
+            _target_title = self.api.Title(srcpage)
 
         # skip links to special pages (e.g. [[Special:Preferences#mw-prefsection-rc]])
-        if _target_ns < 0:
+        if _target_title.namespacenumber < 0:
             return None
 
         # resolve redirects
         anchor_on_redirect_to_section = False
-        if _target_title in self.api.redirects.map:
-            _new_title = self.api.Title(self.api.redirects.resolve(_target_title))
-            if _new_title.sectionname:
+        if _target_title.fullpagename in self.api.redirects.map:
+            _target_title = self.api.Title(self.api.redirects.resolve(_target_title.fullpagename))
+            if _target_title.sectionname:
                 logger.warning("warning: section fragment placed on a redirect to possibly different section: {}".format(wikilink))
                 anchor_on_redirect_to_section = True
-            _target_ns = _new_title.namespacenumber
-            _target_title = _new_title.fullpagename
 
         # FIXME: indecisive due to missing expansion of transclusions
-        if _target_title.startswith("List of applications"):
+        if _target_title.fullpagename.startswith("List of applications"):
             return None
 
         # lookup target page content
-        # TODO: pulling revisions from cache does not expand templates
-        #       (transclusions like on List of applications)
-        pages = self.db_copy[str(_target_ns)]
-        wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
+        # TODO: pulling revisions from cache does not expand templates which is needed for pages like [[List of applications]]
         try:
-            page = ws.utils.bisect_find(pages, _target_title, index_list=wrapped_titles)
+            text = self.cache.get_page_content(_target_title)
         except IndexError:
-            logger.error("could not find content of page: '{}' (wikilink {})".format(_target_title, wikilink))
+            logger.error("could not find content of page: '{}' (wikilink {})".format(_target_title.fullpagename, wikilink))
             return None
-        text = page["revisions"][0]["*"]
 
         # get lists of section headings and anchors
         headings = get_section_headings(text)
@@ -860,12 +890,13 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
             apfrom = _title.pagename
 
         for ns in namespaces:
-            for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom, prop="revisions", rvprop="content|timestamp"):
+            for page in self.api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom):
                 title = page["title"]
                 if langnames and lang.detect_language(title)[1] not in langnames:
                     continue
-                timestamp = page["revisions"][0]["timestamp"]
-                text_old = page["revisions"][0]["*"]
+                _title = self.api.Title(title)
+                timestamp = self.cache.get_page_timestamp(_title)
+                text_old = self.cache.get_page_content(_title)
                 text_new, edit_summary = self.update_page(title, text_old)
                 self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
             # the apfrom parameter is valid only for the first namespace
