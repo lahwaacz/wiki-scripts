@@ -4,11 +4,11 @@ import sqlalchemy as sa
 
 import ws.db.mw_constants as mwconst
 
-from .SelectBase import SelectBase
+from .ListBase import ListBase
 
 __all__ = ["LogEvents"]
 
-class LogEvents(SelectBase):
+class LogEvents(ListBase):
 
     API_PREFIX = "le"
     DB_PREFIX = "log_"

@@ -115,37 +115,6 @@ class AllPages(GeneratorBase):
 
         return s
 
-    def get_pageset(self, titles=None, pageids=None):
-        """
-        :param list titles: list of :py:class:`ws.parser_helpers.title.Title` objects
-        :param list pageids: list of :py:obj:`int` objects
-        """
-        assert titles is not None or pageids is not None
-        assert titles is None or pageids is None
-
-        # join to get the namespace prefix
-        page = self.db.page
-        nss = self.db.namespace_starname
-        tail = page.outerjoin(nss, page.c.page_namespace == nss.c.nss_id)
-
-        s = sa.select([page.c.page_id, page.c.page_namespace, page.c.page_title, nss.c.nss_name])
-
-        if titles is not None:
-            ns_title_pairs = [(t.namespacenumber, t.dbtitle()) for t in titles]
-            s = s.where(sa.tuple_(page.c.page_namespace, page.c.page_title).in_(ns_title_pairs))
-            s = s.order_by(page.c.page_namespace.asc(), page.c.page_title.asc())
-
-            ex = sa.select([page.c.page_namespace, page.c.page_title])
-            ex = ex.where(sa.tuple_(page.c.page_namespace, page.c.page_title).in_(ns_title_pairs))
-        elif pageids is not None:
-            s = s.where(page.c.page_id.in_(pageids))
-            s = s.order_by(page.c.page_id.asc())
-
-            ex = sa.select([page.c.page_id])
-            ex = ex.where(page.c.page_id.in_(pageids))
-
-        return tail, s, ex
-
     @staticmethod
     def db_to_api(row):
         flags = {

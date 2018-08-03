@@ -2,12 +2,13 @@
 
 from .namespaces import *
 from .interwiki import *
-from .recentchanges import *
-from .logevents import *
-from .allpages import *
-from .protectedtitles import *
-from .allrevisions import *
-from .alldeletedrevisions import *
+
+from .lists.recentchanges import *
+from .lists.logevents import *
+from .lists.allpages import *
+from .lists.protectedtitles import *
+from .lists.allrevisions import *
+from .lists.alldeletedrevisions import *
 
 def list(db, params):
     classes = {
@@ -33,8 +34,38 @@ def list(db, params):
         yield s.db_to_api(row)
     result.close()
 
+def get_pageset(db, titles=None, pageids=None):
+    """
+    :param list titles: list of :py:class:`ws.parser_helpers.title.Title` objects
+    :param list pageids: list of :py:obj:`int` objects
+    """
+    assert titles is not None or pageids is not None
+    assert titles is None or pageids is None
+
+    # join to get the namespace prefix
+    page = db.page
+    nss = db.namespace_starname
+    tail = page.outerjoin(nss, page.c.page_namespace == nss.c.nss_id)
+
+    s = sa.select([page.c.page_id, page.c.page_namespace, page.c.page_title, nss.c.nss_name])
+
+    if titles is not None:
+        ns_title_pairs = [(t.namespacenumber, t.dbtitle()) for t in titles]
+        s = s.where(sa.tuple_(page.c.page_namespace, page.c.page_title).in_(ns_title_pairs))
+        s = s.order_by(page.c.page_namespace.asc(), page.c.page_title.asc())
+
+        ex = sa.select([page.c.page_namespace, page.c.page_title])
+        ex = ex.where(sa.tuple_(page.c.page_namespace, page.c.page_title).in_(ns_title_pairs))
+    elif pageids is not None:
+        s = s.where(page.c.page_id.in_(pageids))
+        s = s.order_by(page.c.page_id.asc())
+
+        ex = sa.select([page.c.page_id])
+        ex = ex.where(page.c.page_id.in_(pageids))
+
+    return tail, s, ex
+
 def query_pageset(db, params):
-    s = AllPages(db)
     params_copy = params.copy()
 
     assert "titles" in params or "pageids" in params
@@ -42,10 +73,10 @@ def query_pageset(db, params):
         titles = params_copy.pop("titles")
         assert isinstance(titles, set)
         titles = [db.Title(t) for t in titles]
-        tail, pageset, ex = s.get_pageset(titles=titles)
+        tail, pageset, ex = get_pageset(db, titles=titles)
     elif "pageids" in params:
         pageids = params_copy.pop("pageids")
-        tail, pageset, ex = s.get_pageset(pageids=pageids)
+        tail, pageset, ex = get_pageset(db, pageids=pageids)
 
     extra_selects = []
     if "prop" in params:
@@ -84,6 +115,9 @@ def query_pageset(db, params):
 
     # complete the SQL query
     query = pageset.select_from(tail)
+
+    # TODO: for the lack of better structure, we abuse the AllPages class for execution
+    s = AllPages(db)
 
     # report missing pages
     existing_pages = set()
