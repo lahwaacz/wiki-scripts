@@ -1,6 +1,5 @@
 __pycache__
 /stub/
-/tmp/
 
 # documentation
 /docs/_build/
@@ -9,10 +8,6 @@ __pycache__
 
 # line-profiler's files
 *.lprof
-
-# coverage reports
-/.coverage
-/cover/
 
 # pytest, tox
 /.pytest_cache/

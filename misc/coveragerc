@@ -1,6 +1,6 @@
 [run]
 branch = True
-data_file = tmp/.coverage
+data_file = .tox/.coverage
 source = ws
 
 [report]
@@ -22,4 +22,4 @@ exclude_lines =
     if __name__ == .__main__.:
 
 [html]
-directory = tmp/cover
+directory = .tox/cover
