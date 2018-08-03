@@ -13,6 +13,7 @@ from .lists.alldeletedrevisions import *
 from .props.revisions import *
 from .props.deletedrevisions import *
 from .props.pageprops import *
+from .props.protection import *
 
 def list(db, params):
     classes = {
@@ -99,6 +100,7 @@ def query_pageset(db, params):
             "revisions": Revisions,
             "deletedrevisions": DeletedRevisions,
             "pageprops": PageProps,
+            "protection": Protection,
         }
 
         for p in prop:
