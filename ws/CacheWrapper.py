@@ -2,6 +2,7 @@
 
 import ws.cache
 import ws.utils
+import ws.db.selects
 
 class CacheWrapper:
     def __init__(self, api, db=None, *, cache_dir=None):
@@ -31,7 +32,10 @@ class CacheWrapper:
         :returns: the current content of the specified page
         """
         if self.db is not None:
-            raise NotImplementedError("Fetching from the SQL database is not implemented yet.")
+            result = ws.db.selects.query(self.db, titles={title.fullpagename}, prop="latestrevisions", rvprop={"content"})
+            result = list(result)
+            assert len(result) == 1
+            return result[0]["*"]
         elif self.cache_dir is not None:
             pages = self.db_copy[str(title.namespacenumber)]
             wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
@@ -45,7 +49,10 @@ class CacheWrapper:
         :returns: the current revision timestamp of the specified page
         """
         if self.db is not None:
-            raise NotImplementedError("Fetching from the SQL database is not implemented yet.")
+            result = ws.db.selects.query(self.db, titles={title.fullpagename}, prop="latestrevisions", rvprop={"timestamp"})
+            result = list(result)
+            assert len(result) == 1
+            return result[0]["timestamp"]
         elif self.cache_dir is not None:
             pages = self.db_copy[str(title.namespacenumber)]
             wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
