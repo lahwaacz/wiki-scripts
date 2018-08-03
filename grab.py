@@ -163,8 +163,8 @@ def select_revisions(api, db):
 def select_titles(api, db):
     print("Checking individual titles...")
 
-    titles = ["Main page", "Nonexistent"]
-    pageids = [1,2,3,4,5]
+    titles = {"Main page", "Nonexistent"}
+    pageids = {1,2,3,4,5}
 
     db_list = list(db.query(titles=titles))
     api_list = api.call_api(action="query", titles="|".join(titles))["pages"]
