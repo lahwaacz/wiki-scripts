@@ -56,7 +56,6 @@ class AllDeletedRevisions(GeneratorBase):
 
         ar = self.db.archive
         nss = self.db.namespace_starname
-        page = self.db.page
         tail = ar.join(nss, ar.c.ar_namespace == nss.c.nss_id)
         s = sa.select([ar.c.ar_page_id, ar.c.ar_namespace, ar.c.ar_title, nss.c.nss_name, ar.c.ar_deleted])
 
@@ -123,8 +122,7 @@ class AllDeletedRevisions(GeneratorBase):
             s = s.where(ar.c.ar_title <= params["to"])
         if "namespace" in params:
             # FIXME: namespace can be a '|'-delimited list
-            # FIXME: missing join with the page table
-            s = s.where(page.c.page_namespace == params["namespace"])
+            s = s.where(ar.c.ar_namespace == params["namespace"])
         if params.get("user"):
             s = s.where(ar.c.ar_user_text == params.get("user"))
         if params.get("excludeuser"):
