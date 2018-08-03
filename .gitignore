@@ -14,6 +14,6 @@ __pycache__
 /.coverage
 /cover/
 
-# tox
-/.cache/
+# pytest, tox
+/.pytest_cache/
 /.tox/
