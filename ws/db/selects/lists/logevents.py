@@ -13,13 +13,13 @@ class LogEvents(ListBase):
     API_PREFIX = "le"
     DB_PREFIX = "log_"
 
-    @staticmethod
-    def set_defaults(params):
+    @classmethod
+    def set_defaults(klass, params):
         params.setdefault("dir", "older")
         params.setdefault("prop", {"ids", "title", "type", "user", "timestamp", "comment", "details"})
 
-    @staticmethod
-    def sanitize_params(params):
+    @classmethod
+    def sanitize_params(klass, params):
         assert set(params) <= {"start", "end", "dir", "user", "title", "namespace", "prefix", "tag", "prop", "type", "action", "limit", "continue"}
 
         # sanitize timestamp limits
@@ -137,8 +137,8 @@ class LogEvents(ListBase):
 
         return s
 
-    @staticmethod
-    def db_to_api(row):
+    @classmethod
+    def db_to_api(klass, row):
         flags = {
             "log_id": "logid",
             "log_type": "type",

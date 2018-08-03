@@ -8,22 +8,22 @@ class SelectBase:
     def __init__(self, db):
         self.db = db
 
-    @staticmethod
-    def set_defaults(params):
+    @classmethod
+    def set_defaults(klass, params):
         """
         Responsible for setting default values of the query parameters.
         """
         raise NotImplementedError
 
-    @staticmethod
-    def sanitize_params(params):
+    @classmethod
+    def sanitize_params(klass, params):
         """
         Responsible for raising :py:exc:`AssertionError` in case of wrong input.
         """
         raise NotImplementedError
 
-    @staticmethod
-    def db_to_api(row):
+    @classmethod
+    def db_to_api(klass, row):
         """
         Converts data from the database into the API format.
         """

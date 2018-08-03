@@ -10,6 +10,9 @@ from .lists.protectedtitles import *
 from .lists.allrevisions import *
 from .lists.alldeletedrevisions import *
 
+from .props.revisions import *
+from .props.deletedrevisions import *
+
 def list(db, params):
     classes = {
         "recentchanges": RecentChanges,
@@ -91,9 +94,9 @@ def query_pageset(db, params):
         #   3. specifying revids
         # Fuck it, let's have separate "latestrevisions" for mode 1...
         classes_props = {
-            "latestrevisions": AllRevisions,
-            "revisions": AllRevisions,
-            "deletedrevisions": AllDeletedRevisions,
+            "latestrevisions": Revisions,
+            "revisions": Revisions,
+            "deletedrevisions": DeletedRevisions,
         }
 
         for p in prop:
@@ -104,7 +107,7 @@ def query_pageset(db, params):
             # pass <prefix>prop arguments to the add_props method
             default_prop_params = {}
             _s.set_defaults(default_prop_params)
-            prop_params = params_copy.get(_s.PROP_PREFIX + "prop", default_prop_params["prop"])
+            prop_params = params_copy.get(_s.API_PREFIX + "prop", default_prop_params["prop"])
 
             if p == "latestrevisions":
                 tail = _s.join_with_pageset(tail, enum_rev_mode=False)

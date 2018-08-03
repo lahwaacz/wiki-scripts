@@ -15,8 +15,8 @@ class AllPages(GeneratorBase):
     API_PREFIX = "ap"
     DB_PREFIX = "page_"
 
-    @staticmethod
-    def set_defaults(params):
+    @classmethod
+    def set_defaults(klass, params):
         params.setdefault("dir", "ascending")
         params.setdefault("namespace", 0)
         params.setdefault("filterredir", "all")
@@ -24,8 +24,8 @@ class AllPages(GeneratorBase):
         params.setdefault("prfiltercascade", "all")
 #        params.setdefault("filterlanglinks", "all")
 
-    @staticmethod
-    def sanitize_params(params):
+    @classmethod
+    def sanitize_params(klass, params):
         assert set(params) <= {"from", "to", "dir", "prefix", "namespace", "filterredir", "minsize", "maxsize", "prtype", "prlevel", "prexpiry", "prfiltercascade", "filterlanglinks", "limit", "continue"}
 
         # TODO: convert the 'from', 'to' and 'prefix' fields to the database canonical format
@@ -115,8 +115,8 @@ class AllPages(GeneratorBase):
 
         return s
 
-    @staticmethod
-    def db_to_api(row):
+    @classmethod
+    def db_to_api(klass, row):
         flags = {
             "page_id": "pageid",
             "page_namespace": "ns",

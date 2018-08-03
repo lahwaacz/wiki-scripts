@@ -13,13 +13,13 @@ class ProtectedTitles(GeneratorBase):
     API_PREFIX = "pt"
     DB_PREFIX = "pt_"
 
-    @staticmethod
-    def set_defaults(params):
+    @classmethod
+    def set_defaults(klass, params):
         params.setdefault("dir", "older")
         params.setdefault("prop", {"timestamp", "level"})
 
-    @staticmethod
-    def sanitize_params(params):
+    @classmethod
+    def sanitize_params(klass, params):
         assert set(params) <= {"start", "end", "dir", "namespace", "level", "prop", "limit", "continue"}
 
         # sanitize limits
@@ -114,8 +114,8 @@ class ProtectedTitles(GeneratorBase):
 
         return s
 
-    @staticmethod
-    def db_to_api(row):
+    @classmethod
+    def db_to_api(klass, row):
         flags = {
             "pt_namespace": "ns",
             "log_timestamp": "timestamp",
