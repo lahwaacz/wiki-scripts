@@ -44,10 +44,13 @@ class AllRevisions(GeneratorBase):
         # MW incompatibility: "parsedcomment" and "parsetree" props are not supported
         assert params["prop"] <= {"user", "userid", "comment", "flags", "timestamp", "ids", "size", "sha1", "tags", "content", "contentmodel"}
 
-    def join_with_pageset(self, pageset):
+    def join_with_pageset(self, pageset, *, enum_rev_mode=True):
         rev = self.db.revision
         page = self.db.page
-        return rev.join(pageset, rev.c.rev_page == page.c.page_id)
+        if enum_rev_mode is True:
+            return rev.join(pageset, rev.c.rev_page == page.c.page_id)
+        return rev.join(pageset, (rev.c.rev_page == page.c.page_id) &
+                                 (rev.c.rev_id == page.c.page_latest))
 
     def get_select(self, params):
         """

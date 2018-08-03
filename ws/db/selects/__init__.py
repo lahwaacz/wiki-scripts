@@ -45,7 +45,13 @@ def query_pageset(db, params):
             prop = {prop}
         assert isinstance(prop, set)
 
+        # MediaWiki's prop=revisions supports only 3 modes:
+        #   1. multiple pages, but only the latest revision
+        #   2. single page, but all revisions
+        #   3. specifying revids
+        # Fuck it, let's have separate "latestrevisions" for mode 1...
         classes_props = {
+            "latestrevisions": AllRevisions,
             "revisions": AllRevisions,
             "deletedrevisions": AllDeletedRevisions,
         }
@@ -60,7 +66,10 @@ def query_pageset(db, params):
             _s.set_defaults(default_prop_params)
             prop_params = params_copy.get(_s.PROP_PREFIX + "prop", default_prop_params["prop"])
 
-            tail = _s.join_with_pageset(tail)
+            if p == "latestrevisions":
+                tail = _s.join_with_pageset(tail, enum_rev_mode=False)
+            else:
+                tail = _s.join_with_pageset(tail)
             pageset, tail = _s.add_props(pageset, tail, prop_params)
             extra_selects.append(_s)
 
