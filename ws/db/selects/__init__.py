@@ -22,7 +22,16 @@ def list(db, params):
     assert "list" in params
     list = params.pop("list")
     s = classes[list](db)
-    return s.list(params)
+    s.set_defaults(params)
+    s.sanitize_params(params)
+
+    query = s.get_select(params)
+
+    # TODO: some lists like allrevisions should group the results per page like MediaWiki
+    result = s.execute_sql(query)
+    for row in result:
+        yield s.db_to_api(row)
+    result.close()
 
 def query_pageset(db, params):
     s = AllPages(db)

@@ -38,20 +38,3 @@ class SelectBase:
                 print(row[0])
 
         return self.db.engine.execute(query)
-
-    def list(self, params):
-        """
-        Generator which yields the results of the query.
-
-        :param dict params: query parameters
-        """
-        self.set_defaults(params)
-        self.sanitize_params(params)
-
-        s = self.get_select(params)
-
-        # TODO: some lists like allrevisions should group the results per page like MediaWiki
-        result = self.execute_sql(s)
-        for row in result:
-            yield self.db_to_api(row)
-        result.close()
