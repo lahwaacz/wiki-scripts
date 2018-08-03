@@ -31,11 +31,12 @@ def query_pageset(db, params):
     assert "titles" in params or "pageids" in params
     if "titles" in params:
         titles = params_copy.pop("titles")
+        assert isinstance(titles, set)
         titles = [db.Title(t) for t in titles]
-        pageset, ex = s.get_pageset(titles=titles)
+        tail, pageset, ex = s.get_pageset(titles=titles)
     elif "pageids" in params:
         pageids = params_copy.pop("pageids")
-        pageset, ex = s.get_pageset(pageids=pageids)
+        tail, pageset, ex = s.get_pageset(pageids=pageids)
 
     extra_selects = []
     if "prop" in params:
@@ -53,8 +54,18 @@ def query_pageset(db, params):
             if p not in classes_props:
                 raise NotImplementedError("Module prop={} is not implemented yet.".format(p))
             _s = classes_props[p](db)
-            pageset = _s.add_props(pageset, params_copy)
+
+            # pass <prefix>prop arguments to the add_props method
+            default_prop_params = {}
+            _s.set_defaults(default_prop_params)
+            prop_params = params_copy.get(_s.PROP_PREFIX + "prop", default_prop_params["prop"])
+
+            tail = _s.join_with_pageset(tail)
+            pageset, tail = _s.add_props(pageset, tail, prop_params)
             extra_selects.append(_s)
+
+    # complete the SQL query
+    query = pageset.select_from(tail)
 
     # report missing pages
     existing_pages = set()
@@ -73,7 +84,7 @@ def query_pageset(db, params):
             if p not in existing_pages:
                 yield {"missing": "", "pageid": p}
 
-    result = s.execute_sql(pageset)
+    result = s.execute_sql(query)
     for row in result:
         api_entry = s.db_to_api(row)
         for _s in extra_selects:

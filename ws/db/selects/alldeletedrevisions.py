@@ -10,8 +10,11 @@ __all__ = ["AllDeletedRevisions"]
 
 class AllDeletedRevisions(GeneratorBase):
 
-    API_PREFIX = "arv"
-    DB_PREFIX = "rev_"
+    API_PREFIX = "adr"
+    DB_PREFIX = "ar_"
+
+    # TODO: refactoring: split props into separate module
+    PROP_PREFIX = "rv"
 
     @staticmethod
     def set_defaults(params):
@@ -120,6 +123,7 @@ class AllDeletedRevisions(GeneratorBase):
             s = s.where(ar.c.ar_title <= params["to"])
         if "namespace" in params:
             # FIXME: namespace can be a '|'-delimited list
+            # FIXME: missing join with the page table
             s = s.where(page.c.page_namespace == params["namespace"])
         if params.get("user"):
             s = s.where(ar.c.ar_user_text == params.get("user"))

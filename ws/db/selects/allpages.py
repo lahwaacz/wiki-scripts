@@ -129,7 +129,6 @@ class AllPages(GeneratorBase):
         tail = page.outerjoin(nss, page.c.page_namespace == nss.c.nss_id)
 
         s = sa.select([page.c.page_id, page.c.page_namespace, page.c.page_title, nss.c.nss_name])
-        s = s.select_from(tail)
 
         if titles is not None:
             ns_title_pairs = [(t.namespacenumber, t.dbtitle()) for t in titles]
@@ -145,7 +144,7 @@ class AllPages(GeneratorBase):
             ex = sa.select([page.c.page_id])
             ex = ex.where(page.c.page_id.in_(pageids))
 
-        return s, ex
+        return tail, s, ex
 
     @staticmethod
     def db_to_api(row):
