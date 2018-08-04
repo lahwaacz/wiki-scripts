@@ -3,22 +3,20 @@
 import re
 
 from ws.client import API
-import ws.cache
+from ws.db.database import Database
 
 def main(api, db):
+    db.sync_with_api(api)
+    db.sync_latest_revisions_content(api)
+
     namespaces = ["1", "5", "11", "13", "15"]
     talks = []
     closed_talk_re = re.compile("^[=]+[ ]*<s>", flags=re.MULTILINE)
     for ns in namespaces:
-        pages = db[ns]
-        for page in pages:
-            text = page["revisions"][0]["*"]
+        for page in db.query(generator="allpages", gapnamespace=ns, prop="latestrevisions", rvprop={"content"}):
+            text = page["*"]
             if re.search(closed_talk_re, text):
                 talks.append(page)
-
-    # commit data to disk in case there were lazy updates
-    # TODO: check if there were actually some updates...
-    db.dump()
 
     for page in talks:
         print("* [[{}]]".format(page["title"]))
@@ -29,13 +27,14 @@ if __name__ == "__main__":
 
     argparser = ws.config.getArgParser(description="Find closed discussions")
     API.set_argparser(argparser)
+    Database.set_argparser(argparser)
+
     args = argparser.parse_args()
 
     # set up logging
     ws.logging.init(args)
 
     api = API.from_argparser(args)
-    # FIXME: except for this part, object_from_argparser could be used
-    db = ws.cache.LatestRevisionsText(api, args.cache_dir, autocommit=False)
+    db = Database.from_argparser(args)
 
     main(api, db)
