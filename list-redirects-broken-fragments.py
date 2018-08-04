@@ -5,12 +5,11 @@
 #   finally merge into link-checker.py, broken stuff should be just reported
 
 from ws.client import API
-import ws.cache
-import ws.utils
+from ws.db.database import Database
 from ws.parser_helpers.encodings import dotencode
 from ws.parser_helpers.wikicode import get_section_headings, get_anchors
 
-def valid_sectionname(title, pages, wrapped_titles):
+def valid_sectionname(db, title):
     """
     Checks if the ``sectionname`` property of given title is valid, i.e. if a
     corresponding section exists on a page with given title.
@@ -19,6 +18,7 @@ def valid_sectionname(title, pages, wrapped_titles):
         Validation is limited to pages in the Main namespace for easier access
         to the cache; anchors on other pages are considered to be always valid.
 
+    :param ws.db.database.Database db: database object
     :param title: parsed title of the wikilink to be checked
     :type title: ws.parser_helpers.title.Title
     :returns: ``True`` if the anchor corresponds to an existing section
@@ -35,8 +35,9 @@ def valid_sectionname(title, pages, wrapped_titles):
     if title.sectionname == "":
         return True
 
-    page = ws.utils.bisect_find(pages, title.fullpagename, index_list=wrapped_titles)
-    text = page["revisions"][0]["*"]
+    result = db.query(titles={title.fullpagename}, prop="latestrevisions", rvprop={"content"})
+    result = list(result)
+    text = result[0]["*"]
 
     # get list of valid anchors
     anchors = get_anchors(get_section_headings(text))
@@ -45,19 +46,18 @@ def valid_sectionname(title, pages, wrapped_titles):
     return dotencode(title.sectionname) in anchors
 
 def main(api, db):
+    db.sync_with_api(api)
+    db.sync_latest_revisions_content(api)
+
     # limit to redirects pointing to the content namespaces
     redirects = api.redirects.fetch(target_namespaces=[0, 4, 12])
-
-    # reference to the list of pages to avoid update of the cache for each lookup
-    pages = db["0"]
-    wrapped_titles = ws.utils.ListOfDictsAttrWrapper(pages, "title")
 
     for source in sorted(redirects.keys()):
         target = redirects[source]
         title = api.Title(target)
 
         # limit to redirects with broken fragment
-        if valid_sectionname(title, pages, wrapped_titles):
+        if valid_sectionname(db, title):
             continue
 
         print("* [[{}]] --> [[{}]]".format(source, target))
@@ -68,12 +68,14 @@ if __name__ == "__main__":
 
     argparser = ws.config.getArgParser(description="List redirects with broken fragments")
     API.set_argparser(argparser)
+    Database.set_argparser(argparser)
+
     args = argparser.parse_args()
 
     # set up logging
     ws.logging.init(args)
 
     api = API.from_argparser(args)
-    db = ws.cache.LatestRevisionsText(api, args.cache_dir)
+    db = Database.from_argparser(args)
 
     main(api, db)
