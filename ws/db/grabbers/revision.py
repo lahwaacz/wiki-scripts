@@ -103,6 +103,10 @@ class GrabberRevisions(GrabberBase):
             ("update", "ar_deleted"):
                 db.archive.update() \
                     .where(db.archive.c.ar_rev_id == sa.bindparam("b_rev_id")),
+            # query for updating revision.rev_text_id
+            ("update", "revision"):
+                db.revision.update() \
+                    .where(db.revision.c.rev_id == sa.bindparam("b_rev_id")),
         }
 
         # build query to move data from the archive table into revision
@@ -481,3 +485,50 @@ class GrabberRevisions(GrabberBase):
                 yield self.sql["delete", "tagged_revision"], db_entry
                 yield self.sql["delete", "tagged_archived_revision"], db_entry
                 yield self.sql["delete", "tagged_recentchange"], db_entry
+
+
+    def sync_latest_revisions_content(self):
+        def get_latest_revids():
+            rev = self.db.revision
+            page = self.db.page
+            query = sa.select([rev.c.rev_id]).select_from(
+                        rev.join(page, (rev.c.rev_page == page.c.page_id) &
+                                       (rev.c.rev_id == page.c.page_latest))
+                    ).where(rev.c.rev_text_id == None).order_by(rev.c.rev_id)
+            conn = self.db.engine.connect()
+            result = conn.execute(query)
+            return (r[0] for r in result)
+
+        def gen():
+            # we need one instance per transaction
+            self.text_id_gen = self._get_text_id_gen()
+
+            for chunk in ws.utils.iter_chunks(get_latest_revids(), self.api.max_ids_per_query):
+                params = {
+                    "action": "query",
+                    "revids": "|".join(str(i) for i in chunk),
+                    "prop": "revisions",
+                    "rvprop": "ids|content",
+                }
+                result = self.api.call_api(params, expand_result=False)
+                for page in result["query"]["pages"].values():
+                    for rev in page["revisions"]:
+                        text_id = next(self.text_id_gen)
+                        db_entry = {
+                            "b_rev_id": rev["revid"],
+                            "rev_text_id": text_id
+                        }
+                        yield from self.gen_text(rev, text_id)
+                        yield self.sql["update", "revision"], db_entry
+
+        # snippet copy-pasted from GrabberBase._execute, but without calling _set_sync_timestamp
+        from ws.db.execution import DeferrableExecutionQueue
+        with self.db.engine.begin() as conn:
+            with DeferrableExecutionQueue(conn, self.db.chunk_size) as dfe:
+                for item in gen():
+                    if isinstance(item, tuple):
+                        # unpack the tuple
+                        dfe.execute(*item)
+                    else:
+                        # probably a single value
+                        dfe.execute(item)

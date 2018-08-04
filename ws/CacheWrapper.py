@@ -11,7 +11,7 @@ class CacheWrapper:
 
         if db is not None:
             db.sync_with_api(api)
-            # TODO: sync the content of the current revisions
+            db.sync_latest_revisions_content(api)
         elif cache_dir is not None:
             self.db = ws.cache.LatestRevisionsText(api, self.cache_dir, autocommit=False)
             # create shallow copy of the db to trigger update only the first time
@@ -34,6 +34,8 @@ class CacheWrapper:
             result = self.db.query(titles={title.fullpagename}, prop="latestrevisions", rvprop={"content"})
             result = list(result)
             assert len(result) == 1
+            if "missing" in result[0]:
+                raise IndexError
             return result[0]["*"]
         elif self.cache_dir is not None:
             pages = self.db_copy[str(title.namespacenumber)]
@@ -51,6 +53,8 @@ class CacheWrapper:
             result = self.db.query(titles={title.fullpagename}, prop="latestrevisions", rvprop={"timestamp"})
             result = list(result)
             assert len(result) == 1
+            if "missing" in result[0]:
+                raise IndexError
             return result[0]["timestamp"]
         elif self.cache_dir is not None:
             pages = self.db_copy[str(title.namespacenumber)]

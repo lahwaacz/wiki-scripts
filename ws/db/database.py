@@ -120,7 +120,15 @@ class Database:
         :param ws.client.api.API api: interface to the remote MediaWiki instance
         :param bool with_content: whether to synchronize the content of all revisions
         """
-        return grabbers.synchronize(self, api, with_content=with_content)
+        grabbers.synchronize(self, api, with_content=with_content)
+
+    def sync_latest_revisions_content(self, api):
+        """
+        Sync the content of the latest revisions of all pages on the wiki.
+
+        :param ws.client.api.API api: interface to the remote MediaWiki instance
+        """
+        grabbers.GrabberRevisions(api, self).sync_latest_revisions_content()
 
     def query(self, *args, **kwargs):
         """
