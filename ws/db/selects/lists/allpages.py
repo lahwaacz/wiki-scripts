@@ -106,6 +106,10 @@ class AllPages(GeneratorBase):
         if end:
             s = s.where(page.c.page_title <= end)
         s = s.where(page.c.page_namespace == params["namespace"])
+        if params["filterredir"] == "redirects":
+            s = s.where(page.c.page_is_redirect == True)
+        if params["filterredir"] == "nonredirects":
+            s = s.where(page.c.page_is_redirect == False)
 
         # order by
         if params["dir"] == "ascending":
