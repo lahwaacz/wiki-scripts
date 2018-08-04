@@ -245,7 +245,8 @@ class API(Connection):
         :py:meth:`query_continue`, the overlapping overlapping data is not
         squashed automatically in order to avoid keeping big data in memory
         (this is the point of API:Generators). As a result, a page may be
-        yielded multiple times. See :py:meth:`ws.cache.LatestRevisionsText.init`
+        yielded multiple times. For applications where this matters, see
+        :py:meth:`ws.interlanguage.InterlanguageLinks.InterlanguageLinks._get_allpages`
         for an example of proper handling of this case.
         """
         generator_ = kwargs.get("generator") if params is None else params.get("generator")
