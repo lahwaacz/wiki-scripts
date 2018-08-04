@@ -20,7 +20,6 @@ import mwparserfromhell
 
 from ws.client import API, APIError
 from ws.db.database import Database
-from ws.CacheWrapper import CacheWrapper
 from ws.utils import LazyProperty
 from ws.interactive import edit_interactive, require_login, InteractiveQuit
 from ws.diff import diff_highlighted
@@ -204,7 +203,7 @@ class WikilinkRules:
     - alternative text is intentional, no replacements there
     """
 
-    def __init__(self, api, db, *, cache_dir=None, interactive=False):
+    def __init__(self, api, db, *, interactive=False):
         self.api = api
         self.db = db
         self.interactive = interactive
@@ -216,9 +215,6 @@ class WikilinkRules:
                 continue
             for page in self.api.generator(generator="allpages", gaplimit="max", gapnamespace=ns, prop="info", inprop="displaytitle"):
                 self.displaytitles[page["title"]] = page["displaytitle"]
-
-        # cache of latest revisions' content
-        self.cache = CacheWrapper(api, db, cache_dir=cache_dir)
 
         self.void_update_cache = set()
 
@@ -427,12 +423,14 @@ class WikilinkRules:
             return None
 
         # lookup target page content
-        # TODO: pulling revisions from cache does not expand templates which is needed for pages like [[List of applications]]
-        try:
-            text = self.cache.get_page_content(_target_title)
-        except IndexError:
+        # TODO: pulling revisions from the database does not expand templates which is needed for pages like [[List of applications]]
+        _result = self.db.query(titles={_target_title.fullpagename}, prop="latestrevisions", rvprop={"content"})
+        _result = list(_result)
+        assert len(_result) == 1
+        if "missing" in _result[0]:
             logger.error("could not find content of page: '{}' (wikilink {})".format(_target_title.fullpagename, wikilink))
             return None
+        text = _result[0]["*"]
 
         # get lists of section headings and anchors
         headings = get_section_headings(text)
@@ -678,14 +676,14 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
     # article status templates, lowercase
     skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
 
-    def __init__(self, api, db, cache_dir, interactive=False, dry_run=False, first=None, title=None, langnames=None, connection_timeout=30, max_retries=3):
+    def __init__(self, api, db, interactive=False, dry_run=False, first=None, title=None, langnames=None, connection_timeout=30, max_retries=3):
         if not dry_run:
             # ensure that we are authenticated
             require_login(api)
 
         # init inherited
         ExtlinkRules.__init__(self)
-        WikilinkRules.__init__(self, api, db, cache_dir=cache_dir, interactive=interactive)
+        WikilinkRules.__init__(self, api, db, interactive=interactive)
         ManTemplateRules.__init__(self, connection_timeout, max_retries)
 
         self.api = api
@@ -697,6 +695,9 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
         self.first = first
         self.title = title
         self.langnames = langnames
+
+        self.db.sync_with_api(api)
+        self.db.sync_latest_revisions_content(api)
 
     @staticmethod
     def set_argparser(argparser):
@@ -735,7 +736,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
             langnames = {lang.langname_for_tag(tag) for tag in tags}
         else:
             langnames = set()
-        return klass(api, db, args.cache_dir, interactive=args.interactive, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames, connection_timeout=args.connection_timeout, max_retries=args.connection_max_retries)
+        return klass(api, db, interactive=args.interactive, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames, connection_timeout=args.connection_timeout, max_retries=args.connection_max_retries)
 
     def update_page(self, src_title, text):
         """
@@ -849,13 +850,14 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
             apfrom = _title.pagename
 
         for ns in namespaces:
-            for page in self.api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom):
+            for page in self.db.query(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom,
+                                      prop="latestrevisions", rvprop={"timestamp", "content"}):
                 title = page["title"]
                 if langnames and lang.detect_language(title)[1] not in langnames:
                     continue
                 _title = self.api.Title(title)
-                timestamp = self.cache.get_page_timestamp(_title)
-                text_old = self.cache.get_page_content(_title)
+                timestamp = page["timestamp"]
+                text_old = page["*"]
                 text_new, edit_summary = self.update_page(title, text_old)
                 self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
             # the apfrom parameter is valid only for the first namespace
