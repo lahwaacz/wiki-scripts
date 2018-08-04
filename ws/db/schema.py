@@ -314,7 +314,7 @@ def create_revisions_tables(metadata):
         # (not a FK because archived pages don't exist in page)
         # NOTE: not visible via MW API
         Column("ar_page_id", Integer),
-        Column("ar_text_id", Integer, ForeignKey("text.old_id", deferrable=True, initially="DEFERRED")),
+        Column("ar_text_id", Integer, ForeignKey("text.old_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
         Column("ar_comment", UnicodeBinary(767), nullable=False),
         Column("ar_user", Integer, ForeignKey("user.user_id", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("ar_user_text", UnicodeBinary(255), nullable=False),
@@ -337,7 +337,7 @@ def create_revisions_tables(metadata):
         Column("rev_id", Integer, primary_key=True, nullable=False),
         Column("rev_page", Integer, ForeignKey("page.page_id", deferrable=True, initially="DEFERRED"), nullable=False),
         # MW incompatibility: set as nullable so that we can sync metadata and text separately
-        Column("rev_text_id", Integer, ForeignKey("text.old_id", deferrable=True, initially="DEFERRED")),
+        Column("rev_text_id", Integer, ForeignKey("text.old_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
         Column("rev_comment", UnicodeBinary(767), nullable=False),
         Column("rev_user", Integer, ForeignKey("user.user_id", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("rev_user_text", UnicodeBinary(255), nullable=False),
@@ -363,7 +363,9 @@ def create_revisions_tables(metadata):
     text = Table("text", metadata,
         Column("old_id", Integer, primary_key=True, nullable=False),
         Column("old_text", MediumBlob, nullable=False),
-        Column("old_flags", TinyBlob, nullable=False)
+        # MW incompatibility: there is no old_flags column because it is useless for us
+        # (everything is utf-8, compression is done transparently by PostgreSQL, PHP
+        # objects are not supported and we will never support external storage)
     )
 
     tagged_revision = Table("tagged_revision", metadata,

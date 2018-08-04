@@ -31,7 +31,6 @@ class GrabberRevisions(GrabberBase):
                     constraint=db.text.primary_key,
                     set_={
                         "old_text":  ins_text.excluded.old_text,
-                        "old_flags": ins_text.excluded.old_flags,
                     }),
             ("insert", "revision"):
                 ins_revision.on_conflict_do_update(
@@ -187,7 +186,6 @@ class GrabberRevisions(GrabberBase):
         db_entry = {
             "old_id": text_id,
             "old_text": rev["*"],
-            "old_flags": "utf-8",
         }
         yield self.sql["insert", "text"], db_entry
 
