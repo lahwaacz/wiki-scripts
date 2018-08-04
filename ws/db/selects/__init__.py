@@ -52,11 +52,11 @@ def list(db, params):
     if list not in __classes_lists:
         raise NotImplementedError("Module list={} is not implemented yet.".format(list))
     s = __classes_lists[list](db)
-    # TODO: call s.filter_params
-    s.set_defaults(params)
-    s.sanitize_params(params)
-
-    query = s.get_select(params)
+    # TODO: make sure that all parameters are used (i.e. when all modules take their parameters, params_copy should be empty)
+    list_params = s.filter_params(params)
+    s.set_defaults(list_params)
+    s.sanitize_params(list_params)
+    query = s.get_select(list_params)
 
     # TODO: some lists like allrevisions should group the results per page like MediaWiki
     result = s.execute_sql(query)

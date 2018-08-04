@@ -19,7 +19,7 @@ def _check_entries(db_entry, api_entry):
         raise
 
 def _check_lists(db_list, api_list):
-    assert len(db_list) == len(api_list)
+    assert len(db_list) == len(api_list), "{} vs. {}".format(len(db_list), len(api_list))
     for i, entries in enumerate(zip(db_list, api_list)):
         db_entry, api_entry = entries
         _check_entries(db_entry, api_entry)
@@ -35,7 +35,7 @@ def select_recentchanges(api, db):
         "rclimit": "max",
     }
 
-    db_list = list(db.query(list="recentchanges", prop=prop))
+    db_list = list(db.query(list="recentchanges", rcprop=prop))
     api_list = list(api.list(api_params))
 
     # FIXME: some deleted pages stay in recentchanges, although according to the tests they should be deleted
@@ -74,7 +74,7 @@ def select_logging(api, db):
         "lelimit": "max",
     }
 
-    db_list = list(db.query(list="logevents", prop=prop))
+    db_list = list(db.query(list="logevents", leprop=prop))
     api_list = list(api.list(api_params))
 
     _check_lists(db_list, api_list)
@@ -110,7 +110,7 @@ def select_protected_titles(api, db):
         "ptprop": "|".join(prop),
     }
 
-    db_list = list(db.query(list="protectedtitles", prop=prop))
+    db_list = list(db.query(list="protectedtitles", ptprop=prop))
     api_list = list(api.list(api_params))
 
     for db_entry, api_entry in zip(db_list, api_list):
@@ -136,7 +136,7 @@ def select_revisions(api, db):
         "arvstart": since,
     }
 
-    db_list = list(db.query(list="allrevisions", prop=prop, dir="newer", start=since))
+    db_list = list(db.query(list="allrevisions", arvprop=prop, arvdir="newer", arvstart=since))
     api_list = list(api.list(api_params))
 
     # FIXME: hack until we have per-page grouping like MediaWiki

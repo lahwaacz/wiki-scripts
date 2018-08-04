@@ -59,9 +59,9 @@ class GrabberInterwiki(GrabberBase):
 
         le_params = {
             "list": "logevents",
-            "prop": {"type", "details"},
-            "dir": "newer",
-            "start": since,
+            "leprop": {"type", "details"},
+            "ledir": "newer",
+            "lestart": since,
         }
         for le in self.db.query(le_params):
             if le["type"] == "interwiki":

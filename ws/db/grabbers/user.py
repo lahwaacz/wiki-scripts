@@ -136,10 +136,10 @@ class GrabberUsers(GrabberBase):
 
         rc_params = {
             "list": "recentchanges",
-            "type": {"edit", "new", "log"},
-            "prop": {"user", "title", "loginfo"},
-            "dir": "newer",
-            "start": since,
+            "rctype": {"edit", "new", "log"},
+            "rcprop": {"user", "title", "loginfo"},
+            "rcdir": "newer",
+            "rcstart": since,
         }
         for change in self.db.query(rc_params):
             # add the performer of the edit, newpage or log entry

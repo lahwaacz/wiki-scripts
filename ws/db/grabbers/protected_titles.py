@@ -114,10 +114,10 @@ class GrabberProtectedTitles(GrabberBase):
 
         rc_params = {
             "list": "recentchanges",
-            "type": {"new", "log"},
-            "prop": {"ids", "title", "loginfo"},
-            "dir": "newer",
-            "start": since,
+            "rctype": {"new", "log"},
+            "rcprop": {"ids", "title", "loginfo"},
+            "rcdir": "newer",
+            "rcstart": since,
         }
         for change in self.db.query(rc_params):
             if change["type"] == "log":

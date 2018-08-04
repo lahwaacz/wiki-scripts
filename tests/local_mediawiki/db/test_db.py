@@ -251,7 +251,7 @@ def check_recentchanges(mediawiki, db):
     }
 
     api_list = list(mediawiki.api.list(api_params))
-    db_list = list(db.query(list="recentchanges", prop=prop))
+    db_list = list(db.query(list="recentchanges", rcprop=prop))
 
     assert db_list == api_list
 
@@ -265,7 +265,7 @@ def check_logging(mediawiki, db):
     }
 
     api_list = list(mediawiki.api.list(api_params))
-    db_list = list(db.query(list="logevents", prop=prop))
+    db_list = list(db.query(list="logevents", leprop=prop))
 
     assert db_list == api_list
 
@@ -308,7 +308,7 @@ def _check_allrevisions(mediawiki, db):
     }
 
     api_list = list(mediawiki.api.list(api_params))
-    db_list = list(db.query(list="allrevisions", prop=prop))
+    db_list = list(db.query(list="allrevisions", arvprop=prop))
 
     # FIXME: hack until we have per-page grouping like MediaWiki
     api_revisions = []
@@ -339,7 +339,7 @@ def _check_alldeletedrevisions(mediawiki, db):
     }
 
     api_list = list(mediawiki.api.list(api_params))
-    db_list = list(db.query(list="alldeletedrevisions", prop=prop))
+    db_list = list(db.query(list="alldeletedrevisions", adrprop=prop))
 
     # FIXME: hack until we have per-page grouping like MediaWiki
     api_revisions = []

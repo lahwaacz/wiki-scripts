@@ -309,10 +309,10 @@ class GrabberPages(GrabberBase):
 
         rc_params = {
             "list": "recentchanges",
-            "type": {"edit", "new", "log"},
-            "prop": {"ids", "loginfo", "title"},
-            "dir": "newer",
-            "start": since,
+            "rctype": {"edit", "new", "log"},
+            "rcprop": {"ids", "loginfo", "title"},
+            "rcdir": "newer",
+            "rcstart": since,
         }
         for change in self.db.query(rc_params):
             # add pageid for edits, new pages and target pages of log events
@@ -358,9 +358,9 @@ class GrabberPages(GrabberBase):
 
         le_params = {
             "list": "logevents",
-            "prop": {"type", "details", "ids"},
-            "dir": "newer",
-            "start": since,
+            "leprop": {"type", "details", "ids"},
+            "ledir": "newer",
+            "lestart": since,
         }
         for le in self.db.query(le_params):
             if le["type"] in {"delete", "protect", "move", "import"}:

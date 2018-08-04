@@ -301,9 +301,9 @@ class GrabberRevisions(GrabberBase):
 
         le_params = {
             "list": "logevents",
-            "prop": {"type", "details", "title", "ids"},
-            "dir": "newer",
-            "start": since,
+            "leprop": {"type", "details", "title", "ids"},
+            "ledir": "newer",
+            "lestart": since,
         }
         for le in self.db.query(le_params):
             # check logevents for delete/undelete
