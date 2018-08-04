@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 
 # TODO:
-# * rebase the class on the cache.LatestRevisionsText class, it is enough to export the data as files to the directory tree; cache directory for the purpose of arch-wiki-docs can be configured later
-# * merge arch-wiki-docs.py here, make selecting between "html" and "mediawiki" formats possible
+# - use the SQL database, it is enough to export the data as files to the directory tree
 
 import os
 import datetime
