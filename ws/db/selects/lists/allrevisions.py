@@ -25,7 +25,9 @@ class AllRevisions(Revisions, GeneratorBase):
             Parameters ...TODO... require joins with other tables,
             so that information will not be present during mirroring.
         """
-        if {"section", "generatetitles", "limit", "continue"} & set(params):
+        if {"section", "generatetitles", "continue"} & set(params):
+            raise NotImplementedError
+        if "limit" in params and params["limit"] != "max":
             raise NotImplementedError
 
         rev = self.db.revision

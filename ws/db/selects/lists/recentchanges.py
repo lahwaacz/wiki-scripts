@@ -63,7 +63,9 @@ class RecentChanges(GeneratorBase):
             Also ``prop=title`` requires join with the ``namespace_starname`` table
             but that must be synchronized first anyway.
         """
-        if {"limit", "continue"} & set(params):
+        if {"continue"} & set(params):
+            raise NotImplementedError
+        if "limit" in params and params["limit"] != "max":
             raise NotImplementedError
 
         rc = self.db.recentchanges

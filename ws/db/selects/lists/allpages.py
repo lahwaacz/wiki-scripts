@@ -61,7 +61,9 @@ class AllPages(GeneratorBase):
             Parameters ...TODO... require joins with other tables,
             so that information will not be present during mirroring.
         """
-        if {"filterlanglinks", "limit", "continue"} & set(params):
+        if {"filterlanglinks", "continue"} & set(params):
+            raise NotImplementedError
+        if "limit" in params and params["limit"] != "max":
             raise NotImplementedError
 
         page = self.db.page

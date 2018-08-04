@@ -40,7 +40,9 @@ class LogEvents(ListBase):
         assert params["prop"]
 
     def get_select(self, params):
-        if {"prefix", "limit", "continue"} & set(params):
+        if {"prefix", "continue"} & set(params):
+            raise NotImplementedError
+        if "limit" in params and params["limit"] != "max":
             raise NotImplementedError
 
         log = self.db.logging

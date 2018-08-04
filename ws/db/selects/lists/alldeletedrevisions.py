@@ -26,7 +26,9 @@ class AllDeletedRevisions(DeletedRevisions, GeneratorBase):
             Parameters ...TODO... require joins with other tables,
             so that information will not be present during mirroring.
         """
-        if {"section", "generatetitles", "limit", "continue", "prefix"} & set(params):
+        if {"section", "generatetitles", "continue", "prefix"} & set(params):
+            raise NotImplementedError
+        if "limit" in params and params["limit"] != "max":
             raise NotImplementedError
 
         ar = self.db.archive
