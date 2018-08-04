@@ -122,7 +122,7 @@ class AllPages(GeneratorBase):
         return s, tail
 
     def get_select(self, params):
-        return self.get_pageset[0]
+        return self.get_pageset(params)[0]
 
     @classmethod
     def db_to_api(klass, row):
