@@ -33,7 +33,7 @@ __classes_generators = {
     "alldeletedrevisions": AllDeletedRevisions,
 }
 
-# MediaWiki's prop=revisions supports only 3 modes:
+# MediaWiki's prop=revisions supports 3 modes:
 #   1. multiple pages, but only the latest revision
 #   2. single page, but all revisions
 #   3. specifying revids
