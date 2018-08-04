@@ -55,7 +55,7 @@ class AllPages(GeneratorBase):
         assert params["prfiltercascade"] in {"all", "cascading", "noncascading"}
 #        assert params["filterlanglinks"] in {"all", "withlanglinks", "withoutlanglinks"}
 
-    def get_select(self, params):
+    def get_pageset(self, params):
         """
         .. note::
             Parameters ...TODO... require joins with other tables,
@@ -113,7 +113,10 @@ class AllPages(GeneratorBase):
         else:
             s = s.order_by(page.c.page_title.desc())
 
-        return s
+        return s, tail
+
+    def get_select(self, params):
+        return self.get_pageset[0]
 
     @classmethod
     def db_to_api(klass, row):

@@ -29,6 +29,18 @@ class SelectBase:
         """
         raise NotImplementedError
 
+    @classmethod
+    def filter_params(klass, params, *, generator=False):
+        new_params = {}
+        for key, value in params.items():
+            prefix = klass.API_PREFIX
+            if generator is True:
+                prefix = "g" + prefix
+            if key.startswith(prefix):
+                new_key = key[len(prefix):]
+                new_params[new_key] = value
+        return new_params
+
     def execute_sql(self, query, *, explain=False):
         if explain is True:
             from ws.db.database import explain

@@ -15,19 +15,44 @@ from .props.deletedrevisions import *
 from .props.pageprops import *
 from .props.protection import *
 
-def list(db, params):
-    classes = {
-        "recentchanges": RecentChanges,
-        "logevents": LogEvents,
-        "allpages": AllPages,
-        "protectedtitles": ProtectedTitles,
-        "allrevisions": AllRevisions,
-        "alldeletedrevisions": AllDeletedRevisions,
-    }
+__classes_lists = {
+    "recentchanges": RecentChanges,
+    "logevents": LogEvents,
+    "allpages": AllPages,
+    "protectedtitles": ProtectedTitles,
+    "allrevisions": AllRevisions,
+    "alldeletedrevisions": AllDeletedRevisions,
+}
 
+# TODO: generator=allpages works, check the others
+__classes_generators = {
+    "recentchanges": RecentChanges,
+    "allpages": AllPages,
+    "protectedtitles": ProtectedTitles,
+    "allrevisions": AllRevisions,
+    "alldeletedrevisions": AllDeletedRevisions,
+}
+
+# MediaWiki's prop=revisions supports only 3 modes:
+#   1. multiple pages, but only the latest revision
+#   2. single page, but all revisions
+#   3. specifying revids
+# Fuck it, let's have separate "latestrevisions" for mode 1...
+__classes_props = {
+    "latestrevisions": Revisions,
+    "revisions": Revisions,
+    "deletedrevisions": DeletedRevisions,
+    "pageprops": PageProps,
+    "protection": Protection,
+}
+
+def list(db, params):
     assert "list" in params
     list = params.pop("list")
-    s = classes[list](db)
+    if list not in __classes_lists:
+        raise NotImplementedError("Module list={} is not implemented yet.".format(list))
+    s = __classes_lists[list](db)
+    # TODO: call s.filter_params
     s.set_defaults(params)
     s.sanitize_params(params)
 
@@ -73,7 +98,10 @@ def get_pageset(db, titles=None, pageids=None):
 def query_pageset(db, params):
     params_copy = params.copy()
 
-    assert "titles" in params or "pageids" in params
+    # TODO: for the lack of better structure, we abuse the AllPages class for execution of titles= and pageids= queries
+    s = AllPages(db)
+
+    assert "titles" in params or "pageids" in params or "generator" in params
     if "titles" in params:
         titles = params_copy.pop("titles")
         assert isinstance(titles, set)
@@ -82,6 +110,34 @@ def query_pageset(db, params):
     elif "pageids" in params:
         pageids = params_copy.pop("pageids")
         tail, pageset, ex = get_pageset(db, pageids=pageids)
+    elif "generator" in params:
+        generator = params_copy.pop("generator")
+        if generator not in __classes_generators:
+            raise NotImplementedError("Module generator={} is not implemented yet.".format(generator))
+        s = __classes_generators[generator](db)
+        # TODO: make sure that all parameters are used (i.e. when all modules take their parameters, params_copy should be empty)
+        generator_params = s.filter_params(params_copy, generator=True)
+        s.set_defaults(generator_params)
+        s.sanitize_params(generator_params)
+        pageset, tail = s.get_pageset(generator_params)
+
+    # report missing pages (does not make sense for generators)
+    if "generator" not in params:
+        existing_pages = set()
+        result = s.execute_sql(ex)
+        for row in result:
+            if "titles" in params:
+                existing_pages.add((row.page_namespace, row.page_title))
+            elif "pageids" in params:
+                existing_pages.add(row.page_id)
+        if "titles" in params:
+            for t in titles:
+                if (t.namespacenumber, t.dbtitle()) not in existing_pages:
+                    yield {"missing": "", "ns": t.namespacenumber, "title": t.dbtitle()}
+        elif "pageids" in params:
+            for p in pageids:
+                if p not in existing_pages:
+                    yield {"missing": "", "pageid": p}
 
     extra_selects = []
     if "prop" in params:
@@ -90,58 +146,22 @@ def query_pageset(db, params):
             prop = {prop}
         assert isinstance(prop, set)
 
-        # MediaWiki's prop=revisions supports only 3 modes:
-        #   1. multiple pages, but only the latest revision
-        #   2. single page, but all revisions
-        #   3. specifying revids
-        # Fuck it, let's have separate "latestrevisions" for mode 1...
-        classes_props = {
-            "latestrevisions": Revisions,
-            "revisions": Revisions,
-            "deletedrevisions": DeletedRevisions,
-            "pageprops": PageProps,
-            "protection": Protection,
-        }
-
         for p in prop:
-            if p not in classes_props:
+            if p not in __classes_props:
                 raise NotImplementedError("Module prop={} is not implemented yet.".format(p))
-            _s = classes_props[p](db)
-
-            # pass <prefix>prop arguments to the add_props method
-            default_prop_params = {}
-            _s.set_defaults(default_prop_params)
-            prop_params = params_copy.get(_s.API_PREFIX + "prop", default_prop_params["prop"])
+            _s = __classes_props[p](db)
 
             if p == "latestrevisions":
                 tail = _s.join_with_pageset(tail, enum_rev_mode=False)
             else:
                 tail = _s.join_with_pageset(tail)
-            pageset, tail = _s.add_props(pageset, tail, prop_params)
+            prop_params = _s.filter_params(params_copy)
+            _s.set_defaults(prop_params)
+            pageset, tail = _s.add_props(pageset, tail, prop_params["prop"])
             extra_selects.append(_s)
 
     # complete the SQL query
     query = pageset.select_from(tail)
-
-    # TODO: for the lack of better structure, we abuse the AllPages class for execution
-    s = AllPages(db)
-
-    # report missing pages
-    existing_pages = set()
-    result = s.execute_sql(ex)
-    for row in result:
-        if "titles" in params:
-            existing_pages.add((row.page_namespace, row.page_title))
-        elif "pageids" in params:
-            existing_pages.add(row.page_id)
-    if "titles" in params:
-        for t in titles:
-            if (t.namespacenumber, t.dbtitle()) not in existing_pages:
-                yield {"missing": "", "ns": t.namespacenumber, "title": t.dbtitle()}
-    elif "pageids" in params:
-        for p in pageids:
-            if p not in existing_pages:
-                yield {"missing": "", "pageid": p}
 
     result = s.execute_sql(query)
     for row in result:
@@ -161,6 +181,6 @@ def query(db, params=None, **kwargs):
 
     if "list" in params:
         return list(db, params)
-    elif "titles" in params or "pageids" in params:
+    elif "titles" in params or "pageids" in params or "generator" in params:
         return query_pageset(db, params)
     raise NotImplementedError("Unknown query: no recognizable parameter ({}).".format(params))
