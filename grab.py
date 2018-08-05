@@ -1,5 +1,6 @@
 from pprint import pprint
 import datetime
+import traceback
 
 import sqlalchemy as sa
 
@@ -8,21 +9,24 @@ from ws.interactive import require_login
 from ws.db.database import Database
 
 
-def _check_entries(db_entry, api_entry):
+def _check_entries(i, db_entry, api_entry):
     try:
         assert db_entry == api_entry
     except AssertionError:
-        print("db_entry:")
+        print("db_entry no. {}:".format(i))
         pprint(db_entry)
-        print("api_entry:")
+        print("api_entry no. {}:".format(i))
         pprint(api_entry)
         raise
 
 def _check_lists(db_list, api_list):
-    assert len(db_list) == len(api_list), "{} vs. {}".format(len(db_list), len(api_list))
-    for i, entries in enumerate(zip(db_list, api_list)):
-        db_entry, api_entry = entries
-        _check_entries(db_entry, api_entry)
+    try:
+        assert len(db_list) == len(api_list), "{} vs. {}".format(len(db_list), len(api_list))
+        for i, entries in enumerate(zip(db_list, api_list)):
+            db_entry, api_entry = entries
+            _check_entries(i, db_entry, api_entry)
+    except AssertionError:
+        traceback.print_exc()
 
 
 def select_recentchanges(api, db):
@@ -47,21 +51,24 @@ def select_recentchanges(api, db):
             new_api_list.append(rc)
     api_list = new_api_list
 
-    assert len(db_list) == len(api_list)
-    for i, entries in enumerate(zip(db_list, api_list)):
-        db_entry, api_entry = entries
-        # TODO: I don't know what this means
-        if "unpatrolled" in api_entry:
-            del api_entry["unpatrolled"]
+    try:
+        assert len(db_list) == len(api_list)
+        for i, entries in enumerate(zip(db_list, api_list)):
+            db_entry, api_entry = entries
+            # TODO: I don't know what this means
+            if "unpatrolled" in api_entry:
+                del api_entry["unpatrolled"]
 
-        # FIXME: rolled-back edits are automatically patrolled, but there does not seem to be any way to detect this
-        # skipping all patrol checks for now...
-        if "patrolled" in api_entry:
-            del api_entry["patrolled"]
-        if "patrolled" in db_entry:
-            del db_entry["patrolled"]
+            # FIXME: rolled-back edits are automatically patrolled, but there does not seem to be any way to detect this
+            # skipping all patrol checks for now...
+            if "patrolled" in api_entry:
+                del api_entry["patrolled"]
+            if "patrolled" in db_entry:
+                del db_entry["patrolled"]
 
-        _check_entries(db_entry, api_entry)
+            _check_entries(i, db_entry, api_entry)
+    except AssertionError:
+        traceback.print_exc()
 
 
 def select_logging(api, db):
