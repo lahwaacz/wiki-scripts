@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 
-"""
-An ordered set class from this recipe:
-
-https://stackoverflow.com/a/1653978/4180822
-"""
-
 import collections
 
 __all__ = ["OrderedSet"]
 
 class OrderedSet(collections.OrderedDict, collections.MutableSet):
+    """
+    An ordered set class from this recipe:
+    https://stackoverflow.com/a/1653978/4180822
+    """
 
     def update(self, *args, **kwargs):
         if kwargs:

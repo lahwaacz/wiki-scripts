@@ -142,6 +142,7 @@ html_theme_options = {
     "github_user": "lahwaacz",
     "github_repo": "wiki-scripts",
     "github_banner": True,
+    "github_button": False,
     # wide layout
     "page_width": "95%",
     # use standard font families

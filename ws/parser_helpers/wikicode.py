@@ -9,6 +9,14 @@ from .encodings import dotencode
 __all__ = ["strip_markup", "get_adjacent_node", "get_parent_wikicode", "remove_and_squash", "get_section_headings", "get_anchors", "ensure_flagged_by_template", "ensure_unflagged_by_template"]
 
 def strip_markup(text, normalize=True, collapse=True):
+    """
+    Parses the given text and returns the text after stripping all MediaWiki
+    markup, leaving only the plain text.
+
+    :param normalize: passed to :py:func:`mwparserfromhell.wikicode.Wikicode.strip_code`
+    :param collapse: passed to :py:func:`mwparserfromhell.wikicode.Wikicode.strip_code`
+    :returns: :py:obj:`str`
+    """
     wikicode = mwparserfromhell.parse(text)
     return wikicode.strip_code(normalize, collapse)
 

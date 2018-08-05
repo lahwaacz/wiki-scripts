@@ -74,6 +74,10 @@ def range_by_months(first, last):
     return range_
 
 def round_to_seconds(dt):
+    """
+    Rounds the given :py:class:`datetime.datetime` object to the nearest whole
+    second.
+    """
     if dt.microsecond >= 500000:
         dt += datetime.timedelta(seconds=1, microseconds=-dt.microsecond)
     else:

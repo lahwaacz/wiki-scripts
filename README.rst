@@ -1,14 +1,34 @@
 wiki-scripts
 ============
 
-Collection of scripts automating common maintenance tasks on `ArchWiki`_.
-The underlying ``ws`` module is general and reusable on any wiki powered by
-`MediaWiki`_.
+.. after-top-level-title
+
+The `wiki-scripts` project is a general framework for writing bots, maintenance
+scripts or performing data analysis using the `MediaWiki API interface`_. The
+repository includes several scripts automating common maintenance tasks on the
+`ArchWiki`_, but most of the functionality implemented in the underlying
+:py:mod:`ws` module is general and reusable on any `MediaWiki`_ powered wiki.
 
 .. _ArchWiki: https://wiki.archlinux.org
 .. _MediaWiki: https://www.mediawiki.org/wiki/MediaWiki
+.. _MediaWiki API interface: https://www.mediawiki.org/wiki/API
 
-.. featured-scripts-section-start
+Notable features
+----------------
+
+General features of the :py:mod:`ws` module:
+
+- Custom interface for connecting to the MediaWiki API (:py:mod:`ws.client`).
+- Automatic handling of the CSRF token.
+- Automatic conversion of MediaWiki timestamp strings into the Python’s
+  :py:class:`datetime.datetime` objects and back.
+- Automatic handling of `API query-continuation`_.
+- Class for easy handling of MediaWiki page titles
+  (:py:class:`Title <ws.parser_helpers.title.Title>`).
+- Custom SQL database capable of mirroring (almost) all data stored on the wiki
+  (useful e.g. for caching of expensive queries involving revisions content).
+
+.. _API query-continuation: https://www.mediawiki.org/wiki/API:Query#Continuing_queries
 
 Featured scripts
 ----------------
@@ -29,8 +49,9 @@ Featured scripts
   update them (for example when a package has been moved from the AUR to the
   official repositories).
 
-For a full list of available scripts see the root directory of the
-`git repository`_.
+For a full list of available scripts see the `root directory`_ in the git
+repository. The `examples directory`_ contains less notable notable scripts
+showing various ways of the core :py:mod:`ws` module usage.
 
 .. _`interlanguage map`: https://wiki.archlinux.org/index.php/Help:I18n
 .. _`style recommendations`: https://wiki.archlinux.org/index.php/Help:Style
@@ -39,11 +60,8 @@ For a full list of available scripts see the root directory of the
 .. _`AUR`: https://wiki.archlinux.org/index.php/Template:AUR
 .. _`Grp`: https://wiki.archlinux.org/index.php/Template:Grp
 .. _`Pkg`: https://wiki.archlinux.org/index.php/Template:Pkg
-.. _`git repository`: https://github.com/lahwaacz/wiki-scripts
-
-.. featured-scripts-section-end
-
-.. install-section-start
+.. _`root directory`: https://github.com/lahwaacz/wiki-scripts
+.. _`examples directory`: https://github.com/lahwaacz/wiki-scripts/blob/master/examples
 
 Installation
 ------------
@@ -125,7 +143,22 @@ Other tools used for development:
 .. _sphinx: http://sphinx-doc.org/
 .. _fabric: http://www.fabfile.org/
 
-.. install-section-end
+Acknowledgement
+---------------
+
+There is a `list of client software`_ maintained on mediawiki.org, many of them
+are quite inspirational.
+
+- `simplemediawiki`_ is the original inspiration for the core
+  :py:mod:`ws.client.connection` and (partially) :py:mod:`ws.client.api` modules.
+- Some scripts are inspired by the `Wiki Monkey`_'s plugins, but (obviously) were
+  written from scratch.
+
+.. _list of client software: https://www.mediawiki.org/wiki/API:Client_code#Python
+.. _simplemediawiki: https://github.com/ianweller/python-simplemediawiki
+.. _Wiki Monkey: https://github.com/kynikos/wiki-monkey
+
+.. before-documentation-section
 
 Documentation
 -------------
