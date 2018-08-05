@@ -2,7 +2,7 @@ Configuration
 -------------
 
 The scripts in the project's root directory use a configuration interface from
-the ``ws.config`` submodule, which relies on the `ConfigArgParse`_ and
+the :py:mod:`ws.config` submodule, which relies on the `ConfigArgParse`_ and
 `configfile`_ libraries.
 
 .. _ConfigArgParse: https://github.com/lahwaacz/ConfigArgParse/tree/config_files_without_merging
@@ -19,36 +19,29 @@ prints all available options for a script:
     optional arguments:
       -h, --help            show this help message and exit
       -c PATH, --config PATH
-                            path to config file (default: /home/lahwaacz/.config
-                            /wiki-scripts/wiki-scripts.conf)
+                            path to config file (default:
+                            /home/lahwaacz/.config/wiki-scripts/wiki-scripts.conf)
       --site SITE           sets the top-level section to be read from config
                             files (default: ArchWiki)
       --log-level {debug,info,warning,error,critical}
                             the verbosity level for terminal logging (default:
                             info)
-      -d, --debug           shorthand for '--log-level debug'
-      -q, --quiet           shorthand for '--log-level warning'
-      --tmp-dir PATH        temporary directory path (will be created if
-                            necessary, but parent directory must exist) (default:
-                            /tmp/wiki-scripts)
-      --cache-dir PATH      directory for storing cached data (will be created if
-                            necessary, but parent directory must exist) (default:
-                            /home/lahwaacz/.cache/wiki-scripts)
+      -d, --debug           shortcut for '--log-level debug'
+      -q, --quiet           shortcut for '--log-level warning'
 
     Connection parameters:
       --api-url URL         the URL to the wiki's api.php (default:
                             https://wiki.archlinux.org/api.php)
       --index-url URL       the URL to the wiki's api.php (default:
                             https://wiki.archlinux.org/index.php)
-      --ssl-verify {0,1}    whether to verify SSL certificates (default: 1)
+      --ssl-verify SSL_VERIFY
+                            whether to verify SSL certificates (default: True)
+      --connection-max-retries CONNECTION_MAX_RETRIES
+                            maximum number of retries for each connection
+                            (default: 3)
+      --connection-timeout CONNECTION_TIMEOUT
+                            connection timeout in seconds (default: 30)
       --cookie-file PATH    path to cookie file (default: $cache_dir/$site.cookie)
-
-:Note:
-
-    The fact that ``--help`` shows an argument does not necessarily mean that
-    its value is used by the script in question (for example
-    ``print-namespaces.py`` does not use the ``--tmp-dir`` and ``--cache-dir``
-    arguments).
 
 The long arguments that start with ``--`` can be set in a configuration file
 specified by the ``--config`` option. The configuration file uses an extended INI
