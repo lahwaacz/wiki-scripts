@@ -7,6 +7,19 @@ Version 1.3
 Unreleased
 (`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.2...master>`__)
 
+- SQL database:
+    - Implemented a subset of MediaWiki API querie. Lists: ``allpages``,
+      ``alldeletedrevisions``, ``allrevisions``, ``logevents``,
+      ``protectedtitles``, ``recentchanges``; props: ``deletedrevisions``,
+      ``revisions``, ``pageprops``; including ``generator``, ``titles`` and
+      ``pageids`` parameters. See the GitHub issue for more information:
+      https://github.com/lahwaacz/wiki-scripts/issues/35.
+    - Implemented synchronization of the latest revisions contents.
+    - Fixed many bugs in the synchronization process.
+- Removed :py:mod:`ws.cache.LatestRevisions` module. Scripts use the SQL
+  database for caching.
+- Merged several smaller scripts into ``list-problems.py``.
+
 Version 1.2
 -----------
 
