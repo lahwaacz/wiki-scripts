@@ -430,7 +430,7 @@ class WikilinkRules:
         if "missing" in _result[0]:
             logger.error("could not find content of page: '{}' (wikilink {})".format(_target_title.fullpagename, wikilink))
             return None
-        text = _result[0]["*"]
+        text = _result[0]["revisions"][0]["*"]
 
         # get lists of section headings and anchors
         headings = get_section_headings(text)
@@ -856,8 +856,8 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
                 if langnames and lang.detect_language(title)[1] not in langnames:
                     continue
                 _title = self.api.Title(title)
-                timestamp = page["timestamp"]
-                text_old = page["*"]
+                timestamp = page["revisions"][0]["timestamp"]
+                text_old = page["revisions"][0]["*"]
                 text_new, edit_summary = self.update_page(title, text_old)
                 self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
             # the apfrom parameter is valid only for the first namespace

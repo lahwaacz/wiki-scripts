@@ -14,7 +14,7 @@ def main(api, db):
     closed_talk_re = re.compile("^[=]+[ ]*<s>", flags=re.MULTILINE)
     for ns in namespaces:
         for page in db.query(generator="allpages", gapnamespace=ns, prop="latestrevisions", rvprop={"content"}):
-            text = page["*"]
+            text = page["revisions"][0]["*"]
             if re.search(closed_talk_re, text):
                 talks.append(page)
 

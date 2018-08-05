@@ -38,7 +38,7 @@ def valid_sectionname(db, title):
 
     result = db.query(titles={title.fullpagename}, prop="latestrevisions", rvprop={"content"})
     result = list(result)
-    text = result[0]["*"]
+    text = result[0]["revisions"][0]["*"]
 
     # get list of valid anchors
     anchors = get_anchors(get_section_headings(text))
@@ -149,6 +149,7 @@ if __name__ == "__main__":
 
     print("== Redirects with broken fragments ==")
     list_redirects_broken_fragments(api, db)
+    print()
 
     print("== Redirects with wrong capitalization ==")
     print("""\
@@ -157,10 +158,12 @@ an acronym). We will print the wrong capitalized redirects, i.e. when
 sentence-case title redirects to title-case.
 """)
     list_redirects_wrong_capitalization(api)
+    print()
 
     print("== Talk pages of deleted pages ==")
     print("The following talk pages correspond to deleted pages and should not exist.")
     list_talkpages_of_deleted_pages(api)
+    print()
 
     print("== Talk pages of redirects ==")
     print("The following talk pages correspond to redirect pages and should be redirected as well or deleted.")
