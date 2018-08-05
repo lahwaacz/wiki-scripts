@@ -36,8 +36,8 @@ class AllDeletedRevisions(DeletedRevisions, GeneratorBase):
         tail = ar.join(nss, ar.c.ar_namespace == nss.c.nss_id)
         s = sa.select([ar.c.ar_page_id, ar.c.ar_namespace, ar.c.ar_title, nss.c.nss_name, ar.c.ar_deleted])
 
-        # props
-        s, tail = self.add_props(s, tail, params["prop"])
+        # handle parameters common with prop=deletedrevisions
+        s, tail = self.get_select_prop(s, tail, params)
 
         # extra restrictions
         if "namespace" in params:
