@@ -1,6 +1,7 @@
 from pprint import pprint
 import datetime
 import traceback
+import copy
 
 import sqlalchemy as sa
 
@@ -29,7 +30,7 @@ def _check_lists(db_list, api_list):
         traceback.print_exc()
 
 
-def select_recentchanges(api, db):
+def check_recentchanges(api, db):
     print("Checking the recentchanges table...")
 
     prop = {"title", "ids", "user", "userid", "flags", "timestamp", "comment", "sizes", "loginfo", "patrolled", "sha1", "redirect", "tags"}
@@ -71,7 +72,7 @@ def select_recentchanges(api, db):
         traceback.print_exc()
 
 
-def select_logging(api, db):
+def check_logging(api, db):
     print("Checking the logging table...")
 
     prop = {"user", "userid", "comment", "timestamp", "title", "ids", "type", "details", "tags"}
@@ -87,7 +88,7 @@ def select_logging(api, db):
     _check_lists(db_list, api_list)
 
 
-def select_allpages(api, db):
+def check_allpages(api, db):
     print("Checking the page table...")
 
     api_params = {
@@ -107,7 +108,7 @@ def select_allpages(api, db):
     _check_lists(db_list, api_list)
 
 
-def select_protected_titles(api, db):
+def check_protected_titles(api, db):
     print("Checking the protected_titles table...")
 
     prop = {"timestamp", "user", "userid", "comment", "expiry", "level"}
@@ -129,7 +130,7 @@ def select_protected_titles(api, db):
     _check_lists(db_list, api_list)
 
 
-def select_revisions(api, db):
+def check_revisions(api, db):
     print("Checking the revision table...")
 
     since = datetime.datetime.utcnow() - datetime.timedelta(days=30)
@@ -167,7 +168,7 @@ def select_revisions(api, db):
     _check_lists(db_list, api_list)
 
 
-def select_titles(api, db):
+def check_titles(api, db):
     print("Checking individual titles...")
 
     titles = {"Main page", "Nonexistent"}
@@ -186,7 +187,7 @@ def select_titles(api, db):
     _check_lists(db_list, api_list)
 
 
-def check_titles(api, db):
+def check_specific_titles(api, db):
     titles = [
         "Main page",
         "en:Main page",
@@ -202,6 +203,123 @@ def check_titles(api, db):
         db_title = db.Title(title)
         assert api_title.context == db_title.context
         assert api_title == db_title
+
+
+def check_latest_revisions(api, db):
+    print("Checking latest revisions...")
+
+    db_params = {
+        "generator": "allpages",
+        "prop": "latestrevisions",
+    }
+    api_params = {
+        "generator": "allpages",
+        "gaplimit": "max",
+        "prop": "revisions",
+    }
+
+    db_list = list(db.query(db_params))
+    api_list = list(api.generator(api_params))
+
+    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
+    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
+    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
+    api_list.sort(key=lambda item: item["pageid"])
+    db_list.sort(key=lambda item: item["pageid"])
+
+    _check_lists(db_list, api_list)
+
+
+def check_revisions_of_main_page(api, db):
+    print("Checking revisions of the Main page...")
+
+    titles = {"Main page"}
+    rvprop = {"ids", "flags", "timestamp", "user", "userid", "size", "sha1", "contentmodel", "comment", "tags"}
+    api_params = {
+        "prop": "revisions",
+        "rvlimit": "max",
+    }
+
+    db_list = list(db.query(**api_params, titles=titles, rvprop=rvprop))
+    api_dict = api.call_api(**api_params, action="query", titles="|".join(titles), rvprop="|".join(rvprop))["pages"]
+    api_list = list(api_dict.values())
+
+    # first check the lists without revisions
+    db_list_copy = copy.deepcopy(db_list)
+    api_list_copy = copy.deepcopy(api_list)
+    _check_lists(db_list_copy, api_list_copy)
+
+    # then check only the revisions
+    for db_page, api_page in zip(db_list, api_list):
+        _check_lists(db_page["revisions"], api_page["revisions"])
+
+
+def check_pageprops(api, db):
+    print("Checking pageprops...")
+
+    params = {
+        "generator": "allpages",
+        "gaplimit": "max",
+        "prop": "pageprops",
+    }
+
+    db_list = list(db.query(params))
+    api_list = list(api.generator(params))
+
+    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
+    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
+    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
+    api_list.sort(key=lambda item: item["pageid"])
+    db_list.sort(key=lambda item: item["pageid"])
+
+    _check_lists(db_list, api_list)
+
+
+def check_protection(api, db):
+    print("Checking protection...")
+
+    db_params = {
+        "generator": "allpages",
+        "prop": "protection",
+    }
+    api_params = {
+        "generator": "allpages",
+        "gaplimit": "max",
+        "prop": "info",
+        "inprop": "protection",
+    }
+
+    db_list = list(db.query(db_params))
+    api_list = list(api.generator(api_params))
+
+    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
+    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
+    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
+    api_list.sort(key=lambda item: item["pageid"])
+    db_list.sort(key=lambda item: item["pageid"])
+
+    # drop default omnipresent prop=info entries
+    # TODO: it would be good to implement the prop=info module after all...
+    for entry in api_list:
+        del entry["contentmodel"]
+        del entry["lastrevid"]
+        del entry["length"]
+        del entry["pagelanguage"]
+        del entry["pagelanguagedir"]
+        del entry["pagelanguagehtmlcode"]
+        del entry["touched"]
+        if "new" in entry:
+            del entry["new"]
+        if "redirect" in entry:
+            del entry["redirect"]
+
+    # fix ordering of the protection lists
+    for entry in db_list:
+        entry["protection"].sort(key=lambda p: p["type"])
+    for entry in api_list:
+        entry["protection"].sort(key=lambda p: p["type"])
+
+    _check_lists(db_list, api_list)
 
 
 if __name__ == "__main__":
@@ -228,11 +346,15 @@ if __name__ == "__main__":
     time2 = time.time()
     print("Syncing took {:.2f} seconds.".format(time2 - time1))
 
-    select_titles(api, db)
     check_titles(api, db)
+    check_specific_titles(api, db)
 
-    select_recentchanges(api, db)
-    select_logging(api, db)
-    select_allpages(api, db)
-    select_protected_titles(api, db)
-    select_revisions(api, db)
+    check_recentchanges(api, db)
+    check_logging(api, db)
+    check_allpages(api, db)
+    check_protected_titles(api, db)
+    check_revisions(api, db)
+    check_latest_revisions(api, db)
+    check_revisions_of_main_page(api, db)
+    check_pageprops(api, db)
+    check_protection(api, db)
