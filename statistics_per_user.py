@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -85,6 +86,11 @@ if __name__ == "__main__":
 
     argparser = ws.config.getArgParser()
     API.set_argparser(argparser)
+    cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
+    argparser.add_argument("--cache-dir", type=ws.config.argtype_dirname_must_exist,
+                metavar="PATH", default=os.path.join(cache_dir, "wiki-scripts"),
+                help="directory for storing cached data (will be created if "
+                "necessary, but parent directory must exist) (default: %(default)s)")
     args = argparser.parse_args()
 
     # set up logging
