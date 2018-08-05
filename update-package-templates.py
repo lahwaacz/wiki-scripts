@@ -382,7 +382,7 @@ class PkgUpdater:
 
     def check_allpages(self):
         if not self.finder.refresh():
-            return False
+            raise Exception("Failed to refresh package information.")
 
         # ensure that we are authenticated
         require_login(self.api)
@@ -403,8 +403,6 @@ class PkgUpdater:
                         self.api.edit(title, page["pageid"], text_new, timestamp, self.edit_summary, bot="")
                 except APIError:
                     pass
-
-        return True
 
     def add_report_line(self, title, template, message):
         message = "<nowiki>{}</nowiki> ({})".format(template, message)
@@ -427,35 +425,46 @@ class PkgUpdater:
                     report += "** %s\n" % message
         return report
 
-    def save_report(self, save_to_wiki=True):
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
-        basename = os.path.join(self.report_dir, "update-pkgs-{}.report".format(timestamp))
-
+    def save_report_to_json(self, text, basename):
         f = open(basename + ".json", "w")
         json.dump(self.log, f, indent=4, sort_keys=True)
         f.close()
         logger.info("Saved report in '{}.json'".format(basename))
 
-        mwreport = self.get_report_wikitext()
-        save_mwfile = False
-        if self.report_page and save_to_wiki is True:
+    def save_report_to_file(self, text, basename):
+        f = open(basename + ".mediawiki", "w")
+        f.write(mwreport)
+        f.close()
+        logger.info("Saved report in '{}.mediawiki'".format(basename))
+
+    def run(self):
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
+        basename = os.path.join(self.report_dir, "update-pkgs-{}.report".format(timestamp))
+
+        if self.report_page:
             page = AutoPage(self.api, self.report_page)
             div = page.get_tag_by_id("div", "wiki-scripts-archpkgs-report")
-            div.contents = mwreport
-            if page.is_old_enough(datetime.timedelta(days=7), strip_time=True):
-                try:
-                    page.save("automatic update", self.interactive)
-                    logger.info("Saved report to the [[{}]] page on the wiki.".format(self.report_page))
-                except APIError:
-                    save_mwfile = True
-            else:
+            if not page.is_old_enough(datetime.timedelta(days=7), strip_time=True):
                 logger.info("The report page on the wiki has already been updated in the past 7 days, skipping today's update.")
+                return
 
-        if save_mwfile is True:
-            f = open(basename + ".mediawiki", "w")
-            f.write(mwreport)
-            f.close()
-            logger.info("Saved report in '{}.mediawiki'".format(basename))
+        try:
+            self.check_allpages()
+        except (KeyboardInterrupt, InteractiveQuit):
+            print()
+            mwreport = self.get_report_wikitext()
+            self.save_report_to_json(mwreport, basename)
+            raise
+
+        mwreport = self.get_report_wikitext()
+        self.save_report_to_json(mwreport, basename)
+        if self.report_page:
+            div.contents = mwreport
+            try:
+                page.save("automatic update", self.interactive)
+                logger.info("Saved report to the [[{}]] page on the wiki.".format(self.report_page))
+            except APIError:
+                self.save_report_to_file(mwreport, basename)
 
 
 class TemplateParametersError(Exception):
@@ -472,17 +481,7 @@ class TemplateParametersError(Exception):
 
 
 if __name__ == "__main__":
-    import sys
     import ws.config
 
     updater = ws.config.object_from_argparser(PkgUpdater, description="Update Pkg/AUR templates")
-
-    try:
-        ret = updater.check_allpages()
-        if not ret:
-            sys.exit(ret)
-        updater.save_report()
-    except (KeyboardInterrupt, InteractiveQuit):
-        print()
-        updater.save_report(save_to_wiki=False)
-        raise
+    updater.run()
