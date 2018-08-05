@@ -268,7 +268,7 @@ class test_title_setters():
     # `title.pagename = foo` checks it too
     def test_invalid_type_set_pagename(self, title):
         with pytest.raises(TypeError):
-            title.set_pagename(42)
+            title._set_pagename(42)
 
 
     def test_iwprefix(self, title):
