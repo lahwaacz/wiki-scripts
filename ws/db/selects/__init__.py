@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from collections import OrderedDict
+
 from .namespaces import *
 from .interwiki import *
 
@@ -139,7 +141,16 @@ def query_pageset(db, params):
                 if p not in existing_pages:
                     yield {"missing": "", "pageid": p}
 
-    extra_selects = []
+    # fetch the pageset into an intermediate list
+    # TODO: query-continuation is probably needed for better efficiency
+    query = pageset.select_from(tail)
+    pages = OrderedDict()  # for indexed access, like in MediaWiki
+    result = s.execute_sql(query)
+    for row in result:
+        entry = s.db_to_api(row)
+        pages[entry["pageid"]] = entry
+    result.close()
+
     if "prop" in params:
         prop = params_copy.pop("prop")
         if isinstance(prop, str):
@@ -152,24 +163,21 @@ def query_pageset(db, params):
             _s = __classes_props[p](db)
 
             if p == "latestrevisions":
-                tail = _s.join_with_pageset(tail, enum_rev_mode=False)
+                prop_tail = _s.join_with_pageset(tail, enum_rev_mode=False)
             else:
-                tail = _s.join_with_pageset(tail)
+                prop_tail = _s.join_with_pageset(tail)
             prop_params = _s.filter_params(params_copy)
             _s.set_defaults(prop_params)
-            pageset, tail = _s.add_props(pageset, tail, prop_params["prop"])
-            extra_selects.append(_s)
+            prop_select, prop_tail = _s.get_select_prop(pageset, prop_tail, prop_params)
 
-    # complete the SQL query
-    query = pageset.select_from(tail)
+            query = prop_select.select_from(prop_tail)
+            result = _s.execute_sql(query)
+            for row in result:
+                page = pages[row["page_id"]]
+                _s.db_to_api_subentry(page, row)
+            result.close()
 
-    result = s.execute_sql(query)
-    for row in result:
-        api_entry = s.db_to_api(row)
-        for _s in extra_selects:
-            api_entry = _s.db_to_api(row)
-        yield api_entry
-    result.close()
+    yield from pages.values()
 
 def query(db, params=None, **kwargs):
     if params is None:

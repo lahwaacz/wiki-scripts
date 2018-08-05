@@ -36,7 +36,7 @@ class Protection(SelectBase):
         page = self.db.page
         return pageset.outerjoin(pr, page.c.page_id == pr.c.pr_page)
 
-    def add_props(self, s, tail, prop):
+    def get_select_prop(self, s, tail, params):
         pr = self.db.page_restrictions
 
         s.append_column(pr.c.pr_type)
@@ -46,41 +46,22 @@ class Protection(SelectBase):
 
         return s, tail
 
-    # TODO: should be grouped per page
     @classmethod
-    def db_to_api(klass, row):
-        flags = {
-            # TODO: check what MediaWiki produces
-            "pr_type": "protectiontype",
-            "pr_level": "protectionlevel",
-            "pr_cascade": "cascade",
-            "pr_expiry": "expiry",
-            "page_id": "pageid",
-            "page_namespace": "ns",
-        }
-        bool_flags = set("pr_cascade")
-        # subset of flags for which 0 should be used instead of None
-        zeroable_flags = set()
+    def db_to_api_subentry(klass, page, row):
+        # info about possible restriction types is always present in MediaWiki results
+        # TODO: it should not be hardcoded here...
+        page.setdefault("restrictiontypes", ["edit", "move"])
 
-        api_entry = {}
-        for key, value in row.items():
-            if key in flags:
-                api_key = flags[key]
-                # normal keys are not added if the value is None
-                if value is not None:
-                    api_entry[api_key] = value
-                # some keys produce 0 instead of None
-                elif key in zeroable_flags:
-                    api_entry[api_key] = 0
-            elif key in bool_flags:
-                if value:
-                    api_key = bool_flags[key]
-                    api_entry[api_key] = ""
-
-        # add special values
-        if row["nss_name"]:
-            api_entry["title"] = "{}:{}".format(row["nss_name"], row["page_title"])
-        else:
-            api_entry["title"] = row["page_title"]
-
-        return api_entry
+        protection = page.setdefault("protection", [])
+        if row["pr_type"] is not None:
+            pr = {
+                "type": row["pr_type"],
+                "level": row["pr_level"],
+            }
+            if row["pr_cascade"]:
+                pr["cascade"] = ""
+            if row["pr_expiry"] is None:
+                pr["expiry"] = "indefinite"
+            else:
+                pr["expiry"] = row["pr_expiry"]
+            protection.append(pr)

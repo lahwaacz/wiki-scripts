@@ -37,32 +37,12 @@ class AllRevisions(Revisions, GeneratorBase):
         tail = tail.join(nss, page.c.page_namespace == nss.c.nss_id)
         s = sa.select([page.c.page_id, page.c.page_namespace, page.c.page_title, nss.c.nss_name, rev.c.rev_deleted])
 
-        # props
-        s, tail = self.add_props(s, tail, params["prop"])
+        # handle parameters common with prop=revisions
+        s, tail = self.get_select_prop(s, tail, params)
 
-        # restrictions
-        if params["dir"] == "older":
-            newest = params.get("start")
-            oldest = params.get("end")
-        else:
-            newest = params.get("end")
-            oldest = params.get("start")
-        if newest:
-            s = s.where(rev.c.rev_timestamp <= newest)
-        if oldest:
-            s = s.where(rev.c.rev_timestamp >= oldest)
+        # extra restrictions
         if "namespace" in params:
             # FIXME: namespace can be a '|'-delimited list
             s = s.where(page.c.page_namespace == params["namespace"])
-        if params.get("user"):
-            s = s.where(rev.c.rev_user_text == params.get("user"))
-        if params.get("excludeuser"):
-            s = s.where(rev.c.rev_user_text != params.get("excludeuser"))
-
-        # order by
-        if params["dir"] == "older":
-            s = s.order_by(rev.c.rev_timestamp.desc(), rev.c.rev_id.desc())
-        else:
-            s = s.order_by(rev.c.rev_timestamp.asc(), rev.c.rev_id.asc())
 
         return s.select_from(tail)

@@ -39,40 +39,9 @@ class AllDeletedRevisions(DeletedRevisions, GeneratorBase):
         # props
         s, tail = self.add_props(s, tail, params["prop"])
 
-        # joins
-        if "tag" in params:
-            tag = self.db.tag
-            tgar = self.db.tagged_archived_revision
-            tail = tail.join(tgar, ar.c.ar_rev_id == tgar.c.tgar_rev_id)
-            s = s.where(tgar.c.tgar_tag_id == sa.select([tag.c.tag_id]).where(tag.c.tag_name == params["tag"]))
-
-        # restrictions
-        if params["dir"] == "older":
-            newest = params.get("start")
-            oldest = params.get("end")
-        else:
-            newest = params.get("end")
-            oldest = params.get("start")
-        if newest:
-            s = s.where(ar.c.ar_timestamp <= newest)
-        if oldest:
-            s = s.where(ar.c.ar_timestamp >= oldest)
-        if "from" in params:
-            s = s.where(ar.c.ar_title >= params["from"])
-        if "end" in params:
-            s = s.where(ar.c.ar_title <= params["to"])
+        # extra restrictions
         if "namespace" in params:
             # FIXME: namespace can be a '|'-delimited list
             s = s.where(ar.c.ar_namespace == params["namespace"])
-        if params.get("user"):
-            s = s.where(ar.c.ar_user_text == params.get("user"))
-        if params.get("excludeuser"):
-            s = s.where(ar.c.ar_user_text != params.get("excludeuser"))
-
-        # order by
-        if params["dir"] == "older":
-            s = s.order_by(ar.c.ar_timestamp.desc(), ar.c.ar_rev_id.desc())
-        else:
-            s = s.order_by(ar.c.ar_timestamp.asc(), ar.c.ar_rev_id.asc())
 
         return s.select_from(tail)

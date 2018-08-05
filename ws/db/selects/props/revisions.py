@@ -58,9 +58,10 @@ class Revisions(SelectBase):
         return rev.join(pageset, (rev.c.rev_page == page.c.page_id) &
                                  (rev.c.rev_id == page.c.page_latest))
 
-    def add_props(self, s, tail, prop):
+    def get_select_prop(self, s, tail, params):
         rev = self.db.revision
 
+        prop = params["prop"]
         if "user" in prop:
             s.append_column(rev.c.rev_user_text)
         if "userid" in prop:
@@ -99,6 +100,28 @@ class Revisions(SelectBase):
                             .cte("tag_names")
             tail = tail.outerjoin(tag_names, rev.c.rev_id == tag_names.c.tgrev_rev_id)
             s.append_column(tag_names.c.tag_names)
+
+        # restrictions
+        if params["dir"] == "older":
+            newest = params.get("start")
+            oldest = params.get("end")
+        else:
+            newest = params.get("end")
+            oldest = params.get("start")
+        if newest:
+            s = s.where(rev.c.rev_timestamp <= newest)
+        if oldest:
+            s = s.where(rev.c.rev_timestamp >= oldest)
+        if params.get("user"):
+            s = s.where(rev.c.rev_user_text == params.get("user"))
+        if params.get("excludeuser"):
+            s = s.where(rev.c.rev_user_text != params.get("excludeuser"))
+
+        # order by
+        if params["dir"] == "older":
+            s = s.order_by(rev.c.rev_timestamp.desc(), rev.c.rev_id.desc())
+        else:
+            s = s.order_by(rev.c.rev_timestamp.asc(), rev.c.rev_id.asc())
 
         return s, tail
 
@@ -165,3 +188,12 @@ class Revisions(SelectBase):
             api_entry["tags"].sort()
 
         return api_entry
+
+    @classmethod
+    def db_to_api_subentry(klass, page, row):
+        subentries = page.setdefault("revisions", [])
+        api_entry = klass.db_to_api(row)
+        del api_entry["pageid"]
+        del api_entry["ns"]
+        del api_entry["title"]
+        subentries.append(api_entry)

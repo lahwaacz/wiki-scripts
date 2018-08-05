@@ -41,9 +41,8 @@ class DeletedRevisions(SelectBase):
     @classmethod
     def sanitize_params(klass, params):
         # MW incompatibility: parameters related to content parsing are not supported (they are deprecated anyway)
-        # TODO: drvtag
         assert set(params) <= {"start", "end", "dir", "user", "excludeuser", "prop", "limit", "continue",
-                               "section", "generatetitles"}
+                               "section", "generatetitles", "tag"}
         klass.sanitize_common_params(params)
 
     # prop-specific methods
@@ -55,9 +54,10 @@ class DeletedRevisions(SelectBase):
         return ar.join(pageset, (ar.c.ar_namespace == page.c.page_namespace) &
                                 (ar.c.ar_title == page.c.page_title))
 
-    def add_props(self, s, tail, prop):
+    def get_select_prop(self, s, tail, params):
         ar = self.db.archive
 
+        prop = params["prop"]
         if "user" in prop:
             s.append_column(ar.c.ar_user_text)
         if "userid" in prop:
@@ -96,6 +96,37 @@ class DeletedRevisions(SelectBase):
                             .cte("tag_names")
             tail = tail.outerjoin(tag_names, ar.c.ar_rev_id == tag_names.c.tgar_rev_id)
             s.append_column(tag_names.c.tag_names)
+        if "tag" in params:
+            tag = self.db.tag
+            tgar = self.db.tagged_archived_revision
+            tail = tail.join(tgar, ar.c.ar_rev_id == tgar.c.tgar_rev_id)
+            s = s.where(tgar.c.tgar_tag_id == sa.select([tag.c.tag_id]).where(tag.c.tag_name == params["tag"]))
+
+        # restrictions
+        if params["dir"] == "older":
+            newest = params.get("start")
+            oldest = params.get("end")
+        else:
+            newest = params.get("end")
+            oldest = params.get("start")
+        if newest:
+            s = s.where(ar.c.ar_timestamp <= newest)
+        if oldest:
+            s = s.where(ar.c.ar_timestamp >= oldest)
+        if "from" in params:
+            s = s.where(ar.c.ar_title >= params["from"])
+        if "end" in params:
+            s = s.where(ar.c.ar_title <= params["to"])
+        if params.get("user"):
+            s = s.where(ar.c.ar_user_text == params.get("user"))
+        if params.get("excludeuser"):
+            s = s.where(ar.c.ar_user_text != params.get("excludeuser"))
+
+        # order by
+        if params["dir"] == "older":
+            s = s.order_by(ar.c.ar_timestamp.desc(), ar.c.ar_rev_id.desc())
+        else:
+            s = s.order_by(ar.c.ar_timestamp.asc(), ar.c.ar_rev_id.asc())
 
         return s, tail
 
@@ -159,3 +190,12 @@ class DeletedRevisions(SelectBase):
             api_entry["tags"].sort()
 
         return api_entry
+
+    @classmethod
+    def db_to_api_subentry(klass, page, row):
+        subentries = page.setdefault("deletedrevisions", [])
+        api_entry = klass.db_to_api(row)
+        del api_entry["pageid"]
+        del api_entry["ns"]
+        del api_entry["title"]
+        subentries.append(api_entry)
