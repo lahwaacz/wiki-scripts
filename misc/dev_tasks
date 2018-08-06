@@ -1,0 +1,48 @@
+#!/bin/bash
+
+function build_docs()
+{
+    module="ws"
+    sphinx-apidoc --separate --module-first --force --no-toc --output-dir ./docs/$module/ $module
+
+    pushd "./docs/"
+    make clean
+    make html
+    popd
+
+    # recreate the git submodule files (deleted with make clean)
+    echo "gitdir: ../../../.git/modules/gh-pages" > "./docs/_build/html/.git"
+
+    touch "./docs/_build/html/.nojekyll"
+}
+
+function deploy_docs()
+{
+    build_docs
+    pushd "./docs/_build/html/"
+    git add .
+    popd
+    echo -n "Enter commit message: "
+    local msg=""
+    read msg
+    git commit -m "$msg"
+    git push
+}
+
+tasks=("build_docs" "deploy_docs")
+root_dir=$(dirname "$0")
+pushd "$root_dir/.."
+
+case "$1" in
+    "build_docs")
+        build_docs
+        ;;
+    "deploy_docs")
+        deploy_docs
+        ;;
+    *)
+        echo "Unknown task: $1" >&2
+        echo "Supported tasks are: ${tasks[@]}" >&2
+        exit 1
+        ;;
+esac

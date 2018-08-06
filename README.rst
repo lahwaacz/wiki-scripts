@@ -138,10 +138,8 @@ Dependencies for running the tests:
 Other tools used for development:
 
 - `sphinx`_
-- `fabric`_
 
 .. _sphinx: http://sphinx-doc.org/
-.. _fabric: http://www.fabfile.org/
 
 Acknowledgement
 ---------------
