@@ -5,7 +5,6 @@
 # * bots vs nobots
 # * different notion of active user ("calendar month" vs "30 days")
 
-import os
 import logging
 
 from ws.client import API
@@ -110,11 +109,6 @@ if __name__ == "__main__":
 
     argparser = ws.config.getArgParser(description="Create histogram charts for the statistics page")
     API.set_argparser(argparser)
-    cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
-    argparser.add_argument("--cache-dir", type=ws.config.argtype_dirname_must_exist,
-                metavar="PATH", default=os.path.join(cache_dir, "wiki-scripts"),
-                help="directory for storing cached data (will be created if "
-                "necessary, but parent directory must exist) (default: %(default)s)")
     # TODO: script-specific arguments (e.g. output path)
     args = argparser.parse_args()
 

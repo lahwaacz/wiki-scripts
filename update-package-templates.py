@@ -194,8 +194,6 @@ class PkgUpdater:
             API.set_argparser(argparser)
 
         group = argparser.add_argument_group(title="script parameters")
-        group.add_argument("--tmp-dir", type=ws.config.argtype_dirname_must_exist, metavar="PATH", default="/tmp/wiki-scripts/",
-                help="temporary directory path (will be created if necessary, but parent directory must exist) (default: %(default)s)")
         group.add_argument("-i", "--interactive", action="store_true",
                 help="run in interactive mode (should be used for testing)")
         group.add_argument("--aurpkgs-url", default="https://aur.archlinux.org/packages.gz", metavar="URL",

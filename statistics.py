@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import os
 import datetime
 import logging
 
@@ -65,11 +64,6 @@ class Statistics:
         #       but argparse does not display nested groups in the help page
         group = argparser.add_argument_group(title="other parameters")
 
-        cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
-        group.add_argument("--cache-dir", type=ws.config.argtype_dirname_must_exist,
-                    metavar="PATH", default=os.path.join(cache_dir, "wiki-scripts"),
-                    help="directory for storing cached data (will be created if "
-                    "necessary, but parent directory must exist) (default: %(default)s)")
         group.add_argument('-a', '--anonymous', action='store_true',
                     help='do not require logging in: queries may be limited to '
                     'a lower rate')

@@ -67,6 +67,11 @@ class Defaults(collections.UserDict):
         config_dir = os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
         self.data["config"] = os.path.join(config_dir, "{0}/{0}.conf".format(project_name))
 
+        cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
+        self.data["cache_dir"] = os.path.join(cache_dir, project_name)
+
+        self.data["tmp_dir"] = os.path.join("/tmp", project_name)
+
         # ArchWiki specifics
         self.data["site"] = "ArchWiki"
         # NOTE: These depend on site=ArchWiki, but (config)argparse does not support conditional defaults
@@ -141,6 +146,12 @@ def getArgParser(subname=None, *args, **kwargs):
 
     # include logging arguments into the global group
     ws.logging.set_argparser(ap)
+
+    # add other global arguments
+    ap.add_argument("--tmp-dir", type=argtype_dirname_must_exist, metavar="PATH",
+            help="temporary directory path (will be created if necessary, but parent directory must exist) (default: %(default)s)")
+    ap.add_argument("--cache-dir", type=argtype_dirname_must_exist, metavar="PATH",
+            help="directory for storing cached data (will be created if necessary, but parent directory must exist) (default: %(default)s)")
 
     ap.set_defaults(**Defaults())
 
