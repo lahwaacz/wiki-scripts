@@ -44,7 +44,7 @@ class MyIterator(object):
 
     def __next__(self):
         if self._exhausted:
-            raise StopIteration
+            return
         # FIXME: workaround for strange behaviour of lists inside tuples -> investigate
         next_item = copy.deepcopy(self._next_item)
         self._cache_next_item()

@@ -112,7 +112,7 @@ class GrabberIPBlocks(GrabberBase):
             username = logevent["title"].split(":", maxsplit=1)[1]
             rcusers.add(username)
         if not rcusers:
-            raise StopIteration
+            return
 
         # a mapping of ipb_address to set of ipb_id keys
         rcblocks = {}

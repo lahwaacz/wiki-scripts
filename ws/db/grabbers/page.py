@@ -137,7 +137,7 @@ class GrabberPages(GrabberBase):
 
     def gen_inserts_from_page(self, page):
         if "missing" in page:
-            raise StopIteration
+            return
 
         title = self.db.Title(page["title"])
 
