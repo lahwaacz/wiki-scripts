@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from collections import Iterable
+from collections.abc import Iterable
 import datetime
 import logging
 
