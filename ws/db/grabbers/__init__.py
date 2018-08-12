@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import logging
+import time
 
 from ws.db.grabbers.namespace import GrabberNamespaces
 from ws.db.grabbers.tags import GrabberTags
@@ -16,6 +17,8 @@ from ws.db.grabbers.logging_ import GrabberLogging
 logger = logging.getLogger(__name__)
 
 def synchronize(db, api, *, with_content=False):
+    time1 = time.time()
+
     # if no recent change has been added, it's safe to assume that the other tables are up to date as well
     g = GrabberRecentChanges(api, db)
     if g.needs_update() is False:
@@ -32,3 +35,6 @@ def synchronize(db, api, *, with_content=False):
     GrabberPages(api, db).update()
     GrabberProtectedTitles(api, db).update()
     GrabberRevisions(api, db, with_content=with_content).update()
+
+    time2 = time.time()
+    logger.info("Synchronization of the database took {:.2f} seconds.".format(time2 - time1))

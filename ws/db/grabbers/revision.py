@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import logging
+import time
 
 import sqlalchemy as sa
 
@@ -488,6 +489,9 @@ class GrabberRevisions(GrabberBase):
 
 
     def sync_latest_revisions_content(self):
+        time1 = time.time()
+        counter = 0
+
         def get_latest_revids():
             rev = self.db.revision
             page = self.db.page
@@ -500,6 +504,7 @@ class GrabberRevisions(GrabberBase):
             return (r[0] for r in result)
 
         def gen():
+            nonlocal counter
             # we need one instance per transaction
             self.text_id_gen = self._get_text_id_gen()
 
@@ -520,6 +525,7 @@ class GrabberRevisions(GrabberBase):
                         }
                         yield from self.gen_text(rev, text_id)
                         yield self.sql["update", "revision"], db_entry
+                        counter += 1
 
         # snippet copy-pasted from GrabberBase._execute, but without calling _set_sync_timestamp
         from ws.db.execution import DeferrableExecutionQueue
@@ -532,3 +538,9 @@ class GrabberRevisions(GrabberBase):
                     else:
                         # probably a single value
                         dfe.execute(item)
+
+        time2 = time.time()
+        if counter > 0:
+            logger.info("Synchronization of the latest revisions content for {} pages took {:.2f} seconds.".format(counter, time2 - time1))
+        else:
+            logger.info("Content of all latest revisions is already fetched.")

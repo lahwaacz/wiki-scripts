@@ -340,11 +340,7 @@ if __name__ == "__main__":
 
     require_login(api)
 
-    import time
-    time1 = time.time()
     db.sync_with_api(api)
-    time2 = time.time()
-    print("Syncing took {:.2f} seconds.".format(time2 - time1))
 
     check_titles(api, db)
     check_specific_titles(api, db)
