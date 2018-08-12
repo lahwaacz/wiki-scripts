@@ -1592,7 +1592,6 @@ audiotag
 audiothumbs
 audiothumbs-patched
 audit
-audiveris
 audiveris-beta
 audkrellm
 aufs2
@@ -4662,7 +4661,6 @@ cnijfilter-ip3600
 cnijfilter-ip4300
 cnijfilter-ip4500-complete
 cnijfilter-ip4700series
-cnijfilter-ip7200
 cnijfilter-ip90
 cnijfilter-ix6800series
 cnijfilter-mp160
@@ -4915,7 +4913,6 @@ concertmaster
 conchart
 conconky
 concordance
-concorde
 concuerror-git
 concurrent_bondi
 concurrentlua
@@ -13045,7 +13042,6 @@ hashalot
 hashcat
 hashcat-bin
 hashell
-hashid
 hashkill
 hashkill-git
 hask-home
@@ -19524,7 +19520,6 @@ lib32-libxft-ubuntu
 lib32-libxkbcommon
 lib32-libxklavier
 lib32-libxslt
-lib32-libyaml
 lib32-llvm-amdgpu-git
 lib32-llvm-amdgpu-svn
 lib32-lua51
@@ -19680,7 +19675,6 @@ lib32-wxwidgets-light
 lib32-wxwidgets2.8-light
 lib32-x264
 lib32-xerces-c
-lib32-yaml-cpp
 lib32-yasm
 lib32-zeromq
 lib32-zeromq-dev
@@ -23267,8 +23261,6 @@ mingw-w64-gnome-themes-standard
 mingw-w64-goocanvas
 mingw-w64-gperftools-git
 mingw-w64-gtkglext
-mingw-w64-gtkmm
-mingw-w64-gtkmm3
 mingw-w64-gtksourceview2
 mingw-w64-gtksourceview3
 mingw-w64-headers-base
@@ -23686,7 +23678,6 @@ mintdm-themes
 mintdm-themes-linuxmint
 minted-git
 mintlib-cvs
-mintmenu
 mintmenu-xfce4
 mintnanny
 minty-freshness-theme-git
@@ -30815,7 +30806,6 @@ python-behaviour
 python-bento
 python-bert-git
 python-betterwalk-git
-python-bidi
 python-bigfloat-hg
 python-billiard
 python-biopython
@@ -31101,7 +31091,6 @@ python-formalchemy
 python-forthon
 python-fred
 python-freebase
-python-frozen-flask
 python-ftdi
 python-ftgl
 python-functest
@@ -31717,7 +31706,6 @@ python-shiboken
 python-shout
 python-shove
 python-sievelib
-python-simplegeneric
 python-simplekml-hg
 python-simplemediawiki-git
 python-singledispatch
@@ -31778,7 +31766,6 @@ python-stream
 python-stringtemplate
 python-subunit
 python-supernova-git
-python-svglib
 python-sympy
 python-sympy-git
 python-syutil
@@ -39555,7 +39542,6 @@ subtitleedit-bin
 subtitles
 subtle
 subtle-contrib-hg
-subtle-hg
 subtly-hg
 subvein
 subversion-1.7
@@ -41974,7 +41960,6 @@ uberkey
 ubertooth-dev
 uberview
 uberwriter-bzr
-uberwriter-git
 ubic
 ubiqx
 ubo-icon-theme
@@ -42648,7 +42633,6 @@ vapoursynth-plugin-scrawl
 vapoursynth-plugin-scrawl-git
 vapoursynth-plugin-ssiq
 vapoursynth-plugin-temporalsoften
-vapoursynth-plugin-temporalsoften2-git
 vapoursynth-plugin-videoscope
 vapoursynth-plugin-vsbmpreader-git
 vapoursynth-plugin-vsimagereader-git
