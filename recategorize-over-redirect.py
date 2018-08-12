@@ -25,7 +25,7 @@ class Recategorize:
         source = self.api.Title(source)
         assert(source.namespace == "Category")
 
-        logger.info("Parsing '{}'...".format(title))
+        logger.info("Parsing page [[{}]] ...".format(title))
         wikicode = mwparserfromhell.parse(text_old)
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
             wl_title = self.api.Title(wikilink.title)
@@ -50,7 +50,7 @@ class Recategorize:
         if not re.search("{{deletion\|", text_old, flags=re.IGNORECASE):
             text_new += "\n{{Deletion|unused category}}"
         if text_old != text_new:
-            logger.info("Flagging for deletion: '{}'".format(title))
+            logger.info("Flagging page [[{}]] for deletion.".format(title))
             self.api.edit(title, page["pageid"], text_new, timestamp, self.flag_for_deletion_summary, bot="")
 
     def recategorize_over_redirect(self, category_namespace=14):
@@ -58,7 +58,7 @@ class Recategorize:
         redirects = self.api.redirects.fetch()
         catredirs = dict((key, value) for key, value in redirects.items() if self.api.Title(key).namespace == "Category")
         for source, target in catredirs.items():
-            ans = ask_yesno("Recategorize pages from '{}' to '{}'?".format(source, target))
+            ans = ask_yesno("Recategorize pages from [[{}]] to [[{}]]?".format(source, target))
             if ans is False:
                 continue
 
@@ -72,7 +72,7 @@ class Recategorize:
             if len(catmembers) == 0:
                 self.flag_for_deletion(source)
             else:
-                logger.warning("'{}' is still not empty: {}".format(source, sorted(page["title"] for page in catmembers)))
+                logger.warning("Page [[{}]] is still not empty: {}".format(source, sorted(page["title"] for page in catmembers)))
                 input("Press Enter to continue...")
         print("""
 Recategorization complete. Before deleting the unused categories, make sure to \

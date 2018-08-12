@@ -342,7 +342,7 @@ class PkgUpdater:
         :returns: a :py:class:`mwparserfromhell.wikicode.Wikicode` object with the updated
                   content of the page
         """
-        logger.info("Parsing [[{}]]...".format(title))
+        logger.info("Parsing page [[{}]]...".format(title))
         lang = detect_language(title)[1]
         wikicode = mwparserfromhell.parse(text)
         for template in wikicode.ifilter_templates():

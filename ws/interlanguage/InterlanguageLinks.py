@@ -282,7 +282,7 @@ class InterlanguageLinks:
         :param str title: title of the page
         :param str text: wikitext of the page
         :param langlinks: a sorted list of ``(tag, title)`` tuples as obtained
-                          from :py:meth:`self._get_langlinks`
+                          from :py:meth:`self.get_langlinks`
         :param weak_update:
             When ``True``, the langlinks present on the page are mixed with those
             suggested by ``family_titles``. This is necessary only when there are
@@ -301,7 +301,7 @@ class InterlanguageLinks:
         # (e.g. "cs:Some title" for title="Some title" and tag="cs")
         langlinks = ["[[{}:{}]]".format(tag, title) for tag, title in langlinks]
 
-        logger.info("Parsing '{}'...".format(title))
+        logger.info("Parsing page [[{}]] ...".format(title))
         wikicode = mwparserfromhell.parse(text)
         if weak_update is True:
             parent, magics, cats, langlinks = header.get_header_parts(wikicode, langlinks=langlinks, remove_from_parent=True)
