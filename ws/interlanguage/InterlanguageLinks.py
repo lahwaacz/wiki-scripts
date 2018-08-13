@@ -376,21 +376,9 @@ class InterlanguageLinks:
                 orphans.append(title)
         return orphans
 
-
-    def _move(self, from_title, to_title):
-        if self._page_exists(to_title):
-            logger.warning("Cannot move '{}' to '{}': target page already exists".format(from_title, to_title))
-            return
-        # Interactive mode is necessary because this assumes that all English pages are named correctly.
-        ans = ask_yesno("Move '{}' to '{}'?".format(from_title, to_title))
-        if ans is True:
-            summary = "comply with [[Help:I18n#Page titles]] and match the title of the English page"
-            self.api.move(from_title, to_title, summary)
-
     def _page_exists(self, title):
-        result = self.api.call_api(action="query", titles=title)
-        page = list(result["pages"].values())[0]
-        return "missing" not in page
+        # self.allpages does not include redirects, but that's fine...
+        return canonicalize(title) in set(page["title"] for page in self.allpages)
 
     def rename_non_english(self):
         del self.allpages
@@ -408,4 +396,11 @@ class InterlanguageLinks:
                     if lang.is_internal_tag(tag) and localized_title != title:
                         source = "{} ({})".format(localized_title, lang.langname_for_tag(tag))
                         target = "{} ({})".format(title, lang.langname_for_tag(tag))
-                        self._move(source, target)
+                        if self._page_exists(target):
+                            logger.warning("Cannot move page [[{}]] to [[{}]]: target page already exists".format(source, target))
+                        else:
+                            # interactive mode is necessary because this assumes that all English pages are named correctly
+                            ans = ask_yesno("Move page [[{}]] to [[{}]]?".format(source, target))
+                            if ans is True:
+                                summary = "comply with [[Help:I18n#Page titles]] and match the title of the English page"
+                                self.api.move(source, target, summary)
