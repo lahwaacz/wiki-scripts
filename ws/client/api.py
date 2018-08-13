@@ -450,6 +450,50 @@ class API(Connection):
             logger.error("Failed to create page [[{}]] due to APIError (code '{}': {})".format(title, e.server_response["code"], e.server_response["info"]))
             raise
 
+    @RateLimited(1, 10)
+    def move(self, from_title, to_title, reason, *, movetalk=True, movesubpages=True, noredirect=False, **kwargs):
+        """
+        Interface to `API:Move`_. This method is rate-limited with the
+        :py:class:`@RateLimited <ws.utils.rate.RateLimited>` decorator to allow
+        1 call per 10 seconds.
+
+        :param str from_title: the original title of the page to be renamed
+        :param str to_title: the new title of the page to be renamed
+        :param str reason: reason for the rename
+        :param bool movetalk: rename the associated talk page, if it exists
+        :param bool subpages: rename subpages, if applicable
+        :param bool noredirect: don't create a redirect
+        :param kwargs: Additional query parameters, see `API:Move`_.
+
+        .. _`API:Move`: https://www.mediawiki.org/wiki/API:Move
+        """
+        kwargs["action"] = "move"
+        kwargs["from"] = from_title
+        kwargs["to"] = to_title
+        kwargs["reason"] = reason
+        if movetalk is True:
+            kwargs["movetalk"] = "true"
+        if movesubpages is True:
+            kwargs["movesubpages"] = "true"
+        if noredirect is True:
+            kwargs["noredirect"] = "true"
+
+        # check and apply tags
+        if "applychangetags" in self.user.rights and "wiki-scripts" in self.tags.applicable:
+            kwargs.setdefault("tags", [])
+            kwargs["tags"].append("wiki-scripts")
+        elif "applychangetags" not in self.user.rights and "tags" in kwargs:
+            logger.warning("Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(kwargs["tags"]))
+            del kwargs["tags"]
+
+        logger.info("Moving page [[{}]] to [[{}]] ...".format(from_title, to_title))
+
+        try:
+            return self.call_with_csrftoken(**kwargs)
+        except APIError as e:
+            logger.error("Failed to move page [[{}]] to [[{}]] due to APIError (code '{}': {})".format(from_title, to_title, e.server_response["code"], e.server_response["info"]))
+            raise
+
 class LoginFailed(Exception):
     """
     Raised when the :py:meth:`API.login` call failed.

@@ -27,18 +27,7 @@ def create_page(mediawiki, title):
 @when(parsers.re("I move page \"(?P<src_title>.+?)\" to \"(?P<dest_title>.+?)\"(?P<noredirect> without leaving a redirect)?"))
 def move_page(mediawiki, src_title, dest_title, noredirect):
     noredirect = False if noredirect is None else True
-    # TODO: implement in API
-#    mediawiki.api.move(src_title, dest_title, "moved due to BDD tests")
-    params = {
-        "action": "move",
-        "from": src_title,
-        "to": dest_title,
-        "reason": "moved due to BDD tests",
-        "movetalk": "1",
-    }
-    if noredirect is True:
-        params["noredirect"] = "1"
-    mediawiki.api.call_with_csrftoken(params)
+    mediawiki.api.move(src_title, dest_title, "moved due to BDD tests", noredirect=noredirect)
 
 def _get_content_api(api, title):
     result = api.call_api(action="query", titles=title, prop="revisions", rvprop="content|timestamp")

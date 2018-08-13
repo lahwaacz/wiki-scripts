@@ -377,31 +377,15 @@ class InterlanguageLinks:
         return orphans
 
 
-# TODO:
-# Refactoring, has to use different cookie file from the rest of this class to make non-bot edits.
-# Interactive mode is necessary because this assumes that all English pages are named correctly.
     def _move(self, from_title, to_title):
         if self._page_exists(to_title):
             logger.warning("Cannot move '{}' to '{}': target page already exists".format(from_title, to_title))
             return
+        # Interactive mode is necessary because this assumes that all English pages are named correctly.
         ans = ask_yesno("Move '{}' to '{}'?".format(from_title, to_title))
         if ans is True:
             summary = "comply with [[Help:I18n#Page titles]] and match the title of the English page"
-            # TODO: flag with wiki-scripts tag
-            params = {
-                "action": "move",
-                "from": from_title,
-                "to": to_title,
-                "reason": summary,
-                "movetalk": "true",
-                "movesubpages": "true",
-                "watchlist": "nochange",
-            }
-            # check and apply tags
-            if "applychangetags" in self.api.user.rights and "wiki-scripts" in self.api.tags.applicable:
-                params["tags"] = ["wiki-scripts"]
-
-            result = self.api.call_with_csrftoken(params)
+            self.api.move(from_title, to_title, summary)
 
     def _page_exists(self, title):
         result = self.api.call_api(action="query", titles=title)

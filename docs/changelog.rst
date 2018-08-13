@@ -19,6 +19,8 @@ Unreleased
 - Removed :py:mod:`ws.cache.LatestRevisions` module. Scripts use the SQL
   database for caching.
 - Merged several smaller scripts into ``list-problems.py``.
+- Implemented the :py:meth:`ws.client.api.API.move` method to rename pages on
+  the wiki.
 
 Version 1.2
 -----------
