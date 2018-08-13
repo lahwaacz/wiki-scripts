@@ -375,3 +375,53 @@ class InterlanguageLinks:
             if lang.detect_language(title)[1] != lang.get_local_language() and len(langlinks) == 0:
                 orphans.append(title)
         return orphans
+
+
+# TODO:
+# Refactoring, has to use different cookie file from the rest of this class to make non-bot edits.
+# Interactive mode is necessary because this assumes that all English pages are named correctly.
+    def _move(self, from_title, to_title):
+        if self._page_exists(to_title):
+            logger.warning("Cannot move '{}' to '{}': target page already exists".format(from_title, to_title))
+            return
+        ans = ask_yesno("Move '{}' to '{}'?".format(from_title, to_title))
+        if ans is True:
+            summary = "comply with [[Help:I18n#Page titles]] and match the title of the English page"
+            # TODO: flag with wiki-scripts tag
+            params = {
+                "action": "move",
+                "from": from_title,
+                "to": to_title,
+                "reason": summary,
+                "movetalk": "true",
+                "movesubpages": "true",
+                "watchlist": "nochange",
+            }
+            # check and apply tags
+            if "applychangetags" in self.api.user.rights and "wiki-scripts" in self.api.tags.applicable:
+                params["tags"] = ["wiki-scripts"]
+
+            result = self.api.call_with_csrftoken(params)
+
+    def _page_exists(self, title):
+        result = self.api.call_api(action="query", titles=title)
+        page = list(result["pages"].values())[0]
+        return "missing" not in page
+
+    def rename_non_english(self):
+        del self.allpages
+
+        # FIXME: starting with English pages is not very good:
+        # - some pages are omitted (e.g. when two pages link to the same English page, at least warning should be printed)
+        # - it suggests to move e.g. Xfce (Česky) to Xfwm (Česky) because multiple English pages link to it
+        # Therefore we limit it only to categories...
+        for page in self.allpages:
+            title = page["title"]
+            if lang.detect_language(title)[1] == "English" and title.startswith("Category:"):
+                langlinks = self.get_langlinks(title)
+                for tag, localized_title in langlinks:
+                    logger.info("Checking [[{}:{}]] for renaming...".format(tag, localized_title))
+                    if lang.is_internal_tag(tag) and localized_title != title:
+                        source = "{} ({})".format(localized_title, lang.langname_for_tag(tag))
+                        target = "{} ({})".format(title, lang.langname_for_tag(tag))
+                        self._move(source, target)

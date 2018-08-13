@@ -5,11 +5,13 @@ from ws.interlanguage.Categorization import Categorization
 from ws.interlanguage.Decategorization import Decategorization
 from ws.interlanguage.CategoryGraph import CategoryGraph
 from ws.interlanguage.InterlanguageLinks import InterlanguageLinks
+from ws.interactive import require_login
 
-modes = ["update", "orphans"]
+modes = ["update", "orphans", "rename"]
 _modes_desc = {
     "update": "fix categorization of i18n pages, init wanted categories and update all interlanguage links",
     "orphans": "list all orphans",
+    "rename": "rename non-English pages to match the English title after renaming",
 }
 modes_description = "The available modes are:"
 for m in modes:
@@ -32,6 +34,9 @@ def main(args, api):
         il = InterlanguageLinks(api)
         for title in il.find_orphans():
             print("* [[{}]]".format(title))
+    elif args.mode == "rename":
+        il = InterlanguageLinks(api)
+        il.rename_non_english()
     else:
         raise Exception("Unknown mode: {}".format(args.mode))
 
@@ -50,5 +55,6 @@ if __name__ == "__main__":
     ws.logging.init(args)
 
     api = API.from_argparser(args)
+    require_login(api)
 
     main(args, api)
