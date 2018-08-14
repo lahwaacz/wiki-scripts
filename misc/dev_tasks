@@ -21,12 +21,12 @@ function deploy_docs()
     build_docs
     pushd "./docs/_build/html/"
     git add .
-    popd
     echo -n "Enter commit message: "
     local msg=""
     read msg
     git commit -m "$msg"
     git push
+    popd
 }
 
 tasks=("build_docs" "deploy_docs")
