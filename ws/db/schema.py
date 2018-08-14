@@ -35,6 +35,14 @@ Known incompatibilities from MediaWiki schema:
       tables are enforced.
     - The equivalent of the tag_summary table does not exist, we can live with
       the GROUP BY queries.
+- Various notes on tables used by MediaWiki, but not wiki-scripts:
+    - site_stats: we don't sync the site stats because the values are
+      inconsistent even in MediaWiki
+    - sites, site_identifiers: as of MW 1.28, they are not visible via the API
+    - job, objectcache, querycache*, transcache, updatelog: not needed for
+      wiki-scripts operation
+    - user_former_groups: used only to prevent user auto-promotion into groups
+      from which they were already removed; not visible through the API
 """
 
 # TODO:
@@ -631,122 +639,6 @@ def create_multimedia_tables(metadata):
     Index("fa_sha1", filearchive.c.fa_sha1)
 
     # TODO: uploadstash table
-
-
-def create_unused_tables(metadata):
-    # we don't sync the site stats - the values are inconsistent even in MW
-    site_stats = Table("site_stats", metadata,
-        Column("ss_row_id", Integer, nullable=False),
-        # on the ArchWiki, ss_total_edits is greater than the max revision ID
-        Column("ss_total_edits", BigInteger, server_default="0"),
-        # an approximation anyway
-        Column("ss_good_articles", BigInteger, server_default="0"),
-        Column("ss_total_pages", BigInteger, server_default="-1"),
-        # see https://lists.archlinux.org/pipermail/arch-general/2014-February/034923.html
-        Column("ss_users", BigInteger, server_default="-1"),
-        # see https://wiki.archlinux.org/index.php/ArchWiki_talk:Statistics#Number_of_active_users
-        Column("ss_active_users", BigInteger, server_default="-1"),
-        # deprecated since MW 1.5
-        Column("ss_admins", BigInteger, server_default="-1"),
-        Column("ss_images", Integer, server_default="0")
-    )
-
-    # as of MW 1.28, the 'sites' and 'site_identifiers' tables are not visible through the API
-    sites = Table("sites", metadata,
-        Column("site_id", Integer, nullable=False, primary_key=True),
-        Column("site_global_key", UnicodeBinary(32), nullable=False),
-        Column("site_type", UnicodeBinary(32), nullable=False),
-        Column("site_group", UnicodeBinary(32), nullable=False),
-        Column("site_source", UnicodeBinary(32), nullable=False),
-        Column("site_language", UnicodeBinary(32), nullable=False),
-        Column("site_protocol", UnicodeBinary(32), nullable=False),
-        Column("site_domain", Unicode(255), nullable=False),
-        Column("site_data", Blob, nullable=False),
-        Column("site_forward", Boolean, nullable=False),
-        Column("site_config", Blob, nullable=False),
-    )
-    Index("sites_global_key", sites.c.site_global_key, unique=True)
-    Index("sites_type", sites.c.site_type)
-    Index("sites_group", sites.c.site_group)
-    Index("sites_source", sites.c.site_source)
-    Index("sites_language", sites.c.site_language)
-    Index("sites_protocol", sites.c.site_protocol)
-    Index("sites_domain", sites.c.site_domain)
-    Index("sites_forward", sites.c.site_forward)
-
-    # TODO: site_identifiers table
-
-    job = Table("job", metadata,
-        Column("job_id", Integer, primary_key=True, nullable=False),
-        Column("job_cmd", UnicodeBinary(60), nullable=False),
-        Column("job_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
-        Column("job_title", UnicodeBinary(255), nullable=False),
-        Column("job_timestamp", MWTimestamp),
-        Column("job_params", Blob, nullable=False),
-        Column("job_random", Integer, nullable=False, server_default="0"),
-        Column("job_attempts", Integer, nullable=False, server_default="0"),
-        Column("job_token", UnicodeBinary(32), nullable=False, server_default=""),
-        Column("job_token_timestamp", MWTimestamp),
-        Column("job_sha1", SHA1, nullable=False, server_default=""),
-        CheckConstraint("job_namespace >= 0", name="check_namespace")
-    )
-
-    objectcache = Table("objectcache", metadata,
-        Column("keyname", UnicodeBinary(255), primary_key=True, nullable=False),
-        Column("value", MediumBlob),
-        Column("exptime", DateTime)
-    )
-
-    querycache = Table("querycache", metadata,
-        Column("qc_type", UnicodeBinary(32), nullable=False),
-        Column("qc_value", Integer, nullable=False),
-        Column("qc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
-        Column("qc_title", UnicodeBinary(255), nullable=False),
-        CheckConstraint("qc_namespace >= 0", name="check_namespace")
-    )
-
-    querycachetwo = Table("querycachetwo", metadata,
-        Column("qcc_type", UnicodeBinary(32), nullable=False),
-        Column("qcc_value", Integer, nullable=False, server_default="0"),
-        Column("qcc_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("qcc_title", UnicodeBinary(255), nullable=False, server_default=""),
-        Column("qcc_namespacetwo", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("qcc_titletwo", UnicodeBinary(255), nullable=False, server_default=""),
-        CheckConstraint("qcc_namespace >= 0", name="check_namespace"),
-        CheckConstraint("qcc_namespacetwo >= 0", name="check_namespacetwo")
-    )
-
-    querycache_info = Table("querycache_info", metadata,
-        Column("qci_type", UnicodeBinary(32), nullable=False),
-        Column("qci_timestamp", MWTimestamp, nullable=False)
-    )
-
-    transcache = Table("transcache", metadata,
-        Column("tc_url", UnicodeBinary(255), nullable=False),
-        # not binary in MediaWiki !!!
-        Column("tc_contents", UnicodeText),
-        Column("tc_time", MWTimestamp, nullable=False)
-    )
-
-    updatelog = Table("updatelog", metadata,
-        Column("ul_key", Unicode(255), primary_key=True, nullable=False),
-        Column("ul_value", Blob)
-    )
-
-    user_former_groups = Table("user_former_groups", metadata,
-        Column("ufg_user", Integer, ForeignKey("user.user_id"), nullable=False),
-        Column("ufg_group", UnicodeBinary(255), nullable=False),
-        PrimaryKeyConstraint("ufg_user", "ufg_group")
-    )
-
-    # MW incompatibility: nullability + default values
-    user_newtalk = Table("user_newtalk", metadata,
-        Column("user_id", Integer, ForeignKey("user.user_id")),
-        Column("user_ip", UnicodeBinary(40)),
-        Column("user_last_timestamp", MWTimestamp)
-    )
-    Index("un_user_id", user_newtalk.c.user_id)
-    Index("un_user_ip", user_newtalk.c.user_ip)
 
 
 def create_tables(metadata):
