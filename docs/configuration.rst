@@ -28,6 +28,9 @@ prints all available options for a script:
                             info)
       -d, --debug           shortcut for '--log-level debug'
       -q, --quiet           shortcut for '--log-level warning'
+      --cache-dir PATH      directory for storing cached data (will be created if
+                            necessary, but parent directory must exist) (default:
+                            /home/lahwaacz/.cache/wiki-scripts)
 
     Connection parameters:
       --api-url URL         the URL to the wiki's api.php (default:
