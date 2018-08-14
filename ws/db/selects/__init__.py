@@ -12,10 +12,10 @@ from .lists.protectedtitles import *
 from .lists.allrevisions import *
 from .lists.alldeletedrevisions import *
 
+from .props.info import *
+from .props.pageprops import *
 from .props.revisions import *
 from .props.deletedrevisions import *
-from .props.pageprops import *
-from .props.protection import *
 
 __classes_lists = {
     "recentchanges": RecentChanges,
@@ -41,11 +41,11 @@ __classes_generators = {
 #   3. specifying revids
 # Fuck it, let's have separate "latestrevisions" for mode 1...
 __classes_props = {
+    "info": Info,
+    "pageprops": PageProps,
     "latestrevisions": Revisions,
     "revisions": Revisions,
     "deletedrevisions": DeletedRevisions,
-    "pageprops": PageProps,
-    "protection": Protection,
 }
 
 def list(db, params):

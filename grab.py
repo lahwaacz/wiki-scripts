@@ -56,6 +56,9 @@ def check_recentchanges(api, db):
         assert len(db_list) == len(api_list)
         for i, entries in enumerate(zip(db_list, api_list)):
             db_entry, api_entry = entries
+            # TODO: how the hell should we know...
+            if "autopatrolled" in api_entry:
+                del api_entry["autopatrolled"]
             # TODO: I don't know what this means
             if "unpatrolled" in api_entry:
                 del api_entry["unpatrolled"]
@@ -98,6 +101,57 @@ def check_allpages(api, db):
 
     db_list = list(db.query(list="allpages"))
     api_list = list(api.list(api_params))
+
+    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
+    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
+    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
+    api_list.sort(key=lambda item: item["pageid"])
+    db_list.sort(key=lambda item: item["pageid"])
+
+    _check_lists(db_list, api_list)
+
+
+def check_info(api, db):
+    print("Checking prop=info...")
+
+    params = {
+        "generator": "allpages",
+        "gaplimit": "max",
+        "prop": "info",
+    }
+    inprop = {"protection", "displaytitle"}
+
+    db_list = list(db.query(**params, inprop=inprop))
+    api_list = list(api.generator(**params, inprop="|".join(inprop)))
+
+    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
+    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
+    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
+    api_list.sort(key=lambda item: item["pageid"])
+    db_list.sort(key=lambda item: item["pageid"])
+
+    # fix ordering of the protection lists
+    for entry in db_list:
+        if "protection" in entry:
+            entry["protection"].sort(key=lambda p: p["type"])
+    for entry in api_list:
+        if "protection" in entry:
+            entry["protection"].sort(key=lambda p: p["type"])
+
+    _check_lists(db_list, api_list)
+
+
+def check_pageprops(api, db):
+    print("Checking prop=pageprops...")
+
+    params = {
+        "generator": "allpages",
+        "gaplimit": "max",
+        "prop": "pageprops",
+    }
+
+    db_list = list(db.query(params))
+    api_list = list(api.generator(params))
 
     # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
     # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
@@ -254,74 +308,6 @@ def check_revisions_of_main_page(api, db):
         _check_lists(db_page["revisions"], api_page["revisions"])
 
 
-def check_pageprops(api, db):
-    print("Checking pageprops...")
-
-    params = {
-        "generator": "allpages",
-        "gaplimit": "max",
-        "prop": "pageprops",
-    }
-
-    db_list = list(db.query(params))
-    api_list = list(api.generator(params))
-
-    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
-    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
-    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
-    api_list.sort(key=lambda item: item["pageid"])
-    db_list.sort(key=lambda item: item["pageid"])
-
-    _check_lists(db_list, api_list)
-
-
-def check_protection(api, db):
-    print("Checking protection...")
-
-    db_params = {
-        "generator": "allpages",
-        "prop": "protection",
-    }
-    api_params = {
-        "generator": "allpages",
-        "gaplimit": "max",
-        "prop": "info",
-        "inprop": "protection",
-    }
-
-    db_list = list(db.query(db_params))
-    api_list = list(api.generator(api_params))
-
-    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
-    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
-    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
-    api_list.sort(key=lambda item: item["pageid"])
-    db_list.sort(key=lambda item: item["pageid"])
-
-    # drop default omnipresent prop=info entries
-    # TODO: it would be good to implement the prop=info module after all...
-    for entry in api_list:
-        del entry["contentmodel"]
-        del entry["lastrevid"]
-        del entry["length"]
-        del entry["pagelanguage"]
-        del entry["pagelanguagedir"]
-        del entry["pagelanguagehtmlcode"]
-        del entry["touched"]
-        if "new" in entry:
-            del entry["new"]
-        if "redirect" in entry:
-            del entry["redirect"]
-
-    # fix ordering of the protection lists
-    for entry in db_list:
-        entry["protection"].sort(key=lambda p: p["type"])
-    for entry in api_list:
-        entry["protection"].sort(key=lambda p: p["type"])
-
-    _check_lists(db_list, api_list)
-
-
 if __name__ == "__main__":
     import ws.config
     import ws.logging
@@ -348,9 +334,9 @@ if __name__ == "__main__":
     check_recentchanges(api, db)
     check_logging(api, db)
     check_allpages(api, db)
+    check_info(api, db)
+    check_pageprops(api, db)
     check_protected_titles(api, db)
     check_revisions(api, db)
     check_latest_revisions(api, db)
     check_revisions_of_main_page(api, db)
-    check_pageprops(api, db)
-    check_protection(api, db)
