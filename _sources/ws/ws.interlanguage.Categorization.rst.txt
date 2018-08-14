@@ -1,5 +1,5 @@
-ws\.interlanguage\.Categorization module
-========================================
+ws.interlanguage.Categorization module
+======================================
 
 .. automodule:: ws.interlanguage.Categorization
     :members:

@@ -1,5 +1,5 @@
-ws\.client\.connection module
-=============================
+ws.client.connection module
+===========================
 
 .. automodule:: ws.client.connection
     :members:

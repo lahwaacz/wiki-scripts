@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Configuration &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '1.2',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -32,40 +24,38 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="configuration">
 <h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
 <p>The scripts in the project’s root directory use a configuration interface from
-the <code class="docutils literal"><span class="pre">ws.config</span></code> submodule, which relies on the <a class="reference external" href="https://github.com/lahwaacz/ConfigArgParse/tree/config_files_without_merging">ConfigArgParse</a> and
+the <a class="reference internal" href="ws/ws.config.html#module-ws.config" title="ws.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.config</span></code></a> submodule, which relies on the <a class="reference external" href="https://github.com/lahwaacz/ConfigArgParse/tree/config_files_without_merging">ConfigArgParse</a> and
 <a class="reference external" href="https://github.com/kynikos/lib.py.configfile">configfile</a> libraries.</p>
-<p>All options can be passed as command line arguments, the special <code class="docutils literal"><span class="pre">--help</span></code> option
+<p>All options can be passed as command line arguments, the special <code class="docutils literal notranslate"><span class="pre">--help</span></code> option
 prints all available options for a script:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ python print-namespaces.py -h
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ python print-namespaces.py -h
 ...
 
 optional arguments:
   -h, --help            show this help message and exit
   -c PATH, --config PATH
-                        path to config file (default: /home/lahwaacz/.config
-                        /wiki-scripts/wiki-scripts.conf)
+                        path to config file (default:
+                        /home/lahwaacz/.config/wiki-scripts/wiki-scripts.conf)
   --site SITE           sets the top-level section to be read from config
                         files (default: ArchWiki)
   --log-level {debug,info,warning,error,critical}
                         the verbosity level for terminal logging (default:
                         info)
-  -d, --debug           shorthand for &#39;--log-level debug&#39;
-  -q, --quiet           shorthand for &#39;--log-level warning&#39;
-  --tmp-dir PATH        temporary directory path (will be created if
-                        necessary, but parent directory must exist) (default:
-                        /tmp/wiki-scripts)
+  -d, --debug           shortcut for &#39;--log-level debug&#39;
+  -q, --quiet           shortcut for &#39;--log-level warning&#39;
   --cache-dir PATH      directory for storing cached data (will be created if
                         necessary, but parent directory must exist) (default:
                         /home/lahwaacz/.cache/wiki-scripts)
@@ -75,27 +65,22 @@ Connection parameters:
                         https://wiki.archlinux.org/api.php)
   --index-url URL       the URL to the wiki&#39;s api.php (default:
                         https://wiki.archlinux.org/index.php)
-  --ssl-verify {0,1}    whether to verify SSL certificates (default: 1)
+  --ssl-verify SSL_VERIFY
+                        whether to verify SSL certificates (default: True)
+  --connection-max-retries CONNECTION_MAX_RETRIES
+                        maximum number of retries for each connection
+                        (default: 3)
+  --connection-timeout CONNECTION_TIMEOUT
+                        connection timeout in seconds (default: 30)
   --cookie-file PATH    path to cookie file (default: $cache_dir/$site.cookie)
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body">The fact that <code class="docutils literal"><span class="pre">--help</span></code> shows an argument does not necessarily mean that
-its value is used by the script in question (for example
-<code class="docutils literal"><span class="pre">print-namespaces.py</span></code> does not use the <code class="docutils literal"><span class="pre">--tmp-dir</span></code> and <code class="docutils literal"><span class="pre">--cache-dir</span></code>
-arguments).</td>
-</tr>
-</tbody>
-</table>
-<p>The long arguments that start with <code class="docutils literal"><span class="pre">--</span></code> can be set in a configuration file
-specified by the <code class="docutils literal"><span class="pre">--config</span></code> option. The configuration file uses an extended INI
-format to specify a <code class="docutils literal"><span class="pre">(key,</span> <span class="pre">value)</span></code> pairs, where <code class="docutils literal"><span class="pre">key</span></code> corresponds to the long
-argument name without the <code class="docutils literal"><span class="pre">--</span></code> prefix. Options from the configuration file are
-internally processed by adding them to the command line, so <code class="docutils literal"><span class="pre">debug</span> <span class="pre">=</span> <span class="pre">true</span></code> in a
-config file is equivalent to passing <code class="docutils literal"><span class="pre">--debug</span></code> on the command line. Values
+<p>The long arguments that start with <code class="docutils literal notranslate"><span class="pre">--</span></code> can be set in a configuration file
+specified by the <code class="docutils literal notranslate"><span class="pre">--config</span></code> option. The configuration file uses an extended INI
+format to specify a <code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">value)</span></code> pairs, where <code class="docutils literal notranslate"><span class="pre">key</span></code> corresponds to the long
+argument name without the <code class="docutils literal notranslate"><span class="pre">--</span></code> prefix. Options from the configuration file are
+internally processed by adding them to the command line, so <code class="docutils literal notranslate"><span class="pre">debug</span> <span class="pre">=</span> <span class="pre">true</span></code> in a
+config file is equivalent to passing <code class="docutils literal notranslate"><span class="pre">--debug</span></code> on the command line. Values
 passed on the command line take precedence over those specified in a
 configuration file.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -104,7 +89,7 @@ configuration file.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body">Although it is possible to set _all_ long arguments in a configuration file,
 setting all arguments this way may not be a good idea – for example setting
-the <code class="docutils literal"><span class="pre">help</span></code> argument from the configuration file does not make sense.</td>
+the <code class="docutils literal notranslate"><span class="pre">help</span></code> argument from the configuration file does not make sense.</td>
 </tr>
 </tbody>
 </table>
@@ -113,10 +98,10 @@ the <code class="docutils literal"><span class="pre">help</span></code> argument
 <p>It is important to note that all argument keys in a configuration file are
 global and shared by all scripts, but can be structured into multiple sections
 to allow better flexibility over setting all options in the top-level section.
-The <code class="docutils literal"><span class="pre">--site</span></code> argument specifies the section to be read from the configuration
-file, e.g. <code class="docutils literal"><span class="pre">--site</span> <span class="pre">ArchWiki</span></code> selects the <code class="docutils literal"><span class="pre">[ArchWiki]</span></code> section. This allows
+The <code class="docutils literal notranslate"><span class="pre">--site</span></code> argument specifies the section to be read from the configuration
+file, e.g. <code class="docutils literal notranslate"><span class="pre">--site</span> <span class="pre">ArchWiki</span></code> selects the <code class="docutils literal notranslate"><span class="pre">[ArchWiki]</span></code> section. This allows
 maintaining a configuration file for multiple sites, for example</p>
-<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">site</span> <span class="o">=</span> <span class="s">ArchWiki-de</span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">site</span> <span class="o">=</span> <span class="s">ArchWiki-de</span>
 
 <span class="k">[ArchWiki]</span>
 <span class="na">api-url</span> <span class="o">=</span> <span class="s">https://wiki.archlinux.org/api.php</span>
@@ -127,13 +112,13 @@ maintaining a configuration file for multiple sites, for example</p>
 <span class="na">index-url</span> <span class="o">=</span> <span class="s">https://wiki.archlinux.de/index.php</span>
 </pre></div>
 </div>
-<p>The global option <code class="docutils literal"><span class="pre">site</span></code> can be set in the configuration file to set different
-default site, which can be overridden with <code class="docutils literal"><span class="pre">--site</span> <span class="pre">ArchWiki</span></code> on the command
+<p>The global option <code class="docutils literal notranslate"><span class="pre">site</span></code> can be set in the configuration file to set different
+default site, which can be overridden with <code class="docutils literal notranslate"><span class="pre">--site</span> <span class="pre">ArchWiki</span></code> on the command
 line.</p>
 <p>To override the site options on a per-script basis, it is possible to create a
-<code class="docutils literal"><span class="pre">[sitename.scriptname]</span></code> subsections, which inherit all options from the parent
+<code class="docutils literal notranslate"><span class="pre">[sitename.scriptname]</span></code> subsections, which inherit all options from the parent
 section. For example:</p>
-<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">site</span> <span class="o">=</span> <span class="s">ArchWiki</span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">site</span> <span class="o">=</span> <span class="s">ArchWiki</span>
 
 <span class="k">[ArchWiki]</span>
 <span class="na">api-url</span> <span class="o">=</span> <span class="s">https://wiki.archlinux.org/api.php</span>
@@ -146,7 +131,7 @@ section. For example:</p>
 </div>
 <p>To avoid duplicating option values, <a class="reference external" href="https://github.com/kynikos/lib.py.configfile">configfile</a> supports sharing common parts
 with the <a class="reference external" href="https://kynikos.github.io/lib.py.configfile/#interpolation">interpolation syntax</a>. The previous example can be simplified into:</p>
-<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">site</span> <span class="o">=</span> <span class="s">ArchWiki</span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">site</span> <span class="o">=</span> <span class="s">ArchWiki</span>
 
 <span class="na">cache-dir</span> <span class="o">=</span> <span class="s">~/.cache/wiki-scripts/</span>
 
@@ -165,6 +150,7 @@ with the <a class="reference external" href="https://kynikos.github.io/lib.py.co
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -172,13 +158,28 @@ with the <a class="reference external" href="https://kynikos.github.io/lib.py.co
             <p class="logo"><a href="index.html">
               <img class="logo" src="_static/wiki-scripts.png" alt="Logo"/>
             </a></p>
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Configuration</a><ul>
-<li><a class="reference internal" href="#configuration-file-format">Configuration file format</a></li>
+<h1 class="logo"><a href="index.html">wiki-scripts</a></h1>
+
+
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-file-format">Configuration file format</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Writing new scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API reference</a></li>
 </ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -188,21 +189,16 @@ with the <a class="reference external" href="https://kynikos.github.io/lib.py.co
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/configuration.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -210,11 +206,11 @@ with the <a class="reference external" href="https://kynikos.github.io/lib.py.co
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2014-2016, Jakub Klinkovský.
+      &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
       |
       <a href="_sources/configuration.rst.txt"

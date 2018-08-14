@@ -1,5 +1,5 @@
-ws\.db\.grabbers\.revision module
-=================================
+ws.db.grabbers.revision module
+==============================
 
 .. automodule:: ws.db.grabbers.revision
     :members:

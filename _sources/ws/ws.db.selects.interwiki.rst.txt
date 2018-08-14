@@ -1,5 +1,5 @@
-ws\.db\.selects\.interwiki module
-=================================
+ws.db.selects.interwiki module
+==============================
 
 .. automodule:: ws.db.selects.interwiki
     :members:

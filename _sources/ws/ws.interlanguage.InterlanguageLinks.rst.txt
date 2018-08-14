@@ -1,5 +1,5 @@
-ws\.interlanguage\.InterlanguageLinks module
-============================================
+ws.interlanguage.InterlanguageLinks module
+==========================================
 
 .. automodule:: ws.interlanguage.InterlanguageLinks
     :members:

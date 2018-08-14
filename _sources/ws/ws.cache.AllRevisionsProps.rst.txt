@@ -1,5 +1,5 @@
-ws\.cache\.AllRevisionsProps module
-===================================
+ws.cache.AllRevisionsProps module
+=================================
 
 .. automodule:: ws.cache.AllRevisionsProps
     :members:

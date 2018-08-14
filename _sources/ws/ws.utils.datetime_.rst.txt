@@ -1,5 +1,5 @@
-ws\.utils\.datetime\_ module
-============================
+ws.utils.datetime\_ module
+==========================
 
 .. automodule:: ws.utils.datetime_
     :members:

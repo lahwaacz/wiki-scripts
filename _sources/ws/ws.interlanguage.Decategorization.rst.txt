@@ -1,5 +1,5 @@
-ws\.interlanguage\.Decategorization module
-==========================================
+ws.interlanguage.Decategorization module
+========================================
 
 .. automodule:: ws.interlanguage.Decategorization
     :members:

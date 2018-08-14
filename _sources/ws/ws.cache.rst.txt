@@ -1,5 +1,5 @@
-ws\.cache package
-=================
+ws.cache package
+================
 
 .. automodule:: ws.cache
     :members:
@@ -13,5 +13,4 @@ Submodules
 
    ws.cache.AllRevisionsProps
    ws.cache.AllUsersProps
-   ws.cache.LatestRevisionsText
 

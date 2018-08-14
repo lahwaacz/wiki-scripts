@@ -1,5 +1,5 @@
-ws\.config module
-=================
+ws.config module
+================
 
 .. automodule:: ws.config
     :members:

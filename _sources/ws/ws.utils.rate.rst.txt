@@ -1,5 +1,5 @@
-ws\.utils\.rate module
-======================
+ws.utils.rate module
+====================
 
 .. automodule:: ws.utils.rate
     :members:

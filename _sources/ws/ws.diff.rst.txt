@@ -1,5 +1,5 @@
-ws\.diff module
-===============
+ws.diff module
+==============
 
 .. automodule:: ws.diff
     :members:

@@ -1,5 +1,5 @@
-ws\.ArchWiki\.lang module
-=========================
+ws.ArchWiki.lang module
+=======================
 
 .. automodule:: ws.ArchWiki.lang
     :members:

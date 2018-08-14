@@ -1,5 +1,5 @@
-ws\.db package
-==============
+ws.db package
+=============
 
 .. automodule:: ws.db
     :members:

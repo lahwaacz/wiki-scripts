@@ -1,5 +1,5 @@
-ws\.db\.sql\_types module
-=========================
+ws.db.sql\_types module
+=======================
 
 .. automodule:: ws.db.sql_types
     :members:

@@ -1,5 +1,5 @@
-ws\.client\.redirects module
-============================
+ws.client.redirects module
+==========================
 
 .. automodule:: ws.client.redirects
     :members:

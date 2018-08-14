@@ -4,27 +4,19 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>ws.db.selects package &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.2',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ws.db.selects.GeneratorBase module" href="ws.db.selects.GeneratorBase.html" />
+    <link rel="next" title="ws.db.selects.SelectBase module" href="ws.db.selects.SelectBase.html" />
     <link rel="prev" title="ws.db.grabbers.user module" href="ws.db.grabbers.user.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -32,13 +24,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="module-ws.db.selects">
@@ -47,6 +40,23 @@
 <dt id="ws.db.selects.list">
 <code class="descclassname">ws.db.selects.</code><code class="descname">list</code><span class="sig-paren">(</span><em>db</em>, <em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.selects.list" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="function">
+<dt id="ws.db.selects.get_pageset">
+<code class="descclassname">ws.db.selects.</code><code class="descname">get_pageset</code><span class="sig-paren">(</span><em>db</em>, <em>titles=None</em>, <em>pageids=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.selects.get_pageset" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>titles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – list of <a class="reference internal" href="ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.parser_helpers.title.Title</span></code></a> objects</li>
+<li><strong>pageids</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – list of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a> objects</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
 <dt id="ws.db.selects.query_pageset">
@@ -62,16 +72,9 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="ws.db.selects.GeneratorBase.html">ws.db.selects.GeneratorBase module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ws.db.selects.SelectBase.html">ws.db.selects.SelectBase module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ws.db.selects.alldeletedrevisions.html">ws.db.selects.alldeletedrevisions module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ws.db.selects.allpages.html">ws.db.selects.allpages module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ws.db.selects.allrevisions.html">ws.db.selects.allrevisions module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ws.db.selects.interwiki.html">ws.db.selects.interwiki module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ws.db.selects.logevents.html">ws.db.selects.logevents module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ws.db.selects.namespaces.html">ws.db.selects.namespaces module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ws.db.selects.protectedtitles.html">ws.db.selects.protectedtitles module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ws.db.selects.recentchanges.html">ws.db.selects.recentchanges module</a></li>
 </ul>
 </div>
 </div>
@@ -79,6 +82,7 @@
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -86,13 +90,41 @@
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/wiki-scripts.png" alt="Logo"/>
             </a></p>
-  <h3><a href="../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">ws.db.selects package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<h1 class="logo"><a href="../index.html">wiki-scripts</a></h1>
+
+
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Writing new scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ws.html">ws package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="ws.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="ws.ArchWiki.html">ws.ArchWiki package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.cache.html">ws.cache package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.client.html">ws.client package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="ws.db.html">ws.db package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.interlanguage.html">ws.interlanguage package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.parser_helpers.html">ws.parser_helpers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.utils.html">ws.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ws.html#submodules">Submodules</a></li>
 </ul>
 </li>
 </ul>
+</li>
+</ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -101,28 +133,23 @@
   <li><a href="ws.html">ws package</a><ul>
   <li><a href="ws.db.html">ws.db package</a><ul>
       <li>Previous: <a href="ws.db.grabbers.user.html" title="previous chapter">ws.db.grabbers.user module</a></li>
-      <li>Next: <a href="ws.db.selects.GeneratorBase.html" title="next chapter">ws.db.selects.GeneratorBase module</a></li>
+      <li>Next: <a href="ws.db.selects.SelectBase.html" title="next chapter">ws.db.selects.SelectBase module</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.db.selects.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -130,11 +157,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2014-2016, Jakub Klinkovský.
+      &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
       |
       <a href="../_sources/ws/ws.db.selects.rst.txt"

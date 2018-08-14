@@ -1,5 +1,5 @@
-ws\.interactive module
-======================
+ws.interactive module
+=====================
 
 .. automodule:: ws.interactive
     :members:

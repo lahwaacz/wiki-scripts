@@ -1,5 +1,5 @@
-ws\.db\.grabbers\.interwiki module
-==================================
+ws.db.grabbers.interwiki module
+===============================
 
 .. automodule:: ws.db.grabbers.interwiki
     :members:

@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>ws.db.database module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.2',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
@@ -25,20 +17,21 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ws.db.execution module" href="ws.db.execution.html" />
-    <link rel="prev" title="ws.db.selects.recentchanges module" href="ws.db.selects.recentchanges.html" />
+    <link rel="prev" title="ws.db.selects.namespaces module" href="ws.db.selects.namespaces.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="module-ws.db.database">
@@ -54,13 +47,13 @@ the database with
 <dl class="class">
 <dt id="ws.db.database.Database">
 <em class="property">class </em><code class="descclassname">ws.db.database.</code><code class="descname">Database</code><span class="sig-paren">(</span><em>engine_or_url</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>engine_or_url</strong> – either an existing <a class="reference external" href="http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Engine" title="(in SQLAlchemy v1.2)"><code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.engine.Engine</span></code></a> instance or a
-<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a> representing the URL created by <code class="xref py py-meth docutils literal"><span class="pre">make_url()</span></code></td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>engine_or_url</strong> – either an existing <a class="reference external" href="http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Engine" title="(in SQLAlchemy v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.engine.Engine</span></code></a> instance or a
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> representing the URL created by <code class="xref py py-meth docutils literal notranslate"><span class="pre">make_url()</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -72,14 +65,14 @@ the database with
 <dl class="staticmethod">
 <dt id="ws.db.database.Database.set_argparser">
 <em class="property">static </em><code class="descname">set_argparser</code><span class="sig-paren">(</span><em>argparser</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.set_argparser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add arguments for constructing a <a class="reference internal" href="#ws.db.database.Database" title="ws.db.database.Database"><code class="xref py py-class docutils literal"><span class="pre">Database</span></code></a> object to an
-instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
-<p>See also the <a class="reference internal" href="ws.config.html#module-ws.config" title="ws.config"><code class="xref py py-mod docutils literal"><span class="pre">ws.config</span></code></a> module.</p>
+<dd><p>Add arguments for constructing a <a class="reference internal" href="#ws.db.database.Database" title="ws.db.database.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a> object to an
+instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
+<p>See also the <a class="reference internal" href="ws.config.html#module-ws.config" title="ws.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.config</span></code></a> module.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>argparser</strong> – an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">argparse.ArgumentParser</span></code></a></td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>argparser</strong> – an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a></td>
 </tr>
 </tbody>
 </table>
@@ -88,16 +81,16 @@ instance of <a class="reference external" href="https://docs.python.org/3/librar
 <dl class="classmethod">
 <dt id="ws.db.database.Database.from_argparser">
 <em class="property">classmethod </em><code class="descname">from_argparser</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.from_argparser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct a <a class="reference internal" href="#ws.db.database.Database" title="ws.db.database.Database"><code class="xref py py-class docutils literal"><span class="pre">Database</span></code></a> object from arguments parsed by
-<a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
+<dd><p>Construct a <a class="reference internal" href="#ws.db.database.Database" title="ws.db.database.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a> object from arguments parsed by
+<a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> – an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">argparse.Namespace</span></code></a>. It is assumed that it
-contains the arguments set by <code class="xref py py-meth docutils literal"><span class="pre">Connection.set_argparser()</span></code>.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> – an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.Namespace</span></code></a>. It is assumed that it
+contains the arguments set by <code class="xref py py-meth docutils literal notranslate"><span class="pre">Connection.set_argparser()</span></code>.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">an instance of <code class="xref py py-class docutils literal"><span class="pre">Connection</span></code></td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -111,9 +104,9 @@ contains the arguments set by <code class="xref py py-meth docutils literal"><sp
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>table_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – a (lowercase) name of the table</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>table_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – a (lowercase) name of the table</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a <a class="reference external" href="http://docs.sqlalchemy.org/en/latest/core/metadata.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v1.2)"><code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.schema.Table</span></code></a> instance</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a <a class="reference external" href="http://docs.sqlalchemy.org/en/latest/core/metadata.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.schema.Table</span></code></a> instance</td>
 </tr>
 </tbody>
 </table>
@@ -129,9 +122,23 @@ contains the arguments set by <code class="xref py py-meth docutils literal"><sp
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>api</strong> (<a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><em>ws.client.api.API</em></a>) – interface to the remote MediaWiki instance</li>
-<li><strong>with_content</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – whether to synchronize the content of all revisions</li>
+<li><strong>with_content</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – whether to synchronize the content of all revisions</li>
 </ul>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.db.database.Database.sync_latest_revisions_content">
+<code class="descname">sync_latest_revisions_content</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.sync_latest_revisions_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sync the content of the latest revisions of all pages on the wiki.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>api</strong> (<a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><em>ws.client.api.API</em></a>) – interface to the remote MediaWiki instance</td>
 </tr>
 </tbody>
 </table>
@@ -152,9 +159,9 @@ contains the arguments set by <code class="xref py py-meth docutils literal"><sp
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – page title to be parsed</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – page title to be parsed</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a <a class="reference internal" href="ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal"><span class="pre">ws.parser_helpers.title.Title</span></code></a> object</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a <a class="reference internal" href="ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.parser_helpers.title.Title</span></code></a> object</td>
 </tr>
 </tbody>
 </table>
@@ -165,10 +172,10 @@ contains the arguments set by <code class="xref py py-meth docutils literal"><sp
 <dl class="class">
 <dt id="ws.db.database.explain">
 <em class="property">class </em><code class="descclassname">ws.db.database.</code><code class="descname">explain</code><span class="sig-paren">(</span><em>stmt</em>, <em>analyze=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.explain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.sql.base.Executable</span></code>, <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.sql.elements.ClauseElement</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.base.Executable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.elements.ClauseElement</span></code></p>
 <dl class="method">
 <dt id="ws.db.database.explain._compiler_dispatch">
-<code class="descname">_compiler_dispatch</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.explain._compiler_dispatch" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_compiler_dispatch</code><span class="sig-paren">(</span><em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.explain._compiler_dispatch" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -187,20 +194,57 @@ contains the arguments set by <code class="xref py py-meth docutils literal"><sp
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/wiki-scripts.png" alt="Logo"/>
-            </a></p><div class="relations">
+            </a></p>
+<h1 class="logo"><a href="../index.html">wiki-scripts</a></h1>
+
+
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Writing new scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ws.html">ws package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="ws.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="ws.ArchWiki.html">ws.ArchWiki package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.cache.html">ws.cache package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.client.html">ws.client package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="ws.db.html">ws.db package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.interlanguage.html">ws.interlanguage package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.parser_helpers.html">ws.parser_helpers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.utils.html">ws.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ws.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../modules.html">API reference</a><ul>
   <li><a href="ws.html">ws package</a><ul>
   <li><a href="ws.db.html">ws.db package</a><ul>
-      <li>Previous: <a href="ws.db.selects.recentchanges.html" title="previous chapter">ws.db.selects.recentchanges module</a></li>
+      <li>Previous: <a href="ws.db.selects.namespaces.html" title="previous chapter">ws.db.selects.namespaces module</a></li>
       <li>Next: <a href="ws.db.execution.html" title="next chapter">ws.db.execution module</a></li>
   </ul></li>
   </ul></li>
@@ -208,21 +252,16 @@ contains the arguments set by <code class="xref py py-meth docutils literal"><sp
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.db.database.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -230,11 +269,11 @@ contains the arguments set by <code class="xref py py-meth docutils literal"><sp
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2014-2016, Jakub Klinkovský.
+      &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
       |
       <a href="../_sources/ws/ws.db.database.rst.txt"

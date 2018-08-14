@@ -1,5 +1,5 @@
-ws\.utils\.containers module
-============================
+ws.utils.containers module
+==========================
 
 .. automodule:: ws.utils.containers
     :members:

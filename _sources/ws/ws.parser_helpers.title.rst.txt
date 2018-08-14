@@ -1,5 +1,5 @@
-ws\.parser\_helpers\.title module
-=================================
+ws.parser\_helpers.title module
+===============================
 
 .. automodule:: ws.parser_helpers.title
     :members:

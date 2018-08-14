@@ -1,5 +1,5 @@
-ws\.db\.grabbers package
-========================
+ws.db.grabbers package
+======================
 
 .. automodule:: ws.db.grabbers
     :members:
@@ -14,7 +14,7 @@ Submodules
    ws.db.grabbers.GrabberBase
    ws.db.grabbers.interwiki
    ws.db.grabbers.ipblocks
-   ws.db.grabbers.logging
+   ws.db.grabbers.logging_
    ws.db.grabbers.namespace
    ws.db.grabbers.page
    ws.db.grabbers.protected_titles

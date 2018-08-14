@@ -1,5 +1,5 @@
-ws\.db\.selects package
-=======================
+ws.db.selects package
+=====================
 
 .. automodule:: ws.db.selects
     :members:
@@ -11,14 +11,7 @@ Submodules
 
 .. toctree::
 
-   ws.db.selects.GeneratorBase
    ws.db.selects.SelectBase
-   ws.db.selects.alldeletedrevisions
-   ws.db.selects.allpages
-   ws.db.selects.allrevisions
    ws.db.selects.interwiki
-   ws.db.selects.logevents
    ws.db.selects.namespaces
-   ws.db.selects.protectedtitles
-   ws.db.selects.recentchanges
 

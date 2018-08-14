@@ -1,5 +1,5 @@
-ws\.utils\.lazy module
-======================
+ws.utils.lazy module
+====================
 
 .. automodule:: ws.utils.lazy
     :members:

@@ -1,5 +1,5 @@
-ws\.client\.meta module
-=======================
+ws.client.meta module
+=====================
 
 .. automodule:: ws.client.meta
     :members:

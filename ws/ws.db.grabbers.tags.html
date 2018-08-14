@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>ws.db.grabbers.tags module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.2',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
@@ -32,13 +24,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="module-ws.db.grabbers.tags">
@@ -46,16 +39,39 @@
 <dl class="class">
 <dt id="ws.db.grabbers.tags.GrabberTags">
 <em class="property">class </em><code class="descclassname">ws.db.grabbers.tags.</code><code class="descname">GrabberTags</code><span class="sig-paren">(</span><em>api</em>, <em>db</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.tags.GrabberTags" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ws.db.grabbers.GrabberBase.html#ws.db.grabbers.GrabberBase.GrabberBase" title="ws.db.grabbers.GrabberBase.GrabberBase"><code class="xref py py-class docutils literal"><span class="pre">ws.db.grabbers.GrabberBase.GrabberBase</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="ws.db.grabbers.GrabberBase.html#ws.db.grabbers.GrabberBase.GrabberBase" title="ws.db.grabbers.GrabberBase.GrabberBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.db.grabbers.GrabberBase.GrabberBase</span></code></a></p>
 <dl class="method">
 <dt id="ws.db.grabbers.tags.GrabberTags.gen_insert">
 <code class="descname">gen_insert</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.tags.GrabberTags.gen_insert" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A generator for database entries which assumes that the tables are
+empty.</p>
+<p>To be implemented in subclasses.</p>
+<p>The yielded values are passed to <a class="reference external" href="http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Connection.execute" title="(in SQLAlchemy v1.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sqlalchemy.engine.Connection.execute()</span></code></a>,
+so the accepted formats for the values are:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">(stmt,</span> <span class="pre">entry)</span></code> tuple, where <code class="docutils literal notranslate"><span class="pre">stmt</span></code> is an object accepted by
+sqlalchemy’s execute method (e.g. plain string or an executable SQL
+statement construct) and <code class="docutils literal notranslate"><span class="pre">entry</span></code> is a dict holding the bound
+parameter values to be used in the execution. The execution is
+deferred with <a class="reference internal" href="ws.db.execution.html#ws.db.execution.DeferrableExecutionQueue" title="ws.db.execution.DeferrableExecutionQueue"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.db.execution.DeferrableExecutionQueue</span></code></a>
+to exploit the <em>executemany</em> execution strategy.</li>
+<li>Or it can yield <code class="docutils literal notranslate"><span class="pre">stmt</span></code> objects directly, if the <em>executemany</em>
+execution strategy is not applicable.</li>
+</ul>
+</dd></dl>
 
 <dl class="method">
 <dt id="ws.db.grabbers.tags.GrabberTags.gen_update">
 <code class="descname">gen_update</code><span class="sig-paren">(</span><em>since</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.tags.GrabberTags.gen_update" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A generator for database entries which assumes incremental updates.</p>
+<p>To be implemented in subclasses.</p>
+<p>If <code class="xref py py-exc docutils literal notranslate"><span class="pre">ws.client.api.ShortRecentChangesError</span></code> is raised while
+executing this generator, <code class="xref py py-meth docutils literal notranslate"><span class="pre">update()</span></code> starts from scratch
+with <code class="xref py py-meth docutils literal notranslate"><span class="pre">insert()</span></code>. The exception should be raised as soon as
+possible to save unnecessary work.</p>
+<p>The yielded values should follow the same rules as the
+<a class="reference internal" href="#ws.db.grabbers.tags.GrabberTags.gen_insert" title="ws.db.grabbers.tags.GrabberTags.gen_insert"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gen_insert()</span></code></a> method.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -63,13 +79,50 @@
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/wiki-scripts.png" alt="Logo"/>
-            </a></p><div class="relations">
+            </a></p>
+<h1 class="logo"><a href="../index.html">wiki-scripts</a></h1>
+
+
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Writing new scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ws.html">ws package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="ws.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="ws.ArchWiki.html">ws.ArchWiki package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.cache.html">ws.cache package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.client.html">ws.client package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="ws.db.html">ws.db package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.interlanguage.html">ws.interlanguage package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.parser_helpers.html">ws.parser_helpers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.utils.html">ws.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ws.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
@@ -86,21 +139,16 @@
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/ws/ws.db.grabbers.tags.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -108,11 +156,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2014-2016, Jakub Klinkovský.
+      &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
       |
       <a href="../_sources/ws/ws.db.grabbers.tags.rst.txt"

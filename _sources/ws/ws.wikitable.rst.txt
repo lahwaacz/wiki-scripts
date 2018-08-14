@@ -1,5 +1,5 @@
-ws\.wikitable module
-====================
+ws.wikitable module
+===================
 
 .. automodule:: ws.wikitable
     :members:

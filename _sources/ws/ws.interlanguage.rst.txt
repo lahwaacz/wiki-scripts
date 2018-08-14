@@ -1,5 +1,5 @@
-ws\.interlanguage package
-=========================
+ws.interlanguage package
+========================
 
 .. automodule:: ws.interlanguage
     :members:

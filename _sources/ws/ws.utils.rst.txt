@@ -1,5 +1,5 @@
-ws\.utils package
-=================
+ws.utils package
+================
 
 .. automodule:: ws.utils
     :members:

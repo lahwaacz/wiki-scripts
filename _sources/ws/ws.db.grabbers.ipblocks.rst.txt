@@ -1,5 +1,5 @@
-ws\.db\.grabbers\.ipblocks module
-=================================
+ws.db.grabbers.ipblocks module
+==============================
 
 .. automodule:: ws.db.grabbers.ipblocks
     :members:

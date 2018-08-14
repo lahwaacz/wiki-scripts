@@ -1,5 +1,5 @@
-ws\.parser\_helpers package
-===========================
+ws.parser\_helpers package
+==========================
 
 .. automodule:: ws.parser_helpers
     :members:

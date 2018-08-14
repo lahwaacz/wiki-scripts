@@ -1,7 +1,0 @@
-ws\.db\.selects\.alldeletedrevisions module
-===========================================
-
-.. automodule:: ws.db.selects.alldeletedrevisions
-    :members:
-    :undoc-members:
-    :show-inheritance:

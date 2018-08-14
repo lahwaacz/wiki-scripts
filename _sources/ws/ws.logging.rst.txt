@@ -1,5 +1,5 @@
-ws\.logging module
-==================
+ws.logging module
+=================
 
 .. automodule:: ws.logging
     :members:

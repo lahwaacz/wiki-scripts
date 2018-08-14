@@ -1,5 +1,5 @@
-ws\.ArchWiki package
-====================
+ws.ArchWiki package
+===================
 
 .. automodule:: ws.ArchWiki
     :members:

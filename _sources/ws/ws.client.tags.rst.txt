@@ -1,5 +1,5 @@
-ws\.client\.tags module
-=======================
+ws.client.tags module
+=====================
 
 .. automodule:: ws.client.tags
     :members:

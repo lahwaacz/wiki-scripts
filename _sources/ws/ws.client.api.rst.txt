@@ -1,5 +1,5 @@
-ws\.client\.api module
-======================
+ws.client.api module
+====================
 
 .. automodule:: ws.client.api
     :members:

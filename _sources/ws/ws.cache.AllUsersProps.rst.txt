@@ -1,5 +1,5 @@
-ws\.cache\.AllUsersProps module
-===============================
+ws.cache.AllUsersProps module
+=============================
 
 .. automodule:: ws.cache.AllUsersProps
     :members:

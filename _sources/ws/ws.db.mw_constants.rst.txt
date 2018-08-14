@@ -1,5 +1,5 @@
-ws\.db\.mw\_constants module
-============================
+ws.db.mw\_constants module
+==========================
 
 .. automodule:: ws.db.mw_constants
     :members:

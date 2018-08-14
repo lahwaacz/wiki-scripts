@@ -1,5 +1,5 @@
-ws\.parser\_helpers\.encodings module
-=====================================
+ws.parser\_helpers.encodings module
+===================================
 
 .. automodule:: ws.parser_helpers.encodings
     :members:

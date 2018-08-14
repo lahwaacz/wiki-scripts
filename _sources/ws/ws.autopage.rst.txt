@@ -1,5 +1,5 @@
-ws\.autopage module
-===================
+ws.autopage module
+==================
 
 .. automodule:: ws.autopage
     :members:

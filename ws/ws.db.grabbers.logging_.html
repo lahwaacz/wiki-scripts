@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>ws.db.grabbers.revision module &#8212; wiki-scripts 1.2 documentation</title>
+    <title>ws.db.grabbers.logging_ module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -16,8 +16,8 @@
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ws.db.grabbers.tags module" href="ws.db.grabbers.tags.html" />
-    <link rel="prev" title="ws.db.grabbers.recentchanges module" href="ws.db.grabbers.recentchanges.html" />
+    <link rel="next" title="ws.db.grabbers.namespace module" href="ws.db.grabbers.namespace.html" />
+    <link rel="prev" title="ws.db.grabbers.ipblocks module" href="ws.db.grabbers.ipblocks.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -34,35 +34,20 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-ws.db.grabbers.revision">
-<span id="ws-db-grabbers-revision-module"></span><h1>ws.db.grabbers.revision module<a class="headerlink" href="#module-ws.db.grabbers.revision" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-ws.db.grabbers.logging_">
+<span id="ws-db-grabbers-logging-module"></span><h1>ws.db.grabbers.logging_ module<a class="headerlink" href="#module-ws.db.grabbers.logging_" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="ws.db.grabbers.revision.GrabberRevisions">
-<em class="property">class </em><code class="descclassname">ws.db.grabbers.revision.</code><code class="descname">GrabberRevisions</code><span class="sig-paren">(</span><em>api</em>, <em>db</em>, <em>*</em>, <em>with_content=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.revision.GrabberRevisions" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.db.grabbers.logging_.GrabberLogging">
+<em class="property">class </em><code class="descclassname">ws.db.grabbers.logging_.</code><code class="descname">GrabberLogging</code><span class="sig-paren">(</span><em>api</em>, <em>db</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.logging_.GrabberLogging" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ws.db.grabbers.GrabberBase.html#ws.db.grabbers.GrabberBase.GrabberBase" title="ws.db.grabbers.GrabberBase.GrabberBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.db.grabbers.GrabberBase.GrabberBase</span></code></a></p>
 <dl class="method">
-<dt id="ws.db.grabbers.revision.GrabberRevisions._get_text_id_gen">
-<code class="descname">_get_text_id_gen</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.revision.GrabberRevisions._get_text_id_gen" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.db.grabbers.logging_.GrabberLogging.gen_inserts_from_logevent">
+<code class="descname">gen_inserts_from_logevent</code><span class="sig-paren">(</span><em>logevent</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.logging_.GrabberLogging.gen_inserts_from_logevent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="ws.db.grabbers.revision.GrabberRevisions.gen_text">
-<code class="descname">gen_text</code><span class="sig-paren">(</span><em>rev</em>, <em>text_id</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.revision.GrabberRevisions.gen_text" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="ws.db.grabbers.revision.GrabberRevisions.gen_revisions">
-<code class="descname">gen_revisions</code><span class="sig-paren">(</span><em>page</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.revision.GrabberRevisions.gen_revisions" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="ws.db.grabbers.revision.GrabberRevisions.gen_deletedrevisions">
-<code class="descname">gen_deletedrevisions</code><span class="sig-paren">(</span><em>page</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.revision.GrabberRevisions.gen_deletedrevisions" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="ws.db.grabbers.revision.GrabberRevisions.gen_insert">
-<code class="descname">gen_insert</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.revision.GrabberRevisions.gen_insert" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.db.grabbers.logging_.GrabberLogging.gen_insert">
+<code class="descname">gen_insert</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.logging_.GrabberLogging.gen_insert" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generator for database entries which assumes that the tables are
 empty.</p>
 <p>To be implemented in subclasses.</p>
@@ -81,8 +66,8 @@ execution strategy is not applicable.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="ws.db.grabbers.revision.GrabberRevisions.gen_update">
-<code class="descname">gen_update</code><span class="sig-paren">(</span><em>since</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.revision.GrabberRevisions.gen_update" title="Permalink to this definition">¶</a></dt>
+<dt id="ws.db.grabbers.logging_.GrabberLogging.gen_update">
+<code class="descname">gen_update</code><span class="sig-paren">(</span><em>since</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.logging_.GrabberLogging.gen_update" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generator for database entries which assumes incremental updates.</p>
 <p>To be implemented in subclasses.</p>
 <p>If <code class="xref py py-exc docutils literal notranslate"><span class="pre">ws.client.api.ShortRecentChangesError</span></code> is raised while
@@ -90,13 +75,8 @@ executing this generator, <code class="xref py py-meth docutils literal notransl
 with <code class="xref py py-meth docutils literal notranslate"><span class="pre">insert()</span></code>. The exception should be raised as soon as
 possible to save unnecessary work.</p>
 <p>The yielded values should follow the same rules as the
-<a class="reference internal" href="#ws.db.grabbers.revision.GrabberRevisions.gen_insert" title="ws.db.grabbers.revision.GrabberRevisions.gen_insert"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gen_insert()</span></code></a> method.</p>
+<a class="reference internal" href="#ws.db.grabbers.logging_.GrabberLogging.gen_insert" title="ws.db.grabbers.logging_.GrabberLogging.gen_insert"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gen_insert()</span></code></a> method.</p>
 </dd></dl>
-
-<dl class="method">
-<dt id="ws.db.grabbers.revision.GrabberRevisions.sync_latest_revisions_content">
-<code class="descname">sync_latest_revisions_content</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.revision.GrabberRevisions.sync_latest_revisions_content" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -155,8 +135,8 @@ possible to save unnecessary work.</p>
   <li><a href="ws.html">ws package</a><ul>
   <li><a href="ws.db.html">ws.db package</a><ul>
   <li><a href="ws.db.grabbers.html">ws.db.grabbers package</a><ul>
-      <li>Previous: <a href="ws.db.grabbers.recentchanges.html" title="previous chapter">ws.db.grabbers.recentchanges module</a></li>
-      <li>Next: <a href="ws.db.grabbers.tags.html" title="next chapter">ws.db.grabbers.tags module</a></li>
+      <li>Previous: <a href="ws.db.grabbers.ipblocks.html" title="previous chapter">ws.db.grabbers.ipblocks module</a></li>
+      <li>Next: <a href="ws.db.grabbers.namespace.html" title="next chapter">ws.db.grabbers.namespace module</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -188,7 +168,7 @@ possible to save unnecessary work.</p>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
       |
-      <a href="../_sources/ws/ws.db.grabbers.revision.rst.txt"
+      <a href="../_sources/ws/ws.db.grabbers.logging_.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -1,7 +1,7 @@
-ws.db.selects.namespaces module
+ws.db.grabbers.logging\_ module
 ===============================
 
-.. automodule:: ws.db.selects.namespaces
+.. automodule:: ws.db.grabbers.logging_
     :members:
     :undoc-members:
     :show-inheritance:

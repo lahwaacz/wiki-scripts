@@ -1,5 +1,5 @@
-ws\.ArchWiki\.header module
-===========================
+ws.ArchWiki.header module
+=========================
 
 .. automodule:: ws.ArchWiki.header
     :members:

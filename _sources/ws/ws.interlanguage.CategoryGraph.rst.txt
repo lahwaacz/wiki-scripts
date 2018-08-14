@@ -1,5 +1,5 @@
-ws\.interlanguage\.CategoryGraph module
-=======================================
+ws.interlanguage.CategoryGraph module
+=====================================
 
 .. automodule:: ws.interlanguage.CategoryGraph
     :members:

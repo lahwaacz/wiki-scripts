@@ -1,5 +1,5 @@
-ws\.utils\.OrderedSet module
-============================
+ws.utils.OrderedSet module
+==========================
 
 .. automodule:: ws.utils.OrderedSet
     :members:

@@ -1,7 +1,0 @@
-ws\.db\.selects\.logevents module
-=================================
-
-.. automodule:: ws.db.selects.logevents
-    :members:
-    :undoc-members:
-    :show-inheritance:

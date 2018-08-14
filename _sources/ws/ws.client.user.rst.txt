@@ -1,5 +1,5 @@
-ws\.client\.user module
-=======================
+ws.client.user module
+=====================
 
 .. automodule:: ws.client.user
     :members:

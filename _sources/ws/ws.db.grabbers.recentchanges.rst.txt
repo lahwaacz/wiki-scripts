@@ -1,5 +1,5 @@
-ws\.db\.grabbers\.recentchanges module
-======================================
+ws.db.grabbers.recentchanges module
+===================================
 
 .. automodule:: ws.db.grabbers.recentchanges
     :members:
