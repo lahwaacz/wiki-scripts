@@ -30,6 +30,43 @@ def _check_lists(db_list, api_list):
         traceback.print_exc()
 
 
+def check_titles(api, db):
+    print("Checking individual titles...")
+
+    titles = {"Main page", "Nonexistent"}
+    pageids = {1,2,3,4,5}
+
+    db_list = list(db.query(titles=titles))
+    api_list = api.call_api(action="query", titles="|".join(titles))["pages"]
+
+    _check_lists(db_list, api_list)
+
+    api_dict = api.call_api(action="query", pageids="|".join(str(p) for p in pageids))["pages"]
+    api_list = list(api_dict.values())
+    api_list.sort(key=lambda p: ("missing" not in p, p["pageid"]))
+    db_list = list(db.query(pageids=pageids))
+
+    _check_lists(db_list, api_list)
+
+
+def check_specific_titles(api, db):
+    titles = [
+        "Main page",
+        "en:Main page",
+        "wikipedia:Main page",
+        "wikipedia:en:Main page",
+        "Main page#section",
+        "en:Main page#section",
+        "wikipedia:Main page#section",
+        "wikipedia:en:Main page#section",
+    ]
+    for title in titles:
+        api_title = api.Title(title)
+        db_title = db.Title(title)
+        assert api_title.context == db_title.context
+        assert api_title == db_title
+
+
 def check_recentchanges(api, db):
     print("Checking the recentchanges table...")
 
@@ -220,43 +257,6 @@ def check_revisions(api, db):
         del rev["parentid"]
 
     _check_lists(db_list, api_list)
-
-
-def check_titles(api, db):
-    print("Checking individual titles...")
-
-    titles = {"Main page", "Nonexistent"}
-    pageids = {1,2,3,4,5}
-
-    db_list = list(db.query(titles=titles))
-    api_list = api.call_api(action="query", titles="|".join(titles))["pages"]
-
-    _check_lists(db_list, api_list)
-
-    api_dict = api.call_api(action="query", pageids="|".join(str(p) for p in pageids))["pages"]
-    api_list = list(api_dict.values())
-    api_list.sort(key=lambda p: ("missing" not in p, p["pageid"]))
-    db_list = list(db.query(pageids=pageids))
-
-    _check_lists(db_list, api_list)
-
-
-def check_specific_titles(api, db):
-    titles = [
-        "Main page",
-        "en:Main page",
-        "wikipedia:Main page",
-        "wikipedia:en:Main page",
-        "Main page#section",
-        "en:Main page#section",
-        "wikipedia:Main page#section",
-        "wikipedia:en:Main page#section",
-    ]
-    for title in titles:
-        api_title = api.Title(title)
-        db_title = db.Title(title)
-        assert api_title.context == db_title.context
-        assert api_title == db_title
 
 
 def check_latest_revisions(api, db):
