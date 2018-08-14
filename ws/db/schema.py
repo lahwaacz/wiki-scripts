@@ -38,8 +38,8 @@ Known incompatibilities from MediaWiki schema:
 """
 
 # TODO:
-# - most foreign keys are nullable in MW's PostgreSQL schema and have an ON DELETE clause
-# - read https://www.postgresql.org/docs/current/static/indexes.html and invent better indexes
+# - new tables (as of MW 1.31): actor, comment, slots, slot_roles, content, content_models - they are needed mostly for multi-content revisions
+# - try to normalize revision + archive
 
 from sqlalchemy import \
         Table, Column, ForeignKey, Index, PrimaryKeyConstraint, ForeignKeyConstraint, CheckConstraint
@@ -286,6 +286,7 @@ def create_users_tables(metadata):
 
     # TODO: prepared for a custom watchlist browser
 #    watchlist = Table("watchlist", metadata,
+#        Column("wl_id", Integer, primary_key=True, nullable=False),
 #        Column("wl_user", Integer, ForeignKey("user.user_id"), nullable=False),
 #        # not a FK to page.page_id, because delete+undelete should not remove entries from the watchlist
 #        Column("wl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
@@ -446,6 +447,91 @@ def create_pages_tables(metadata):
 
 
 def create_recomputable_tables(metadata):
+    # tracks page-to-page links within the wiki (e.g. [[Page name]])
+    pagelinks = Table("pagelinks", metadata,
+        Column("pl_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        # MW incompatibility: removed useless pl_from_namespace column
+        Column("pl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        Column("pl_title", UnicodeBinary(255), nullable=False),
+        PrimaryKeyConstraint("pl_from", "pl_namespace", "pl_title"),
+        CheckConstraint("pl_namespace >= 0", name="check_namespace"),
+    )
+
+    # tracks page transclusions (e.g. {{Page name}})
+    templatelinks = Table("templatelinks", metadata,
+        Column("tl_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        # MW incompatibility: removed useless tl_from_namespace column
+        Column("tl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        Column("tl_title", UnicodeBinary(255), nullable=False),
+        PrimaryKeyConstraint("tl_from", "tl_namespace", "tl_title"),
+        CheckConstraint("tl_namespace >= 0", name="check_namespace")
+    )
+
+    # tracks links to images/files used inline (e.g. [[File:Name]])
+    imagelinks = Table("imagelinks", metadata,
+        Column("il_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        # MW incompatibility: removed useless il_from_namespace column
+        Column("il_from_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        # il_to is the target file name (and also a page title in the "File:" namespace, i.e. the namespace ID is 6)
+        Column("il_to", UnicodeBinary(255), nullable=False),
+        CheckConstraint("il_namespace >= 0", name="check_namespace")
+    )
+
+    # tracks category membership (e.g. [[Category:Name]])
+    categorylinks = Table("categorylinks", metadata,
+        # cl_from is the page ID of the member page
+        Column("cl_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        # cl_to is the category name (and also a page title in the "Category:" namespace, i.e. the namespace ID is 14)
+        Column("cl_to", UnicodeBinary(255), nullable=False),
+        Column("cl_sortkey", UnicodeBinary(230), nullable=False),
+        Column("cl_sortkey_prefix", UnicodeBinary(255), nullable=False),
+        # MW incompatibility: removed cl_timestamp column which is not used as of MediaWiki 1.31
+        Column("cl_collation", UnicodeBinary(32), nullable=False, server_default=""),
+        Column("cl_type", Enum("page", "subcat", "file", name="cl_type"), nullable=False, server_default="page")
+    )
+
+    # tracks interlanguage links (e.g. [[en:Page name]])
+    langlinks = Table("langlinks", metadata,
+        Column("ll_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        Column("ll_lang", UnicodeBinary(20), nullable=False),
+        # title of the target, including namespace
+        Column("ll_title", UnicodeBinary(255), nullable=False),
+        PrimaryKeyConstraint("il_from", "il_lang"),
+    )
+    Index("il_lang_title", langlinks.c.ll_lang, langlinks.c.ll_title)
+
+    # tracks interwiki links (e.g. [[Wikipedia:Page name]])
+    iwlinks = Table("iwlinks", metadata,
+        Column("iwl_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        Column("iwl_prefix", UnicodeBinary(32), ForeignKey("interwiki.iw_prefix"), nullable=False),
+        # title of the target, including namespace
+        Column("iwl_title", UnicodeBinary(255), nullable=False),
+        PrimaryKeyConstraint("iwl_from", "iwl_prefix", "iwl_title"),
+    )
+    Index("iwl_prefix_title_from", iwlinks.c.iwl_prefix, iwlinks.c.iwl_title, iwlinks.c.iwl_from)
+    Index("iwl_prefix_from_title", iwlinks.c.iwl_prefix, iwlinks.c.iwl_from, iwlinks.c.iwl_title)
+
+    # tracks links to external URLs
+    externallinks = Table("externallinks", metadata,
+        Column("el_id", Integer, nullable=False, primary_key=True),
+        Column("el_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        Column("el_to", Blob, nullable=False),
+        # MediaWiki documentation:
+        # In the case of HTTP URLs, this is the URL with any username or password
+        # removed, and with the labels in the hostname reversed and converted to
+        # lower case. An extra dot is added to allow for matching of either
+        # example.com or *.example.com in a single scan.
+        # Example:
+        #      http://user:password@sub.example.com/page.html
+        #   becomes
+        #      http://com.example.sub./page.html
+        # which allows for fast searching for all pages under example.com with the
+        # clause:
+        #      WHERE el_index LIKE 'http://com.example.%'
+        Column("el_index", Blob, nullable=False),
+    )
+
+    # tracks all existing categories (i.e. existing pages in the Category: namespace)
     category = Table("category", metadata,
         Column("cat_id", Integer, primary_key=True, nullable=False),
         Column("cat_title", UnicodeBinary(255), nullable=False),
@@ -456,71 +542,16 @@ def create_recomputable_tables(metadata):
     Index("cat_title", category.c.cat_title, unique=True)
     Index("cat_pages", category.c.cat_pages)
 
+    # tracks targets of redirect pages
     redirect = Table("redirect", metadata,
-        Column("rd_from", Integer, ForeignKey("page.page_id"), primary_key=True, nullable=False, server_default="0"),
-        Column("rd_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
+        Column("rd_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), primary_key=True, nullable=False),
+        Column("rd_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("rd_title", UnicodeBinary(255), nullable=False),
-        Column("rd_interwiki", Unicode(32)),
+        Column("rd_interwiki", Unicode(32), ForeignKey("interwiki.iw_prefix")),
         Column("rd_fragment", UnicodeBinary(255)),
-        CheckConstraint("rd_namespace >= 0", name="check_namespace")
+        CheckConstraint("rd_namespace >= 0", name="check_namespace"),
     )
     Index("rd_namespace_title_from", redirect.c.rd_namespace, redirect.c.rd_title, redirect.c.rd_from)
-
-    pagelinks = Table("pagelinks", metadata,
-        Column("pl_from", Integer, ForeignKey("page.page_id"), nullable=False, server_default="0"),
-        # TODO: useless, should be in view
-        Column("pl_from_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("pl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("pl_title", UnicodeBinary(255), nullable=False),
-        CheckConstraint("pl_from_namespace >= 0", name="check_from_namespace"),
-        CheckConstraint("pl_namespace >= 0", name="check_namespace")
-    )
-
-    iwlinks = Table("iwlinks", metadata,
-        Column("iwl_from", Integer, ForeignKey("page.page_id"), nullable=False, server_default="0"),
-        Column("iwl_prefix", UnicodeBinary(20), nullable=False, server_default=""),
-        Column("iwl_title", UnicodeBinary(255), nullable=False),
-    )
-
-    externallinks = Table("externallinks", metadata,
-        Column("el_id", Integer, nullable=False, primary_key=True),
-        Column("el_from", Integer, ForeignKey("page.page_id"), nullable=False, server_default="0"),
-        Column("el_to", Blob, nullable=False),
-        Column("el_index", Blob, nullable=False)
-    )
-
-    langlinks = Table("langlinks", metadata,
-        Column("ll_from", Integer, ForeignKey("page.page_id"), nullable=False, server_default="0"),
-        Column("ll_lang", UnicodeBinary(20), nullable=False),
-        Column("ll_title", UnicodeBinary(255), nullable=False)
-    )
-
-    imagelinks = Table("imagelinks", metadata,
-        Column("il_from", Integer, ForeignKey("page.page_id"), nullable=False, server_default="0"),
-        Column("il_from_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("il_to", UnicodeBinary(255), nullable=False),
-        CheckConstraint("il_namespace >= 0", name="check_namespace")
-    )
-
-    templatelinks = Table("templatelinks", metadata,
-        Column("tl_from", Integer, ForeignKey("page.page_id"), nullable=False, server_default="0"),
-        # TODO: useless, should be in view
-        Column("tl_from_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("tl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False, server_default="0"),
-        Column("tl_title", UnicodeBinary(255), nullable=False),
-        CheckConstraint("tl_from_namespace >= 0", name="check_from_namespace"),
-        CheckConstraint("tl_namespace >= 0", name="check_namespace")
-    )
-
-    categorylinks = Table("categorylinks", metadata,
-        Column("cl_from", Integer, ForeignKey("page.page_id"), nullable=False),
-        Column("cl_to", UnicodeBinary(255), nullable=False),
-        Column("cl_sortkey", UnicodeBinary(230), nullable=False),
-        Column("cl_sortkey_prefix", UnicodeBinary(255), nullable=False),
-        Column("cl_timestamp", DateTime, nullable=False),
-        Column("cl_collation", UnicodeBinary(32), nullable=False, server_default=""),
-        Column("cl_type", Enum("page", "subcat", "file", name="cl_type"), nullable=False, server_default="page")
-    )
 
 
 def create_multimedia_tables(metadata):
