@@ -84,5 +84,5 @@ class Site(Meta):
         """
         # we don't include 'hitcount' in the tgprop, because we wouldn't update it anyway
         # TODO: check that API.list handles tgcontinue in the result
-        tags = self._api.list(list="tags", tgprop="name|displayname|description|defined|active|source", tglimit="max")
+        tags = self._api.list(list="tags", tgprop="displayname|description|defined|active|source", tglimit="max")
         return tags

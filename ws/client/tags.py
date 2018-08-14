@@ -10,7 +10,7 @@ class Tags:
     def __init__(self, api):
         self.api = api
 
-        self._tags = list(self.api.list(list="tags", tglimit="max", tgprop="name|source|active"))
+        self._tags = list(self.api.list(list="tags", tglimit="max", tgprop="source|active"))
 
     @property
     def all(self):
