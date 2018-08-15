@@ -28,7 +28,7 @@ def get_url():
     f = open(os.path.expanduser(ws_config_path), "r")
     parser = ws.config.ConfigFileParser("site", "alembic")
     conf = parser.parse(f, [])
-    
+
     db_dialect = conf.get("db-dialect", "postgresql")
     db_driver = conf.get("db-driver", "psycopg2")
     db_user = conf["db-user"]
@@ -46,6 +46,20 @@ def get_url():
     return url
 
 
+def my_compare_type(context, inspected_column,
+            metadata_column, inspected_type, metadata_type):
+    # return False if the metadata_type is the same as the inspected_type
+    # or None to allow the default implementation to compare these
+    # types. a return value of True means the two types do not
+    # match and should result in a type change operation.
+    return None
+    # TODO: the built-in comparison did not detect VARCHAR -> TEXT change, so I did it manually like this:
+#    print(context, inspected_column, metadata_column, repr(inspected_type), repr(metadata_type))
+#    if repr(metadata_type) == "UnicodeText()" and repr(inspected_type) != "TEXT()":
+#        return True
+#    return False
+
+
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -58,7 +72,13 @@ def run_migrations_offline():
     script output.
 
     """
-    context.configure(url=get_url(), target_metadata=target_metadata, literal_binds=True)
+    context.configure(
+        url=get_url(),
+        target_metadata=target_metadata,
+        literal_binds=True,
+        # turn on comparing SQL types, see http://alembic.zzzcomputing.com/en/latest/autogenerate.html#compare-types
+        compare_type=my_compare_type,
+    )
 
     with context.begin_transaction():
         context.run_migrations()
@@ -76,7 +96,9 @@ def run_migrations_online():
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
-            target_metadata=target_metadata
+            target_metadata=target_metadata,
+            # turn on comparing SQL types, see http://alembic.zzzcomputing.com/en/latest/autogenerate.html#compare-types
+            compare_type=my_compare_type,
         )
 
         with context.begin_transaction():

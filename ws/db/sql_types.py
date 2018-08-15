@@ -23,6 +23,16 @@ In PostgreSQL, the binary type (bytea) does not represent "strings", i.e. there
 are much less operations and functions defined on bytea then in MySQL for
 binary strings. By using the textual types, we also benefit from native
 conversion functions in the sqlalchemy driver (e.g. psycopg2).
+
+MediaWiki's PostgreSQL schema uses ``TEXT`` for just about everyting, i.e. no
+``VARCHAR``. `PostgreSQL manual`_ says that there is no performance difference
+between ``char(n)``, ``varchar(n)`` and ``text``.
+
+Also note that the MySQL limits are in `bytes`, whereas textual types are
+measured in `characters`. Therefore we follow the PostgreSQL schema and use
+``TEXT`` instead of ``VARCHAR``.
+
+.. _PostgreSQL manual: https://www.postgresql.org/docs/current/static/datatype-character.html
 """
 
 import json
@@ -31,26 +41,6 @@ import datetime
 import sqlalchemy.types as types
 
 from ws.utils import base_enc, base_dec, DatetimeEncoder, datetime_parser, round_to_seconds
-
-
-# TODO: drop the MySQL-like aliases and use the underlying type directly in the schema
-TinyBlob = types.UnicodeText
-Blob = types.UnicodeText
-MediumBlob = types.UnicodeText
-LongBlob = types.UnicodeText
-
-# MediaWiki's PostgreSQL schema uses TEXT for just about everyting, i.e. no
-# VARCHAR. PostreSQL's manual says that there is no performance difference
-# between char(n), varchar(n) and text:
-#     https://www.postgresql.org/docs/current/static/datatype-character.html
-# We should probably drop the length limits as well to make migrations easy.
-# Plus, the MySQL limits are in *bytes*, whereas textual types are measured in
-# characters. Therefore we follow the PostgreSQL schema and use TEXT instead of
-# VARCHAR.
-class UnicodeBinary(types.TypeDecorator):
-    impl = types.UnicodeText
-    def __init__(self, *args, **kwargs):
-        super().__init__(**kwargs)
 
 
 class MWTimestamp(types.TypeDecorator):
@@ -107,7 +97,6 @@ class SHA1(types.TypeDecorator):
     length - 31 digits in base36, 40 digits in hex.
     """
 
-#    impl = types.BINARY(length=31)
     impl = types.LargeBinary(length=31)
 
     def process_bind_param(self, value, dialect):
