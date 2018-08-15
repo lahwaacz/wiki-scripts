@@ -481,7 +481,7 @@ def create_recomputable_tables(metadata):
         Column("il_from_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         # il_to is the target file name (and also a page title in the "File:" namespace, i.e. the namespace ID is 6)
         Column("il_to", UnicodeText, nullable=False),
-        CheckConstraint("il_namespace >= 0", name="check_namespace")
+        CheckConstraint("il_from_namespace >= 0", name="check_namespace")
     )
 
     # tracks category membership (e.g. [[Category:Name]])
@@ -503,7 +503,7 @@ def create_recomputable_tables(metadata):
         Column("ll_lang", UnicodeText, nullable=False),
         # title of the target, including namespace
         Column("ll_title", UnicodeText, nullable=False),
-        PrimaryKeyConstraint("il_from", "il_lang"),
+        PrimaryKeyConstraint("ll_from", "ll_lang"),
     )
     Index("il_lang_title", langlinks.c.ll_lang, langlinks.c.ll_title)
 
@@ -647,3 +647,4 @@ def create_tables(metadata):
     create_users_tables(metadata)
     create_revisions_tables(metadata)
     create_pages_tables(metadata)
+    create_recomputable_tables(metadata)
