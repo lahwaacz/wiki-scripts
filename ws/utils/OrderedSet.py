@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import collections
+import collections.abc
 
 __all__ = ["OrderedSet"]
 
