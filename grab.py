@@ -90,7 +90,7 @@ def check_recentchanges(api, db):
     api_list = new_api_list
 
     try:
-        assert len(db_list) == len(api_list)
+        assert len(db_list) == len(api_list), "{} vs {}".format(len(db_list), len(api_list))
         for i, entries in enumerate(zip(db_list, api_list)):
             db_entry, api_entry = entries
             # TODO: how the hell should we know...
@@ -174,6 +174,11 @@ def check_info(api, db):
     for entry in api_list:
         if "protection" in entry:
             entry["protection"].sort(key=lambda p: p["type"])
+
+    # FIXME: we can't assert page_touched because we track only page edits, not cache invalidations...
+    for db_entry, api_entry in zip(db_list, api_list):
+        del db_entry["touched"]
+        del api_entry["touched"]
 
     _check_lists(db_list, api_list)
 
