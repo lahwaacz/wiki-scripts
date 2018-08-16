@@ -299,7 +299,7 @@ def expand_templates(title, wikicode, content_getter_func, *, template_prefix="T
     if not isinstance(wikicode, mwparserfromhell.wikicode.Wikicode):
         raise TypeError("wikicode is of type {} instead of mwparserfromhell.wikicode.Wikicode".format(type(wikicode)))
 
-    # TODO: this should be done in the Title class (canonicalization depends on whether the namespace is first-letter case-sensitive or not)
+    # TODO: this should be done in the Title class
     def handle_relative_title(src_title, title):
         nonlocal template_prefix
         if title.startswith("/"):
