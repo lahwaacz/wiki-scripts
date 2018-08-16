@@ -261,20 +261,29 @@ def prepare_template_for_transclusion(wikicode, template):
                 # this may happen for nested tags which were previously removed/replaced
                 pass
 
+    # wrapper function with protection against infinite recursion
+    def substitute(wikicode, template, substituted_args):
+        for arg in wikicode.ifilter_arguments(recursive=wikicode.RECURSE_OTHERS):
+            # handle nested substitution like {{{ {{{1}}} |foo }}}
+            substitute(arg.name, template, substituted_args)
+            try:
+                param_value = template.get(arg.name).value
+            except ValueError:
+                param_value = arg.default
+            # If a template contains e.g. {{{1}}} and no corresponding parameter is given,
+            # MediaWiki renders "{{{1}}}" verbatim.
+            if param_value is not None:
+                # handle nested substitution like {{{a| {{{b| {{{c|}}} }}} }}}
+                # watch out for infinite recursion when passing arguments, e.g. Template:A: {{B| {{{1}}} }}; Template:B: {{{1}}}
+                str_arg = str(arg)
+                if str_arg not in substituted_args:
+                    substituted_args.add(str_arg)
+                    substitute(param_value, template, substituted_args)
+                    substituted_args.remove(str_arg)
+                    wikicode.replace(arg, param_value)
+
     # substitute template arguments
-    for arg in wikicode.ifilter_arguments(recursive=wikicode.RECURSE_OTHERS):
-        # handle nested substitution like {{{ {{{1}}} |foo }}}
-        prepare_template_for_transclusion(arg.name, template)
-        try:
-            param_value = template.get(arg.name).value
-        except ValueError:
-            param_value = arg.default
-        # If a template contains e.g. {{{1}}} and no corresponding parameter is given,
-        # MediaWiki renders "{{{1}}}" verbatim.
-        if param_value is not None:
-            # handle nested substitution like {{{a| {{{b| {{{c|}}} }}} }}}
-            prepare_template_for_transclusion(param_value, template)
-            wikicode.replace(arg, param_value)
+    substitute(wikicode, template, set())
 
 def expand_templates(title, wikicode, content_getter_func, *, template_prefix="Template"):
     """

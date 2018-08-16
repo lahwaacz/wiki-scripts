@@ -609,4 +609,13 @@ class test_expand_templates:
         title = "Title"
         # MW incompatibility: MediaWiki does not render the closing </onlyinclude>, most likely it does not pair them correctly
         expected = "foo<onlyinclude>bar</onlyinclude>"
-        _do_test(d, title, expected)
+        self._do_test(d, title, expected)
+
+    def test_recursive_passing_of_arguments(self):
+        d = {
+            "Template:A": "{{{1}}}",
+            "Title": "{{a|{{{1}}}}}",
+        }
+        title = "Title"
+        expected = "{{{1}}}"
+        self._do_test(d, title, expected)
