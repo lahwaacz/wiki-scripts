@@ -54,9 +54,9 @@ class Revisions(SelectBase):
         rev = self.db.revision
         page = self.db.page
         if enum_rev_mode is True:
-            return rev.join(pageset, rev.c.rev_page == page.c.page_id)
-        return rev.join(pageset, (rev.c.rev_page == page.c.page_id) &
-                                 (rev.c.rev_id == page.c.page_latest))
+            return rev.outerjoin(pageset, rev.c.rev_page == page.c.page_id)
+        return rev.outerjoin(pageset, (rev.c.rev_page == page.c.page_id) &
+                                      (rev.c.rev_id == page.c.page_latest))
 
     def get_select_prop(self, s, tail, params):
         rev = self.db.revision

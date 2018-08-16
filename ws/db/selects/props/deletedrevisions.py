@@ -51,8 +51,8 @@ class DeletedRevisions(SelectBase):
     def join_with_pageset(self, pageset):
         ar = self.db.archive
         # TODO: this makes sense only for non-existing pages, so the pageset should be aliased to "page" in SQL or we should use bound parameters
-        return ar.join(pageset, (ar.c.ar_namespace == page.c.page_namespace) &
-                                (ar.c.ar_title == page.c.page_title))
+        return ar.outerjoin(pageset, (ar.c.ar_namespace == page.c.page_namespace) &
+                                     (ar.c.ar_title == page.c.page_title))
 
     def get_select_prop(self, s, tail, params):
         ar = self.db.archive
