@@ -10,7 +10,7 @@ from .title import canonicalize
 __all__ = [
     "strip_markup", "get_adjacent_node", "get_parent_wikicode", "remove_and_squash",
     "get_section_headings", "get_anchors", "ensure_flagged_by_template",
-    "ensure_unflagged_by_template", "expand_templates",
+    "ensure_unflagged_by_template", "prepare_template_for_transclusion", "expand_templates",
 ]
 
 def strip_markup(text, normalize=True, collapse=True):
@@ -221,6 +221,61 @@ def ensure_unflagged_by_template(wikicode, node, template_name):
     if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches(template_name):
         remove_and_squash(wikicode, adjacent)
 
+def prepare_template_for_transclusion(wikicode, template):
+    """
+    Prepares the wikicode of a template for transclusion:
+
+    - the `partial transclusion`_ tags ``<noinclude>``, ``<includeonly>``
+      and ``<onlyinclude>`` are handled
+    - template arguments (``{{{foo}}}`` etc.) are substituted with the supplied
+      parameters as specified on the target page
+
+    :param wikicode: the wikicode of the template
+    :param template: the template object holding parameters for substitution
+    :returns: ``None``, the wikicode is modified in place.
+
+    .. _`partial transclusion`: https://www.mediawiki.org/wiki/Transclusion#Partial_transclusion
+    """
+    # pass 1: if there is an <onlyinclude> tag *anywhere*, even inside <noinclude>,
+    #         discard anything but its content
+    # FIXME: bug in mwparserfromhell: <onlyinclude> should be parsed even inside <nowiki> tags
+    for tag in wikicode.ifilter_tags(recursive=True):
+        if tag.tag == "onlyinclude":
+            wikicode.nodes = tag.contents.nodes
+            break
+
+    # pass 2: handle <noinclude> and <includeonly> tags
+    for tag in wikicode.ifilter_tags(recursive=True):
+        # drop <noinclude> tags and everything inside
+        if tag.tag == "noinclude":
+            try:
+                wikicode.remove(tag)
+            except ValueError:
+                # this may happen for nested tags which were previously removed/replaced
+                pass
+        # drop <includeonly> tags, but nothing outside or inside
+        elif tag.tag == "includeonly":
+            try:
+                wikicode.replace(tag, tag.contents)
+            except ValueError:
+                # this may happen for nested tags which were previously removed/replaced
+                pass
+
+    # substitute template arguments
+    for arg in wikicode.ifilter_arguments(recursive=wikicode.RECURSE_OTHERS):
+        # handle nested substitution like {{{ {{{1}}} |foo }}}
+        prepare_template_for_transclusion(arg.name, template)
+        try:
+            param_value = template.get(arg.name).value
+        except ValueError:
+            param_value = arg.default
+        # If a template contains e.g. {{{1}}} and no corresponding parameter is given,
+        # MediaWiki renders "{{{1}}}" verbatim.
+        if param_value is not None:
+            # handle nested substitution like {{{a| {{{b| {{{c|}}} }}} }}}
+            prepare_template_for_transclusion(param_value, template)
+            wikicode.replace(arg, param_value)
+
 def expand_templates(title, wikicode, content_getter_func, *, template_prefix="Template"):
     """
     Recursively expands all templates on a MediaWiki page.
@@ -243,52 +298,6 @@ def expand_templates(title, wikicode, content_getter_func, *, template_prefix="T
     """
     if not isinstance(wikicode, mwparserfromhell.wikicode.Wikicode):
         raise TypeError("wikicode is of type {} instead of mwparserfromhell.wikicode.Wikicode".format(type(wikicode)))
-
-    def prepare_template_content(wikicode, template):
-        """
-        :param wikicode: the wikicode of the template
-        :param template: the template object holding parameters for substitution
-        """
-        # handle <noinclude>, <includeonly>, <onlyinclude> tags
-        # reference: https://www.mediawiki.org/wiki/Transclusion#Partial_transclusion
-        for tag in wikicode.ifilter_tags(recursive=True):
-            # pass 1: if there is an <onlyinclude> tag *anywhere*, even inside <noinclude>,
-            #         discard anything but its content
-            # FIXME: bug in mwparserfromhell: <onlyinclude> should be parsed even inside <nowiki> tags
-            if tag.tag == "onlyinclude":
-                wikicode.nodes = tag.contents.nodes
-                break
-        for tag in wikicode.ifilter_tags(recursive=True):
-            # pass 2: handle <noinclude> and <includeonly> tags
-            if tag.tag == "noinclude":
-                # drop <noinclude> tags and everything inside
-                try:
-                    wikicode.remove(tag)
-                except ValueError:
-                    # this may happen for nested tags which were previously removed/replaced
-                    pass
-            elif tag.tag == "includeonly":
-                # drop <includeonly> tags, but nothing outside or inside
-                try:
-                    wikicode.replace(tag, tag.contents)
-                except ValueError:
-                    # this may happen for nested tags which were previously removed/replaced
-                    pass
-
-        # substitute template arguments
-        for arg in wikicode.ifilter_arguments(recursive=wikicode.RECURSE_OTHERS):
-            # handle nested substitution like {{{ {{{1}}} |foo }}}
-            prepare_template_content(arg.name, template)
-            try:
-                param_value = template.get(arg.name).value
-            except ValueError:
-                param_value = arg.default
-            # If a template contains e.g. {{{1}}} and no corresponding parameter is given,
-            # MediaWiki renders "{{{1}}}" verbatim.
-            if param_value is not None:
-                # handle nested substitution like {{{a| {{{b| {{{c|}}} }}} }}}
-                prepare_template_content(param_value, template)
-                wikicode.replace(arg, param_value)
 
     # TODO: this should be done in the Title class (canonicalization depends on whether the namespace is first-letter case-sensitive or not)
     def handle_relative_title(src_title, title):
@@ -323,7 +332,7 @@ def expand_templates(title, wikicode, content_getter_func, *, template_prefix="T
             # reference: https://en.wikipedia.org/wiki/Help:Template#Problems_and_workarounds
             # TODO: check what happens in our case
             content = mwparserfromhell.parse(content)
-            prepare_template_content(content, template)
+            prepare_template_for_transclusion(content, template)
 
             # Expand only if the infinite loop checker does not kick in, otherwise we just leave it unexpanded.
             if target_title not in visited_pages:
