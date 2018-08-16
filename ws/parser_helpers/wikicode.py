@@ -294,6 +294,8 @@ def expand_templates(title, wikicode, content_getter_func, *, template_prefix="T
         in ``{{ foo bar | baz }}``, the ``name`` is ``"Template:foo bar"``. The
         function should raise :py:exc:`ValueError` if the requested page does
         not exist.
+    :param str template_prefix:
+        Localized prefix of the template namespace.
     :returns: ``None``, the wikicode is modified in place.
     """
     if not isinstance(wikicode, mwparserfromhell.wikicode.Wikicode):
