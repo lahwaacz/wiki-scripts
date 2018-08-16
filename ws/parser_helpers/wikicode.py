@@ -244,13 +244,34 @@ def expand_templates(title, wikicode, content_getter_func, *, template_prefix="T
     if not isinstance(wikicode, mwparserfromhell.wikicode.Wikicode):
         raise TypeError("wikicode is of type {} instead of mwparserfromhell.wikicode.Wikicode".format(type(wikicode)))
 
-    # TODO: handle <noinclude>, <includeonly>, <onlyinclude> tags
-    # reference: https://www.mediawiki.org/wiki/Transclusion#Partial_transclusion
     def prepare_template_content(wikicode, template):
         """
         :param wikicode: the wikicode of the template
         :param template: the template object holding parameters for substitution
         """
+        # handle <noinclude>, <includeonly>, <onlyinclude> tags
+        # reference: https://www.mediawiki.org/wiki/Transclusion#Partial_transclusion
+        for tag in wikicode.ifilter_tags(recursive=True):
+            # drop <noinclude> tags and everything inside
+            if tag.tag == "noinclude":
+                try:
+                    wikicode.remove(tag)
+                except ValueError:
+                    # this may happen for nested tags which were previously removed/replaced
+                    pass
+            # drop <includeonly> tags, but nothing outside or inside
+            elif tag.tag == "includeonly":
+                try:
+                    wikicode.replace(tag, tag.contents)
+                except ValueError:
+                    # this may happen for nested tags which were previously removed/replaced
+                    pass
+            # cosider only the inside of the first <onlyinclude> tag pair
+            # FIXME: bug in mwparserfromhell: <onlyinclude> should be parsed even inside <nowiki> tags
+            elif tag.tag == "onlyinclude":
+                wikicode.nodes = tag.contents.nodes
+                break
+
         # substitute template arguments
         for arg in wikicode.ifilter_arguments(recursive=wikicode.RECURSE_OTHERS):
             # handle nested substitution like {{{ {{{1}}} |foo }}}

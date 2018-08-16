@@ -508,3 +508,97 @@ class test_expand_templates:
         title = "Title 4"
         expected = "xfoo y"
         self._do_test(d, title, expected)
+
+    def test_noinclude(self):
+        d = {
+            "Template:A": "<noinclude>foo {{{1}}}</noinclude>bar",
+            "Title 1": "{{a}}",
+            "Title 2": "{{a|b}}",
+        }
+        expected = "bar"
+
+        title = "Title 1"
+        self._do_test(d, title, expected)
+
+        title = "Title 2"
+        self._do_test(d, title, expected)
+
+
+    def test_nested_noinclude(self):
+        d = {
+            "Template:A": "<noinclude>foo <noinclude>{{{1}}}</noinclude></noinclude>bar",
+            "Title 1": "{{a}}",
+            "Title 2": "{{a|b}}",
+        }
+        expected = "bar"
+
+        title = "Title 1"
+        self._do_test(d, title, expected)
+
+        title = "Title 2"
+        self._do_test(d, title, expected)
+
+
+    def test_includeonly(self):
+        d = {
+            "Template:A": "foo <includeonly>bar {{{1|}}}</includeonly>",
+            "Title 1": "{{a}}",
+            "Title 2": "{{a|b}}",
+        }
+
+        title = "Title 1"
+        expected = "foo bar "
+        self._do_test(d, title, expected)
+
+        title = "Title 2"
+        expected = "foo bar b"
+        self._do_test(d, title, expected)
+
+
+    def test_nested_includeonly(self):
+        d = {
+            "Template:A": "foo <includeonly>bar <includeonly>{{{1|}}}</includeonly></includeonly>",
+            "Title 1": "{{a}}",
+            "Title 2": "{{a|b}}",
+        }
+
+        title = "Title 1"
+        expected = "foo bar "
+        self._do_test(d, title, expected)
+
+        title = "Title 2"
+        expected = "foo bar b"
+        self._do_test(d, title, expected)
+
+
+    def test_noinclude_and_includeonly(self):
+        d = {
+            "Template:A": "<noinclude>foo</noinclude><includeonly>bar</includeonly>",
+            "Title": "{{a}}",
+        }
+        title = "Title"
+        expected = "bar"
+        self._do_test(d, title, expected)
+
+
+    def test_onlyinclude(self):
+        d = {
+            "Template:A": "foo <onlyinclude>bar</onlyinclude>",
+            "Title": "{{a}}",
+        }
+        title = "Title"
+        expected = "bar"
+        self._do_test(d, title, expected)
+
+
+    def test_noinclude_and_includeonly_and_onlyinclude(self):
+        d = {
+            "Template:A": "<noinclude>foo</noinclude><includeonly>bar</includeonly><onlyinclude>baz</onlyinclude>",
+            "Title": "{{a}}",
+        }
+        title = "Title"
+        expected = "baz"
+        self._do_test(d, title, expected)
+
+    # TODO: what happens in MediaWiki when <onlyinclude> is nested inside <noinclude>?
+    # definitely something funny: "<noinclude><onlyinclude>{{{1}}}</onlyinclude>{{a|foo}}</noinclude>" -> "{{{1}}}foo"
