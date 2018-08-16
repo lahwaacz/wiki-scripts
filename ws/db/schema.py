@@ -490,7 +490,9 @@ def create_recomputable_tables(metadata):
         Column("cl_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         # cl_to is the category name (and also a page title in the "Category:" namespace, i.e. the namespace ID is 14)
         Column("cl_to", UnicodeText, nullable=False),
+        # the automatic sortkey (combines cl_to and cl_sortkey_prefix)
         Column("cl_sortkey", UnicodeText, nullable=False),
+        # the user-specified sortkey prefix, i.e. [[Category:Name|<cl_sortkey_prefix>]]
         Column("cl_sortkey_prefix", UnicodeText, nullable=False),
         # MW incompatibility: removed cl_timestamp column which is not used as of MediaWiki 1.31
         Column("cl_collation", UnicodeText, nullable=False, server_default=""),
@@ -552,6 +554,7 @@ def create_recomputable_tables(metadata):
     # tracks targets of redirect pages
     redirect = Table("redirect", metadata,
         Column("rd_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), primary_key=True, nullable=False),
+        # TODO: what should this be for interwiki redirects? (the Title class parses namespace even for interwiki links)
         Column("rd_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         Column("rd_title", UnicodeText, nullable=False),
         Column("rd_interwiki", UnicodeText, ForeignKey("interwiki.iw_prefix")),
