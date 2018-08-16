@@ -291,7 +291,7 @@ def expand_templates(title, wikicode, content_getter_func, *, template_prefix="T
         A callback function which should return the content of a transcluded
         page. It is called as ``content_getter_func(name)``, where the string
         ``name`` is the canonical name of the transcluded page. For example,
-        in ``{{ foo bar | baz }}``, the ``name`` is ``"Template:foo bar"``. The
+        in ``{{ foo bar | baz }}``, the ``name`` is ``"Template:Foo bar"``. The
         function should raise :py:exc:`ValueError` if the requested page does
         not exist.
     :param str template_prefix:
