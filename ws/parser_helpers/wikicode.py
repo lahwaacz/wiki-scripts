@@ -252,25 +252,28 @@ def expand_templates(title, wikicode, content_getter_func, *, template_prefix="T
         # handle <noinclude>, <includeonly>, <onlyinclude> tags
         # reference: https://www.mediawiki.org/wiki/Transclusion#Partial_transclusion
         for tag in wikicode.ifilter_tags(recursive=True):
-            # drop <noinclude> tags and everything inside
+            # pass 1: if there is an <onlyinclude> tag *anywhere*, even inside <noinclude>,
+            #         discard anything but its content
+            # FIXME: bug in mwparserfromhell: <onlyinclude> should be parsed even inside <nowiki> tags
+            if tag.tag == "onlyinclude":
+                wikicode.nodes = tag.contents.nodes
+                break
+        for tag in wikicode.ifilter_tags(recursive=True):
+            # pass 2: handle <noinclude> and <includeonly> tags
             if tag.tag == "noinclude":
+                # drop <noinclude> tags and everything inside
                 try:
                     wikicode.remove(tag)
                 except ValueError:
                     # this may happen for nested tags which were previously removed/replaced
                     pass
-            # drop <includeonly> tags, but nothing outside or inside
             elif tag.tag == "includeonly":
+                # drop <includeonly> tags, but nothing outside or inside
                 try:
                     wikicode.replace(tag, tag.contents)
                 except ValueError:
                     # this may happen for nested tags which were previously removed/replaced
                     pass
-            # cosider only the inside of the first <onlyinclude> tag pair
-            # FIXME: bug in mwparserfromhell: <onlyinclude> should be parsed even inside <nowiki> tags
-            elif tag.tag == "onlyinclude":
-                wikicode.nodes = tag.contents.nodes
-                break
 
         # substitute template arguments
         for arg in wikicode.ifilter_arguments(recursive=wikicode.RECURSE_OTHERS):

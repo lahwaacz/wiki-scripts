@@ -600,5 +600,13 @@ class test_expand_templates:
         expected = "baz"
         self._do_test(d, title, expected)
 
-    # TODO: what happens in MediaWiki when <onlyinclude> is nested inside <noinclude>?
-    # definitely something funny: "<noinclude><onlyinclude>{{{1}}}</onlyinclude>{{a|foo}}</noinclude>" -> "{{{1}}}foo"
+    def test_nested_noinclude_and_includeonly_and_onlyinclude(self):
+        d = {
+            "Template:A": "<noinclude><includeonly><onlyinclude>{{{1}}}<onlyinclude>{{{2}}}</onlyinclude></onlyinclude></includeonly>discarded text</noinclude>",
+            "Title": "{{a|foo|bar}}",
+        }
+
+        title = "Title"
+        # MW incompatibility: MediaWiki does not render the closing </onlyinclude>, most likely it does not pair them correctly
+        expected = "foo<onlyinclude>bar</onlyinclude>"
+        _do_test(d, title, expected)
