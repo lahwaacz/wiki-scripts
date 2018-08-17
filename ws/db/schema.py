@@ -46,7 +46,6 @@ Known incompatibilities from MediaWiki schema:
 """
 
 # TODO:
-# - new tables (as of MW 1.31): actor, comment, slots, slot_roles, content, content_models - they are needed mostly for multi-content revisions
 # - try to normalize revision + archive
 
 from sqlalchemy import \
