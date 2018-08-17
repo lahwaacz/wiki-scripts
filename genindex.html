@@ -197,6 +197,8 @@
 </li>
       <li><a href="ws/ws.interlanguage.InterlanguageLinks.html#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._page_exists">_page_exists() (ws.interlanguage.InterlanguageLinks.InterlanguageLinks method)</a>
 </li>
+      <li><a href="ws/ws.db.parser_cache.html#ws.db.parser_cache.ParserCache._parse_page">_parse_page() (ws.db.parser_cache.ParserCache method)</a>
+</li>
       <li><a href="ws/ws.parser_helpers.title.html#ws.parser_helpers.title.Title._set_iwprefix">_set_iwprefix() (ws.parser_helpers.title.Title method)</a>
 </li>
       <li><a href="ws/ws.parser_helpers.title.html#ws.parser_helpers.title.Title._set_namespace">_set_namespace() (ws.parser_helpers.title.Title method)</a>
@@ -355,8 +357,6 @@
 </li>
       <li><a href="ws/ws.db.schema.html#ws.db.schema.create_tables">create_tables() (in module ws.db.schema)</a>
 </li>
-      <li><a href="ws/ws.db.schema.html#ws.db.schema.create_unused_tables">create_unused_tables() (in module ws.db.schema)</a>
-</li>
       <li><a href="ws/ws.db.schema.html#ws.db.schema.create_users_tables">create_users_tables() (in module ws.db.schema)</a>
 </li>
   </ul></td>
@@ -448,6 +448,8 @@
       <li><a href="ws/ws.db.execution.html#ws.db.execution.DeferrableExecutionQueue.execute_deferred">execute_deferred() (ws.db.execution.DeferrableExecutionQueue method)</a>
 </li>
       <li><a href="ws/ws.db.selects.SelectBase.html#ws.db.selects.SelectBase.SelectBase.execute_sql">execute_sql() (ws.db.selects.SelectBase.SelectBase method)</a>
+</li>
+      <li><a href="ws/ws.parser_helpers.template_expansion.html#ws.parser_helpers.template_expansion.expand_templates">expand_templates() (in module ws.parser_helpers.template_expansion)</a>
 </li>
       <li><a href="ws/ws.db.database.html#ws.db.database.explain">explain (class in ws.db.database)</a>
 </li>
@@ -686,8 +688,6 @@
 </li>
         <li><a href="ws/ws.db.sql_types.html#ws.db.sql_types.SHA1.impl">(ws.db.sql_types.SHA1 attribute)</a>
 </li>
-        <li><a href="ws/ws.db.sql_types.html#ws.db.sql_types.UnicodeBinary.impl">(ws.db.sql_types.UnicodeBinary attribute)</a>
-</li>
       </ul></li>
       <li><a href="ws/ws.logging.html#ws.logging.init">init() (in module ws.logging)</a>
 
@@ -727,10 +727,10 @@
 </li>
       <li><a href="ws/ws.interlanguage.InterlanguageLinks.html#ws.interlanguage.InterlanguageLinks.InterlanguageLinks">InterlanguageLinks (class in ws.interlanguage.InterlanguageLinks)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ws/ws.client.site.html#ws.client.site.Site.interlanguagemap">interlanguagemap (ws.client.site.Site attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ws/ws.utils.OrderedSet.html#ws.utils.OrderedSet.OrderedSet.intersection">intersection (ws.utils.OrderedSet.OrderedSet attribute)</a>
 </li>
       <li><a href="ws/ws.utils.OrderedSet.html#ws.utils.OrderedSet.OrderedSet.intersection_update">intersection_update (ws.utils.OrderedSet.OrderedSet attribute)</a>
@@ -756,6 +756,8 @@
       <li><a href="ws/ws.ArchWiki.lang.html#ws.ArchWiki.lang.is_language_tag">is_language_tag() (in module ws.ArchWiki.lang)</a>
 </li>
       <li><a href="ws/ws.client.user.html#ws.client.user.User.is_loggedin">is_loggedin (ws.client.user.User attribute)</a>
+</li>
+      <li><a href="ws/ws.parser_helpers.template_expansion.html#ws.parser_helpers.template_expansion.MagicWords.is_magic_word">is_magic_word() (ws.parser_helpers.template_expansion.MagicWords class method)</a>
 </li>
       <li><a href="ws/ws.autopage.html#ws.autopage.AutoPage.is_old_enough">is_old_enough() (ws.autopage.AutoPage method)</a>
 </li>
@@ -819,6 +821,8 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ws/ws.parser_helpers.template_expansion.html#ws.parser_helpers.template_expansion.MagicWords">MagicWords (class in ws.parser_helpers.template_expansion)</a>
+</li>
       <li><a href="ws/ws.client.connection.html#ws.client.connection.Connection.make_session">make_session() (ws.client.connection.Connection static method)</a>
 </li>
       <li><a href="ws/ws.client.tags.html#ws.client.tags.Tags.manual">manual (ws.client.tags.Tags attribute)</a>
@@ -901,6 +905,14 @@
 </li>
       <li><a href="ws/ws.utils.containers.html#ws.utils.containers.parse_timestamps_in_struct">parse_timestamps_in_struct() (in module ws.utils.containers)</a>
 </li>
+      <li><a href="ws/ws.parser_helpers.template_expansion.html#ws.parser_helpers.template_expansion.MagicWords.PARSER_FUNCTIONS">PARSER_FUNCTIONS (ws.parser_helpers.template_expansion.MagicWords attribute)</a>
+</li>
+      <li><a href="ws/ws.db.parser_cache.html#ws.db.parser_cache.ParserCache">ParserCache (class in ws.db.parser_cache)</a>
+</li>
+      <li><a href="ws/ws.parser_helpers.template_expansion.html#ws.parser_helpers.template_expansion.prepare_template_for_transclusion">prepare_template_for_transclusion() (in module ws.parser_helpers.template_expansion)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ws/ws.db.sql_types.html#ws.db.sql_types.JSONEncodedDict.process_bind_param">process_bind_param() (ws.db.sql_types.JSONEncodedDict method)</a>
 
       <ul>
@@ -909,8 +921,6 @@
         <li><a href="ws/ws.db.sql_types.html#ws.db.sql_types.SHA1.process_bind_param">(ws.db.sql_types.SHA1 method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ws/ws.db.sql_types.html#ws.db.sql_types.JSONEncodedDict.process_result_value">process_result_value() (ws.db.sql_types.JSONEncodedDict method)</a>
 
       <ul>
@@ -1029,6 +1039,8 @@
 </li>
       <li><a href="ws/ws.parser_helpers.title.html#ws.parser_helpers.title.Title.subpagename">subpagename (ws.parser_helpers.title.Title attribute)</a>
 </li>
+      <li><a href="ws/ws.parser_helpers.template_expansion.html#ws.parser_helpers.template_expansion.MagicWords.substitute">substitute() (ws.parser_helpers.template_expansion.MagicWords class method)</a>
+</li>
       <li><a href="ws/ws.utils.OrderedSet.html#ws.utils.OrderedSet.OrderedSet.symmetric_difference">symmetric_difference (ws.utils.OrderedSet.OrderedSet attribute)</a>
 </li>
       <li><a href="ws/ws.utils.OrderedSet.html#ws.utils.OrderedSet.OrderedSet.symmetric_difference_update">symmetric_difference_update (ws.utils.OrderedSet.OrderedSet attribute)</a>
@@ -1093,8 +1105,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ws/ws.interlanguage.Decategorization.html#ws.interlanguage.Decategorization.Decategorization.uncat_namespaces">uncat_namespaces (ws.interlanguage.Decategorization.Decategorization attribute)</a>
 </li>
-      <li><a href="ws/ws.db.sql_types.html#ws.db.sql_types.UnicodeBinary">UnicodeBinary (class in ws.db.sql_types)</a>
-</li>
       <li><a href="ws/ws.utils.OrderedSet.html#ws.utils.OrderedSet.OrderedSet.union">union (ws.utils.OrderedSet.OrderedSet attribute)</a>
 </li>
       <li><a href="ws/ws.cache.html#ws.cache.AllRevisionsProps.update">update() (ws.cache.AllRevisionsProps method)</a>
@@ -1110,6 +1120,8 @@
 </li>
         <li><a href="ws/ws.db.grabbers.GrabberBase.html#ws.db.grabbers.GrabberBase.GrabberBase.update">(ws.db.grabbers.GrabberBase.GrabberBase method)</a>
 </li>
+        <li><a href="ws/ws.db.parser_cache.html#ws.db.parser_cache.ParserCache.update">(ws.db.parser_cache.ParserCache method)</a>
+</li>
         <li><a href="ws/ws.interlanguage.CategoryGraph.html#ws.interlanguage.CategoryGraph.CategoryGraph.update">(ws.interlanguage.CategoryGraph.CategoryGraph method)</a>
 </li>
         <li><a href="ws/ws.utils.OrderedSet.html#ws.utils.OrderedSet.OrderedSet.update">(ws.utils.OrderedSet.OrderedSet method)</a>
@@ -1120,6 +1132,8 @@
       <li><a href="ws/ws.interlanguage.InterlanguageLinks.html#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.update_allpages">update_allpages() (ws.interlanguage.InterlanguageLinks.InterlanguageLinks method)</a>
 </li>
       <li><a href="ws/ws.interlanguage.InterlanguageLinks.html#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.update_page">update_page() (ws.interlanguage.InterlanguageLinks.InterlanguageLinks static method)</a>
+</li>
+      <li><a href="ws/ws.db.database.html#ws.db.database.Database.update_parser_cache">update_parser_cache() (ws.db.database.Database method)</a>
 </li>
       <li><a href="ws/ws.parser_helpers.encodings.html#ws.parser_helpers.encodings.urldecode">urldecode() (in module ws.parser_helpers.encodings)</a>
 </li>
@@ -1137,16 +1151,20 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ws/ws.utils.html#ws.utils.value_or_none">value_or_none() (in module ws.utils)</a>
 </li>
+      <li><a href="ws/ws.parser_helpers.template_expansion.html#ws.parser_helpers.template_expansion.MagicWords.VARIABLES">VARIABLES (ws.parser_helpers.template_expansion.MagicWords attribute)</a>
+</li>
+      <li><a href="ws/ws.parser_helpers.template_expansion.html#ws.parser_helpers.template_expansion.MagicWords.VARIABLES_COLON">VARIABLES_COLON (ws.parser_helpers.template_expansion.MagicWords attribute)</a>
+</li>
       <li><a href="ws/ws.db.database.html#ws.db.database.visit_explain">visit_explain() (in module ws.db.database)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ws/ws.client.meta.html#ws.client.meta.Meta.volatile_properties">volatile_properties (ws.client.meta.Meta attribute)</a>
 
       <ul>
         <li><a href="ws/ws.client.user.html#ws.client.user.User.volatile_properties">(ws.client.user.User attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ws/ws.client.meta.html#ws.client.meta.Meta.volatile_timeout">volatile_timeout (ws.client.meta.Meta attribute)</a>
 
       <ul>
@@ -1223,10 +1241,10 @@
 </li>
       <li><a href="ws/ws.db.grabbers.protected_titles.html#module-ws.db.grabbers.protected_titles">ws.db.grabbers.protected_titles (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ws/ws.db.grabbers.recentchanges.html#module-ws.db.grabbers.recentchanges">ws.db.grabbers.recentchanges (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ws/ws.db.grabbers.revision.html#module-ws.db.grabbers.revision">ws.db.grabbers.revision (module)</a>
 </li>
       <li><a href="ws/ws.db.grabbers.tags.html#module-ws.db.grabbers.tags">ws.db.grabbers.tags (module)</a>
@@ -1234,6 +1252,8 @@
       <li><a href="ws/ws.db.grabbers.user.html#module-ws.db.grabbers.user">ws.db.grabbers.user (module)</a>
 </li>
       <li><a href="ws/ws.db.mw_constants.html#module-ws.db.mw_constants">ws.db.mw_constants (module)</a>
+</li>
+      <li><a href="ws/ws.db.parser_cache.html#module-ws.db.parser_cache">ws.db.parser_cache (module)</a>
 </li>
       <li><a href="ws/ws.db.schema.html#module-ws.db.schema">ws.db.schema (module)</a>
 </li>
@@ -1268,6 +1288,8 @@
       <li><a href="ws/ws.parser_helpers.html#module-ws.parser_helpers">ws.parser_helpers (module)</a>
 </li>
       <li><a href="ws/ws.parser_helpers.encodings.html#module-ws.parser_helpers.encodings">ws.parser_helpers.encodings (module)</a>
+</li>
+      <li><a href="ws/ws.parser_helpers.template_expansion.html#module-ws.parser_helpers.template_expansion">ws.parser_helpers.template_expansion (module)</a>
 </li>
       <li><a href="ws/ws.parser_helpers.title.html#module-ws.parser_helpers.title">ws.parser_helpers.title (module)</a>
 </li>

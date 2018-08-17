@@ -64,18 +64,12 @@ On the other hand, binary types (<code class="docutils literal notranslate"><spa
 are much less operations and functions defined on bytea then in MySQL for
 binary strings. By using the textual types, we also benefit from native
 conversion functions in the sqlalchemy driver (e.g. psycopg2).</p>
-<dl class="class">
-<dt id="ws.db.sql_types.UnicodeBinary">
-<em class="property">class </em><code class="descclassname">ws.db.sql_types.</code><code class="descname">UnicodeBinary</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.sql_types.UnicodeBinary" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.type_api.TypeDecorator</span></code></p>
-<dl class="attribute">
-<dt id="ws.db.sql_types.UnicodeBinary.impl">
-<code class="descname">impl</code><a class="headerlink" href="#ws.db.sql_types.UnicodeBinary.impl" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.sqltypes.UnicodeText</span></code></p>
-</dd></dl>
-
-</dd></dl>
-
+<p>MediaWiki’s PostgreSQL schema uses <code class="docutils literal notranslate"><span class="pre">TEXT</span></code> for just about everyting, i.e. no
+<code class="docutils literal notranslate"><span class="pre">VARCHAR</span></code>. <a class="reference external" href="https://www.postgresql.org/docs/current/static/datatype-character.html">PostgreSQL manual</a> says that there is no performance difference
+between <code class="docutils literal notranslate"><span class="pre">char(n)</span></code>, <code class="docutils literal notranslate"><span class="pre">varchar(n)</span></code> and <code class="docutils literal notranslate"><span class="pre">text</span></code>.</p>
+<p>Also note that the MySQL limits are in <cite>bytes</cite>, whereas textual types are
+measured in <cite>characters</cite>. Therefore we follow the PostgreSQL schema and use
+<code class="docutils literal notranslate"><span class="pre">TEXT</span></code> instead of <code class="docutils literal notranslate"><span class="pre">VARCHAR</span></code>.</p>
 <dl class="class">
 <dt id="ws.db.sql_types.MWTimestamp">
 <em class="property">class </em><code class="descclassname">ws.db.sql_types.</code><code class="descname">MWTimestamp</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.sql_types.MWTimestamp" title="Permalink to this definition">¶</a></dt>

@@ -47,9 +47,9 @@
 <li>Implemented a subset of MediaWiki API querie. Lists: <code class="docutils literal notranslate"><span class="pre">allpages</span></code>,
 <code class="docutils literal notranslate"><span class="pre">alldeletedrevisions</span></code>, <code class="docutils literal notranslate"><span class="pre">allrevisions</span></code>, <code class="docutils literal notranslate"><span class="pre">logevents</span></code>,
 <code class="docutils literal notranslate"><span class="pre">protectedtitles</span></code>, <code class="docutils literal notranslate"><span class="pre">recentchanges</span></code>; props: <code class="docutils literal notranslate"><span class="pre">deletedrevisions</span></code>,
-<code class="docutils literal notranslate"><span class="pre">revisions</span></code>, <code class="docutils literal notranslate"><span class="pre">pageprops</span></code>; including <code class="docutils literal notranslate"><span class="pre">generator</span></code>, <code class="docutils literal notranslate"><span class="pre">titles</span></code> and
-<code class="docutils literal notranslate"><span class="pre">pageids</span></code> parameters. See the GitHub issue for more information:
-<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/issues/35">https://github.com/lahwaacz/wiki-scripts/issues/35</a>.</li>
+<code class="docutils literal notranslate"><span class="pre">revisions</span></code>, <code class="docutils literal notranslate"><span class="pre">pageprops</span></code>, <code class="docutils literal notranslate"><span class="pre">info</span></code>; including <code class="docutils literal notranslate"><span class="pre">generator</span></code>,
+<code class="docutils literal notranslate"><span class="pre">titles</span></code> and <code class="docutils literal notranslate"><span class="pre">pageids</span></code> parameters. See the GitHub issue for more
+information: <a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/issues/35">https://github.com/lahwaacz/wiki-scripts/issues/35</a>.</li>
 <li>Implemented synchronization of the latest revisions contents.</li>
 <li>Fixed many bugs in the synchronization process.</li>
 </ul>
@@ -61,6 +61,8 @@ database for caching.</li>
 <li>Merged several smaller scripts into <code class="docutils literal notranslate"><span class="pre">list-problems.py</span></code>.</li>
 <li>Implemented the <a class="reference internal" href="ws/ws.client.api.html#ws.client.api.API.move" title="ws.client.api.API.move"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.client.api.API.move()</span></code></a> method to rename pages on
 the wiki.</li>
+<li>Implemented recursive template expansion using <code class="xref py py-mod docutils literal notranslate"><span class="pre">mwparserfromhell</span></code> and
+the SQL database. See <code class="xref py py-func docutils literal notranslate"><span class="pre">ws.parser_helpers.wikicode.expand_templates()</span></code>.</li>
 </ul>
 </div>
 <div class="section" id="version-1-2">

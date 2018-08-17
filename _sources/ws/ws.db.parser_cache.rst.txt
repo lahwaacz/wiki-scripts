@@ -1,0 +1,7 @@
+ws.db.parser\_cache module
+==========================
+
+.. automodule:: ws.db.parser_cache
+    :members:
+    :undoc-members:
+    :show-inheritance:

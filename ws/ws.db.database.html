@@ -134,6 +134,8 @@ contains the arguments set by <code class="xref py py-meth docutils literal notr
 <dt id="ws.db.database.Database.sync_latest_revisions_content">
 <code class="descname">sync_latest_revisions_content</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.sync_latest_revisions_content" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sync the content of the latest revisions of all pages on the wiki.</p>
+<p>Note that the method <a class="reference internal" href="#ws.db.database.Database.sync_with_api" title="ws.db.database.Database.sync_with_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sync_with_api()</span></code></a> should be called prior to
+calling this method.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -165,6 +167,15 @@ contains the arguments set by <code class="xref py py-meth docutils literal notr
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ws.db.database.Database.update_parser_cache">
+<code class="descname">update_parser_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.update_parser_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the parser cache tables.</p>
+<p>Note that the methods <a class="reference internal" href="#ws.db.database.Database.sync_with_api" title="ws.db.database.Database.sync_with_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sync_with_api()</span></code></a> and
+<a class="reference internal" href="#ws.db.database.Database.sync_latest_revisions_content" title="ws.db.database.Database.sync_latest_revisions_content"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sync_latest_revisions_content()</span></code></a> should be called prior to
+calling this method.</p>
 </dd></dl>
 
 </dd></dl>

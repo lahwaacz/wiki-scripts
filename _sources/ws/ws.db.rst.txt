@@ -22,6 +22,7 @@ Submodules
    ws.db.database
    ws.db.execution
    ws.db.mw_constants
+   ws.db.parser_cache
    ws.db.schema
    ws.db.sql_types
 

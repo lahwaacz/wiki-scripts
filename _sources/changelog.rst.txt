@@ -11,9 +11,9 @@ Unreleased
     - Implemented a subset of MediaWiki API querie. Lists: ``allpages``,
       ``alldeletedrevisions``, ``allrevisions``, ``logevents``,
       ``protectedtitles``, ``recentchanges``; props: ``deletedrevisions``,
-      ``revisions``, ``pageprops``; including ``generator``, ``titles`` and
-      ``pageids`` parameters. See the GitHub issue for more information:
-      https://github.com/lahwaacz/wiki-scripts/issues/35.
+      ``revisions``, ``pageprops``, ``info``; including ``generator``,
+      ``titles`` and ``pageids`` parameters. See the GitHub issue for more
+      information: https://github.com/lahwaacz/wiki-scripts/issues/35.
     - Implemented synchronization of the latest revisions contents.
     - Fixed many bugs in the synchronization process.
 - Removed :py:mod:`ws.cache.LatestRevisions` module. Scripts use the SQL
@@ -21,6 +21,8 @@ Unreleased
 - Merged several smaller scripts into ``list-problems.py``.
 - Implemented the :py:meth:`ws.client.api.API.move` method to rename pages on
   the wiki.
+- Implemented recursive template expansion using :py:mod:`mwparserfromhell` and
+  the SQL database. See :py:func:`ws.parser_helpers.wikicode.expand_templates`.
 
 Version 1.2
 -----------

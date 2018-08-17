@@ -17,7 +17,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ws.db.sql_types module" href="ws.db.sql_types.html" />
-    <link rel="prev" title="ws.db.mw_constants module" href="ws.db.mw_constants.html" />
+    <link rel="prev" title="ws.db.parser_cache module" href="ws.db.parser_cache.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -79,6 +79,20 @@ the GROUP BY queries.</li>
 </dd>
 </dl>
 </li>
+<li><dl class="first docutils">
+<dt>Various notes on tables used by MediaWiki, but not wiki-scripts:</dt>
+<dd><ul class="first last">
+<li>site_stats: we don’t sync the site stats because the values are
+inconsistent even in MediaWiki</li>
+<li>sites, site_identifiers: as of MW 1.28, they are not visible via the API</li>
+<li>job, objectcache, querycache*, transcache, updatelog: not needed for
+wiki-scripts operation</li>
+<li>user_former_groups: used only to prevent user auto-promotion into groups
+from which they were already removed; not visible through the API</li>
+</ul>
+</dd>
+</dl>
+</li>
 </ul>
 <dl class="function">
 <dt id="ws.db.schema.create_custom_tables">
@@ -118,11 +132,6 @@ the GROUP BY queries.</li>
 <dl class="function">
 <dt id="ws.db.schema.create_multimedia_tables">
 <code class="descclassname">ws.db.schema.</code><code class="descname">create_multimedia_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_multimedia_tables" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ws.db.schema.create_unused_tables">
-<code class="descclassname">ws.db.schema.</code><code class="descname">create_unused_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_unused_tables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -184,7 +193,7 @@ the GROUP BY queries.</li>
   <li><a href="../modules.html">API reference</a><ul>
   <li><a href="ws.html">ws package</a><ul>
   <li><a href="ws.db.html">ws.db package</a><ul>
-      <li>Previous: <a href="ws.db.mw_constants.html" title="previous chapter">ws.db.mw_constants module</a></li>
+      <li>Previous: <a href="ws.db.parser_cache.html" title="previous chapter">ws.db.parser_cache module</a></li>
       <li>Next: <a href="ws.db.sql_types.html" title="next chapter">ws.db.sql_types module</a></li>
   </ul></li>
   </ul></li>
