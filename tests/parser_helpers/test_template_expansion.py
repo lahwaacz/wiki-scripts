@@ -1,12 +1,14 @@
 #! /usr/bin/env python3
 
+import pytest
+
 import mwparserfromhell
 
 from ws.parser_helpers.template_expansion import *
 
 class test_expand_templates:
     @staticmethod
-    def _do_test(d, title, expected):
+    def _do_test(d, title, expected, **kwargs):
         def content_getter(title):
             nonlocal d
             try:
@@ -16,8 +18,14 @@ class test_expand_templates:
 
         content = d[title]
         wikicode = mwparserfromhell.parse(content)
-        expand_templates(title, wikicode, content_getter)
+        expand_templates(title, wikicode, content_getter, **kwargs)
         assert wikicode == expected
+
+    def test_type_of_wikicode(self):
+        def void_getter(title):
+            raise ValueError
+        with pytest.raises(TypeError):
+            expand_templates("title", "content", void_getter)
 
     def test_basic(self):
         d = {
@@ -139,7 +147,6 @@ class test_expand_templates:
         title = "Title 2"
         self._do_test(d, title, expected)
 
-
     def test_nested_noinclude(self):
         d = {
             "Template:A": "<noinclude>foo <noinclude>{{{1}}}</noinclude></noinclude>bar",
@@ -153,7 +160,6 @@ class test_expand_templates:
 
         title = "Title 2"
         self._do_test(d, title, expected)
-
 
     def test_includeonly(self):
         d = {
@@ -170,7 +176,6 @@ class test_expand_templates:
         expected = "foo bar b"
         self._do_test(d, title, expected)
 
-
     def test_nested_includeonly(self):
         d = {
             "Template:A": "foo <includeonly>bar <includeonly>{{{1|}}}</includeonly></includeonly>",
@@ -186,7 +191,6 @@ class test_expand_templates:
         expected = "foo bar b"
         self._do_test(d, title, expected)
 
-
     def test_noinclude_and_includeonly(self):
         d = {
             "Template:A": "<noinclude>foo</noinclude><includeonly>bar</includeonly>",
@@ -196,6 +200,14 @@ class test_expand_templates:
         expected = "bar"
         self._do_test(d, title, expected)
 
+    def test_nested_noinclude_and_includeonly(self):
+        d = {
+            "Template:A": "<noinclude>foo <includeonly>bar</includeonly></noinclude>",
+            "Title": "{{a}}",
+        }
+        title = "Title"
+        expected = ""
+        self._do_test(d, title, expected)
 
     def test_onlyinclude(self):
         d = {
@@ -205,7 +217,6 @@ class test_expand_templates:
         title = "Title"
         expected = "bar"
         self._do_test(d, title, expected)
-
 
     def test_noinclude_and_includeonly_and_onlyinclude(self):
         d = {
@@ -251,6 +262,22 @@ class test_expand_templates:
         title = "Title 2"
         expected = "http://example.com/#foo_bar"
         self._do_test(d, title, expected)
+
+    def test_magic_words_disabled(self):
+        d = {
+            "Template:A": "http://example.com/{{urlencode:{{{1}}}}}/",
+            "Template:B": "http://example.com/#{{anchorencode:{{{1}}}}}",
+            "Title 1": "{{a|foo bar}}",
+            "Title 2": "{{b|foo bar}}",
+        }
+
+        title = "Title 1"
+        expected = "http://example.com/{{urlencode:foo bar}}/"
+        self._do_test(d, title, expected, substitute_magic_words=False)
+
+        title = "Title 2"
+        expected = "http://example.com/#{{anchorencode:foo bar}}"
+        self._do_test(d, title, expected, substitute_magic_words=False)
 
     def test_magic_words_unhandled(self):
         # this is mostly to complete the code coverage...

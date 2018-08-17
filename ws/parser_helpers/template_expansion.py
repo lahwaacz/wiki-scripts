@@ -341,7 +341,6 @@ def expand_templates(title, wikicode, content_getter_func, *,
 
     # TODO: this should be done in the Title class
     def handle_relative_title(src_title, title):
-        nonlocal template_prefix
         if title.startswith("/"):
             return src_title + title
         elif title.startswith(":"):
