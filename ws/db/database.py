@@ -15,7 +15,7 @@ import os.path
 import sqlalchemy as sa
 import alembic.config
 
-from . import schema, selects, grabbers
+from . import schema, selects, grabbers, parser_cache
 from ..parser_helpers.title import Context, Title
 
 class Database:
@@ -126,6 +126,9 @@ class Database:
         """
         Sync the content of the latest revisions of all pages on the wiki.
 
+        Note that the method :py:meth:`.sync_with_api` should be called prior to
+        calling this method.
+
         :param ws.client.api.API api: interface to the remote MediaWiki instance
         """
         grabbers.GrabberRevisions(api, self).sync_latest_revisions_content()
@@ -153,6 +156,17 @@ class Database:
         legaltitlechars = " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+"
         context = Context(iwmap, namespacenames, namespaces, legaltitlechars)
         return Title(context, title)
+
+    def update_parser_cache(self):
+        """
+        Update the parser cache tables.
+
+        Note that the methods :py:meth:`.sync_with_api` and
+        :py:meth:`.sync_latest_revisions_content` should be called prior to
+        calling this method.
+        """
+        cache = parser_cache.ParserCache(self)
+        cache.update()
 
 
 """
