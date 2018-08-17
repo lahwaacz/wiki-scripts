@@ -235,3 +235,28 @@ class test_expand_templates:
         title = "Title"
         expected = "{{{1}}}"
         self._do_test(d, title, expected)
+
+    def test_magic_words(self):
+        d = {
+            "Template:A": "http://example.com/{{urlencode:{{{1}}}}}/",
+            "Template:B": "http://example.com/#{{anchorencode:{{{1}}}}}",
+            "Title 1": "{{a|foo bar}}",
+            "Title 2": "{{b|foo bar}}",
+        }
+
+        title = "Title 1"
+        expected = "http://example.com/foo%20bar/"
+        self._do_test(d, title, expected)
+
+        title = "Title 2"
+        expected = "http://example.com/#foo_bar"
+        self._do_test(d, title, expected)
+
+    def test_magic_words_unhandled(self):
+        # this is mostly to complete the code coverage...
+        d = {
+            "Title": "{{PAGENAME}} {{#special:foo}}",
+        }
+        title = "Title"
+        expected = d[title]
+        self._do_test(d, title, expected)
