@@ -360,6 +360,8 @@ def expand_templates(title, wikicode, content_getter_func, *,
             name = str(template.name)
             if MagicWords.is_magic_word(name):
                 if substitute_magic_words is True:
+                    # MW incompatibility: in some cases, MediaWiki tries to transclude a template
+                    # if the parser function failed (e.g. "{{ns:Foo}}" -> "{{Template:Ns:Foo}}")
                     MagicWords.substitute(wikicode, template)
                 continue
 
