@@ -33,9 +33,10 @@ class test_encodings:
         assert e1 == e2
 
     def test_urlencode(self):
+        skipped = string.ascii_letters + string.digits + "-_.~"
         for s in [self.ascii_all, self.unicode_sample]:
             e1 = urlencode(s)
-            e2 = urllib.parse.quote(s, safe=self.url_unreserved)
+            e2 = urllib.parse.quote(s, safe=skipped)
             assert e1 == e2
 
     def test_urldecode(self):
@@ -55,6 +56,7 @@ class test_encodings:
             e1 = queryencode(s)
             e2 = urllib.parse.quote(s, safe=skipped)
             e2 = e2.replace("%20", "+")
+            e2 = e2.replace("~", "%7E")
             assert e1 == e2
 
     def test_querydecode(self):
@@ -71,6 +73,7 @@ class test_encodings:
             e2 = urllib.parse.quote(s, safe=skipped)
             e2 = e2.replace("%", ".")
             e2 = e2.replace("%20", "_")
+            e2 = e2.replace("~", ".7E")
             assert e1 == e2
 
     def test_dotencode_spaces(self):
