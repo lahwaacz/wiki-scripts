@@ -212,7 +212,9 @@ class ParserCache:
                 # "Pages with broken file links" are not supported
                 categorylinks.append( (target, str(wl.text) if wl.text else "") )
             else:
-                pagelinks.append(target)
+                # MediaWiki does not track links to the Special: and Media: namespaces
+                if target.namespacenumber >= 0:
+                    pagelinks.append(target)
 
         self._insert_pagelinks(conn, pageid, pagelinks)
         self._insert_iwlinks(conn, pageid, iwlinks)
