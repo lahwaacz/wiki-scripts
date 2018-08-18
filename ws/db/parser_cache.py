@@ -141,6 +141,25 @@ class ParserCache:
         if db_entries:
             conn.execute(self.db.iwlinks.insert(), db_entries)
 
+    def _insert_externallinks(self, conn, pageid, externallinks):
+        db_entries = []
+        for ext in externallinks:
+            url = str(ext.url)
+            # TODO: do the MediaWiki-like transformation (see the comment in ws.db.schema)
+            index = ""
+            entry = {
+                "el_from": pageid,
+                "el_to": url,
+                "el_index": index,
+            }
+            db_entries.append(entry)
+
+        # drop duplicates
+        db_entries = list({ (v["el_from"], v["el_to"] ):v for v in db_entries}.values())
+
+        if db_entries:
+            conn.execute(self.db.externallinks.insert(), db_entries)
+
     def _parse_page(self, conn, pageid, title, content):
         logger.info("_parse_page({}, {})".format(pageid, title))
 
@@ -226,7 +245,7 @@ class ParserCache:
         self._insert_langlinks(conn, pageid, langlinks)
         self._insert_imagelinks(conn, pageid, imagelinks)
 
-#        externallinks = []
+        self._insert_externallinks(conn, pageid, content.filter_external_links(recursive=True))
 
 #        print(content)
 
