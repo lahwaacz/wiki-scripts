@@ -21,6 +21,8 @@ Unreleased
 - Merged several smaller scripts into ``list-problems.py``.
 - Implemented the :py:meth:`ws.client.api.API.move` method to rename pages on
   the wiki.
+- Implemented recursive template expansion using :py:mod:`mwparserfromhell` and
+  the SQL database. See :py:func:`ws.parser_helpers.wikicode.expand_templates`.
 
 Version 1.2
 -----------
