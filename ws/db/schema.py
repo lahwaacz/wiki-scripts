@@ -477,10 +477,8 @@ def create_recomputable_tables(metadata):
     imagelinks = Table("imagelinks", metadata,
         Column("il_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         # MW incompatibility: removed useless il_from_namespace column
-        Column("il_from_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
         # il_to is the target file name (and also a page title in the "File:" namespace, i.e. the namespace ID is 6)
         Column("il_to", UnicodeText, nullable=False),
-        CheckConstraint("il_from_namespace >= 0", name="check_namespace")
     )
 
     # tracks category membership (e.g. [[Category:Name]])
