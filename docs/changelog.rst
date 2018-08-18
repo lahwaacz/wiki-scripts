@@ -23,6 +23,8 @@ Unreleased
   the wiki.
 - Implemented recursive template expansion using :py:mod:`mwparserfromhell` and
   the SQL database. See :py:func:`ws.parser_helpers.wikicode.expand_templates`.
+- Implemented a regex-based function to check if a page is a redirect
+  (:py:func:`ws.parser_helpers.wikicode.is_redirect`).
 
 Version 1.2
 -----------

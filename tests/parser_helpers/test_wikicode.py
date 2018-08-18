@@ -386,3 +386,53 @@ class test_ensure_unflagged:
         link = wikicode.nodes[0]
         flag = ensure_unflagged_by_template(wikicode, link, "bar")
         assert str(wikicode) == "[[foo]]"
+
+class test_is_redirect:
+    redirects = [
+        # any number of spaces
+        "#redirect[[foo]]",
+        "#redirect [[foo]]",
+        "#redirect  [[foo]]",
+        # optional colon
+        "#redirect: [[foo]]",
+        "#redirect :[[foo]]",
+        "#redirect : [[foo]]",
+        # any capitalization
+        "#reDiRect  [[foo]]",
+        "#REDIRECT  [[foo]]",
+        # leading whitespace
+        "\n \n #redirect [[foo]]",
+        # any section and alternative text (which is ignored)
+        "#redirect [[foo#section]]",
+        "#redirect [[foo#section|ignored]]",
+        # templates
+        # FIXME: probably not possible to pair '{{' and '}}' with a regex
+#        "#redirect [[{{echo|Foo}}bar]]",
+    ]
+
+    nonredirects = [
+        "#redirect [[]]",
+        "#redirect [[]]",
+        "#redirect [[<nowikifoo]]",
+        "#redirect :: [[foo]]",
+        "#redirect [[foo{}]]",
+    ]
+
+    def test_redirects(self):
+        for text in self.redirects:
+            assert is_redirect(text, full_match=False)
+            assert is_redirect(text, full_match=True)
+            text += "\n"
+            assert is_redirect(text, full_match=False)
+            assert is_redirect(text, full_match=True)
+            text += "bar"
+            assert is_redirect(text, full_match=False)
+            assert not is_redirect(text, full_match=True)
+
+    def test_nonredirects(self):
+        for text in self.redirects:
+            assert not is_redirect("foo" + text, full_match=False)
+            assert not is_redirect("foo" + text, full_match=True)
+        for text in self.nonredirects:
+            assert not is_redirect("foo" + text, full_match=False)
+            assert not is_redirect("foo" + text, full_match=True)

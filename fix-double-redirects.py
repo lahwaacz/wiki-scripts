@@ -6,6 +6,7 @@ import logging
 import mwparserfromhell
 
 from ws.client import API
+from ws.parser_helpers.wikicode import is_redirect
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ class DoubleRedirects:
         text_old = page["revisions"][0]["*"]
         timestamp = page["revisions"][0]["timestamp"]
 
-        if not re.fullmatch(r"#redirect\s*\[\[[^[\]{}]+\]\]", text_old, flags=re.MULTILINE | re.IGNORECASE):
+        if not is_redirect(text_old, full_match=True):
             logger.error("Double redirect page '{}' is not empty, so it cannot be fixed automatically.".format(title))
             return
 

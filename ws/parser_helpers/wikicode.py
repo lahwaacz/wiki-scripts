@@ -9,7 +9,7 @@ from .encodings import dotencode
 __all__ = [
     "strip_markup", "get_adjacent_node", "get_parent_wikicode", "remove_and_squash",
     "get_section_headings", "get_anchors", "ensure_flagged_by_template",
-    "ensure_unflagged_by_template",
+    "ensure_unflagged_by_template", "is_redirect",
 ]
 
 def strip_markup(text, normalize=True, collapse=True):
@@ -219,3 +219,20 @@ def ensure_unflagged_by_template(wikicode, node, template_name):
 
     if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches(template_name):
         remove_and_squash(wikicode, adjacent)
+
+def is_redirect(text, *, full_match=False):
+    """
+    Checks if the text represents a MediaWiki `redirect page`_.
+
+    :param bool full_match:
+        Restricts the behaviour to return ``True`` only for pages which do not
+        contain anything else but the redirect line.
+
+    .. _`redirect page`: https://www.mediawiki.org/wiki/Help:Redirects
+    """
+    if full_match is True:
+        f = re.fullmatch
+    else:
+        f = re.match
+    match = f(r"#redirect\s*:?\s*\[\[[^[\]{}]+\]\]", text.strip(), flags=re.MULTILINE | re.IGNORECASE)
+    return bool(match)
