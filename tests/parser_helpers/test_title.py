@@ -23,8 +23,6 @@ class test_canonicalize:
         assert result == expected
 
 
-# TODO: set pytest attribute?
-#@attr(speed="slow")
 class test_title():
     # keys: input, values: dictionary of expected attributes of the Title object
     titles = {
@@ -240,8 +238,6 @@ class test_title():
         assert title == expected
 
 
-# TODO: set pytest attribute?
-#@attr(speed="slow")
 class test_title_setters():
     attributes = ["iwprefix", "namespace", "pagename", "sectionname"]
 
@@ -348,8 +344,6 @@ class test_title_setters():
             title.namespace = "invalid namespace"
 
 
-# TODO: set pytest attribute?
-#@attr(speed="slow")
 class test_title_valid_chars:
     invalid_titles = [
         "Foo [bar]",
@@ -413,3 +407,42 @@ class test_title_valid_chars:
         title = Title(title_context, "")
         title.pagename = pagename
         assert title.pagename == pagename
+
+
+class test_dbtitle:
+    titles = [
+        ("Main page", "Main page"),
+        ("Talk:Main page", "Main page"),
+        ("Wikipedia:Main page", "Wikipedia:Main page"),
+        ("Wikipedia:Talk:Main page", "Wikipedia:Talk:Main page"),
+        ("Foo#Bar", "Foo#Bar")
+    ]
+
+    @pytest.mark.parametrize("src", titles)
+    def test_dbtitle(self, title_context, src):
+        src_title, expected = src
+        title = Title(title_context, src_title)
+        assert title.dbtitle() == expected
+
+
+class test_make_absolute:
+    titles = [
+        ("Talk:Foo", "Bar", "Talk:Foo"),
+        ("Wikipedia:Foo", "Bar", "wikipedia:Foo"),
+        ("#Bar", "Foo", "Foo#Bar"),
+        ("Foo#Bar", "Baz", "Foo#Bar"),
+        ("/Bar", "Foo", "Foo/Bar"),
+        ("Foo/Bar", "Baz", "Foo/Bar"),
+    ]
+
+    @pytest.mark.parametrize("src", titles)
+    def test_make_absolute(self, title_context, src):
+        src_title, base_title, expected = src
+        title = Title(title_context, src_title)
+        title.make_absolute(base_title)
+        assert str(title) == expected
+
+    def test_valueerror(self, title_context):
+        title = Title(title_context, "en:Foo")
+        with pytest.raises(ValueError):
+            title.make_absolute(title)

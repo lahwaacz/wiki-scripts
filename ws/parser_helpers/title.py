@@ -349,7 +349,7 @@ class Title:
             raise ValueError("tried to assign invalid pagename: {}".format(value))
         self.iw, self.ns, self.anchor = iw, ns, anchor
 
-        # Set again with set_pagename, because e.g. if self.ns was initially
+        # Set again with _set_pagename, because e.g. if self.ns was initially
         # "Help" and the user sets pagename to "Help:Foo", the result should be
         # "Help:Help:Foo". This is not possible with plain self.parse above,
         # because that way the second "Help:" would be stripped.
@@ -474,6 +474,42 @@ class Title:
         if self.sectionname:
             title += "#" + self.sectionname
         return title
+
+
+    def make_absolute(self, basetitle):
+        """
+        Changes a relative link to an absolute link. Has no effect if called on
+        an absolute link.
+
+        Types of a relative link:
+
+        - same-page section links (e.g. ``[[#Section name]]`` on page ``Base``
+          is changed to ``[[Foo#Section name]]``)
+        - subpages (e.g. ``[[/Subpage]]`` on page ``Base`` is changed to
+          ``[[Base/Subpage]]``)
+
+        :param basetitle:
+            the base title, either :py:class:`str` or :py:class:`Title`
+        :returns: ``None``, the ``self`` object is updated in place
+        """
+        if not isinstance(basetitle, Title):
+            basetitle = Title(self.context, basetitle)
+        if basetitle.iwprefix:
+            raise ValueError("basetitle must not be interwiki link")
+
+        # interwiki and namespace prefixes must be empty, otherwise it is not a relative link
+        if self.iwprefix or self.namespace:
+            return
+
+        # handle same-page section links
+        if not self.pagename:
+            self.namespace = basetitle.namespace
+            self.pagename = basetitle.pagename
+
+        # handle subpages
+        if self.pagename.startswith("/"):
+            self.namespace = basetitle.namespace
+            self.pagename = basetitle.pagename + self.pagename
 
 
     def __eq__(self, other):
