@@ -6,6 +6,7 @@ import mwparserfromhell
 
 from .selects.namespaces import get_namespaces
 from ..parser_helpers.template_expansion import expand_templates
+from ..parser_helpers.wikicode import is_redirect
 
 # TODO: generalize or make the language tags configurable
 from ws.ArchWiki.lang import get_language_tags
@@ -160,6 +161,26 @@ class ParserCache:
         if db_entries:
             conn.execute(self.db.externallinks.insert(), db_entries)
 
+    def _insert_redirect(self, conn, pageid, target):
+        db_entry = {
+            "rd_from": pageid,
+            "rd_namespace": target.namespacenumber if not target.iwprefix else None,
+        }
+
+        if target.iwprefix:
+            db_entry["rd_interwiki"] = target.iwprefix
+            if target.namespace:
+                db_entry["rd_title"] = "{}:{}".format(target.namespace, target.pagename)
+            else:
+                db_entry["rd_title"] = target.pagename
+        else:
+            db_entry["rd_title"] = target.pagename
+
+        if target.sectionname:
+            db_entry["rd_fragment"] = target.sectionname
+
+        conn.execute(self.db.redirect.insert(), db_entry)
+
     def _parse_page(self, conn, pageid, title, content):
         logger.info("_parse_page({}, {})".format(pageid, title))
 
@@ -183,25 +204,31 @@ class ParserCache:
                 logger.warn("ParserCache: page not found: {{" + title + "}}")
                 raise ValueError
 
-        content = mwparserfromhell.parse(content)
-        expand_templates(title, content, content_getter)
+        wikicode = mwparserfromhell.parse(content)
+        expand_templates(title, wikicode, content_getter)
 
         # templatelinks can be updated right away
         self._insert_templatelinks(conn, pageid, transclusions)
 
+        # parse redirect using regex-based parser helper
+        if is_redirect(content):
+            # the redirect target is just the first wikilink
+            redirect_target = wikicode.filter_wikilinks()[0]
+            self._insert_redirect(conn, pageid, self.db.Title(str(redirect_target.title)))
+
         # before other parsing, handle the transclusion tags
-        for tag in content.ifilter_tags(recursive=True):
+        for tag in wikicode.ifilter_tags(recursive=True):
             # drop all <includeonly> tags and everything inside
             if tag.tag == "includeonly":
                 try:
-                    content.remove(tag)
+                    wikicode.remove(tag)
                 except ValueError:
                     # this may happen for nested tags which were previously removed/replaced
                     pass
             # drop <noinclude> and <onlyinclude> tags, but nothing outside or inside
             elif tag.tag == "noinclude" or tag.tag == "onlyinclude":
                 try:
-                    content.replace(tag, tag.contents)
+                    wikicode.replace(tag, tag.contents)
                 except ValueError:
                     # this may happen for nested tags which were previously removed/replaced
                     pass
@@ -213,7 +240,7 @@ class ParserCache:
         iwlinks = []
 
         # classify all wikilinks
-        for wl in content.ifilter_wikilinks(recursive=True):
+        for wl in wikicode.ifilter_wikilinks(recursive=True):
             target = self.db.Title(wl.title)
             if target.iwprefix:
                 if target.iwprefix in get_language_tags():
@@ -242,7 +269,7 @@ class ParserCache:
         self._insert_langlinks(conn, pageid, langlinks)
         self._insert_imagelinks(conn, pageid, imagelinks)
 
-        self._insert_externallinks(conn, pageid, content.filter_external_links(recursive=True))
+        self._insert_externallinks(conn, pageid, wikicode.filter_external_links(recursive=True))
 
     def update(self):
         self.invalidated_pageids = set()
