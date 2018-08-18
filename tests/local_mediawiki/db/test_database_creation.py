@@ -6,7 +6,7 @@ recentchanges_tables = {"recentchanges", "logging", "tagged_recentchange", "tagg
 users_tables = {"user", "user_groups", "ipblocks"}
 revisions_tables = {"archive", "revision", "text", "tagged_revision", "tagged_archived_revision"}
 pages_tables = {"page", "page_props", "page_restrictions", "protected_titles"}
-recomputable_tables = {"category", "categorylinks", "externallinks", "imagelinks", "iwlinks", "langlinks", "pagelinks", "redirect", "templatelinks"}
+recomputable_tables = {"categorylinks", "externallinks", "imagelinks", "iwlinks", "langlinks", "pagelinks", "redirect", "templatelinks"}
 all_tables = custom_tables | site_tables| recentchanges_tables | users_tables | revisions_tables | pages_tables | recomputable_tables
 
 def test_db_create(db):

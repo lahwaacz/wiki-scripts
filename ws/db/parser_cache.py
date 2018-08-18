@@ -27,10 +27,6 @@ class ParserCache:
         conn.execute(self.db.externallinks.delete().where(self.db.externallinks.c.el_from == pageid))
         conn.execute(self.db.redirect.delete().where(self.db.redirect.c.rd_from == pageid))
 
-        # TODO: shouldn't category have a foreign key to page.page_id?
-        title = self.db.Title(title)
-        conn.execute(self.db.category.delete().where(self.db.category.c.cat_title == title.dbtitle(expected_ns=14)))
-
         # TODO: drop cache for all pages transcluding this page
 
     def _check_invalidation(self, conn, pageid, title):

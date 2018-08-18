@@ -537,17 +537,6 @@ def create_recomputable_tables(metadata):
         Column("el_index", UnicodeText, nullable=False),
     )
 
-    # tracks all existing categories (i.e. existing pages in the Category: namespace)
-    category = Table("category", metadata,
-        Column("cat_id", Integer, primary_key=True, nullable=False),
-        Column("cat_title", UnicodeText, nullable=False),
-        Column("cat_pages", Integer, nullable=False, server_default="0"),
-        Column("cat_subcats", Integer, nullable=False, server_default="0"),
-        Column("cat_files", Integer, nullable=False, server_default="0")
-    )
-    Index("cat_title", category.c.cat_title, unique=True)
-    Index("cat_pages", category.c.cat_pages)
-
     # tracks targets of redirect pages
     redirect = Table("redirect", metadata,
         Column("rd_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), primary_key=True, nullable=False),
