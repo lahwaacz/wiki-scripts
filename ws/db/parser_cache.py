@@ -208,6 +208,8 @@ class ParserCache:
                 imagelinks.append(target)
             # TODO: handling of the leading colon should be done in the Title class
             elif target.namespacenumber == 14 and not str(wl.title).strip().startswith(":"):
+                # MW incompatibility: category links for automatic categories like
+                # "Pages with broken file links" are not supported
                 categorylinks.append( (target, str(wl.text) if wl.text else "") )
             else:
                 pagelinks.append(target)
