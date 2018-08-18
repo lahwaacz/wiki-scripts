@@ -92,6 +92,10 @@ class Database:
             contains the arguments set by :py:meth:`Connection.set_argparser`.
         :returns: an instance of :py:class:`Connection`
         """
+        # PostgreSQL defaults to dbname equal to the username, which may not be intended
+        if args.db_name is None:
+            raise ValueError("Cannot create database connection: db_name cannot be None")
+
         # The format is basically "{dialect}+{driver}://{username}:{password}@{host}:{port}/{database}?{params}",
         # but the URL class is suitable for omitting empty defaults.
         url = sa.engine.url.URL("{}+{}".format(args.db_dialect, args.db_driver),
