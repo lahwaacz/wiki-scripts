@@ -114,7 +114,7 @@ class ParserCache:
         for title in langlinks:
             entry = {
                 "ll_from": pageid,
-                "ll_lang": title.iwprefix.lower(),
+                "ll_lang": title.iwprefix,
                 "ll_title": "{}:{}".format(title.namespace, title.pagename) if title.namespace else title.pagename
             }
             db_entries.append(entry)
@@ -130,7 +130,7 @@ class ParserCache:
         for title in iwlinks:
             entry = {
                 "iwl_from": pageid,
-                "iwl_prefix": title.iwprefix.lower(),
+                "iwl_prefix": title.iwprefix,
                 "iwl_title": "{}:{}".format(title.namespace, title.pagename) if title.namespace else title.pagename
             }
             db_entries.append(entry)
