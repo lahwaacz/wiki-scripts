@@ -12,11 +12,10 @@ from ws.ArchWiki.lang import get_language_tags
 
 logger = logging.getLogger(__name__)
 
-# TODO: generalize SQL query execution like in ws.db.grabbers
-
 class ParserCache:
     def __init__(self, db):
         self.db = db
+        self.invalidated_pageids = set()
 
     def _drop_cache_for_page(self, conn, pageid, title):
         conn.execute(self.db.pagelinks.delete().where(self.db.pagelinks.c.pl_from == pageid))
@@ -33,6 +32,11 @@ class ParserCache:
         conn.execute(self.db.category.delete().where(self.db.category.c.cat_title == title.dbtitle(expected_ns=14)))
 
         # TODO: drop cache for all pages transcluding this page
+
+    def _check_invalidation(self, conn, pageid, title):
+        # TODO: timestamp-based invalidation (should be per-page, compare with page_touched)
+        self.invalidated_pageids.add(pageid)
+        self._drop_cache_for_page(conn, pageid, title)
 
     def _insert_templatelinks(self, conn, pageid, transclusions):
         db_entries = []
@@ -163,9 +167,6 @@ class ParserCache:
     def _parse_page(self, conn, pageid, title, content):
         logger.info("_parse_page({}, {})".format(pageid, title))
 
-        # drop all entries corresponding to this page
-        self._drop_cache_for_page(conn, pageid, title)
-
         # set of all pages transcluded on the current page
         # (will be filled by the content_getter function)
         transclusions = set()
@@ -247,18 +248,29 @@ class ParserCache:
 
         self._insert_externallinks(conn, pageid, content.filter_external_links(recursive=True))
 
-#        print(content)
-
     def update(self):
-        # TODO: determine which pages should be updated - record a timestamp in the ws_sync table (just like grabbers), compare it to page_touched
+        self.invalidated_pageids = set()
         namespaces = get_namespaces(self.db)
+
+        # pass 1: drop invalid entries from the cache
+        # (it must be a separate pass due to recursive invalidation)
+        with self.db.engine.begin() as conn:
+            for ns in namespaces.keys():
+                if ns < 0:
+                    continue
+                for page in self.db.query(generator="allpages", gapnamespace=ns):
+                    self._check_invalidation(conn, page["pageid"], page["title"])
+
+        # pass 2: parse all pages missing in the cache
         for ns in namespaces.keys():
             if ns < 0:
                 continue
+            # TODO: use pageids= query instead of generator
             for page in self.db.query(generator="allpages", gapnamespace=ns, prop="latestrevisions", rvprop="content"):
                 # one transaction per page
                 with self.db.engine.begin() as conn:
                     if "*" in page["revisions"][0]:
-                        self._parse_page(conn, page["pageid"], page["title"], page["revisions"][0]["*"])
+                        if page["pageid"] in self.invalidated_pageids:
+                            self._parse_page(conn, page["pageid"], page["title"], page["revisions"][0]["*"])
                     else:
                         logger.error("ParserCache: no latest revision found for page [[{}]]".format(page["title"]))
