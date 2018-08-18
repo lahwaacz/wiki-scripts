@@ -487,7 +487,7 @@ def create_recomputable_tables(metadata):
         Column("cl_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         # cl_to is the category name (and also a page title in the "Category:" namespace, i.e. the namespace ID is 14)
         Column("cl_to", UnicodeText, nullable=False),
-        # the automatic sortkey (combines cl_to and cl_sortkey_prefix)
+        # the automatic sortkey (combines the cl_from page title and cl_sortkey_prefix)
         Column("cl_sortkey", UnicodeText, nullable=False),
         # the user-specified sortkey prefix, i.e. [[Category:Name|<cl_sortkey_prefix>]]
         Column("cl_sortkey_prefix", UnicodeText, nullable=False),
