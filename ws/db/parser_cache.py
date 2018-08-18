@@ -204,7 +204,11 @@ class ParserCache:
                     langlinks.append(target)
                 else:
                     iwlinks.append(target)
-            elif target.namespacenumber == 6:
+            elif target.namespacenumber == -2:
+                # MediaWiki treats all links to the Media: namespace as imagelinks
+                imagelinks.append(target)
+            # TODO: handling of the leading colon should be done in the Title class
+            elif target.namespacenumber == 6 and not str(wl.title).strip().startswith(":"):
                 imagelinks.append(target)
             # TODO: handling of the leading colon should be done in the Title class
             elif target.namespacenumber == 14 and not str(wl.title).strip().startswith(":"):
