@@ -439,8 +439,9 @@ class test_make_absolute:
     def test_make_absolute(self, title_context, src):
         src_title, base_title, expected = src
         title = Title(title_context, src_title)
-        title.make_absolute(base_title)
-        assert str(title) == expected
+        result = title.make_absolute(base_title)
+        assert str(result) == expected
+        assert result is not title
 
     def test_valueerror(self, title_context):
         title = Title(title_context, "en:Foo")

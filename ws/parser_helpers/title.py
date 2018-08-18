@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 import re
-from copy import deepcopy
+from copy import copy, deepcopy
 
 # only for explicit type check in Title.parse
 import mwparserfromhell
@@ -490,16 +490,17 @@ class Title:
 
         :param basetitle:
             the base title, either :py:class:`str` or :py:class:`Title`
-        :returns: ``None``, the ``self`` object is updated in place
+        :returns: a copy of ``self``, modified as appropriate
         """
         if not isinstance(basetitle, Title):
             basetitle = Title(self.context, basetitle)
         if basetitle.iwprefix:
             raise ValueError("basetitle must not be interwiki link")
+        self = copy(self)
 
         # interwiki and namespace prefixes must be empty, otherwise it is not a relative link
         if self.iwprefix or self.namespace:
-            return
+            return self
 
         # handle same-page section links
         if not self.pagename:
@@ -510,6 +511,8 @@ class Title:
         if self.pagename.startswith("/"):
             self.namespace = basetitle.namespace
             self.pagename = basetitle.pagename + self.pagename
+
+        return self
 
 
     def __eq__(self, other):
