@@ -573,6 +573,10 @@ class WikilinkRules:
             if lang.detect_language(src_title)[1] == "English":
                 self.check_redirect_exact(src_title, wikilink, title)
             self.check_redirect_capitalization(wikilink, title)
+
+            # reparse the title, the redirect checks might change it non-equivalently
+            title = self.api.Title(wikilink.title)
+
             self.check_displaytitle(wikilink, title)
 
         with summary("fixed section fragments"):
