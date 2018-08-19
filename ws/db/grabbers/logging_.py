@@ -72,6 +72,15 @@ class GrabberLogging(GrabberBase):
         if "suppressed" in logevent:
             log_deleted |= mwconst.DELETED_RESTRICTED
 
+        # Do not use title.dbtitle:
+        #   - Interwiki prefix has to be included due to old log entries from
+        #     times when the current interwiki prefixes were not in place.
+        #   - Section anchor has to be included due to old log entries,
+        #     apparently MediaWiki allowed ``#`` in user names at some point.
+        log_title = title.format(iwprefix=True, namespace=False, sectionname=True)
+        # it's not an interwiki prefix -> capitalize first letter
+        log_title = log_title[0].upper() + log_title[1:]
+
         db_entry = {
             "log_id": logevent["logid"],
             "log_type": logevent["type"],
@@ -81,7 +90,7 @@ class GrabberLogging(GrabberBase):
             "log_user": value_or_none(logevent["userid"]),
             "log_user_text": logevent["user"],
             "log_namespace": logevent["ns"],
-            "log_title": title.dbtitle(logevent["ns"]),
+            "log_title": log_title,
             # 'logpage' can be different from 'pageid', e.g. if the page was deleted
             # in an old MediaWiki that did not preserve pageid and then restored
             "log_page": value_or_none(logevent["logpage"]),

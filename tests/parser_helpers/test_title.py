@@ -433,11 +433,13 @@ class test_title_valid_chars:
 
 class test_dbtitle:
     titles = [
-        ("Main page", "Main page"),
-        ("Talk:Main page", "Main page"),
-        ("Wikipedia:Main page", "Wikipedia:Main page"),
-        ("Wikipedia:Talk:Main page", "Wikipedia:Talk:Main page"),
-        ("Foo#Bar", "Foo#Bar")
+        ("main page", "Main page"),
+        ("talk:main page", "Main page"),
+    ]
+    titles_error = [
+        "Wikipedia:Main page",
+        "Wikipedia:Talk:Main page",
+        "Foo#Bar",
     ]
 
     @pytest.mark.parametrize("src", titles)
@@ -445,6 +447,12 @@ class test_dbtitle:
         src_title, expected = src
         title = Title(title_context, src_title)
         assert title.dbtitle() == expected
+
+    @pytest.mark.parametrize("title", titles_error)
+    def test_dbtitle(self, title_context, title):
+        title = Title(title_context, title)
+        with pytest.raises(DatabaseTitleError):
+            title.dbtitle()
 
 
 class test_make_absolute:

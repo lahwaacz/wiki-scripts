@@ -9,7 +9,7 @@ import mwparserfromhell
 from .encodings import _anchor_preprocess, urldecode
 from ..utils import find_caseless
 
-__all__ = ["canonicalize", "Context", "Title", "TitleError", "InvalidTitleCharError", "InvalidColonError"]
+__all__ = ["canonicalize", "Context", "Title", "TitleError", "InvalidTitleCharError", "InvalidColonError", "DatabaseTitleError"]
 
 def canonicalize(title):
     """
@@ -209,18 +209,33 @@ class Title:
         # canonicalize anchor
         self.anchor = _anchor_preprocess(sectionname)
 
-    def _format(self, pre, mid, title):
+    def format(self, *, iwprefix=False, namespace=False, sectionname=False, colon=False):
         """
-        Auxiliary method for full title formatting.
+        General formatting method.
+
+        :param bool colon:
+            include the leading colon
+        :param bool iwprefix:
+            include the interwiki prefix
+        :param bool namespace:
+            include the namespace prefix (it is always included if there is an
+            interwiki prefix)
+        :param bool sectionname:
+            include the section name
         """
-        if pre and mid:
-            return "{}:{}:{}".format(pre, mid, title)
-        elif pre:
-            return "{}:{}".format(pre, title)
-        elif mid:
-            return "{}:{}".format(mid, title)
+        if colon is True:
+            title = self.leading_colon
         else:
-            return title
+            title = ""
+        if iwprefix is True and self.iwprefix:
+            title += self.iwprefix + ":"
+            namespace = True
+        if namespace is True and self.namespace:
+            title += self.namespace + ":"
+        title += self.pagename
+        if sectionname is True and self.sectionname:
+            title += "#" + self.sectionname
+        return title
 
     def parse(self, full_title):
         """
@@ -382,7 +397,7 @@ class Title:
         Same as ``{{FULLPAGENAME}}`` in MediaWiki, but also includes interwiki
         prefix (if any).
         """
-        return self._format(self.iwprefix, self.namespace, self.pagename)
+        return self.format(iwprefix=True, namespace=True)
 
     @property
     def basepagename(self):
@@ -425,6 +440,20 @@ class Title:
         """
         base = self.pagename.split("/", maxsplit=1)[0]
         return base
+
+    def _format(self, pre, mid, title):
+        """
+        Auxiliary method for formatting :py:meth:`articlepagename` and
+        :py:meth:`talkpagename`.
+        """
+        if pre and mid:
+            return "{}:{}:{}".format(pre, mid, title)
+        elif pre:
+            return "{}:{}".format(pre, title)
+        elif mid:
+            return "{}:{}".format(mid, title)
+        else:
+            return title
 
     @property
     def articlepagename(self):
@@ -479,30 +508,25 @@ class Title:
         Returns the title formatted for use in the database.
 
         In practice it is something between :py:attr:`pagename` and
-        :py:attr:`fullpagename` to cover all the corner cases:
+        :py:attr:`fullpagename`:
 
-        - If there is an interwiki prefix, it is included. Necessary for old
-          log entries from times when the current interwiki prefixes were not
-          in place.
         - Namespace prefix is stripped if there is no interwiki prefix *and*
           the parsed namespace number agrees with ``expected_ns``. This is to
           cover the creation of new namespaces, e.g. pages ``Foo:Bar`` existing
           first in the main namespace and then moved into a separate namespace,
           ``Foo:``.
-        - Section anchor is included. Again necessary for old log entries,
-          apparently MediaWiki allowed ``#`` in user names at some point.
+        - If there is an interwiki prefix or a section name,
+          :py:exc:`DatabaseTitleError` is raised to prevent unintended data loss.
 
         :param int expected_ns: expected namespace number
         """
-        if not self.iw and (expected_ns is None or self.namespacenumber == expected_ns):
-            title = self._format("", "", self.pagename)
+        if self.iwprefix or self.sectionname:
+            raise DatabaseTitleError("Titles containing an interwiki prefix or a section name cannot be serialized into database titles. Strip the prefixes explicitly if they should be intentionally removed.")
+
+        if expected_ns is None or self.namespacenumber == expected_ns:
+            return self.pagename
         else:
-            title = self.fullpagename
-            # it's not an interwiki prefix -> capitalize first letter
-            title = title[0].upper() + title[1:]
-        if self.sectionname:
-            title += "#" + self.sectionname
-        return title
+            return self.fullpagename
 
 
     def make_absolute(self, basetitle):
@@ -567,9 +591,7 @@ class Title:
             The leading colon is not included even if it was present in the
             original title.
         """
-        if self.sectionname:
-            return "{}#{}".format(self._format(self.iwprefix, self.namespace, self.pagename), self.sectionname)
-        return self._format(self.iwprefix, self.namespace, self.pagename)
+        return self.format(iwprefix=True, namespace=True, sectionname=True)
 
 
 class TitleError(Exception):
@@ -589,5 +611,12 @@ class InvalidTitleCharError(TitleError):
 class InvalidColonError(TitleError):
     """
     Raised when the requested title contains an invalid colon at the beginning.
+    """
+    pass
+
+
+class DatabaseTitleError(TitleError):
+    """
+    Raised when calling :py:meth:`Title.dbtitle` would cause a data loss.
     """
     pass
