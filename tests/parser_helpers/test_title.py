@@ -33,6 +33,7 @@ class test_title():
             "pagename": "Foo:Bar:Baz",
             "sectionname": "section",
             "fullpagename": "Foo:Bar:Baz",
+            "leading_colon": "",
         },
         "Talk:Foo": {
             "iwprefix": "",
@@ -40,6 +41,7 @@ class test_title():
             "pagename": "Foo",
             "sectionname": "",
             "fullpagename": "Talk:Foo",
+            "leading_colon": "",
         },
         "en:Main page": {
             "iwprefix": "en",
@@ -47,6 +49,7 @@ class test_title():
             "pagename": "Main page",
             "sectionname": "",
             "fullpagename": "en:Main page",
+            "leading_colon": "",
         },
         "en:help:style#section": {
             "iwprefix": "en",
@@ -54,6 +57,7 @@ class test_title():
             "pagename": "Style",
             "sectionname": "section",
             "fullpagename": "en:Help:Style",
+            "leading_colon": "",
         },
 
         # test stripping whitespace around colons
@@ -63,6 +67,7 @@ class test_title():
             "pagename": "Style",
             "sectionname": "section",
             "fullpagename": "en:Help:Style",
+            "leading_colon": "",
         },
 
         # test canonicalization
@@ -72,6 +77,7 @@ class test_title():
             "pagename": "Foo Bar",
             "sectionname": "",
             "fullpagename": "Help talk:Foo Bar",
+            "leading_colon": "",
         },
 
         # test anchor canonicalization
@@ -144,12 +150,14 @@ class test_title():
             "namespace": "",
             "pagename": "Foo:Bar",
             "fullpagename": "en:Foo:Bar",
+            "leading_colon": "",
         },
         "wikipedia:Foo:Bar": {
             "iwprefix": "wikipedia",
             "namespace": "Foo",
             "pagename": "Bar",
             "fullpagename": "wikipedia:Foo:Bar",
+            "leading_colon": "",
         },
 
         # test alternative namespace names
@@ -158,12 +166,14 @@ class test_title():
             "namespace": "Project",
             "pagename": "Foo",
             "fullpagename": "Project:Foo",
+            "leading_colon": "",
         },
         "Image:Foo": {
             "iwprefix": "",
             "namespace": "Image",
             "pagename": "Foo",
             "fullpagename": "Image:Foo",
+            "leading_colon": "",
         },
 
         # test colons
@@ -172,32 +182,25 @@ class test_title():
             "namespace": "Category",
             "pagename": "Foo",
             "fullpagename": "Category:Foo",
+            "leading_colon": ":",
         },
         "Foo::Bar": {
             "iwprefix": "",
             "namespace": "",
             "pagename": "Foo::Bar",
             "fullpagename": "Foo::Bar",
+            "leading_colon": "",
         },
-        "::Help:Style": {
-            "iwprefix": "",
-            "namespace": "Help",
-            "pagename": "Style",
-            "fullpagename": "Help:Style",
-        },
+        "::Help:Style": InvalidColonError,
+        "::wikipedia:Wikipedia:Manual of Style": InvalidColonError,
         "wikipedia::Wikipedia:Manual of Style": {
             "iwprefix": "wikipedia",
             "namespace": "Wikipedia",
             "pagename": "Manual of Style",
             "fullpagename": "wikipedia:Wikipedia:Manual of Style",
+            "leading_colon": "",
         },
-        # even MediaWiki chokes on this one (rendered as plain text instead of link)
-        "Help::Style": {
-            "iwprefix": "",
-            "namespace": "Help",
-            "pagename": "Style",
-            "fullpagename": "Help:Style",
-        },
+        "Help::Style": InvalidColonError,
 
         # "double" namespace (important mainly for setters)
         "Help:Help:Style": {
@@ -205,37 +208,49 @@ class test_title():
             "namespace": "Help",
             "pagename": "Help:Style",
             "fullpagename": "Help:Help:Style",
+            "leading_colon": "",
         },
         "en:en:Style": {
             "iwprefix": "en",
             "namespace": "",
             "pagename": "En:Style",
             "fullpagename": "en:En:Style",
+            "leading_colon": "",
         },
     }
 
     @pytest.mark.parametrize("src, expected", titles.items())
     def test_constructor(self, title_context, src, expected):
-        title = Title(title_context, src)
-        for attr, value in expected.items():
-            assert getattr(title, attr) == value
+        if type(expected) == type(Exception):
+            with pytest.raises(expected):
+                title = Title(title_context, src)
+        else:
+            title = Title(title_context, src)
+            for attr, value in expected.items():
+                assert getattr(title, attr) == value
 
     @pytest.mark.parametrize("src, expected", titles.items())
     def test_parse(self, title_context, src, expected):
-        title = Title(title_context, "")
-        title.parse(src)
-        for attr, value in expected.items():
-            assert getattr(title, attr) == value
+        if type(expected) == type(Exception):
+            title = Title(title_context, "")
+            with pytest.raises(expected):
+                title.parse(src)
+        else:
+            title = Title(title_context, "")
+            title.parse(src)
+            for attr, value in expected.items():
+                assert getattr(title, attr) == value
 
     @pytest.mark.parametrize("full, attrs", titles.items())
     def test_setters(self, title_context, full, attrs):
-        expected = Title(title_context, full)
-        title = Title(title_context, "")
-        title.iwprefix = attrs.get("iwprefix", "")
-        title.namespace = attrs.get("namespace", "")
-        title.pagename = attrs.get("pagename", "")
-        title.sectionname = attrs.get("sectionname", "")
-        assert title == expected
+        if type(attrs) != type(Exception):
+            expected = Title(title_context, full)
+            title = Title(title_context, "")
+            title.iwprefix = attrs.get("iwprefix", "")
+            title.namespace = attrs.get("namespace", "")
+            title.pagename = attrs.get("pagename", "")
+            title.sectionname = attrs.get("sectionname", "")
+            assert title == expected
 
 
 class test_title_setters():

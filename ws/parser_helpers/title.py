@@ -9,7 +9,7 @@ import mwparserfromhell
 from .encodings import _anchor_preprocess, urldecode
 from ..utils import find_caseless
 
-__all__ = ["canonicalize", "Context", "Title", "InvalidTitleCharError"]
+__all__ = ["canonicalize", "Context", "Title", "InvalidTitleCharError", "InvalidColonError"]
 
 def canonicalize(title):
     """
@@ -133,6 +133,9 @@ class Title:
         # Section anchor
         self.anchor = None
 
+        # leading colon (":") or empty string ("")
+        self._leading_colon = ""
+
         self.parse(title)
 
     # explicit setters are necessary, because methods decorated with
@@ -182,9 +185,8 @@ class Title:
         if not isinstance(pagename, str):
             raise TypeError("pagename must be of type 'str'")
 
-        # TODO: This is not entirely MediaWiki-like, perhaps we should just
-        # throw BadTitle exception.
-        pagename = pagename.lstrip(":")
+        if pagename.startswith(":"):
+            raise InvalidColonError("The ``pagename`` part cannot start with a colon: '{}'".format(pagename))
 
         # MediaWiki does not treat encoded underscores as spaces (e.g.
         # [[Main%5Fpage]] is rendered as <a href="...">Main_page</a>),
@@ -238,17 +240,35 @@ class Title:
             raise TypeError("full_title must be either 'str' or 'Wikicode'")
         full_title = str(full_title)
 
+        if full_title.startswith(":"):
+            self._leading_colon = ":"
+
+        def lstrip_one(text, char):
+            if text.startswith(char):
+                return text.replace(char, "", 1)
+            return text
+
         # parse interwiki prefix
         try:
-            iw, _rest = full_title.lstrip(":").split(":", maxsplit=1)
+            iw, _rest = lstrip_one(full_title, ":").split(":", maxsplit=1)
             self._set_iwprefix(iw)
         except ValueError:
             self.iw = ""
+
+        # reset _rest if the interwiki prefix is empty
+        if not self.iw:
             _rest = full_title
 
         # parse namespace
         try:
-            ns, _pure = _rest.lstrip(":").split(":", maxsplit=1)
+            if self.iw:
+                # [[wikipedia::Wikipedia:Foo]] is valid
+                ns, _pure = _rest.lstrip(":").split(":", maxsplit=1)
+            else:
+                _rest = lstrip_one(_rest, ":")
+                if _rest.startswith(":"):
+                    raise InvalidColonError("The ``pagename`` part cannot start with a colon: '{}'".format(_rest))
+                ns, _pure = _rest.split(":", maxsplit=1)
             self._set_namespace(ns)
         except ValueError:
             self.ns = ""
@@ -270,6 +290,9 @@ class Title:
 
         This attribute has a setter which raises :py:exc:`ValueError` when the
         supplied interwiki prefix is not valid.
+
+        Note that interwiki prefixes are case-insensitive and the canonical
+        representation stored in the object is lowercase.
         """
         return self.iw
 
@@ -444,6 +467,14 @@ class Title:
     def sectionname(self, value):
         return self._set_sectionname(value)
 
+    @property
+    def leading_colon(self):
+        """
+        Returns ``":"`` if the parsed title had a leading colon (e.g. for links
+        like ``[[:Category:Foo]]``), otherwise it returns an empty string.
+        """
+        return self._leading_colon
+
 
     def dbtitle(self, expected_ns=None):
         """
@@ -488,14 +519,14 @@ class Title:
         - subpages (e.g. ``[[/Subpage]]`` on page ``Base`` is changed to
           ``[[Base/Subpage]]``)
 
-        Note that we assume that `$wgNamespacesWithSubpages`_ is true for all
-        namespaces, which is not the default MediaWiki behaviour.
+        .. note::
+            The ``$wgNamespacesWithSubpages`` option is ignored (not available
+            via API anyway), the method behaves as if subpages were enabled
+            for all namespaces.
 
         :param basetitle:
             the base title, either :py:class:`str` or :py:class:`Title`
         :returns: a copy of ``self``, modified as appropriate
-
-        .. _`$wgNamespacesWithSubpages`: https://www.mediawiki.org/wiki/Manual:$wgNamespacesWithSubpages
         """
         if not isinstance(basetitle, Title):
             basetitle = Title(self.context, basetitle)
@@ -533,6 +564,10 @@ class Title:
     def __str__(self):
         """
         Returns the full representation of the title in the canonical form.
+
+        .. note::
+            The leading colon is not included even if it was present in the
+            original title.
         """
         if self.sectionname:
             return "{}#{}".format(self._format(self.iwprefix, self.namespace, self.pagename), self.sectionname)
@@ -541,6 +576,13 @@ class Title:
 
 class InvalidTitleCharError(Exception):
     """
-    Raised when an invalid title is passed to :py:class:`Title`.
+    Raised when the requested title contains an invalid character.
+    """
+    pass
+
+
+class InvalidColonError(Exception):
+    """
+    Raised when the requested title contains an invalid colon at the beginning.
     """
     pass
