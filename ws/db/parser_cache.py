@@ -18,6 +18,17 @@ class ParserCache:
         self.db = db
         self.invalidated_pageids = set()
 
+        self.sql_inserts = {
+            "templatelinks": self.db.templatelinks.insert(),
+            "pagelinks": self.db.pagelinks.insert(),
+            "imagelinks": self.db.imagelinks.insert(),
+            "categorylinks": self.db.categorylinks.insert(),
+            "langlinks": self.db.langlinks.insert(),
+            "iwlinks": self.db.iwlinks.insert(),
+            "externallinks": self.db.externallinks.insert(),
+            "redirect": self.db.redirect.insert(),
+        }
+
     def _check_invalidation(self, conn, pageid, title):
         # TODO: timestamp-based invalidation (should be per-page, compare with page_touched)
         self.invalidated_pageids.add(pageid)
@@ -45,7 +56,7 @@ class ParserCache:
             db_entries.append(entry)
 
         if db_entries:
-            conn.execute(self.db.templatelinks.insert(), db_entries)
+            conn.execute(self.sql_inserts["templatelinks"], db_entries)
 
     def _insert_pagelinks(self, conn, pageid, pagelinks):
         db_entries = []
@@ -61,7 +72,7 @@ class ParserCache:
         db_entries = list({ (v["pl_from"], v["pl_namespace"], v["pl_title"] ):v for v in db_entries}.values())
 
         if db_entries:
-            conn.execute(self.db.pagelinks.insert(), db_entries)
+            conn.execute(self.sql_inserts["pagelinks"], db_entries)
 
     def _insert_imagelinks(self, conn, pageid, imagelinks):
         db_entries = []
@@ -76,7 +87,7 @@ class ParserCache:
         db_entries = list({ (v["il_from"], v["il_to"] ):v for v in db_entries}.values())
 
         if db_entries:
-            conn.execute(self.db.imagelinks.insert(), db_entries)
+            conn.execute(self.sql_inserts["imagelinks"], db_entries)
 
     def _insert_categorylinks(self, conn, pageid, from_title, categorylinks):
         db_entries = []
@@ -106,7 +117,7 @@ class ParserCache:
         db_entries = list({ (v["cl_from"], v["cl_to"] ):v for v in db_entries}.values())
 
         if db_entries:
-            conn.execute(self.db.categorylinks.insert(), db_entries)
+            conn.execute(self.sql_inserts["categorylinks"], db_entries)
 
     def _insert_langlinks(self, conn, pageid, langlinks):
         db_entries = []
@@ -122,7 +133,7 @@ class ParserCache:
         db_entries = list({ (v["ll_from"], v["ll_lang"], v["ll_title"] ):v for v in db_entries}.values())
 
         if db_entries:
-            conn.execute(self.db.langlinks.insert(), db_entries)
+            conn.execute(self.sql_inserts["langlinks"], db_entries)
 
     def _insert_iwlinks(self, conn, pageid, iwlinks):
         db_entries = []
@@ -138,7 +149,7 @@ class ParserCache:
         db_entries = list({ (v["iwl_from"], v["iwl_prefix"], v["iwl_title"] ):v for v in db_entries}.values())
 
         if db_entries:
-            conn.execute(self.db.iwlinks.insert(), db_entries)
+            conn.execute(self.sql_inserts["iwlinks"], db_entries)
 
     def _insert_externallinks(self, conn, pageid, externallinks):
         db_entries = []
@@ -157,7 +168,7 @@ class ParserCache:
         db_entries = list({ (v["el_from"], v["el_to"] ):v for v in db_entries}.values())
 
         if db_entries:
-            conn.execute(self.db.externallinks.insert(), db_entries)
+            conn.execute(self.sql_inserts["externallinks"], db_entries)
 
     def _insert_redirect(self, conn, pageid, target):
         db_entry = {
@@ -177,7 +188,7 @@ class ParserCache:
         if target.sectionname:
             db_entry["rd_fragment"] = target.sectionname
 
-        conn.execute(self.db.redirect.insert(), db_entry)
+        conn.execute(self.sql_inserts["redirect"], db_entry)
 
     def _parse_page(self, conn, pageid, title, content):
         logger.info("ParserCache: parsing page [[{}]] ...".format(title))
