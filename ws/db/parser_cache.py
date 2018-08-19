@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import logging
+from functools import lru_cache
 
 import mwparserfromhell
 
@@ -190,6 +191,23 @@ class ParserCache:
 
         conn.execute(self.sql_inserts["redirect"], db_entry)
 
+    # cacheable part of the content getter, using common cache across all SQL transactions
+    @lru_cache(maxsize=128)
+    def _cached_content_getter(self, title):
+        pages_gen = self.db.query(titles={title}, prop="latestrevisions", rvprop="content")
+        page = next(pages_gen)
+
+        if "revisions" in page:
+            if "*" in page["revisions"][0]:
+                return page["revisions"][0]["*"]
+            else:
+                logger.error("ParserCache: no latest revision found for page [[{}]]".format(page["title"]))
+                raise ValueError
+        else:
+            # no revision => page does not exist
+            logger.warn("ParserCache: page not found: {{" + title + "}}")
+            raise ValueError
+
     def _parse_page(self, conn, pageid, title, content):
         logger.info("ParserCache: parsing page [[{}]] ...".format(title))
 
@@ -198,27 +216,19 @@ class ParserCache:
         transclusions = set()
 
         def content_getter(title):
-            pages_gen = self.db.query(titles={title}, prop="latestrevisions", rvprop="content")
-            page = next(pages_gen)
+            content = self._cached_content_getter(title)
 
             # add the title to transclusions only after self.db.query verified that it is parseable
             # (otherwise it raises TitleError)
             nonlocal transclusions
             transclusions.add(title)
 
-            if "revisions" in page:
-                if "*" in page["revisions"][0]:
-                    return page["revisions"][0]["*"]
-                else:
-                    logger.error("ParserCache: no latest revision found for page [[{}]]".format(page["title"]))
-                    raise ValueError
-            else:
-                # no revision => page does not exist
-                logger.warn("ParserCache: page not found: {{" + title + "}}")
-                raise ValueError
+            return content
 
         wikicode = mwparserfromhell.parse(content)
         expand_templates(title, wikicode, content_getter)
+
+        logger.debug("ParserCache: content getter cache statistics: {}".format(self._cached_content_getter.cache_info()))
 
         # templatelinks can be updated right away
         self._insert_templatelinks(conn, pageid, transclusions)
