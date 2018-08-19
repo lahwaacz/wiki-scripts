@@ -379,7 +379,6 @@ def expand_templates(title, wikicode, content_getter_func, *,
             except ValueError:
                 # If the target page does not exist, MediaWiki just skips the expansion,
                 # but it renders a wikilink to the non-existing page.
-                # TODO: the wikilink appears both in pagelinks and templatelinks tables !!!
                 wikicode.replace(template, "[[{}]]".format(handle_relative_title(title, str(template.name))))
                 continue
             except TitleError:
