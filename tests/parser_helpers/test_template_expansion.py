@@ -5,12 +5,14 @@ import pytest
 import mwparserfromhell
 
 from ws.parser_helpers.template_expansion import *
+from ws.parser_helpers.title import TitleError
 
 class test_expand_templates:
     @staticmethod
     def _do_test(d, title, expected, **kwargs):
         def content_getter(title):
-            nonlocal d
+            if "<" in title or ">" in title:
+                raise TitleError
             try:
                 return d[title]
             except KeyError:
@@ -29,8 +31,17 @@ class test_expand_templates:
 
     def test_basic(self):
         d = {
-            "Template:Note": "{{{1}}}",
-            "Title": "{{Note|{{Note|foo}}}}"
+            "Template:Echo": "{{{1}}}",
+            "Title": "{{Echo|{{Echo|foo}}}}",
+        }
+        title = "Title"
+        expected = "foo"
+        self._do_test(d, title, expected)
+
+    def test_explicit_template_prefix(self):
+        d = {
+            "Template:Echo": "{{{1}}}",
+            "Title": "{{Template:Echo|foo}}",
         }
         title = "Title"
         expected = "foo"
@@ -39,7 +50,7 @@ class test_expand_templates:
     def test_default_values(self):
         d = {
             "Template:Note": "{{{1|default}}}",
-            "Title": "{{Note|{{Note}}}} {{Note|}} {{Note|non-default}}"
+            "Title": "{{Note|{{Note}}}} {{Note|}} {{Note|non-default}}",
         }
         title = "Title"
         expected = "default  non-default"
@@ -47,7 +58,7 @@ class test_expand_templates:
 
     def test_invalid_template(self):
         d = {
-            "Title": "{{invalid}}"
+            "Title": "{{invalid}}",
         }
         title = "Title"
         expected = "[[Template:Invalid]]"
@@ -55,10 +66,21 @@ class test_expand_templates:
 
     def test_invalid_page(self):
         d = {
-            "Title": "{{:invalid}}"
+            "Title": "{{:invalid}}",
         }
         title = "Title"
         expected = "[[Invalid]]"
+        self._do_test(d, title, expected)
+
+    def test_title_error(self):
+        # in order to test the TitleError case, we need to get the tags inside the braces using transclusion,
+        # because mwparserfromhell does not even parse {{<code>foo</code>}} as a template
+        d = {
+            "Template:Ic": "<code>{{{1}}}</code>",
+            "Title": "{{ {{ic|foo}} }}",
+        }
+        title = "Title"
+        expected = "{{ <code>foo</code> }}"
         self._do_test(d, title, expected)
 
     def test_infinite_loop_protection(self):

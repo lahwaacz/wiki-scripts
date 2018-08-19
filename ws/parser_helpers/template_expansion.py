@@ -349,6 +349,9 @@ def expand_templates(title, wikicode, content_getter_func, *,
             return src_title + title
         elif title.startswith(":"):
             return canonicalize(title[1:])
+        elif title.lower().startswith(template_prefix.lower() + ":"):
+            # {{Template:Foo}} transcludes Template:Foo, not Template:Template:Foo
+            return canonicalize(title)
         else:
             return template_prefix + ":" + canonicalize(title)
 
