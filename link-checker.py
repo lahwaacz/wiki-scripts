@@ -259,7 +259,7 @@ class WikilinkRules:
             wikilink.title = "#" + _title.sectionname
             title.parse(wikilink.title)
 
-    def check_redirect_exact(self, wikilink, title):
+    def check_redirect_exact(self, src_title, wikilink, title):
         """
         Replace `[[foo|bar]]` with `[[bar]]` if `foo` and `bar` point to the
         same page after resolving redirects.
@@ -272,14 +272,14 @@ class WikilinkRules:
         if wikilink.text is None:
             return
 
-        # FIXME: handle relative links properly
-        if str(wikilink.text).startswith("/"):
-            return
-
         try:
             text = self.api.Title(wikilink.text)
         except InvalidTitleCharError:
             return
+
+        # handle relative links properly
+        # (we assume that subpages are enabled for all namespaces)
+        title = title.make_absolute(src_title)
 
         target1 = self.api.redirects.map.get(title.fullpagename)
         target2 = self.api.redirects.map.get(text.fullpagename)
@@ -564,7 +564,7 @@ class WikilinkRules:
             self.check_trivial(wikilink)
             self.check_relative(wikilink, title, src_title)
             if lang.detect_language(src_title)[1] == "English":
-                self.check_redirect_exact(wikilink, title)
+                self.check_redirect_exact(src_title, wikilink, title)
             self.check_redirect_capitalization(wikilink, title)
             self.check_displaytitle(wikilink, title)
 
@@ -581,7 +581,7 @@ class WikilinkRules:
             # partial second pass
             self.check_trivial(wikilink)
             if lang.detect_language(src_title)[1] == "English":
-                self.check_redirect_exact(wikilink, title)
+                self.check_redirect_exact(src_title, wikilink, title)
 
             # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
             self.collapse_whitespace(wikicode, wikilink)

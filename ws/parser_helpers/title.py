@@ -488,9 +488,14 @@ class Title:
         - subpages (e.g. ``[[/Subpage]]`` on page ``Base`` is changed to
           ``[[Base/Subpage]]``)
 
+        Note that we assume that `$wgNamespacesWithSubpages`_ is true for all
+        namespaces, which is not the default MediaWiki behaviour.
+
         :param basetitle:
             the base title, either :py:class:`str` or :py:class:`Title`
         :returns: a copy of ``self``, modified as appropriate
+
+        .. _`$wgNamespacesWithSubpages`: https://www.mediawiki.org/wiki/Manual:$wgNamespacesWithSubpages
         """
         if not isinstance(basetitle, Title):
             basetitle = Title(self.context, basetitle)
