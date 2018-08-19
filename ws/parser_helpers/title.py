@@ -255,20 +255,18 @@ class Title:
         except ValueError:
             self.iw = ""
 
-        # reset _rest if the interwiki prefix is empty
-        if not self.iw:
-            _rest = full_title
+        if self.iw:
+            # [[wikipedia::Foo]] is valid
+            _rest = _rest.lstrip(":")
+        else:
+            # reset _rest if the interwiki prefix is empty
+            _rest = lstrip_one(full_title, ":")
+            if _rest.startswith(":"):
+                raise InvalidColonError("The ``pagename`` part cannot start with a colon: '{}'".format(_rest))
 
         # parse namespace
         try:
-            if self.iw:
-                # [[wikipedia::Wikipedia:Foo]] is valid
-                ns, _pure = _rest.lstrip(":").split(":", maxsplit=1)
-            else:
-                _rest = lstrip_one(_rest, ":")
-                if _rest.startswith(":"):
-                    raise InvalidColonError("The ``pagename`` part cannot start with a colon: '{}'".format(_rest))
-                ns, _pure = _rest.split(":", maxsplit=1)
+            ns, _pure = _rest.split(":", maxsplit=1)
             self._set_namespace(ns)
         except ValueError:
             self.ns = ""

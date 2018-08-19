@@ -200,6 +200,13 @@ class test_title():
             "fullpagename": "wikipedia:Wikipedia:Manual of Style",
             "leading_colon": "",
         },
+        "wikipedia::Foo": {
+            "iwprefix": "wikipedia",
+            "namespace": "",
+            "pagename": "Foo",
+            "fullpagename": "wikipedia:Foo",
+            "leading_colon": "",
+        },
         "Help::Style": InvalidColonError,
 
         # "double" namespace (important mainly for setters)
