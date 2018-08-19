@@ -239,7 +239,7 @@ class ParserCache:
             redirect_target = wikicode.filter_wikilinks()[0]
             self._insert_redirect(conn, pageid, self.db.Title(str(redirect_target.title)))
 
-        # before other parsing, handle the transclusion tags
+        # before other parse tree traversal, handle the transclusion tags
         for tag in wikicode.ifilter_tags(recursive=True):
             # drop all <includeonly> tags and everything inside
             if tag.tag == "includeonly":
