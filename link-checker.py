@@ -25,7 +25,7 @@ from ws.interactive import edit_interactive, require_login, InteractiveQuit
 from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.encodings import dotencode, queryencode
-from ws.parser_helpers.title import canonicalize, InvalidTitleCharError
+from ws.parser_helpers.title import canonicalize, TitleError
 from ws.parser_helpers.wikicode import get_section_headings, get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template
 
 logger = logging.getLogger(__name__)
@@ -152,14 +152,16 @@ class ExtlinkRules:
         match = self.extlink_regex.fullmatch(str(extlink.url))
         if match:
             pagename = match.group("pagename")
-            # handle category links properly
-            # NOTE: this is not general, namespace names can be internationalized
-            if pagename.lower().startswith("category"):
-                pagename = ":" + pagename
-            if extlink.title:
-                wikilink = "[[{}|{}]]".format(pagename, extlink.title)
+            title = self.api.Title(pagename)
+            # handle links to special namespaces correctly
+            if title.namespacenumber in {-2, 6, 14}:
+                target = ":" + title.fullpagename
             else:
-                wikilink = "[[{}]]".format(pagename)
+                target = title.fullpagename
+            if extlink.title:
+                wikilink = "[[{}|{}]]".format(target, extlink.title)
+            else:
+                wikilink = "[[{}]]".format(target)
             wikicode.replace(extlink, wikilink)
             return True
         return False
@@ -218,32 +220,39 @@ class WikilinkRules:
 
         self.void_update_cache = set()
 
-    def check_trivial(self, wikilink):
+    def check_trivial(self, wikilink, title):
         """
         Perform trivial simplification, replace `[[Foo|foo]]` with `[[foo]]`.
 
         :param wikilink: instance of `mwparserfromhell.nodes.wikilink.Wikilink`
                          representing the link to be checked
+        :param title: the parsed :py:attr:`wikilink.title`
+        :type title: :py:class:`mw.parser_helpers.title.Title`
         """
-        # Wikicode.matches() ignores even the '#' character indicating relative links;
-        # hence [[#foo|foo]] would be replaced with [[foo]]
-        # Our canonicalize() function does exactly what we want and need.
-        if wikilink.text is not None and canonicalize(wikilink.title) == canonicalize(wikilink.text):
+        if wikilink.text is None:
+            return
+
+        try:
+            text = self.api.Title(wikilink.text)
+        except TitleError:
+            return
+
+        if title == text:
             # title is mandatory, so the text becomes the title
-            wikilink.title = wikilink.text
+            wikilink.title = title.leading_colon + str(wikilink.text)
             wikilink.text = None
 
-    def check_relative(self, wikilink, title, srcpage):
+    def check_relative(self, src_title, wikilink, title):
         """
         Use relative links whenever possible. For example, links to sections such as
         `[[Foo#Bar]]` on a page `title` are replaced with `[[#Bar]]` whenever `Foo`
         redirects to or is equivalent to `title`.
 
+        :param str src_title: the title of the page being checked
         :param wikilink: the link to be checked
         :type wikilink: :py:class:`mwparserfromhell.nodes.wikilink.Wikilink`
         :param title: the parsed :py:attr:`wikilink.title`
         :type title: :py:class:`mw.parser_helpers.title.Title`
-        :param str srcpage: the title of the page being checked
         """
         if title.iwprefix or not title.sectionname:
             return
@@ -255,7 +264,7 @@ class WikilinkRules:
         else:
             _title = title
 
-        if canonicalize(srcpage) == _title.fullpagename:
+        if canonicalize(src_title) == _title.fullpagename:
             wikilink.title = "#" + _title.sectionname
             title.parse(wikilink.title)
 
@@ -264,6 +273,7 @@ class WikilinkRules:
         Replace `[[foo|bar]]` with `[[bar]]` if `foo` and `bar` point to the
         same page after resolving redirects.
 
+        :param str src_title: the title of the page being checked
         :param wikilink: the link to be checked
         :type wikilink: :py:class:`mwparserfromhell.nodes.wikilink.Wikilink`
         :param title: the parsed :py:attr:`wikilink.title`
@@ -274,7 +284,7 @@ class WikilinkRules:
 
         try:
             text = self.api.Title(wikilink.text)
-        except InvalidTitleCharError:
+        except TitleError:
             return
 
         # handle relative links properly
@@ -356,10 +366,6 @@ class WikilinkRules:
             logger.warning("wikilink to non-existing page: {}".format(wikilink))
             return
 
-        # FIXME: avoid stripping ":" in the [[:Category:...]] links
-        if title.namespace == "Category":
-            return
-
         # FIXME: very common false positive
         if title.pagename == "Wpa supplicant":
             return
@@ -372,6 +378,10 @@ class WikilinkRules:
             _, anchor = wikilink.title.split("#", maxsplit=1)
             new += "#" + anchor
 
+        # TODO: the following code block would strip the leading colon
+        if title.leading_colon:
+            return
+
         # skip if only the case of the first letter is different
         if wikilink.title[1:] != new[1:]:
             first_letter = wikilink.title[0]
@@ -382,7 +392,7 @@ class WikilinkRules:
                 wikilink.title = first_letter + wikilink.title[1:]
             title.parse(wikilink.title)
 
-    def check_anchor(self, wikilink, title, srcpage):
+    def check_anchor(self, src_title, wikilink, title):
         """
         :returns:
             ``True`` if the anchor is correct or has been corrected, ``False``
@@ -404,7 +414,7 @@ class WikilinkRules:
         if title.fullpagename:
             _target_title = title
         else:
-            _target_title = self.api.Title(srcpage)
+            _target_title = self.api.Title(src_title)
 
         # skip links to special pages (e.g. [[Special:Preferences#mw-prefsection-rc]])
         if _target_title.namespacenumber < 0:
@@ -550,26 +560,23 @@ class WikilinkRules:
             # beautify if urldecoded
             # FIXME: make it implicit - it does not always propagate from the Title class
             if not title.iwprefix and re.search("%[0-9a-f]{2}", str(wikilink.title), re.IGNORECASE):
-                # handle category links properly
-                if wikilink.title.strip().startswith(":"):
-                    wikilink.title = ":" + str(title)
-                else:
-                    wikilink.title = str(title)
+                # handle links with leading colon properly
+                wikilink.title = title.leading_colon + str(title)
                 # FIXME: should be done in the Title class
                 # the anchor is dot-encoded, but percent-encoding wors for links too
                 # and is even rendered nicely
                 wikilink.title = str(wikilink.title).replace("[", "%5B").replace("|", "%7C").replace("]", "%5D")
 
             self.collapse_whitespace_pipe(wikilink)
-            self.check_trivial(wikilink)
-            self.check_relative(wikilink, title, src_title)
+            self.check_trivial(wikilink, title)
+            self.check_relative(src_title, wikilink, title)
             if lang.detect_language(src_title)[1] == "English":
                 self.check_redirect_exact(src_title, wikilink, title)
             self.check_redirect_capitalization(wikilink, title)
             self.check_displaytitle(wikilink, title)
 
         with summary("fixed section fragments"):
-            anchor_result = self.check_anchor(wikilink, title, src_title)
+            anchor_result = self.check_anchor(src_title, wikilink, title)
         if anchor_result is False:
             with summary("flagged broken section links"):
                 ensure_flagged_by_template(wikicode, wikilink, "Broken section link")
@@ -579,7 +586,7 @@ class WikilinkRules:
 
         with summary("simplification and beautification of wikilinks"):
             # partial second pass
-            self.check_trivial(wikilink)
+            self.check_trivial(wikilink, title)
             if lang.detect_language(src_title)[1] == "English":
                 self.check_redirect_exact(src_title, wikilink, title)
 
