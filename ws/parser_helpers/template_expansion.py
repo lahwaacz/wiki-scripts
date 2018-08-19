@@ -1,9 +1,13 @@
 #! /usr/bin/env python3
 
+import logging
+
 import mwparserfromhell
 
 from . import encodings
-from .title import canonicalize
+from .title import canonicalize, TitleError
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "MagicWords", "prepare_template_for_transclusion", "expand_templates",
@@ -377,6 +381,9 @@ def expand_templates(title, wikicode, content_getter_func, *,
                 # but it renders a wikilink to the non-existing page.
                 # TODO: the wikilink appears both in pagelinks and templatelinks tables !!!
                 wikicode.replace(template, "[[{}]]".format(handle_relative_title(title, str(template.name))))
+                continue
+            except TitleError:
+                logger.error("Invalid transclusion on page [[{}]]: {}".format(title, template))
                 continue
 
             # Note:

@@ -189,10 +189,14 @@ class ParserCache:
         transclusions = set()
 
         def content_getter(title):
-            nonlocal transclusions
-            transclusions.add(title)
             pages_gen = self.db.query(titles={title}, prop="latestrevisions", rvprop="content")
             page = next(pages_gen)
+
+            # add the title to transclusions only after self.db.query verified that it is parseable
+            # (otherwise it raises TitleError)
+            nonlocal transclusions
+            transclusions.add(title)
+
             if "revisions" in page:
                 if "*" in page["revisions"][0]:
                     return page["revisions"][0]["*"]
