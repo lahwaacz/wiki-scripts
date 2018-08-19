@@ -9,7 +9,7 @@ import mwparserfromhell
 from .encodings import _anchor_preprocess, urldecode
 from ..utils import find_caseless
 
-__all__ = ["canonicalize", "Context", "Title", "InvalidTitleCharError", "InvalidColonError"]
+__all__ = ["canonicalize", "Context", "Title", "TitleError", "InvalidTitleCharError", "InvalidColonError"]
 
 def canonicalize(title):
     """
@@ -574,14 +574,21 @@ class Title:
         return self._format(self.iwprefix, self.namespace, self.pagename)
 
 
-class InvalidTitleCharError(Exception):
+class TitleError(Exception):
+    """
+    Base class for all title errors.
+    """
+    pass
+
+
+class InvalidTitleCharError(TitleError):
     """
     Raised when the requested title contains an invalid character.
     """
     pass
 
 
-class InvalidColonError(Exception):
+class InvalidColonError(TitleError):
     """
     Raised when the requested title contains an invalid colon at the beginning.
     """
