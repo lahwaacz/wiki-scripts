@@ -173,6 +173,8 @@ class Title:
             if self.iw == "" or "local" in self.context.interwikimap[self.iw]:
                 # check if it is valid namespace
                 self.ns = find_caseless(ns, self.context.namespacenames, from_target=True)
+            elif ns:
+                raise ValueError("tried to assign non-empty namespace '{}' to an interwiki link".format(ns))
             else:
                 self.ns = ns
         except ValueError:

@@ -152,10 +152,17 @@ class test_title():
             "fullpagename": "en:Foo:Bar",
             "leading_colon": "",
         },
+        "en:Talk:Bar": {
+            "iwprefix": "en",
+            "namespace": "Talk",
+            "pagename": "Bar",
+            "fullpagename": "en:Talk:Bar",
+            "leading_colon": "",
+        },
         "wikipedia:Foo:Bar": {
             "iwprefix": "wikipedia",
-            "namespace": "Foo",
-            "pagename": "Bar",
+            "namespace": "",
+            "pagename": "Foo:Bar",
             "fullpagename": "wikipedia:Foo:Bar",
             "leading_colon": "",
         },
@@ -195,8 +202,8 @@ class test_title():
         "::wikipedia:Wikipedia:Manual of Style": InvalidColonError,
         "wikipedia::Wikipedia:Manual of Style": {
             "iwprefix": "wikipedia",
-            "namespace": "Wikipedia",
-            "pagename": "Manual of Style",
+            "namespace": "",
+            "pagename": "Wikipedia:Manual of Style",
             "fullpagename": "wikipedia:Wikipedia:Manual of Style",
             "leading_colon": "",
         },
@@ -208,6 +215,12 @@ class test_title():
             "leading_colon": "",
         },
         "Help::Style": InvalidColonError,
+        "Wikipedia:Code::Blocks": {
+            "iwprefix": "wikipedia",
+            "namespace": "",
+            "pagename": "Code::Blocks",
+            "fullpagename": "wikipedia:Code::Blocks",
+        },
 
         # "double" namespace (important mainly for setters)
         "Help:Help:Style": {
