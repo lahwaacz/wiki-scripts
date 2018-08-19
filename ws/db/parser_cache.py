@@ -254,11 +254,9 @@ class ParserCache:
             elif target.namespacenumber == -2:
                 # MediaWiki treats all links to the Media: namespace as imagelinks
                 imagelinks.append(target)
-            # TODO: handling of the leading colon should be done in the Title class
-            elif target.namespacenumber == 6 and not str(wl.title).strip().startswith(":"):
+            elif target.namespacenumber == 6 and not target.leading_colon:
                 imagelinks.append(target)
-            # TODO: handling of the leading colon should be done in the Title class
-            elif target.namespacenumber == 14 and not str(wl.title).strip().startswith(":"):
+            elif target.namespacenumber == 14 and not target.leading_colon:
                 # MW incompatibility: category links for automatic categories like
                 # "Pages with broken file links" are not supported
                 categorylinks.append( (target, str(wl.text) if wl.text else "") )
