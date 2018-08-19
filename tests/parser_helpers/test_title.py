@@ -446,8 +446,9 @@ class test_title_valid_chars:
 
 class test_dbtitle:
     titles = [
-        ("main page", "Main page"),
-        ("talk:main page", "Main page"),
+        ("main page", 0, "Main page"),
+        ("talk:main page", 1, "Main page"),
+        ("talk:main page", 0, "Talk:Main page"),
     ]
     titles_error = [
         "Wikipedia:Main page",
@@ -457,12 +458,12 @@ class test_dbtitle:
 
     @pytest.mark.parametrize("src", titles)
     def test_dbtitle(self, title_context, src):
-        src_title, expected = src
+        src_title, ns, expected = src
         title = Title(title_context, src_title)
-        assert title.dbtitle() == expected
+        assert title.dbtitle(ns) == expected
 
     @pytest.mark.parametrize("title", titles_error)
-    def test_dbtitle(self, title_context, title):
+    def test_dbtitle_error(self, title_context, title):
         title = Title(title_context, title)
         with pytest.raises(DatabaseTitleError):
             title.dbtitle()
@@ -490,3 +491,15 @@ class test_make_absolute:
         title = Title(title_context, "en:Foo")
         with pytest.raises(ValueError):
             title.make_absolute(title)
+
+
+def test_format(title_context):
+    title = Title(title_context, ":En:talk:main page#section")
+    assert title.format() == "Main page"
+    assert title.format(colon=True) == ":Main page"
+    assert title.format(iwprefix=True) == "en:Talk:Main page"
+    assert title.format(iwprefix=True, namespace=False) == "en:Talk:Main page"
+    assert title.format(namespace=True) == "Talk:Main page"
+    assert title.format(sectionname=True) == "Main page#section"
+    assert title.format(colon=True, iwprefix=True) == ":en:Talk:Main page"
+    assert title.format(colon=True, iwprefix=True, sectionname=True) == ":en:Talk:Main page#section"
