@@ -241,7 +241,7 @@ class ParserCache:
 
         # classify all wikilinks
         for wl in wikicode.ifilter_wikilinks(recursive=True):
-            target = self.db.Title(wl.title)
+            target = self.db.Title(wl.title).make_absolute(title)
             if target.iwprefix:
                 if target.iwprefix in get_language_tags():
                     langlinks.append(target)
