@@ -211,34 +211,6 @@ class Title:
         # canonicalize anchor
         self.anchor = _anchor_preprocess(sectionname)
 
-    def format(self, *, iwprefix=False, namespace=False, sectionname=False, colon=False):
-        """
-        General formatting method.
-
-        :param bool colon:
-            include the leading colon
-        :param bool iwprefix:
-            include the interwiki prefix
-        :param bool namespace:
-            include the namespace prefix (it is always included if there is an
-            interwiki prefix)
-        :param bool sectionname:
-            include the section name
-        """
-        if colon is True:
-            title = self.leading_colon
-        else:
-            title = ""
-        if iwprefix is True and self.iwprefix:
-            title += self.iwprefix + ":"
-            namespace = True
-        if namespace is True and self.namespace:
-            title += self.namespace + ":"
-        title += self.pagename
-        if sectionname is True and self.sectionname:
-            title += "#" + self.sectionname
-        return title
-
     def parse(self, full_title):
         """
         Splits the title into ``(iwprefix, namespace, pagename, sectionname)``
@@ -297,6 +269,34 @@ class Title:
 
         self._set_pagename(_pure)
         self._set_sectionname(anchor)
+
+    def format(self, *, iwprefix=False, namespace=False, sectionname=False, colon=False):
+        """
+        General formatting method.
+
+        :param bool colon:
+            include the leading colon
+        :param bool iwprefix:
+            include the interwiki prefix
+        :param bool namespace:
+            include the namespace prefix (it is always included if there is an
+            interwiki prefix)
+        :param bool sectionname:
+            include the section name
+        """
+        if colon is True:
+            title = self.leading_colon
+        else:
+            title = ""
+        if iwprefix is True and self.iwprefix:
+            title += self.iwprefix + ":"
+            namespace = True
+        if namespace is True and self.namespace:
+            title += self.namespace + ":"
+        title += self.pagename
+        if sectionname is True and self.sectionname:
+            title += "#" + self.sectionname
+        return title
 
     @property
     def iwprefix(self):
@@ -448,14 +448,7 @@ class Title:
         Auxiliary method for formatting :py:meth:`articlepagename` and
         :py:meth:`talkpagename`.
         """
-        if pre and mid:
-            return "{}:{}:{}".format(pre, mid, title)
-        elif pre:
-            return "{}:{}".format(pre, title)
-        elif mid:
-            return "{}:{}".format(mid, title)
-        else:
-            return title
+        return "{}:{}:{}".format(pre, mid, title).lstrip(":")
 
     @property
     def articlepagename(self):
