@@ -25,6 +25,8 @@ Unreleased
   the SQL database. See :py:func:`ws.parser_helpers.wikicode.expand_templates`.
 - Implemented a regex-based function to check if a page is a redirect
   (:py:func:`ws.parser_helpers.wikicode.is_redirect`).
+- Fixed handling of relative links and leading colons in the :py:class:`Title
+  <ws.parser_helpers.title.Title>` class.
 
 Version 1.2
 -----------
