@@ -18,22 +18,20 @@ class ParserCache:
         self.db = db
         self.invalidated_pageids = set()
 
-    def _drop_cache_for_page(self, conn, pageid, title):
-        conn.execute(self.db.pagelinks.delete().where(self.db.pagelinks.c.pl_from == pageid))
-        conn.execute(self.db.templatelinks.delete().where(self.db.templatelinks.c.tl_from == pageid))
-        conn.execute(self.db.imagelinks.delete().where(self.db.imagelinks.c.il_from == pageid))
-        conn.execute(self.db.categorylinks.delete().where(self.db.categorylinks.c.cl_from == pageid))
-        conn.execute(self.db.langlinks.delete().where(self.db.langlinks.c.ll_from == pageid))
-        conn.execute(self.db.iwlinks.delete().where(self.db.iwlinks.c.iwl_from == pageid))
-        conn.execute(self.db.externallinks.delete().where(self.db.externallinks.c.el_from == pageid))
-        conn.execute(self.db.redirect.delete().where(self.db.redirect.c.rd_from == pageid))
-
-        # TODO: drop cache for all pages transcluding this page
-
     def _check_invalidation(self, conn, pageid, title):
         # TODO: timestamp-based invalidation (should be per-page, compare with page_touched)
         self.invalidated_pageids.add(pageid)
-        self._drop_cache_for_page(conn, pageid, title)
+        # TODO: set all pages transcluding this page for invalidation
+
+    def _invalidate(self, conn):
+        conn.execute(self.db.pagelinks.delete().where(self.db.pagelinks.c.pl_from.in_(self.invalidated_pageids)))
+        conn.execute(self.db.templatelinks.delete().where(self.db.templatelinks.c.tl_from.in_(self.invalidated_pageids)))
+        conn.execute(self.db.imagelinks.delete().where(self.db.imagelinks.c.il_from.in_(self.invalidated_pageids)))
+        conn.execute(self.db.categorylinks.delete().where(self.db.categorylinks.c.cl_from.in_(self.invalidated_pageids)))
+        conn.execute(self.db.langlinks.delete().where(self.db.langlinks.c.ll_from.in_(self.invalidated_pageids)))
+        conn.execute(self.db.iwlinks.delete().where(self.db.iwlinks.c.iwl_from.in_(self.invalidated_pageids)))
+        conn.execute(self.db.externallinks.delete().where(self.db.externallinks.c.el_from.in_(self.invalidated_pageids)))
+        conn.execute(self.db.redirect.delete().where(self.db.redirect.c.rd_from.in_(self.invalidated_pageids)))
 
     def _insert_templatelinks(self, conn, pageid, transclusions):
         db_entries = []
@@ -182,7 +180,7 @@ class ParserCache:
         conn.execute(self.db.redirect.insert(), db_entry)
 
     def _parse_page(self, conn, pageid, title, content):
-        logger.info("_parse_page({}, {})".format(pageid, title))
+        logger.info("ParserCache: parsing page [[{}]] ...".format(title))
 
         # set of all pages transcluded on the current page
         # (will be filled by the content_getter function)
@@ -279,14 +277,17 @@ class ParserCache:
 
         # pass 1: drop invalid entries from the cache
         # (it must be a separate pass due to recursive invalidation)
+        logger.info("ParserCache: Invalidating old entries...")
         with self.db.engine.begin() as conn:
             for ns in namespaces.keys():
                 if ns < 0:
                     continue
                 for page in self.db.query(generator="allpages", gapnamespace=ns):
                     self._check_invalidation(conn, page["pageid"], page["title"])
+            self._invalidate(conn)
 
         # pass 2: parse all pages missing in the cache
+        logger.info("ParserCache: Parsing new content...")
         for ns in namespaces.keys():
             if ns < 0:
                 continue
