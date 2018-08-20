@@ -434,7 +434,7 @@ class WikilinkRules:
 
         # lookup target page content
         # TODO: pulling revisions from the database does not expand templates which is needed for pages like [[List of applications]]
-        _result = self.db.query(titles={_target_title.fullpagename}, prop="latestrevisions", rvprop={"content"})
+        _result = self.db.query(titles=_target_title.fullpagename, prop="latestrevisions", rvprop={"content"})
         _result = list(_result)
         assert len(_result) == 1
         if "missing" in _result[0]:

@@ -36,7 +36,7 @@ def valid_sectionname(db, title):
     if title.sectionname == "":
         return True
 
-    result = db.query(titles={title.fullpagename}, prop="latestrevisions", rvprop={"content"})
+    result = db.query(titles=title.fullpagename, prop="latestrevisions", rvprop={"content"})
     result = list(result)
     text = result[0]["revisions"][0]["*"]
 

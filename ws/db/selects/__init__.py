@@ -106,11 +106,16 @@ def query_pageset(db, params):
     assert "titles" in params or "pageids" in params or "generator" in params
     if "titles" in params:
         titles = params_copy.pop("titles")
+        if isinstance(titles, str):
+            titles = {titles}
         assert isinstance(titles, set)
         titles = [db.Title(t) for t in titles]
         tail, pageset, ex = get_pageset(db, titles=titles)
     elif "pageids" in params:
         pageids = params_copy.pop("pageids")
+        if isinstance(pageids, int):
+            pageids = {pageids}
+        assert isinstance(pageids, set)
         tail, pageset, ex = get_pageset(db, pageids=pageids)
     elif "generator" in params:
         generator = params_copy.pop("generator")

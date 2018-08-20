@@ -194,7 +194,7 @@ class ParserCache:
     # cacheable part of the content getter, using common cache across all SQL transactions
     @lru_cache(maxsize=128)
     def _cached_content_getter(self, title):
-        pages_gen = self.db.query(titles={title}, prop="latestrevisions", rvprop="content")
+        pages_gen = self.db.query(titles=title, prop="latestrevisions", rvprop="content")
         page = next(pages_gen)
 
         if "revisions" in page:
