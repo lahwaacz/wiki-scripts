@@ -321,6 +321,15 @@ if __name__ == "__main__":
     API.set_argparser(argparser)
     Database.set_argparser(argparser)
 
+    argparser.add_argument("--sync", dest="sync", action="store_true", default=True,
+            help="synchronize the SQL database with the remote wiki API (default: %(default)s)")
+    argparser.add_argument("--no-sync", dest="sync", action="store_false",
+            help="opposite of --sync")
+    argparser.add_argument("--parser-cache", dest="parser_cache", action="store_true", default=False,
+            help="update parser cache (default: %(default)s)")
+    argparser.add_argument("--no-parser-cache", dest="parser_cache", action="store_false",
+            help="opposite of --parser-cache")
+
     args = argparser.parse_args()
 
     # set up logging
@@ -329,19 +338,24 @@ if __name__ == "__main__":
     api = API.from_argparser(args)
     db = Database.from_argparser(args)
 
-    require_login(api)
+    if args.sync:
+        require_login(api)
 
-    db.sync_with_api(api)
+        db.sync_with_api(api)
+        db.sync_latest_revisions_content(api)
 
-    check_titles(api, db)
-    check_specific_titles(api, db)
+        check_titles(api, db)
+        check_specific_titles(api, db)
 
-    check_recentchanges(api, db)
-    check_logging(api, db)
-    check_allpages(api, db)
-    check_info(api, db)
-    check_pageprops(api, db)
-    check_protected_titles(api, db)
-    check_revisions(api, db)
-    check_latest_revisions(api, db)
-    check_revisions_of_main_page(api, db)
+        check_recentchanges(api, db)
+        check_logging(api, db)
+        check_allpages(api, db)
+        check_info(api, db)
+        check_pageprops(api, db)
+        check_protected_titles(api, db)
+        check_revisions(api, db)
+        check_latest_revisions(api, db)
+        check_revisions_of_main_page(api, db)
+
+    if args.parser_cache:
+        db.update_parser_cache()
