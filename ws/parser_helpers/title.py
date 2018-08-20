@@ -151,7 +151,8 @@ class Title:
             # strip spaces
             iw = iw.replace("_", " ").strip()
             # convert spaces to underscores to make find_caseless work
-            # TODO: this is not tested, just a wild guess
+            # (Note that MediaWiki's Special:Interwiki page does not allow interwiki prefixes
+            # with spaces, but [[foo bar:Some page]] is valid as an interwiki link.)
             iw = iw.replace(" ", "_")
             # check if it is valid interwiki prefix
             self.iw = find_caseless(iw, self.context.interwikimap.keys(), from_target=True)
