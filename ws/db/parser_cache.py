@@ -181,7 +181,7 @@ class ParserCache:
             db_entries.append(entry)
 
         # drop duplicates
-        db_entries = list({ (v["ll_from"], v["ll_lang"], v["ll_title"] ):v for v in db_entries}.values())
+        db_entries = list({ (v["ll_from"], v["ll_lang"] ):v for v in db_entries}.values())
 
         if db_entries:
             conn.execute(self.sql_inserts["langlinks"], db_entries)
