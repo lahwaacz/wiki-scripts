@@ -5,7 +5,7 @@ import logging
 import mwparserfromhell
 
 from . import encodings
-from .title import canonicalize, TitleError
+from .title import Title, TitleError
 
 logger = logging.getLogger(__name__)
 
@@ -242,8 +242,7 @@ class MagicWords:
     def get_replacement(self, magic):
         name = str(magic.name).strip()
         if name == "PAGENAME":
-            # TODO: use Title.pagename to drop the namespace prefix
-            return self.src_title
+            return self.src_title.pagename
         elif ":" in name:
             prefix, arg = name.split(":", maxsplit=1)
             prefix = prefix.lower()
@@ -339,11 +338,11 @@ def prepare_template_for_transclusion(wikicode, template):
     substitute(wikicode, template, set())
 
 def expand_templates(title, wikicode, content_getter_func, *,
-                     template_prefix="Template", substitute_magic_words=True):
+                     substitute_magic_words=True):
     """
     Recursively expands all templates on a MediaWiki page.
 
-    :param str title:
+    :param ws.parser_helpers.title.Title title:
         The title of the page where the templates will be expanded. Used for
         infinite loop prevention and context (e.g. relative transclusions like
         ``{{/foo/bar}}``).
@@ -352,13 +351,10 @@ def expand_templates(title, wikicode, content_getter_func, *,
         :py:class:`mwparserfromhell.wikicode.Wikicode` object.
     :param content_getter_func:
         A callback function which should return the content of a transcluded
-        page. It is called as ``content_getter_func(name)``, where the string
-        ``name`` is the canonical name of the transcluded page. For example,
-        in ``{{ foo bar | baz }}``, the ``name`` is ``"Template:Foo bar"``. The
-        function should raise :py:exc:`ValueError` if the requested page does
-        not exist.
-    :param str template_prefix:
-        Localized prefix of the template namespace.
+        page. It is called as ``content_getter_func(title)``, where ``title``
+        is the :py:class:`Title <ws.parser_helpers.title.Title>` object
+        representing the title of the transcluded page. The function should
+        raise :py:exc:`ValueError` if the requested page does not exist.
     :param bool substitute_magic_words:
         Whether to substitute `magic words`_. Note that only a couple of
         interesting/important cases are actually handled.
@@ -369,17 +365,17 @@ def expand_templates(title, wikicode, content_getter_func, *,
     if not isinstance(wikicode, mwparserfromhell.wikicode.Wikicode):
         raise TypeError("wikicode is of type {} instead of mwparserfromhell.wikicode.Wikicode".format(type(wikicode)))
 
-    # TODO: this should be done in the Title class
-    def handle_relative_title(src_title, title):
+    # TODO: handle transclusion modifiers: https://www.mediawiki.org/wiki/Help:Magic_words#Transclusion_modifiers
+    def get_target_title(src_title, title):
+        target = Title(src_title.context, title)
         if title.startswith("/"):
-            return src_title + title
-        elif title.startswith(":"):
-            return canonicalize(title[1:])
-        elif title.lower().startswith(template_prefix.lower() + ":"):
-            # {{Template:Foo}} transcludes Template:Foo, not Template:Template:Foo
-            return canonicalize(title)
-        else:
-            return template_prefix + ":" + canonicalize(title)
+            return target.make_absolute(src_title)
+        elif target.leading_colon:
+            return target
+        elif target.namespacenumber == 0:
+            # set the default transclusion namespace
+            target.namespace = target.context.namespaces[10]["*"]
+        return target
 
     def expand(title, wikicode, content_getter_func, visited_templates):
         """
@@ -404,19 +400,18 @@ def expand_templates(title, wikicode, content_getter_func, *,
                         expand(title, replacement, content_getter_func, visited_templates)
                         wikicode.replace(template, replacement)
             else:
-                name = canonicalize(name)
-                # TODO: handle transclusion modifiers: https://www.mediawiki.org/wiki/Help:Magic_words#Transclusion_modifiers
-                target_title = canonicalize(handle_relative_title(title, name))
+                try:
+                    target_title = get_target_title(title, name)
+                except TitleError:
+                    logger.error("Invalid transclusion on page [[{}]]: {}".format(title, template))
+                    continue
 
                 try:
                     content = content_getter_func(target_title)
                 except ValueError:
                     # If the target page does not exist, MediaWiki just skips the expansion,
                     # but it renders a wikilink to the non-existing page.
-                    wikicode.replace(template, "[[{}]]".format(handle_relative_title(title, str(template.name))))
-                    continue
-                except TitleError:
-                    logger.error("Invalid transclusion on page [[{}]]: {}".format(title, template))
+                    wikicode.replace(template, "[[{}]]".format(target_title))
                     continue
 
                 # Note:
@@ -438,5 +433,4 @@ def expand_templates(title, wikicode, content_getter_func, *,
 
                 wikicode.replace(template, content)
 
-    title = canonicalize(title)
     expand(title, wikicode, content_getter_func, set())
