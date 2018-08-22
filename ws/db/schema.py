@@ -549,6 +549,13 @@ def create_recomputable_tables(metadata):
     )
     Index("rd_namespace_title_from", redirect.c.rd_namespace, redirect.c.rd_title, redirect.c.rd_from)
 
+    # custom table for timestamp-based invalidation of entries in the parser cache
+    ws_parser_cache_sync = Table("ws_parser_cache_sync", metadata,
+        Column("wspc_page_id", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), primary_key=True, nullable=False),
+        # the revision ID currently in the parser cache
+        Column("wspc_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False)
+    )
+
 
 def create_multimedia_tables(metadata):
     image = Table("image", metadata,
