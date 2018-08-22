@@ -277,6 +277,10 @@ class ParserCache:
         transclusions = set()
 
         def content_getter(title):
+            # skip pages in the Special: and Media: namespaces
+            # (even MediaWiki does not track such transclusions in the templatelinks table)
+            if title.namespacenumber < 0:
+                raise ValueError
             # set and lru_cache need hashable types
             title = str(title)
             nonlocal transclusions
