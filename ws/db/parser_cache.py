@@ -270,20 +270,18 @@ class ParserCache:
 
     def _parse_page(self, conn, pageid, title, content):
         logger.info("ParserCache: parsing page [[{}]] ...".format(title))
+        title = self.db.Title(title)
 
         # set of all pages transcluded on the current page
         # (will be filled by the content_getter function)
         transclusions = set()
 
         def content_getter(title):
-            content = self._cached_content_getter(title)
-
-            # add the title to transclusions only after self.db.query verified that it is parseable
-            # (otherwise it raises TitleError)
+            # set and lru_cache need hashable types
+            title = str(title)
             nonlocal transclusions
             transclusions.add(title)
-
-            return content
+            return self._cached_content_getter(title)
 
         wikicode = mwparserfromhell.parse(content)
         expand_templates(title, wikicode, content_getter)
@@ -329,7 +327,7 @@ class ParserCache:
 
         self._insert_pagelinks(conn, pageid, pagelinks)
         self._insert_iwlinks(conn, pageid, iwlinks)
-        self._insert_categorylinks(conn, pageid, self.db.Title(title), categorylinks)
+        self._insert_categorylinks(conn, pageid, title, categorylinks)
         self._insert_langlinks(conn, pageid, langlinks)
         self._insert_imagelinks(conn, pageid, imagelinks)
 
