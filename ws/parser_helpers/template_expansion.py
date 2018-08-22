@@ -239,26 +239,27 @@ class MagicWords:
                 return True
         return False
 
-    def substitute(self, wikicode, magic):
+    def get_replacement(self, magic):
         name = str(magic.name).strip()
         if name == "PAGENAME":
-            wikicode.replace(magic, self.src_title)
+            # TODO: use Title.pagename to drop the namespace prefix
+            return self.src_title
         elif ":" in name:
             prefix, arg = name.split(":", maxsplit=1)
             prefix = prefix.lower()
 
             if prefix == "urlencode":
-                wikicode.replace(magic, encodings.urlencode(arg))
+                return encodings.urlencode(arg)
             elif prefix == "anchorencode":
-                wikicode.replace(magic, encodings.dotencode(arg))
+                return encodings.dotencode(arg)
             elif prefix == "#if":
                 try:
                     if arg.strip():
-                        wikicode.replace(magic, str(magic.get(1).value).strip())
+                        return magic.get(1).value.strip()
                     else:
-                        wikicode.replace(magic, str(magic.get(2).value).strip())
+                        return magic.get(2).value.strip()
                 except ValueError:
-                    wikicode.replace(magic, "")
+                    return ""
             elif prefix == "#switch":
                 # MW incompatibility: fall-thgourh cases are not supported
                 try:
@@ -271,7 +272,7 @@ class MagicWords:
                             replacement = magic.get(1).value
                         except ValueError:
                             replacement = ""
-                wikicode.replace(magic, replacement.strip())
+                return replacement.strip()
 
 def prepare_template_for_transclusion(wikicode, template):
     """
@@ -380,54 +381,62 @@ def expand_templates(title, wikicode, content_getter_func, *,
         else:
             return template_prefix + ":" + canonicalize(title)
 
-    def expand(title, wikicode, content_getter_func, visited_pages):
+    def expand(title, wikicode, content_getter_func, visited_templates):
         """
         Adds infinite loop protection to the functionality declared by :py:func:`expand_templates`.
         """
         for template in wikicode.ifilter_templates(recursive=wikicode.RECURSE_OTHERS):
             # handle cases like {{ {{foo}} | bar }} --> {{foo}} has to be substituted first
-            expand(title, template.name, content_getter_func, visited_pages)
+            expand(title, template.name, content_getter_func, visited_templates)
+
+            name = str(template.name).strip()
 
             # handle magic words
-            name = str(template.name).strip()
             if MagicWords.is_magic_word(name):
                 if substitute_magic_words is True:
                     # MW incompatibility: in some cases, MediaWiki tries to transclude a template
                     # if the parser function failed (e.g. "{{ns:Foo}}" -> "{{Template:Ns:Foo}}")
                     mw = MagicWords(title)
-                    mw.substitute(wikicode, template)
-                continue
+                    replacement = mw.get_replacement(template)
+                    if replacement is not None:
+                        # expand the replacement to handle nested magic words in parser functions like {{#if:}})
+                        replacement = mwparserfromhell.parse(replacement)
+                        expand(title, replacement, content_getter_func, visited_templates)
+                        wikicode.replace(template, replacement)
+            else:
+                name = canonicalize(name)
+                # TODO: handle transclusion modifiers: https://www.mediawiki.org/wiki/Help:Magic_words#Transclusion_modifiers
+                target_title = canonicalize(handle_relative_title(title, name))
 
-            # TODO: handle transclusion modifiers: https://www.mediawiki.org/wiki/Help:Magic_words#Transclusion_modifiers
+                try:
+                    content = content_getter_func(target_title)
+                except ValueError:
+                    # If the target page does not exist, MediaWiki just skips the expansion,
+                    # but it renders a wikilink to the non-existing page.
+                    wikicode.replace(template, "[[{}]]".format(handle_relative_title(title, str(template.name))))
+                    continue
+                except TitleError:
+                    logger.error("Invalid transclusion on page [[{}]]: {}".format(title, template))
+                    continue
 
-            name = canonicalize(name)
-            target_title = canonicalize(handle_relative_title(title, name))
+                # Note:
+                # MW has a special case when the first character produced by the template is one of ":;*#", MediaWiki inserts a linebreak
+                # reference: https://en.wikipedia.org/wiki/Help:Template#Problems_and_workarounds
+                # TODO: check what happens in our case
+                content = mwparserfromhell.parse(content)
+                prepare_template_for_transclusion(content, template)
 
-            try:
-                content = content_getter_func(target_title)
-            except ValueError:
-                # If the target page does not exist, MediaWiki just skips the expansion,
-                # but it renders a wikilink to the non-existing page.
-                wikicode.replace(template, "[[{}]]".format(handle_relative_title(title, str(template.name))))
-                continue
-            except TitleError:
-                logger.error("Invalid transclusion on page [[{}]]: {}".format(title, template))
-                continue
+                # expand only if the infinite loop checker does not kick in
+                _key = str(template)
+                if _key not in visited_templates:
+                    visited_templates.add(_key)
+                    expand(title, content, content_getter_func, visited_templates)
+                    visited_templates.remove(_key)
+                else:
+                    # MediaWiki fallback message
+                    content = "<span class=\"error\">Template loop detected: [[{}]]</span>".format(target_title)
 
-            # Note:
-            # MW has a special case when the first character produced by the template is one of ":;*#", MediaWiki inserts a linebreak
-            # reference: https://en.wikipedia.org/wiki/Help:Template#Problems_and_workarounds
-            # TODO: check what happens in our case
-            content = mwparserfromhell.parse(content)
-            prepare_template_for_transclusion(content, template)
-
-            # Expand only if the infinite loop checker does not kick in, otherwise we just leave it unexpanded.
-            if target_title not in visited_pages:
-                visited_pages.add(target_title)
-                expand(title, content, content_getter_func, visited_pages)
-                visited_pages.remove(target_title)
-
-            wikicode.replace(template, content)
+                wikicode.replace(template, content)
 
     title = canonicalize(title)
-    expand(title, wikicode, content_getter_func, {title})
+    expand(title, wikicode, content_getter_func, set())

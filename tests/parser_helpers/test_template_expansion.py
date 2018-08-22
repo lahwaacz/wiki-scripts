@@ -88,11 +88,28 @@ class test_expand_templates(common_base):
         d = {
             "Template:A": "a: {{b}}",
             "Template:B": "b: {{c}}",
-            "Template:C": "c: {{:title}}",
-            "Title": "{{a}}",
+            "Template:C": "c: {{:title 1}}",
+            "Title 1": "{{a}}",
+            "Template:AAA": "{{AAA}}",
+            "Title 2": "{{AAA}}",
+            "Template:Echo": "{{{1}}}",
+            "Title 3": "{{Echo|{{Echo|{{Echo|{{Echo|foo}}}}}}}}",
         }
-        title = "Title"
-        expected = "a: b: c: {{a}}"
+
+        title = "Title 1"
+        expected = "a: b: c: <span class=\"error\">Template loop detected: [[Template:A]]</span>"
+        self._do_test(d, title, expected)
+
+        title = "Template:AAA"
+        expected = "<span class=\"error\">Template loop detected: [[Template:AAA]]</span>"
+        self._do_test(d, title, expected)
+
+        title = "Title 2"
+        expected = "<span class=\"error\">Template loop detected: [[Template:AAA]]</span>"
+        self._do_test(d, title, expected)
+
+        title = "Title 3"
+        expected = "foo"
         self._do_test(d, title, expected)
 
     def test_relative_transclusion(self):
@@ -273,10 +290,10 @@ class test_expand_templates(common_base):
 class test_magic_words(common_base):
     def test_pagename(self):
         d = {
-            "Title": "{{PAGENAME}}",
+            "Talk:Title": "{{PAGENAME}}",
         }
-        title = "Title"
-        self._do_test(d, title, title)
+        title = "Talk:Title"
+        self._do_test(d, title, "Title")
 
     def test_encoding(self):
         d = {
@@ -338,3 +355,46 @@ class test_magic_words(common_base):
         }
         for title in d.keys():
             self._do_test(d, title, title)
+
+    def test_nested(self):
+        d = {
+            "Yes": "{{ #if: string | {{PAGENAME}} | No }}",
+            "No": "{{ #if: {{urlencode:}} | Yes | No }}",
+        }
+        for title in d.keys():
+            self._do_test(d, title, title)
+
+    def test_cat_main(self):
+        includeonly = """<includeonly>{{#switch: {{#if:{{{1|}}}|1|0}}{{#if:{{{2|}}}|1|0}}{{#if:{{{3|}}}|1|0}}
+                                        | 000 = The main article for this category is [[{{PAGENAME}}]].
+                                        | 100 = The main article for this category is [[{{{1}}}]].
+                                        | 110 = The main articles for this category are [[{{{1}}}]] and [[{{{2}}}]].
+                                        | 111 = The main articles for this category are [[{{{1}}}]], [[{{{2}}}]] and [[{{{3}}}]].
+                                      }}</includeonly>"""
+        d = {
+            "Template:Cat main": "<noinclude>{{Cat main}}</noinclude>" + includeonly,
+            "Title 1": "{{Cat main}}",
+            "Title 2": "{{Cat main|Foo}}",
+            "Title 3": "{{Cat main|Foo|Bar}}",
+            "Title 4": "{{Cat main|Foo|Bar|Baz}}",
+        }
+
+        title = "Title 1"
+        expected = "The main article for this category is [[Title 1]]."
+        self._do_test(d, title, expected)
+
+        title = "Title 2"
+        expected = "The main article for this category is [[Foo]]."
+        self._do_test(d, title, expected)
+
+        title = "Title 3"
+        expected = "The main articles for this category are [[Foo]] and [[Bar]]."
+        self._do_test(d, title, expected)
+
+        title = "Title 4"
+        expected = "The main articles for this category are [[Foo]], [[Bar]] and [[Baz]]."
+        self._do_test(d, title, expected)
+
+        title = "Template:Cat main"
+        expected = "<noinclude>The main article for this category is [[Cat main]].</noinclude>" + includeonly
+        self._do_test(d, title, expected)
