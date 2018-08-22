@@ -226,6 +226,9 @@ class MagicWords:
         "#titleparts",
     }
 
+    def __init__(self, src_title):
+        self.src_title = src_title
+
     @classmethod
     def is_magic_word(klass, name):
         if name in klass.VARIABLES:
@@ -236,10 +239,11 @@ class MagicWords:
                 return True
         return False
 
-    @classmethod
-    def substitute(klass, wikicode, magic):
-        name = str(magic.name)
-        if ":" in name:
+    def substitute(self, wikicode, magic):
+        name = str(magic.name).strip()
+        if name == "PAGENAME":
+            wikicode.replace(magic, self.src_title)
+        elif ":" in name:
             prefix, arg = name.split(":", maxsplit=1)
             prefix = prefix.lower()
 
@@ -247,6 +251,27 @@ class MagicWords:
                 wikicode.replace(magic, encodings.urlencode(arg))
             elif prefix == "anchorencode":
                 wikicode.replace(magic, encodings.dotencode(arg))
+            elif prefix == "#if":
+                try:
+                    if arg.strip():
+                        wikicode.replace(magic, str(magic.get(1).value).strip())
+                    else:
+                        wikicode.replace(magic, str(magic.get(2).value).strip())
+                except ValueError:
+                    wikicode.replace(magic, "")
+            elif prefix == "#switch":
+                # MW incompatibility: fall-thgourh cases are not supported
+                try:
+                    replacement = magic.get(str(arg).strip()).value
+                except ValueError:
+                    try:
+                        replacement = magic.get("#default").value
+                    except ValueError:
+                        try:
+                            replacement = magic.get(1).value
+                        except ValueError:
+                            replacement = ""
+                wikicode.replace(magic, replacement.strip())
 
 def prepare_template_for_transclusion(wikicode, template):
     """
@@ -364,12 +389,13 @@ def expand_templates(title, wikicode, content_getter_func, *,
             expand(title, template.name, content_getter_func, visited_pages)
 
             # handle magic words
-            name = str(template.name)
+            name = str(template.name).strip()
             if MagicWords.is_magic_word(name):
                 if substitute_magic_words is True:
                     # MW incompatibility: in some cases, MediaWiki tries to transclude a template
                     # if the parser function failed (e.g. "{{ns:Foo}}" -> "{{Template:Ns:Foo}}")
-                    MagicWords.substitute(wikicode, template)
+                    mw = MagicWords(title)
+                    mw.substitute(wikicode, template)
                 continue
 
             # TODO: handle transclusion modifiers: https://www.mediawiki.org/wiki/Help:Magic_words#Transclusion_modifiers

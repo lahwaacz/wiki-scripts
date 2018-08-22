@@ -7,7 +7,7 @@ import mwparserfromhell
 from ws.parser_helpers.template_expansion import *
 from ws.parser_helpers.title import TitleError
 
-class test_expand_templates:
+class common_base:
     @staticmethod
     def _do_test(d, title, expected, **kwargs):
         def content_getter(title):
@@ -23,6 +23,7 @@ class test_expand_templates:
         expand_templates(title, wikicode, content_getter, **kwargs)
         assert wikicode == expected
 
+class test_expand_templates(common_base):
     def test_type_of_wikicode(self):
         def void_getter(title):
             raise ValueError
@@ -269,7 +270,15 @@ class test_expand_templates:
         expected = "{{{1}}}"
         self._do_test(d, title, expected)
 
-    def test_magic_words(self):
+class test_magic_words(common_base):
+    def test_pagename(self):
+        d = {
+            "Title": "{{PAGENAME}}",
+        }
+        title = "Title"
+        self._do_test(d, title, title)
+
+    def test_encoding(self):
         d = {
             "Template:A": "http://example.com/{{urlencode:{{{1}}}}}/",
             "Template:B": "http://example.com/#{{anchorencode:{{{1}}}}}",
@@ -285,7 +294,7 @@ class test_expand_templates:
         expected = "http://example.com/#foo_bar"
         self._do_test(d, title, expected)
 
-    def test_magic_words_disabled(self):
+    def test_disabled(self):
         d = {
             "Template:A": "http://example.com/{{urlencode:{{{1}}}}}/",
             "Template:B": "http://example.com/#{{anchorencode:{{{1}}}}}",
@@ -301,11 +310,31 @@ class test_expand_templates:
         expected = "http://example.com/#{{anchorencode:foo bar}}"
         self._do_test(d, title, expected, substitute_magic_words=False)
 
-    def test_magic_words_unhandled(self):
+    def test_unhandled(self):
         # this is mostly to complete the code coverage...
         d = {
-            "Title": "{{PAGENAME}} {{#special:foo}}",
+            "Title": "{{LOCALTIMESTAMP}} {{#special:foo}}",
         }
         title = "Title"
         expected = d[title]
         self._do_test(d, title, expected)
+
+    def test_if(self):
+        d = {
+            "No": "{{ #if: | Yes | No }}",
+            "Yes": "{{ #if: string | Yes | No }}",
+            "XY": "X{{ #if: | Yes }}Y",
+            "YZ": "Y{{ #if: string }}Z",
+        }
+        for title in d.keys():
+            self._do_test(d, title, title)
+
+    def test_switch(self):
+        d = {
+            "Baz": "{{#switch: baz | foo = Foo | baz = Baz | Bar }}",
+            "Foo": "{{#switch: foo | foo = Foo | baz = Baz | Bar }}",
+            "Bar": "{{#switch: zzz | foo = Foo | baz = Baz | Bar }}",
+            "XY": "X{{#switch: zzz | foo = Foo | baz = Baz }}Y",
+        }
+        for title in d.keys():
+            self._do_test(d, title, title)
