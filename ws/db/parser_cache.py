@@ -3,6 +3,8 @@
 import logging
 from functools import lru_cache
 
+import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import insert
 import mwparserfromhell
 
 from .selects.namespaces import get_namespaces
@@ -19,6 +21,9 @@ class ParserCache:
         self.db = db
         self.invalidated_pageids = set()
 
+        wspc_sync = self.db.ws_parser_cache_sync
+        wspc_sync_ins = insert(wspc_sync)
+
         self.sql_inserts = {
             "templatelinks": self.db.templatelinks.insert(),
             "pagelinks": self.db.pagelinks.insert(),
@@ -28,22 +33,67 @@ class ParserCache:
             "iwlinks": self.db.iwlinks.insert(),
             "externallinks": self.db.externallinks.insert(),
             "redirect": self.db.redirect.insert(),
+            "ws_parser_cache_sync":
+                wspc_sync_ins.on_conflict_do_update(
+                    constraint=wspc_sync.primary_key,
+                    set_={"wspc_rev_id": wspc_sync_ins.excluded.wspc_rev_id}
+                )
         }
 
-    def _check_invalidation(self, conn, pageid, title):
-        # TODO: timestamp-based invalidation (should be per-page, compare with page_touched)
-        self.invalidated_pageids.add(pageid)
-        # TODO: set all pages transcluding this page for invalidation
+    def _execute(self, conn, query, *, explain=False):
+        if explain is True:
+            from ws.db.database import explain
+            result = self.db.engine.execute(explain(query))
+            print(query)
+            for row in result:
+                print(row[0])
+
+        return conn.execute(query)
+
+    def _check_invalidation(self, conn):
+        tl = self.db.templatelinks
+        page = self.db.page
+        wspc = self.db.ws_parser_cache_sync
+
+        # pages with older revisions
+        # (note that we don't join the templatelinks table here because we want
+        # to invalidate also pages which don't have any template links)
+        query = sa.select([page.c.page_id]) \
+                .select_from(
+                    page.outerjoin(wspc, page.c.page_id == wspc.c.wspc_page_id)
+                ).where(
+                    ( wspc.c.wspc_rev_id == None ) |
+                    ( wspc.c.wspc_rev_id != page.c.page_latest )
+                )
+        for row in self._execute(conn, query):
+            self.invalidated_pageids.add(row["page_id"])
+
+        # pages transcluding older pages
+        src_page = page.alias()
+        target_page = page.alias()
+        query = sa.select([src_page.c.page_id]) \
+                .select_from(
+                    src_page.join(tl, tl.c.tl_from == src_page.c.page_id) \
+                    .join(target_page, ( tl.c.tl_namespace == target_page.c.page_namespace ) &
+                                       ( tl.c.tl_title == target_page.c.page_title )
+                    ) \
+                    .outerjoin(wspc, target_page.c.page_id == wspc.c.wspc_page_id)
+                ).where(
+                    ( wspc.c.wspc_rev_id == None ) |
+                    ( wspc.c.wspc_rev_id != target_page.c.page_latest )
+                )
+        for row in self._execute(conn, query):
+            self.invalidated_pageids.add(row["page_id"])
 
     def _invalidate(self, conn):
-        conn.execute(self.db.pagelinks.delete().where(self.db.pagelinks.c.pl_from.in_(self.invalidated_pageids)))
-        conn.execute(self.db.templatelinks.delete().where(self.db.templatelinks.c.tl_from.in_(self.invalidated_pageids)))
-        conn.execute(self.db.imagelinks.delete().where(self.db.imagelinks.c.il_from.in_(self.invalidated_pageids)))
-        conn.execute(self.db.categorylinks.delete().where(self.db.categorylinks.c.cl_from.in_(self.invalidated_pageids)))
-        conn.execute(self.db.langlinks.delete().where(self.db.langlinks.c.ll_from.in_(self.invalidated_pageids)))
-        conn.execute(self.db.iwlinks.delete().where(self.db.iwlinks.c.iwl_from.in_(self.invalidated_pageids)))
-        conn.execute(self.db.externallinks.delete().where(self.db.externallinks.c.el_from.in_(self.invalidated_pageids)))
-        conn.execute(self.db.redirect.delete().where(self.db.redirect.c.rd_from.in_(self.invalidated_pageids)))
+        self._execute(conn, self.db.pagelinks.delete().where(self.db.pagelinks.c.pl_from.in_(self.invalidated_pageids)))
+        self._execute(conn, self.db.templatelinks.delete().where(self.db.templatelinks.c.tl_from.in_(self.invalidated_pageids)))
+        self._execute(conn, self.db.imagelinks.delete().where(self.db.imagelinks.c.il_from.in_(self.invalidated_pageids)))
+        self._execute(conn, self.db.categorylinks.delete().where(self.db.categorylinks.c.cl_from.in_(self.invalidated_pageids)))
+        self._execute(conn, self.db.langlinks.delete().where(self.db.langlinks.c.ll_from.in_(self.invalidated_pageids)))
+        self._execute(conn, self.db.iwlinks.delete().where(self.db.iwlinks.c.iwl_from.in_(self.invalidated_pageids)))
+        self._execute(conn, self.db.externallinks.delete().where(self.db.externallinks.c.el_from.in_(self.invalidated_pageids)))
+        self._execute(conn, self.db.redirect.delete().where(self.db.redirect.c.rd_from.in_(self.invalidated_pageids)))
 
     def _insert_templatelinks(self, conn, pageid, transclusions):
         db_entries = []
@@ -191,6 +241,16 @@ class ParserCache:
 
         conn.execute(self.sql_inserts["redirect"], db_entry)
 
+    def _set_sync_revid(self, conn, pageid, revid):
+        """
+        Set the ``pageid``, ``revid`` pair in the ``ws_parser_cache_sync`` table.
+        """
+        entry = {
+            "wspc_page_id": pageid,
+            "wspc_rev_id": revid,
+        }
+        conn.execute(self.sql_inserts["ws_parser_cache_sync"], entry)
+
     # cacheable part of the content getter, using common cache across all SQL transactions
     @lru_cache(maxsize=128)
     def _cached_content_getter(self, title):
@@ -279,28 +339,33 @@ class ParserCache:
         self.invalidated_pageids = set()
         namespaces = get_namespaces(self.db)
 
-        # pass 1: drop invalid entries from the cache
-        # (it must be a separate pass due to recursive invalidation)
         logger.info("ParserCache: Invalidating old entries...")
         with self.db.engine.begin() as conn:
-            for ns in namespaces.keys():
-                if ns < 0:
-                    continue
-                for page in self.db.query(generator="allpages", gapnamespace=ns):
-                    self._check_invalidation(conn, page["pageid"], page["title"])
+            self._check_invalidation(conn)
             self._invalidate(conn)
+        logger.debug("Invalidated pageids: {}".format(self.invalidated_pageids))
 
-        # pass 2: parse all pages missing in the cache
         logger.info("ParserCache: Parsing new content...")
-        for ns in namespaces.keys():
-            if ns < 0:
-                continue
-            # TODO: use pageids= query instead of generator
-            for page in self.db.query(generator="allpages", gapnamespace=ns, prop="latestrevisions", rvprop="content"):
+
+        def parse_namespace(ns):
+            for page in self.db.query(generator="allpages", gapnamespace=ns, prop="latestrevisions", rvprop={"content", "ids"}):
                 # one transaction per page
                 with self.db.engine.begin() as conn:
                     if "*" in page["revisions"][0]:
                         if page["pageid"] in self.invalidated_pageids:
                             self._parse_page(conn, page["pageid"], page["title"], page["revisions"][0]["*"])
+                            self._set_sync_revid(conn, page["pageid"], page["revisions"][0]["revid"])
                     else:
                         logger.error("ParserCache: no latest revision found for page [[{}]]".format(page["title"]))
+
+        # parse templates before the main namespace so that we can interrupt afterwards
+        parse_namespace(10)
+
+        for ns in sorted(namespaces.keys()):
+            if ns < 0 or ns == 10:
+                continue
+            parse_namespace(ns)
+
+    def invalidate_all(self):
+        with self.db.engine.begin() as conn:
+            conn.execute(self.db.ws_parser_cache_sync.delete())
