@@ -479,6 +479,7 @@ def create_recomputable_tables(metadata):
         # MW incompatibility: removed useless il_from_namespace column
         # il_to is the target file name (and also a page title in the "File:" namespace, i.e. the namespace ID is 6)
         Column("il_to", UnicodeText, nullable=False),
+        PrimaryKeyConstraint("il_from", "il_to"),
     )
 
     # tracks category membership (e.g. [[Category:Name]])
@@ -493,7 +494,8 @@ def create_recomputable_tables(metadata):
         Column("cl_sortkey_prefix", UnicodeText, nullable=False),
         # MW incompatibility: removed cl_timestamp column which is not used as of MediaWiki 1.31
         Column("cl_collation", UnicodeText, nullable=False, server_default=""),
-        Column("cl_type", Enum("page", "subcat", "file", name="cl_type"), nullable=False, server_default="page")
+        Column("cl_type", Enum("page", "subcat", "file", name="cl_type"), nullable=False, server_default="page"),
+        PrimaryKeyConstraint("cl_from", "cl_to"),
     )
 
     # tracks interlanguage links (e.g. [[en:Page name]])
