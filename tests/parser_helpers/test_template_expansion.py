@@ -178,16 +178,21 @@ class test_expand_templates(common_base):
 
     def test_noinclude(self, title_context):
         d = {
-            "Template:A": "<noinclude>foo {{{1}}}</noinclude>bar",
+            "Template:A": "<noinclude><code>foo</code> {{{1}}}</noinclude>bar",
             "Title 1": "{{a}}",
             "Title 2": "{{a|b}}",
         }
-        expected = "bar"
+
+        title = "Template:A"
+        expected = "<code>foo</code> {{{1}}}bar"
+        self._do_test(title_context, d, title, expected)
 
         title = "Title 1"
+        expected = "bar"
         self._do_test(title_context, d, title, expected)
 
         title = "Title 2"
+        expected = "bar"
         self._do_test(title_context, d, title, expected)
 
     def test_nested_noinclude(self, title_context):
@@ -196,12 +201,17 @@ class test_expand_templates(common_base):
             "Title 1": "{{a}}",
             "Title 2": "{{a|b}}",
         }
-        expected = "bar"
+
+        title = "Template:A"
+        expected = "foo {{{1}}}bar"
+        self._do_test(title_context, d, title, expected)
 
         title = "Title 1"
+        expected = "bar"
         self._do_test(title_context, d, title, expected)
 
         title = "Title 2"
+        expected = "bar"
         self._do_test(title_context, d, title, expected)
 
     def test_includeonly(self, title_context):
@@ -210,6 +220,10 @@ class test_expand_templates(common_base):
             "Title 1": "{{a}}",
             "Title 2": "{{a|b}}",
         }
+
+        title = "Template:A"
+        expected = "foo "
+        self._do_test(title_context, d, title, expected)
 
         title = "Title 1"
         expected = "foo bar "
@@ -226,6 +240,10 @@ class test_expand_templates(common_base):
             "Title 2": "{{a|b}}",
         }
 
+        title = "Template:A"
+        expected = "foo "
+        self._do_test(title_context, d, title, expected)
+
         title = "Title 1"
         expected = "foo bar "
         self._do_test(title_context, d, title, expected)
@@ -239,6 +257,11 @@ class test_expand_templates(common_base):
             "Template:A": "<noinclude>foo</noinclude><includeonly>bar</includeonly>",
             "Title": "{{a}}",
         }
+
+        title = "Template:A"
+        expected = "foo"
+        self._do_test(title_context, d, title, expected)
+
         title = "Title"
         expected = "bar"
         self._do_test(title_context, d, title, expected)
@@ -248,6 +271,11 @@ class test_expand_templates(common_base):
             "Template:A": "<noinclude>foo <includeonly>bar</includeonly></noinclude>",
             "Title": "{{a}}",
         }
+
+        title = "Template:A"
+        expected = "foo "
+        self._do_test(title_context, d, title, expected)
+
         title = "Title"
         expected = ""
         self._do_test(title_context, d, title, expected)
@@ -257,6 +285,11 @@ class test_expand_templates(common_base):
             "Template:A": "foo <onlyinclude>bar</onlyinclude>",
             "Title": "{{a}}",
         }
+
+        title = "Template:A"
+        expected = "foo bar"
+        self._do_test(title_context, d, title, expected)
+
         title = "Title"
         expected = "bar"
         self._do_test(title_context, d, title, expected)
@@ -266,6 +299,11 @@ class test_expand_templates(common_base):
             "Template:A": "<noinclude>foo</noinclude><includeonly>bar</includeonly><onlyinclude>baz</onlyinclude>",
             "Title": "{{a}}",
         }
+
+        title = "Template:A"
+        expected = "foobaz"
+        self._do_test(title_context, d, title, expected)
+
         title = "Title"
         expected = "baz"
         self._do_test(title_context, d, title, expected)
@@ -275,6 +313,10 @@ class test_expand_templates(common_base):
             "Template:A": "<noinclude><includeonly><onlyinclude>{{{1}}}<onlyinclude>{{{2}}}</onlyinclude></onlyinclude></includeonly>discarded text</noinclude>",
             "Title": "{{a|foo|bar}}",
         }
+
+        title = "Template:A"
+        expected = "discarded text"
+        self._do_test(title_context, d, title, expected)
 
         title = "Title"
         # MW incompatibility: MediaWiki does not render the closing </onlyinclude>, most likely it does not pair them correctly
@@ -399,5 +441,5 @@ class test_magic_words(common_base):
         self._do_test(title_context, d, title, expected)
 
         title = "Template:Cat main"
-        expected = "<noinclude>The main article for this category is [[Cat main]].</noinclude><includeonly>The main articles for this category are [[{{{1}}}]], [[{{{2}}}]] and [[{{{3}}}]].</includeonly>"
+        expected = "The main article for this category is [[Cat main]]."
         self._do_test(title_context, d, title, expected)

@@ -10,7 +10,8 @@ from .title import Title, TitleError
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    "MagicWords", "prepare_template_for_transclusion", "expand_templates",
+    "MagicWords", "prepare_content_for_rendering", "prepare_template_for_transclusion",
+    "expand_templates",
 ]
 
 class MagicWords:
@@ -273,6 +274,38 @@ class MagicWords:
                             replacement = ""
                 return replacement.strip()
 
+def prepare_content_for_rendering(wikicode):
+    """
+    Prepare the wikicode of a page for `rendering`.
+
+    I.e. do the same wikicode transformations that MediaWiki does before
+    rendering a page:
+
+    - the `partial transclusion`_ tags ``<noinclude>``, ``<includeonly>``
+      and ``<onlyinclude>`` are handled so that only content inside the
+      ``<noinclude>`` or ``<onlyinclude>`` tags remains
+
+    :param wikicode: the wikicode of the template
+    :returns: ``None``, the wikicode is modified in place.
+
+    .. _`partial transclusion`: https://www.mediawiki.org/wiki/Transclusion#Partial_transclusion
+    """
+    for tag in wikicode.ifilter_tags(recursive=True):
+        # drop all <includeonly> tags and everything inside
+        if tag.tag == "includeonly":
+            try:
+                wikicode.remove(tag)
+            except ValueError:
+                # this may happen for nested tags which were previously removed/replaced
+                pass
+        # drop <noinclude> and <onlyinclude> tags, but nothing outside or inside
+        elif tag.tag == "noinclude" or tag.tag == "onlyinclude":
+            try:
+                wikicode.replace(tag, tag.contents)
+            except ValueError:
+                # this may happen for nested tags which were previously removed/replaced
+                pass
+
 def prepare_template_for_transclusion(wikicode, template):
     """
     Prepares the wikicode of a template for transclusion:
@@ -433,4 +466,5 @@ def expand_templates(title, wikicode, content_getter_func, *,
 
                 wikicode.replace(template, content)
 
+    prepare_content_for_rendering(wikicode)
     expand(title, wikicode, content_getter_func, set())
