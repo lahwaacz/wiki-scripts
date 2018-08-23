@@ -501,7 +501,7 @@ def create_recomputable_tables(metadata):
     # tracks interlanguage links (e.g. [[en:Page name]])
     langlinks = Table("langlinks", metadata,
         Column("ll_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
-        Column("ll_lang", UnicodeText, nullable=False),
+        Column("ll_lang", UnicodeText, ForeignKey("interwiki.iw_prefix", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         # title of the target, including namespace
         Column("ll_title", UnicodeText, nullable=False),
         PrimaryKeyConstraint("ll_from", "ll_lang"),
@@ -511,7 +511,7 @@ def create_recomputable_tables(metadata):
     # tracks interwiki links (e.g. [[Wikipedia:Page name]])
     iwlinks = Table("iwlinks", metadata,
         Column("iwl_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
-        Column("iwl_prefix", UnicodeText, ForeignKey("interwiki.iw_prefix"), nullable=False),
+        Column("iwl_prefix", UnicodeText, ForeignKey("interwiki.iw_prefix", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         # title of the target, including namespace
         Column("iwl_title", UnicodeText, nullable=False),
         PrimaryKeyConstraint("iwl_from", "iwl_prefix", "iwl_title"),
