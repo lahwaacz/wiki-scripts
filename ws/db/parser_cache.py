@@ -311,7 +311,8 @@ class ParserCache:
         for wl in wikicode.ifilter_wikilinks(recursive=True):
             target = self.db.Title(wl.title).make_absolute(title)
             if target.iwprefix:
-                if target.iwprefix in get_language_tags():
+                # language links are special only in article namespaces, not in talk namespaces
+                if target.iwprefix in get_language_tags() and title.namespace == title.articlespace:
                     langlinks.append(target)
                 else:
                     iwlinks.append(target)
