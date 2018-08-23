@@ -521,22 +521,9 @@ def create_recomputable_tables(metadata):
 
     # tracks links to external URLs
     externallinks = Table("externallinks", metadata,
-        Column("el_id", Integer, nullable=False, primary_key=True),
         Column("el_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("el_to", UnicodeText, nullable=False),
-        # MediaWiki documentation:
-        # In the case of HTTP URLs, this is the URL with any username or password
-        # removed, and with the labels in the hostname reversed and converted to
-        # lower case. An extra dot is added to allow for matching of either
-        # example.com or *.example.com in a single scan.
-        # Example:
-        #      http://user:password@sub.example.com/page.html
-        #   becomes
-        #      http://com.example.sub./page.html
-        # which allows for fast searching for all pages under example.com with the
-        # clause:
-        #      WHERE el_index LIKE 'http://com.example.%'
-        Column("el_index", UnicodeText, nullable=False),
+        PrimaryKeyConstraint("el_from", "el_to"),
     )
 
     # tracks targets of redirect pages

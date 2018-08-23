@@ -207,12 +207,9 @@ class ParserCache:
         db_entries = []
         for ext in externallinks:
             url = str(ext.url)
-            # TODO: do the MediaWiki-like transformation (see the comment in ws.db.schema)
-            index = ""
             entry = {
                 "el_from": pageid,
                 "el_to": url,
-                "el_index": index,
             }
             db_entries.append(entry)
 
