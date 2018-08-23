@@ -1387,7 +1387,6 @@ asm6
 asmaa
 asmjit
 asmttpd-git
-asmx
 asp-audit
 aspectc++
 aspectc++-svn
@@ -1714,7 +1713,6 @@ autopoweroff
 autopy-git
 autorandr-asch-git
 autorandr-phillipberndt-git
-autorestartnm
 autoscan
 autoshadower
 autosshd
@@ -2923,7 +2921,6 @@ brother-mfc-7320
 brother-mfc-795cw
 brother-mfc-885cw
 brother-mfc-8870dw
-brother-mfc-j4710dw
 brother-mfc-j5910dw-cupswrapper
 brother-mfc-j5910dw-lpr
 brother-mfc210c-cupswrapper
@@ -9247,8 +9244,6 @@ flandmark-git
 flanger
 flappycoin-daemon
 flare
-flare-engine
-flare-game
 flare-rpg
 flare-rpg-0.17
 flare-rpg-git
@@ -9825,7 +9820,6 @@ fsam7440
 fsdetect
 fsfn-svn
 fsgamer
-fsharp-git
 fsirc
 fsirc-git
 fslint-svn
@@ -15124,7 +15118,6 @@ herd
 heretic
 hermes-git
 hermires
-heroes
 heroes-alpha
 heroes-data
 heroes-hq-sound-tracks
@@ -19462,7 +19455,6 @@ lib32-libmpc
 lib32-libndp
 lib32-libnettle4
 lib32-libnewt
-lib32-libnice
 lib32-libnl
 lib32-libnm-glib46
 lib32-libnss_sss
@@ -19673,7 +19665,6 @@ lib32-wineasio
 lib32-wxgtk
 lib32-wxwidgets-light
 lib32-wxwidgets2.8-light
-lib32-x264
 lib32-xerces-c
 lib32-yasm
 lib32-zeromq
@@ -27161,7 +27152,6 @@ ovoplayer
 ovpngui
 ovz-web-panel
 owamp
-owl
 owl-browser-git
 owl-git
 owlboxer
@@ -27451,7 +27441,6 @@ pantheon-slingshot
 pantheon-synopsis-bzr
 pantheon-terminal
 pantheon-wallpaper-bzr
-pantomime
 paper
 paper-gtk-theme
 paperbox
@@ -30898,7 +30887,6 @@ python-commandsplus
 python-commons-git
 python-concurrence
 python-configglue
-python-configparser
 python-confiture
 python-confu
 python-constraint
@@ -30937,7 +30925,6 @@ python-daemon
 python-dap
 python-dapp
 python-dataflow
-python-dateutils
 python-dbfpy
 python-dbus-bzr
 python-dbus-git
@@ -31570,7 +31557,6 @@ python-pyrtm
 python-pyscard-svn
 python-pyserial-svn
 python-pysfml2-git
-python-pyside
 python-pysmf
 python-pysnmp-mibs
 python-pysoy
@@ -31695,14 +31681,12 @@ python-selenium
 python-serial
 python-setproctitle
 python-setuptools_hg
-python-setuptools_trial
 python-sexy
 python-sfml2
 python-sfml2-git
 python-sh
 python-shapely
 python-shell-enhancement-git
-python-shiboken
 python-shout
 python-shove
 python-sievelib
@@ -31809,7 +31793,6 @@ python-toydist
 python-tpb-git
 python-tpg
 python-translationstring
-python-translitcodec
 python-tre
 python-trepan-git
 python-trezor-git
@@ -32875,7 +32858,6 @@ python2-pyrtm
 python2-pysdl2
 python2-pysfml2-git
 python2-pyshp-svn
-python2-pyside
 python2-pyside-git
 python2-pysilc-git
 python2-pysilhouette
@@ -32909,7 +32891,6 @@ python2-pyteomics.pepxmltk
 python2-pytest
 python2-pytest-cache
 python2-pytest-cov
-python2-pytest-pep8
 python2-pytest-timeout
 python2-python-amazon-simple-product-api-git
 python2-python-daemon
@@ -38065,7 +38046,6 @@ shfs
 shhmsg
 shhopt
 shibboleth-sp
-shiboken
 shibokengenerator
 shifty-github
 shiinatimer
@@ -38680,7 +38660,6 @@ so-synth-lv2
 soap2-bin
 soapdenovo2
 socat2
-soci-git
 socialaddict
 socializer-git
 sock
@@ -38849,7 +38828,6 @@ spambayes
 spamcup
 spamoracle
 spampd
-spamprobe
 span-gles
 spandsp
 sparc-linux-binutils
@@ -38965,7 +38943,6 @@ spine
 spinner
 spipat
 spipemenu
-spiral-knights
 spiralsynthmodular
 spirit-git
 spirits
@@ -41379,7 +41356,6 @@ ttf-babelstone-modern
 ttf-babelstone-phagspa
 ttf-base02-font
 ttf-bauhaus93
-ttf-bitstream-charter
 ttf-bitstream-cyberbit
 ttf-blankon-ombilin
 ttf-boris-black-bloxx
@@ -43311,7 +43287,6 @@ vim-pylint
 vim-pylint-git
 vim-python
 vim-python-combined-git
-vim-python-mode
 vim-python2
 vim-python2-hg
 vim-python_fn
