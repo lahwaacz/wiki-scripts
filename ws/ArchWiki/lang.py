@@ -87,9 +87,9 @@ __category_languages = [
 ]
 # languages with right-to-left script
 __rtl = ["ar", "he"]
-__interlanguage_external = ["de", "fa", "fi", "fr", "ja", "ro", "sv"]
-__interlanguage_internal = ["ar", "bg", "cs", "da", "el", "en", "es", "he", "hr",
-                            "hu", "id", "it", "ko", "lt", "nl", "pl", "pt",
+__interlanguage_external = ["de", "fa", "fr", "ja", "ro", "sv"]
+__interlanguage_internal = ["ar", "bg", "cs", "da", "el", "en", "es", "fi", "he",
+                            "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt",
                             "ru", "sk", "sr", "th", "tr", "uk", "zh-hans", "zh-hant"]
 
 
