@@ -10,6 +10,7 @@ import mwparserfromhell
 from .selects.namespaces import get_namespaces
 from ..parser_helpers.template_expansion import expand_templates
 from ..parser_helpers.wikicode import is_redirect
+from ..parser_helpers.title import TitleError
 
 # TODO: generalize or make the language tags configurable
 from ws.ArchWiki.lang import get_language_tags
@@ -309,7 +310,11 @@ class ParserCache:
 
         # classify all wikilinks
         for wl in wikicode.ifilter_wikilinks(recursive=True):
-            target = self.db.Title(wl.title).make_absolute(title)
+            try:
+                target = self.db.Title(wl.title).make_absolute(title)
+            except TitleError:
+                logger.error("ParserCache: wikilink {} leads to an invalid title. Missing magic word implementation?".format(wl))
+                continue
             if target.iwprefix:
                 # language links are special only in article namespaces, not in talk namespaces
                 if target.iwprefix in get_language_tags() and title.namespace == title.articlespace:
