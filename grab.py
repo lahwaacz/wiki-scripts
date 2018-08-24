@@ -369,6 +369,21 @@ def check_categorylinks(api, db):
     _check_lists_of_unordered_pages(db_list, api_list)
 
 
+def check_langlinks(api, db):
+    print("Checking the langlinks table...")
+
+    prop = {"langlinks"}
+    params = {
+        "generator": "allpages",
+        "gaplimit": "max",
+    }
+
+    db_list = list(db.query(**params, prop=prop))
+    api_list = list(api.generator(**params, prop="|".join(prop)))
+
+    _check_lists_of_unordered_pages(db_list, api_list)
+
+
 if __name__ == "__main__":
     import ws.config
     import ws.logging
@@ -420,3 +435,4 @@ if __name__ == "__main__":
         check_pagelinks(api, db)
         check_imagelinks(api, db)
         check_categorylinks(api, db)
+        check_langlinks(api, db)
