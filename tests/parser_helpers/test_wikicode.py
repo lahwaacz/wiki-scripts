@@ -436,3 +436,44 @@ class test_is_redirect:
         for text in self.nonredirects:
             assert not is_redirect("foo" + text, full_match=False)
             assert not is_redirect("foo" + text, full_match=True)
+
+class test_parented_ifilter:
+    wikicode = mwparserfromhell.parse("""<span>
+            foo {{bar|some text and {{another|template}}}}
+            </span>
+            {{foo|bar}}
+            """)
+
+    def test_recursive(self):
+        nodes = []
+        for parent, node in parented_ifilter(self.wikicode,
+                                             recursive=True):
+            nodes.append(node)
+            assert parent.index(node) >= 0
+        assert nodes == self.wikicode.filter(recursive=True)
+
+    def test_nonrecursive(self):
+        nodes = []
+        for parent, node in parented_ifilter(self.wikicode,
+                                             recursive=False):
+            nodes.append(node)
+            assert parent.index(node) >= 0
+        assert nodes == self.wikicode.filter(recursive=False)
+
+    def test_recursive_templates(self):
+        templates = []
+        for parent, template in parented_ifilter(self.wikicode,
+                                                 forcetype=mwparserfromhell.nodes.template.Template,
+                                                 recursive=True):
+            templates.append(template)
+            assert parent.index(template) >= 0
+        assert templates == self.wikicode.filter_templates(recursive=True)
+
+    def test_nonrecursive_templates(self):
+        templates = []
+        for parent, template in parented_ifilter(self.wikicode,
+                                                 forcetype=mwparserfromhell.nodes.template.Template,
+                                                 recursive=False):
+            templates.append(template)
+            assert parent.index(template) >= 0
+        assert templates == self.wikicode.filter_templates(recursive=False)
