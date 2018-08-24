@@ -342,6 +342,33 @@ def check_imagelinks(api, db):
     _check_lists_of_unordered_pages(db_list, api_list)
 
 
+def check_categorylinks(api, db):
+    print("Checking the categorylinks table...")
+
+    prop = {"categories"}
+    params = {
+        "generator": "allpages",
+        "gaplimit": "max",
+    }
+
+    db_list = list(db.query(**params, prop=prop))
+    api_list = list(api.generator(**params, prop="|".join(prop)))
+
+    # drop unsupported automatic categories
+    automatic_categories = {
+        "Category:Pages with broken file links",
+        "Category:Pages with template loops",
+    }
+    for page in api_list:
+        if "categories" in page:
+            page["categories"] = [cat for cat in page["categories"] if cat["title"] not in automatic_categories]
+            # remove empty list
+            if not page["categories"]:
+                del page["categories"]
+
+    _check_lists_of_unordered_pages(db_list, api_list)
+
+
 if __name__ == "__main__":
     import ws.config
     import ws.logging
@@ -392,3 +419,4 @@ if __name__ == "__main__":
         check_templatelinks(api, db)
         check_pagelinks(api, db)
         check_imagelinks(api, db)
+        check_categorylinks(api, db)
