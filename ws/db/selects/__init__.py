@@ -20,6 +20,7 @@ from .props.templates import *
 from .props.transcludedin import *
 from .props.links import *
 from .props.linkshere import *
+from .props.images import *
 
 __classes_lists = {
     "recentchanges": RecentChanges,
@@ -54,6 +55,7 @@ __classes_props = {
     "transcludedin": TranscludedIn,
     "links": Links,
     "linkshere": LinksHere,
+    "images": Images,
 }
 
 def list(db, params):
