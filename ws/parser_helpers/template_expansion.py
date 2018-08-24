@@ -6,6 +6,7 @@ import mwparserfromhell
 
 from . import encodings
 from .title import Title, TitleError
+from .wikicode import parented_ifilter
 
 logger = logging.getLogger(__name__)
 
@@ -414,7 +415,9 @@ def expand_templates(title, wikicode, content_getter_func, *,
         """
         Adds infinite loop protection to the functionality declared by :py:func:`expand_templates`.
         """
-        for template in wikicode.ifilter_templates(recursive=wikicode.RECURSE_OTHERS):
+#        for template in wikicode.ifilter_templates(recursive=wikicode.RECURSE_OTHERS):
+        # performance optimization, see https://github.com/earwig/mwparserfromhell/issues/195
+        for parent, template in parented_ifilter(wikicode, forcetype=mwparserfromhell.nodes.template.Template, recursive=wikicode.RECURSE_OTHERS):
             # handle cases like {{ {{foo}} | bar }} --> {{foo}} has to be substituted first
             expand(title, template.name, content_getter_func, visited_templates)
 
@@ -431,7 +434,8 @@ def expand_templates(title, wikicode, content_getter_func, *,
                         # expand the replacement to handle nested magic words in parser functions like {{#if:}})
                         replacement = mwparserfromhell.parse(replacement)
                         expand(title, replacement, content_getter_func, visited_templates)
-                        wikicode.replace(template, replacement)
+#                        wikicode.replace(template, replacement)
+                        parent.replace(template, replacement, recursive=False)
             else:
                 try:
                     target_title = get_target_title(title, name)
@@ -444,7 +448,8 @@ def expand_templates(title, wikicode, content_getter_func, *,
                 except ValueError:
                     # If the target page does not exist, MediaWiki just skips the expansion,
                     # but it renders a wikilink to the non-existing page.
-                    wikicode.replace(template, "[[{}]]".format(target_title))
+#                    wikicode.replace(template, "[[{}]]".format(target_title))
+                    parent.replace(template, "[[{}]]".format(target_title), recursive=False)
                     continue
 
                 # Note:
@@ -464,7 +469,8 @@ def expand_templates(title, wikicode, content_getter_func, *,
                     # MediaWiki fallback message
                     content = "<span class=\"error\">Template loop detected: [[{}]]</span>".format(target_title)
 
-                wikicode.replace(template, content)
+#                wikicode.replace(template, content)
+                parent.replace(template, content, recursive=False)
 
     prepare_content_for_rendering(wikicode)
     expand(title, wikicode, content_getter_func, set())
