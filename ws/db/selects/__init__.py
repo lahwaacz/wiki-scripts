@@ -24,6 +24,7 @@ from .props.images import *
 from .props.categories import *
 from .props.langlinks import *
 from .props.iwlinks import *
+from .props.extlinks import *
 from .props.redirects import *
 
 __classes_lists = {
@@ -63,6 +64,7 @@ __classes_props = {
     "categories": Categories,
     "langlinks": LanguageLinks,
     "iwlinks": InterwikiLinks,
+    "extlinks": ExternalLinks,
     "redirects": Redirects,
 }
 

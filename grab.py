@@ -391,6 +391,26 @@ def check_interwiki_links(api, db):
     _check_lists_of_unordered_pages(db_list, api_list)
 
 
+def check_external_links(api, db):
+    print("Checking the externallinks table...")
+
+    prop = {"extlinks"}
+    params = {
+        "generator": "allpages",
+        "gaplimit": "max",
+    }
+
+    db_list = list(db.query(**params, prop=prop))
+    api_list = list(api.generator(**params, prop="|".join(prop)))
+
+    # MediaWiki does not order the URLs
+    for page in api_list:
+        if "extlinks" in page:
+            page["extlinks"].sort(key=lambda d: d["*"])
+
+    _check_lists_of_unordered_pages(db_list, api_list)
+
+
 def check_redirects(api, db):
     print("Checking the redirects table...")
 
@@ -459,4 +479,5 @@ if __name__ == "__main__":
         check_imagelinks(api, db)
         check_categorylinks(api, db)
         check_interwiki_links(api, db)
+        check_external_links(api, db)
         check_redirects(api, db)
