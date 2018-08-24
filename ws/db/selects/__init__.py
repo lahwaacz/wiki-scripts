@@ -16,6 +16,7 @@ from .props.info import *
 from .props.pageprops import *
 from .props.revisions import *
 from .props.deletedrevisions import *
+from .props.templates import *
 
 __classes_lists = {
     "recentchanges": RecentChanges,
@@ -46,6 +47,7 @@ __classes_props = {
     "latestrevisions": Revisions,
     "revisions": Revisions,
     "deletedrevisions": DeletedRevisions,
+    "templates": Templates,
 }
 
 def list(db, params):
