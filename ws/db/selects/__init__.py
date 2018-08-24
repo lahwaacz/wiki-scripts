@@ -23,6 +23,7 @@ from .props.linkshere import *
 from .props.images import *
 from .props.categories import *
 from .props.langlinks import *
+from .props.iwlinks import *
 
 __classes_lists = {
     "recentchanges": RecentChanges,
@@ -60,6 +61,7 @@ __classes_props = {
     "images": Images,
     "categories": Categories,
     "langlinks": LanguageLinks,
+    "iwlinks": InterwikiLinks,
 }
 
 def list(db, params):

@@ -369,10 +369,10 @@ def check_categorylinks(api, db):
     _check_lists_of_unordered_pages(db_list, api_list)
 
 
-def check_langlinks(api, db):
-    print("Checking the langlinks table...")
+def check_interwiki_links(api, db):
+    print("Checking the langlinks and iwlinks tables...")
 
-    prop = {"langlinks"}
+    prop = {"langlinks", "iwlinks"}
     params = {
         "generator": "allpages",
         "gaplimit": "max",
@@ -380,6 +380,13 @@ def check_langlinks(api, db):
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
+
+    # we store spaces instead of underscores in the database
+    for page in api_list:
+        for langlink in page.get("langlinks", []):
+            langlink["*"] = langlink["*"].replace("_", " ")
+        for iwlink in page.get("iwlinks", []):
+            iwlink["*"] = iwlink["*"].replace("_", " ")
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
@@ -435,4 +442,4 @@ if __name__ == "__main__":
         check_pagelinks(api, db)
         check_imagelinks(api, db)
         check_categorylinks(api, db)
-        check_langlinks(api, db)
+        check_interwiki_links(api, db)
