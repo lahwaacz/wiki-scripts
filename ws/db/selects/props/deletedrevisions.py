@@ -59,30 +59,30 @@ class DeletedRevisions(SelectBase):
 
         prop = params["prop"]
         if "user" in prop:
-            s.append_column(ar.c.ar_user_text)
+            s = s.column(ar.c.ar_user_text)
         if "userid" in prop:
-            s.append_column(ar.c.ar_user)
+            s = s.column(ar.c.ar_user)
         if "comment" in prop:
-            s.append_column(ar.c.ar_comment)
+            s = s.column(ar.c.ar_comment)
         if "flags" in prop:
-            s.append_column(ar.c.ar_minor_edit)
+            s = s.column(ar.c.ar_minor_edit)
         if "timestamp" in prop:
-            s.append_column(ar.c.ar_timestamp)
+            s = s.column(ar.c.ar_timestamp)
         if "ids" in prop:
-            s.append_column(ar.c.ar_rev_id)
-            s.append_column(ar.c.ar_parent_id)
+            s = s.column(ar.c.ar_rev_id)
+            s = s.column(ar.c.ar_parent_id)
         if "size" in prop:
-            s.append_column(ar.c.ar_len)
+            s = s.column(ar.c.ar_len)
         if "sha1" in prop:
-            s.append_column(ar.c.ar_sha1)
+            s = s.column(ar.c.ar_sha1)
         if "contentmodel" in prop:
-            s.append_column(ar.c.ar_content_model)
-            s.append_column(ar.c.ar_content_format)
+            s = s.column(ar.c.ar_content_model)
+            s = s.column(ar.c.ar_content_format)
 
         # joins
         if "content" in prop:
             tail = tail.outerjoin(self.db.text, ar.c.ar_text_id == self.db.text.c.old_id)
-            s.append_column(self.db.text.c.old_text)
+            s = s.column(self.db.text.c.old_text)
         if "tags" in prop:
             tag = self.db.tag
             tgar = self.db.tagged_archived_revision
@@ -95,7 +95,7 @@ class DeletedRevisions(SelectBase):
                             .group_by(tgar.c.tgar_rev_id) \
                             .cte("tag_names")
             tail = tail.outerjoin(tag_names, ar.c.ar_rev_id == tag_names.c.tgar_rev_id)
-            s.append_column(tag_names.c.tag_names)
+            s = s.column(tag_names.c.tag_names)
         if "tag" in params:
             tag = self.db.tag
             tgar = self.db.tagged_archived_revision

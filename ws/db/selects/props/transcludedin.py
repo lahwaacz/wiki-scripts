@@ -45,16 +45,16 @@ class TranscludedIn(SelectBase):
             tail = tail.outerjoin(nss, src_page.c.page_namespace == nss.c.nss_id)
 
         if "pageid" in params["prop"]:
-            s.append_column(tl.c.tl_from.label("src_pageid"))
+            s = s.column(tl.c.tl_from.label("src_pageid"))
         else:
             # used to check for null entries from outer join
-            s.append_column(tl.c.tl_from)
+            s = s.column(tl.c.tl_from)
         if "title" in params["prop"]:
-            s.append_column(src_page.c.page_namespace.label("src_namespace"))
-            s.append_column(src_page.c.page_title.label("src_title"))
-            s.append_column(nss.c.nss_name.label("src_nss_name"))
+            s = s.column(src_page.c.page_namespace.label("src_namespace"))
+            s = s.column(src_page.c.page_title.label("src_title"))
+            s = s.column(nss.c.nss_name.label("src_nss_name"))
         if "redirect" in params["prop"]:
-            s.append_column(src_page.c.page_is_redirect.label("src_page_is_redirect"))
+            s = s.column(src_page.c.page_is_redirect.label("src_page_is_redirect"))
 
         # restrictions
         if "namespace" in params:

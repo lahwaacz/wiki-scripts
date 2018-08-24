@@ -63,30 +63,30 @@ class Revisions(SelectBase):
 
         prop = params["prop"]
         if "user" in prop:
-            s.append_column(rev.c.rev_user_text)
+            s = s.column(rev.c.rev_user_text)
         if "userid" in prop:
-            s.append_column(rev.c.rev_user)
+            s = s.column(rev.c.rev_user)
         if "comment" in prop:
-            s.append_column(rev.c.rev_comment)
+            s = s.column(rev.c.rev_comment)
         if "flags" in prop:
-            s.append_column(rev.c.rev_minor_edit)
+            s = s.column(rev.c.rev_minor_edit)
         if "timestamp" in prop:
-            s.append_column(rev.c.rev_timestamp)
+            s = s.column(rev.c.rev_timestamp)
         if "ids" in prop:
-            s.append_column(rev.c.rev_id)
-            s.append_column(rev.c.rev_parent_id)
+            s = s.column(rev.c.rev_id)
+            s = s.column(rev.c.rev_parent_id)
         if "size" in prop:
-            s.append_column(rev.c.rev_len)
+            s = s.column(rev.c.rev_len)
         if "sha1" in prop:
-            s.append_column(rev.c.rev_sha1)
+            s = s.column(rev.c.rev_sha1)
         if "contentmodel" in prop:
-            s.append_column(rev.c.rev_content_model)
-            s.append_column(rev.c.rev_content_format)
+            s = s.column(rev.c.rev_content_model)
+            s = s.column(rev.c.rev_content_format)
 
         # joins
         if "content" in prop:
             tail = tail.outerjoin(self.db.text, rev.c.rev_text_id == self.db.text.c.old_id)
-            s.append_column(self.db.text.c.old_text)
+            s = s.column(self.db.text.c.old_text)
         if "tags" in prop:
             tag = self.db.tag
             tgrev = self.db.tagged_revision
@@ -99,7 +99,7 @@ class Revisions(SelectBase):
                             .group_by(tgrev.c.tgrev_rev_id) \
                             .cte("tag_names")
             tail = tail.outerjoin(tag_names, rev.c.rev_id == tag_names.c.tgrev_rev_id)
-            s.append_column(tag_names.c.tag_names)
+            s = s.column(tag_names.c.tag_names)
 
         # restrictions
         if params["dir"] == "older":

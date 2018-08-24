@@ -37,8 +37,8 @@ class PageProps(SelectBase):
         nested_sel = nested_sel.alias("requested_page_props")
         tail = tail.outerjoin(nested_sel, page.c.page_id == nested_sel.c.pp_page)
 
-        s.append_column(nested_sel.c.pp_propname)
-        s.append_column(nested_sel.c.pp_value)
+        s = s.column(nested_sel.c.pp_propname)
+        s = s.column(nested_sel.c.pp_value)
 
         return s, tail
 

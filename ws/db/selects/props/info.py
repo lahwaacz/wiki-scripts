@@ -42,28 +42,28 @@ class Info(SelectBase):
         pp = self.db.page_props
 
         # omnipresent info
-        s.append_column(page.c.page_is_redirect)
-        s.append_column(page.c.page_is_new)
-        s.append_column(page.c.page_touched)
-        s.append_column(page.c.page_len)
-        s.append_column(page.c.page_latest)
-        s.append_column(page.c.page_content_model)
-        s.append_column(page.c.page_lang)
+        s = s.column(page.c.page_is_redirect)
+        s = s.column(page.c.page_is_new)
+        s = s.column(page.c.page_touched)
+        s = s.column(page.c.page_len)
+        s = s.column(page.c.page_latest)
+        s = s.column(page.c.page_content_model)
+        s = s.column(page.c.page_lang)
 
         prop = params["prop"]
         if "protection" in prop:
             tail = tail.outerjoin(pr, page.c.page_id == pr.c.pr_page)
-            s.append_column(pr.c.pr_type)
-            s.append_column(pr.c.pr_level)
-            s.append_column(pr.c.pr_cascade)
-            s.append_column(pr.c.pr_expiry)
+            s = s.column(pr.c.pr_type)
+            s = s.column(pr.c.pr_level)
+            s = s.column(pr.c.pr_cascade)
+            s = s.column(pr.c.pr_expiry)
         if "displaytitle" in prop:
             # Note: nested select is needed because ppprop=invalid should not hide
             # rows with non-NULL in the pp_propname column.
             nested_sel = pp.select().where(pp.c.pp_propname == "displaytitle")
             nested_sel = nested_sel.alias("requested_page_props")
             tail = tail.outerjoin(nested_sel, page.c.page_id == nested_sel.c.pp_page)
-            s.append_column(nested_sel.c.pp_value)
+            s = s.column(nested_sel.c.pp_value)
         if "url" in prop or "talkid" in prop or "subjectid" in prop:
             raise NotImplementedError("inprop=url, inprop=talkid and inprop=subjectid parameters are not implemented yet")
 

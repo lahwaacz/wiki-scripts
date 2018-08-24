@@ -44,9 +44,9 @@ class Templates(SelectBase):
                                            (tl.c.tl_title == target_page.c.page_title))
         tail = tail.outerjoin(nss, tl.c.tl_namespace == nss.c.nss_id)
 
-        s.append_column(tl.c.tl_namespace)
-        s.append_column(tl.c.tl_title)
-        s.append_column(nss.c.nss_name.label("target_nss_name"))
+        s = s.column(tl.c.tl_namespace)
+        s = s.column(tl.c.tl_title)
+        s = s.column(nss.c.nss_name.label("target_nss_name"))
 
         # restrictions
         if "namespace" in params:
