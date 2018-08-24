@@ -17,6 +17,7 @@ from .props.pageprops import *
 from .props.revisions import *
 from .props.deletedrevisions import *
 from .props.templates import *
+from .props.transcludedin import *
 
 __classes_lists = {
     "recentchanges": RecentChanges,
@@ -48,6 +49,7 @@ __classes_props = {
     "revisions": Revisions,
     "deletedrevisions": DeletedRevisions,
     "templates": Templates,
+    "transcludedin": TranscludedIn,
 }
 
 def list(db, params):

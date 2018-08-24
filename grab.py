@@ -316,7 +316,7 @@ def check_revisions_of_main_page(api, db):
 def check_templatelinks(api, db):
     print("Checking the templatelinks table...")
 
-    prop = {"templates"}
+    prop = {"templates", "transcludedin"}
     params = {
         "generator": "allpages",
         "gaplimit": "max",
