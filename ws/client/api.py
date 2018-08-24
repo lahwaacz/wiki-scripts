@@ -242,10 +242,10 @@ class API(Connection):
         exceeding the value of ``$wgAPIMaxResultSize``.
 
         Although there is an automated query continuation via
-        :py:meth:`query_continue`, the overlapping overlapping data is not
-        squashed automatically in order to avoid keeping big data in memory
-        (this is the point of API:Generators). As a result, a page may be
-        yielded multiple times. For applications where this matters, see
+        :py:meth:`query_continue`, the overlapping data is not squashed
+        automatically in order to avoid keeping big data in memory (this is the
+        point of API:Generators). As a result, a page may be yielded multiple
+        times. For applications where this matters, see
         :py:meth:`ws.interlanguage.InterlanguageLinks.InterlanguageLinks._get_allpages`
         for an example of proper handling of this case.
         """
