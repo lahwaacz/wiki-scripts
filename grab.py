@@ -391,6 +391,22 @@ def check_interwiki_links(api, db):
     _check_lists_of_unordered_pages(db_list, api_list)
 
 
+def check_redirects(api, db):
+    print("Checking the redirects table...")
+
+    params = {
+        "generator": "allpages",
+        "gaplimit": "max",
+    }
+    prop = {"redirects"}
+    rdprop = {"pageid", "title", "fragment"}
+
+    db_list = list(db.query(**params, prop=prop, rdprop=rdprop))
+    api_list = list(api.generator(**params, prop="|".join(prop), rdprop="|".join(rdprop)))
+
+    _check_lists_of_unordered_pages(db_list, api_list)
+
+
 if __name__ == "__main__":
     import ws.config
     import ws.logging
@@ -443,3 +459,4 @@ if __name__ == "__main__":
         check_imagelinks(api, db)
         check_categorylinks(api, db)
         check_interwiki_links(api, db)
+        check_redirects(api, db)
