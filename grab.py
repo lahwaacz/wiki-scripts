@@ -29,6 +29,15 @@ def _check_lists(db_list, api_list):
     except AssertionError:
         traceback.print_exc()
 
+def _check_lists_of_unordered_pages(db_list, api_list):
+    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
+    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
+    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
+    api_list = sorted(api_list, key=lambda item: item["pageid"])
+    db_list = sorted(db_list, key=lambda item: item["pageid"])
+
+    _check_lists(db_list, api_list)
+
 
 def check_titles(api, db):
     print("Checking individual titles...")
@@ -131,21 +140,15 @@ def check_logging(api, db):
 def check_allpages(api, db):
     print("Checking the page table...")
 
-    api_params = {
+    params = {
         "list": "allpages",
         "aplimit": "max",
     }
 
-    db_list = list(db.query(list="allpages"))
-    api_list = list(api.list(api_params))
+    db_list = list(db.query(**params))
+    api_list = list(api.list(**params))
 
-    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
-    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
-    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
-    api_list.sort(key=lambda item: item["pageid"])
-    db_list.sort(key=lambda item: item["pageid"])
-
-    _check_lists(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list)
 
 
 def check_info(api, db):
@@ -161,12 +164,6 @@ def check_info(api, db):
     db_list = list(db.query(**params, inprop=inprop))
     api_list = list(api.generator(**params, inprop="|".join(inprop)))
 
-    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
-    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
-    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
-    api_list.sort(key=lambda item: item["pageid"])
-    db_list.sort(key=lambda item: item["pageid"])
-
     # fix ordering of the protection lists
     for entry in db_list:
         if "protection" in entry:
@@ -180,7 +177,7 @@ def check_info(api, db):
         del db_entry["touched"]
         del api_entry["touched"]
 
-    _check_lists(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list)
 
 
 def check_pageprops(api, db):
@@ -195,27 +192,20 @@ def check_pageprops(api, db):
     db_list = list(db.query(params))
     api_list = list(api.generator(params))
 
-    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
-    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
-    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
-    api_list.sort(key=lambda item: item["pageid"])
-    db_list.sort(key=lambda item: item["pageid"])
-
-    _check_lists(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list)
 
 
 def check_protected_titles(api, db):
     print("Checking the protected_titles table...")
 
-    prop = {"timestamp", "user", "userid", "comment", "expiry", "level"}
-    api_params = {
+    params = {
         "list": "protectedtitles",
         "ptlimit": "max",
-        "ptprop": "|".join(prop),
     }
+    prop = {"timestamp", "user", "userid", "comment", "expiry", "level"}
 
-    db_list = list(db.query(list="protectedtitles", ptprop=prop))
-    api_list = list(api.list(api_params))
+    db_list = list(db.query(**params, ptprop=prop))
+    api_list = list(api.list(**params, ptprop="|".join(prop)))
 
     for db_entry, api_entry in zip(db_list, api_list):
         # the timestamps may be off by couple of seconds, because we're looking in the logging table
@@ -280,13 +270,7 @@ def check_latest_revisions(api, db):
     db_list = list(db.query(db_params))
     api_list = list(api.generator(api_params))
 
-    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
-    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
-    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
-    api_list.sort(key=lambda item: item["pageid"])
-    db_list.sort(key=lambda item: item["pageid"])
-
-    _check_lists(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list)
 
 
 def check_revisions_of_main_page(api, db):
@@ -325,13 +309,7 @@ def check_templatelinks(api, db):
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
 
-    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
-    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
-    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
-    api_list.sort(key=lambda item: item["pageid"])
-    db_list.sort(key=lambda item: item["pageid"])
-
-    _check_lists(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list)
 
 
 def check_pagelinks(api, db):
@@ -346,13 +324,7 @@ def check_pagelinks(api, db):
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
 
-    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
-    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
-    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
-    api_list.sort(key=lambda item: item["pageid"])
-    db_list.sort(key=lambda item: item["pageid"])
-
-    _check_lists(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list)
 
 
 def check_imagelinks(api, db):
@@ -367,13 +339,7 @@ def check_imagelinks(api, db):
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
 
-    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
-    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
-    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
-    api_list.sort(key=lambda item: item["pageid"])
-    db_list.sort(key=lambda item: item["pageid"])
-
-    _check_lists(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list)
 
 
 if __name__ == "__main__":
