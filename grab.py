@@ -334,6 +334,27 @@ def check_templatelinks(api, db):
     _check_lists(db_list, api_list)
 
 
+def check_pagelinks(api, db):
+    print("Checking the pagelinks table...")
+
+    prop = {"links", "linkshere"}
+    params = {
+        "generator": "allpages",
+        "gaplimit": "max",
+    }
+
+    db_list = list(db.query(**params, prop=prop))
+    api_list = list(api.generator(**params, prop="|".join(prop)))
+
+    # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
+    # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
+    # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
+    api_list.sort(key=lambda item: item["pageid"])
+    db_list.sort(key=lambda item: item["pageid"])
+
+    _check_lists(db_list, api_list)
+
+
 if __name__ == "__main__":
     import ws.config
     import ws.logging
@@ -382,3 +403,4 @@ if __name__ == "__main__":
         db.update_parser_cache()
 
         check_templatelinks(api, db)
+        check_pagelinks(api, db)
