@@ -16,6 +16,8 @@ Unreleased
       information: https://github.com/lahwaacz/wiki-scripts/issues/35.
     - Implemented synchronization of the latest revisions contents.
     - Fixed many bugs in the synchronization process.
+    - Implemented custom parser cache, see the GitHub issue for more
+      information: https://github.com/lahwaacz/wiki-scripts/issues/42
 - Removed :py:mod:`ws.cache.LatestRevisions` module. Scripts use the SQL
   database for caching.
 - Merged several smaller scripts into ``list-problems.py``.
