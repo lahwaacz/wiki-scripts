@@ -24,7 +24,7 @@ Unreleased
 - Implemented the :py:meth:`ws.client.api.API.move` method to rename pages on
   the wiki.
 - Implemented recursive template expansion using :py:mod:`mwparserfromhell` and
-  the SQL database. See :py:func:`ws.parser_helpers.wikicode.expand_templates`.
+  the SQL database. See :py:mod:`ws.parser_helpers.template_expansion`.
 - Implemented a regex-based function to check if a page is a redirect
   (:py:func:`ws.parser_helpers.wikicode.is_redirect`).
 - Fixed handling of relative links and leading colons in the :py:class:`Title

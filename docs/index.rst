@@ -32,7 +32,7 @@ General features of the :py:mod:`ws` module:
 - Custom SQL database capable of mirroring (almost) all data stored on the wiki
   (useful e.g. for caching of expensive queries involving revisions content).
 - Recursive template expansion using :py:mod:`mwparserfromhell` and the SQL
-  database. See :py:func:`ws.parser_helpers.wikicode.expand_templates`.
+  database. See :py:mod:`ws.parser_helpers.template_expansion`.
 
 .. _API query-continuation: https://www.mediawiki.org/wiki/API:Query#Continuing_queries
 
