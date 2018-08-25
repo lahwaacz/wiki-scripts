@@ -351,9 +351,20 @@ def check_categorylinks(api, db):
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
 
-    # drop unsupported automatic categories
+    # drop unsupported automatic categories: http://w.localhost/index.php/Special:TrackingCategories
     automatic_categories = {
+        "Category:Indexed pages",
+        "Category:Noindexed pages",
+        "Category:Pages using duplicate arguments in template calls",
+        "Category:Pages with too many expensive parser function calls",
+        "Category:Pages containing omitted template arguments",
+        "Category:Pages where template include size is exceeded",
+        "Category:Hidden categories",
         "Category:Pages with broken file links",
+        "Category:Pages where node count is exceeded",
+        "Category:Pages where expansion depth is exceeded",
+        "Category:Pages with ignored display titles",
+        "Category:Pages using invalid self-closed HTML tags",
         "Category:Pages with template loops",
     }
     for page in api_list:
