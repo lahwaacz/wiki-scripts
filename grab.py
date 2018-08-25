@@ -79,15 +79,14 @@ def check_specific_titles(api, db):
 def check_recentchanges(api, db):
     print("Checking the recentchanges table...")
 
-    prop = {"title", "ids", "user", "userid", "flags", "timestamp", "comment", "sizes", "loginfo", "patrolled", "sha1", "redirect", "tags"}
-    api_params = {
+    params = {
         "list": "recentchanges",
-        "rcprop": "|".join(prop),
         "rclimit": "max",
     }
+    rcprop = {"title", "ids", "user", "userid", "flags", "timestamp", "comment", "sizes", "loginfo", "patrolled", "sha1", "redirect", "tags"}
 
-    db_list = list(db.query(list="recentchanges", rcprop=prop))
-    api_list = list(api.list(api_params))
+    db_list = list(db.query(**params, rcprop=rcprop))
+    api_list = list(api.list(**params, rcprop="|".join(rcprop)))
 
     # FIXME: some deleted pages stay in recentchanges, although according to the tests they should be deleted
     s = sa.select([db.page.c.page_id])
@@ -124,15 +123,14 @@ def check_recentchanges(api, db):
 def check_logging(api, db):
     print("Checking the logging table...")
 
-    prop = {"user", "userid", "comment", "timestamp", "title", "ids", "type", "details", "tags"}
-    api_params = {
+    params = {
         "list": "logevents",
-        "leprop": "|".join(prop),
         "lelimit": "max",
     }
+    leprop = {"user", "userid", "comment", "timestamp", "title", "ids", "type", "details", "tags"}
 
-    db_list = list(db.query(list="logevents", leprop=prop))
-    api_list = list(api.list(api_params))
+    db_list = list(db.query(**params, leprop=leprop))
+    api_list = list(api.list(**params, leprop="|".join(leprop)))
 
     _check_lists(db_list, api_list)
 
@@ -202,10 +200,10 @@ def check_protected_titles(api, db):
         "list": "protectedtitles",
         "ptlimit": "max",
     }
-    prop = {"timestamp", "user", "userid", "comment", "expiry", "level"}
+    ptprop = {"timestamp", "user", "userid", "comment", "expiry", "level"}
 
-    db_list = list(db.query(**params, ptprop=prop))
-    api_list = list(api.list(**params, ptprop="|".join(prop)))
+    db_list = list(db.query(**params, ptprop=ptprop))
+    api_list = list(api.list(**params, ptprop="|".join(ptprop)))
 
     for db_entry, api_entry in zip(db_list, api_list):
         # the timestamps may be off by couple of seconds, because we're looking in the logging table
@@ -221,17 +219,16 @@ def check_revisions(api, db):
 
     since = datetime.datetime.utcnow() - datetime.timedelta(days=30)
 
-    prop = {"ids", "flags", "timestamp", "user", "userid", "size", "sha1", "contentmodel", "comment", "tags"}
-    api_params = {
+    params = {
         "list": "allrevisions",
-        "arvprop": "|".join(prop),
         "arvlimit": "max",
         "arvdir": "newer",
         "arvstart": since,
     }
+    arvprop = {"ids", "flags", "timestamp", "user", "userid", "size", "sha1", "contentmodel", "comment", "tags"}
 
-    db_list = list(db.query(list="allrevisions", arvprop=prop, arvdir="newer", arvstart=since))
-    api_list = list(api.list(api_params))
+    db_list = list(db.query(**params, arvprop=arvprop))
+    api_list = list(api.list(**params, arvprop="|".join(arvprop)))
 
     # FIXME: hack until we have per-page grouping like MediaWiki
     api_revisions = []
@@ -300,11 +297,11 @@ def check_revisions_of_main_page(api, db):
 def check_templatelinks(api, db):
     print("Checking the templatelinks table...")
 
-    prop = {"templates", "transcludedin"}
     params = {
         "generator": "allpages",
         "gaplimit": "max",
     }
+    prop = {"templates", "transcludedin"}
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
@@ -315,11 +312,11 @@ def check_templatelinks(api, db):
 def check_pagelinks(api, db):
     print("Checking the pagelinks table...")
 
-    prop = {"links", "linkshere"}
     params = {
         "generator": "allpages",
         "gaplimit": "max",
     }
+    prop = {"links", "linkshere"}
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
@@ -330,11 +327,11 @@ def check_pagelinks(api, db):
 def check_imagelinks(api, db):
     print("Checking the imagelinks table...")
 
-    prop = {"images"}
     params = {
         "generator": "allpages",
         "gaplimit": "max",
     }
+    prop = {"images"}
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
@@ -345,11 +342,11 @@ def check_imagelinks(api, db):
 def check_categorylinks(api, db):
     print("Checking the categorylinks table...")
 
-    prop = {"categories"}
     params = {
         "generator": "allpages",
         "gaplimit": "max",
     }
+    prop = {"categories"}
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
@@ -372,11 +369,11 @@ def check_categorylinks(api, db):
 def check_interwiki_links(api, db):
     print("Checking the langlinks and iwlinks tables...")
 
-    prop = {"langlinks", "iwlinks"}
     params = {
         "generator": "allpages",
         "gaplimit": "max",
     }
+    prop = {"langlinks", "iwlinks"}
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
@@ -394,11 +391,11 @@ def check_interwiki_links(api, db):
 def check_external_links(api, db):
     print("Checking the externallinks table...")
 
-    prop = {"extlinks"}
     params = {
         "generator": "allpages",
         "gaplimit": "max",
     }
+    prop = {"extlinks"}
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
