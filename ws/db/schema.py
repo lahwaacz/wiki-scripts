@@ -538,6 +538,23 @@ def create_recomputable_tables(metadata):
     )
     Index("rd_namespace_title_from", redirect.c.rd_namespace, redirect.c.rd_title, redirect.c.rd_from)
 
+    # custom table tracking current page sections
+    section = Table("section", metadata,
+        Column("sec_page", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
+        # section number, starting from 1 (so that "section 0" can be the text between the page title and "section 1")
+        Column("sec_number", Integer, nullable=False),
+        # section level, as an integer between 1 and 6, inclusive
+        Column("sec_level", Integer, nullable=False),
+        # section title, exactly as used in the wikicode (only whitespace is stripped)
+        Column("sec_title", UnicodeText, nullable=False),
+        # section anchor, dot-encoded
+        Column("sec_anchor", UnicodeText, nullable=False),
+        PrimaryKeyConstraint("sec_page", "sec_number"),
+        CheckConstraint("sec_number > 0", name="check_sec_number"),
+        CheckConstraint("sec_level >= 1 and sec_level <= 6", name="check_sec_level"),
+    )
+    Index("sec_page_anchor", section.c.sec_page, section.c.sec_anchor, unique=True)
+
     # custom table tracking which page revision is currently in the parser cache
     # (used for invalidation of entries in the parser cache)
     ws_parser_cache_sync = Table("ws_parser_cache_sync", metadata,
