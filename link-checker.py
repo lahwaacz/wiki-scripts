@@ -1,8 +1,6 @@
 #! /usr/bin/env python3
 
-# FIXME:
-#   handle :Category and Category links properly
-#   how hard is skipping code blocks?
+# FIXME: space-initialized code blocks should be skipped, but mwparserfromhell does not support that
 
 # TODO:
 #   detect self-redirects (definitely interactive only)
