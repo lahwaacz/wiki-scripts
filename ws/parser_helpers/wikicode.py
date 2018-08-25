@@ -118,6 +118,13 @@ def get_section_headings(text):
     Extracts section headings from given text. Custom regular expression is used
     instead of :py:mod:`mwparserfromhell` for performance reasons.
 
+    .. note::
+        Known issues:
+
+        - templates are not handled (use
+          :py:func:`ws.parser_helpers.template_expansion.expand_templates`
+          prior to calling this function)
+
     :param str text: content of the wiki page
     :returns: list of section headings (without the ``=`` marks)
     """
@@ -133,10 +140,11 @@ def get_anchors(headings, pretty=False, suffix_sep="_"):
     .. note::
         Known issues:
 
-        - templates are always fully stripped (doing this right requires
-          template expansion)
-        - all tags are always stripped, even invalid tags (``mwparserfromhell``
-          is not that configurable)
+        - templates are not handled (call
+          :py:func:`ws.parser_helpers.template_expansion.expand_templates`
+          on the wikitext before extracting section headings)
+        - all tags are always stripped, even invalid tags
+          (:py:mod:`mwparserfromhell` is not that configurable)
         - if ``pretty`` is ``True``, tags escaped with <nowiki> in the input
           are not encoded in the output
 
