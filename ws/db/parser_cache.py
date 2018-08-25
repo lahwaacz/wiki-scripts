@@ -9,7 +9,7 @@ import mwparserfromhell
 
 from .selects.namespaces import get_namespaces
 from ..parser_helpers.template_expansion import expand_templates
-from ..parser_helpers.wikicode import is_redirect
+from ..parser_helpers.wikicode import get_anchors, is_redirect
 from ..parser_helpers.title import TitleError
 
 # TODO: generalize or make the language tags configurable
@@ -34,6 +34,7 @@ class ParserCache:
             "iwlinks": self.db.iwlinks.insert(),
             "externallinks": self.db.externallinks.insert(),
             "redirect": self.db.redirect.insert(),
+            "section": self.db.section.insert(),
             "ws_parser_cache_sync":
                 wspc_sync_ins.on_conflict_do_update(
                     constraint=wspc_sync.primary_key,
@@ -95,6 +96,7 @@ class ParserCache:
         conn.execute(self.db.iwlinks.delete().where(self.db.iwlinks.c.iwl_from.in_(self.invalidated_pageids)))
         conn.execute(self.db.externallinks.delete().where(self.db.externallinks.c.el_from.in_(self.invalidated_pageids)))
         conn.execute(self.db.redirect.delete().where(self.db.redirect.c.rd_from.in_(self.invalidated_pageids)))
+        conn.execute(self.db.section.delete().where(self.db.section.c.sec_page.in_(self.invalidated_pageids)))
 
     def _insert_templatelinks(self, conn, pageid, transclusions):
         db_entries = []
@@ -239,6 +241,23 @@ class ParserCache:
 
         conn.execute(self.sql_inserts["redirect"], db_entry)
 
+    def _insert_section(self, conn, pageid, levels, headings):
+        if headings:
+            anchors = get_anchors(headings)
+
+            db_entries = []
+            for i, level, title, anchor in zip(range(len(headings)), levels, headings, anchors):
+                db_entry = {
+                    "sec_page": pageid,
+                    "sec_number": i + 1,
+                    "sec_level": level,
+                    "sec_title": title,
+                    "sec_anchor": anchor,
+                }
+                db_entries.append(db_entry)
+
+            conn.execute(self.sql_inserts["section"], db_entries)
+
     def _set_sync_revid(self, conn, pageid, revid):
         """
         Set the ``pageid``, ``revid`` pair in the ``ws_parser_cache_sync`` table.
@@ -339,6 +358,14 @@ class ParserCache:
         self._insert_imagelinks(conn, pageid, imagelinks)
 
         self._insert_externallinks(conn, pageid, wikicode.filter_external_links(recursive=True))
+
+        # extract section headings
+        levels = []
+        headings = []
+        for heading in wikicode.ifilter_headings(recursive=True):
+            levels.append(heading.level)
+            headings.append(heading.title.strip())
+        self._insert_section(conn, pageid, levels, headings)
 
     def update(self):
         self.invalidated_pageids = set()
