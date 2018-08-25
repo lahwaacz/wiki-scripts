@@ -443,3 +443,41 @@ class test_magic_words(common_base):
         title = "Template:Cat main"
         expected = "The main article for this category is [[Cat main]]."
         self._do_test(title_context, d, title, expected)
+
+class test_transclusion_modifiers(common_base):
+    @pytest.mark.parametrize("modifier", ["subst", "safesubst"])
+    def test_subst_existing_template(self, title_context, modifier):
+        d = {
+            "Template:Echo": "{{{1}}}",
+            "Title": "{{$MOD$:Echo|{{Echo|foo}}}}".replace("$MOD$", modifier),
+        }
+        title = "Title"
+        expected = "foo"
+        self._do_test(title_context, d, title, expected)
+
+    @pytest.mark.parametrize("modifier", ["subst", "safesubst"])
+    def test_subst_existing_template(self, title_context, modifier):
+        d = {
+            "Echo": "{{{1}}}",
+            "Title 1": "{{$MOD$::Echo|{{:Echo|foo}}}}".replace("$MOD$", modifier),
+            "Title 2": "{{$MOD$:Echo|{{:Echo|foo}}}}".replace("$MOD$", modifier),
+        }
+
+        title = "Title 1"
+        expected = "foo"
+        self._do_test(title_context, d, title, expected)
+
+        title = "Title 2"
+        # FIXME: MediaWiki renders it like this:
+#        expected = "{{$MOD$:Echo|foo}}".replace("$MOD$", modifier)
+        expected = d[title]
+        self._do_test(title_context, d, title, expected)
+
+    @pytest.mark.parametrize("modifier", ["subst", "safesubst"])
+    def test_subst_invalid_page(self, title_context, modifier):
+        d = {
+            "Title": "{{$MOD$:Echo|foo}}".replace("$MOD$", modifier),
+        }
+        title = "Title"
+        expected = d[title]
+        self._do_test(title_context, d, title, expected)

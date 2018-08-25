@@ -399,7 +399,6 @@ def expand_templates(title, wikicode, content_getter_func, *,
     if not isinstance(wikicode, mwparserfromhell.wikicode.Wikicode):
         raise TypeError("wikicode is of type {} instead of mwparserfromhell.wikicode.Wikicode".format(type(wikicode)))
 
-    # TODO: handle transclusion modifiers: https://www.mediawiki.org/wiki/Help:Magic_words#Transclusion_modifiers
     def get_target_title(src_title, title):
         target = Title(src_title.context, title)
         if title.startswith("/"):
@@ -422,6 +421,22 @@ def expand_templates(title, wikicode, content_getter_func, *,
             expand(title, template.name, content_getter_func, visited_templates)
 
             name = str(template.name).strip()
+
+            # handle transclusion modifiers: https://www.mediawiki.org/wiki/Help:Magic_words#Transclusion_modifiers
+            # MW incompatibility: the int: modifier is not supported (it does some translation based on the content/user language)
+            original_name = name
+            if ":" in name:
+                modifier, name = name.split(":", maxsplit=1)
+                # strip modifiers which don't make a difference for template expansion
+                if modifier.lower() in {"msgnw", "subst", "safesubst"}:
+                    template.name = name
+                # TODO: handle msg: and raw: (prefer a template, but fall back to magic word)
+                else:
+                    # unhandled modifier - restore the name
+                    modifier = ""
+                    name = original_name
+            else:
+                modifier = ""
 
             # handle magic words
             if MagicWords.is_magic_word(name):
@@ -446,10 +461,14 @@ def expand_templates(title, wikicode, content_getter_func, *,
                 try:
                     content = content_getter_func(target_title)
                 except ValueError:
-                    # If the target page does not exist, MediaWiki just skips the expansion,
-                    # but it renders a wikilink to the non-existing page.
-#                    wikicode.replace(template, "[[{}]]".format(target_title))
-                    parent.replace(template, "[[{}]]".format(target_title), recursive=False)
+                    if not modifier:
+                        # If the target page does not exist, MediaWiki just skips the expansion,
+                        # but it renders a wikilink to the non-existing page.
+#                        wikicode.replace(template, "[[{}]]".format(target_title))
+                        parent.replace(template, "[[{}]]".format(target_title), recursive=False)
+                    else:
+                        # Restore the modifier, but don't render a wikilink.
+                        template.name = original_name
                     continue
 
                 # Note:
