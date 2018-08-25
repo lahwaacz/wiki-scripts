@@ -26,6 +26,7 @@ from .props.langlinks import *
 from .props.iwlinks import *
 from .props.extlinks import *
 from .props.redirects import *
+from .props.sections import *
 
 __classes_lists = {
     "recentchanges": RecentChanges,
@@ -53,7 +54,7 @@ __classes_generators = {
 __classes_props = {
     "info": Info,
     "pageprops": PageProps,
-    "latestrevisions": Revisions,
+    "latestrevisions": Revisions,  # custom module
     "revisions": Revisions,
     "deletedrevisions": DeletedRevisions,
     "templates": Templates,
@@ -66,6 +67,7 @@ __classes_props = {
     "iwlinks": InterwikiLinks,
     "extlinks": ExternalLinks,
     "redirects": Redirects,
+    "sections": Sections,  # custom module
 }
 
 def list(db, params):
