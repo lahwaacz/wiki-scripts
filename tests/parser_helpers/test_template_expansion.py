@@ -333,12 +333,19 @@ class test_expand_templates(common_base):
         self._do_test(title_context, d, title, expected)
 
 class test_magic_words(common_base):
-    def test_pagename(self, title_context):
+    def test_page_names(self, title_context):
         d = {
-            "Talk:Title": "{{PAGENAME}}",
+            "Template:Foo/Bar/Baz": "{{FULLPAGENAME}}\n{{PAGENAME}}\n{{BASEPAGENAME}}\n{{SUBPAGENAME}}\n{{SUBJECTPAGENAME}}\n{{TALKPAGENAME}}\n{{ROOTPAGENAME}}",
+            "Talk:Foo/Bar/Baz": "{{FULLPAGENAME}}\n{{PAGENAME}}\n{{BASEPAGENAME}}\n{{SUBPAGENAME}}\n{{SUBJECTPAGENAME}}\n{{TALKPAGENAME}}\n{{ROOTPAGENAME}}",
         }
-        title = "Talk:Title"
-        self._do_test(title_context, d, title, "Title")
+
+        title = "Template:Foo/Bar/Baz"
+        expected = "Template:Foo/Bar/Baz\nFoo/Bar/Baz\nFoo/Bar\nBaz\nTemplate:Foo/Bar/Baz\nTemplate talk:Foo/Bar/Baz\nFoo"
+        self._do_test(title_context, d, title, expected)
+
+        title = "Talk:Foo/Bar/Baz"
+        expected = "Talk:Foo/Bar/Baz\nFoo/Bar/Baz\nFoo/Bar\nBaz\nFoo/Bar/Baz\nTalk:Foo/Bar/Baz\nFoo"
+        self._do_test(title_context, d, title, expected)
 
     def test_encoding(self, title_context):
         d = {

@@ -243,8 +243,22 @@ class MagicWords:
 
     def get_replacement(self, magic):
         name = str(magic.name).strip()
-        if name == "PAGENAME":
+
+        if name == "FULLPAGENAME":
+            return self.src_title.fullpagename
+        elif name == "PAGENAME":
             return self.src_title.pagename
+        elif name == "BASEPAGENAME":
+            return self.src_title.basepagename
+        elif name == "SUBPAGENAME":
+            return self.src_title.subpagename
+        elif name == "SUBJECTPAGENAME" or name == "ARTICLEPAGENAME":
+            return self.src_title.articlepagename
+        elif name == "TALKPAGENAME":
+            return self.src_title.talkpagename
+        elif name == "ROOTPAGENAME":
+            return self.src_title.rootpagename
+
         elif ":" in name:
             prefix, arg = name.split(":", maxsplit=1)
             prefix = prefix.lower()
