@@ -26,7 +26,7 @@ from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.encodings import dotencode, queryencode
 from ws.parser_helpers.title import canonicalize, TitleError
-from ws.parser_helpers.wikicode import get_section_headings, get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template
+from ws.parser_helpers.wikicode import get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template
 
 logger = logging.getLogger(__name__)
 
@@ -428,26 +428,19 @@ class WikilinkRules:
                 logger.warning("warning: section fragment placed on a redirect to possibly different section: {}".format(wikilink))
                 anchor_on_redirect_to_section = True
 
-        # FIXME: indecisive due to missing expansion of transclusions
-        if _target_title.fullpagename.startswith("List of applications"):
-            return None
-
-        # lookup target page content
-        # TODO: pulling revisions from the database does not expand templates which is needed for pages like [[List of applications]]
-        _result = self.db.query(titles=_target_title.fullpagename, prop="latestrevisions", rvprop={"content"})
+        # get lists of section headings and anchors
+        _result = self.db.query(titles=_target_title.fullpagename, prop="sections", secprop={"title", "anchor"})
         _result = list(_result)
         assert len(_result) == 1
         if "missing" in _result[0]:
             logger.error("could not find content of page: '{}' (wikilink {})".format(_target_title.fullpagename, wikilink))
             return None
-        text = _result[0]["revisions"][0]["*"]
+        headings = [section["title"] for section in _result[0]["sections"]]
+        anchors = [section["anchor"] for section in _result[0]["sections"]]
 
-        # get lists of section headings and anchors
-        headings = get_section_headings(text)
         if len(headings) == 0:
             logger.warning("wikilink with broken section fragment: {}".format(wikilink))
             return False
-        anchors = get_anchors(headings)
 
         anchor = dotencode(title.sectionname)
         needs_fix = True
@@ -709,6 +702,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
 
         self.db.sync_with_api(api)
         self.db.sync_latest_revisions_content(api)
+        self.db.update_parser_cache()
 
     @staticmethod
     def set_argparser(argparser):
