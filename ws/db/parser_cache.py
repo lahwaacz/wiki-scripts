@@ -313,7 +313,7 @@ class ParserCache:
         self._insert_templatelinks(conn, pageid, transclusions)
 
         # parse redirect using regex-based parser helper
-        if is_redirect(content):
+        if is_redirect(str(wikicode)):
             # the redirect target is just the first wikilink
             redirect_target = wikicode.filter_wikilinks()[0]
             self._insert_redirect(conn, pageid, self.db.Title(str(redirect_target.title)))
