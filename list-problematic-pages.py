@@ -1,13 +1,10 @@
 #! /usr/bin/env python3
 
-# TODO:
-#   pulling revisions from cache does not expand templates (transclusions like on List of applications)
-#   finally merge into link-checker.py, broken stuff should be just reported
+# TODO: create an on-wiki report using AutoPage
 
 from ws.client import API
 from ws.db.database import Database
 from ws.parser_helpers.encodings import dotencode
-from ws.parser_helpers.wikicode import get_section_headings, get_anchors
 import ws.ArchWiki.lang as lang
 
 def valid_sectionname(db, title):
@@ -28,20 +25,14 @@ def valid_sectionname(db, title):
     if title.iwprefix:
         return True
 
-    # TODO: limitation of the cache, we can easily check only the main namespace
-    if title.namespace != "":
-        return True
-
     # empty sectionname is always valid
     if title.sectionname == "":
         return True
 
-    result = db.query(titles=title.fullpagename, prop="latestrevisions", rvprop={"content"})
-    result = list(result)
-    text = result[0]["revisions"][0]["*"]
-
     # get list of valid anchors
-    anchors = get_anchors(get_section_headings(text))
+    result = db.query(titles=title.fullpagename, prop="sections", secprop={"anchor"})
+    page = next(result)
+    anchors = [section["anchor"] for section in page.get("sections", [])]
 
     # encode the given anchor and validate
     return dotencode(title.sectionname) in anchors
@@ -49,6 +40,7 @@ def valid_sectionname(db, title):
 def list_redirects_broken_fragments(api, db):
     db.sync_with_api(api)
     db.sync_latest_revisions_content(api)
+    db.update_parser_cache()
 
     # limit to redirects pointing to the content namespaces
     redirects = api.redirects.fetch(target_namespaces=[0, 4, 12])
