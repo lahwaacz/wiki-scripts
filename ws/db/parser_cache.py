@@ -377,6 +377,10 @@ class ParserCache:
             self._invalidate(conn)
         logger.debug("Invalidated pageids: {}".format(self.invalidated_pageids))
 
+        if not self.invalidated_pageids:
+            logger.info("ParserCache: All latest revisions have already been parsed.")
+            return
+
         logger.info("ParserCache: Parsing new content...")
 
         def parse_namespace(ns):
