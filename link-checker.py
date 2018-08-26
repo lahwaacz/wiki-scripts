@@ -285,6 +285,10 @@ class WikilinkRules:
         except TitleError:
             return
 
+        # skip links to sections ([[#Foo|Foo]] should remain even if `Foo` redirects to `This page#Foo`)
+        if not title.pagename:
+            return
+
         # handle relative links properly
         # (we assume that subpages are enabled for all namespaces)
         title = title.make_absolute(src_title)
