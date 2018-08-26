@@ -53,14 +53,15 @@ class Sections(SelectBase):
 
     @classmethod
     def db_to_api_subentry(klass, page, row):
-        sections = page.setdefault("sections", [])
         entry = {}
-        if "sec_number" in row:
+        if "sec_number" in row and row["sec_number"] is not None:
             entry["number"] = row["sec_number"]
-        if "sec_level" in row:
+        if "sec_level" in row and row["sec_level"] is not None:
             entry["level"] = row["sec_level"]
-        if "sec_title" in row:
+        if "sec_title" in row and row["sec_title"] is not None:
             entry["title"] = row["sec_title"]
-        if "sec_anchor" in row:
+        if "sec_anchor" in row and row["sec_anchor"] is not None:
             entry["anchor"] = row["sec_anchor"]
-        sections.append(entry)
+        if entry:
+            sections = page.setdefault("sections", [])
+            sections.append(entry)
