@@ -6,6 +6,7 @@ from ws.client.api import LoginFailed
 
 # TODO: pytest attribute
 #@attr(speed="slow")
+@pytest.mark.skip(reason="The api fixture was removed.")
 class test_site:
     """
     Tests intended mostly for detecting changes in the ArchWiki configuration.
