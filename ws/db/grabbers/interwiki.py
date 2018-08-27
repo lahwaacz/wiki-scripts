@@ -42,15 +42,12 @@ class GrabberInterwiki(GrabberBase):
 
     def _transform_logevent_params(self, params):
         # see extensions/Interwiki/Interwiki_body.php line with "$log->addEntry" for the format of the data
-        db_entry = {}
-        if "0" in params:
-            db_entry["iw_prefix"] = params["0"]
-        if "1" in params:
-            db_entry["iw_url"] = params["1"]
-        if "2" in params:
-            db_entry["iw_trans"] = bool(int(params["2"]))
-        if "3" in params:
-            db_entry["iw_local"] = bool(int(params["3"]))
+        db_entry = {
+            "iw_prefix": params.get("0"),
+            "iw_url": params.get("1"),
+            "iw_trans": bool(int(params["2"])) if "2" in params else None,
+            "iw_local": bool(int(params["3"])) if "3" in params else None,
+        }
         return db_entry
 
     def gen_update(self, since):
