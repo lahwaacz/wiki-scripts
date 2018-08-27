@@ -300,6 +300,8 @@ def check_templatelinks(api, db):
     params = {
         "generator": "allpages",
         "gaplimit": "max",
+        "tllimit": "max",
+        "tilimit": "max",
     }
     prop = {"templates", "transcludedin"}
 
@@ -315,6 +317,8 @@ def check_pagelinks(api, db):
     params = {
         "generator": "allpages",
         "gaplimit": "max",
+        "pllimit": "max",
+        "lhlimit": "max",
     }
     prop = {"links", "linkshere"}
 
@@ -330,6 +334,7 @@ def check_imagelinks(api, db):
     params = {
         "generator": "allpages",
         "gaplimit": "max",
+        "imlimit": "max",
     }
     prop = {"images"}
 
@@ -345,6 +350,7 @@ def check_categorylinks(api, db):
     params = {
         "generator": "allpages",
         "gaplimit": "max",
+        "cllimit": "max",
     }
     prop = {"categories"}
 
@@ -383,6 +389,8 @@ def check_interwiki_links(api, db):
     params = {
         "generator": "allpages",
         "gaplimit": "max",
+        "iwlimit": "max",
+        "lllimit": "max",
     }
     prop = {"langlinks", "iwlinks"}
 
@@ -405,6 +413,7 @@ def check_external_links(api, db):
     params = {
         "generator": "allpages",
         "gaplimit": "max",
+        "ellimit": "max",
     }
     prop = {"extlinks"}
 
@@ -425,6 +434,7 @@ def check_redirects(api, db):
     params = {
         "generator": "allpages",
         "gaplimit": "max",
+        "rdlimit": "max",
     }
     prop = {"redirects"}
     rdprop = {"pageid", "title", "fragment"}
