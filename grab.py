@@ -5,6 +5,7 @@ import datetime
 import traceback
 import copy
 from collections import OrderedDict
+from itertools import chain
 
 import sqlalchemy as sa
 
@@ -165,6 +166,28 @@ def check_logging(api, db):
 
     db_list = list(db.query(**params, leprop=leprop))
     api_list = list(api.list(**params, leprop="|".join(leprop)))
+
+    _check_lists(db_list, api_list)
+
+
+def check_users(api, db):
+    print("Checking the user table...")
+
+    params = {
+        "list": "allusers",
+        "aulimit": "max",
+    }
+    auprop = {"groups", "blockinfo", "registration", "editcount"}
+
+    db_list = list(db.query(**params, auprop=auprop))
+    api_list = list(api.list(**params, auprop="|".join(auprop)))
+
+    # skip the "Anynymous" dummy user residing in MediaWiki running on PostgreSQL
+    api_list = [user for user in api_list if user["userid"] > 0]
+
+    # sort user groups - neither we or MediaWiki do that
+    for user in chain(db_list, api_list):
+        user["groups"].sort()
 
     _check_lists(db_list, api_list)
 
@@ -546,6 +569,7 @@ if __name__ == "__main__":
 
         check_recentchanges(api, db)
         check_logging(api, db)
+        check_users(api, db)
         check_allpages(api, db)
         check_info(api, db)
         check_pageprops(api, db)
