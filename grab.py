@@ -220,17 +220,13 @@ def check_info(api, db):
     api_list = list(api.generator(**params, inprop="|".join(inprop)))
 
     # fix ordering of the protection lists
-    for entry in db_list:
-        if "protection" in entry:
-            entry["protection"].sort(key=lambda p: p["type"])
-    for entry in api_list:
+    for entry in chain(db_list, api_list):
         if "protection" in entry:
             entry["protection"].sort(key=lambda p: p["type"])
 
     # FIXME: we can't assert page_touched because we track only page edits, not cache invalidations...
-    for db_entry, api_entry in zip(db_list, api_list):
-        del db_entry["touched"]
-        del api_entry["touched"]
+    for entry in chain(db_list, api_list):
+        del entry["touched"]
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
@@ -300,9 +296,7 @@ def check_revisions(api, db):
 
     # FIXME: WTF, MediaWiki does not restore rev_parent_id when undeleting...
     # https://phabricator.wikimedia.org/T183375
-    for rev in db_list:
-        del rev["parentid"]
-    for rev in api_list:
+    for rev in chain(db_list, api_list):
         del rev["parentid"]
 
     _check_lists(db_list, api_list)
