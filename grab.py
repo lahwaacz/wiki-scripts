@@ -342,6 +342,11 @@ def check_templatelinks(api, db):
     api_list = list(api.generator(**params, prop="|".join(prop)))
     api_list = _squash_api_list(api_list)
 
+    # sort the templates and templatelinks due to different locale (e.g. "Template:Related2" should come after "Template:Related")
+    for entry in api_list:
+        entry.get("templates", []).sort(key=lambda t: (t["ns"], t["title"]))
+        entry.get("transcludedin", []).sort(key=lambda t: (t["ns"], t["title"]))
+
     _check_lists_of_unordered_pages(db_list, api_list)
 
 
@@ -435,12 +440,19 @@ def check_interwiki_links(api, db):
     api_list = list(api.generator(**params, prop="|".join(prop)))
     api_list = _squash_api_list(api_list)
 
-    # we store spaces instead of underscores in the database
+    # In our database, we store spaces instead of underscores and capitalize first letter.
+    def ucfirst(s):
+        if s:
+            return s[0].upper() + s[1:]
+        return s
     for page in api_list:
         for langlink in page.get("langlinks", []):
-            langlink["*"] = langlink["*"].replace("_", " ")
+            langlink["*"] = ucfirst(langlink["*"].replace("_", " "))
         for iwlink in page.get("iwlinks", []):
-            iwlink["*"] = iwlink["*"].replace("_", " ")
+            iwlink["*"] = ucfirst(iwlink["*"].replace("_", " "))
+        # fix sorting due to different locale
+        page.get("langlinks", []).sort(key=lambda d: (d["lang"], d["*"]))
+        page.get("iwlinks", []).sort(key=lambda d: (d["prefix"], d["*"]))
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
@@ -459,10 +471,17 @@ def check_external_links(api, db):
     api_list = list(api.generator(**params, prop="|".join(prop)))
     api_list = _squash_api_list(api_list)
 
-    # MediaWiki does not order the URLs
+    for page in db_list:
+        if "extlinks" in page:
+            # MediaWiki does not track external links to itself
+            page["extlinks"] = [el for el in page["extlinks"] if not el["*"].startswith(api.index_url)]
     for page in api_list:
         if "extlinks" in page:
+            # MediaWiki does not order the URLs
             page["extlinks"].sort(key=lambda d: d["*"])
+            # MediaWiki has some characters URL-encoded and others decoded
+            for el in page["extlinks"]:
+                el["*"] = urldecode(el["*"])
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
