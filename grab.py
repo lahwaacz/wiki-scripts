@@ -17,16 +17,17 @@ from ws.parser_helpers.encodings import urldecode
 
 
 def _pprint_diff(i, db_entry, api_entry):
+    # diff shows just the difference
+    db_f = pformat(db_entry)
+    api_f = pformat(api_entry)
+    print(ws.diff.diff_highlighted(db_f, api_f, "db_entry", "api_entry"))
+
     # full entries are needed for context
     print("db_entry no. {}:".format(i))
     pprint(db_entry)
     print("api_entry no. {}:".format(i))
     pprint(api_entry)
-
-    # diff shows just the difference
-    db_f = pformat(db_entry)
-    api_f = pformat(api_entry)
-    print(ws.diff.diff_highlighted(db_f, api_f, "db_entry", "api_entry"))
+    print()
 
 def _check_entries(i, db_entry, api_entry):
     try:
