@@ -530,12 +530,11 @@ def create_recomputable_tables(metadata):
     # tracks targets of redirect pages
     redirect = Table("redirect", metadata,
         Column("rd_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), primary_key=True, nullable=False),
-        # we set rd_namespace to NULL for interwiki redirects
+        # we set rd_namespace to NULL for interwiki redirects; redirects to the Special: and Media: namespaces may be tracked as well
         Column("rd_namespace", Integer, ForeignKey("namespace.ns_id")),
         Column("rd_title", UnicodeText, nullable=False),
         Column("rd_interwiki", UnicodeText, ForeignKey("interwiki.iw_prefix")),
         Column("rd_fragment", UnicodeText),
-        CheckConstraint("rd_namespace >= 0", name="check_namespace"),
     )
     Index("rd_namespace_title_from", redirect.c.rd_namespace, redirect.c.rd_title, redirect.c.rd_from)
 
