@@ -11,6 +11,7 @@ from .selects.namespaces import get_namespaces
 from ..parser_helpers.template_expansion import expand_templates
 from ..parser_helpers.wikicode import get_anchors, is_redirect
 from ..parser_helpers.title import TitleError
+from ..parser_helpers.encodings import urldecode
 
 # TODO: generalize or make the language tags configurable
 from ws.ArchWiki.lang import get_language_tags
@@ -359,7 +360,26 @@ class ParserCache:
         self._insert_langlinks(conn, pageid, langlinks)
         self._insert_imagelinks(conn, pageid, imagelinks)
 
-        self._insert_externallinks(conn, pageid, wikicode.filter_external_links(recursive=True))
+        extlinks = wikicode.filter_external_links(recursive=True)
+
+        # normalize URLs
+        for el in extlinks:
+            # replace HTML entities like "&#61" with their unicode equivalents
+            # TODO: should this be done on the whole wikicode?
+            for entity in el.url.ifilter_html_entities():
+                el.url.replace(entity, entity.normalize())
+            # decode percent-encoding
+            # MW incompatibility: MediaWiki decodes only some characters, spaces and some unicode characters with accents are encoded
+            # FIXME: unicode decoding failed on [[User talk:WikiRuiCong]]
+            try:
+                el.url = urldecode(str(el.url))
+            except UnicodeDecodeError:
+                pass
+        # skip empty URLs like "http://" or "https://"
+        # TODO: this is a workaround for https://github.com/earwig/mwparserfromhell/issues/196
+        extlinks = [el for el in extlinks if el.url.strip() not in {"http://", "https://", "ftp://"}]
+
+        self._insert_externallinks(conn, pageid, extlinks)
 
         # extract section headings
         levels = []
