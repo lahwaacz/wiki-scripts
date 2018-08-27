@@ -61,14 +61,14 @@ def _check_lists_of_unordered_pages(db_list, api_list):
     _check_lists(db_list, api_list)
 
 # pages may be yielded multiple times, so we need to merge them manually
-def _squash_api_list(api_list):
+def _squash_list_of_dicts(api_list, *, key="pageid"):
     api_dict = OrderedDict()
-    for page in api_list:
-        pageid = page["pageid"]
-        if pageid not in api_dict:
-            api_dict[pageid] = page
+    for item in api_list:
+        key_value = item[key]
+        if key_value not in api_dict:
+            api_dict[key_value] = item
         else:
-            dmerge(page, api_dict[pageid])
+            dmerge(item, api_dict[key_value])
     return list(api_dict.values())
 
 
@@ -340,7 +340,7 @@ def check_templatelinks(api, db):
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
-    api_list = _squash_api_list(api_list)
+    api_list = _squash_list_of_dicts(api_list)
 
     # sort the templates and templatelinks due to different locale (e.g. "Template:Related2" should come after "Template:Related")
     for entry in api_list:
@@ -363,7 +363,7 @@ def check_pagelinks(api, db):
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
-    api_list = _squash_api_list(api_list)
+    api_list = _squash_list_of_dicts(api_list)
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
@@ -380,7 +380,7 @@ def check_imagelinks(api, db):
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
-    api_list = _squash_api_list(api_list)
+    api_list = _squash_list_of_dicts(api_list)
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
@@ -397,7 +397,7 @@ def check_categorylinks(api, db):
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
-    api_list = _squash_api_list(api_list)
+    api_list = _squash_list_of_dicts(api_list)
 
     # drop unsupported automatic categories: http://w.localhost/index.php/Special:TrackingCategories
     automatic_categories = {
@@ -438,7 +438,7 @@ def check_interwiki_links(api, db):
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
-    api_list = _squash_api_list(api_list)
+    api_list = _squash_list_of_dicts(api_list)
 
     # In our database, we store spaces instead of underscores and capitalize first letter.
     def ucfirst(s):
@@ -469,7 +469,7 @@ def check_external_links(api, db):
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
-    api_list = _squash_api_list(api_list)
+    api_list = _squash_list_of_dicts(api_list)
 
     for page in db_list:
         if "extlinks" in page:
@@ -499,7 +499,7 @@ def check_redirects(api, db):
 
     db_list = list(db.query(**params, prop=prop, rdprop=rdprop))
     api_list = list(api.generator(**params, prop="|".join(prop), rdprop="|".join(rdprop)))
-    api_list = _squash_api_list(api_list)
+    api_list = _squash_list_of_dicts(api_list)
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
