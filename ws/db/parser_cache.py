@@ -315,9 +315,12 @@ class ParserCache:
 
         # parse redirect using regex-based parser helper
         if is_redirect(str(wikicode)):
+            page_is_redirect = True
             # the redirect target is just the first wikilink
             redirect_target = wikicode.filter_wikilinks()[0]
             self._insert_redirect(conn, pageid, self.db.Title(str(redirect_target.title)))
+        else:
+            page_is_redirect = False
 
         pagelinks = []
         imagelinks = []
@@ -326,33 +329,44 @@ class ParserCache:
         iwlinks = []
 
         # classify all wikilinks
-        for wl in wikicode.ifilter_wikilinks(recursive=True):
+        for i, wl in enumerate(wikicode.ifilter_wikilinks(recursive=True)):
             try:
                 target = self.db.Title(wl.title).make_absolute(title)
             except TitleError:
                 logger.error("ParserCache: wikilink {} leads to an invalid title. Missing magic word implementation?".format(wl))
                 continue
+
             if target.iwprefix:
                 # language links are special only in article namespaces, not in talk namespaces
                 if target.iwprefix in get_language_tags() and title.namespace == title.articlespace:
                     langlinks.append(target)
                 else:
                     iwlinks.append(target)
-            elif target.namespacenumber == -2:
-                # MediaWiki treats all links to the Media: namespace as imagelinks
-                imagelinks.append(target)
-            elif target.namespacenumber == 6 and not target.leading_colon:
-                imagelinks.append(target)
-            elif target.namespacenumber == 14 and not target.leading_colon:
-                # MW incompatibility: category links for automatic categories like
-                # "Pages with broken file links" are not supported
-                categorylinks.append( (target, str(wl.text) if wl.text else "") )
-            else:
-                # MediaWiki does not track links to itself
-                if target.namespace != title.namespace or target.pagename != title.pagename:
-                    # MediaWiki does not track links to the Special: and Media: namespaces
-                    if target.namespacenumber >= 0:
-                        pagelinks.append(target)
+                continue
+
+            # redirects to special namespaces are not treated as special
+            elif page_is_redirect is False or i > 0:
+                # TODO: redirect to a Media: namespace actually triggers an exception in MediaWiki when one attempts to visit the page, so file a bug report
+                if target.namespacenumber == -2:
+                    # MediaWiki treats all links to the Media: namespace as imagelinks
+                    imagelinks.append(target)
+                    continue
+                elif target.namespacenumber == 6 and not target.leading_colon:
+                    imagelinks.append(target)
+                    continue
+                elif target.namespacenumber == 14 and not target.leading_colon:
+                    # MW incompatibility: category links for automatic categories like
+                    # "Pages with broken file links" are not supported
+                    categorylinks.append( (target, str(wl.text) if wl.text else "") )
+                    continue
+
+            # MediaWiki does not track links to itself
+            if target.namespace != title.namespace or target.pagename != title.pagename:
+                # MediaWiki does not track links to the Special: namespace, Media: is treated like File:
+                if target.namespacenumber == -2:
+                    target.namespace = target.context.namespaces[6]["*"]
+                if target.namespacenumber >= 0:
+                    pagelinks.append(target)
 
         self._insert_pagelinks(conn, pageid, pagelinks)
         self._insert_iwlinks(conn, pageid, iwlinks)
