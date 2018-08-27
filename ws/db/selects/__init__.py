@@ -11,6 +11,7 @@ from .lists.allpages import *
 from .lists.protectedtitles import *
 from .lists.allrevisions import *
 from .lists.alldeletedrevisions import *
+from .lists.allusers import *
 
 from .props.info import *
 from .props.pageprops import *
@@ -35,6 +36,7 @@ __classes_lists = {
     "protectedtitles": ProtectedTitles,
     "allrevisions": AllRevisions,
     "alldeletedrevisions": AllDeletedRevisions,
+    "allusers": AllUsers,
 }
 
 # TODO: generator=allpages works, check the others
