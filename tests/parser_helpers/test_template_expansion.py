@@ -332,6 +332,47 @@ class test_expand_templates(common_base):
         expected = "{{{1}}}"
         self._do_test(title_context, d, title, expected)
 
+    def test_transclusion_of_redirect(self, title_context):
+        d = {
+            "Template:A": "#redirect [[Template:B]]",
+            "Template:B": "foo",
+            "Title": "{{a}}",
+        }
+        title = "Title"
+        expected = "foo"
+        self._do_test(title_context, d, title, expected)
+
+    def test_transclusion_of_invalid_redirect(self, title_context):
+        d = {
+            "Template:A": "#redirect [[Template:B]]",
+            "Title": "{{a}}",
+        }
+        title = "Title"
+        expected = "#redirect [[Template:B]]"
+        self._do_test(title_context, d, title, expected)
+
+    def test_transclusion_of_double_redirect(self, title_context):
+        d = {
+            "Template:A": "#redirect [[Template:B]]",
+            "Template:B": "#redirect [[Template:C]]",
+            "Template:C": "foo",
+            "Title": "{{a}}",
+        }
+        title = "Title"
+        expected = "foo"
+        self._do_test(title_context, d, title, expected)
+
+    def test_transclusion_of_redirect_loop(self, title_context):
+        d = {
+            "Template:A": "#redirect [[Template:B]]",
+            "Template:B": "#redirect [[Template:C]]",
+            "Template:C": "#redirect [[Template:A]]",
+            "Title": "{{a}}",
+        }
+        title = "Title"
+        expected = "#redirect [[Template:C]]"
+        self._do_test(title_context, d, title, expected)
+
 class test_magic_words(common_base):
     def test_page_names(self, title_context):
         d = {

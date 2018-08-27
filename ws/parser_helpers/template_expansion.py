@@ -6,7 +6,7 @@ import mwparserfromhell
 
 from . import encodings
 from .title import Title, TitleError
-from .wikicode import parented_ifilter
+from .wikicode import parented_ifilter, is_redirect
 
 logger = logging.getLogger(__name__)
 
@@ -484,6 +484,26 @@ def expand_templates(title, wikicode, content_getter_func, *,
                         # Restore the modifier, but don't render a wikilink.
                         template.name = original_name
                     continue
+
+                # handle transclusion of redirects, protecting against infinite loops
+                _requested_pages = set()
+                # Fortunately, even MediaWiki is not that crazy to treat things like "#{{echo|redirect}} [[foo]]",
+                # "#redirect {{echo|[[foo]]}}" or "#redirect [[{{echo|foo}}]]" as redirects.
+                while is_redirect(content):
+                    _wikicode = mwparserfromhell.parse(content)
+                    # the redirect target is just the first wikilink
+                    _redirect_target = _wikicode.filter_wikilinks()[0]
+                    _redirect_target = str(_redirect_target.title)
+                    try:
+                        content = content_getter_func(Title(title.context, _redirect_target))
+                    except ValueError:
+                        # if the redirect does not point to a valid page, MediaWiki just renders
+                        # "#redirect [[Foo]]" as a normal wikicode
+                        pass
+                    # protect against infinite redirect loop
+                    if _redirect_target in _requested_pages:
+                        break
+                    _requested_pages.add(_redirect_target)
 
                 # Note:
                 # MW has a special case when the first character produced by the template is one of ":;*#", MediaWiki inserts a linebreak
