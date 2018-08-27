@@ -1,31 +1,53 @@
-from pprint import pprint
+#! /usr/bin/env python3
+
+from pprint import pprint, pformat
 import datetime
 import traceback
 import copy
+from collections import OrderedDict
 
 import sqlalchemy as sa
 
 from ws.client import API
 from ws.interactive import require_login
 from ws.db.database import Database
+from ws.utils.containers import dmerge
+import ws.diff
+from ws.parser_helpers.encodings import urldecode
 
+
+def _pprint_diff(i, db_entry, api_entry):
+    # full entries are needed for context
+    print("db_entry no. {}:".format(i))
+    pprint(db_entry)
+    print("api_entry no. {}:".format(i))
+    pprint(api_entry)
+
+    # diff shows just the difference
+    db_f = pformat(db_entry)
+    api_f = pformat(api_entry)
+    print(ws.diff.diff_highlighted(db_f, api_f, "db_entry", "api_entry"))
 
 def _check_entries(i, db_entry, api_entry):
     try:
         assert db_entry == api_entry
     except AssertionError:
-        print("db_entry no. {}:".format(i))
-        pprint(db_entry)
-        print("api_entry no. {}:".format(i))
-        pprint(api_entry)
+        _pprint_diff(i, db_entry, api_entry)
         raise
 
 def _check_lists(db_list, api_list):
     try:
         assert len(db_list) == len(api_list), "{} vs. {}".format(len(db_list), len(api_list))
+        last_assert_exc = None
         for i, entries in enumerate(zip(db_list, api_list)):
             db_entry, api_entry = entries
-            _check_entries(i, db_entry, api_entry)
+            try:
+                _check_entries(i, db_entry, api_entry)
+            except AssertionError as e:
+                last_assert_exc = e
+                pass
+        if last_assert_exc is not None:
+            raise AssertionError from last_assert_exc
     except AssertionError:
         traceback.print_exc()
 
@@ -37,6 +59,17 @@ def _check_lists_of_unordered_pages(db_list, api_list):
     db_list = sorted(db_list, key=lambda item: item["pageid"])
 
     _check_lists(db_list, api_list)
+
+# pages may be yielded multiple times, so we need to merge them manually
+def _squash_api_list(api_list):
+    api_dict = OrderedDict()
+    for page in api_list:
+        pageid = page["pageid"]
+        if pageid not in api_dict:
+            api_dict[pageid] = page
+        else:
+            dmerge(page, api_dict[pageid])
+    return list(api_dict.values())
 
 
 def check_titles(api, db):
@@ -307,6 +340,7 @@ def check_templatelinks(api, db):
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
+    api_list = _squash_api_list(api_list)
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
@@ -324,6 +358,7 @@ def check_pagelinks(api, db):
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
+    api_list = _squash_api_list(api_list)
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
@@ -340,6 +375,7 @@ def check_imagelinks(api, db):
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
+    api_list = _squash_api_list(api_list)
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
@@ -356,6 +392,7 @@ def check_categorylinks(api, db):
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
+    api_list = _squash_api_list(api_list)
 
     # drop unsupported automatic categories: http://w.localhost/index.php/Special:TrackingCategories
     automatic_categories = {
@@ -396,6 +433,7 @@ def check_interwiki_links(api, db):
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
+    api_list = _squash_api_list(api_list)
 
     # we store spaces instead of underscores in the database
     for page in api_list:
@@ -419,6 +457,7 @@ def check_external_links(api, db):
 
     db_list = list(db.query(**params, prop=prop))
     api_list = list(api.generator(**params, prop="|".join(prop)))
+    api_list = _squash_api_list(api_list)
 
     # MediaWiki does not order the URLs
     for page in api_list:
@@ -441,6 +480,7 @@ def check_redirects(api, db):
 
     db_list = list(db.query(**params, prop=prop, rdprop=rdprop))
     api_list = list(api.generator(**params, prop="|".join(prop), rdprop="|".join(rdprop)))
+    api_list = _squash_api_list(api_list)
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
