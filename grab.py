@@ -365,6 +365,11 @@ def check_pagelinks(api, db):
     api_list = list(api.generator(**params, prop="|".join(prop)))
     api_list = _squash_list_of_dicts(api_list)
 
+    # fix sorting due to different locale
+    for page in api_list:
+        page.get("links", []).sort(key=lambda d: (d["ns"], d["title"]))
+        page.get("linkshere", []).sort(key=lambda d: (d["pageid"]))
+
     _check_lists_of_unordered_pages(db_list, api_list)
 
 
