@@ -28,9 +28,9 @@ def canonicalize(title):
     :returns: a :py:obj:`str` object
     """
     title = str(title).replace("_", " ").strip()
-    # strip left-to-right mark
+    # strip left-to-right and right-to-left marks
     # TODO: strip all non-printable characters?
-    title = title.replace("\u200e", "").strip()
+    title = title.replace("\u200e", "").replace("\u200f", "").strip()
     title = re.sub("( )+", "\g<1>", title)
     if title == "":
         return ""
