@@ -9,7 +9,7 @@ import mwparserfromhell
 
 from .selects.namespaces import get_namespaces
 from ..parser_helpers.template_expansion import expand_templates
-from ..parser_helpers.wikicode import get_anchors, is_redirect
+from ..parser_helpers.wikicode import get_anchors, is_redirect, parented_ifilter
 from ..parser_helpers.title import TitleError
 from ..parser_helpers.encodings import urldecode
 
@@ -17,6 +17,38 @@ from ..parser_helpers.encodings import urldecode
 from ws.ArchWiki.lang import get_language_tags
 
 logger = logging.getLogger(__name__)
+
+def get_normalized_extlinks(wikicode):
+    # Pass 1: re-parse all external links, because "http://example.com/{{Dead link}}" was initially
+    # parsed as one big URL, but the template transcludes tags which should terminate the URL.
+#    for el in wikicode.filter_external_links(recursive=True):
+#        wikicode.replace(el, str(el))
+    # performance optimization, see https://github.com/earwig/mwparserfromhell/issues/195
+    for parent, el in parented_ifilter(wikicode, forcetype=mwparserfromhell.nodes.external_link.ExternalLink, recursive=True):
+        parent.replace(el, str(el), recursive=False)
+
+    extlinks = wikicode.filter_external_links(recursive=True)
+
+    # Pass 2: normalize the URLs
+    for el in extlinks:
+        # strip whitespace like "\t"
+        el.url = str(el.url).strip()
+        # replace HTML entities like "&#61" with their unicode equivalents
+        # TODO: should this be done on the whole wikicode?
+        for entity in el.url.ifilter_html_entities():
+            el.url.replace(entity, entity.normalize())
+        # decode percent-encoding
+        # MW incompatibility: MediaWiki decodes only some characters, spaces and some unicode characters with accents are encoded
+        try:
+            el.url = urldecode(str(el.url))
+        except UnicodeDecodeError:
+            pass
+        # TODO: maybe strip fragments?
+
+    # Pass 3: skip empty URLs like "http://" or "https://" - workaround for https://github.com/earwig/mwparserfromhell/issues/196
+    extlinks = [el for el in extlinks if el.url.strip() not in {"http://", "https://", "ftp://", "ssh://", "git://"}]
+
+    return extlinks
 
 class ParserCache:
     def __init__(self, db):
@@ -329,6 +361,11 @@ class ParserCache:
         else:
             page_is_redirect = False
 
+        # normalize and extract external links
+        # (should be done before wikilinks and other nodes, because URLs need to be re-parsed due to adjacent templates)
+        extlinks = get_normalized_extlinks(wikicode)
+        self._insert_externallinks(conn, pageid, extlinks)
+
         pagelinks = []
         imagelinks = []
         categorylinks = []
@@ -389,27 +426,6 @@ class ParserCache:
         self._insert_categorylinks(conn, pageid, title, categorylinks)
         self._insert_langlinks(conn, pageid, langlinks)
         self._insert_imagelinks(conn, pageid, imagelinks)
-
-        extlinks = wikicode.filter_external_links(recursive=True)
-
-        # normalize URLs
-        for el in extlinks:
-            # replace HTML entities like "&#61" with their unicode equivalents
-            # TODO: should this be done on the whole wikicode?
-            for entity in el.url.ifilter_html_entities():
-                el.url.replace(entity, entity.normalize())
-            # decode percent-encoding
-            # MW incompatibility: MediaWiki decodes only some characters, spaces and some unicode characters with accents are encoded
-            # FIXME: unicode decoding failed on [[User talk:WikiRuiCong]]
-            try:
-                el.url = urldecode(str(el.url))
-            except UnicodeDecodeError:
-                pass
-        # skip empty URLs like "http://" or "https://"
-        # TODO: this is a workaround for https://github.com/earwig/mwparserfromhell/issues/196
-        extlinks = [el for el in extlinks if el.url.strip() not in {"http://", "https://", "ftp://"}]
-
-        self._insert_externallinks(conn, pageid, extlinks)
 
         # extract section headings
         levels = []
