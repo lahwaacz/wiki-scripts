@@ -161,9 +161,13 @@ def check_recentchanges(api, db):
 def check_logging(api, db):
     print("Checking the logging table...")
 
+    since = datetime.datetime.utcnow() - datetime.timedelta(days=30)
+
     params = {
         "list": "logevents",
         "lelimit": "max",
+        "ledir": "newer",
+        "lestart": since,
     }
     leprop = {"user", "userid", "comment", "timestamp", "title", "ids", "type", "details", "tags"}
 
