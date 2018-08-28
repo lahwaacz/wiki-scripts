@@ -2,6 +2,7 @@
 
 import re
 from copy import copy, deepcopy
+import os.path
 
 # only for explicit type check in Title.parse
 import mwparserfromhell
@@ -545,6 +546,13 @@ class Title:
             via API anyway), the method behaves as if subpages were enabled
             for all namespaces.
 
+        Known MediaWiki incompatibilities:
+
+        - We allow links starting with ``../`` even on top-level pages.
+        - Because we use the :py:mod:`os.path` module to join the titles, even
+          links starting with ``/`` or ``../`` and containing ``/./`` in the
+          middle are allowed. In MediaWiki such links would be invalid.
+
         :param basetitle:
             the base title, either :py:class:`str` or :py:class:`Title`
         :returns: a copy of ``self``, modified as appropriate
@@ -569,9 +577,9 @@ class Title:
             return self
 
         # handle subpages
-        if self.pagename.startswith("/"):
+        if self.pagename.startswith("/") or self.pagename.startswith("../"):
             self.namespace = basetitle.namespace
-            self.pagename = basetitle.pagename + self.pagename
+            self.pagename = os.path.normpath(os.path.join(basetitle.pagename, "./" + self.pagename))
 
         return self
 

@@ -478,6 +478,10 @@ class test_make_absolute:
         ("/Bar", "Foo", "Foo/Bar"),
         ("Foo/Bar", "Baz", "Foo/Bar"),
         (":/Foo", "Bar", "/Foo"),
+        ("../Foo", "Bar", "Foo"),  # MW incompatibility: MediaWiki does not allow "../" links from top-level pages
+        ("../Foo", "Bar/Baz", "Bar/Foo"),
+        ("../../Foo", "A/B/C", "A/Foo"),
+        ("/Foo/./Bar", "Baz", "Baz/Foo/Bar"),  # MW incompatibility: MediaWiki does not allow "/./" in the middle of a link
     ]
 
     @pytest.mark.parametrize("src", titles)
