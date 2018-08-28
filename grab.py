@@ -189,6 +189,12 @@ def check_users(api, db):
     for user in chain(db_list, api_list):
         user["groups"].sort()
 
+    # drop autoconfirmed - not reliably refreshed in the SQL database
+    # TODO: try to fix that...
+    for user in chain(db_list, api_list):
+        if "autoconfirmed" in user["groups"]:
+            user["groups"].remove("autoconfirmed")
+
     _check_lists(db_list, api_list)
 
 
