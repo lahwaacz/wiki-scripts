@@ -152,6 +152,6 @@ class AllUsers(ListBase):
             groups += ["*", "user"]
 
         # make sure that even empty registration is returned
-        api_entry.setdefault("registration", None)
+        api_entry.setdefault("registration", "")
 
         return api_entry
