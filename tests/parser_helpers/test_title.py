@@ -477,6 +477,7 @@ class test_make_absolute:
         ("Foo#Bar", "Baz", "Foo#Bar"),
         ("/Bar", "Foo", "Foo/Bar"),
         ("Foo/Bar", "Baz", "Foo/Bar"),
+        (":/Foo", "Bar", "/Foo"),
     ]
 
     @pytest.mark.parametrize("src", titles)

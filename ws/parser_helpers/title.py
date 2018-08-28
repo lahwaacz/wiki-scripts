@@ -564,6 +564,10 @@ class Title:
             self.namespace = basetitle.namespace
             self.pagename = basetitle.pagename
 
+        # links with a leading colon are already absolute
+        if self.leading_colon:
+            return self
+
         # handle subpages
         if self.pagename.startswith("/"):
             self.namespace = basetitle.namespace
