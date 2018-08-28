@@ -73,6 +73,9 @@ def _squash_list_of_dicts(api_list, *, key="pageid"):
             dmerge(item, api_dict[key_value])
     return list(api_dict.values())
 
+def _deduplicate_list_of_dicts(l):
+    return [dict(t) for t in {tuple(d.items()) for d in l}]
+
 
 def check_titles(api, db):
     print("Checking individual titles...")
@@ -475,10 +478,13 @@ def check_interwiki_links(api, db):
             return s[0].upper() + s[1:]
         return s
     for page in api_list:
-        for langlink in page.get("langlinks", []):
-            langlink["*"] = ucfirst(langlink["*"].replace("_", " "))
-        for iwlink in page.get("iwlinks", []):
-            iwlink["*"] = ucfirst(iwlink["*"].replace("_", " "))
+        for link in chain(page.get("langlinks", []), page.get("iwlinks", [])):
+            link["*"] = ucfirst(link["*"].replace("_", " "))
+        # deduplicate, [[w:foo]] and [[w:Foo]] should be equivalent
+        if "langlinks" in page:
+            page["langlinks"] = _deduplicate_list_of_dicts(page["langlinks"])
+        if "iwlinks" in page:
+            page["iwlinks"] = _deduplicate_list_of_dicts(page["iwlinks"])
         # fix sorting due to different locale
         page.get("langlinks", []).sort(key=lambda d: (d["lang"], d["*"]))
         page.get("iwlinks", []).sort(key=lambda d: (d["prefix"], d["*"]))
