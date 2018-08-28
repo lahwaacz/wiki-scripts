@@ -38,6 +38,9 @@ class AllPages(GeneratorBase):
         else:
             start = params.get("to")
             end = params.get("from")
+        # None is uncomparable
+        if start and end:
+            assert start < end
 
         assert params["filterredir"] in {"all", "redirects", "nonredirects"}
         if "minsize" in params:
