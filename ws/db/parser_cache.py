@@ -338,7 +338,8 @@ class ParserCache:
         # classify all wikilinks
         for i, wl in enumerate(wikicode.ifilter_wikilinks(recursive=True)):
             try:
-                target = self.db.Title(wl.title).make_absolute(title)
+                base_target = self.db.Title(wl.title)
+                target = base_target.make_absolute(title)
             except TitleError:
                 logger.error("ParserCache: wikilink {} leads to an invalid title. Missing magic word implementation?".format(wl))
                 continue
@@ -373,8 +374,10 @@ class ParserCache:
                     categorylinks.append( (target, str(wl.text) if wl.text else "") )
                     continue
 
-            # MediaWiki does not track links to itself
-            if target.namespace != title.namespace or target.pagename != title.pagename:
+            # MediaWiki tracks same-page links iff they have both page and section name.
+            # For example, on page "Foo", [[Foo#Bar]] is tracked, but [[Foo]] and [[#Bar]]
+            # are not.
+            if target.namespace != title.namespace or target.pagename != title.pagename or (base_target.pagename and target.sectionname):
                 # MediaWiki does not track links to the Special: namespace, Media: is treated like File:
                 if target.namespacenumber == -2:
                     target.namespace = target.context.namespaces[6]["*"]
