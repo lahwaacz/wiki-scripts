@@ -177,10 +177,17 @@ class ParserCache:
     def _insert_langlinks(self, conn, pageid, langlinks):
         db_entries = []
         for title in langlinks:
+            if title.namespace:
+                ll_title = "{}:{}".format(title.namespace, title.pagename)
+            else:
+                ll_title = title.pagename
+            # language links to specific section are a thing...
+            if title.sectionname:
+                ll_title += "#" + title.sectionname
             entry = {
                 "ll_from": pageid,
                 "ll_lang": title.iwprefix,
-                "ll_title": "{}:{}".format(title.namespace, title.pagename) if title.namespace else title.pagename
+                "ll_title": ll_title,
             }
             db_entries.append(entry)
 
@@ -337,8 +344,14 @@ class ParserCache:
                 continue
 
             if target.iwprefix:
+                # language links cannot have a leading colon
+                if target.leading_colon:
+                    iwlinks.append(target)
+                # the redirect link cannot be a language link
+                elif page_is_redirect and i == 0:
+                    iwlinks.append(target)
                 # language links are special only in article namespaces, not in talk namespaces
-                if target.iwprefix in get_language_tags() and title.namespace == title.articlespace:
+                elif target.iwprefix in get_language_tags() and title.namespace == title.articlespace:
                     langlinks.append(target)
                 else:
                     iwlinks.append(target)
