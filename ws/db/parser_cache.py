@@ -399,7 +399,6 @@ class ParserCache:
 
             # redirects to special namespaces are not treated as special
             elif page_is_redirect is False or i > 0:
-                # TODO: redirect to a Media: namespace actually triggers an exception in MediaWiki when one attempts to visit the page, so file a bug report
                 if target.namespacenumber == -2:
                     # MediaWiki treats all links to the Media: namespace as imagelinks
                     imagelinks.append(target)
