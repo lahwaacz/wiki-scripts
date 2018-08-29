@@ -33,10 +33,6 @@ def get_normalized_extlinks(wikicode):
     for el in extlinks:
         # strip whitespace like "\t"
         el.url = str(el.url).strip()
-        # replace HTML entities like "&#61" with their unicode equivalents
-        # TODO: should this be done on the whole wikicode?
-        for entity in el.url.ifilter_html_entities():
-            el.url.replace(entity, entity.normalize())
         # decode percent-encoding
         # MW incompatibility: MediaWiki decodes only some characters, spaces and some unicode characters with accents are encoded
         try:
@@ -359,6 +355,13 @@ class ParserCache:
             self._insert_redirect(conn, pageid, self.db.Title(str(redirect_target.title)))
         else:
             page_is_redirect = False
+
+        # replace HTML entities like "&#61" or "&Sigma;" with their unicode equivalents
+#        for entity in wikicode.ifilter_html_entities(recursive=True):
+#            wikicode.replace(entity, entity.normalize())
+        # performance optimization, see https://github.com/earwig/mwparserfromhell/issues/195
+        for parent, entity in parented_ifilter(wikicode, forcetype=mwparserfromhell.nodes.html_entity.HTMLEntity, recursive=True):
+            parent.replace(entity, entity.normalize(), recursive=False)
 
         # normalize and extract external links
         # (should be done before wikilinks and other nodes, because URLs need to be re-parsed due to adjacent templates)
