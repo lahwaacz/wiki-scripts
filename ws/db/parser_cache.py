@@ -43,7 +43,6 @@ def get_normalized_extlinks(wikicode):
             el.url = urldecode(str(el.url))
         except UnicodeDecodeError:
             pass
-        # TODO: maybe strip fragments?
 
     # Pass 3: skip empty URLs like "http://" or "https://" - workaround for https://github.com/earwig/mwparserfromhell/issues/196
     extlinks = [el for el in extlinks if el.url.strip() not in {"http://", "https://", "ftp://", "ssh://", "git://"}]
