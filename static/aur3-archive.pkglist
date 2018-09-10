@@ -374,7 +374,6 @@ adobesvg
 adom-noteye-restricted
 adonthell-git
 adonthell-tools-git
-adplay
 adresownik
 adt-gtk-theme
 adv770
@@ -879,7 +878,6 @@ ansi2gif
 ansi_colours
 ansible
 ansible-py3-git
-ansilove
 ansiweather-git
 ansize-git
 ant-doxygen
@@ -2186,7 +2184,6 @@ bepo-keymaps
 bereflected
 beret-git
 berp
-berry
 berry4all
 berrybots
 bertos
@@ -3324,7 +3321,6 @@ canon-pixma-mg5100-complete
 canon-pixma-mp237-complete
 canon-pixma-mx520-complete
 canon-ufr
-canorus-svn
 cantarell-fonts-git
 cantata
 cantata-kde
@@ -4301,7 +4297,6 @@ circular-application-menu-svn
 circularmapper
 circus-git
 cirkuit-git
-cirnosay-git
 cis-tools
 cisco-auditing-tool
 cisco-global-exploiter
@@ -5383,7 +5378,6 @@ crtools-git
 cruisecontrol
 cruisecontrol-bin
 crun
-crunch-unv-git
 crunchyfrog
 crush-tools
 crutziplayer
@@ -7758,7 +7752,6 @@ emacs-coffeescript-mode
 emacs-column-enforce-mode-git
 emacs-dark-theme
 emacs-dart-mode-svn
-emacs-dash-git
 emacs-ddskk
 emacs-develock
 emacs-direx-mode-git
@@ -7778,8 +7771,6 @@ emacs-eproject-git
 emacs-erlang-mode
 emacs-ess-svn
 emacs-etags-select
-emacs-evil-git
-emacs-expand-region-git
 emacs-feature-mode-git
 emacs-fill-column-indicator
 emacs-for-python
@@ -7809,7 +7800,6 @@ emacs-highlight-current-line
 emacs-hiwin-mode-git
 emacs-ide
 emacs-ide-git
-emacs-iedit-git
 emacs-irony-mode-git
 emacs-javadoc-help
 emacs-jdibug-svn
@@ -7846,7 +7836,6 @@ emacs-nxhtml
 emacs-ocaml-mode
 emacs-openwith
 emacs-org-mode-ravel-git
-emacs-pdf-tools-git
 emacs-php-mode-nxhtml
 emacs-popup-el-git
 emacs-popwin-git
@@ -16851,7 +16840,6 @@ java-commons-jcs
 java-commons-jelly
 java-commons-jexl
 java-commons-jxpath
-java-commons-lang3
 java-commons-modeler
 java-commons-net
 java-commons-pool
@@ -17058,7 +17046,6 @@ jmencode-gcj
 jmenumaker-git
 jmess
 jmess-svn
-jmeters
 jmf
 jmock
 jmol
@@ -19673,7 +19660,6 @@ lib32-zeromq-git
 lib32-zziplib
 lib64-krb5
 lib64-libaudio2
-lib7zip
 liba52-svn
 libaacs
 libabw
@@ -22179,7 +22165,6 @@ lyrics-plasmoid
 lyriczilla
 lysdr-git
 lyskom-cvs
-lyvi
 lyx-beta
 lyx-newest
 lyx-ng
@@ -22341,7 +22326,6 @@ makepkg-lib-unreal
 makepkg-meta-git
 makepkg-shm
 makepkg-templates-ks-git
-makepp
 makesite
 makeztxt
 makfa
@@ -23208,7 +23192,6 @@ mingw-w64-cal3d-svn
 mingw-w64-celt
 mingw-w64-cfitsio
 mingw-w64-charls
-mingw-w64-check
 mingw-w64-chipmunk
 mingw-w64-clanlib
 mingw-w64-coin-clp
@@ -28416,7 +28399,6 @@ perl-perl6-junction
 perl-perl6-slurp
 perl-perl6-subs
 perl-perlbal
-perl-perlio-gzip
 perl-perlio-via-dynamic
 perl-perlmagick
 perl-pip
@@ -30129,7 +30111,6 @@ publictransport-plasmoid
 publiphoto
 pucrunch
 pudb
-puddletag
 puddletag-hg
 puddletag-svn
 puff
@@ -31096,7 +31077,6 @@ python-gdata-svn
 python-gensim-git
 python-geoalchemy2
 python-geoip-hg
-python-geoip2
 python-geotools
 python-geraldo
 python-getch
@@ -34648,7 +34628,6 @@ recon
 recon-ng-git
 reconstructor-engine
 recorder
-recorditnow
 recordstream
 recordwhatyouhear
 recourse
@@ -38018,7 +37997,6 @@ she-darcs
 shedskin
 shedskin-svn
 sheepdog-openstack
-sheepshaver
 sheepshaver-cvs
 sheepshaver-git
 sheepshear
@@ -38813,7 +38791,6 @@ spaceapidaemon
 spacearyarya
 spacechem
 spacechem-demo
-spacechem-hib
 spacefm-gtk3
 spacefm-plugin-corbeille
 spacehulk
@@ -38915,7 +38892,6 @@ spice-gtk
 spice-gtk-fedora
 spice-gtk3
 spice-gtk3-git
-spice-html5-git
 spice-protocol
 spicebird
 spicebird-bin
@@ -40361,7 +40337,6 @@ tempest_for_eliza
 tempi
 templar-schulmar-git
 templight
-templight-tools-git
 templight2
 templog
 tendra-svn
@@ -42231,7 +42206,6 @@ unladen-swallow
 unladen-swallow-svn
 unlzx
 unm-scheme
-unmakeself
 unmass
 unmkbootimg
 unnethack-svn
@@ -42925,7 +42899,6 @@ vim-bufsurf-git
 vim-bufsync-git
 vim-busybee
 vim-calendar
-vim-calendar-git
 vim-candycode
 vim-caravaggio-git
 vim-ccase
@@ -43808,7 +43781,6 @@ vumeter
 vumeter-skins
 vusb-analyzer
 vuze-plugin-i2p
-vv
 vx32-hg
 vxatool
 vxl-svn
