@@ -7861,7 +7861,6 @@ emacs-scala-mode
 emacs-scala-mode-indent-fix
 emacs-session
 emacs-slime
-emacs-smartparens-git
 emacs-smex--git
 emacs-smex-git
 emacs-snippet-template-mode
@@ -9845,7 +9844,6 @@ ftjam-stable
 ftjerm
 ftk
 ftpcube
-ftplib
 ftplicity
 ftpline
 ftpmonitor-plasmoid
@@ -18756,7 +18754,6 @@ ksplash-theme-generator
 ksplash-your-tea-buddy
 ksplasherx
 ksplice
-ksplice-git
 ksquirrel
 ksquirrel-libs
 ksshaskpass
@@ -20415,7 +20412,6 @@ libnotify-git
 libnotify-hack
 libnotify1-bin
 libnpy
-libnsfb
 libnsfb-git
 libnsfb-svn
 libnss-etcd-git
@@ -22661,7 +22657,6 @@ mboxgrep
 mbpurple-svn
 mbrfs
 mbrola-italian
-mbutil
 mc-colorer
 mc-cool
 mc-latest
@@ -24497,7 +24492,6 @@ muse2
 muse2-vst
 museek-plus
 museekbindings-svn
-museekd-git
 museekd-svn
 museekplus-svn
 museeq-svn
@@ -24953,19 +24947,13 @@ nem-nem
 nemiver
 nemo
 nemo-desktop-grid
-nemo-dropbox-git
 nemo-filename-repairer-git
-nemo-fileroller-git
 nemo-fm
 nemo-nutstore
 nemo-owncloud-git
-nemo-preview-git
 nemo-pushbullet
-nemo-python-git
 nemo-seahorse
-nemo-seahorse-git
 nemo-share
-nemo-share-git
 nengo
 neo4j
 neo4j-apoc
@@ -34711,7 +34699,6 @@ relsat
 relx
 rem-mp3tags
 remake-silene
-remakepkg
 remember-git
 rememberthemilk-googlegadget
 remix
@@ -38054,7 +38041,6 @@ shoreman-git
 shoresofhazeron
 shotdetect
 shotgun-svn
-shotwell-git
 shoutcast
 shoutcast-search
 shoutcast-trans-bin
@@ -40698,7 +40684,6 @@ timberc
 time-drive
 timebench
 timebook-hg
-timecamp
 timeclock-git
 timekeeper
 timelapse-svn
@@ -42086,7 +42071,6 @@ ultimatepp
 ultra-flat-gtk
 ultra-flat-icons
 ultra-tic-tac-toe
-ultracopier
 ultracopier3
 ultrasol
 ultrastardx
@@ -45561,7 +45545,6 @@ xwiki-enterprise-mysql
 xwiki-manager
 xwnc-uw
 xwpe
-xwrits
 xwt
 xwt-git
 xxd
