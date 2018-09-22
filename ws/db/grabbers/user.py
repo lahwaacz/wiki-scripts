@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import logging
+import datetime
 
 import sqlalchemy as sa
 
@@ -59,10 +60,15 @@ class GrabberUsers(GrabberBase):
             yield self.sql["insert", "user"], db_entry
 
             extra_groups = set(user["groups"]) - implicit_groups
+            expirations = dict((gm["group"], gm["expiry"]) for gm in user["groupmemberships"])
             for group in extra_groups:
+                expiry = expirations.get(group)
+                if expiry == datetime.datetime.max:
+                    expiry = None
                 db_entry = {
                     "ug_user": user["userid"],
                     "ug_group": group,
+                    "ug_expiry": expiry,
                 }
                 yield self.sql["insert", "user_groups"], db_entry
 
@@ -104,7 +110,8 @@ class GrabberUsers(GrabberBase):
         list_params = {
             "list": "allusers",
             "aulimit": "max",
-            "auprop": "groups|editcount|registration",
+            # "groups" is needed just to catch autoconfirmed
+            "auprop": "groups|groupmemberships|editcount|registration",
         }
         for user in self.api.list(list_params):
             yield from self.gen_inserts_from_user(user)
@@ -117,10 +124,17 @@ class GrabberUsers(GrabberBase):
                 list_params = {
                     "list": "users",
                     "ususers": "|".join(chunk),
-                    "usprop": "groups|editcount|registration",
+                    # "groups" is needed just to catch autoconfirmed
+                    "usprop": "groups|groupmemberships|editcount|registration",
                 }
                 for user in self.api.list(list_params):
                     yield from self.gen_inserts_from_user(user)
+                    yield from self.gen_deletes_from_user(user)
+
+        # delete expired group memberships
+        yield self.db.user_groups.delete().where(
+                        self.db.user_groups.c.ug_expiry < datetime.datetime.utcnow()
+                    )
 
 
     def get_rcusers(self, since):
