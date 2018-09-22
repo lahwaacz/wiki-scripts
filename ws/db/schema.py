@@ -13,7 +13,6 @@ Known incompatibilities from MediaWiki schema:
 - Columns not available via the API (e.g. user passwords) are nullable, since
   they are not part of the mirroring process. Likewise revision.rev_text_id
   is nullable so that we can sync metadata and text separately.
-- user_groups table has primary key to avoid duplicate entries.
 - Removed columns that were deprecated even in MediaWiki:
     page.page_restrictions
     archive.ar_text
@@ -255,10 +254,12 @@ def create_users_tables(metadata):
     user_groups = Table("user_groups", metadata,
         Column("ug_user", Integer, ForeignKey("user.user_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("ug_group", UnicodeText, nullable=False),
+        Column("ug_expiry", MWTimestamp),
         PrimaryKeyConstraint("ug_user", "ug_group"),
         CheckConstraint("ug_user > 0", name="check_user")
     )
     Index("ug_group", user_groups.c.ug_group)
+    Index("ug_expiry", user_groups.c.ug_expiry)
 
     ipblocks = Table("ipblocks", metadata,
         Column("ipb_id", Integer, primary_key=True, nullable=False),

@@ -7,6 +7,14 @@ Create Date: ${create_date}
 """
 from alembic import op
 import sqlalchemy as sa
+
+# add our project root into the path so that we can import the "ws" module
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../../.."))
+
+import ws.db.sql_types
+
 ${imports if imports else ""}
 
 # revision identifiers, used by Alembic.
