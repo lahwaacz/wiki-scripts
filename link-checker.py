@@ -437,8 +437,8 @@ class WikilinkRules:
         if "missing" in _result[0]:
             logger.error("could not find content of page: '{}' (wikilink {})".format(_target_title.fullpagename, wikilink))
             return None
-        headings = [section["title"] for section in _result[0]["sections"]]
-        anchors = [section["anchor"] for section in _result[0]["sections"]]
+        headings = [section["title"] for section in _result[0].get("sections", [])]
+        anchors = [section["anchor"] for section in _result[0].get("sections", [])]
 
         if len(headings) == 0:
             logger.warning("wikilink with broken section fragment: {}".format(wikilink))
