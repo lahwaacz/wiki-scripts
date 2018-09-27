@@ -1401,7 +1401,6 @@ aspell-hi
 aspell-hr
 aspell-hy
 aspell-ia
-aspell-is
 aspell-kk
 aspell-la
 aspell-mk
@@ -7844,7 +7843,6 @@ emacs-prolog-mode
 emacs-protbuf
 emacs-protobuf-mode
 emacs-rails-mode-git
-emacs-rainbow-delimiters-git
 emacs-rainbow-mode
 emacs-rebox2
 emacs-rect-mark
@@ -20162,7 +20160,6 @@ libhome
 libhsl
 libhsplasma
 libhtp-git
-libhx
 libibus
 libiconvplus
 libicq2000
@@ -27802,7 +27799,6 @@ pentadactyl-hg
 pentadactyl-nightly
 pentagram
 pentaho-report-design-wizard
-pente
 penumbra-collection
 penumbra-overture-ep1-demo
 penumbra-overture-git
@@ -38623,7 +38619,6 @@ snusnu
 so-synth-lv2
 soap2-bin
 soapdenovo2
-socat2
 socialaddict
 socializer-git
 sock
@@ -45494,7 +45489,6 @@ xterm-vt220-tolbar
 xtion_pro_sensors
 xtod
 xtrabackup
-xtrace
 xtract
 xtrans-git
 xtrascreenhacks
