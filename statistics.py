@@ -184,14 +184,22 @@ divided by the number of days between the user's first and last edits.
                      "Longest<br>streak", "Current<br>streak",
                      "Avg.<br>(total)", "Avg.<br>(active)")
     GRPTRANSL = {
-        "*": "",
-        "autoconfirmed": "",
-        "user": "",
-        "checkuser": "",
-        "bureaucrat": "[[ArchWiki:Bureaucrats|bureaucrat]]",
-        "sysop": "[[ArchWiki:Administrators|administrator]]",
-        "maintainer": "[[ArchWiki:Maintainers|maintainer]]",
-        "bot": "[[ArchWiki:Bots|bot]]",
+        # Access levels
+        "*": lambda groups: "",
+        "autoconfirmed": lambda groups: "",
+        "user": lambda groups: "",
+        "checkuser": lambda groups: "",
+        "bureaucrat": lambda groups: "[[ArchWiki:Bureaucrats|Bureaucrat]]",
+        "sysop": lambda groups: "",
+        "cosysop": lambda groups: "",
+        "bot": lambda groups: "[[ArchWiki:Bots|Bot]]",
+
+        # User roles
+        "maintainer": lambda groups: 'sysop' in groups and "[[ArchWiki:Administrators|Administrator]]" or "[[ArchWiki:Maintainers|Maintainer]]",
+        "archdev": lambda groups: "[[Roles|Developer]]",
+        "archtu": lambda groups: "[[Trusted User]]",
+        "archstaff": lambda groups: "[[Roles|Staff]]",
+        "translator": lambda groups: "[[ArchWiki:Translators|Translator]]",
     }
     STREAK_FORMAT = '<span title="{length} days, from {start} to {end} ({editcount} edits)">{length}</span>'
     REGISTRATION_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -231,7 +239,7 @@ divided by the number of days between the user's first and last edits.
 
     @classmethod
     def _format_groups(cls, groups):
-        fgroups = [cls.GRPTRANSL[group] for group in groups]
+        fgroups = [cls.GRPTRANSL[group](groups) for group in groups]
         # drop empty strings
         fgroups = list(filter(bool, fgroups))
         fgroups.sort()
