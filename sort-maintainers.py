@@ -31,7 +31,7 @@ class SortMaintainers:
         if "Connection parameters" not in present_groups:
             API.set_argparser(argparser)
 
-        argparser.add_argument("--page-name", default="ArchWiki:Maintainers",
+        argparser.add_argument("--page-name", default="ArchWiki:Maintenance Team",
                     help="the page name on the wiki to fetch and update (default: %(default)s)")
         argparser.add_argument("--days", action="store", default=30, type=int, metavar="N",
                     help="the time span in days (default: %(default)s)")
