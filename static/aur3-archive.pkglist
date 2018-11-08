@@ -81,7 +81,6 @@
 2gis-yola
 2h4u
 2hdmc
-2ping
 2wm-hg
 3
 360safeforlinux
@@ -157,7 +156,6 @@ abcdefghijklmnopqrstuvwxyz
 abcm2ps-devel
 abctorrent-win
 abgate
-abi-dumper
 abiblia
 abipdf
 abiword+plugins-light
@@ -1584,7 +1582,6 @@ audiomangler-git
 audiomove
 audiooverload
 audiopreview
-audiotag
 audiothumbs
 audiothumbs-patched
 audit
@@ -1601,7 +1598,6 @@ augeas-lenses-custom
 augeas-lenses-netctl
 augur
 august
-aunit
 aur-buildbot
 aur-pyjs-git
 aur-repo-check
@@ -6520,7 +6516,6 @@ dkms-rts_bpp
 dkms-systemd
 dkms-vhba
 dkms-virtualbox
-dktools
 dktools-gui
 dlan-linux-software
 dlmega
@@ -6810,7 +6805,6 @@ drawtool
 drbd
 drbd-userland
 drbl
-drc
 drcom-client
 dream
 dream-strobe
@@ -12852,7 +12846,6 @@ gview
 gvim-gc-responsiveness-patch
 gvim-python
 gvim-python3-noconflict
-gvm
 gvmtool
 gvolicon-git
 gvtray
@@ -16140,7 +16133,6 @@ imageshack-uploader2
 imageworsener
 imagewriter-latest
 imagicom
-imagine++
 imagine-generator
 imapfilter-git
 imaplib2
@@ -16734,7 +16726,6 @@ jackctl
 jackctlmmc
 jackeq
 jacker
-jacker-hg
 jackie
 jackline
 jackmaster
@@ -18618,7 +18609,6 @@ kopete-xfire-svn
 kopetelog
 kopyshop
 kor
-kore
 korfu
 korners
 korundum
@@ -18940,7 +18930,6 @@ ladspa-wubflip
 laeqed
 lagadesk-icons
 lain
-lake
 lalala
 lalalove
 lalita
@@ -19060,7 +19049,6 @@ lazygal
 lb32-irrklang
 lbanet-physx
 lbanet-zeroc-ice
-lbd
 lblmail
 lbzip2
 lc
@@ -21719,7 +21707,6 @@ lrcdis-svn
 lrcshow-x
 lrcshow-x-bzr
 lrcshow-x-svn
-lrexlib
 lrg
 lrmi
 lrnj
@@ -21859,7 +21846,6 @@ lua-turbo-git
 lua-twitter
 lua-xctrl
 lua-xmlrpc
-lua-yajl
 lua-yajl-git
 lua-zlib-git
 lua-zmq-git
@@ -28061,7 +28047,6 @@ perl-exporter-tiny
 perl-extutils-command
 perl-extutils-config
 perl-extutils-helpers
-perl-extutils-install
 perl-extutils-installpaths
 perl-extutils-libbuilder
 perl-extutils-makemaker
@@ -28234,7 +28219,6 @@ perl-math-pari
 perl-math-primality
 perl-math-random-mt
 perl-math-random-oo
-perl-math-units
 perl-math-vector-real
 perl-mechanize-formfiller
 perl-mediawiki-api
@@ -28269,7 +28253,6 @@ perl-moose-autobox
 perl-moosex-attributeshortcuts
 perl-moosex-classattribute
 perl-moosex-configfromfile
-perl-moosex-followpbp
 perl-moosex-has-sugar
 perl-moosex-hasdefaults
 perl-moosex-log-log4perl
@@ -28428,7 +28411,6 @@ perl-redis-hiredis
 perl-regexp-common
 perl-relative
 perl-resourcepool
-perl-rlib
 perl-role-tiny
 perl-roman
 perl-rpc-frontier
@@ -33475,7 +33457,6 @@ qcairo
 qcat
 qcheckers
 qcheckers-mobile
-qcheckgmail
 qclock
 qcma-kde-git
 qcma-qt-git
@@ -34998,7 +34979,6 @@ rmonitor
 rmoo-git
 rmpkg
 rmshit-git
-rmtoo
 rmv
 rnastructure
 rndy-git
@@ -39420,7 +39400,6 @@ strongswan-privdrop
 strongswan-thermi
 strongswan_thermi
 stroy
-structorizer
 stud-git
 stuffkeeper-musicbrainz-plugin-git
 stuffs-git
@@ -39440,7 +39419,6 @@ stxxl
 stxxl-svn
 styleclock
 stylus-toolbox-cvs
-suave
 sub-renamer
 sub32
 sub3dtool
@@ -41331,7 +41309,6 @@ ttf-champignon
 ttf-charis
 ttf-charming
 ttf-chromeos-extra-fonts
-ttf-code2001
 ttf-concreta
 ttf-consolamono
 ttf-constructium
@@ -41441,7 +41418,6 @@ ttf-koku-gothic
 ttf-koku-mincho
 ttf-konatu
 ttf-kuppel
-ttf-kurier
 ttf-lancelot
 ttf-larabie-decor
 ttf-larabie-standard
@@ -43725,7 +43701,6 @@ vstr
 vstruct
 vstruct-git
 vsys
-vtable-dumper
 vte-mosh-fix
 vte-plus
 vte-select-text
@@ -44183,7 +44158,6 @@ wine-wowmc
 wine64-git
 wine_mono
 wineaps
-wineasio-git
 wineautostart
 winefish
 winefish-gtk
@@ -44202,7 +44176,6 @@ winff-svn
 winformsui-monoport
 winformsui-monoport-hg
 wingedmonkey
-wingide-101
 wingide-personal
 wingide4
 wingide4-101
@@ -44241,7 +44214,6 @@ wiringpi
 wiringpi-odroid-c-git
 wiringpi-python-git
 wit
-wit-svn
 witalian
 withlock-svn
 wixi
@@ -44757,7 +44729,6 @@ xcursor-ecliz
 xcursor-ecliz-arch
 xcursor-ecliz-full
 xcursor-fedora
-xcursor-gruppled-lite
 xcursor-gt3-light
 xcursor-gt3-light-small
 xcursor-gt3-small
