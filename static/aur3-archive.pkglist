@@ -6083,7 +6083,6 @@ destroytwitter
 desurium
 desurium-cef
 desurium-git
-detach
 detachtty
 detachtty-darcs
 deteriorate-lv2
@@ -6274,7 +6273,6 @@ disksystemtray-git
 disktrim
 dislin
 dismal
-dispad-git
 dispcalgui
 disper-bzr
 display-kiosk-git
@@ -12722,7 +12720,6 @@ gtorrent-gtk
 gtorrent-ncurses
 gtr
 gtranslate
-gtranslator-git
 gtranslator-stable
 gts-snapshot
 gtuxnes
@@ -22686,7 +22683,6 @@ mcelog-git
 mci-git
 mci-nightly
 mcity-themes
-mcl
 mclinker-git
 mcmap
 mcmap-git
@@ -23079,7 +23075,6 @@ midisnoop
 midisnoop-git
 midlc
 midna-colors
-midori-git
 midori-granite-git
 midori-gtk2-bzr
 midori-gtk2-git
@@ -23615,7 +23610,6 @@ mint-cinnamon-themes-git
 mint-common
 mint-elementary-icons
 mint-git
-mint-themes-git
 mint-themes-gtk3-git
 mint-translations
 mint-x-aqua-dark-icon-theme
@@ -26628,7 +26622,6 @@ openoffice-uglyfix-freetype2-infinality
 openoffice.org-voikko-bin
 openpilot-git
 openpilot_gcs-bin
-openpref
 openpref-git
 openprogrammer
 openproj
@@ -29172,7 +29165,6 @@ pixitracker
 pixiv-agent-git
 pixmaip1500
 pixmaip4200
-pixymon-git
 pixz
 pjproject-digium
 pjproject10
@@ -34739,7 +34731,6 @@ repscrot
 repsnapper
 repsnapper-git
 reptyr
-reptyr-git
 reqflow-git
 requiredbuilder
 reread-git
@@ -35928,7 +35919,6 @@ roundcube-rcguard-plugin-git
 roundcube-sieverules
 roundcube-sieverules-plugin
 roundcube-thunderbird-labels
-roundcubemail-git
 roundcubemail-plguins-kolab-git
 roundup-testtool-git
 rovclock
@@ -37961,7 +37951,6 @@ shedskin
 shedskin-svn
 sheepdog-openstack
 sheepshaver-cvs
-sheepshaver-git
 sheepshear
 sheepshear-git
 sheerdns
@@ -40341,7 +40330,6 @@ terra-solarized
 terralang-git
 terranova
 terraview
-teseq
 tesjeract
 tesla-pylons-elixir
 teslagrad-hib
@@ -40648,7 +40636,6 @@ tilenol-git
 tilerogue
 tilestream
 tiling2-git
-tilitin
 tilp-git
 tilp-svn
 tilp2
