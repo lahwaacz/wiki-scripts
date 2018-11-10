@@ -151,11 +151,10 @@ class ExtlinkRules:
         if match:
             pagename = match.group("pagename")
             title = self.api.Title(pagename)
+            target = title.format(iwprefix=True, namespace=True, sectionname=True)
             # handle links to special namespaces correctly
             if title.namespacenumber in {-2, 6, 14}:
-                target = ":" + title.fullpagename
-            else:
-                target = title.fullpagename
+                target = ":" + target
             if extlink.title:
                 wikilink = "[[{}|{}]]".format(target, extlink.title)
             else:
