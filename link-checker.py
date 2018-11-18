@@ -357,7 +357,7 @@ class WikilinkRules:
         if title.iwprefix:
             return
         # skip relative links
-        if not title.fullpagename:
+        if not title.fullpagename or title.fullpagename.startswith("/"):
             return
         # skip links to special namespaces
         if title.namespacenumber < 0:
@@ -412,10 +412,7 @@ class WikilinkRules:
             return None
 
         # determine target page
-        if title.fullpagename:
-            _target_title = title
-        else:
-            _target_title = self.api.Title(src_title)
+        _target_title = title.make_absolute(src_title)
 
         # skip links to special pages (e.g. [[Special:Preferences#mw-prefsection-rc]])
         if _target_title.namespacenumber < 0:
