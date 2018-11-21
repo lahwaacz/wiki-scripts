@@ -160,6 +160,8 @@ UTC), for a total of {} users.
 
 The meaning of the additional columns is:
 
+* '''Roles''' &mdash; a human-readable representation of the most relevant \
+[[ArchWiki:Access levels and roles|access levels and roles]].
 * '''Recent''' &mdash; the number of edits made in the past 30 days. Includes \
 only normal edits, not special actions such as moving a page.
 * '''Total''' &mdash; the total number of edits made since the registration. \
@@ -180,7 +182,7 @@ divided by the number of days between the user's first and last edits.
     FIELDS = ("user", "registration", "groups", "recenteditcount", "editcount",
               "longest streak", "current streak", "totaleditsperday",
               "activeeditsperday")
-    FIELDS_FORMAT = ("User", "Registration", "Groups", "Recent", "Total",
+    FIELDS_FORMAT = ("User", "Registration", "Roles", "Recent", "Total",
                      "Longest<br>streak", "Current<br>streak",
                      "Avg.<br>(total)", "Avg.<br>(active)")
     GRPTRANSL = {
