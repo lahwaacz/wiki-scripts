@@ -129,6 +129,9 @@ class CategoryGraph:
                 yield lval, rval
                 lval = next(lgen)
                 rval = next(rgen)
+                # avoid infinite loop if both generators get to the end in the inner loop
+                if lval is None and rval is None:
+                    break
             while cmp_tuples(lval, rval) > 0:
                 yield None, rval
                 rval = next(rgen)
