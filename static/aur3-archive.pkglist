@@ -957,7 +957,6 @@ apachedirectory
 apachedirectorystudio2
 apacheds2
 apame
-apbs
 apbs-pdb2pqr
 apc
 apcupsd-cli
@@ -1396,7 +1395,6 @@ aspell-fa
 aspell-grc
 aspell-gu
 aspell-hi
-aspell-hr
 aspell-hy
 aspell-ia
 aspell-kk
@@ -2133,7 +2131,6 @@ beeswax
 beetle-pce-fast-libretro-git
 beetle-psx-libretro-git
 beets
-beets-alternatives-git
 beets-artistcountry-git
 beets-hg
 befaded
@@ -3614,7 +3611,6 @@ cfdg-vim
 cfg2html-linux
 cfgconv
 cfortran
-cfourcc
 cfront
 cfrunner-git
 cfunctions
@@ -7179,7 +7175,6 @@ dynamite-svn
 dynamo-git
 dyndnsrelayd
 dyne-theme
-dyninst
 dyninst-git
 dynmenu-git
 dypgen
@@ -8176,7 +8171,6 @@ eruby
 ery-twinkle-broadcast-server-git
 ery-twinkle-client-git
 erythrina-git
-es
 esasl-git
 eschalon1
 eschalon2
@@ -10723,7 +10717,6 @@ git-mediawiki
 git-merge-changelog-git
 git-paradox-git
 git-pissed
-git-publish
 git-publish-branch
 git-rank-contributors
 git-review
@@ -15465,7 +15458,6 @@ hunspell-nl-nl
 hunspell-nn
 hunspell-pl
 hunspell-sv-se
-hunspell-th
 hunspell-uz
 hunspell_yo-ru
 hunt
@@ -18011,7 +18003,6 @@ kdevplatform-beta
 kdewebdev4-svn
 kdewebkit
 kdicegen
-kdiff3-git
 kdiff3-svn
 kding
 kding-kde4
@@ -20060,7 +20051,6 @@ libgee-0.9
 libgeier
 libgenerics
 libgestures-xorg
-libgexiv2-git
 libgexiv2_05
 libgfbgraph-git
 libggi
@@ -20791,7 +20781,6 @@ libspopc
 libsqlite3pp
 libsres
 libsrs-git
-libsrs2
 libsrtp
 libssh2-git
 libst
@@ -21712,7 +21701,6 @@ ls-colors-solarized-git
 ls-usb
 ls_colors-git
 lscabal
-lsd-git
 lsd-svn
 lsh
 lsh-cvs
@@ -25744,7 +25732,6 @@ nvidia-bfs
 nvidia-bfs-304xx
 nvidia-bfs-340xx
 nvidia-bfs-beta
-nvidia-bl-dkms
 nvidia-bridge-pl
 nvidia-bridge-pl-304xx
 nvidia-builder
@@ -27325,7 +27312,6 @@ pam_fprint-git
 pam_fprint-nightly
 pam_kwallet-svn
 pam_mount
-pam_mount-git
 pam_mysql
 pam_passwdqc
 pam_pgsql
@@ -27642,7 +27628,6 @@ pd-vbap
 pd-windowing
 pd-zexy
 pdb-clone
-pdb2pqr
 pdb2txt
 pdcurses
 pdcurses-cvs
@@ -27795,7 +27780,6 @@ perf-kdd
 perf-util
 perfenc-git
 perfkit-git
-performance
 performance_mx_dpi-git
 perftools-git
 periodical-git
@@ -28893,7 +28877,6 @@ phpwind-stable
 phrack-all
 phraktalus
 phraktalus-examples
-phratch
 phraymd-bzr
 phreebird
 phrel
@@ -30780,7 +30763,6 @@ python-carray
 python-carrot
 python-cartridge
 python-cassandra-driver
-python-cassandra-driver-git
 python-cdent
 python-celery
 python-certifi
@@ -31535,7 +31517,6 @@ python-pywt-git-dev
 python-pyx
 python-pyxmpp2
 python-pyyajl-git
-python-pyyaml
 python-pyzmail
 python-pyzmq
 python-qfathom
@@ -31879,7 +31860,6 @@ python2-algebraic
 python2-amqp
 python2-androguard-hg
 python2-anolis-hg
-python2-antlr3
 python2-anyjson
 python2-apipkg
 python2-apns-client
@@ -31980,7 +31960,6 @@ python2-cargo-git
 python2-carrot
 python2-cartridge
 python2-cassandra-driver
-python2-cassandra-driver-git
 python2-casuarius
 python2-catkin_pkg-git
 python2-ccm-git
@@ -35983,7 +35962,6 @@ rss-glx-gnome
 rss-glx-kde
 rss-guard
 rss-guard-git
-rss-notify
 rss-torrent
 rss2email-xdg-git
 rss2html
@@ -36049,7 +36027,6 @@ rtfetch
 rtfm
 rtiacquire-git
 rtinfo-git
-rtl-entropy-git
 rtl-wifi-svn
 rtl2832u-git
 rtl8180
@@ -37852,7 +37829,6 @@ sfc
 sfepy
 sfepy-git
 sfftobmp
-sfgui
 sfl
 sfldoc
 sflphone
@@ -38088,7 +38064,6 @@ silentjack
 silicon
 silicon-empire
 silicon-empire-git
-silk
 silk-icons
 silkcoin-git
 silkscreenfont
@@ -38794,7 +38769,6 @@ specl
 specto
 spectools-git
 spectools-svn
-spectrum
 spectrum-git
 spectrum2-git
 spectrwm-no-ffm
@@ -38992,7 +38966,6 @@ sqlbrute-git
 sqlbuddy
 sqlcipher
 sqlcipher-git
-sqlclient
 sqlheavy
 sqlheavy-git
 sqlite-analyzer
@@ -39929,7 +39902,6 @@ systemtray-n
 systrace
 systray-toggler-git
 sysumount
-sysvbanner
 sysvinit-scripts
 sysvinit-tools-adds
 syx
@@ -40121,7 +40093,6 @@ tcpcopy
 tcpdnsproxy
 tcpdstat
 tcphijack
-tcping
 tcpjunk
 tcpkali-git
 tcplay
@@ -40731,7 +40702,6 @@ tkgm_util
 tkhs
 tkhtml
 tkhtml3
-tkinfo
 tkinter-treectrl
 tklor
 tkpasman
@@ -42276,7 +42246,6 @@ usbmon
 usbmuxd-unstable
 usbpicprog-beta
 usbredir
-usbreset
 uselessd
 uselessd-init-bin
 user-aria2-daemon
@@ -43082,7 +43051,6 @@ vim-l9
 vim-largefile
 vim-latex-box
 vim-latexsuite
-vim-lawrencium
 vim-leiningen-git
 vim-lengthmatters
 vim-lengthmatters-git
@@ -43454,7 +43422,6 @@ virtual-chess-clock
 virtual-jay-peak
 virtual-magnifying-glass
 virtualbox-beta
-virtualbox-beta-bin
 virtualbox-bfs-modules
 virtualbox-ck-fbcondecor-modules
 virtualbox-ck-modules
@@ -43965,7 +43932,6 @@ whenjobs
 which4j
 whichman
 whichwayisup
-white_dune
 whiteboard-svn
 whitedb
 whiteelephant
