@@ -1014,7 +1014,6 @@ apr-util-dbd
 apr-util-iodbc
 apr-util-mysql
 apr_memcache
-apron-svn
 apron-svn-ocaml
 apslint
 apvlv-svn
@@ -26686,7 +26685,6 @@ openshack-git
 openshadinglanguage-git
 openshmem
 opensimulator-git
-openskyscraper-git
 openslides
 opensmtpd
 opensmtpd-portable
@@ -31252,7 +31250,6 @@ python-nosejs
 python-nosenotify
 python-nosier
 python-novaclient
-python-npyscreen
 python-numeric
 python-numexpr
 python-numpy-atlas
@@ -32728,7 +32725,6 @@ python2-pyjournalctl
 python2-pyke
 python2-pykka
 python2-pykka-git
-python2-pylast
 python2-pyleargist
 python2-pyleptonica
 python2-pylibftdi
@@ -36133,7 +36129,6 @@ ruby-avro
 ruby-aws-s3
 ruby-aws-sdk
 ruby-axiom-types
-ruby-bacon
 ruby-barby
 ruby-beefcake
 ruby-beefcake-0.3
@@ -36946,7 +36941,6 @@ ruby-webgen
 ruby-webmock
 ruby-webrat
 ruby-websocket-1.0
-ruby-websocket-driver
 ruby-whichr
 ruby-whistlepig
 ruby-will_paginate
@@ -38130,7 +38124,6 @@ simspark
 simu
 simulationcraft-svn
 simulavr
-simulavr-git
 simutrans
 simutrans-pak128
 simutrans-pak128-britain
