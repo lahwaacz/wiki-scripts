@@ -537,7 +537,7 @@ class Title:
         Types of a relative link:
 
         - same-page section links (e.g. ``[[#Section name]]`` on page ``Base``
-          is changed to ``[[Foo#Section name]]``)
+          is changed to ``[[Base#Section name]]``)
         - subpages (e.g. ``[[/Subpage]]`` on page ``Base`` is changed to
           ``[[Base/Subpage]]``)
 
