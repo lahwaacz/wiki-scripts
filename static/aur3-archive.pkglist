@@ -1196,7 +1196,6 @@ argcomplete
 argotlunar-bin
 argotlunar-git
 args4j
-argus
 argus-clients
 argus-server
 argyllcms
@@ -2971,7 +2970,6 @@ bsign
 bsl
 bsl-svn
 bslsh
-bsnes
 bsnes-aio
 bsnes-phoenix
 bsponmpi
@@ -3702,7 +3700,6 @@ chef
 chef-zero
 cheflex
 chembl_webresource_client
-chemical-mime-data
 cheops
 cherokee-svn
 cherrypy-svn
@@ -6997,7 +6994,6 @@ dslogic
 dslogic-git
 dspdfviewer-git
 dsromsmanager
-dssi-vst
 dsss
 dstatus
 dstroy
@@ -7678,7 +7674,6 @@ elsa-svn
 elsa-svn-arch
 elvis_patched-withx
 elvis_slack
-elyxer
 elzaudm-git
 elzdraw-git
 elzedit-git
@@ -8555,7 +8550,6 @@ fapws3-git
 faqtor
 faraday-git
 fareditor
-fargoal
 farmerjoe
 farstream-0.1
 fasmarm
@@ -8729,7 +8723,6 @@ feedthebeast-server
 feedtomail-git
 feedturtle
 feelhome
-feem
 feff
 feh-git
 feh-gtk
@@ -9515,7 +9508,6 @@ foto-bzr
 fotonica
 foundationdb
 fox-audio-player
-fox-devel
 fox-legacy
 foxitreader-bin
 foxkit
@@ -16490,7 +16482,6 @@ irggu-server-git
 irivermanager
 iriverter
 iriverter-svn
-iroffer-dinoex
 iron-bin
 ironbee-git
 irpas
@@ -16782,7 +16773,6 @@ java-flightplot-git
 java-forkjoin
 java-front
 java-getopt
-java-gnome-bin
 java-gson
 java-gstreamer
 java-guava
@@ -19617,7 +19607,6 @@ libappindicator3
 libapreq2
 libarc
 libarea-svn
-libarib25
 libarib25-stz-git
 libasan0-armhf-cross-bin
 libasciimap-git
@@ -21669,7 +21658,6 @@ lsrtunnel
 lss
 lsscsi
 lstree-git
-lsuio
 lsw
 lt_hotswap
 ltc-tools
@@ -22611,7 +22599,6 @@ mcabber-module-yaubil-hg
 mcabber-modules
 mcabber-notify
 mcclient
-mcelog
 mcelog-git
 mci-git
 mci-nightly
@@ -23970,7 +23957,6 @@ morse-git
 morse-x
 morse2ascii
 morse2led
-mosaic-ck
 moscow-ml
 moscript-svn
 moses
@@ -25117,7 +25103,6 @@ newton
 newton-adventure
 newton-adventure-level-editor
 newton-dynamics
-newton-dynamics-git
 newtonator
 newworldstudio
 newyork-wallpaper
@@ -26643,7 +26628,6 @@ openssh-dnssec
 openssh-dnsval
 openssh-gssapikeyexchange
 openssh-hardened
-openssh-hpn
 openssh-identitypersist
 openssh-ldap
 openssh-lpk
@@ -30671,7 +30655,6 @@ python-bottle-sqlite
 python-bottleneck
 python-bpt
 python-braintree
-python-brewer2mpl
 python-brisa
 python-brotherhood_solver-git
 python-bruce
@@ -32107,13 +32090,11 @@ python2-etsdevtools-git
 python2-etsproxy-git
 python2-evas
 python2-evas-svn
-python2-evdev
 python2-event
 python2-eventlet
 python2-eventlet08
 python2-everything
 python2-execnet
-python2-exiv2
 python2-extras
 python2-ez-setup
 python2-fabric
@@ -34660,7 +34641,6 @@ restfulie
 restund
 resty
 retext
-rethinkdb
 retro-fossil
 retroarch
 retroarch-assets-get
@@ -36026,7 +36006,6 @@ ruby-allison
 ruby-amazon
 ruby-ancestry
 ruby-anemone
-ruby-ansi
 ruby-arachni-rpc
 ruby-arachni-rpc-em
 ruby-arel-3
@@ -38185,7 +38164,6 @@ slackfire
 slackware-pkgtools
 slade-svn
 slang-baudrate-fixed
-slang-git
 slarchive
 slash-a
 slashem-curses
@@ -39475,7 +39453,6 @@ supload
 supplement-git
 supybot
 supybot-plugins
-supysonic-git
 surblhost
 surf-ag
 surf-hg
@@ -39536,7 +39513,6 @@ swaag
 swac-tools
 swami
 swank-clojure-git
-swap
 swapd
 swarmtv
 swatch
@@ -41505,7 +41481,6 @@ ttx
 tty-clock-patched
 ttyload
 ttyload-git
-ttymidi
 ttyrec-git
 ttyrpld
 ttysnoop
@@ -45674,7 +45649,6 @@ zcover
 zdatr
 zdelta
 zdesktop
-zdkimfilter
 zdoom-svn
 zebedee
 zed
