@@ -120,7 +120,6 @@ class API(Connection):
             "rcprop": "ids",
             "rctype": "edit|new",
             "rclimit": "1",
-            "continue": "",  # needed only to silence stupid deprecation warning
         }
         recentchanges = self.call_api(params)["recentchanges"]
         if len(recentchanges) == 0:
@@ -146,7 +145,6 @@ class API(Connection):
             "rcprop": "timestamp",
             "rcdir": "newer",
             "rclimit": "1",
-            "continue": "",  # needed only to silence stupid deprecation warning
         }
         recentchanges = self.call_api(params)["recentchanges"]
         if len(recentchanges) == 0:
@@ -164,7 +162,6 @@ class API(Connection):
             "rcprop": "timestamp",
             "rcdir": "older",
             "rclimit": "1",
-            "continue": "",  # needed only to silence stupid deprecation warning
         }
         recentchanges = self.call_api(params)["recentchanges"]
         if len(recentchanges) == 0:
