@@ -1,7 +1,7 @@
 requests
 # mwparserfromhell
 git+https://github.com/earwig/mwparserfromhell.git
-git+https://github.com/kynikos/lib.py.configfile.git#egg=configfile&subdirectory=src
+git+https://github.com/kynikos/lib.py.configfile.git
 
 # database
 sqlalchemy
