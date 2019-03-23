@@ -3150,7 +3150,6 @@ c-ray
 c-vtapi-git
 c11threads-git
 c2c-git
-c2ffi-git
 c2hs
 c2html
 c2ps
@@ -5635,7 +5634,6 @@ d-lib-mango
 d-programming-deimos-cairo-git
 d-programming-deimos-glfw-git
 d-programming-deimos-opengl-git
-d-rats
 d-stdlib-tango
 d-stdlib-tango-trunk
 d2_config-hg
@@ -8093,7 +8091,6 @@ epwutil
 epydoc-svn
 eqc
 eqntott
-eqonomize
 eqonomize-kde
 eqonomize-sub
 eqsl
@@ -11915,7 +11912,6 @@ gpac-svn
 gpacman
 gpapers
 gpar2
-gparted-git
 gpasswordman
 gpaste
 gpclient
@@ -15175,7 +15171,6 @@ hnefatafl
 hntool
 hocr
 hoichess-git
-hol-git
 hol4
 holdingnuts
 holotz-castle
@@ -22310,7 +22305,6 @@ mapm
 mapnik-svn
 mapnik2-svn
 mapserver-full
-maptool
 maradns-devel
 maradns2
 maratis
@@ -28084,7 +28078,6 @@ perl-locale-po
 perl-locale-textdomain
 perl-locale-us
 perl-log-dispatch-file-rolling
-perl-log-dispatch-file-stamped
 perl-log-dispatch-filerotate
 perl-log-message-simple
 perl-log-syslog-constants
@@ -28617,7 +28610,6 @@ phonon-avkode-git
 phonon-git
 phonon-gstreamer-git
 phonon-gstreamer-qt5
-phonon-qt4-mplayer-git
 phonon-qt5-git
 phonon-quicktime-git
 phonon-vlc-git
@@ -31793,7 +31785,6 @@ python2-asyncmongo
 python2-athena-locker-support-git
 python2-atom
 python2-auto-resizing-text-edit
-python2-autobahn
 python2-autoextension
 python2-autopep8
 python2-backports
@@ -32732,7 +32723,6 @@ python2-pyxmpp2
 python2-pyzmq
 python2-pyzmq-static
 python2-qmtest-git
-python2-qrcode
 python2-qrencode
 python2-qrencode-git
 python2-qrencode-pillow
@@ -34797,7 +34787,6 @@ ripper
 rippit
 ripple-client
 ripple-client-git
-rippled-git
 risc-git
 risc-win32-git
 ristretto-mod
