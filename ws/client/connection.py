@@ -92,7 +92,7 @@ class Connection:
     :param int timeout: connection timeout in seconds
     """
 
-    def __init__(self, api_url, index_url, session, timeout=30):
+    def __init__(self, api_url, index_url, session, timeout=60):
         self.api_url = api_url
         self.index_url = index_url
         self.session = session
@@ -165,7 +165,7 @@ class Connection:
                 help="whether to verify SSL certificates (default: %(default)s)")
         group.add_argument("--connection-max-retries", default=3, type=int,
                 help="maximum number of retries for each connection (default: %(default)s)")
-        group.add_argument("--connection-timeout", default=30, type=float,
+        group.add_argument("--connection-timeout", default=60, type=float,
                 help="connection timeout in seconds (default: %(default)s)")
         group.add_argument("--cookie-file", type=ws.config.argtype_dirname_must_exist, metavar="PATH",
                 help="path to cookie file (default: $cache_dir/$site.cookie)")
