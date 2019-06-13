@@ -304,7 +304,6 @@ adbextractor
 adcfw-log
 adchpp-bzr
 add64
-addinclude
 addlicenseinfo
 addns
 addon-sdk
@@ -552,7 +551,6 @@ alkimia
 alkitab
 allacrost
 allblack-icons
-allegro-git
 allegro.pas
 allegro5
 allegro_pas
@@ -560,7 +558,6 @@ allegro_tiled-git
 allegrogl
 alleleseq_cnvscript
 allen
-alleyoop
 alliance
 alliancep2p
 allim
@@ -1035,10 +1032,8 @@ arachne
 arachni-git
 arachni-rpc-em
 arangodb-latest
-arara
 arb
 arbaro
-arbtt
 arc-files
 arc-nu-git
 arc-status
@@ -2022,7 +2017,6 @@ batotodownloader
 batren
 battalion
 battalion2004
-battery
 battery-applet-4-xfce4
 battery-remaining-plasmoid
 battery-status-bzr
@@ -2724,7 +2718,6 @@ boost_locale
 boostpythongenerator-git
 boot-git
 boot-update
-bootchart
 bootload
 bootsplash-fb
 boottools-git
@@ -2784,7 +2777,6 @@ breakout
 breathe-icon-theme
 brebis
 breeze
-breeze-kde4
 breqn
 bresc
 brettspielwelt
@@ -2796,7 +2788,6 @@ brickstore
 bridge-bzr
 bridge-gtk2-theme
 briefcase-git
-brig
 brightnessicon-git
 brilltagger
 brise
@@ -2983,7 +2974,6 @@ bt747_dev
 btar
 btcat
 btcat2
-btcd-git
 btcgui-git
 btckeygenie
 btcwallet-git
@@ -3448,7 +3438,6 @@ ccemu
 ccfits
 ccg-git
 ccglue
-ccgo
 cchess
 cchr
 ccid145
@@ -3602,7 +3591,6 @@ cfortran
 cfront
 cfrunner-git
 cfunctions
-cfv
 cgal
 cgal-compat
 cgal-python
@@ -3711,7 +3699,6 @@ chestnut-dialer
 chextrek
 chgems-git
 chianti
-chibi-scheme
 chibi-scheme-emscripten-hg
 chibi-scheme-hg
 chibitracker
@@ -4567,7 +4554,6 @@ cmake-unstable
 cmakebuilder
 cmaked
 cmaked2-hg
-cmark-git
 cmatrixreloaded
 cmc-git
 cmdevcenter
@@ -4807,7 +4793,6 @@ compat-wireless-git-old
 compat-wireless-patched
 compat-wireless-patched-daily
 compcache
-compcert-git
 compface-bskv
 compfused
 comphep
@@ -4983,7 +4968,6 @@ construct-daemon-git
 construder-git
 construo
 consul
-consul-git
 consul-ui-git
 contact-lookup-applet
 contacts
@@ -5283,7 +5267,6 @@ crlibm
 crm114
 crmp-bin
 crmp-svn
-cromfs
 cronkite
 cronolog
 cronolog-beta
@@ -6128,7 +6111,6 @@ dhcpd-pools
 dhcperf
 dhex
 dhg.zsh-theme
-dia-git
 dia-git-opt
 dia-gnome-network-icons
 dia-solar-water-shapes
@@ -6620,7 +6602,6 @@ docker-zfs
 dockmanager-kde-git
 dockmanager-kde_and_extra
 docksend
-docky
 docky-bzr
 docky-stacks-bzr
 docsis
@@ -7461,7 +7442,6 @@ eduke32-dukeplus
 eduke32-hrp
 eduke32-polymer-hrp
 edumagnet
-edumips64
 edumips64-unict
 edway
 edytornc
@@ -7579,7 +7559,6 @@ ekg-cvs
 ekg2-git
 ekg2-unicode-svn
 ekiga-lite
-eko
 el-git
 elance-tracker
 elantech-tp-dkms
@@ -7638,7 +7617,6 @@ elilo-git
 elilo-x86_64
 elinks-pre
 elixir
-elixir-git
 elixir-svn
 elkirtasse
 elkirtasse-stable
@@ -7758,7 +7736,6 @@ emacs-guess-style
 emacs-guru-mode-git
 emacs-haml-mode-git
 emacs-haskell-mode-git
-emacs-helm-git
 emacs-highlight-current-line
 emacs-hiwin-mode-git
 emacs-ide
@@ -8248,7 +8225,6 @@ eureqa
 eurocalc-git
 euscheme
 ev3
-eva
 eva-ubuntu
 evalify
 evas-generic-loaders-svn
@@ -8692,7 +8668,6 @@ fdpowermon
 fdupes-jody-git
 fdupes-pr
 fdupves-git
-fdutils
 fe3d-svn
 feathercoin-git
 feathercoin-git-0.8.5
@@ -9056,7 +9031,6 @@ firefox-moonlight64
 firefox-nightly-cs
 firefox-nightly-debug
 firefox-nightly-es
-firefox-nightly-hg
 firefox-nightly-i18n-ru
 firefox-nightly-l10n-ru
 firefox-nightly-latest
@@ -9437,7 +9411,6 @@ foo-uie-lyrics2
 foo2hp
 foo2zjs-testing
 fooaudio-git
-foobnix-git
 foosearch
 footbrawl
 fop-cs
@@ -9567,7 +9540,6 @@ fped-svn
 fpgui
 fping-ipv6
 fpocket
-fpp
 fprint_demo-nightly
 fprintd
 fprintd-git
@@ -10073,7 +10045,6 @@ gappproxy
 gappproxy-svn
 garamondx
 garbagecat
-garcon-devel
 garden-of-coloured-lights
 garfield-shell-git
 gargoyle-mod
@@ -10218,7 +10189,6 @@ gdcm-python
 gdebugger
 gdeskcal-skin-simple
 gdeskcal-skins
-gdesklets
 gdevilspie-py2
 gdgen
 gdiff-ext
@@ -10328,7 +10298,6 @@ gedit-scala
 gedit-schemer-plugin
 gedit-smart-highlighting-plugin
 gedit-source-code-browser
-gedit-source-code-browser-git
 gedit-symbol-browser-plugin
 gedit-tabsextend
 gedit-textwrap-plugin
@@ -10466,7 +10435,6 @@ gerstensaft
 gescen
 geshicodetag-mediawiki-ext
 gespeak
-gespeaker
 gestikk
 gestikk-bzr
 gestures-kde-git
@@ -11052,7 +11020,6 @@ gngeo-hg
 gngeo07
 gnhostlinux
 gnoduino-git
-gnome-activity-journal
 gnome-activity-journal-bzr
 gnome-agenda
 gnome-agenda-svn
@@ -11102,7 +11069,6 @@ gnome-devel-docs
 gnome-devel-docs-git
 gnome-disk-utility-lxpolkit
 gnome-disk-utility-lxpolkit-git
-gnome-do
 gnome-do-bzr
 gnome-do-docklets-bzr
 gnome-do-lp
@@ -11186,7 +11152,6 @@ gnome-python-desktop-all
 gnome-python-sugar
 gnome-raw-thumbnailer
 gnome-scan
-gnome-schedule
 gnome-screensaver-fadeout-nvidia-patch
 gnome-screensaver-ubuntu
 gnome-session-3-8
@@ -12772,7 +12737,6 @@ gutenutils-git
 guvcview
 guvcview-svn
 guvcview_alt
-guymager-svn
 guzzle
 gv4l
 gvars3
@@ -15455,7 +15419,6 @@ hyperspec
 hypertable
 hyphen-en-base
 hyphen-nn
-hyphen-pl
 hyphen-uk
 hyro
 i-librarian
@@ -17990,9 +17953,7 @@ keepassx-autoopen
 keepassx-faenza-icons
 keepassx-pt-br
 keepassx-svn
-keepassx2
 keepassx2-git
-keepnote
 keeppass-password-counter
 keimpx
 keinett-minecraft
@@ -18838,7 +18799,6 @@ labrat
 labrea
 labrea-lua-git
 laby
-labyrinth
 labyrinth-git
 labyrinth-svn
 lacaml
@@ -19760,7 +19720,6 @@ libcomplearn-mod-lzmax
 libcomplearn-mod-ppmd
 libcomplearn-mod-ppmdx
 libconflate
-libconnman-qt-git
 libcoyotl
 libcppa-git
 libcppircclient
@@ -19858,7 +19817,6 @@ libeblob-git
 libebt
 libebur128-git
 libebur128-nu774-git
-libechonest
 libechonest-git
 libechonest2
 libedstring-svn
@@ -20024,7 +19982,6 @@ libgooglepinyin
 libgooglepinyin-hg
 libgoom2
 libgpcl
-libgpg-error-git
 libgphoto2-nolimit
 libgphoto2-sharp
 libgphoto2-svn
@@ -20543,7 +20500,6 @@ libreadopt-git
 libreadopt-hg
 libreadopt-svn
 librecad
-libredblack
 libredwg-git
 librelibrecell-git
 librem
@@ -20822,7 +20778,6 @@ libump
 libunicapgtk
 libunicodenames
 libunihan
-libuninameslist
 libuninum
 libunique3-git
 libunistring
@@ -20920,7 +20875,6 @@ libwlocate
 libwms
 libwpad-svn
 libwsbm-git
-libx11-git
 libx11-ldpreloadnograb
 libx11-ubuntu
 libx32-alsa-lib
@@ -20990,7 +20944,6 @@ libxdtv-i18n
 libxdtv-theme-aqua
 libxenctrl
 libxenserver
-libxext-git
 libxfce4menu-devel
 libxfce4menu-git
 libxfce4ui-4.11
@@ -21002,7 +20955,6 @@ libxft-git
 libxft-lcd
 libxft-newspr
 libxft-ubuntu
-libxi-git
 libxi-ubuntu
 libximc
 libxkbcommon
@@ -21160,7 +21112,6 @@ lineak-kdeplugins
 lineak-xosdplugin
 lineakd
 linemode-git
-linenoise-git
 lines-git
 linfreeze
 lingo-dictionary-bzr
@@ -21503,7 +21454,6 @@ log4cplus
 log4cpp
 log4cpp-old
 log4cpp-pthread
-log4net
 log4py
 log4qt-git
 logalert
@@ -21655,7 +21605,6 @@ lsscsi
 lstree-git
 lsw
 lt_hotswap
-ltc-tools
 lte-tools-git
 lthread-git
 ltk-nepali-fonts
@@ -21680,7 +21629,6 @@ lua-c++
 lua-cliargs
 lua-cmsgpack
 lua-complex
-lua-curl
 lua-curl-git
 lua-cyrussasl
 lua-cyrussasl-git
@@ -21922,7 +21870,6 @@ luximono
 lv2-abgate
 lv2-avw
 lv2-balance
-lv2-c++-tools
 lv2-data-access
 lv2-dyn-manifest
 lv2-dynmanifest
@@ -22150,7 +22097,6 @@ maelstrom-git
 maescools-catacomb-snatch-git
 mafalda-svn
 magazynier
-mage
 magento2
 maggot
 maggot-dict-git
@@ -23823,7 +23769,6 @@ moleinvasion-music
 molekel
 moleto-git
 molmol
-molsketch
 moltaqa-lib-bin
 moma
 moment-git
@@ -24271,7 +24216,6 @@ muffin-dev
 muffin-wm
 mugo
 muhttpd
-muine
 muine-git
 muine-shell
 muinescrobbler
@@ -24888,7 +24832,6 @@ net-bubble
 net-http
 net-shaper
 net2pcap-git
-netactview
 netams
 netatalk-ddp
 netatalk-git
@@ -25097,7 +25040,6 @@ newton
 newton-adventure
 newton-adventure-level-editor
 newton-dynamics
-newtonator
 newworldstudio
 newyork-wallpaper
 newznab
@@ -25198,7 +25140,6 @@ nimrod
 nimrod-git
 nimuh
 nimuh-data
-nini
 ninit-boot
 ninit-boot-git
 ninix-aya
@@ -25455,7 +25396,6 @@ notify-osd-icons
 notify-osd-normal-position
 notify-osd-xfconf-bzr
 notify-serve-git
-notify-sharp
 notimetoexplain
 notion-styles-thinviolet
 notion-xft
@@ -25623,7 +25563,6 @@ nvidia-304xx-pf
 nvidia-319-ck
 nvidia-319-libgl
 nvidia-319-utils
-nvidia-340xx-dkms
 nvidia-340xx-lts-ck
 nvidia-340xx-mainline
 nvidia-71xx-ice
@@ -25940,7 +25879,6 @@ ocamlweb
 oce-git
 oceanix
 ocelib
-ocenaudio
 ochi
 oci-tao
 ocl-icd
@@ -26686,7 +26624,6 @@ openvanilla-modules
 openvanilla-modules-svn
 openvanilla-svn
 openvas-administrator
-openvas-cli
 openvas-cli-7
 openvas-client
 openvas-client-freedesktop
@@ -26756,7 +26693,6 @@ optimize-git
 optimus-gtk-theme
 optimus-xrandr
 optistatus-git
-optix
 opts
 opus
 opus-exp-git
@@ -27000,7 +26936,6 @@ ovpngui
 ovz-web-panel
 owamp
 owl-browser-git
-owl-git
 owlboxer
 owlman-git
 owncloud-app-antivirus
@@ -27709,7 +27644,6 @@ perl-apache-admin-config
 perl-apache-gallery
 perl-apache-htpasswd
 perl-apache-reload
-perl-apache-session
 perl-apache-test
 perl-apache2-authpam
 perl-app-clusterssh
@@ -27826,7 +27760,6 @@ perl-cpanplus-dist-gentoo
 perl-cpanplus-dist-slackware
 perl-cpanplus-dist-suse
 perl-crypt-dh
-perl-crypt-ecb
 perl-crypt-lite
 perl-crypt-openssl-aes
 perl-crypt-openssl-dsa
@@ -27882,7 +27815,6 @@ perl-devel-checkcompiler
 perl-devel-globaldestruction
 perl-devel-leak
 perl-devel-patchperl
-perl-devel-size
 perl-devel-stacktrace
 perl-digest-bubblebabble
 perl-digest-crc32
@@ -27896,15 +27828,11 @@ perl-dist-zilla-plugin-compiletests
 perl-dist-zilla-plugin-critictests
 perl-dist-zilla-plugin-distmanifesttests
 perl-dist-zilla-plugin-eoltests
-perl-dist-zilla-plugin-git
-perl-dist-zilla-plugin-github
 perl-dist-zilla-plugin-kwaliteetests
 perl-dist-zilla-plugin-minimumversiontests
 perl-dist-zilla-plugin-notabstests
 perl-dist-zilla-plugin-perltidy
 perl-dist-zilla-plugin-podspellingtests
-perl-dist-zilla-plugin-prepender
-perl-dist-zilla-plugin-readmefrompod
 perl-dist-zilla-plugin-reportversions
 perl-dist-zilla-plugin-repository
 perl-dist-zilla-plugin-submittingpatches
@@ -28016,7 +27944,6 @@ perl-html-linkextractor
 perl-html-table
 perl-html-tableparser-systemfreund
 perl-html-wikiconverter-dokuwiki
-perl-http-daemon-ssl
 perl-http-server-simple-mason
 perl-httpd-bench-apachebench
 perl-icontrol
@@ -28141,7 +28068,6 @@ perl-moose-autobox
 perl-moosex-attributeshortcuts
 perl-moosex-classattribute
 perl-moosex-configfromfile
-perl-moosex-has-sugar
 perl-moosex-hasdefaults
 perl-moosex-log-log4perl
 perl-moosex-multiinitarg
@@ -28306,7 +28232,6 @@ perl-schedule-cron-events
 perl-search-queryparser
 perl-sendmail-pmilter
 perl-set-array
-perl-set-crontab
 perl-sgml-dtd
 perl-shared
 perl-sharyanto-file-util
@@ -28323,7 +28248,6 @@ perl-spreadsheet-writeexcelxml
 perl-sql-library
 perl-statistics-r
 perl-storable
-perl-string-interpolate
 perl-string-mkpasswd
 perl-string-sections
 perl-string-strip
@@ -28933,7 +28857,6 @@ pidgin-rhythmbox
 pidgin-safely
 pidgin-screenlet
 pidgin-screenshot
-pidgin-sipe
 pidgin-stfw-plugin
 pidgin-talkfilters
 pidgin-tlen
@@ -29110,7 +29033,6 @@ plank-theme-orchis-git
 plank-theme-transparent
 plank-themer-git
 plank-themes-elementary-bzr
-planner
 plasduino
 plasma-active-git
 plasma-addons-applets-stackfolder
@@ -30585,7 +30507,6 @@ python-ann-ctypes-svn
 python-ansi2html
 python-anyjson
 python-aosd
-python-apache-libcloud
 python-apipkg
 python-appdirs
 python-appindicator
@@ -30957,7 +30878,6 @@ python-gsl
 python-gtkextra
 python-gtkglext
 python-gtkmvc
-python-gtkspellcheck
 python-gudev-git
 python-gurobi
 python-gvgen
@@ -31042,7 +30962,6 @@ python-libdiscid
 python-libgearman
 python-libgit2
 python-libgit2-git
-python-liblinear
 python-libnacl
 python-librtmp-git
 python-libssh2
@@ -31099,7 +31018,6 @@ python-mirra
 python-misspellings
 python-mistune
 python-mkdocs
-python-mmh3
 python-mne-git
 python-moc
 python-mock
@@ -32181,7 +32099,6 @@ python2-glanceclient
 python2-glanceclient-deb
 python2-glanceclient-git
 python2-glanceclient-havana
-python2-glob2-git
 python2-gltools
 python2-glumpy
 python2-glyr-git
@@ -32207,7 +32124,6 @@ python2-grin
 python2-gsync
 python2-gsync-git
 python2-gtkchart-git
-python2-gtkspellcheck
 python2-gtkspellcheck-git
 python2-gudev
 python2-gviz_api
@@ -32256,7 +32172,6 @@ python2-inspyred
 python2-invoicegenerator
 python2-invoicegenerator-git
 python2-iowait
-python2-ipaddr
 python2-ipaddress
 python2-ipdb
 python2-ircutils
@@ -32409,7 +32324,6 @@ python2-nacl
 python2-natpmp
 python2-ndg-httpsclient
 python2-nemo
-python2-neovim
 python2-netaddr
 python2-netctl
 python2-netfilter
@@ -32476,7 +32390,6 @@ python2-oslo-vmware
 python2-osmgpsmap
 python2-othman-git
 python2-pacmanprogressbar
-python2-pafy
 python2-pagekite
 python2-pam
 python2-pandas
@@ -32506,7 +32419,6 @@ python2-pdfminer-git
 python2-pdfrw
 python2-peak-util
 python2-pebl
-python2-peewee
 python2-peewee-git
 python2-pelican-git
 python2-pexif
@@ -32579,7 +32491,6 @@ python2-pycparser
 python2-pycscope
 python2-pydec
 python2-pydes
-python2-pydns
 python2-pydown
 python2-pydy
 python2-pyelftools
@@ -32995,7 +32906,6 @@ python2-utidylib
 python2-utmp
 python2-validate_email
 python2-vdirsyncer-git
-python2-venusian
 python2-verhulst-git
 python2-vim
 python2-vim-git
@@ -33320,7 +33230,6 @@ qcad-translations
 qcad-zh_cn
 qcairo
 qcat
-qcheckers
 qcheckers-mobile
 qclock
 qcma-kde-git
@@ -33503,7 +33412,6 @@ qmviewer-git
 qn24b
 qnetsoul-git
 qnetstatview
-qnetwalk
 qnokiacommander
 qnotesmanager
 qof
@@ -33851,7 +33759,6 @@ quagga-lisg
 quake2world-client-svn
 quake2world-data-rsync
 quake2world-server-svn
-quake3-data-steam
 quake3-excessiveplus-beta
 quakebased-mpd-binder
 quakeforge-git
@@ -34057,7 +33964,6 @@ qwitik
 qwo
 qwriter
 qwt-beta
-qwt5
 qwtpolar-svn
 qwtpolar-svn-qt4
 qx11grab
@@ -34137,7 +34043,6 @@ r-javagd
 r-jgr
 r-ks
 r-mathlib
-r-misc3d
 r-multcomp
 r-mvoutlier
 r-mysql
@@ -34157,7 +34062,6 @@ r-rrcov
 r-ryacas
 r-sqlite
 r-tensora
-r-tkrplot
 r-usingr
 r-vimcom.plus
 r2-bindings
@@ -36523,7 +36427,6 @@ ruby-opengl
 ruby-openid
 ruby-optiflag
 ruby-optimism
-ruby-origami
 ruby-orm_adapter
 ruby-pa
 ruby-paint
@@ -37199,7 +37102,6 @@ sbmanager-git
 sbox2-git
 sbsigntool-git
 sbsigntools
-sbsms
 sbt
 sbt-jrebel
 sbxkb
@@ -37728,7 +37630,6 @@ sfst
 sfxr-sdl
 sg3_utils-beta
 sgdemo
-sge
 sge2d
 sgems-svn
 sgfxi
@@ -38078,7 +37979,6 @@ skf-git
 ski-simulator
 skifree
 skink
-skipfish
 skippy
 skippy-xd
 skipstone
@@ -38370,7 +38270,6 @@ smtpclient
 smtpclient-for-qt5
 smtpscan
 smtube
-smuxi
 smv_encode
 smw
 sn
@@ -38414,7 +38313,6 @@ snes9x-libsnes-git
 snesfilter
 snesreader
 snewpy
-sni-qt
 snip-git
 snipmate.vim
 snitter
@@ -38583,7 +38481,6 @@ southerncross-git
 sova
 sox-git
 soya
-sp
 spa-git
 space-quest-1
 spaceapiclient
@@ -38600,7 +38497,6 @@ spacemouse-git
 spacerocks-git
 spaceshooter
 spacezero
-spacman
 spambayes
 spamcup
 spamoracle
@@ -38660,7 +38556,6 @@ speedstep-centrino
 speedtch
 speedtest-cli
 speex-svn
-spell
 spf
 spf-64
 spfs
@@ -39281,7 +39176,6 @@ subplay-git
 subs2srs
 subsonic-kang-git
 subsurface
-subsync
 subsync-git
 subtitlecomposer-kde3
 subtitlecomposer-svn
@@ -39599,7 +39493,6 @@ sx-dbus
 sx-desktops
 sx-devel-git
 sx-focus
-sx-git
 sx-gobject
 sx-help
 sx-layoutmgr
@@ -39913,7 +39806,6 @@ tasktogo-git
 taskview-git
 taskwarrior
 tasky-git
-tasque
 tasque-git
 tastebook
 tastebook-bzr
@@ -40394,12 +40286,10 @@ thunar-split-view
 thunar-vfs
 thunar-vfs-devel
 thunar-vfs-git
-thunar-volman-devel
 thunar1-libs
 thunderbird-aurora
 thunderbird-awn-notif
 thunderbird-beta-bin-all-localizations
-thunderbird-beta-bin-de
 thunderbird-beta-bin-it
 thunderbird-branded
 thunderbird-branded-bin
@@ -40540,7 +40430,6 @@ tinyssh_encrypt
 tinyterm-svn
 tinyxml
 tinyxml2
-tinyxml2-git
 tir-git
 tircd
 tisean
@@ -40571,7 +40460,6 @@ tkgames
 tkgeomap
 tkgm_util
 tkhs
-tkhtml
 tkhtml3
 tkinter-treectrl
 tklor
@@ -40639,7 +40527,6 @@ togra
 togra-20060312
 toico
 toilet-svn
-tokentool
 toki
 tokukv-git
 tokumx-ce
@@ -41495,7 +41382,6 @@ tufao-doc
 tulklut
 tulpenmanie-git
 tum-jasmin
-tumbler-devel
 tumblweed
 tumiki
 tunapie
@@ -41920,7 +41806,6 @@ unhtml
 unibilium
 unicentaopos
 unicode-screensaver
-unicon
 unicon-svn
 uniconvertor-svn
 unidata-decoders-perl
@@ -42239,7 +42124,6 @@ v4l-utils-git
 v4l2grab
 v4l2loopback
 v4l2loopback-git
-v4l2ucp
 v8-3.21
 v8-current
 v8-debug
@@ -43331,7 +43215,6 @@ virtviewer-git
 viscum-git
 visibility-git
 visicut
-visicut-git
 visiocom
 visionegg
 visound-git
@@ -43927,7 +43810,6 @@ wine-l-pa
 wine-laa
 wine-launcher-creator
 wine-locale
-wine-lol
 wine-luna-theme
 wine-menus
 wine-mono
@@ -44220,7 +44102,6 @@ wxdesigner
 wxdfast
 wxdownloadfast
 wxflashget
-wxformbuilder
 wxformbuilder-bin
 wxformbuilder-dev
 wxgtk-2.6-ansi
@@ -44824,7 +44705,6 @@ xfce4-panel-netk
 xfce4-panel-nohelpabout
 xfce4-perl-git
 xfce4-plastic-theme
-xfce4-power-manager-git
 xfce4-power-manager-lite
 xfce4-power-manager-nodep
 xfce4-power-manager-pmu
@@ -45347,7 +45227,6 @@ yabause-svn
 yachat
 yachat-bin
 yacpong
-yacreader-bin
 yacy-svn
 yad-svn
 yaf-netsa
@@ -45436,7 +45315,6 @@ yara
 yarock
 yarock-new
 yarpt
-yarxi
 yasdp
 yasp-scripted-plasmoid
 yassl
