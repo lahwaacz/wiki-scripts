@@ -116,6 +116,11 @@ def parse_timestamps_in_struct(struct):
 
     for keys, value in gen_nested_values(struct):
         if isinstance(value, str):
+            # skip fields which are not timestamps (e.g. user=infinity)
+            _strkeys = "".join(str(k) for k in keys)
+            if "timestamp" not in _strkeys and "registration" not in _strkeys:
+                continue
+
             if value.lower() == "infinity":
                 set_ts(struct, keys, datetime.datetime.max)
             elif value.lower() == "-infinity":
