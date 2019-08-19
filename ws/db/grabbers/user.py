@@ -60,7 +60,11 @@ class GrabberUsers(GrabberBase):
             yield self.sql["insert", "user"], db_entry
 
             extra_groups = set(user["groups"]) - implicit_groups
-            expirations = dict((gm["group"], gm["expiry"]) for gm in user["groupmemberships"])
+            # FIXME: list=allusers does not have a groupmemberships parameter: https://phabricator.wikimedia.org/T218489
+            if "groupmemberships" in user:
+                expirations = dict((gm["group"], gm["expiry"]) for gm in user["groupmemberships"])
+            else:
+                expirations = dict()
             for group in extra_groups:
                 expiry = expirations.get(group)
                 if expiry == datetime.datetime.max:
