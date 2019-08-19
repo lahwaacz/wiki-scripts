@@ -118,7 +118,7 @@ def parse_timestamps_in_struct(struct):
         if isinstance(value, str):
             # skip fields which are not timestamps (e.g. user=infinity)
             _strkeys = "".join(str(k) for k in keys)
-            if "timestamp" not in _strkeys and "registration" not in _strkeys:
+            if "timestamp" not in _strkeys and "registration" not in _strkeys and "expiry" not in _strkeys and "touched" not in _strkeys:
                 continue
 
             if value.lower() == "infinity":
