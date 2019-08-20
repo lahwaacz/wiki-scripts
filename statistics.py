@@ -251,7 +251,7 @@ divided by the number of days between the user's first and last edits.
         rows = []
 
         for user in self.db_userprops:
-            if "invalid" in user or "missing" in user:
+            if "invalid" in user or "missing" in user or "blockid" in user:
                 continue
             if user["editcount"] >= self.MINTOTEDITS or user["recenteditcount"] >= self.MINRECEDITS:
                 name = user["name"]
