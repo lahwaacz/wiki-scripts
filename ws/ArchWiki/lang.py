@@ -17,6 +17,7 @@ __local_language = "English"
 # language data, sorted by subtag
 __languages = [
     {"name": "العربية", "subtag": "ar", "english": "Arabic"},
+    {"name": "Bosanski", "subtag": "bs", "english": "Bosnian"},
     {"name": "Български", "subtag": "bg", "english": "Bulgarian"},
     {"name": "Català", "subtag": "ca", "english": "Catalan"},
     {"name": "Česky", "subtag": "cs", "english": "Czech"},
@@ -56,6 +57,7 @@ __languages = [
 # languages that have a category "Category:<lang>" on ArchWiki
 __category_languages = [
     "العربية",
+    "Bosanski",
     "Български",
     "Català",
     "Česky",
@@ -88,7 +90,7 @@ __category_languages = [
 # languages with right-to-left script
 __rtl = ["ar", "he"]
 __interlanguage_external = ["de", "fa", "fr", "ja", "sv"]
-__interlanguage_internal = ["ar", "bg", "cs", "da", "el", "en", "es", "fi", "he",
+__interlanguage_internal = ["ar", "bs", "bg", "cs", "da", "el", "en", "es", "fi", "he",
                             "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt",
                             "ru", "sk", "sr", "th", "tr", "uk", "zh-hans", "zh-hant"]
 
