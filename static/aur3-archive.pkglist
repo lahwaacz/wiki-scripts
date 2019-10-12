@@ -1012,7 +1012,6 @@ apron-svn-ocaml
 apslint
 apvlv-svn
 aqbanking-beta
-aqbanking-git
 aqpm-git
 aqq_pidgin_plugin
 aqtsvngui
@@ -1741,7 +1740,6 @@ avr-libc-user-manual
 avr32-gnu-toolchain
 avr32_gnu_toolchain
 avr32studio
-avra-git
 avrdude-arduino
 avrdude-ftdi
 avrdude-rpi
@@ -2109,7 +2107,6 @@ beclock
 bed-git
 bedropped
 bedup-git
-beef-git
 beep-game
 beeswax
 beetle-pce-fast-libretro-git
@@ -2422,7 +2419,6 @@ bitstormlite
 bitswash
 bitten-svn
 bitthief
-bittornado
 bittorrent-sync
 bittripbeat
 bittriprunner
@@ -5330,7 +5326,6 @@ crtmpserver-svn
 crtools-git
 cruisecontrol
 cruisecontrol-bin
-crun
 crunchyfrog
 crush-tools
 crutziplayer
@@ -9291,7 +9286,6 @@ fluent-plugin-flume
 fluent-plugin-pghstore
 fluent-plugin-redis
 fluidr3
-fluidsynth-dssi
 fluidsynth-oss
 fluidsynth-svn
 flume-ng
@@ -9620,7 +9614,6 @@ freeimage.net
 freeipa
 freej
 freej-git
-freelan
 freelan-buildtools
 freemedforms
 freemedforms-project
@@ -10188,7 +10181,6 @@ gdk-html
 gdk-pixbuf-psd
 gdk-pixbuf-webp-git
 gdk-pixbuf-xcf
-gdk-pixbuf2-git
 gdk-pixbuf2-gnome-3-10-git
 gdl-svn
 gdm-arc-colors
@@ -11912,7 +11904,6 @@ gpstk22
 gpswatch-git
 gpu-md5-crack
 gpuocelot-svn
-gpup
 gqclient
 gqmpeg
 gqr
@@ -11928,7 +11919,6 @@ gr-fcdproplus
 gr-iqbal
 gr-lida
 gr-osmosdr
-grabber
 grabbing
 grabouille
 grabtor
@@ -11951,7 +11941,6 @@ grall2-git
 gramofile
 gramps-git
 grandcoin-git
-grandorgue-svn
 grandr-applet
 granite
 granite-framework-bzr
@@ -12085,7 +12074,6 @@ groundfire
 groupexplorer
 groupvpn
 groupvte
-growl-for-linux-git
 grown
 grub-bios-bzr
 grub-btrs
@@ -12496,7 +12484,6 @@ gtk2-cleartype
 gtk2-dragmenubar
 gtk2-engines-ubuntulooks
 gtk2-gilouche-theme
-gtk2-git
 gtk2-git-ubuntu
 gtk2-globalmenu
 gtk2-gummygilouche-basic-theme
@@ -15032,7 +15019,6 @@ hgd
 hge-unix-git
 hge-unix-hg
 hgsvn-hg
-hgview
 hgview-hg
 hh
 hhh
@@ -15153,7 +15139,6 @@ hostap-utils
 hostapd-8188eu
 hostapd-8192cu
 hostapd-legacy
-hostapd-noscan
 hostapd-nt_password_hash
 hostapd-stable
 hostname
@@ -15295,7 +15280,6 @@ htun
 huawei-ndis-dkms
 huawei-ussd
 hub
-hub-bin
 hub-rubygem-git
 hubbub-svn
 hubflow-git
@@ -19112,7 +19096,6 @@ lib32-catalyst-utils-test
 lib32-cdparanoia
 lib32-ciscos
 lib32-clang
-lib32-cloog
 lib32-cloog-ppl
 lib32-cmt
 lib32-cnijfilter-mp560
@@ -19282,7 +19265,6 @@ lib32-libmcrypt
 lib32-libmemcached
 lib32-libmm-glib
 lib32-libmodplug
-lib32-libmpc
 lib32-libndp
 lib32-libnettle4
 lib32-libnewt
@@ -19381,7 +19363,6 @@ lib32-mingw-w64-pangomm
 lib32-mingw-w64-ptlib
 lib32-mingw-w64-wxmsw
 lib32-mingw-w64-wxmsw-static
-lib32-mpfr
 lib32-mpfr-dev
 lib32-myriad-music-plugin
 lib32-nettle
@@ -19431,7 +19412,6 @@ lib32-portaudio
 lib32-portaudio-pulse
 lib32-portaudio-svn
 lib32-portaudio_cpp
-lib32-ppl
 lib32-primus-git
 lib32-procps-ng
 lib32-pypy-hg
@@ -20354,7 +20334,6 @@ libpar2-git
 libparapin
 libparapin-py
 libparse-debianchangelog-perl
-libparsifal
 libpcan
 libpcap++
 libpcap-any
@@ -21666,7 +21645,6 @@ lua-socket
 lua-sqlite3
 lua-state
 lua-state-git
-lua-stdlib
 lua-stdlib-git
 lua-supernn
 lua-systemd
@@ -22214,7 +22192,6 @@ map2x-core-git
 map2x-plugins-git
 map2x-plugins-nonfree-git
 map2x-qt-git
-mapdamage
 maperitive-bin
 maple-ide
 mapm
@@ -22359,7 +22336,6 @@ mate-notification-daemon
 mate-notification-daemon-1.7
 mate-panel
 mate-panel-1.7
-mate-panel-git
 mate-pl-parser
 mate-polkit
 mate-polkit-1.7
@@ -24380,7 +24356,6 @@ mx
 mx-1.1
 mx-1.2
 mx-unstable
-mx44
 mx5000tools
 mx610-notification
 mx610hack
@@ -24924,7 +24899,6 @@ netspeed-applet
 netspeed-applet-fontsize
 netspeed-applet-git
 netspeed-plasmoid
-netsurf-fb
 netsurf-svn
 netsurf-svn-fb-sdl
 netswitch
@@ -25802,7 +25776,6 @@ ocaml-oasis-darcs
 ocaml-obuild
 ocaml-obuild-git
 ocaml-oclock
-ocaml-ocplib-endian
 ocaml-ocsigen-bundle
 ocaml-ocsigenserver
 ocaml-ocsigenserver-dev
@@ -29237,7 +29210,6 @@ pm-utils-compat
 pm-utils-git
 pm-utils-screen-lock
 pmc
-pmccabe
 pmcma-git
 pmcyg
 pmdplay-git
@@ -29593,7 +29565,6 @@ pride
 prima
 primateplunge
 primax_scan
-prime
 prime-dict
 primecoin-git
 primecoin-mikaelh2-git
@@ -30080,7 +30051,6 @@ pyexiv2-bzr
 pyfa-git
 pyfa2-git
 pyfacebook-git
-pyfan
 pyffi
 pyffi-git
 pyffmpeg
@@ -30389,7 +30359,6 @@ pysdl_mixer
 pysdm
 pysearch
 pyshadow
-pyshaper
 pyshark
 pyshell
 pysheng
@@ -31118,7 +31087,6 @@ python-poppler-bzr
 python-poppler-qt
 python-portmidi
 python-posix-ipc
-python-potr
 python-power-git
 python-powerline
 python-praw
@@ -31268,7 +31236,6 @@ python-pysswords
 python-pystacia
 python-pysvg-svn
 python-pysvmlight
-python-pysynphot
 python-pytables
 python-pytagcloud
 python-pyteomics.pepxmltk
@@ -31393,7 +31360,6 @@ python-six
 python-sleekxmpp-devel
 python-sleekxmpp-git
 python-sleekxmpp-poezio
-python-slycot
 python-smartypants
 python-smc-git
 python-smhasher-git
@@ -31818,7 +31784,6 @@ python2-cx_oracle
 python2-cymysql
 python2-cython-git
 python2-cython-hidapi
-python2-d2to1
 python2-daemon
 python2-daemoncmd
 python2-dark
@@ -32069,7 +32034,6 @@ python2-google-api-python-client
 python2-google-api-python-client-hg
 python2-gpaw
 python2-grapefruit
-python2-graph
 python2-graph-explorer
 python2-graphcanvas-git
 python2-graphite-web-git
@@ -32480,7 +32444,6 @@ python2-pyhesiod
 python2-pyhesiodfs-git
 python2-pyhyphen
 python2-pyicu
-python2-pyifbabel
 python2-pyimgur
 python2-pyinputevent
 python2-pyinterval
@@ -32559,7 +32522,6 @@ python2-pysvg
 python2-pysvg-svn
 python2-pyswf
 python2-pyswip
-python2-pysynphot
 python2-pysystemd-daemon-git
 python2-pytables
 python2-pytables-git
@@ -32673,7 +32635,6 @@ python2-scour
 python2-scruffy-git
 python2-seaborn
 python2-seaborn-git
-python2-selenium
 python2-sentry
 python2-setproctitle
 python2-setupdocs
@@ -34203,7 +34164,6 @@ rbdl
 rbdoom3bfg-git
 rbenv-default-gems
 rbenv-each-git
-rbenv-vars
 rbfu-git
 rbook
 rbot
@@ -34421,7 +34381,6 @@ renamepl
 renameuser-mediawiki-ext
 renameutils
 renamex
-renoise-demo
 renouveau
 renpy
 renpy-allinone
@@ -34665,7 +34624,6 @@ rkflashkit-git
 rkflashtool-git
 rkhunter
 rkhunter-archlinux
-rkt
 rkward-svn
 rlab2
 rlfe
@@ -36828,7 +36786,6 @@ rush-http-proxy
 rusofobica
 rust
 rust-beta-bin
-rust-bin
 rust-bindgen
 rust-doc
 rust-geom-git
@@ -37075,7 +37032,6 @@ scalpel
 scalpel-sound
 scan
 scan-s2
-scanastudio
 scanbuttond
 scanbuttond-cvs
 scangearmp
@@ -38225,7 +38181,6 @@ snabbswitch
 snackamp
 snackamp-beta
 snackr
-snake
 snake_
 snakecode
 snaked-git
@@ -39187,7 +39142,6 @@ sunrise-desktop
 sunrose-git
 sunswarm
 sunvox-beta
-sunxi-awusb-dkms
 sunxi-livesuite
 sunxi-mali
 sunxi-mali-git
@@ -39289,7 +39243,6 @@ surf-spacesearch
 surf-wl-git
 surf-xdg-config-hg
 surf2
-surfer-git
 suricata-dev
 suricata-pfring-git
 surl-bzr
@@ -42916,7 +42869,6 @@ vim-signify
 vim-singlecompile-git
 vim-skittles_dark
 vim-slim-git
-vim-slime-git
 vim-slimv
 vim-sokoban
 vim-solarized-git
