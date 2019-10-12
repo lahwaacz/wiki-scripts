@@ -1,8 +1,5 @@
 #! /usr/bin/env python3
 
-# TODO:
-#   testing repos may contain new packages
-
 import os.path
 import datetime
 import json
@@ -35,13 +32,28 @@ Architecture = {arch}
 
 # Repos needed for Template:Pkg checking
 
+[gnome-unstable]
+Include = /etc/pacman.d/mirrorlist
+
+[kde-unstable]
+Include = /etc/pacman.d/mirrorlist
+
+[testing]
+Include = /etc/pacman.d/mirrorlist
+
 [core]
 Include = /etc/pacman.d/mirrorlist
 
 [extra]
 Include = /etc/pacman.d/mirrorlist
 
+[community-testing]
+Include = /etc/pacman.d/mirrorlist
+
 [community]
+Include = /etc/pacman.d/mirrorlist
+
+[multilib-testing]
 Include = /etc/pacman.d/mirrorlist
 
 [multilib]
