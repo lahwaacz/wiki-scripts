@@ -23,7 +23,7 @@ from ws.interactive import edit_interactive, require_login, InteractiveQuit
 from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.encodings import dotencode, queryencode
-from ws.parser_helpers.title import canonicalize, TitleError
+from ws.parser_helpers.title import canonicalize, TitleError, InvalidTitleCharError
 from ws.parser_helpers.wikicode import get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template
 
 logger = logging.getLogger(__name__)
@@ -775,7 +775,11 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
             parent = wikicode.get(wikicode.index(wikilink, recursive=True))
             if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
                 continue
-            self.update_wikilink(wikicode, wikilink, src_title, summary_parts)
+            try:
+                self.update_wikilink(wikicode, wikilink, src_title, summary_parts)
+            # this can happen, e.g. due to [[{{TALKPAGENAME}}]]
+            except InvalidTitleCharError:
+                pass
 
         for template in wikicode.ifilter_templates(recursive=True):
             # skip templates that may be added or removed
@@ -792,7 +796,11 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
                 wl = mwparserfromhell.nodes.wikilink.Wikilink(target)
                 wikicode.replace(template, wl)
                 # update
-                self.update_wikilink(wikicode, wl, src_title, summary_parts)
+                try:
+                    self.update_wikilink(wikicode, wl, src_title, summary_parts)
+                # this can happen, e.g. due to [[{{TALKPAGENAME}}]]
+                except InvalidTitleCharError:
+                    continue
                 # replace back
                 target.value = str(wl.title)
                 wikicode.replace(wl, template)
