@@ -177,7 +177,7 @@ def tag_for_english(lang):
     return language["subtag"]
 
 
-def detect_language(title):
+def detect_language(title, *, strip_all_subpage_parts=True):
     """
     Detect language of a given title. The matching is case-sensitive and spaces are
     treated the same way as underscores.
@@ -188,23 +188,40 @@ def detect_language(title):
     """
     title_regex = r"(?P<pure>.*?)[ _]\((?P<lang>[^\(\)]+)\)"
     pure_suffix = ""
-    # matches "Page name/Subpage (Česky)"
+    # matches "Page name/Subpage (Language)"
     match = re.fullmatch(title_regex, title)
-    # matches "Page name (Česky)/Subpage"
+    # matches "Page name (Language)/Subpage"
     if not match and "/" in title:
         base, pure_suffix = title.split("/", maxsplit=1)
         pure_suffix = "/" + pure_suffix
         match = re.fullmatch(title_regex, base)
-    # matches "Category:Česky"
+    # matches "Category:Language"
     if not match:
         match = re.fullmatch(r"(?P<pure>[Cc]ategory[ _]?\:[ _]?(?P<lang>[^\(\)]+))", title)
     if match:
+        pure = match.group("pure")
         lang = match.group("lang")
         if lang in get_language_names():
-            return match.group("pure") + pure_suffix, lang
+            # strip "(Language)" from all subpage components to handle cases like
+            # "Page name (Language)/Subpage (Language)"
+            if strip_all_subpage_parts is True and "/" in pure:
+                parts = pure.split("/")
+                new_parts = []
+                for p in parts:
+                    match = re.fullmatch(title_regex, p)
+                    if match:
+                        part_lang = match.group("lang")
+                        if part_lang == lang:
+                            new_parts.append(match.group("pure"))
+                        else:
+                            new_parts.append(p)
+                    else:
+                        new_parts.append(p)
+                pure = "/".join(new_parts)
+            return pure + pure_suffix, lang
     return title, get_local_language()
 
-def format_title(title, langname):
+def format_title(title, langname, *, augment_all_subpage_parts=True):
     """
     Formats a local title for given base title and language. It is basically
     an inverse operation for :py:func:`detect_language`.
@@ -220,5 +237,9 @@ def format_title(title, langname):
         return title
     # master category for language
     if title.lower() == "category:" + langname.lower():
+        return title
+    # add "(Language)" suffix to all subpage parts, see https://wiki.archlinux.org/index.php/Help:I18n#Page_titles
+    if augment_all_subpage_parts is True and is_internal_tag(tag_for_langname(langname)) and "/" in title:
+        title = "/".join("{} ({})".format(p, langname) for p in title.split("/"))
         return title
     return "{} ({})".format(title, langname)

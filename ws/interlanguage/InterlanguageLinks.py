@@ -156,6 +156,10 @@ class InterlanguageLinks:
     def _is_valid_internal(self, tag, title):
         if not lang.is_internal_tag(tag):
             return False
+        if "/" in title:
+            full_title = lang.format_title(title, lang.langname_for_tag(tag), augment_all_subpage_parts=False)
+            if full_title in self.wrapped_titles:
+                return True
         full_title = lang.format_title(title, lang.langname_for_tag(tag))
         return full_title in self.wrapped_titles
 
@@ -274,7 +278,18 @@ class InterlanguageLinks:
 
         # transform to list, sort by the language tag
         langlinks = sorted(langlinks, key=lambda t: t[0])
-        return langlinks
+
+        # conversion back-and-forth is necessary to add the "(Language)" suffix into all subpage parts
+        new_langlinks = []
+        for tag, title in langlinks:
+            new_title = lang.format_title(title, lang.langname_for_tag(tag))
+            # do it only when the new_title exists, otherwise the title without "(Language)" in
+            # all subpage parts is still valid as per Help:i18n
+            if self._page_exists(new_title):
+                title = lang.detect_language(new_title, strip_all_subpage_parts=False)[0]
+            new_langlinks.append((tag, title))
+
+        return new_langlinks
 
     @staticmethod
     def update_page(title, text, langlinks, weak_update=True):
