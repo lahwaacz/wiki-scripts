@@ -2602,8 +2602,6 @@ bluez-git-wiimote
 bluez-python
 bluez-xbmc
 bluez4
-bm
-bm-git
 bm2
 bmake
 bmake-mk-files
@@ -4732,7 +4730,6 @@ colortail
 colortheme
 colorwalk
 colourpipe-git
-colpack
 cols
 com-on-air
 com-on-air-tools
@@ -5331,7 +5328,6 @@ crush-tools
 crutziplayer
 cryosleep
 cryp-svn
-crypt
 cryptboard-git
 cryptoescudo
 cryptofs
@@ -7720,7 +7716,6 @@ emacs-gtranslate
 emacs-guess-style
 emacs-guru-mode-git
 emacs-haml-mode-git
-emacs-haskell-mode-git
 emacs-highlight-current-line
 emacs-hiwin-mode-git
 emacs-ide
@@ -8681,7 +8676,6 @@ feedtomail-git
 feedturtle
 feelhome
 feff
-feh-git
 feh-gtk
 feh-trapd00r-git
 fekete-feher-icon-theme
@@ -8696,7 +8690,6 @@ fermat-32
 fermat-t
 fermion
 fern-wifi-cracker-svn
-ferret
 ferrisloki
 festival-czech
 festival-freebsoft-utils-cvs
@@ -9597,8 +9590,6 @@ freedns-updater-git
 freedoko-bin32
 freedom-routes
 freedombox-privoxy-git
-freedoom
-freedoom-git
 freedroidrpg-svn
 freedt
 freeems-loader-git
@@ -10408,7 +10399,6 @@ gerix-wifi-cracker-ng
 gerix-wifi-cracker-ng-git
 gerix-wifi-cracker-ng-svn
 germinal-git
-gerris
 gerris-snapshot
 gerstensaft
 gescen
@@ -10453,7 +10443,6 @@ gflags
 gfloppy
 gfm-svn
 gfontsel
-gfourcc
 gfpoken
 gframecatcher
 gfreenect-git
@@ -10607,7 +10596,6 @@ git-achievements-git
 git-annex
 git-annex-bin
 git-annex-google-drive-git
-git-annex-standalone
 git-annex-static
 git-aux-git
 git-buildpackage-rpm
@@ -12065,7 +12053,6 @@ groovewalrus
 groovewalrus-svn
 groovy
 groovy-docs
-groovyserv
 groovyume
 grotesque
 grotesque-gtk2
@@ -12841,7 +12828,6 @@ halcon
 hale
 halevt
 halflyf
-halide-git
 halite
 halog
 halrv-git
@@ -15326,7 +15312,6 @@ hunspell-ne
 hunspell-nl
 hunspell-nl-base
 hunspell-nl-nl
-hunspell-nn
 hunspell-pl
 hunspell-sv-se
 hunspell-uz
@@ -16754,7 +16739,6 @@ javamail
 javancss
 javanns
 javapp
-javassist
 javax-inject
 javolution-bin
 jaws
@@ -16859,7 +16843,6 @@ jig
 jigsaw-git
 jikes
 jimtcl
-jing
 jinjarus
 jips
 jirc
@@ -17081,7 +17064,6 @@ jumanji-new_webgtk-git
 jumanji-raedwulf-git
 junglediskdesktop
 junit-devel
-jupiter
 jupiter-support-eee
 juploadr
 justabot-git
@@ -18958,8 +18940,6 @@ leap-motion-sdk-beta
 leapmotion
 learn-c-the-hard-way-git
 learnyounode
-lebiniou
-lebiniou-data
 led-notification
 ledcontrol
 ledcontrol-gtk2
@@ -19772,7 +19752,6 @@ libeasyfc
 libeblob
 libeblob-git
 libebt
-libebur128-git
 libebur128-nu774-git
 libechonest-git
 libechonest2
@@ -20303,7 +20282,6 @@ libopensync-stable
 libopensync-svn
 libopensync-unstable
 libopensync4x-barry
-libopenusb
 libopie
 libopkele
 libora-git
@@ -21219,7 +21197,6 @@ linux1g1g
 linux4tegra
 linux_fetion
 linux_rt
-linuxband
 linuxconsole
 linuxdcpp-bzr-i18n
 linuxdcpp-bzr-pl
@@ -21242,7 +21219,6 @@ linuxeed-client-git
 linuxlex-icons
 linuxlogger
 linuxmasterrace
-linuxqq
 linuxsampler-cvs
 linuxtrack-svn
 linuxtrack-svn-wine-trackir
@@ -21562,7 +21538,6 @@ lte-tools-git
 lthread-git
 ltk-nepali-fonts
 ltp
-ltrace-git
 ltsp-utils
 ltt-control
 lttv
@@ -21633,7 +21608,6 @@ lua-next
 lua-oauth
 lua-oauth-git
 lua-oil
-lua-oocairo
 lua-oopango
 lua-oopango-git
 lua-peg
@@ -21713,7 +21687,6 @@ luahpdf
 luaimap-git
 luainotify
 luaj
-luajit-2.1-git
 luajit-dev-git
 luajit-libqtlua
 luajit-luarocks
@@ -23106,7 +23079,6 @@ mingw-w64-smpeg-svn
 mingw-w64-soil
 mingw-w64-spheresim-git
 mingw-w64-sqlite3
-mingw-w64-taglib
 mingw-w64-taglib-static
 mingw-w64-testsuite
 mingw-w64-tox-git
@@ -24185,7 +24157,6 @@ multilame
 multimarkdown-git
 multimc4-git
 multimc5-kopsy-git
-multimidicast
 multimms
 multimon
 multimux
@@ -25391,7 +25362,6 @@ nsound
 nspire_emu
 nspluginwrapper
 nspluginwrapper-flash-prerelease
-nspr-hg
 nss
 nss-ldapd
 nss-myhostname
@@ -25446,7 +25416,6 @@ numad
 numcosmo
 numcosmo-git
 numix-dark-gtk2
-numix-gtk-theme
 numix-icons-theme-git
 numix-manjaro-themes-zmod
 numix-solarized-elegance-colors
@@ -27611,7 +27580,6 @@ perl-audio-nama
 perl-audio-scan-dsd
 perl-audio-scrobbler
 perl-audio-wma
-perl-authen-captcha
 perl-authen-simple-dbi
 perl-authen-simple-pam
 perl-authen-tacacsplus
@@ -27669,8 +27637,6 @@ perl-class-mop
 perl-class-xsaccessor-array
 perl-compess-lzo
 perl-compress-lzf
-perl-compress-raw-bzip2
-perl-compress-raw-zlib
 perl-config-apacheformat
 perl-config-autoconf
 perl-config-file
@@ -28223,7 +28189,6 @@ perl-test-critic
 perl-test-distmanifest
 perl-test-exception-lessclever
 perl-test-fatal
-perl-test-harness
 perl-test-image-gd
 perl-test-inline
 perl-test-kwalitee
@@ -28329,7 +28294,6 @@ perl-xml-dt
 perl-xml-dtdparser
 perl-xml-entities
 perl-xml-feedpp
-perl-xml-generator
 perl-xml-libxml-simple
 perl-xml-parser-easytree
 perl-xml-parser-perlsax
@@ -29204,7 +29168,6 @@ plymouth-theme-paw
 plymouth-theme-spinfinityv2
 plymouth-theme-steampunk
 plymouth-theme-xbmc-logo-git
-pm
 pm-bust
 pm-utils-compat
 pm-utils-git
@@ -29241,7 +29204,6 @@ pnmixer-xfce4-fixed
 poa
 poca
 poche
-pocket
 pocketmine-mp
 pocketpc-cab
 pocketsphinx-svn
@@ -29966,7 +29928,6 @@ pyblosxom
 pyblosxom-git
 pyblosxom-new
 pybonjour
-pybookreader
 pybootchargui-svn
 pybox2d-svn
 pybox2d_20-svn
@@ -30418,7 +30379,6 @@ pyteatime
 pytelemeter
 pythentene
 pythfilter
-python-aalib
 python-abx-hg
 python-acrylamid
 python-acrylamid-git
@@ -31389,7 +31349,6 @@ python-sphinx-doc-hg
 python-sphinx-hg
 python-sphinx-to-github
 python-sphinx_rtd_theme
-python-sphinxcontrib-napoleon
 python-sphinxjp-themes-s6
 python-spidermonkey
 python-split
@@ -31844,7 +31803,6 @@ python2-dmidecode-git
 python2-dnspython-git
 python2-docker-py
 python2-dockerpty
-python2-docopt
 python2-docopt-git
 python2-docutils
 python2-dogpile-cache-git
@@ -32045,7 +32003,6 @@ python2-gsync
 python2-gsync-git
 python2-gtkchart-git
 python2-gtkspellcheck-git
-python2-gudev
 python2-gviz_api
 python2-gwebsockets-git
 python2-h5py
@@ -32101,7 +32058,6 @@ python2-iso8601
 python2-itsdangerous
 python2-jarn.mkrelease
 python2-jcc
-python2-jdcal
 python2-jedi
 python2-jellyfish
 python2-jenkins
@@ -32292,7 +32248,6 @@ python2-openelectrons-imubreakout
 python2-openid
 python2-openmdao
 python2-openopt-svn
-python2-openpyxl
 python2-opensearch
 python2-openstack-migrate
 python2-openstackclient
@@ -32312,7 +32267,6 @@ python2-othman-git
 python2-pacmanprogressbar
 python2-pagekite
 python2-pam
-python2-pandas
 python2-pandas0.7.3
 python2-pandocfilters
 python2-parakeet-git
@@ -32492,7 +32446,6 @@ python2-pyqt-mobility
 python2-pyqt-x
 python2-pyquery
 python2-pyqwt-cvs
-python2-pyrad
 python2-pyrasite
 python2-pyrasite-gui
 python2-pyrtm
@@ -32688,7 +32641,6 @@ python2-sphinx-to-github
 python2-sphinx_rtd_theme
 python2-sphinxcontrib-blockdiag
 python2-sphinxcontrib-httpdomain2
-python2-sphinxcontrib-napoleon
 python2-sphinxjp-themecore
 python2-sphinxjp-themes-impressjs
 python2-sphinxjp-themes-s6
@@ -33173,7 +33125,6 @@ qdjango-git
 qdoubanfm-git
 qdrive-git
 qdu
-qdvdauthor
 qdvdauthor-templates
 qedit
 qedje
@@ -33891,7 +33842,6 @@ qxneur-git
 qxorm
 qyotodevelop-git
 qyzis
-qzdl-git
 qzion
 qzion-git
 r-acml
@@ -35738,7 +35688,6 @@ rtl8723e-w110er
 rtl8812au-dkms
 rtl8812au-git-dkms
 rtlamr-git
-rtm-cli
 rtm-google-plasmoid
 rtmpdump-ksv
 rtmpdump-replay
@@ -39776,7 +39725,6 @@ teajs
 teamcity-agent
 teamdrive3
 teamgit-git
-teamspeak
 teamspeak3
 teamspeak3-addon-soundpack-google-english-female-sound-pack
 teamspeak3-addon-soundpack-ts3_portal_style_sounds
@@ -40341,7 +40289,6 @@ tivion-bzr
 tivodecode
 tivodecode-cvs
 tk-libnfc-crapto1
-tk-togl
 tk-togl-legacy-netgen
 tk707
 tk84
@@ -40926,7 +40873,6 @@ ttf-controla
 ttf-cosmic-sans-neue-git
 ttf-courier-screenplay
 ttf-covington
-ttf-cuprum
 ttf-curlz_mt
 ttf-d2fonts
 ttf-darkgarden
@@ -43406,7 +43352,6 @@ warsow-map-pack-v1
 warsow-openbox
 warzone-svn
 warzone2100-beta
-wash
 watcher
 watchless
 watchman-sm-git
@@ -44880,7 +44825,6 @@ xmppflask-hg
 xmppjs-hg
 xmpv
 xmule
-xnecview
 xneur-subversion
 xneur-svn
 xneur-unstable
@@ -45518,7 +45462,6 @@ zinc-emu
 zinc-plugin-gpu-mesagl
 zinc-plugin-gpu-sdl
 zinc-plugin-gpu-xgl2
-zinjai
 zinnia
 zinnia-tomoe
 zint-noqt
