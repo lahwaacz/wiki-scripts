@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import datetime
+
 import sqlalchemy as sa
 
 import ws.utils
@@ -88,6 +90,9 @@ class GrabberIPBlocks(GrabberBase):
 
 
     def gen_update(self, since):
+        # remove expired blocks
+        yield self.db.ipblocks.delete().where(self.db.ipblocks.c.ipb_expiry < datetime.datetime.utcnow())
+
         # new blocks since the last sync
         list_params = {
             "list": "blocks",
