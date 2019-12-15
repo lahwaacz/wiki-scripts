@@ -33,8 +33,13 @@ class AllDeletedRevisions(DeletedRevisions, GeneratorBase):
 
         ar = self.db.archive
         nss = self.db.namespace_starname
-        tail = ar.join(nss, ar.c.ar_namespace == nss.c.nss_id)
-        s = sa.select([ar.c.ar_page_id, ar.c.ar_namespace, ar.c.ar_title, nss.c.nss_name, ar.c.ar_deleted])
+        page = self.db.page
+        # the page table has to be always joined with - the "pageid" field is not taken from ar_page_id,
+        # but from the existing page which might have been created without undeleting previous revisions
+        tail = ar.outerjoin(page, (ar.c.ar_namespace == page.c.page_namespace) &
+                                  (ar.c.ar_title == page.c.page_title))
+        tail = tail.join(nss, ar.c.ar_namespace == nss.c.nss_id)
+        s = sa.select([page.c.page_id, ar.c.ar_namespace, ar.c.ar_title, nss.c.nss_name, ar.c.ar_deleted])
 
         # handle parameters common with prop=deletedrevisions
         s, tail = self.get_select_prop(s, tail, params)

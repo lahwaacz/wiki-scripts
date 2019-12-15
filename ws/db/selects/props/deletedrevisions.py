@@ -50,7 +50,6 @@ class DeletedRevisions(SelectBase):
 
     def join_with_pageset(self, pageset):
         ar = self.db.archive
-        # TODO: this makes sense only for non-existing pages, so the pageset should be aliased to "page" in SQL or we should use bound parameters
         return ar.outerjoin(pageset, (ar.c.ar_namespace == page.c.page_namespace) &
                                      (ar.c.ar_title == page.c.page_title))
 
@@ -144,14 +143,16 @@ class DeletedRevisions(SelectBase):
             "ar_content_model": "contentmodel",
             "ar_content_format": "contentformat",
             "old_text": "*",
-            "ar_page_id": "pageid",
+            # pageid is not taken from ar_page_id, but from the existing page which might have
+            # been created without undeleting previous revisions
+            "page_id": "pageid",
             "ar_namespace": "ns",
         }
         bool_flags = {
             "ar_minor_edit": "minor",
         }
         # subset of flags for which 0 should be used instead of None
-        zeroable_flags = {"ar_user", "ar_parent_id", "ar_page_id"}
+        zeroable_flags = {"ar_user", "ar_parent_id", "page_id"}
 
         api_entry = {}
         for key, value in row.items():
