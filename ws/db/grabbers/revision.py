@@ -46,6 +46,9 @@ class GrabberRevisions(GrabberBase):
                     set_={
                         # this should be the only column that may change with an insert query
                         "ar_text_id": ins_archive.excluded.ar_text_id,
+                        # ar_parent_id was not visible via the API until about MW 1.33 (https://phabricator.wikimedia.org/T183376)
+                        # so we may need to update old data
+                        "ar_parent_id": ins_archive.excluded.ar_parent_id,
                     }),
             ("insert", "tagged_revision"):
                 ins_tgrev.values(
@@ -243,7 +246,7 @@ class GrabberRevisions(GrabberBase):
                 "ar_minor_edit": "minor" in rev,
                 # ar_deleted is set separately with an update query, see below
                 "ar_len": rev["size"],
-                # ar_parent_id is not visible through API: https://phabricator.wikimedia.org/T183376
+                "ar_parent_id": rev.get("parentid"),
                 "ar_sha1": rev["sha1"],
                 "ar_content_model": rev["contentmodel"],        # always available
                 "ar_content_format": rev.get("contentformat"),  # available iff content is available
@@ -309,7 +312,7 @@ class GrabberRevisions(GrabberBase):
         for le in self.db.query(le_params):
             # check logevents for delete/undelete
             if le["type"] == "delete":
-                if le["action"] == "delete":
+                if le["action"] == "delete" or le["action"] == "delete_redir":
                     deleted_pages.add(le["title"])
                     # keep only the most recent action
                     if le["title"] in undeleted_pages:
@@ -376,7 +379,7 @@ class GrabberRevisions(GrabberBase):
         # deleting an existing page, which creates an entry in the logging table. We
         # still need to query the API with prop=deletedrevisions to get even the
         # revisions that were created and deleted since the last sync.
-        for chunk in ws.utils.iter_chunks(deleted_pages, self.api.max_ids_per_query):
+        for chunk in ws.utils.iter_chunks(deleted_pages, self.api.max_ids_per_query // 10):
             params = {
                 "action": "query",
                 "titles": "|".join(chunk),
