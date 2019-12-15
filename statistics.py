@@ -11,6 +11,7 @@ except ImportError:
 
 from ws.client import API, APIError
 from ws.interactive import require_login
+from ws.db.database import Database
 from ws.autopage import AutoPage
 from ws.wikitable import Wikitable
 import ws.cache
@@ -24,8 +25,9 @@ class Statistics:
     """
     The whole statistics page.
     """
-    def __init__(self, api, cliargs):
+    def __init__(self, api, db, cliargs):
         self.api = api
+        self.db = db
         self.cliargs = cliargs
 
     @staticmethod
@@ -34,6 +36,8 @@ class Statistics:
         present_groups = [group.title for group in argparser._action_groups]
         if "Connection parameters" not in present_groups:
             API.set_argparser(argparser)
+        if "Database parameters" not in present_groups:
+            Database.set_argparser(argparser)
 
         output = argparser.add_argument_group(title="output")
         # TODO: maybe leave only the short option to forbid configurability in config file
@@ -80,14 +84,19 @@ class Statistics:
                     '(default: %(default)s)')
 
     @classmethod
-    def from_argparser(klass, args, api=None):
+    def from_argparser(klass, args, api=None, db=None):
         if api is None:
             api = API.from_argparser(args)
-        return klass(api, args)
+        if db is None:
+            db = Database.from_argparser(args)
+        return klass(api, db, args)
 
     def run(self):
         if not self.cliargs.anonymous:
             require_login(self.api)
+
+        # synchronize the database
+        self.db.sync_with_api(self.api)
 
         try:
             self.page = AutoPage(self.api, self.cliargs.statistics_page)
@@ -105,7 +114,7 @@ class Statistics:
             return 1
 
     def _compose_page(self):
-        userstats = _UserStats(self.api, self.cliargs.cache_dir, self.page,
+        userstats = _UserStats(self.api, self.db, self.cliargs.cache_dir, self.page,
                     self.cliargs.us_days, self.cliargs.us_mintotedits,
                     self.cliargs.us_minrecedits)
         userstats.update()
@@ -206,8 +215,9 @@ divided by the number of days between the user's first and last edits.
     STREAK_FORMAT = '<span title="{length} days, from {start} to {end} ({editcount} edits)">{length}</span>'
     REGISTRATION_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-    def __init__(self, api, cache_dir, autopage, days, mintotedits, minrecedits):
+    def __init__(self, api, db, cache_dir, autopage, days, mintotedits, minrecedits):
         self.api = api
+        self.db = db
         self.text = autopage.wikicode.get_sections(matches="User statistics",
                     flat=True, include_lead=False, include_headings=False)[0]
 
@@ -217,8 +227,7 @@ divided by the number of days between the user's first and last edits.
         self.MINRECEDITS = minrecedits
 
         self.db_userprops = ws.cache.AllUsersProps(api, cache_dir, active_days=days, round_to_midnight=True)
-        self.db_allrevsprops = ws.cache.AllRevisionsProps(api, cache_dir)
-        self.modules = UserStatsModules(self.db_allrevsprops, round_to_midnight=True)
+        self.modules = UserStatsModules(self.db, round_to_midnight=True)
 
     def update(self):
         rows = self._compose_rows()

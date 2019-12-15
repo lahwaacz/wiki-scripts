@@ -2,19 +2,18 @@
 
 import datetime
 import itertools
-import heapq
 
 __all__ = ["UserStatsModules"]
 
 class UserStatsModules:
-    def __init__(self, db_allrevprops, round_to_midnight=False):
+    def __init__(self, db, round_to_midnight=False):
         """
-        :param db_allrevprops:
-            an instance of :py:class:`cache.AllRevisionsProps`
+        :param db:
+            an instance of :py:class:`ws.db.Database`
         :param round_to_midnight:
             whether to ignore revisions made after the past UTC midnight
         """
-        self.db = db_allrevprops
+        self.db = db
         self.round_to_midnight = round_to_midnight
 
         # current UTC date
@@ -30,23 +29,13 @@ class UserStatsModules:
         def _inner_generator(revisions):
             return (r for r in revisions if rev_condition(r))
 
-        # merge revisions from multiple lists, preserve sorting by revision ID
-        # (the lists are already sorted)
-        # TODO: since Python 3.5, heapq.merge takes a key= parameter, which would greatly
-        #       simplify this: https://docs.python.org/3.5/library/heapq.html#heapq.merge
-        sortkey = lambda revision: (revision["revid"], revision)
-        unwrap = lambda sortkey, revision: revision
-        # first wrapping: to yield only revisions meeting the rev_condition
-        # second wrapping: to specify sorting order for heapq.merge
-        wrapped_input = [map(sortkey, _inner_generator(self.db["revisions"])), map(sortkey, _inner_generator(self.db["deletedrevisions"]))]
-        # unwrap to get the final generator
-        revisions_generator = itertools.starmap(unwrap, heapq.merge(*wrapped_input))
+        revisions = list(db.query(list="allrevisions", arvlimit="max", arvdir="newer", arvprop={"ids", "timestamp", "user", "userid"}))
+        revisions += list(db.query(list="alldeletedrevisions", adrlimit="max", adrdir="newer", adrprop={"ids", "timestamp", "user", "userid"}))
 
         # sort revisions by multiple keys: 1. user, 2. timestamp
         # this way we can group the list by users and iterate through user_revisions to
         # calculate just about everything
-        # NOTE: access to database triggers an update, sorted() creates a shallow copy
-        revisions = sorted(revisions_generator, key=lambda r: (r["user"], r["timestamp"]))
+        revisions.sort(key=lambda r: (r["user"], r["timestamp"]))
         revisions_grouper = itertools.groupby(revisions, key=lambda r: r["user"])
 
         # a list containing revisions made by given user, sorted by timestamp
@@ -164,13 +153,13 @@ class UserStatsModules:
     def total_edit_count(self, user):
         """
         Return the count of all revisions made by the given user. When
-        :py:attribute:`self.round_to_midnight` is ``True``, only edits made before the
-        past UTC midnight are taken into account. This is the main difference over the
-        ``"editcount"`` property in :py:class:`cache.AllUsersProps`, which reflects the
-        state as of the last update of the cache. Other difference is that the
-        ``"editcount"`` property in MediaWiki includes also log actions such as moving
-        a page and does not include deleted revisions, whereas this method includes
-        only normal revisions, including deleted ones.
+        :py:attribute:`self.round_to_midnight` is ``True``, only edits made before the past
+        UTC midnight are taken into account. This is the main difference over the
+        ``"editcount"`` property in MediaWiki (stored as `user_editcount` in the database),
+        which reflects the state as of the last update of the database. Other difference is
+        that the ``"editcount"`` property in MediaWiki includes also log actions such as
+        moving a page and deleted revisions which were permanently removed from the upstream
+        database.
         """
         revisions = self.revisions_groups[user]
         return len(revisions)
@@ -178,7 +167,8 @@ class UserStatsModules:
 if __name__ == "__main__":
     # this is only for testing...
     from ws.client import API
-    import ws.cache
+    from ws.interactive import require_login
+    from ws.db.database import Database
     from ws.wikitable import Wikitable
 
     import ws.config
@@ -186,13 +176,16 @@ if __name__ == "__main__":
 
     argparser = ws.config.getArgParser()
     API.set_argparser(argparser)
+    Database.set_argparser(argparser)
+
     args = argparser.parse_args()
 
     # set up logging
     ws.logging.init(args)
 
     api = API.from_argparser(args)
-    db = ws.cache.AllRevisionsProps(api, args.cache_dir)
+    require_login(api)
+    db = Database.from_argparser(args)
 
     usm = UserStatsModules(db)
 
