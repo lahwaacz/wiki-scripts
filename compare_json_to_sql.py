@@ -9,7 +9,6 @@ from ws.client import API
 from ws.interactive import require_login
 from ws.db.database import Database
 import ws.cache
-from ws.statistics.UserStatsModules import UserStatsModules
 from ws.utils.containers import dmerge
 
 from grab import _check_lists
