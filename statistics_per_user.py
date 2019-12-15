@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 from ws.client import API
-import ws.cache
+from ws.interactive import require_login
+from ws.db.database import Database
 from ws.utils import range_by_days
 
 from ws.statistics.UserStatsModules import UserStatsModules
@@ -28,15 +29,10 @@ def plot_setup(title="", ylabel="edits"):
     # show grid
     plt.grid(True, which="both")
 
-    # color cycle
-#    num_colors = 15
-#    cm = plt.get_cmap("Paired")
-#    ax.set_color_cycle([cm(1.0 * i / num_colors) for i in range(num_colors)])
-    ax.set_color_cycle(["b", "g", "r", "c", "m", "y", "k", "gray", "darkcyan", "darkmagenta", "darkblue", "orange", "violet", "yellowgreen"])
     return ax
 
 def plot_revisions(ax, revisions, label):
-    timestamps = [revision["timestamp"] for revision in revisions]
+    timestamps = sorted(revision["timestamp"] for revision in revisions)
 
     # construct an array of bin edges, one bin per day
     bin_edges = range_by_days(timestamps[0], timestamps[-1])
@@ -75,33 +71,32 @@ def plot_logs(ax, line, logs):
 def plot_save(fname):
     plt.savefig(fname, dpi=192)
 
-def get_logevents(api):
-    logs = api.list(list="logevents", letype="rights", ledir="newer")
-    return list(logs)
-
 if __name__ == "__main__":
     import ws.config
     import ws.logging
 
     argparser = ws.config.getArgParser()
     API.set_argparser(argparser)
+    Database.set_argparser(argparser)
+
     args = argparser.parse_args()
 
     # set up logging
     ws.logging.init(args)
 
     api = API.from_argparser(args)
-    db = ws.cache.AllRevisionsProps(api, args.cache_dir)
+    require_login(api)
+    db = Database.from_argparser(args)
 
-    users = ["Alad", "Fengchao", "Indigo", "Kynikos", "Lahwaacz", "Lonaowna"]
+    users = ["Alad", "Fengchao", "Indigo", "Kynikos", "Lahwaacz", "Lonaowna", "Nl6720"]
 
-    usm = UserStatsModules(db)
-    all_logs = get_logevents(api)
+    all_logs = list(db.query(list="logevents", letype="rights", ledir="newer"))
 
     ax = plot_setup()
     lines = []
     for user in users:
-        revs = usm.revisions_groups[user]
+        revs = list(db.query(list="allrevisions", arvlimit="max", arvprop={"timestamp"}, arvuser=user))
+        revs += list(db.query(list="alldeletedrevisions", adrlimit="max", adrprop={"timestamp"}, adruser=user))
         line = plot_revisions(ax, revs, user)
         lines.append(line)
         logs = [log for log in all_logs if log["title"] == "User:{}".format(user)]
