@@ -8,7 +8,8 @@
 import logging
 
 from ws.client import API
-import ws.cache
+from ws.interactive import require_login
+from ws.db.database import Database
 from ws.utils import range_by_months
 
 logger = logging.getLogger(__name__)
@@ -109,6 +110,8 @@ if __name__ == "__main__":
 
     argparser = ws.config.getArgParser(description="Create histogram charts for the statistics page")
     API.set_argparser(argparser)
+    Database.set_argparser(argparser)
+
     # TODO: script-specific arguments (e.g. output path)
     args = argparser.parse_args()
 
@@ -116,6 +119,11 @@ if __name__ == "__main__":
     ws.logging.init(args)
 
     api = API.from_argparser(args)
-    db = ws.cache.AllRevisionsProps(api, args.cache_dir)
+    require_login(api)
+    db = Database.from_argparser(args)
 
-    create_histograms(db["revisions"])
+    # sync the database
+    db.sync_with_api(api)
+
+    allrevs = list(db.query(list="allrevisions", arvlimit="max", arvdir="newer", arvprop={"timestamp", "user"}))
+    create_histograms(allrevs)
