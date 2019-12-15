@@ -280,10 +280,40 @@ def check_protected_titles(api, db):
     _check_lists(db_list, api_list)
 
 
+def check_archive(api, db):
+    print("Checking the archive table...")
+
+    params = {
+        "list": "alldeletedrevisions",
+        "adrlimit": "max",
+        "adrdir": "newer",
+    }
+    adrprop = {"ids", "flags", "timestamp", "user", "userid", "size", "sha1", "contentmodel", "comment", "tags"}
+
+    db_list = list(db.query(**params, adrprop=adrprop))
+    api_list = list(api.list(**params, adrprop="|".join(adrprop)))
+
+    # FIXME: hack until we have per-page grouping like MediaWiki
+    api_revisions = []
+    for page in api_list:
+        for rev in page["revisions"]:
+            rev["pageid"] = page["pageid"]
+            rev["ns"] = page["ns"]
+            rev["title"] = page["title"]
+            api_revisions.append(rev)
+    api_revisions.sort(key=lambda item: item["revid"])
+    api_list = api_revisions
+
+    # WTF, the API list is not sorted by timestamp, but revid!
+    api_list.sort(key=lambda rev: rev["timestamp"])
+
+    _check_lists(db_list, api_list)
+
+
 def check_revisions(api, db):
     print("Checking the revision table...")
 
-    since = datetime.datetime.utcnow() - datetime.timedelta(days=30)
+    since = datetime.datetime.utcnow() - datetime.timedelta(days=365)
 
     params = {
         "list": "allrevisions",
@@ -585,6 +615,7 @@ if __name__ == "__main__":
         check_info(api, db)
         check_pageprops(api, db)
         check_protected_titles(api, db)
+        check_archive(api, db)
         check_revisions(api, db)
         check_latest_revisions(api, db)
         check_revisions_of_main_page(api, db)
