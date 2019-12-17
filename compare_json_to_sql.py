@@ -55,6 +55,10 @@ def compare_users(db_allusers, json_allusers):
     json_userids = set(user["userid"] for user in json_common_users)
     db_common_users = [user for user in db_allusers if user["userid"] in json_userids]
 
+    # make sure that the lists are sorted the same way (sorting by name is affected by system and database locales)
+    json_common_users.sort(key=lambda user: user["userid"])
+    db_common_users.sort(key=lambda user: user["userid"])
+
     for db_user, json_user in zip(db_common_users, json_common_users):
         assert db_user["userid"] == json_user["userid"]
         # JSON cache has wrong editcount for a number of users - let's assume that the greatest editcount is correct
