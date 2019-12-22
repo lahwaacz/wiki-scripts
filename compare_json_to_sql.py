@@ -4,6 +4,7 @@ from pprint import pprint
 from copy import deepcopy
 from itertools import chain
 import datetime
+import json
 
 from ws.client import API
 from ws.interactive import require_login
@@ -15,7 +16,7 @@ from grab import _check_lists
 
 def compare_users(db_allusers, json_allusers):
     # note: simple check fails, json has more users
-#    _check_lists(db_allusers, list(json_allusers))
+    #_check_lists(db_allusers, list(json_allusers))
 
     # note: some users from JSON don't have a userid
     json_valid_users = [user for user in json_allusers if "userid" in user]
@@ -118,6 +119,8 @@ def compare_revisions(db_allrevsprops, json_allrevsprops):
         if "parentid" in rev:
             del rev["parentid"]
 
+        rev["timestamp"] = rev["timestamp"].isoformat()
+
     # common revs
     db_revids = set(rev["revid"] for rev in db_allrevsprops)
     json_common_revs = [rev for rev in json_allrevsprops if rev["revid"] in db_revids]
@@ -126,16 +129,16 @@ def compare_revisions(db_allrevsprops, json_allrevsprops):
     _check_lists(db_common_revs, json_common_revs)
 
     # extra SQL revs
-    db_extra_revs = [rev for rev in db_allrevsprops if rev["revid"] not in json_revids]
-    if db_extra_revs:
-        print("Extra revisions from the SQL database:")
-        pprint(db_extra_revs)
+    # db_extra_revs = [rev for rev in db_allrevsprops if rev["revid"] not in json_revids]
+    # if db_extra_revs:
+    #     print("Extra revisions from the SQL database:")
+    #     pprint(db_extra_revs)
 
     # extra JSON revs
     json_extra_revs = [rev for rev in json_allrevsprops if rev["revid"] not in db_revids]
     if json_extra_revs:
-        print("Extra revisions from the JSON database:")
-        pprint(json_extra_revs)
+        # print("Extra revisions from the JSON database:")
+        print(json.dumps(json_extra_revs, indent=2))
 
 
 if __name__ == "__main__":
@@ -168,5 +171,5 @@ if __name__ == "__main__":
     json_allrevsprops_list = deepcopy(list(json_allrevsprops["revisions"]))
     json_alldeletedrevsprops_list = deepcopy(list(json_allrevsprops["deletedrevisions"]))
 
-    compare_users(db_allusers, json_allusers)
+    # compare_users(db_allusers, json_allusers)
     compare_revisions(db_allrevsprops + db_alldeletedrevsprops, json_allrevsprops_list + json_alldeletedrevsprops_list)
