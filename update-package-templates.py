@@ -303,10 +303,10 @@ class PkgUpdater:
 
         if self.finder.find_pkg(pkgname):
             newtemplate = "Pkg"
-        elif self.finder.find_aur(pkgname):
-            newtemplate = "AUR"
         elif self.finder.find_grp(pkgname):
             newtemplate = "Grp"
+        elif self.finder.find_aur(pkgname):
+            newtemplate = "AUR"
 
         if newtemplate is not None:
             # update template name (avoid changing capitalization and spacing)
