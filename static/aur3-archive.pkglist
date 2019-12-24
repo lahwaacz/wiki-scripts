@@ -1374,7 +1374,6 @@ asmttpd-git
 asp-audit
 aspectc++
 aspectc++-svn
-aspectj
 aspell-af
 aspell-az
 aspell-de-alt
@@ -10176,7 +10175,6 @@ gdk-pixbuf2-gnome-3-10-git
 gdl-svn
 gdm-arc-colors
 gdm-archfamily
-gdm-git
 gdm-simple-archer
 gdm-theme-avio
 gdm2setup
@@ -10693,7 +10691,6 @@ gjay-git
 gjid
 gjiten
 gjots2
-gjs-git
 gjvidtimeline-svn
 gkaiui
 gkamus
@@ -11079,7 +11076,6 @@ gnome-logs
 gnome-main-menu-git
 gnome-main-menu-svn-lite
 gnome-manpages
-gnome-maps-git
 gnome-mastermind
 gnome-media-player
 gnome-media-player-bzr
@@ -11094,7 +11090,6 @@ gnome-online-miners
 gnome-online-miners-git
 gnome-osd
 gnome-packagekit
-gnome-packagekit-git
 gnome-paint
 gnome-paint-bzr
 gnome-paint-bzr-nosegfault
@@ -11125,11 +11120,9 @@ gnome-session-compiz
 gnome-session-compiz-awn
 gnome-session-compiz-docky
 gnome-session-compiz-panel
-gnome-session-git
 gnome-session-ubuntu
 gnome-session-unity
 gnome-settings-daemon-configurable-video-out-key
-gnome-settings-daemon-git
 gnome-settings-daemon-media-key-fix
 gnome-settings-daemon-noibus
 gnome-settings-daemon-nopulse
@@ -11278,7 +11271,6 @@ gnome-shell-extension-zodiac-autohidedock-git
 gnome-shell-extension-zodiac-autohidetopbar-git
 gnome-shell-extension-zodiac-icon-manager-git
 gnome-shell-extension-zodiac-moveclock-git
-gnome-shell-extensions-git
 gnome-shell-extensions-git-mys
 gnome-shell-extensions-ibus-gnome3
 gnome-shell-extensions-pidgin
@@ -15876,7 +15868,6 @@ ifish
 ifled
 ifliftwall
 ifmapper
-ifmetric
 ifolder
 ifolder-server
 ifort
@@ -18417,7 +18408,6 @@ konversation-frameworks-git
 konversation-servers
 konvert-git
 konvertible
-konwert
 konzolno-radio
 kookie
 kooldock
@@ -26590,7 +26580,6 @@ oprofile-cli
 oprofileui-svn
 opscenter
 opt-svn
-optar
 opticks
 optimise_compression
 optimizationkit
@@ -27678,8 +27667,6 @@ perl-data-compare
 perl-data-diver
 perl-data-dump
 perl-data-dumper
-perl-data-entropy
-perl-data-float
 perl-data-optlist
 perl-data-pagination
 perl-data-paginator
@@ -31131,7 +31118,6 @@ python-pyicu
 python-pyivi-git
 python-pyjournalctl
 python-pyke
-python-pykka
 python-pylast
 python-pylast-hg
 python-pylibftdi-hg
@@ -31696,7 +31682,6 @@ python2-click
 python2-click-3.1
 python2-cliff
 python2-cliff-rackspace
-python2-clint
 python2-clouddns-git
 python2-cloudfiles
 python2-cloudfiles-git
@@ -32103,7 +32088,6 @@ python2-legit-git
 python2-lepton
 python2-lettuce
 python2-leveldb-svn
-python2-levenshtein
 python2-levenshtein-git
 python2-liac-arff
 python2-libarchive
@@ -33679,7 +33663,6 @@ qubes-vm-core
 qubes-vm-gui
 qubes-vm-kernel-builder
 qubes-vm-kernel-modules
-qubes-vm-xen
 qubittorrent
 qucs-svn
 qudos-svn
