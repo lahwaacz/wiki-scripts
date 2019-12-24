@@ -9,6 +9,7 @@ import sqlalchemy as sa
 
 import ws.cache
 from ws.db.database import Database
+import ws.db.mw_constants as mwconst
 
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,7 @@ def migrate(revision, username_to_id):
         'minor',  # optional
         'parentid',
         'revid',
+        'sha1hidden',  # optional
         'timestamp',
         'user',
         'userhidden',  # optional
@@ -52,6 +54,17 @@ def migrate(revision, username_to_id):
         else:
             raise
 
+    # prepare the ar_deleted field
+    ar_deleted = 0
+    if "sha1hidden" in revision:
+        ar_deleted |= mwconst.DELETED_TEXT
+    if "commenthidden" in revision:
+        ar_deleted |= mwconst.DELETED_COMMENT
+    if "userhidden" in revision:
+        ar_deleted |= mwconst.DELETED_USER
+    if "suppressed" in revision:
+        ar_deleted |= mwconst.DELETED_RESTRICTED
+
     return {
         "ar_namespace": 0,
         "ar_title": "Deleted archived revision (original title lost)",
@@ -64,7 +77,7 @@ def migrate(revision, username_to_id):
         "ar_timestamp": datetime.datetime.strptime(
             revision['timestamp'], '%Y-%m-%dT%H:%M:%S'),
         "ar_minor_edit": 'minor' in revision,
-        # "ar_deleted": None,
+        "ar_deleted": ar_deleted,
         # "ar_len": None,
         "ar_parent_id": revision.get('parentid', 0),
         # "ar_sha1": None,
