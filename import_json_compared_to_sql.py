@@ -44,7 +44,7 @@ def migrate(revision, username_to_id):
         # Thayer's userid is 3583
         # https://wiki.archlinux.org/api.php?action=query&list=users&ususers=Thayer
         elif username == 'Thayer.w':
-            username == 'Thayer'
+            username = 'Thayer'
             userid = 3583
         else:
             raise
