@@ -1,14 +1,17 @@
 #! /usr/bin/env python3
 
-import sys
 import json
 import datetime
 import re
+import logging
 
 import sqlalchemy as sa
 
 import ws.cache
 from ws.db.database import Database
+
+
+logger = logging.getLogger(__name__)
 
 
 def migrate(revision, username_to_id):
@@ -91,9 +94,13 @@ if __name__ == '__main__':
     with open(args.compared_json_path) as revisions_stream:
         revisions_to_import = json.load(revisions_stream)
 
-    # The ar_rev_id column has a unique constraint, which makes this script
-    # idempotent (insert will fail here if the records were already imported)
-    db.engine.execute(db.archive.insert(), [
+    logger.info("Migrating {} revisions...".format(len(revisions_to_import)))
+
+    migrated_revisions = [
         migrate(revision, username_to_id)
         for revision in revisions_to_import
-    ])
+    ]
+
+    # The ar_rev_id column has a unique constraint, which makes this script
+    # idempotent (insert will fail here if the records were already imported)
+    db.engine.execute(db.archive.insert(), migrated_revisions)
