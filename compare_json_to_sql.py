@@ -138,7 +138,7 @@ def compare_revisions(db_allrevsprops, json_allrevsprops):
     json_extra_revs = [rev for rev in json_allrevsprops if rev["revid"] not in db_revids]
     if json_extra_revs:
         # print("Extra revisions from the JSON database:")
-        print(json.dumps(json_extra_revs, indent=2))
+        print(json.dumps(json_extra_revs, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
