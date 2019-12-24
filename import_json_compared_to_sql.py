@@ -25,24 +25,26 @@ def migrate(revision, username_to_id):
     ]):
         raise ValueError(revision)
 
+    username = revision['user']
+
     try:
-        userid = username_to_id[revision['user']]
+        userid = username_to_id[username]
     except KeyError:
-        # BUG: userid for 'MediaWiki default' and several IP addresses can't be
-        #      found (all anonymous edits)
-        #      userid 0 doesn't seem to be in use
-        #      print(0 in username_to_id.values())
-        #      0 seems to be returned by getId() in User.php
-        #      https://www.mediawiki.org/wiki/Manual:User.php#Other_methods
+        # Anonymous edits should have userid 0
+        # This includes user "MediaWiki default" and several IP addresses
+        # https://www.mediawiki.org/wiki/Manual:User.php#Other_methods
         if re.match(
             r'^(MediaWiki default|\d{1,3}(\.\d{1,3}){3})$',
-            revision['user'],
+            username,
         ):
+            if not 'anon' in revision:
+                raise ValueError(revision)
             userid = 0
-        # BUG: userid for 'Thayer.w' can't be found (the user may have been
-        #      renamed to 'Thayer', whose userid is 3583)
-        #      https://wiki.archlinux.org/api.php?action=query&list=users&ususers=Thayer
-        elif revision['user'] == 'Thayer.w':
+        # User "Thayer.w" was renamed to "Thayer" at some stage
+        # Thayer's userid is 3583
+        # https://wiki.archlinux.org/api.php?action=query&list=users&ususers=Thayer
+        elif username == 'Thayer.w':
+            username == 'Thayer'
             userid = 3583
         else:
             raise
@@ -55,7 +57,7 @@ def migrate(revision, username_to_id):
         # "ar_text_id": None,
         "ar_comment": revision['comment'],
         "ar_user": userid,
-        "ar_user_text": revision['user'],
+        "ar_user_text": username,
         "ar_timestamp": datetime.datetime.strptime(
             revision['timestamp'], '%Y-%m-%dT%H:%M:%S'),
         "ar_minor_edit": 'minor' in revision,
@@ -89,8 +91,8 @@ if __name__ == '__main__':
     with open(args.compared_json_path) as revisions_stream:
         revisions_to_import = json.load(revisions_stream)
 
-    # BUG: Nothing is currently preventing from running this script multiple
-    #      times, hence multiplicating these revision records
+    # The ar_rev_id column has a unique constraint, which makes this script
+    # idempotent (insert will fail here if the records were already imported)
     db.engine.execute(db.archive.insert(), [
         migrate(revision, username_to_id)
         for revision in revisions_to_import
