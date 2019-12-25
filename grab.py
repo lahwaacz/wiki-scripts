@@ -293,6 +293,9 @@ def check_archive(api, db):
     db_list = list(db.query(**params, adrprop=adrprop))
     api_list = list(api.list(**params, adrprop="|".join(adrprop)))
 
+    # compare without the lost revisions - see issue #47
+    db_list = [r for r in db_list if r["title"] != "Deleted archived revision (original title lost)"]
+
     # FIXME: hack until we have per-page grouping like MediaWiki
     api_revisions = []
     for page in api_list:
