@@ -87,4 +87,8 @@ def init(args):
     logger = logging.getLogger()
     logger.setLevel(LOG_LEVELS[args.log_level])
 
+    # reset alembic logger to its default level
+    alembic_logger = logging.getLogger("alembic")
+    alembic_logger.setLevel(logging.WARNING)
+
     setTerminalLogging()
