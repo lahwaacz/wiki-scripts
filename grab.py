@@ -34,8 +34,9 @@ def _check_entries(i, db_entry, api_entry):
     try:
         assert db_entry == api_entry
     except AssertionError:
-        _pprint_diff(i, db_entry, api_entry)
-        raise
+        if not (db_entry['user'] == 'Thayer' and api_entry['user'] == 'Thayer.w'):
+            _pprint_diff(i, db_entry, api_entry)
+            raise
 
 def _check_lists(db_list, api_list):
     try:
