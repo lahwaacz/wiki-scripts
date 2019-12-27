@@ -5,24 +5,27 @@ import logging
 
 from ws.client import API
 from ws.interactive import require_login
+from ws.db.database import Database
 from ws.autopage import AutoPage
-import ws.cache
 
 logger = logging.getLogger(__name__)
 
 class SortMaintainers:
     edit_summary = "automatically sort members by their recent activity"
 
-    def __init__(self, api, cache_dir, pagename, days, min_edits):
+    def __init__(self, api, db, pagename, days, min_edits):
         self.api = api
+        self.db = db
         self.pagename = pagename
         self.days = days
         self.min_edits = min_edits
 
-        self.db_userprops = ws.cache.AllUsersProps(api, cache_dir, active_days=days, round_to_midnight=True)
-
-        # fetch recenteditcount
-        self.recenteditcount = dict((user["name"], user["recenteditcount"]) for user in self.db_userprops)
+        # fetch recent changes from the recentchanges table
+        # (does not include all revisions - "diffable" log events such as
+        # page protection changes or page moves are omitted)
+        lastday = datetime.datetime.utcnow()
+        firstday = lastday - datetime.timedelta(days=days)
+        self.recent_changes = list(self.db.query(list="recentchanges", rctype={"edit", "new"}, rcprop={"user", "timestamp"}, rclimit="max", rcstart=lastday, rcend=firstday))
 
     @staticmethod
     def set_argparser(argparser):
@@ -30,6 +33,8 @@ class SortMaintainers:
         present_groups = [group.title for group in argparser._action_groups]
         if "Connection parameters" not in present_groups:
             API.set_argparser(argparser)
+        if "Database parameters" not in present_groups:
+            Database.set_argparser(argparser)
 
         argparser.add_argument("--page-name", default="ArchWiki:Maintenance Team",
                     help="the page name on the wiki to fetch and update (default: %(default)s)")
@@ -39,13 +44,18 @@ class SortMaintainers:
                     help="minimum number of edits for moving into the \"active\" table (default: %(default)s)")
 
     @classmethod
-    def from_argparser(klass, args, api=None):
+    def from_argparser(klass, args, api=None, db=None):
         if api is None:
             api = API.from_argparser(args)
-        return klass(api, args.cache_dir, args.page_name, args.days, args.min_edits)
+        if db is None:
+            db = Database.from_argparser(args)
+        return klass(api, db, args.page_name, args.days, args.min_edits)
 
     def run(self):
         require_login(self.api)
+
+        # synchronize the database
+        self.db.sync_with_api(self.api)
 
         try:
             page = AutoPage(self.api, self.pagename)
@@ -101,8 +111,8 @@ class SortMaintainers:
 
     def _get_editcount(self, row):
         username = self._get_user_name(row)
-        recenteditcount = self.recenteditcount.get(username, 0)
-        return recenteditcount
+        edits = [r for r in self.recent_changes if r["user"] == username]
+        return len(edits)
 
     def _get_last_edit_timestamp(self, row):
         username = self._get_user_name(row)
