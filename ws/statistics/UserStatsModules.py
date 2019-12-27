@@ -29,10 +29,11 @@ class UserStatsModules:
         revisions = list(db.query(list="allrevisions", arvlimit="max", arvdir="newer", arvend=self.today, arvprop={"ids", "timestamp", "user", "userid"}))
         revisions += list(db.query(list="alldeletedrevisions", adrlimit="max", adrdir="newer", adrend=self.today, adrprop={"ids", "timestamp", "user", "userid"}))
 
-        # filter active users
-        recent_revisions = [r for r in revisions
-                            if r["timestamp"] >= self.today - datetime.timedelta(days=self.active_days)]
-        self.active_users = set(r["user"] for r in recent_revisions)
+        # fetch recent changes from the recentchanges table
+        # (does not include all revisions - "diffable" log events such as
+        # page protection changes or page moves are omitted)
+        firstday = self.today - datetime.timedelta(days=self.active_days)
+        self.recent_changes = list(self.db.query(list="recentchanges", rctype={"edit", "new"}, rcprop={"user", "timestamp"}, rclimit="max", rcstart=self.today, rcend=firstday))
 
         # sort revisions by multiple keys: 1. user, 2. timestamp
         # this way we can group the list by users and iterate through user_revisions
@@ -175,11 +176,12 @@ class UserStatsModules:
         :py:attribute:`self.active_edits_per_day` days ago. When
         :py:attribute:`self.round_to_midnight` is ``True``, both ends of the
         time range are rounded to the past UTC midnight.
+
+        Note that recent edits are counted using the ``recentchanges`` table,
+        so "diffable" log events such as page protection changes or page moves
+        are omitted.
         """
-        if user not in self.revisions_groups:
-            return 0
-        revisions = [r for r in self.revisions_groups[user]
-                     if r["timestamp"] >= self.today - datetime.timedelta(days=self.active_days)]
+        revisions = [r for r in self.recent_changes if r["user"] == user]
         return len(revisions)
 
     def active_users_count(self):
@@ -188,8 +190,13 @@ class UserStatsModules:
         and :py:attribute:`self.active_edits_per_day` days ago. When
         :py:attribute:`self.round_to_midnight` is ``True``, both ends of the
         time range are rounded to the past UTC midnight.
+
+        Note that recent edits are counted using the ``recentchanges`` table,
+        so "diffable" log events such as page protection changes or page moves
+        are omitted.
         """
-        return len(self.active_users)
+        active_users = set(r["user"] for r in self.recent_changes)
+        return len(active_users)
 
     def format_first_date(self, *, format="%Y-%m-%d"):
         firstdate = self.today - datetime.timedelta(days=self.active_days)
