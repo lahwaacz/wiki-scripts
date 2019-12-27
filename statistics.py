@@ -14,7 +14,6 @@ from ws.interactive import require_login
 from ws.db.database import Database
 from ws.autopage import AutoPage
 from ws.wikitable import Wikitable
-import ws.cache
 
 from ws.statistics.UserStatsModules import UserStatsModules
 
@@ -114,7 +113,7 @@ class Statistics:
             return 1
 
     def _compose_page(self):
-        userstats = _UserStats(self.api, self.db, self.cliargs.cache_dir, self.page,
+        userstats = _UserStats(self.api, self.db, self.page,
                     self.cliargs.us_days, self.cliargs.us_mintotedits,
                     self.cliargs.us_minrecedits)
         userstats.update()
@@ -215,7 +214,7 @@ divided by the number of days between the user's first and last edits.
     STREAK_FORMAT = '<span title="{length} days, from {start} to {end} ({editcount} edits)">{length}</span>'
     REGISTRATION_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-    def __init__(self, api, db, cache_dir, autopage, days, mintotedits, minrecedits):
+    def __init__(self, api, db, autopage, days, mintotedits, minrecedits):
         self.api = api
         self.db = db
         self.text = autopage.wikicode.get_sections(matches="User statistics",
