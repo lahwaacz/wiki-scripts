@@ -112,7 +112,7 @@ class AllUsersProps(CacheDb):
             today = datetime.datetime(*(today.timetuple()[:3]))
         firstday = today - datetime.timedelta(days=self.active_days)
 
-        rc = self.api.list(action="query", list="recentchanges", rctype="edit", rcprop="user|timestamp", rclimit="max", rcstart=today, rcend=firstday)
+        rc = self.api.list(action="query", list="recentchanges", rctype="edit|new", rcprop="user|timestamp", rclimit="max", rcstart=today, rcend=firstday)
 
         rcusers = {}
         for change in rc:
