@@ -598,7 +598,7 @@ if __name__ == "__main__":
     import ws.config
     import ws.logging
 
-    argparser = ws.config.getArgParser(description="Test grabbers")
+    argparser = ws.config.getArgParser(description="Test database synchronization")
     API.set_argparser(argparser)
     Database.set_argparser(argparser)
 
