@@ -114,7 +114,7 @@ class DeletedRevisions(SelectBase):
             s = s.where(ar.c.ar_timestamp >= oldest)
         if "from" in params:
             s = s.where(ar.c.ar_title >= params["from"])
-        if "end" in params:
+        if "to" in params:
             s = s.where(ar.c.ar_title <= params["to"])
         if params.get("user"):
             s = s.where(ar.c.ar_user_text == params.get("user"))
