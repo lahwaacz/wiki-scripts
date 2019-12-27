@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ws.db.database module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,6 +11,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,140 +37,121 @@
 <span id="ws-db-database-module"></span><h1>ws.db.database module<a class="headerlink" href="#module-ws.db.database" title="Permalink to this headline">¶</a></h1>
 <p>Prerequisites:</p>
 <ol class="arabic simple">
-<li>A pre-configured PostgreSQL database backend with separate database and user
+<li><p>A pre-configured PostgreSQL database backend with separate database and user
 account. The database should be created with the “C” collation, e.g. create
 the database with
-<cite>createdb -E UNICODE -l C -T template0 -O username dbname</cite></li>
-<li>One of the many drivers supported by sqlalchemy, e.g. psycopg2.</li>
+<cite>createdb -E UNICODE -l C -T template0 -O username dbname</cite></p></li>
+<li><p>One of the many drivers supported by sqlalchemy, e.g. psycopg2.</p></li>
 </ol>
 <dl class="class">
 <dt id="ws.db.database.Database">
-<em class="property">class </em><code class="descclassname">ws.db.database.</code><code class="descname">Database</code><span class="sig-paren">(</span><em>engine_or_url</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>engine_or_url</strong> – either an existing <a class="reference external" href="http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Engine" title="(in SQLAlchemy v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.engine.Engine</span></code></a> instance or a
-<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> representing the URL created by <code class="xref py py-meth docutils literal notranslate"><span class="pre">make_url()</span></code></td>
-</tr>
-</tbody>
-</table>
+<em class="property">class </em><code class="sig-prename descclassname">ws.db.database.</code><code class="sig-name descname">Database</code><span class="sig-paren">(</span><em class="sig-param">engine_or_url</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>engine_or_url</strong> – either an existing <a class="reference external" href="https://docs.sqlalchemy.org/en/13/core/connections.html#sqlalchemy.engine.Engine" title="(in SQLAlchemy v1.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.engine.Engine</span></code></a> instance or a
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> representing the URL created by <code class="xref py py-meth docutils literal notranslate"><span class="pre">make_url()</span></code></p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="ws.db.database.Database.charset">
-<code class="descname">charset</code><em class="property"> = 'utf8'</em><a class="headerlink" href="#ws.db.database.Database.charset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">charset</code><em class="property"> = 'utf8'</em><a class="headerlink" href="#ws.db.database.Database.charset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="ws.db.database.Database.set_argparser">
-<em class="property">static </em><code class="descname">set_argparser</code><span class="sig-paren">(</span><em>argparser</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.set_argparser" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">set_argparser</code><span class="sig-paren">(</span><em class="sig-param">argparser</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.set_argparser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add arguments for constructing a <a class="reference internal" href="#ws.db.database.Database" title="ws.db.database.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a> object to an
-instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
+instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
 <p>See also the <a class="reference internal" href="ws.config.html#module-ws.config" title="ws.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.config</span></code></a> module.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>argparser</strong> – an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>argparser</strong> – an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="ws.db.database.Database.from_argparser">
-<em class="property">classmethod </em><code class="descname">from_argparser</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.from_argparser" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_argparser</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.from_argparser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a <a class="reference internal" href="#ws.db.database.Database" title="ws.db.database.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">Database</span></code></a> object from arguments parsed by
-<a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> – an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.Namespace</span></code></a>. It is assumed that it
-contains the arguments set by <code class="xref py py-meth docutils literal notranslate"><span class="pre">Connection.set_argparser()</span></code>.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></td>
-</tr>
-</tbody>
-</table>
+<a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> – an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.Namespace</span></code></a>. It is assumed that it
+contains the arguments set by <code class="xref py py-meth docutils literal notranslate"><span class="pre">Connection.set_argparser()</span></code>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.db.database.Database.__getattr__">
-<code class="descname">__getattr__</code><span class="sig-paren">(</span><em>table_name</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.__getattr__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__getattr__</code><span class="sig-paren">(</span><em class="sig-param">table_name</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.__getattr__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Access an existing table in the database.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>table_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – a (lowercase) name of the table</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a <a class="reference external" href="http://docs.sqlalchemy.org/en/latest/core/metadata.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.schema.Table</span></code></a> instance</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>table_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – a (lowercase) name of the table</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a <a class="reference external" href="https://docs.sqlalchemy.org/en/13/core/metadata.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v1.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.schema.Table</span></code></a> instance</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.db.database.Database.sync_with_api">
-<code class="descname">sync_with_api</code><span class="sig-paren">(</span><em>api</em>, <em>*</em>, <em>with_content=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.sync_with_api" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sync_with_api</code><span class="sig-paren">(</span><em class="sig-param">api</em>, <em class="sig-param">*</em>, <em class="sig-param">with_content=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.sync_with_api" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sync the local data with a remote MediaWiki instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>api</strong> (<a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><em>ws.client.api.API</em></a>) – interface to the remote MediaWiki instance</li>
-<li><strong>with_content</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – whether to synchronize the content of all revisions</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api</strong> (<a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><em>ws.client.api.API</em></a>) – interface to the remote MediaWiki instance</p></li>
+<li><p><strong>with_content</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – whether to synchronize the content of all revisions</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.db.database.Database.sync_latest_revisions_content">
-<code class="descname">sync_latest_revisions_content</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.sync_latest_revisions_content" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sync_latest_revisions_content</code><span class="sig-paren">(</span><em class="sig-param">api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.sync_latest_revisions_content" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sync the content of the latest revisions of all pages on the wiki.</p>
 <p>Note that the method <a class="reference internal" href="#ws.db.database.Database.sync_with_api" title="ws.db.database.Database.sync_with_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sync_with_api()</span></code></a> should be called prior to
 calling this method.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>api</strong> (<a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><em>ws.client.api.API</em></a>) – interface to the remote MediaWiki instance</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>api</strong> (<a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><em>ws.client.api.API</em></a>) – interface to the remote MediaWiki instance</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.db.database.Database.query">
-<code class="descname">query</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.query" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">query</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.query" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main interface for the MediaWiki-like database queries.</p>
 <p>TODO: documentation of the parameters (or at least the differences from MediaWiki)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.db.database.Database.Title">
-<code class="descname">Title</code><span class="sig-paren">(</span><em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.Title" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Title</code><span class="sig-paren">(</span><em class="sig-param">title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.Title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse a MediaWiki title.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – page title to be parsed</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a <a class="reference internal" href="ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.parser_helpers.title.Title</span></code></a> object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – page title to be parsed</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a <a class="reference internal" href="ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.parser_helpers.title.Title</span></code></a> object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.db.database.Database.update_parser_cache">
-<code class="descname">update_parser_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.update_parser_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_parser_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.Database.update_parser_cache" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the parser cache tables.</p>
 <p>Note that the methods <a class="reference internal" href="#ws.db.database.Database.sync_with_api" title="ws.db.database.Database.sync_with_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sync_with_api()</span></code></a> and
 <a class="reference internal" href="#ws.db.database.Database.sync_latest_revisions_content" title="ws.db.database.Database.sync_latest_revisions_content"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sync_latest_revisions_content()</span></code></a> should be called prior to
@@ -182,23 +162,23 @@ calling this method.</p>
 
 <dl class="class">
 <dt id="ws.db.database.explain">
-<em class="property">class </em><code class="descclassname">ws.db.database.</code><code class="descname">explain</code><span class="sig-paren">(</span><em>stmt</em>, <em>analyze=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.explain" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">ws.db.database.</code><code class="sig-name descname">explain</code><span class="sig-paren">(</span><em class="sig-param">stmt</em>, <em class="sig-param">analyze=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.explain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.base.Executable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.elements.ClauseElement</span></code></p>
 <dl class="method">
 <dt id="ws.db.database.explain._compiler_dispatch">
-<code class="descname">_compiler_dispatch</code><span class="sig-paren">(</span><em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.explain._compiler_dispatch" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_compiler_dispatch</code><span class="sig-paren">(</span><em class="sig-param">**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.explain._compiler_dispatch" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="ws.db.database.explain._compiler_dispatcher">
-<code class="descname">_compiler_dispatcher</code><em class="property"> = &lt;sqlalchemy.ext.compiler._dispatcher object&gt;</em><a class="headerlink" href="#ws.db.database.explain._compiler_dispatcher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_compiler_dispatcher</code><em class="property"> = &lt;sqlalchemy.ext.compiler._dispatcher object&gt;</em><a class="headerlink" href="#ws.db.database.explain._compiler_dispatcher" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="ws.db.database.visit_explain">
-<code class="descclassname">ws.db.database.</code><code class="descname">visit_explain</code><span class="sig-paren">(</span><em>element</em>, <em>compiler</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.visit_explain" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.db.database.</code><code class="sig-name descname">visit_explain</code><span class="sig-paren">(</span><em class="sig-param">element</em>, <em class="sig-param">compiler</em>, <em class="sig-param">**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.database.visit_explain" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -264,17 +244,23 @@ calling this method.</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -283,8 +269,8 @@ calling this method.</p>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/ws/ws.db.database.rst.txt"

@@ -2,6 +2,6 @@ ws.utils.datetime\_ module
 ==========================
 
 .. automodule:: ws.utils.datetime_
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

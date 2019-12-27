@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ws.utils package &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,6 +11,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,22 +37,22 @@
 <span id="ws-utils-package"></span><h1>ws.utils package<a class="headerlink" href="#module-ws.utils" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="ws.utils.is_ascii">
-<code class="descclassname">ws.utils.</code><code class="descname">is_ascii</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.is_ascii" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.utils.</code><code class="sig-name descname">is_ascii</code><span class="sig-paren">(</span><em class="sig-param">text</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.is_ascii" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ws.utils.list_chunks">
-<code class="descclassname">ws.utils.</code><code class="descname">list_chunks</code><span class="sig-paren">(</span><em>list_</em>, <em>bs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.list_chunks" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.utils.</code><code class="sig-name descname">list_chunks</code><span class="sig-paren">(</span><em class="sig-param">list_</em>, <em class="sig-param">bs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.list_chunks" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ws.utils.iter_chunks">
-<code class="descclassname">ws.utils.</code><code class="descname">iter_chunks</code><span class="sig-paren">(</span><em>iterable</em>, <em>bs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.iter_chunks" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.utils.</code><code class="sig-name descname">iter_chunks</code><span class="sig-paren">(</span><em class="sig-param">iterable</em>, <em class="sig-param">bs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.iter_chunks" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ws.utils.value_or_none">
-<code class="descclassname">ws.utils.</code><code class="descname">value_or_none</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.value_or_none" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.utils.</code><code class="sig-name descname">value_or_none</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.value_or_none" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <div class="section" id="submodules">
@@ -131,17 +130,23 @@
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -150,8 +155,8 @@
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/ws/ws.utils.rst.txt"

@@ -2,9 +2,9 @@ ws.interlanguage package
 ========================
 
 .. automodule:: ws.interlanguage
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -15,4 +15,3 @@ Submodules
    ws.interlanguage.CategoryGraph
    ws.interlanguage.Decategorization
    ws.interlanguage.InterlanguageLinks
-

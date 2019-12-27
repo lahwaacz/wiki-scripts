@@ -2,9 +2,9 @@ ws.cache package
 ================
 
 .. automodule:: ws.cache
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -13,4 +13,3 @@ Submodules
 
    ws.cache.AllRevisionsProps
    ws.cache.AllUsersProps
-

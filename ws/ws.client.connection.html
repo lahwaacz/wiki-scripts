@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ws.client.connection module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,6 +11,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -37,102 +36,89 @@
   <div class="section" id="module-ws.client.connection">
 <span id="ws-client-connection-module"></span><h1>ws.client.connection module<a class="headerlink" href="#module-ws.client.connection" title="Permalink to this headline">¶</a></h1>
 <p>The <a class="reference internal" href="#module-ws.client.connection" title="ws.client.connection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.client.connection</span></code></a> module provides a low-level interface for
-connections to the wiki. The <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.19.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Session</span></code></a> class from the
-<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#module-requests" title="(in Requests v2.19.1)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">requests</span></code></a> library is used to manage the cookies, authentication
+connections to the wiki. The <a class="reference external" href="https://2.python-requests.org//en/latest/api/#requests.Session" title="(in Requests v2.22.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Session</span></code></a> class from the
+<a class="reference external" href="https://2.python-requests.org//en/latest/api/#module-requests" title="(in Requests v2.22.0)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">requests</span></code></a> library is used to manage the cookies, authentication
 and making requests.</p>
 <dl class="class">
 <dt id="ws.client.connection.Connection">
-<em class="property">class </em><code class="descclassname">ws.client.connection.</code><code class="descname">Connection</code><span class="sig-paren">(</span><em>api_url</em>, <em>index_url</em>, <em>session</em>, <em>timeout=30</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">ws.client.connection.</code><code class="sig-name descname">Connection</code><span class="sig-paren">(</span><em class="sig-param">api_url</em>, <em class="sig-param">index_url</em>, <em class="sig-param">session</em>, <em class="sig-param">timeout=60</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The base object handling connection between a wiki and scripts.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>api_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – URL path to the wiki’s <code class="docutils literal notranslate"><span class="pre">api.php</span></code> entry point</li>
-<li><strong>index_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – URL path to the wiki’s <code class="docutils literal notranslate"><span class="pre">index.php</span></code> entry point</li>
-<li><strong>session</strong> (<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.19.1)"><em>requests.Session</em></a>) – session created by <a class="reference internal" href="#ws.client.connection.Connection.make_session" title="ws.client.connection.Connection.make_session"><code class="xref py py-meth docutils literal notranslate"><span class="pre">make_session()</span></code></a></li>
-<li><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – connection timeout in seconds</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – URL path to the wiki’s <code class="docutils literal notranslate"><span class="pre">api.php</span></code> entry point</p></li>
+<li><p><strong>index_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – URL path to the wiki’s <code class="docutils literal notranslate"><span class="pre">index.php</span></code> entry point</p></li>
+<li><p><strong>session</strong> (<a class="reference external" href="https://2.python-requests.org//en/latest/api/#requests.Session" title="(in Requests v2.22.0)"><em>requests.Session</em></a>) – session created by <a class="reference internal" href="#ws.client.connection.Connection.make_session" title="ws.client.connection.Connection.make_session"><code class="xref py py-meth docutils literal notranslate"><span class="pre">make_session()</span></code></a></p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – connection timeout in seconds</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="staticmethod">
+</dd>
+</dl>
+<dl class="method">
 <dt id="ws.client.connection.Connection.make_session">
-<em class="property">static </em><code class="descname">make_session</code><span class="sig-paren">(</span><em>user_agent='wiki-scripts/1.2 (https://github.com/lahwaacz/wiki-scripts)'</em>, <em>ssl_verify=None</em>, <em>max_retries=0</em>, <em>cookie_file=None</em>, <em>cookiejar=None</em>, <em>http_user=None</em>, <em>http_password=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.make_session" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.19.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Session</span></code></a> object for the connection.</p>
+<em class="property">static </em><code class="sig-name descname">make_session</code><span class="sig-paren">(</span><em class="sig-param">user_agent='wiki-scripts/1.2 (https://github.com/lahwaacz/wiki-scripts)'</em>, <em class="sig-param">ssl_verify=None</em>, <em class="sig-param">max_retries=0</em>, <em class="sig-param">cookie_file=None</em>, <em class="sig-param">cookiejar=None</em>, <em class="sig-param">http_user=None</em>, <em class="sig-param">http_password=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.make_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a <a class="reference external" href="https://2.python-requests.org//en/latest/api/#requests.Session" title="(in Requests v2.22.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Session</span></code></a> object for the connection.</p>
 <p>It is possible to save the session data by specifying either <code class="docutils literal notranslate"><span class="pre">cookiejar</span></code>
 or <code class="docutils literal notranslate"><span class="pre">cookie_file</span></code> arguments. If <code class="docutils literal notranslate"><span class="pre">cookiejar</span></code> is present, <code class="docutils literal notranslate"><span class="pre">cookie_file</span></code>
 is ignored.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>user_agent</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – string sent as <code class="docutils literal notranslate"><span class="pre">User-Agent</span></code> header to the web server</li>
-<li><strong>ssl_verify</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the SSL certificate will be verified</li>
-<li><strong>max_retries</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Maximum number of retries for each connection. Applies only to
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_agent</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – string sent as <code class="docutils literal notranslate"><span class="pre">User-Agent</span></code> header to the web server</p></li>
+<li><p><strong>ssl_verify</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the SSL certificate will be verified</p></li>
+<li><p><strong>max_retries</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Maximum number of retries for each connection. Applies only to
 failed DNS lookups, socket connections and connection timeouts, never
-to requests where data has made it to the server.</li>
-<li><strong>cookie_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – path to a <code class="xref py py-class docutils literal notranslate"><span class="pre">cookielib.FileCookieJar</span></code> file</li>
-<li><strong>cookiejar</strong> – an existing <code class="xref py py-class docutils literal notranslate"><span class="pre">cookielib.CookieJar</span></code> object</li>
+to requests where data has made it to the server.</p></li>
+<li><p><strong>cookie_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – path to a <code class="xref py py-class docutils literal notranslate"><span class="pre">cookielib.FileCookieJar</span></code> file</p></li>
+<li><p><strong>cookiejar</strong> – an existing <code class="xref py py-class docutils literal notranslate"><span class="pre">cookielib.CookieJar</span></code> object</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Session" title="(in Requests v2.19.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Session</span></code></a> object</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference external" href="https://2.python-requests.org//en/latest/api/#requests.Session" title="(in Requests v2.22.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Session</span></code></a> object</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="ws.client.connection.Connection.set_argparser">
-<em class="property">static </em><code class="descname">set_argparser</code><span class="sig-paren">(</span><em>argparser</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.set_argparser" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">set_argparser</code><span class="sig-paren">(</span><em class="sig-param">argparser</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.set_argparser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add arguments for constructing a <a class="reference internal" href="#ws.client.connection.Connection" title="ws.client.connection.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a> object to an
-instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
+instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
 <p>See also the <a class="reference internal" href="ws.config.html#module-ws.config" title="ws.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.config</span></code></a> module.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>argparser</strong> – an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>argparser</strong> – an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="ws.client.connection.Connection.from_argparser">
-<em class="property">classmethod </em><code class="descname">from_argparser</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.from_argparser" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_argparser</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.from_argparser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a <a class="reference internal" href="#ws.client.connection.Connection" title="ws.client.connection.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a> object from arguments parsed by
-<a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> – an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.Namespace</span></code></a>. In addition to the
+<a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> – an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.Namespace</span></code></a>. In addition to the
 arguments set by <a class="reference internal" href="#ws.client.connection.Connection.set_argparser" title="ws.client.connection.Connection.set_argparser"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Connection.set_argparser()</span></code></a>,
-it is expected to also contain <code class="docutils literal notranslate"><span class="pre">site</span></code> and <code class="docutils literal notranslate"><span class="pre">cache_dir</span></code> arguments.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">an instance of <a class="reference internal" href="#ws.client.connection.Connection" title="ws.client.connection.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a></td>
-</tr>
-</tbody>
-</table>
+it is expected to also contain <code class="docutils literal notranslate"><span class="pre">site</span></code> and <code class="docutils literal notranslate"><span class="pre">cache_dir</span></code> arguments.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an instance of <a class="reference internal" href="#ws.client.connection.Connection" title="ws.client.connection.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.client.connection.Connection.request">
-<code class="descname">request</code><span class="sig-paren">(</span><em>method</em>, <em>url</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.request" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">request</code><span class="sig-paren">(</span><em class="sig-param">method</em>, <em class="sig-param">url</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simple HTTP request handler. It is basically a wrapper around
-<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.request" title="(in Requests v2.19.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">requests.request()</span></code></a> using the established session including
+<a class="reference external" href="https://2.python-requests.org//en/latest/api/#requests.request" title="(in Requests v2.22.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">requests.request()</span></code></a> using the established session including
 cookies, so it should be used only for connections with <code class="docutils literal notranslate"><span class="pre">url</span></code> leading
 to the same site.</p>
-<p>The parameters are the same as for <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.request" title="(in Requests v2.19.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">requests.request()</span></code></a>, see
+<p>The parameters are the same as for <a class="reference external" href="https://2.python-requests.org//en/latest/api/#requests.request" title="(in Requests v2.22.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">requests.request()</span></code></a>, see
 <a class="reference external" href="http://docs.python-requests.org/en/latest/api/">Requests documentation</a> for details.</p>
-<p>There is no translation of exceptions, the <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#module-requests" title="(in Requests v2.19.1)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">requests</span></code></a> exceptions
+<p>There is no translation of exceptions, the <a class="reference external" href="https://2.python-requests.org//en/latest/api/#module-requests" title="(in Requests v2.22.0)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">requests</span></code></a> exceptions
 (notably <code class="xref py py-exc docutils literal notranslate"><span class="pre">requests.exceptions.ConnectionError</span></code>,
 <code class="xref py py-exc docutils literal notranslate"><span class="pre">requests.exceptions.Timeout</span></code> and
 <code class="xref py py-exc docutils literal notranslate"><span class="pre">requests.exceptions.HTTPError</span></code>) should be catched by the caller.</p>
@@ -140,35 +126,31 @@ to the same site.</p>
 
 <dl class="method">
 <dt id="ws.client.connection.Connection.call_api">
-<code class="descname">call_api</code><span class="sig-paren">(</span><em>params=None</em>, <em>expand_result=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.call_api" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">call_api</code><span class="sig-paren">(</span><em class="sig-param">params=None</em>, <em class="sig-param">expand_result=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.call_api" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient method to call the <code class="docutils literal notranslate"><span class="pre">api.php</span></code> entry point.</p>
 <p>Checks the <code class="docutils literal notranslate"><span class="pre">action</span></code> parameter (default is <code class="docutils literal notranslate"><span class="pre">&quot;help&quot;</span></code> as in the API),
 selects correct HTTP request method, handles API errors and warnings.</p>
 <p>Parameters of the call can be passed either as a dict to <code class="docutils literal notranslate"><span class="pre">params</span></code>, or
 as keyword arguments. <code class="docutils literal notranslate"><span class="pre">params</span></code> and <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> cannot be specified at
 the same time.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>params</strong> – dictionary of API parameters</li>
-<li><strong>expand_result</strong> – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, return only part of the response relevant to the given
-action, otherwise full response is returned</li>
-<li><strong>kwargs</strong> – API parameters passed as keyword arguments</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> – dictionary of API parameters</p></li>
+<li><p><strong>expand_result</strong> – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, return only part of the response relevant to the given
+action, otherwise full response is returned</p></li>
+<li><p><strong>kwargs</strong> – API parameters passed as keyword arguments</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a dictionary containing (part of) the API response</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dictionary containing (part of) the API response</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.client.connection.Connection.call_index">
-<code class="descname">call_index</code><span class="sig-paren">(</span><em>method='GET'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.call_index" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">call_index</code><span class="sig-paren">(</span><em class="sig-param">method='GET'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.call_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient method to call the <code class="docutils literal notranslate"><span class="pre">index.php</span></code> entry point.</p>
 <p>Currently it only calls <code class="xref py py-meth docutils literal notranslate"><span class="pre">self.request()</span></code> with specific URL, default
 method <code class="docutils literal notranslate"><span class="pre">&quot;GET&quot;</span></code> and other <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> (at least <code class="docutils literal notranslate"><span class="pre">&quot;params&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;data&quot;</span></code>
@@ -178,28 +160,25 @@ should be specified).</p>
 
 <dl class="method">
 <dt id="ws.client.connection.Connection.get_hostname">
-<code class="descname">get_hostname</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.get_hostname" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the hostname part of <cite>self.api_url</cite></td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">get_hostname</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.Connection.get_hostname" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the hostname part of <cite>self.api_url</cite></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="ws.client.connection.APIWrongAction">
-<em class="property">exception </em><code class="descclassname">ws.client.connection.</code><code class="descname">APIWrongAction</code><span class="sig-paren">(</span><em>action</em>, <em>available</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.APIWrongAction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<em class="property">exception </em><code class="sig-prename descclassname">ws.client.connection.</code><code class="sig-name descname">APIWrongAction</code><span class="sig-paren">(</span><em class="sig-param">action</em>, <em class="sig-param">available</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.APIWrongAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <p>Raised when a wrong API action is specified.</p>
 <p>This is a programming error, it should be fixed in the client code.</p>
 <dl class="method">
 <dt id="ws.client.connection.APIWrongAction.__str__">
-<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.APIWrongAction.__str__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.APIWrongAction.__str__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return str(self).</p>
 </dd></dl>
 
@@ -207,19 +186,19 @@ should be specified).</p>
 
 <dl class="exception">
 <dt id="ws.client.connection.APIJsonError">
-<em class="property">exception </em><code class="descclassname">ws.client.connection.</code><code class="descname">APIJsonError</code><a class="headerlink" href="#ws.client.connection.APIJsonError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<em class="property">exception </em><code class="sig-prename descclassname">ws.client.connection.</code><code class="sig-name descname">APIJsonError</code><a class="headerlink" href="#ws.client.connection.APIJsonError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <p>Raised when json-decoding of server response failed.</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="ws.client.connection.APIError">
-<em class="property">exception </em><code class="descclassname">ws.client.connection.</code><code class="descname">APIError</code><span class="sig-paren">(</span><em>params</em>, <em>server_response</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.APIError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<em class="property">exception </em><code class="sig-prename descclassname">ws.client.connection.</code><code class="sig-name descname">APIError</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">server_response</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.APIError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <p>Raised when API response contains <code class="docutils literal notranslate"><span class="pre">error</span></code> attribute.</p>
 <dl class="method">
 <dt id="ws.client.connection.APIError.__str__">
-<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.APIError.__str__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.connection.APIError.__str__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return str(self).</p>
 </dd></dl>
 
@@ -288,17 +267,23 @@ should be specified).</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -307,8 +292,8 @@ should be specified).</p>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/ws/ws.client.connection.rst.txt"

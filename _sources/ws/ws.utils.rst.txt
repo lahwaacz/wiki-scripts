@@ -2,9 +2,9 @@ ws.utils package
 ================
 
 .. automodule:: ws.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -18,4 +18,3 @@ Submodules
    ws.utils.json
    ws.utils.lazy
    ws.utils.rate
-

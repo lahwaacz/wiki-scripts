@@ -2,6 +2,6 @@ ws.db.grabbers.logging\_ module
 ===============================
 
 .. automodule:: ws.db.grabbers.logging_
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

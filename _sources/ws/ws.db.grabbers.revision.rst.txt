@@ -2,6 +2,6 @@ ws.db.grabbers.revision module
 ==============================
 
 .. automodule:: ws.db.grabbers.revision
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

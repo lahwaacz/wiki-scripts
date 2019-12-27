@@ -2,6 +2,6 @@ ws.utils.OrderedSet module
 ==========================
 
 .. automodule:: ws.utils.OrderedSet
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

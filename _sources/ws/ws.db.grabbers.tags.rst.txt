@@ -2,6 +2,6 @@ ws.db.grabbers.tags module
 ==========================
 
 .. automodule:: ws.db.grabbers.tags
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

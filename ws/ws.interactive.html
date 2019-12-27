@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ws.interactive module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,11 +11,12 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ws.logging module" href="ws.logging.html" />
-    <link rel="prev" title="ws.dump module" href="ws.dump.html" />
+    <link rel="prev" title="ws.diff module" href="ws.diff.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -40,60 +39,53 @@
 interactive tasks.</p>
 <dl class="function">
 <dt id="ws.interactive.require_login">
-<code class="descclassname">ws.interactive.</code><code class="descname">require_login</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interactive.require_login" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.interactive.</code><code class="sig-name descname">require_login</code><span class="sig-paren">(</span><em class="sig-param">api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interactive.require_login" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the current <code class="docutils literal notranslate"><span class="pre">api</span></code> session is authenticated, otherwise ask for
 credentials.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>api</strong> – an <a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.client.api.API</span></code></a> instance</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>api</strong> – an <a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.client.api.API</span></code></a> instance</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="exception">
 <dt id="ws.interactive.InteractiveQuit">
-<em class="property">exception </em><code class="descclassname">ws.interactive.</code><code class="descname">InteractiveQuit</code><a class="headerlink" href="#ws.interactive.InteractiveQuit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<em class="property">exception </em><code class="sig-prename descclassname">ws.interactive.</code><code class="sig-name descname">InteractiveQuit</code><a class="headerlink" href="#ws.interactive.InteractiveQuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <p>Raised when the user specified <code class="docutils literal notranslate"><span class="pre">quit</span></code> on the interactive prompt.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="ws.interactive.edit_interactive">
-<code class="descclassname">ws.interactive.</code><code class="descname">edit_interactive</code><span class="sig-paren">(</span><em>api</em>, <em>title</em>, <em>pageid</em>, <em>text_old</em>, <em>text_new</em>, <em>basetimestamp</em>, <em>summary</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interactive.edit_interactive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.interactive.</code><code class="sig-name descname">edit_interactive</code><span class="sig-paren">(</span><em class="sig-param">api</em>, <em class="sig-param">title</em>, <em class="sig-param">pageid</em>, <em class="sig-param">text_old</em>, <em class="sig-param">text_new</em>, <em class="sig-param">basetimestamp</em>, <em class="sig-param">summary</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interactive.edit_interactive" title="Permalink to this definition">¶</a></dt>
 <dd><p>A routine for interactive editing. Presents differences between the two
 revisions highlighted using <a class="reference internal" href="ws.diff.html#ws.diff.diff_highlighted" title="ws.diff.diff_highlighted"><code class="xref py py-func docutils literal notranslate"><span class="pre">ws.diff.diff_highlighted()</span></code></a> and an
 interactive prompt to let the user decide what to do next:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">y</span></code> accepts the edit and calls <a class="reference internal" href="ws.client.api.html#ws.client.api.API.edit" title="ws.client.api.API.edit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">API.edit</span></code></a>.</li>
-<li><code class="docutils literal notranslate"><span class="pre">n</span></code> discards the edit.</li>
-<li><code class="docutils literal notranslate"><span class="pre">q</span></code> will raise <a class="reference internal" href="#ws.interactive.InteractiveQuit" title="ws.interactive.InteractiveQuit"><code class="xref py py-exc docutils literal notranslate"><span class="pre">InteractiveQuit</span></code></a> exception to let the calling
-program know that it should quit.</li>
-<li><code class="docutils literal notranslate"><span class="pre">e</span></code> will open the revisions in an external merge program (configurable
-by the <code class="docutils literal notranslate"><span class="pre">$DIFFPROG</span></code> environment variable, defaults to <code class="docutils literal notranslate"><span class="pre">vimdiff</span></code>).</li>
-<li><code class="docutils literal notranslate"><span class="pre">?</span></code> will print brief legend and repeat the highlighted diff and prompt.</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y</span></code> accepts the edit and calls <a class="reference internal" href="ws.client.api.html#ws.client.api.API.edit" title="ws.client.api.API.edit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">API.edit</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n</span></code> discards the edit.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">q</span></code> will raise <a class="reference internal" href="#ws.interactive.InteractiveQuit" title="ws.interactive.InteractiveQuit"><code class="xref py py-exc docutils literal notranslate"><span class="pre">InteractiveQuit</span></code></a> exception to let the calling
+program know that it should quit.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e</span></code> will open the revisions in an external merge program (configurable
+by the <code class="docutils literal notranslate"><span class="pre">$DIFFPROG</span></code> environment variable, defaults to <code class="docutils literal notranslate"><span class="pre">vimdiff</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">?</span></code> will print brief legend and repeat the highlighted diff and prompt.</p></li>
 </ul>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>api</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">MediaWiki.api.API</span></code> instance to operate on</li>
-<li><strong>text_old</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – old page content</li>
-<li><strong>text_new</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – new page content</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">MediaWiki.api.API</span></code> instance to operate on</p></li>
+<li><p><strong>text_old</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – old page content</p></li>
+<li><p><strong>text_new</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – new page content</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>Other parameters are the same as for <a class="reference internal" href="ws.client.api.html#ws.client.api.API.edit" title="ws.client.api.API.edit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.client.api.API.edit()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="ws.interactive.ask_yesno">
-<code class="descclassname">ws.interactive.</code><code class="descname">ask_yesno</code><span class="sig-paren">(</span><em>question</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interactive.ask_yesno" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.interactive.</code><code class="sig-name descname">ask_yesno</code><span class="sig-paren">(</span><em class="sig-param">question</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interactive.ask_yesno" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -131,7 +123,6 @@ by the <code class="docutils literal notranslate"><span class="pre">$DIFFPROG</s
 <li class="toctree-l4"><a class="reference internal" href="ws.autopage.html">ws.autopage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.config.html">ws.config module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.diff.html">ws.diff module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ws.dump.html">ws.dump module</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">ws.interactive module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.logging.html">ws.logging module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.wikitable.html">ws.wikitable module</a></li>
@@ -149,7 +140,7 @@ by the <code class="docutils literal notranslate"><span class="pre">$DIFFPROG</s
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../modules.html">API reference</a><ul>
   <li><a href="ws.html">ws package</a><ul>
-      <li>Previous: <a href="ws.dump.html" title="previous chapter">ws.dump module</a></li>
+      <li>Previous: <a href="ws.diff.html" title="previous chapter">ws.diff module</a></li>
       <li>Next: <a href="ws.logging.html" title="next chapter">ws.logging module</a></li>
   </ul></li>
   </ul></li>
@@ -157,17 +148,23 @@ by the <code class="docutils literal notranslate"><span class="pre">$DIFFPROG</s
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -176,8 +173,8 @@ by the <code class="docutils literal notranslate"><span class="pre">$DIFFPROG</s
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/ws/ws.interactive.rst.txt"

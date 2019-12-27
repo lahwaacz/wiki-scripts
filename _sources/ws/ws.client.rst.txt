@@ -2,9 +2,9 @@ ws.client package
 =================
 
 .. automodule:: ws.client
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -18,4 +18,3 @@ Submodules
    ws.client.site
    ws.client.tags
    ws.client.user
-

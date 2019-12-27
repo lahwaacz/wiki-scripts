@@ -2,6 +2,6 @@ ws.db.mw\_constants module
 ==========================
 
 .. automodule:: ws.db.mw_constants
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -2,6 +2,6 @@ ws.interlanguage.CategoryGraph module
 =====================================
 
 .. automodule:: ws.interlanguage.CategoryGraph
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

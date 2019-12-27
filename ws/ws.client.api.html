@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ws.client.api module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,6 +11,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,102 +37,92 @@
 <span id="ws-client-api-module"></span><h1>ws.client.api module<a class="headerlink" href="#module-ws.client.api" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="ws.client.api.API">
-<em class="property">class </em><code class="descclassname">ws.client.api.</code><code class="descname">API</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">ws.client.api.</code><code class="sig-name descname">API</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ws.client.connection.html#ws.client.connection.Connection" title="ws.client.connection.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.client.connection.Connection</span></code></a></p>
 <p>Simple interface to MediaWiki’s API.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kwargs</strong> – any keyword arguments of the Connection object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – any keyword arguments of the Connection object</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="ws.client.api.API.login">
-<code class="descname">login</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.login" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">login</code><span class="sig-paren">(</span><em class="sig-param">username</em>, <em class="sig-param">password</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.login" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs into the wiki with username and password. See <a class="reference external" href="https://www.mediawiki.org/wiki/API:Login">MediaWiki#API:Login</a>
 for reference.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>username</strong> – username to use</li>
-<li><strong>password</strong> – password to use</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>username</strong> – username to use</p></li>
+<li><p><strong>password</strong> – password to use</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="docutils literal notranslate"><span class="pre">True</span></code> on successful login, otherwise raises <a class="reference internal" href="#ws.client.api.LoginFailed" title="ws.client.api.LoginFailed"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoginFailed</span></code></a></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> on successful login, otherwise raises <a class="reference internal" href="#ws.client.api.LoginFailed" title="ws.client.api.LoginFailed"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoginFailed</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.client.api.API.logout">
-<code class="descname">logout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.logout" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">logout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.logout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs out of the wiki.
 See <a class="reference external" href="https://www.mediawiki.org/wiki/API:Logout">MediaWiki#API:Logout</a> for reference.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal notranslate"><span class="pre">True</span></code></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.client.api.API.site">
-<code class="descname">site</code><a class="headerlink" href="#ws.client.api.API.site" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">site</code><a class="headerlink" href="#ws.client.api.API.site" title="Permalink to this definition">¶</a></dt>
 <dd><p>A <a class="reference internal" href="ws.client.site.html#ws.client.site.Site" title="ws.client.site.Site"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.client.site.Site</span></code></a> instance for the current wiki.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.client.api.API.user">
-<code class="descname">user</code><a class="headerlink" href="#ws.client.api.API.user" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">user</code><a class="headerlink" href="#ws.client.api.API.user" title="Permalink to this definition">¶</a></dt>
 <dd><p>A <a class="reference internal" href="ws.client.user.html#ws.client.user.User" title="ws.client.user.User"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.client.user.User</span></code></a> instance for the current wiki.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.client.api.API.tags">
-<code class="descname">tags</code><a class="headerlink" href="#ws.client.api.API.tags" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">tags</code><a class="headerlink" href="#ws.client.api.API.tags" title="Permalink to this definition">¶</a></dt>
 <dd><p>A <a class="reference internal" href="ws.client.tags.html#ws.client.tags.Tags" title="ws.client.tags.Tags"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.client.tags.Tags</span></code></a> instance for the current wiki.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.client.api.API.redirects">
-<code class="descname">redirects</code><a class="headerlink" href="#ws.client.api.API.redirects" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">redirects</code><a class="headerlink" href="#ws.client.api.API.redirects" title="Permalink to this definition">¶</a></dt>
 <dd><p>A <a class="reference internal" href="ws.client.redirects.html#ws.client.redirects.Redirects" title="ws.client.redirects.Redirects"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.client.redirects.Redirects</span></code></a> instance for the current wiki.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.client.api.API.max_ids_per_query">
-<code class="descname">max_ids_per_query</code><a class="headerlink" href="#ws.client.api.API.max_ids_per_query" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">max_ids_per_query</code><a class="headerlink" href="#ws.client.api.API.max_ids_per_query" title="Permalink to this definition">¶</a></dt>
 <dd><p>A maximum number of values that can be passed to the <code class="docutils literal notranslate"><span class="pre">titles</span></code>,
 <code class="docutils literal notranslate"><span class="pre">pageids</span></code> and <code class="docutils literal notranslate"><span class="pre">revids</span></code> parameters of the API. It is 500 for users
 with the <code class="docutils literal notranslate"><span class="pre">apihighlimits</span></code> right and 50 for others. These values
 correspond to the actual limits enforced by MediaWiki.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.client.api.API.last_revision_id">
-<code class="descname">last_revision_id</code><a class="headerlink" href="#ws.client.api.API.last_revision_id" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">last_revision_id</code><a class="headerlink" href="#ws.client.api.API.last_revision_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>ID of the last revision on the wiki.</p>
 <p>This property is not cached since it may change very often.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The total edit count is available in <a class="reference external" href="https://wiki.archlinux.org/api.php?action=query&amp;meta=siteinfo&amp;siprop=statistics">global statistics</a>, but it is
+<p class="admonition-title">Note</p>
+<p>The total edit count is available in <a class="reference external" href="https://wiki.archlinux.org/api.php?action=query&amp;meta=siteinfo&amp;siprop=statistics">global statistics</a>, but it is
 different from the last revision ID obtained from recentchanges.</p>
 </div>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.client.api.API.oldest_rc_timestamp">
-<code class="descname">oldest_rc_timestamp</code><a class="headerlink" href="#ws.client.api.API.oldest_rc_timestamp" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">oldest_rc_timestamp</code><a class="headerlink" href="#ws.client.api.API.oldest_rc_timestamp" title="Permalink to this definition">¶</a></dt>
 <dd><p>A timestamp of the oldest entry stored in the <code class="docutils literal notranslate"><span class="pre">recentchanges</span></code> table.</p>
 <p>Items in the recentchanges table are periodically purged according to
 the <a class="reference external" href="http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge">$wgRCMaxAge</a> setting. The value is very important for algorithms
@@ -141,214 +130,184 @@ using <code class="docutils literal notranslate"><span class="pre">list=recentch
 <p>This property is not cached since it may change (though not very often).</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.client.api.API.newest_rc_timestamp">
-<code class="descname">newest_rc_timestamp</code><a class="headerlink" href="#ws.client.api.API.newest_rc_timestamp" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">newest_rc_timestamp</code><a class="headerlink" href="#ws.client.api.API.newest_rc_timestamp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a timestamp of the newest entry stored in the <code class="docutils literal notranslate"><span class="pre">recentchanges</span></code> table.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.client.api.API.Title">
-<code class="descname">Title</code><span class="sig-paren">(</span><em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.Title" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Title</code><span class="sig-paren">(</span><em class="sig-param">title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.Title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse a MediaWiki title.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – page title to be parsed</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a <a class="reference internal" href="ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.parser_helpers.title.Title</span></code></a> object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – page title to be parsed</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a <a class="reference internal" href="ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.parser_helpers.title.Title</span></code></a> object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.client.api.API.query_continue">
-<code class="descname">query_continue</code><span class="sig-paren">(</span><em>params=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.query_continue" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">query_continue</code><span class="sig-paren">(</span><em class="sig-param">params=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.query_continue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator for MediaWiki’s <a class="reference external" href="https://www.mediawiki.org/wiki/API:Query#Continuing_queries">query-continue feature</a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>params</strong> – same as <a class="reference internal" href="ws.client.connection.html#ws.client.connection.Connection.call_api" title="ws.client.connection.Connection.call_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.client.connection.Connection.call_api()</span></code></a>, but
-<code class="docutils literal notranslate"><span class="pre">action</span></code> is always set to <code class="docutils literal notranslate"><span class="pre">&quot;query&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code> to <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></li>
-<li><strong>kwargs</strong> – same as <a class="reference internal" href="ws.client.connection.html#ws.client.connection.Connection.call_api" title="ws.client.connection.Connection.call_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.client.connection.Connection.call_api()</span></code></a></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> – same as <a class="reference internal" href="ws.client.connection.html#ws.client.connection.Connection.call_api" title="ws.client.connection.Connection.call_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.client.connection.Connection.call_api()</span></code></a>, but
+<code class="docutils literal notranslate"><span class="pre">action</span></code> is always set to <code class="docutils literal notranslate"><span class="pre">&quot;query&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code> to <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></li>
+<li><p><strong>kwargs</strong> – same as <a class="reference internal" href="ws.client.connection.html#ws.client.connection.Connection.call_api" title="ws.client.connection.Connection.call_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.client.connection.Connection.call_api()</span></code></a></p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last">from <code class="docutils literal notranslate"><span class="pre">&quot;query&quot;</span></code> part of the API response</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><p>from <code class="docutils literal notranslate"><span class="pre">&quot;query&quot;</span></code> part of the API response</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.client.api.API.generator">
-<code class="descname">generator</code><span class="sig-paren">(</span><em>params=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.generator" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generator</code><span class="sig-paren">(</span><em class="sig-param">params=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.generator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interface to API:Generators, conveniently implemented as Python
 generator.</p>
 <p>Parameter <code class="docutils literal notranslate"><span class="pre">generator</span></code> must be supplied.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>params</strong> – same as <a class="reference internal" href="#ws.client.api.API.query_continue" title="ws.client.api.API.query_continue"><code class="xref py py-meth docutils literal notranslate"><span class="pre">API.query_continue()</span></code></a></li>
-<li><strong>kwargs</strong> – same as <a class="reference internal" href="#ws.client.api.API.query_continue" title="ws.client.api.API.query_continue"><code class="xref py py-meth docutils literal notranslate"><span class="pre">API.query_continue()</span></code></a></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> – same as <a class="reference internal" href="#ws.client.api.API.query_continue" title="ws.client.api.API.query_continue"><code class="xref py py-meth docutils literal notranslate"><span class="pre">API.query_continue()</span></code></a></p></li>
+<li><p><strong>kwargs</strong> – same as <a class="reference internal" href="#ws.client.api.API.query_continue" title="ws.client.api.API.query_continue"><code class="xref py py-meth docutils literal notranslate"><span class="pre">API.query_continue()</span></code></a></p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last">from <code class="docutils literal notranslate"><span class="pre">&quot;pages&quot;</span></code> part of the API response</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><p>from <code class="docutils literal notranslate"><span class="pre">&quot;pages&quot;</span></code> part of the API response</p>
+</dd>
+</dl>
 <p>When a generator is combined with props, results are split into multiple
 chunks, each providing piece of information. For exmample queries with
 “prop=revisions” and “rvprop=content” have a limit lower than the
 generator’s maximum and specifying multiple props generally results in
 exceeding the value of <code class="docutils literal notranslate"><span class="pre">$wgAPIMaxResultSize</span></code>.</p>
 <p>Although there is an automated query continuation via
-<a class="reference internal" href="#ws.client.api.API.query_continue" title="ws.client.api.API.query_continue"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_continue()</span></code></a>, the overlapping overlapping data is not
-squashed automatically in order to avoid keeping big data in memory
-(this is the point of API:Generators). As a result, a page may be
-yielded multiple times. For applications where this matters, see
+<a class="reference internal" href="#ws.client.api.API.query_continue" title="ws.client.api.API.query_continue"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_continue()</span></code></a>, the overlapping data is not squashed
+automatically in order to avoid keeping big data in memory (this is the
+point of API:Generators). As a result, a page may be yielded multiple
+times. For applications where this matters, see
 <a class="reference internal" href="ws.interlanguage.InterlanguageLinks.html#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._get_allpages" title="ws.interlanguage.InterlanguageLinks.InterlanguageLinks._get_allpages"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.interlanguage.InterlanguageLinks.InterlanguageLinks._get_allpages()</span></code></a>
 for an example of proper handling of this case.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.client.api.API.list">
-<code class="descname">list</code><span class="sig-paren">(</span><em>params=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">list</code><span class="sig-paren">(</span><em class="sig-param">params=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interface to API:Lists, implemented as Python generator.</p>
 <p>Parameter <code class="docutils literal notranslate"><span class="pre">list</span></code> must be supplied.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>params</strong> – same as <a class="reference internal" href="#ws.client.api.API.query_continue" title="ws.client.api.API.query_continue"><code class="xref py py-meth docutils literal notranslate"><span class="pre">API.query_continue()</span></code></a></li>
-<li><strong>kwargs</strong> – same as <a class="reference internal" href="#ws.client.api.API.query_continue" title="ws.client.api.API.query_continue"><code class="xref py py-meth docutils literal notranslate"><span class="pre">API.query_continue()</span></code></a></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> – same as <a class="reference internal" href="#ws.client.api.API.query_continue" title="ws.client.api.API.query_continue"><code class="xref py py-meth docutils literal notranslate"><span class="pre">API.query_continue()</span></code></a></p></li>
+<li><p><strong>kwargs</strong> – same as <a class="reference internal" href="#ws.client.api.API.query_continue" title="ws.client.api.API.query_continue"><code class="xref py py-meth docutils literal notranslate"><span class="pre">API.query_continue()</span></code></a></p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last">from <code class="docutils literal notranslate"><span class="pre">&quot;list&quot;</span></code> part of the API response</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><p>from <code class="docutils literal notranslate"><span class="pre">&quot;list&quot;</span></code> part of the API response</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.client.api.API._csrftoken">
-<code class="descname">_csrftoken</code><a class="headerlink" href="#ws.client.api.API._csrftoken" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">_csrftoken</code><a class="headerlink" href="#ws.client.api.API._csrftoken" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.client.api.API.call_with_csrftoken">
-<code class="descname">call_with_csrftoken</code><span class="sig-paren">(</span><em>params=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.call_with_csrftoken" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">call_with_csrftoken</code><span class="sig-paren">(</span><em class="sig-param">params=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.call_with_csrftoken" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper around <a class="reference internal" href="ws.client.connection.html#ws.client.connection.Connection.call_api" title="ws.client.connection.Connection.call_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.client.connection.Connection.call_api()</span></code></a> with
 automatic management of the <a class="reference external" href="https://www.mediawiki.org/wiki/API:Tokens">CSRF token</a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>params</strong> – same as <a class="reference internal" href="ws.client.connection.html#ws.client.connection.Connection.call_api" title="ws.client.connection.Connection.call_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.client.connection.Connection.call_api()</span></code></a></li>
-<li><strong>kwargs</strong> – same as <a class="reference internal" href="ws.client.connection.html#ws.client.connection.Connection.call_api" title="ws.client.connection.Connection.call_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.client.connection.Connection.call_api()</span></code></a></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> – same as <a class="reference internal" href="ws.client.connection.html#ws.client.connection.Connection.call_api" title="ws.client.connection.Connection.call_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.client.connection.Connection.call_api()</span></code></a></p></li>
+<li><p><strong>kwargs</strong> – same as <a class="reference internal" href="ws.client.connection.html#ws.client.connection.Connection.call_api" title="ws.client.connection.Connection.call_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.client.connection.Connection.call_api()</span></code></a></p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">same as <a class="reference internal" href="ws.client.connection.html#ws.client.connection.Connection.call_api" title="ws.client.connection.Connection.call_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.client.connection.Connection.call_api()</span></code></a></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>same as <a class="reference internal" href="ws.client.connection.html#ws.client.connection.Connection.call_api" title="ws.client.connection.Connection.call_api"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ws.client.connection.Connection.call_api()</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.client.api.API.edit">
-<code class="descname">edit</code><span class="sig-paren">(</span><em>title</em>, <em>pageid</em>, <em>text</em>, <em>basetimestamp</em>, <em>summary</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.edit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">edit</code><span class="sig-paren">(</span><em class="sig-param">title</em>, <em class="sig-param">pageid</em>, <em class="sig-param">text</em>, <em class="sig-param">basetimestamp</em>, <em class="sig-param">summary</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.edit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interface to <a class="reference external" href="https://www.mediawiki.org/wiki/API:Edit">API:Edit</a>. MD5 hash of the new text is computed
 automatically and added to the query. This method is rate-limited with
 the <a class="reference internal" href="ws.utils.rate.html#ws.utils.rate.RateLimited" title="ws.utils.rate.RateLimited"><code class="xref py py-class docutils literal notranslate"><span class="pre">&#64;RateLimited</span></code></a> decorator to
 allow 1 call per 3 seconds.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the title of the page (used only for logging)</li>
-<li><strong>pageid</strong> (<cite>str</cite> or <cite>int</cite>) – page ID of the page to be edited</li>
-<li><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – new page content</li>
-<li><strong>basetimestamp</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Timestamp of the base revision (obtained through
-<cite>prop=revisions&amp;rvprop=timestamp</cite>). Used to detect edit conflicts.</li>
-<li><strong>summary</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – edit summary</li>
-<li><strong>kwargs</strong> – Additional query parameters, see <a class="reference external" href="https://www.mediawiki.org/wiki/API:Edit">API:Edit</a>.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – the title of the page (used only for logging)</p></li>
+<li><p><strong>pageid</strong> (<cite>str</cite> or <cite>int</cite>) – page ID of the page to be edited</p></li>
+<li><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – new page content</p></li>
+<li><p><strong>basetimestamp</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Timestamp of the base revision (obtained through
+<cite>prop=revisions&amp;rvprop=timestamp</cite>). Used to detect edit conflicts.</p></li>
+<li><p><strong>summary</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – edit summary</p></li>
+<li><p><strong>kwargs</strong> – Additional query parameters, see <a class="reference external" href="https://www.mediawiki.org/wiki/API:Edit">API:Edit</a>.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.client.api.API.create">
-<code class="descname">create</code><span class="sig-paren">(</span><em>title</em>, <em>text</em>, <em>summary</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">title</em>, <em class="sig-param">text</em>, <em class="sig-param">summary</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specialization of <a class="reference internal" href="#ws.client.api.API.edit" title="ws.client.api.API.edit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edit()</span></code></a> for creating pages. The <code class="docutils literal notranslate"><span class="pre">createonly</span></code>
 parameter is always added to the query. This method is rate-limited with
 the <a class="reference internal" href="ws.utils.rate.html#ws.utils.rate.RateLimited" title="ws.utils.rate.RateLimited"><code class="xref py py-class docutils literal notranslate"><span class="pre">&#64;RateLimited</span></code></a> decorator to
 allow 1 call per 10 seconds.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the title of the page to be created</li>
-<li><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – new page content</li>
-<li><strong>summary</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – edit summary</li>
-<li><strong>kwargs</strong> – Additional query parameters, see <a class="reference external" href="https://www.mediawiki.org/wiki/API:Edit">API:Edit</a>.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – the title of the page to be created</p></li>
+<li><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – new page content</p></li>
+<li><p><strong>summary</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – edit summary</p></li>
+<li><p><strong>kwargs</strong> – Additional query parameters, see <a class="reference external" href="https://www.mediawiki.org/wiki/API:Edit">API:Edit</a>.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.client.api.API.move">
-<code class="descname">move</code><span class="sig-paren">(</span><em>from_title</em>, <em>to_title</em>, <em>reason</em>, <em>*</em>, <em>movetalk=True</em>, <em>movesubpages=True</em>, <em>noredirect=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.move" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">move</code><span class="sig-paren">(</span><em class="sig-param">from_title</em>, <em class="sig-param">to_title</em>, <em class="sig-param">reason</em>, <em class="sig-param">*</em>, <em class="sig-param">movetalk=True</em>, <em class="sig-param">movesubpages=True</em>, <em class="sig-param">noredirect=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.api.API.move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interface to <a class="reference external" href="https://www.mediawiki.org/wiki/API:Move">API:Move</a>. This method is rate-limited with the
 <a class="reference internal" href="ws.utils.rate.html#ws.utils.rate.RateLimited" title="ws.utils.rate.RateLimited"><code class="xref py py-class docutils literal notranslate"><span class="pre">&#64;RateLimited</span></code></a> decorator to allow
 1 call per 10 seconds.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>from_title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the original title of the page to be renamed</li>
-<li><strong>to_title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the new title of the page to be renamed</li>
-<li><strong>reason</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – reason for the rename</li>
-<li><strong>movetalk</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – rename the associated talk page, if it exists</li>
-<li><strong>subpages</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – rename subpages, if applicable</li>
-<li><strong>noredirect</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – don’t create a redirect</li>
-<li><strong>kwargs</strong> – Additional query parameters, see <a class="reference external" href="https://www.mediawiki.org/wiki/API:Move">API:Move</a>.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – the original title of the page to be renamed</p></li>
+<li><p><strong>to_title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – the new title of the page to be renamed</p></li>
+<li><p><strong>reason</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – reason for the rename</p></li>
+<li><p><strong>movetalk</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – rename the associated talk page, if it exists</p></li>
+<li><p><strong>subpages</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – rename subpages, if applicable</p></li>
+<li><p><strong>noredirect</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – don’t create a redirect</p></li>
+<li><p><strong>kwargs</strong> – Additional query parameters, see <a class="reference external" href="https://www.mediawiki.org/wiki/API:Move">API:Move</a>.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="ws.client.api.LoginFailed">
-<em class="property">exception </em><code class="descclassname">ws.client.api.</code><code class="descname">LoginFailed</code><a class="headerlink" href="#ws.client.api.LoginFailed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<em class="property">exception </em><code class="sig-prename descclassname">ws.client.api.</code><code class="sig-name descname">LoginFailed</code><a class="headerlink" href="#ws.client.api.LoginFailed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <p>Raised when the <a class="reference internal" href="#ws.client.api.API.login" title="ws.client.api.API.login"><code class="xref py py-meth docutils literal notranslate"><span class="pre">API.login()</span></code></a> call failed.</p>
 </dd></dl>
 
@@ -415,17 +374,23 @@ allow 1 call per 10 seconds.</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -434,8 +399,8 @@ allow 1 call per 10 seconds.</p>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/ws/ws.client.api.rst.txt"

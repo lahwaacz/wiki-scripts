@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ws.utils.containers module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,6 +11,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,114 +37,102 @@
 <span id="ws-utils-containers-module"></span><h1>ws.utils.containers module<a class="headerlink" href="#module-ws.utils.containers" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="ws.utils.containers.ListOfDictsAttrWrapper">
-<em class="property">class </em><code class="descclassname">ws.utils.containers.</code><code class="descname">ListOfDictsAttrWrapper</code><span class="sig-paren">(</span><em>dict_list</em>, <em>attr</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.ListOfDictsAttrWrapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">ws.utils.containers.</code><code class="sig-name descname">ListOfDictsAttrWrapper</code><span class="sig-paren">(</span><em class="sig-param">dict_list</em>, <em class="sig-param">attr</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.ListOfDictsAttrWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A list-like wrapper around list of dicts, operating on a given attribute.</p>
 <dl class="method">
 <dt id="ws.utils.containers.ListOfDictsAttrWrapper.__getitem__">
-<code class="descname">__getitem__</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.ListOfDictsAttrWrapper.__getitem__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__getitem__</code><span class="sig-paren">(</span><em class="sig-param">index</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.ListOfDictsAttrWrapper.__getitem__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.utils.containers.ListOfDictsAttrWrapper.__len__">
-<code class="descname">__len__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.ListOfDictsAttrWrapper.__len__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__len__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.ListOfDictsAttrWrapper.__len__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="ws.utils.containers.bisect_find">
-<code class="descclassname">ws.utils.containers.</code><code class="descname">bisect_find</code><span class="sig-paren">(</span><em>data_list</em>, <em>key</em>, <em>index_list=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.bisect_find" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.utils.containers.</code><code class="sig-name descname">bisect_find</code><span class="sig-paren">(</span><em class="sig-param">data_list</em>, <em class="sig-param">key</em>, <em class="sig-param">index_list=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.bisect_find" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find an element in a sorted list using the bisect method.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data_list</strong> – list of elements to be returned from</li>
-<li><strong>key</strong> – element to be found in <code class="docutils literal notranslate"><span class="pre">index_list</span></code></li>
-<li><strong>index_list</strong> – an optional list of indexes where <code class="docutils literal notranslate"><span class="pre">key</span></code> is searched for,
-by default <code class="docutils literal notranslate"><span class="pre">data_list</span></code> is taken. Has to be sorted.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_list</strong> – list of elements to be returned from</p></li>
+<li><p><strong>key</strong> – element to be found in <code class="docutils literal notranslate"><span class="pre">index_list</span></code></p></li>
+<li><p><strong>index_list</strong> – an optional list of indexes where <code class="docutils literal notranslate"><span class="pre">key</span></code> is searched for,
+by default <code class="docutils literal notranslate"><span class="pre">data_list</span></code> is taken. Has to be sorted.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><code class="docutils literal notranslate"><span class="pre">data_list[i]</span></code> if <code class="docutils literal notranslate"><span class="pre">index_list[i]</span> <span class="pre">==</span> <span class="pre">key</span></code></p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.7)"><strong>IndexError</strong></a> – when <code class="docutils literal notranslate"><span class="pre">key</span></code> is not found</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">data_list[i]</span></code> if <code class="docutils literal notranslate"><span class="pre">index_list[i]</span> <span class="pre">==</span> <span class="pre">key</span></code></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.8)"><strong>IndexError</strong></a> – when <code class="docutils literal notranslate"><span class="pre">key</span></code> is not found</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="ws.utils.containers.bisect_insert_or_replace">
-<code class="descclassname">ws.utils.containers.</code><code class="descname">bisect_insert_or_replace</code><span class="sig-paren">(</span><em>data_list</em>, <em>key</em>, <em>data_element=None</em>, <em>index_list=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.bisect_insert_or_replace" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.utils.containers.</code><code class="sig-name descname">bisect_insert_or_replace</code><span class="sig-paren">(</span><em class="sig-param">data_list</em>, <em class="sig-param">key</em>, <em class="sig-param">data_element=None</em>, <em class="sig-param">index_list=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.bisect_insert_or_replace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert an element into a sorted list using the bisect method. If an element
 is found in the list, it is replaced.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data_list</strong> – list of elements to be inserted into</li>
-<li><strong>data_element</strong> – an element to be inserted. By default <code class="docutils literal notranslate"><span class="pre">key</span></code> is taken.</li>
-<li><strong>key</strong> – a key used for searching</li>
-<li><strong>index_list</strong> – an optional list of indexes where <code class="docutils literal notranslate"><span class="pre">key</span></code> is searched for,
-by default <code class="docutils literal notranslate"><span class="pre">data_list</span></code> is taken. Has to be sorted.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_list</strong> – list of elements to be inserted into</p></li>
+<li><p><strong>data_element</strong> – an element to be inserted. By default <code class="docutils literal notranslate"><span class="pre">key</span></code> is taken.</p></li>
+<li><p><strong>key</strong> – a key used for searching</p></li>
+<li><p><strong>index_list</strong> – an optional list of indexes where <code class="docutils literal notranslate"><span class="pre">key</span></code> is searched for,
+by default <code class="docutils literal notranslate"><span class="pre">data_list</span></code> is taken. Has to be sorted.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="ws.utils.containers.dmerge">
-<code class="descclassname">ws.utils.containers.</code><code class="descname">dmerge</code><span class="sig-paren">(</span><em>source</em>, <em>destination</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.dmerge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.utils.containers.</code><code class="sig-name descname">dmerge</code><span class="sig-paren">(</span><em class="sig-param">source</em>, <em class="sig-param">destination</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.dmerge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deep merging of dictionaries.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="ws.utils.containers.find_caseless">
-<code class="descclassname">ws.utils.containers.</code><code class="descname">find_caseless</code><span class="sig-paren">(</span><em>what</em>, <em>where</em>, <em>from_target=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.find_caseless" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.utils.containers.</code><code class="sig-name descname">find_caseless</code><span class="sig-paren">(</span><em class="sig-param">what</em>, <em class="sig-param">where</em>, <em class="sig-param">from_target=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.find_caseless" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do a case-insensitive search in a list/iterable.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>what</strong> – element to be found</li>
-<li><strong>where</strong> – a list/iterable for searching</li>
-<li><strong>from_target</strong> – if True, return the element from the list/iterable instead of <code class="docutils literal notranslate"><span class="pre">what</span></code></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>what</strong> – element to be found</p></li>
+<li><p><strong>where</strong> – a list/iterable for searching</p></li>
+<li><p><strong>from_target</strong> – if True, return the element from the list/iterable instead of <code class="docutils literal notranslate"><span class="pre">what</span></code></p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – when not found</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – when not found</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="ws.utils.containers.gen_nested_values">
-<code class="descclassname">ws.utils.containers.</code><code class="descname">gen_nested_values</code><span class="sig-paren">(</span><em>indict</em>, <em>keys=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.gen_nested_values" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.utils.containers.</code><code class="sig-name descname">gen_nested_values</code><span class="sig-paren">(</span><em class="sig-param">indict</em>, <em class="sig-param">keys=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.gen_nested_values" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator yielding all values stored in a nested structure of dicts, lists
 and tuples.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="ws.utils.containers.parse_timestamps_in_struct">
-<code class="descclassname">ws.utils.containers.</code><code class="descname">parse_timestamps_in_struct</code><span class="sig-paren">(</span><em>struct</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.parse_timestamps_in_struct" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.utils.containers.</code><code class="sig-name descname">parse_timestamps_in_struct</code><span class="sig-paren">(</span><em class="sig-param">struct</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.parse_timestamps_in_struct" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert all timestamps in a nested structure from str to
 datetime.datetime.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="ws.utils.containers.serialize_timestamps_in_struct">
-<code class="descclassname">ws.utils.containers.</code><code class="descname">serialize_timestamps_in_struct</code><span class="sig-paren">(</span><em>struct</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.serialize_timestamps_in_struct" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.utils.containers.</code><code class="sig-name descname">serialize_timestamps_in_struct</code><span class="sig-paren">(</span><em class="sig-param">struct</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.containers.serialize_timestamps_in_struct" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert all timestamps in a nested structure from str to
 datetime.datetime.</p>
 </dd></dl>
@@ -213,17 +200,23 @@ datetime.datetime.</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -232,8 +225,8 @@ datetime.datetime.</p>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/ws/ws.utils.containers.rst.txt"

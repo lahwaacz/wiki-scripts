@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>wiki-scripts documentation &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -13,6 +11,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="shortcut icon" href="_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -44,35 +43,37 @@ repository includes several scripts automating common maintenance tasks on the
 <h2>Notable features<a class="headerlink" href="#notable-features" title="Permalink to this headline">¶</a></h2>
 <p>General features of the <a class="reference internal" href="ws/ws.html#module-ws" title="ws"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws</span></code></a> module:</p>
 <ul class="simple">
-<li>Custom interface for connecting to the MediaWiki API (<a class="reference internal" href="ws/ws.client.html#module-ws.client" title="ws.client"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.client</span></code></a>).</li>
-<li>Automatic handling of the CSRF token.</li>
-<li>Automatic conversion of MediaWiki timestamp strings into the Python’s
-<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a> objects and back.</li>
-<li>Automatic handling of <a class="reference external" href="https://www.mediawiki.org/wiki/API:Query#Continuing_queries">API query-continuation</a>.</li>
-<li>Class for easy handling of MediaWiki page titles
-(<a class="reference internal" href="ws/ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal notranslate"><span class="pre">Title</span></code></a>).</li>
-<li>Custom SQL database capable of mirroring (almost) all data stored on the wiki
-(useful e.g. for caching of expensive queries involving revisions content).</li>
+<li><p>Custom interface for connecting to the MediaWiki API (<a class="reference internal" href="ws/ws.client.html#module-ws.client" title="ws.client"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.client</span></code></a>).</p></li>
+<li><p>Automatic handling of the CSRF token.</p></li>
+<li><p>Automatic conversion of MediaWiki timestamp strings into the Python’s
+<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a> objects and back.</p></li>
+<li><p>Automatic handling of <a class="reference external" href="https://www.mediawiki.org/wiki/API:Query#Continuing_queries">API query-continuation</a>.</p></li>
+<li><p>Class for easy handling of MediaWiki page titles
+(<a class="reference internal" href="ws/ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal notranslate"><span class="pre">Title</span></code></a>).</p></li>
+<li><p>Custom SQL database capable of mirroring (almost) all data stored on the wiki
+(useful e.g. for caching of expensive queries involving revisions content).</p></li>
+<li><p>Recursive template expansion using <code class="xref py py-mod docutils literal notranslate"><span class="pre">mwparserfromhell</span></code> and the SQL
+database. See <a class="reference internal" href="ws/ws.parser_helpers.template_expansion.html#module-ws.parser_helpers.template_expansion" title="ws.parser_helpers.template_expansion"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.parser_helpers.template_expansion</span></code></a>.</p></li>
 </ul>
 </div>
 <div class="section" id="featured-scripts">
 <h2>Featured scripts<a class="headerlink" href="#featured-scripts" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">interlanguage.py</span></code>
+<li><p><code class="docutils literal notranslate"><span class="pre">interlanguage.py</span></code>
 updates the interlanguage links based on the ArchWiki’s <a class="reference external" href="https://wiki.archlinux.org/index.php/Help:I18n">interlanguage map</a>
-and fixes categories of local pages.</li>
-<li><code class="docutils literal notranslate"><span class="pre">link-checker.py</span></code>
+and fixes categories of local pages.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">link-checker.py</span></code>
 parses all pages on the wiki and tries to fix broken wikilinks, simplify
 links over redirects and relative links, and to beautify them based on
-ArchWiki’s <a class="reference external" href="https://wiki.archlinux.org/index.php/Help:Style">style recommendations</a>.</li>
-<li><code class="docutils literal notranslate"><span class="pre">statistics.py</span></code>
-generates automatic updates to the <a class="reference external" href="https://wiki.archlinux.org/index.php/ArchWiki:Statistics">ArchWiki:Statistics</a> page.</li>
-<li><code class="docutils literal notranslate"><span class="pre">toc.py</span></code>
-generates the <a class="reference external" href="https://wiki.archlinux.org/index.php/Table_of_contents">Table of contents</a> page and its localized versions.</li>
-<li><code class="docutils literal notranslate"><span class="pre">update-package-templates.py</span></code>
+ArchWiki’s <a class="reference external" href="https://wiki.archlinux.org/index.php/Help:Style">style recommendations</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">statistics.py</span></code>
+generates automatic updates to the <a class="reference external" href="https://wiki.archlinux.org/index.php/ArchWiki:Statistics">ArchWiki:Statistics</a> page.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">toc.py</span></code>
+generates the <a class="reference external" href="https://wiki.archlinux.org/index.php/Table_of_contents">Table of contents</a> page and its localized versions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">update-package-templates.py</span></code>
 finds broken links using the <a class="reference external" href="https://wiki.archlinux.org/index.php/Template:AUR">AUR</a>/<a class="reference external" href="https://wiki.archlinux.org/index.php/Template:Grp">Grp</a>/<a class="reference external" href="https://wiki.archlinux.org/index.php/Template:Pkg">Pkg</a> templates and tries to
 update them (for example when a package has been moved from the AUR to the
-official repositories).</li>
+official repositories).</p></li>
 </ul>
 <p>For a full list of available scripts see the <a class="reference external" href="https://github.com/lahwaacz/wiki-scripts">root directory</a> in the git
 repository. The <a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/blob/master/examples">examples directory</a> contains less notable notable scripts
@@ -81,7 +82,7 @@ showing various ways of the core <a class="reference internal" href="ws/ws.html#
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>Get the latest development version by cloning the git repository:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">lahwaacz</span><span class="o">/</span><span class="n">wiki</span><span class="o">-</span><span class="n">scripts</span><span class="o">.</span><span class="n">git</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">lahwaacz</span><span class="o">/</span><span class="n">wiki</span><span class="o">-</span><span class="n">scripts</span><span class="o">.</span><span class="n">git</span>
 <span class="n">cd</span> <span class="n">wiki</span><span class="o">-</span><span class="n">scripts</span>
 </pre></div>
 </div>
@@ -91,37 +92,37 @@ to be installed manually.</p>
 <div class="section" id="requirements">
 <h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><a class="reference external" href="https://www.python.org/">Python</a> version 3</li>
-<li><a class="reference external" href="http://python-requests.org">Requests</a></li>
-<li><a class="reference external" href="https://github.com/earwig/mwparserfromhell">mwparserfromhell</a></li>
-<li><a class="reference external" href="https://github.com/lahwaacz/ConfigArgParse/tree/config_files_without_merging">ConfigArgParse</a> (modified, bundled as git submodule)</li>
-<li><a class="reference external" href="https://github.com/kynikos/lib.py.configfile">configfile</a></li>
+<li><p><a class="reference external" href="https://www.python.org/">Python</a> version 3</p></li>
+<li><p><a class="reference external" href="http://python-requests.org">Requests</a></p></li>
+<li><p><a class="reference external" href="https://github.com/earwig/mwparserfromhell">mwparserfromhell</a></p></li>
+<li><p><a class="reference external" href="https://github.com/lahwaacz/ConfigArgParse/tree/config_files_without_merging">ConfigArgParse</a> (modified, bundled as git submodule)</p></li>
+<li><p><a class="reference external" href="https://github.com/kynikos/lib.py.configfile">configfile</a></p></li>
 </ul>
 <p>The following are required only by some scripts:</p>
 <ul class="simple">
-<li><a class="reference external" href="https://github.com/lahwaacz/python-wikeddiff">WikEdDiff</a> (for highlighting differences between revisions in interactive
-mode)</li>
-<li><a class="reference external" href="http://pygments.org/">Pygments</a> (alternative highlighter when WikEdDiff is not available)</li>
-<li><a class="reference external" href="https://projects.archlinux.org/users/remy/pyalpm.git/">pyalpm</a> (for <code class="docutils literal notranslate"><span class="pre">update-package-templates.py</span></code>)</li>
-<li><a class="reference external" href="http://www.numpy.org/">NumPy</a> and <a class="reference external" href="http://matplotlib.org/">matplotlib</a> (for <code class="docutils literal notranslate"><span class="pre">statistics_histograms.py</span></code>)</li>
+<li><p><a class="reference external" href="https://github.com/lahwaacz/python-wikeddiff">WikEdDiff</a> (for highlighting differences between revisions in interactive
+mode)</p></li>
+<li><p><a class="reference external" href="http://pygments.org/">Pygments</a> (alternative highlighter when WikEdDiff is not available)</p></li>
+<li><p><a class="reference external" href="https://projects.archlinux.org/users/remy/pyalpm.git/">pyalpm</a> (for <code class="docutils literal notranslate"><span class="pre">update-package-templates.py</span></code>)</p></li>
+<li><p><a class="reference external" href="http://www.numpy.org/">NumPy</a> and <a class="reference external" href="http://matplotlib.org/">matplotlib</a> (for <code class="docutils literal notranslate"><span class="pre">statistics_histograms.py</span></code>)</p></li>
 </ul>
 <p>Optional dependencies:</p>
 <ul class="simple">
-<li><a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a> server, <a class="reference external" href="http://www.sqlalchemy.org/">SQLAlchemy</a>, <a class="reference external" href="http://alembic.zzzcomputing.com/en/latest/">Alembic</a> and a driver such as
-<a class="reference external" href="http://initd.org/psycopg/">Psycopg2</a> (for local database caching)</li>
-<li><a class="reference external" href="https://docs.python.org/3.4/library/tk.html">Tk/Tcl</a> (for copying the output of <code class="docutils literal notranslate"><span class="pre">statistics.py</span></code> to the clipboard)</li>
-<li><a class="reference external" href="https://github.com/borntyping/python-colorlog">colorlog</a> (for colorized logging output)</li>
+<li><p><a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a> server, <a class="reference external" href="http://www.sqlalchemy.org/">SQLAlchemy</a>, <a class="reference external" href="http://alembic.zzzcomputing.com/en/latest/">Alembic</a> and a driver such as
+<a class="reference external" href="http://initd.org/psycopg/">Psycopg2</a> (for local database caching)</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3.4/library/tk.html">Tk/Tcl</a> (for copying the output of <code class="docutils literal notranslate"><span class="pre">statistics.py</span></code> to the clipboard)</p></li>
+<li><p><a class="reference external" href="https://github.com/borntyping/python-colorlog">colorlog</a> (for colorized logging output)</p></li>
 </ul>
 <p>Dependencies for running the tests:</p>
 <ul class="simple">
-<li><a class="reference external" href="https://testrun.org/tox/latest/">tox</a></li>
-<li><a class="reference external" href="http://nginx.org/">Nginx</a>, <a class="reference external" href="http://php.net/">PHP</a>, <a class="reference external" href="https://php-fpm.org/">PHP-FPM</a>, <a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a></li>
-<li>Necessary Python packages are installed automatically in the virtual
-environments.</li>
+<li><p><a class="reference external" href="https://testrun.org/tox/latest/">tox</a></p></li>
+<li><p><a class="reference external" href="http://nginx.org/">Nginx</a>, <a class="reference external" href="http://php.net/">PHP</a>, <a class="reference external" href="https://php-fpm.org/">PHP-FPM</a>, <a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a></p></li>
+<li><p>Necessary Python packages are installed automatically in the virtual
+environments.</p></li>
 </ul>
 <p>Other tools used for development:</p>
 <ul class="simple">
-<li><a class="reference external" href="http://sphinx-doc.org/">sphinx</a></li>
+<li><p><a class="reference external" href="http://sphinx-doc.org/">sphinx</a></p></li>
 </ul>
 </div>
 </div>
@@ -130,10 +131,10 @@ environments.</li>
 <p>There is a <a class="reference external" href="https://www.mediawiki.org/wiki/API:Client_code#Python">list of client software</a> maintained on mediawiki.org, many of them
 are quite inspirational.</p>
 <ul class="simple">
-<li><a class="reference external" href="https://github.com/ianweller/python-simplemediawiki">simplemediawiki</a> is the original inspiration for the core
-<a class="reference internal" href="ws/ws.client.connection.html#module-ws.client.connection" title="ws.client.connection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.client.connection</span></code></a> and (partially) <a class="reference internal" href="ws/ws.client.api.html#module-ws.client.api" title="ws.client.api"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.client.api</span></code></a> modules.</li>
-<li>Some scripts are inspired by the <a class="reference external" href="https://github.com/kynikos/wiki-monkey">Wiki Monkey</a>’s plugins, but (obviously) were
-written from scratch.</li>
+<li><p><a class="reference external" href="https://github.com/ianweller/python-simplemediawiki">simplemediawiki</a> is the original inspiration for the core
+<a class="reference internal" href="ws/ws.client.connection.html#module-ws.client.connection" title="ws.client.connection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.client.connection</span></code></a> and (partially) <a class="reference internal" href="ws/ws.client.api.html#module-ws.client.api" title="ws.client.api"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.client.api</span></code></a> modules.</p></li>
+<li><p>Some scripts are inspired by the <a class="reference external" href="https://github.com/kynikos/wiki-monkey">Wiki Monkey</a>’s plugins, but (obviously) were
+written from scratch.</p></li>
 </ul>
 </div>
 <div class="section" id="site-map">
@@ -142,6 +143,7 @@ written from scratch.</li>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="configuration.html#configuration-file-format">Configuration file format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#database-configuration-settings">Database configuration settings</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Writing new scripts</a></li>
@@ -168,7 +170,6 @@ written from scratch.</li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.autopage.html">ws.autopage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.config.html">ws.config module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.diff.html">ws.diff module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ws/ws.dump.html">ws.dump module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.interactive.html">ws.interactive module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.logging.html">ws.logging module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws/ws.wikitable.html">ws.wikitable module</a></li>
@@ -184,9 +185,9 @@ written from scratch.</li>
 <div class="section" id="indices-and-tables">
 <h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
 </div>
 </div>
@@ -229,17 +230,23 @@ written from scratch.</li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -248,8 +255,8 @@ written from scratch.</li>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/index.rst.txt"

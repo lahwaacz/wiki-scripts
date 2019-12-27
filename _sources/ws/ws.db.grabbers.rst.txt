@@ -2,9 +2,9 @@ ws.db.grabbers package
 ======================
 
 .. automodule:: ws.db.grabbers
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -22,4 +22,3 @@ Submodules
    ws.db.grabbers.revision
    ws.db.grabbers.tags
    ws.db.grabbers.user
-

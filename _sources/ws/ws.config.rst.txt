@@ -2,6 +2,6 @@ ws.config module
 ================
 
 .. automodule:: ws.config
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

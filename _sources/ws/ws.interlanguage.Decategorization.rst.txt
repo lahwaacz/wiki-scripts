@@ -2,6 +2,6 @@ ws.interlanguage.Decategorization module
 ========================================
 
 .. automodule:: ws.interlanguage.Decategorization
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

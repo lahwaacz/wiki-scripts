@@ -2,6 +2,6 @@ ws.db.grabbers.ipblocks module
 ==============================
 
 .. automodule:: ws.db.grabbers.ipblocks
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

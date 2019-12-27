@@ -2,6 +2,6 @@ ws.utils.lazy module
 ====================
 
 .. automodule:: ws.utils.lazy
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

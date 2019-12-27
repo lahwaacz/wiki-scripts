@@ -2,6 +2,6 @@ ws.parser\_helpers.encodings module
 ===================================
 
 .. automodule:: ws.parser_helpers.encodings
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

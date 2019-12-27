@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ws.cache package &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,6 +11,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,76 +37,69 @@
 <span id="ws-cache-package"></span><h1>ws.cache package<a class="headerlink" href="#module-ws.cache" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="ws.cache.CacheDb">
-<em class="property">class </em><code class="descclassname">ws.cache.</code><code class="descname">CacheDb</code><span class="sig-paren">(</span><em>api</em>, <em>cache_dir</em>, <em>dbname</em>, <em>autocommit=True</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">ws.cache.</code><code class="sig-name descname">CacheDb</code><span class="sig-paren">(</span><em class="sig-param">api</em>, <em class="sig-param">cache_dir</em>, <em class="sig-param">dbname</em>, <em class="sig-param">autocommit=True</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Base class for caching databases. The database is saved on disk in the
 gzipped JSON format. The data is represented by the <a class="reference internal" href="#ws.cache.CacheDb.data" title="ws.cache.CacheDb.data"><code class="xref py py-attr docutils literal notranslate"><span class="pre">data</span></code></a>
 structure, whose type depends on the implementation in each subclass
-(generally a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>). There is also a
+(generally a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>). There is also a
 <a class="reference internal" href="#ws.cache.CacheDb.meta" title="ws.cache.CacheDb.meta"><code class="xref py py-attr docutils literal notranslate"><span class="pre">meta</span></code></a> structure holding the meta data such as timestamp of the
 last update.</p>
 <p>The data elements can be accessed using the subscript syntax <code class="docutils literal notranslate"><span class="pre">db[&quot;key&quot;]</span></code>,
 which triggers a lazy update/initialization of the database. The meta data
 can be accessed as attributes (e.g. <code class="docutils literal notranslate"><span class="pre">db.attribute</span></code>), which does not
 trigger an update.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>api</strong> (<a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><em>ws.client.api.API</em></a>) – an instance of the API to work with</li>
-<li><strong>dbname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – a name of the database, usually the name of the subclass</li>
-<li><strong>autocommit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – whether to automatically call <a class="reference internal" href="#ws.cache.CacheDb.dump" title="ws.cache.CacheDb.dump"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dump()</span></code></a> after each update of
-the database</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api</strong> (<a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><em>ws.client.api.API</em></a>) – an instance of the API to work with</p></li>
+<li><p><strong>dbname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – a name of the database, usually the name of the subclass</p></li>
+<li><p><strong>autocommit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – whether to automatically call <a class="reference internal" href="#ws.cache.CacheDb.dump" title="ws.cache.CacheDb.dump"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dump()</span></code></a> after each update of
+the database</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="ws.cache.CacheDb.meta">
-<code class="descname">meta</code><em class="property"> = {}</em><a class="headerlink" href="#ws.cache.CacheDb.meta" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">meta</code><em class="property"> = {}</em><a class="headerlink" href="#ws.cache.CacheDb.meta" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="ws.cache.CacheDb.data">
-<code class="descname">data</code><em class="property"> = None</em><a class="headerlink" href="#ws.cache.CacheDb.data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">data</code><em class="property"> = None</em><a class="headerlink" href="#ws.cache.CacheDb.data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="ws.cache.CacheDb.ts_format">
-<code class="descname">ts_format</code><em class="property"> = '%Y-%m-%dT%H:%M:%S.%f'</em><a class="headerlink" href="#ws.cache.CacheDb.ts_format" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ts_format</code><em class="property"> = '%Y-%m-%dT%H:%M:%S.%f'</em><a class="headerlink" href="#ws.cache.CacheDb.ts_format" title="Permalink to this definition">¶</a></dt>
 <dd><p>format for JSON (de)serialization of datetime.datetime timestamps</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="ws.cache.CacheDb.autocommit">
-<code class="descname">autocommit</code><em class="property"> = None</em><a class="headerlink" href="#ws.cache.CacheDb.autocommit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">autocommit</code><em class="property"> = None</em><a class="headerlink" href="#ws.cache.CacheDb.autocommit" title="Permalink to this definition">¶</a></dt>
 <dd><p>period for automatic database commits</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.CacheDb.load">
-<code class="descname">load</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.load" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Try to load data from disk. When data on disk does not exist yet, calls
 <a class="reference internal" href="#ws.cache.CacheDb.init" title="ws.cache.CacheDb.init"><code class="xref py py-meth docutils literal notranslate"><span class="pre">init()</span></code></a> to initialize the database and <a class="reference internal" href="#ws.cache.CacheDb.dump" title="ws.cache.CacheDb.dump"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dump()</span></code></a>
 immediately after to save the initial state to disk.</p>
 <p>Called automatically from <code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code>, it is not necessary to
 call it manually.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – passed to <a class="reference internal" href="#ws.cache.CacheDb.init" title="ws.cache.CacheDb.init"><code class="xref py py-meth docutils literal notranslate"><span class="pre">init()</span></code></a>, necessary for proper lazy
-initialization in case of multi-key database</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> – passed to <a class="reference internal" href="#ws.cache.CacheDb.init" title="ws.cache.CacheDb.init"><code class="xref py py-meth docutils literal notranslate"><span class="pre">init()</span></code></a>, necessary for proper lazy
+initialization in case of multi-key database</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.CacheDb.dump">
-<code class="descname">dump</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.dump" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dump</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.dump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save data to disk. When <a class="reference internal" href="#ws.cache.CacheDb.autocommit" title="ws.cache.CacheDb.autocommit"><code class="xref py py-attr docutils literal notranslate"><span class="pre">autocommit</span></code></a> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, it is
 called automatically from <a class="reference internal" href="#ws.cache.CacheDb.init" title="ws.cache.CacheDb.init"><code class="xref py py-meth docutils literal notranslate"><span class="pre">init()</span></code></a> and <a class="reference internal" href="#ws.cache.CacheDb.update" title="ws.cache.CacheDb.update"><code class="xref py py-meth docutils literal notranslate"><span class="pre">update()</span></code></a>.</p>
 <p>After manual modification of the <code class="docutils literal notranslate"><span class="pre">self.data</span></code> structure it is necessary to
@@ -116,250 +108,215 @@ call it manually if the change is to be persistent.</p>
 
 <dl class="method">
 <dt id="ws.cache.CacheDb.init">
-<code class="descname">init</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.init" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><em class="sig-param">key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.init" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called by <a class="reference internal" href="#ws.cache.CacheDb.load" title="ws.cache.CacheDb.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load()</span></code></a> when data does not exist on disk yet.
 Responsible for:</p>
 <blockquote>
 <div><ul class="simple">
-<li>initializing <a class="reference internal" href="#ws.cache.CacheDb.data" title="ws.cache.CacheDb.data"><code class="xref py py-attr docutils literal notranslate"><span class="pre">data</span></code></a> structure and performing the initial
-API query,</li>
-<li>calling <a class="reference internal" href="#ws.cache.CacheDb.dump" title="ws.cache.CacheDb.dump"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dump()</span></code></a> after the query depending on the
-value of <a class="reference internal" href="#ws.cache.CacheDb.autocommit" title="ws.cache.CacheDb.autocommit"><code class="xref py py-attr docutils literal notranslate"><span class="pre">autocommit</span></code></a>,</li>
-<li>updating <code class="docutils literal notranslate"><span class="pre">self.meta[&quot;timestamp&quot;]</span></code>, either manually or via
-<a class="reference internal" href="#ws.cache.CacheDb._update_timestamp" title="ws.cache.CacheDb._update_timestamp"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_update_timestamp()</span></code></a>.</li>
+<li><p>initializing <a class="reference internal" href="#ws.cache.CacheDb.data" title="ws.cache.CacheDb.data"><code class="xref py py-attr docutils literal notranslate"><span class="pre">data</span></code></a> structure and performing the initial
+API query,</p></li>
+<li><p>calling <a class="reference internal" href="#ws.cache.CacheDb.dump" title="ws.cache.CacheDb.dump"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dump()</span></code></a> after the query depending on the
+value of <a class="reference internal" href="#ws.cache.CacheDb.autocommit" title="ws.cache.CacheDb.autocommit"><code class="xref py py-attr docutils literal notranslate"><span class="pre">autocommit</span></code></a>,</p></li>
+<li><p>updating <code class="docutils literal notranslate"><span class="pre">self.meta[&quot;timestamp&quot;]</span></code>, either manually or via
+<a class="reference internal" href="#ws.cache.CacheDb._update_timestamp" title="ws.cache.CacheDb._update_timestamp"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_update_timestamp()</span></code></a>.</p></li>
 </ul>
 </div></blockquote>
 <p>Has to be defined in subclasses.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – database key determining which part of the database should be
-initialized. Can be ignored in case of single-key databases.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> – database key determining which part of the database should be
+initialized. Can be ignored in case of single-key databases.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.CacheDb.update">
-<code class="descname">update</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.update" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called from accessors like <a class="reference internal" href="#ws.cache.CacheDb.__getitem__" title="ws.cache.CacheDb.__getitem__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__getitem__()</span></code></a> a cache update.
 Responsible for:</p>
 <blockquote>
 <div><ul class="simple">
-<li>performing an API query to update the cached data,</li>
-<li>calling <a class="reference internal" href="#ws.cache.CacheDb.dump" title="ws.cache.CacheDb.dump"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dump()</span></code></a> after the query depending on the
-value of <a class="reference internal" href="#ws.cache.CacheDb.autocommit" title="ws.cache.CacheDb.autocommit"><code class="xref py py-attr docutils literal notranslate"><span class="pre">autocommit</span></code></a>,</li>
-<li>updating <code class="docutils literal notranslate"><span class="pre">self.meta[&quot;timestamp&quot;]</span></code>, either manually or via
-<a class="reference internal" href="#ws.cache.CacheDb._update_timestamp" title="ws.cache.CacheDb._update_timestamp"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_update_timestamp()</span></code></a>.</li>
+<li><p>performing an API query to update the cached data,</p></li>
+<li><p>calling <a class="reference internal" href="#ws.cache.CacheDb.dump" title="ws.cache.CacheDb.dump"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dump()</span></code></a> after the query depending on the
+value of <a class="reference internal" href="#ws.cache.CacheDb.autocommit" title="ws.cache.CacheDb.autocommit"><code class="xref py py-attr docutils literal notranslate"><span class="pre">autocommit</span></code></a>,</p></li>
+<li><p>updating <code class="docutils literal notranslate"><span class="pre">self.meta[&quot;timestamp&quot;]</span></code>, either manually or via
+<a class="reference internal" href="#ws.cache.CacheDb._update_timestamp" title="ws.cache.CacheDb._update_timestamp"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_update_timestamp()</span></code></a>.</p></li>
 </ul>
 </div></blockquote>
 <p>Has to be defined in subclasses.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – database key determining which part of the database should be
-initialized. Can be ignored in case of single-key databases.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> – database key determining which part of the database should be
+initialized. Can be ignored in case of single-key databases.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.CacheDb._update_timestamp">
-<code class="descname">_update_timestamp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb._update_timestamp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_update_timestamp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb._update_timestamp" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.CacheDb._load_and_update">
-<code class="descname">_load_and_update</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb._load_and_update" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_load_and_update</code><span class="sig-paren">(</span><em class="sig-param">key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb._load_and_update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method called from the accessors.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.CacheDb.__getitem__">
-<code class="descname">__getitem__</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.__getitem__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__getitem__</code><span class="sig-paren">(</span><em class="sig-param">key</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.__getitem__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.CacheDb.__iter__">
-<code class="descname">__iter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.__iter__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__iter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.__iter__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.CacheDb.__reversed__">
-<code class="descname">__reversed__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.__reversed__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__reversed__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.__reversed__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.CacheDb.__contains__">
-<code class="descname">__contains__</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.__contains__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__contains__</code><span class="sig-paren">(</span><em class="sig-param">item</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.__contains__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.CacheDb.__len__">
-<code class="descname">__len__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.__len__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__len__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.__len__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.CacheDb.__getattr__">
-<code class="descname">__getattr__</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.__getattr__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__getattr__</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.CacheDb.__getattr__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Access a meta data element.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal notranslate"><span class="pre">self.meta[name]</span></code> if available, otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">self.meta[name]</span></code> if available, otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="ws.cache.CacheDbError">
-<em class="property">exception </em><code class="descclassname">ws.cache.</code><code class="descname">CacheDbError</code><a class="headerlink" href="#ws.cache.CacheDbError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<em class="property">exception </em><code class="sig-prename descclassname">ws.cache.</code><code class="sig-name descname">CacheDbError</code><a class="headerlink" href="#ws.cache.CacheDbError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <p>Raised on database errors, e.g. when loading from disk failed.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="ws.cache.AllRevisionsProps">
-<em class="property">class </em><code class="descclassname">ws.cache.</code><code class="descname">AllRevisionsProps</code><span class="sig-paren">(</span><em>api</em>, <em>cache_dir</em>, <em>autocommit=True</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">ws.cache.</code><code class="sig-name descname">AllRevisionsProps</code><span class="sig-paren">(</span><em class="sig-param">api</em>, <em class="sig-param">cache_dir</em>, <em class="sig-param">autocommit=True</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#ws.cache.CacheDb" title="ws.cache.CacheDb"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.cache.CacheDb</span></code></a></p>
 <dl class="method">
 <dt id="ws.cache.AllRevisionsProps.init">
-<code class="descname">init</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.init" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – ignored</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><em class="sig-param">key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.init" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> – ignored</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.AllRevisionsProps.update">
-<code class="descname">update</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.update" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – ignored</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.update" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> – ignored</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.AllRevisionsProps._get_last_revid_db">
-<code class="descname">_get_last_revid_db</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps._get_last_revid_db" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_get_last_revid_db</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps._get_last_revid_db" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get ID of the last revision stored in the cache database.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.AllRevisionsProps._fetch_revisions">
-<code class="descname">_fetch_revisions</code><span class="sig-paren">(</span><em>first</em>, <em>last</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps._fetch_revisions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_fetch_revisions</code><span class="sig-paren">(</span><em class="sig-param">first</em>, <em class="sig-param">last</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps._fetch_revisions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch properties of revisions in given numeric range and save the data
 to the database.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>first</strong> – (int) revision ID to start fetching from</li>
-<li><strong>last</strong> – (int) revision ID to end fetching</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>first</strong> – (int) revision ID to start fetching from</p></li>
+<li><p><strong>last</strong> – (int) revision ID to end fetching</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="ws.cache.AllUsersProps">
-<em class="property">class </em><code class="descclassname">ws.cache.</code><code class="descname">AllUsersProps</code><span class="sig-paren">(</span><em>api</em>, <em>cache_dir</em>, <em>autocommit=True</em>, <em>active_days=30</em>, <em>round_to_midnight=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">ws.cache.</code><code class="sig-name descname">AllUsersProps</code><span class="sig-paren">(</span><em class="sig-param">api</em>, <em class="sig-param">cache_dir</em>, <em class="sig-param">autocommit=True</em>, <em class="sig-param">active_days=30</em>, <em class="sig-param">round_to_midnight=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#ws.cache.CacheDb" title="ws.cache.CacheDb"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.cache.CacheDb</span></code></a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>active_days</strong> – the time span in days to consider users as active</li>
-<li><strong>round_to_midnight</strong> – Whether to round timestamps to midnight when fetching recent changes. This
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>active_days</strong> – the time span in days to consider users as active</p></li>
+<li><p><strong>round_to_midnight</strong> – Whether to round timestamps to midnight when fetching recent changes. This
 affects the <code class="docutils literal notranslate"><span class="pre">&quot;recenteditcount&quot;</span></code> property, but not the total <code class="docutils literal notranslate"><span class="pre">&quot;editcount&quot;</span></code>,
-which reflects the state as of the last update of the cache.</li>
+which reflects the state as of the last update of the cache.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="ws.cache.AllUsersProps.init">
-<code class="descname">init</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps.init" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – ignored</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><em class="sig-param">key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps.init" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> – ignored</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.AllUsersProps.update">
-<code class="descname">update</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps.update" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – ignored</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps.update" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> – ignored</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.AllUsersProps._find_changed_users">
-<code class="descname">_find_changed_users</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps._find_changed_users" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_find_changed_users</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps._find_changed_users" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find users whose properties may have changed since the last update.
 Changes to edit counts are not taken into account.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of user names</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of user names</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.AllUsersProps._find_active_users">
-<code class="descname">_find_active_users</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps._find_active_users" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_find_active_users</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps._find_active_users" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the users who were active in the last <code class="xref py py-attr docutils literal notranslate"><span class="pre">active_days</span></code> days
 and count their recent edits.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a mapping of user names to their recenteditcount</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a mapping of user names to their recenteditcount</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.AllUsersProps._update_recent_edit_counts">
-<code class="descname">_update_recent_edit_counts</code><span class="sig-paren">(</span><em>rcusers</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps._update_recent_edit_counts" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_update_recent_edit_counts</code><span class="sig-paren">(</span><em class="sig-param">rcusers</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllUsersProps._update_recent_edit_counts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -434,17 +391,23 @@ and count their recent edits.</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -453,8 +416,8 @@ and count their recent edits.</p>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/ws/ws.cache.rst.txt"

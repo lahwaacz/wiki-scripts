@@ -2,17 +2,17 @@ ws.db package
 =============
 
 .. automodule:: ws.db
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Subpackages
 -----------
 
 .. toctree::
 
-    ws.db.grabbers
-    ws.db.selects
+   ws.db.grabbers
+   ws.db.selects
 
 Submodules
 ----------
@@ -25,4 +25,3 @@ Submodules
    ws.db.parser_cache
    ws.db.schema
    ws.db.sql_types
-

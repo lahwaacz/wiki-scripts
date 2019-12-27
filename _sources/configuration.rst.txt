@@ -124,3 +124,42 @@ The full example of a configuration file is available as `sample.conf`_.
 
 .. _interpolation syntax: https://kynikos.github.io/lib.py.configfile/#interpolation
 .. _sample.conf: https://github.com/lahwaacz/wiki-scripts/blob/master/examples/sample.conf
+
+Database configuration settings
+...............................
+
+Some scripts require access to a PostgreSQL database to be configured via the
+following options:
+
+.. code-block:: none
+
+    ...
+
+    Database parameters:
+      --db-dialect DIALECT  an SQL dialect (default: None)
+      --db-driver DRIVER    a driver for given SQL dialect supported by sqlalchemy (default:
+                            None)
+      --db-user USER        username for database connection (default: None)
+      --db-password PASSWORD
+                            password for database connection (default: None)
+      --db-host HOST        hostname of the database server (default: None)
+      --db-port PORT        port on which the database server listens (default: None)
+      --db-name DATABASE    name of the database (default: None)
+
+For convenience, these options should can be set in the configuration file.
+Note that ``db-name`` must be different for every site. For example:
+
+.. code-block:: ini
+
+    ...
+
+    db-dialect = postgresql
+    db-driver = psycopg2
+
+    db-user = wiki-scripts
+    db-password = password
+    db-host = localhost
+
+    [ArchWiki]
+    db-name = ws_archwiki
+    ...

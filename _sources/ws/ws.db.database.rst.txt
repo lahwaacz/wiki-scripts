@@ -2,6 +2,6 @@ ws.db.database module
 =====================
 
 .. automodule:: ws.db.database
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

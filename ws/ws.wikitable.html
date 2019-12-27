@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ws.wikitable module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,6 +11,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -37,55 +36,49 @@
 <span id="ws-wikitable-module"></span><h1>ws.wikitable module<a class="headerlink" href="#module-ws.wikitable" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="ws.wikitable.Wikitable">
-<em class="property">class </em><code class="descclassname">ws.wikitable.</code><code class="descname">Wikitable</code><a class="headerlink" href="#ws.wikitable.Wikitable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<dl class="staticmethod">
+<em class="property">class </em><code class="sig-prename descclassname">ws.wikitable.</code><code class="sig-name descname">Wikitable</code><a class="headerlink" href="#ws.wikitable.Wikitable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
 <dt id="ws.wikitable.Wikitable.assemble">
-<em class="property">static </em><code class="descname">assemble</code><span class="sig-paren">(</span><em>header_fields</em>, <em>rows</em>, <em>single_line_rows=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.wikitable.Wikitable.assemble" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>header_fields</strong> – list of strings representing the table header</li>
-<li><strong>rows</strong> – list of tuples, represents the table cells in a matrix-like
-row-major format</li>
-<li><strong>single_line_rows</strong> – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, each row is formatted on a single
-line, e.g. <code class="docutils literal notranslate"><span class="pre">|</span> <span class="pre">cell1</span> <span class="pre">||</span> <span class="pre">cell2</span> <span class="pre">||</span> <span class="pre">cell3</span></code>.</li>
+<em class="property">static </em><code class="sig-name descname">assemble</code><span class="sig-paren">(</span><em class="sig-param">header_fields</em>, <em class="sig-param">rows</em>, <em class="sig-param">single_line_rows=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.wikitable.Wikitable.assemble" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header_fields</strong> – list of strings representing the table header</p></li>
+<li><p><strong>rows</strong> – list of tuples, represents the table cells in a matrix-like
+row-major format</p></li>
+<li><p><strong>single_line_rows</strong> – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, each row is formatted on a single
+line, e.g. <code class="docutils literal notranslate"><span class="pre">|</span> <span class="pre">cell1</span> <span class="pre">||</span> <span class="pre">cell2</span> <span class="pre">||</span> <span class="pre">cell3</span></code>.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">string containing the table formatted with MediaWiki markup</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>string containing the table formatted with MediaWiki markup</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="ws.wikitable.Wikitable.parse">
-<em class="property">static </em><code class="descname">parse</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.wikitable.Wikitable.parse" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – string or a <a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a>
-object containing a table in MediaWiki format</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a <code class="docutils literal notranslate"><span class="pre">(fields,</span> <span class="pre">rows)</span></code> tuple, where <code class="docutils literal notranslate"><span class="pre">fields</span></code> is a list of column fields
+<em class="property">static </em><code class="sig-name descname">parse</code><span class="sig-paren">(</span><em class="sig-param">text</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.wikitable.Wikitable.parse" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>text</strong> – string or a <a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.html#mwparserfromhell.wikicode.Wikicode" title="(in mwparserfromhell v0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mwparserfromhell.wikicode.Wikicode</span></code></a>
+object containing a table in MediaWiki format</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a <code class="docutils literal notranslate"><span class="pre">(fields,</span> <span class="pre">rows)</span></code> tuple, where <code class="docutils literal notranslate"><span class="pre">fields</span></code> is a list of column fields
 and <code class="docutils literal notranslate"><span class="pre">rows</span></code> is a list of tuples representing the table cells in a
-matrix-like row-major format</td>
-</tr>
-</tbody>
-</table>
+matrix-like row-major format</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="ws.wikitable.WikitableParseError">
-<em class="property">exception </em><code class="descclassname">ws.wikitable.</code><code class="descname">WikitableParseError</code><a class="headerlink" href="#ws.wikitable.WikitableParseError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<em class="property">exception </em><code class="sig-prename descclassname">ws.wikitable.</code><code class="sig-name descname">WikitableParseError</code><a class="headerlink" href="#ws.wikitable.WikitableParseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 </dd></dl>
 
 </div>
@@ -123,7 +116,6 @@ matrix-like row-major format</td>
 <li class="toctree-l4"><a class="reference internal" href="ws.autopage.html">ws.autopage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.config.html">ws.config module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.diff.html">ws.diff module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ws.dump.html">ws.dump module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.interactive.html">ws.interactive module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.logging.html">ws.logging module</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">ws.wikitable module</a></li>
@@ -148,17 +140,23 @@ matrix-like row-major format</td>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -167,8 +165,8 @@ matrix-like row-major format</td>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/ws/ws.wikitable.rst.txt"

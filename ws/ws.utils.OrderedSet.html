@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ws.utils.OrderedSet module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,6 +11,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,13 +37,13 @@
 <span id="ws-utils-orderedset-module"></span><h1>ws.utils.OrderedSet module<a class="headerlink" href="#module-ws.utils.OrderedSet" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="ws.utils.OrderedSet.OrderedSet">
-<em class="property">class </em><code class="descclassname">ws.utils.OrderedSet.</code><code class="descname">OrderedSet</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.OrderedDict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.OrderedDict</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSet" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">ws.utils.OrderedSet.</code><code class="sig-name descname">OrderedSet</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.OrderedDict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.OrderedDict</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSet" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code></a></p>
 <p>An ordered set class from this recipe:
 <a class="reference external" href="https://stackoverflow.com/a/1653978/4180822">https://stackoverflow.com/a/1653978/4180822</a></p>
 <dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.update">
-<code class="descname">update</code><span class="sig-paren">(</span><span class="optional">[</span><em>E</em>, <span class="optional">]</span><em>**F</em><span class="sig-paren">)</span> &#x2192; None.  Update D from dict/iterable E and F.<a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.update" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param">E</em>, <span class="optional">]</span><em class="sig-param">**F</em><span class="sig-paren">)</span> &#x2192; None.  Update D from dict/iterable E and F.<a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
 If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
 In either case, this is followed by: for k in F:  D[k] = F[k]</p>
@@ -52,105 +51,105 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 
 <dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.add">
-<code class="descname">add</code><span class="sig-paren">(</span><em>elem</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.add" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">elem</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an element.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.discard">
-<code class="descname">discard</code><span class="sig-paren">(</span><em>elem</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.discard" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">discard</code><span class="sig-paren">(</span><em class="sig-param">elem</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.discard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove an element.  Do not raise an exception if absent.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.__le__">
-<code class="descname">__le__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__le__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__le__</code><span class="sig-paren">(</span><em class="sig-param">other</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__le__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return self&lt;=value.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.__lt__">
-<code class="descname">__lt__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__lt__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__lt__</code><span class="sig-paren">(</span><em class="sig-param">other</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__lt__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return self&lt;value.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.__ge__">
-<code class="descname">__ge__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__ge__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__ge__</code><span class="sig-paren">(</span><em class="sig-param">other</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__ge__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return self&gt;=value.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.__gt__">
-<code class="descname">__gt__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__gt__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__gt__</code><span class="sig-paren">(</span><em class="sig-param">other</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__gt__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return self&gt;value.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.__repr__">
-<code class="descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__repr__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__repr__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return repr(self).</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.__str__">
-<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__str__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__str__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return str(self).</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.difference">
-<code class="descname">difference</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.difference" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">difference</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.difference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.difference_update">
-<code class="descname">difference_update</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.difference_update" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">difference_update</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.difference_update" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.intersection">
-<code class="descname">intersection</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.intersection" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">intersection</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.intersection" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.intersection_update">
-<code class="descname">intersection_update</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.intersection_update" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">intersection_update</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.intersection_update" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.issubset">
-<code class="descname">issubset</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.issubset" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">issubset</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.issubset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.issuperset">
-<code class="descname">issuperset</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.issuperset" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">issuperset</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.issuperset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.symmetric_difference">
-<code class="descname">symmetric_difference</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.symmetric_difference" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">symmetric_difference</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.symmetric_difference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.symmetric_difference_update">
-<code class="descname">symmetric_difference_update</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.symmetric_difference_update" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">symmetric_difference_update</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.symmetric_difference_update" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.utils.OrderedSet.OrderedSet.union">
-<code class="descname">union</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.union" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">union</code><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.union" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="ws.utils.OrderedSet.OrderedSet.__abstractmethods__">
-<code class="descname">__abstractmethods__</code><em class="property"> = frozenset()</em><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__abstractmethods__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__abstractmethods__</code><em class="property"> = frozenset({})</em><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet.__abstractmethods__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="ws.utils.OrderedSet.OrderedSet._abc_impl">
-<code class="descname">_abc_impl</code><em class="property"> = &lt;_abc_data object&gt;</em><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet._abc_impl" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_abc_impl</code><em class="property"> = &lt;_abc_data object&gt;</em><a class="headerlink" href="#ws.utils.OrderedSet.OrderedSet._abc_impl" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -218,17 +217,23 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -237,8 +242,8 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/ws/ws.utils.OrderedSet.rst.txt"

@@ -2,6 +2,6 @@ ws.db.sql\_types module
 =======================
 
 .. automodule:: ws.db.sql_types
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -2,22 +2,22 @@ ws package
 ==========
 
 .. automodule:: ws
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Subpackages
 -----------
 
 .. toctree::
 
-    ws.ArchWiki
-    ws.cache
-    ws.client
-    ws.db
-    ws.interlanguage
-    ws.parser_helpers
-    ws.utils
+   ws.ArchWiki
+   ws.cache
+   ws.client
+   ws.db
+   ws.interlanguage
+   ws.parser_helpers
+   ws.utils
 
 Submodules
 ----------
@@ -27,8 +27,6 @@ Submodules
    ws.autopage
    ws.config
    ws.diff
-   ws.dump
    ws.interactive
    ws.logging
    ws.wikitable
-

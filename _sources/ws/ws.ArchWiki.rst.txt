@@ -2,9 +2,9 @@ ws.ArchWiki package
 ===================
 
 .. automodule:: ws.ArchWiki
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -13,4 +13,3 @@ Submodules
 
    ws.ArchWiki.header
    ws.ArchWiki.lang
-

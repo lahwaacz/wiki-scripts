@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ws.interlanguage.InterlanguageLinks module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,6 +11,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,42 +37,45 @@
 <span id="ws-interlanguage-interlanguagelinks-module"></span><h1>ws.interlanguage.InterlanguageLinks module<a class="headerlink" href="#module-ws.interlanguage.InterlanguageLinks" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks">
-<em class="property">class </em><code class="descclassname">ws.interlanguage.InterlanguageLinks.</code><code class="descname">InterlanguageLinks</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">ws.interlanguage.InterlanguageLinks.</code><code class="sig-name descname">InterlanguageLinks</code><span class="sig-paren">(</span><em class="sig-param">api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Update interlanguage links on ArchWiki based on the following algorithm:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>Fetch list of all pages with prop=langlinks to be able to build a
-langlink graph (separate from the content dict for quick searching).</li>
-<li>Group pages into families based on their title, which is the primary key
+<li><p>Fetch list of all pages with prop=langlinks to be able to build a
+langlink graph (separate from the content dict for quick searching).</p></li>
+<li><p>Group pages into families based on their title, which is the primary key
 to denote a family. The grouping is case-insensitive and includes even
 pages without any interlanguage links. The family name corresponds to
 the only English page in the family (or when not present, to the English
-base of the localized title).</li>
-<li>For every page on the wiki:<ol class="loweralpha">
-<li>Determine the family of the page.</li>
-<li>Assemble a set of pages in the family. This is done by first
+base of the localized title).</p></li>
+<li><p>For every page on the wiki:</p>
+<ol class="loweralpha simple">
+<li><p>Determine the family of the page.</p></li>
+<li><p>Assemble a set of pages in the family. This is done by first
 including the pages in the group from step 2., then pulling any
 internal langlinks from the pages in the set (in unspecified order),
-and finally based on the presence of an English page in the family:<ul>
-<li>If there is an English page directly in the group from step 2. or
+and finally based on the presence of an English page in the family:</p>
+<ul class="simple">
+<li><p>If there is an English page directly in the group from step 2. or
 if other pages link to an English page whose group can be merged
 with the current group without causing a conflict, its external
 langlinks are pulled in. As a result, external langlinks removed
 from the English page are assumed to be invalid and removed also
 from other pages in the family. For consistency, also internal
-langlinks are pulled from the English page.</li>
-<li>If the pulling from an English page was not done, external
+langlinks are pulled from the English page.</p></li>
+<li><p>If the pulling from an English page was not done, external
 langlinks are pulled from the other pages (in unspecified order),
-which completes the previous inclusion of internal langlinks.</li>
+which completes the previous inclusion of internal langlinks.</p></li>
 </ul>
 </li>
-<li>Check if it is necessary to update the page by comparing the new set
+<li><p>Check if it is necessary to update the page by comparing the new set
 of langlinks for a page (i.e. <code class="docutils literal notranslate"><span class="pre">family.titles</span> <span class="pre">-</span> <span class="pre">{title}</span></code>) with the
-old set obtained from the wiki’s API. If an update is needed:<ul>
-<li>Fetch content of the page.</li>
-<li>Update the langlinks of the page.</li>
-<li>If there is a difference, save the page.</li>
+old set obtained from the wiki’s API. If an update is needed:</p>
+<ul class="simple">
+<li><p>Fetch content of the page.</p></li>
+<li><p>Update the langlinks of the page.</p></li>
+<li><p>If there is a difference, save the page.</p></li>
 </ul>
 </li>
 </ol>
@@ -82,22 +84,22 @@ old set obtained from the wiki’s API. If an update is needed:<ul>
 </div></blockquote>
 <dl class="attribute">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks.content_namespaces">
-<code class="descname">content_namespaces</code><em class="property"> = [0, 4, 10, 12, 14]</em><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.content_namespaces" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">content_namespaces</code><em class="property"> = [0, 4, 10, 12, 14]</em><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.content_namespaces" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks.edit_summary">
-<code class="descname">edit_summary</code><em class="property"> = 'update interlanguage links'</em><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.edit_summary" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">edit_summary</code><em class="property"> = 'update interlanguage links'</em><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.edit_summary" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks._get_allpages">
-<code class="descname">_get_allpages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._get_allpages" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_get_allpages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._get_allpages" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks._group_into_families">
-<em class="property">static </em><code class="descname">_group_into_families</code><span class="sig-paren">(</span><em>pages</em>, <em>case_sensitive=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._group_into_families" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">_group_into_families</code><span class="sig-paren">(</span><em class="sig-param">pages</em>, <em class="sig-param">case_sensitive=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._group_into_families" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes list of pages and groups them based on their title. Returns a
 mapping of <cite>family_key</cite> to <cite>family_pages</cite>, where <cite>family_key</cite> is the
 base title without the language suffix (e.g. “Some title” for
@@ -105,115 +107,106 @@ base title without the language suffix (e.g. “Some title” for
 to the family (have the same <cite>family_key</cite>).</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks.allpages">
-<code class="descname">allpages</code><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.allpages" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">allpages</code><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.allpages" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks.wrapped_titles">
-<code class="descname">wrapped_titles</code><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.wrapped_titles" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">wrapped_titles</code><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.wrapped_titles" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks._is_valid_interlanguage">
-<em class="property">static </em><code class="descname">_is_valid_interlanguage</code><span class="sig-paren">(</span><em>full_title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._is_valid_interlanguage" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">_is_valid_interlanguage</code><span class="sig-paren">(</span><em class="sig-param">full_title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._is_valid_interlanguage" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks._is_valid_internal">
-<code class="descname">_is_valid_internal</code><span class="sig-paren">(</span><em>tag</em>, <em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._is_valid_internal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_is_valid_internal</code><span class="sig-paren">(</span><em class="sig-param">tag</em>, <em class="sig-param">title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._is_valid_internal" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks._title_from_langlink">
-<code class="descname">_title_from_langlink</code><span class="sig-paren">(</span><em>langlink</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._title_from_langlink" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_title_from_langlink</code><span class="sig-paren">(</span><em class="sig-param">langlink</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._title_from_langlink" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks.titles_in_family">
-<code class="descname">titles_in_family</code><span class="sig-paren">(</span><em>master_title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.titles_in_family" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">titles_in_family</code><span class="sig-paren">(</span><em class="sig-param">master_title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.titles_in_family" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the titles in the family corresponding to <code class="docutils literal notranslate"><span class="pre">master_title</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>master_title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – a page title (does not have to be English page)</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a <code class="docutils literal notranslate"><span class="pre">(titles,</span> <span class="pre">tags)</span></code> tuple, where <code class="docutils literal notranslate"><span class="pre">titles</span></code> is the set of titles
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>master_title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – a page title (does not have to be English page)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a <code class="docutils literal notranslate"><span class="pre">(titles,</span> <span class="pre">tags)</span></code> tuple, where <code class="docutils literal notranslate"><span class="pre">titles</span></code> is the set of titles
 in the family (including <code class="docutils literal notranslate"><span class="pre">title</span></code>) and <code class="docutils literal notranslate"><span class="pre">tags</span></code> is the set of
-corresponding language tags</td>
-</tr>
-</tbody>
-</table>
+corresponding language tags</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks.get_langlinks">
-<code class="descname">get_langlinks</code><span class="sig-paren">(</span><em>full_title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.get_langlinks" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_langlinks</code><span class="sig-paren">(</span><em class="sig-param">full_title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.get_langlinks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses <code class="xref py py-meth docutils literal notranslate"><span class="pre">self.titles_in_family()</span></code> to get the titles of all pages in
 the family, removes the link to the passed title and sorts the list by
 the language subtag.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of <code class="docutils literal notranslate"><span class="pre">(tag,</span> <span class="pre">title)</span></code> tuples</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a list of <code class="docutils literal notranslate"><span class="pre">(tag,</span> <span class="pre">title)</span></code> tuples</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks.update_page">
-<em class="property">static </em><code class="descname">update_page</code><span class="sig-paren">(</span><em>title</em>, <em>text</em>, <em>langlinks</em>, <em>weak_update=True</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.update_page" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – title of the page</li>
-<li><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – wikitext of the page</li>
-<li><strong>langlinks</strong> – a sorted list of <code class="docutils literal notranslate"><span class="pre">(tag,</span> <span class="pre">title)</span></code> tuples as obtained
-from <code class="xref py py-meth docutils literal notranslate"><span class="pre">self.get_langlinks()</span></code></li>
-<li><strong>weak_update</strong> – When <code class="docutils literal notranslate"><span class="pre">True</span></code>, the langlinks present on the page are mixed with those
+<em class="property">static </em><code class="sig-name descname">update_page</code><span class="sig-paren">(</span><em class="sig-param">title</em>, <em class="sig-param">text</em>, <em class="sig-param">langlinks</em>, <em class="sig-param">weak_update=True</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.update_page" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – title of the page</p></li>
+<li><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – wikitext of the page</p></li>
+<li><p><strong>langlinks</strong> – a sorted list of <code class="docutils literal notranslate"><span class="pre">(tag,</span> <span class="pre">title)</span></code> tuples as obtained
+from <code class="xref py py-meth docutils literal notranslate"><span class="pre">self.get_langlinks()</span></code></p></li>
+<li><p><strong>weak_update</strong> – When <code class="docutils literal notranslate"><span class="pre">True</span></code>, the langlinks present on the page are mixed with those
 suggested by <code class="docutils literal notranslate"><span class="pre">family_titles</span></code>. This is necessary only when there are
 multiple “intersecting” families, in which case the intersection should
-be preserved and solved manually. This is reported in _merge_families.</li>
+be preserved and solved manually. This is reported in _merge_families.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">updated wikicode</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>updated wikicode</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks._needs_update">
-<em class="property">static </em><code class="descname">_needs_update</code><span class="sig-paren">(</span><em>page</em>, <em>langlinks_new</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._needs_update" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">_needs_update</code><span class="sig-paren">(</span><em class="sig-param">page</em>, <em class="sig-param">langlinks_new</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._needs_update" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks.update_allpages">
-<code class="descname">update_allpages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.update_allpages" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_allpages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.update_allpages" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks.find_orphans">
-<code class="descname">find_orphans</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.find_orphans" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_orphans</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.find_orphans" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns list of pages that are alone in their families.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks._page_exists">
-<code class="descname">_page_exists</code><span class="sig-paren">(</span><em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._page_exists" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_page_exists</code><span class="sig-paren">(</span><em class="sig-param">title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks._page_exists" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ws.interlanguage.InterlanguageLinks.InterlanguageLinks.rename_non_english">
-<code class="descname">rename_non_english</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.rename_non_english" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rename_non_english</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.InterlanguageLinks.InterlanguageLinks.rename_non_english" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -281,17 +274,23 @@ be preserved and solved manually. This is reported in _merge_families.</li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -300,8 +299,8 @@ be preserved and solved manually. This is reported in _merge_families.</li>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/ws/ws.interlanguage.InterlanguageLinks.rst.txt"

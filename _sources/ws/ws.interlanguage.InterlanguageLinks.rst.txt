@@ -2,6 +2,6 @@ ws.interlanguage.InterlanguageLinks module
 ==========================================
 
 .. automodule:: ws.interlanguage.InterlanguageLinks
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

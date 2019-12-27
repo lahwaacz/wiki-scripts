@@ -2,6 +2,6 @@ ws.diff module
 ==============
 
 .. automodule:: ws.diff
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -2,6 +2,6 @@ ws.db.selects.interwiki module
 ==============================
 
 .. automodule:: ws.db.selects.interwiki
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

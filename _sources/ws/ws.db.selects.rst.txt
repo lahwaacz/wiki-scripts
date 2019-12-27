@@ -2,9 +2,9 @@ ws.db.selects package
 =====================
 
 .. automodule:: ws.db.selects
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -14,4 +14,3 @@ Submodules
    ws.db.selects.SelectBase
    ws.db.selects.interwiki
    ws.db.selects.namespaces
-

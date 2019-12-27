@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ws.client.user module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,6 +11,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,7 +37,7 @@
 <span id="ws-client-user-module"></span><h1>ws.client.user module<a class="headerlink" href="#module-ws.client.user" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="ws.client.user.User">
-<em class="property">class </em><code class="descclassname">ws.client.user.</code><code class="descname">User</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.user.User" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">ws.client.user.</code><code class="sig-name descname">User</code><span class="sig-paren">(</span><em class="sig-param">api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.user.User" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ws.client.meta.html#ws.client.meta.Meta" title="ws.client.meta.Meta"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.client.meta.Meta</span></code></a></p>
 <p>The <a class="reference internal" href="#ws.client.user.User" title="ws.client.user.User"><code class="xref py py-class docutils literal notranslate"><span class="pre">User</span></code></a> class holds and interacts with information about the
 current user.</p>
@@ -50,32 +49,32 @@ except <a class="reference internal" href="#ws.client.user.User.volatile_propert
 <a class="reference internal" href="#ws.client.user.User.volatile_timeout" title="ws.client.user.User.volatile_timeout"><code class="xref py py-attr docutils literal notranslate"><span class="pre">volatile_timeout</span></code></a> seconds.</p>
 <dl class="attribute">
 <dt id="ws.client.user.User.module">
-<code class="descname">module</code><em class="property"> = 'userinfo'</em><a class="headerlink" href="#ws.client.user.User.module" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">module</code><em class="property"> = 'userinfo'</em><a class="headerlink" href="#ws.client.user.User.module" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="ws.client.user.User.properties">
-<code class="descname">properties</code><em class="property"> = {'id', 'editcount', 'options', 'groups', 'blockinfo', 'rights', 'realname', 'implicitgroups', 'name', 'acceptlang', 'groupmemberships', 'centralids', 'registrationdate', 'ratelimits', 'unreadcount', 'hasmsg', 'email', 'changeablegroups'}</em><a class="headerlink" href="#ws.client.user.User.properties" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">properties</code><em class="property"> = {'acceptlang', 'blockinfo', 'centralids', 'changeablegroups', 'editcount', 'email', 'groupmemberships', 'groups', 'hasmsg', 'id', 'implicitgroups', 'name', 'options', 'ratelimits', 'realname', 'registrationdate', 'rights', 'unreadcount'}</em><a class="headerlink" href="#ws.client.user.User.properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="ws.client.user.User.volatile_properties">
-<code class="descname">volatile_properties</code><em class="property"> = {'unreadcount', 'hasmsg', 'editcount'}</em><a class="headerlink" href="#ws.client.user.User.volatile_properties" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">volatile_properties</code><em class="property"> = {'editcount', 'hasmsg', 'unreadcount'}</em><a class="headerlink" href="#ws.client.user.User.volatile_properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="ws.client.user.User.timeout">
-<code class="descname">timeout</code><em class="property"> = 3600</em><a class="headerlink" href="#ws.client.user.User.timeout" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">timeout</code><em class="property"> = 3600</em><a class="headerlink" href="#ws.client.user.User.timeout" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="ws.client.user.User.volatile_timeout">
-<code class="descname">volatile_timeout</code><em class="property"> = 300</em><a class="headerlink" href="#ws.client.user.User.volatile_timeout" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">volatile_timeout</code><em class="property"> = 300</em><a class="headerlink" href="#ws.client.user.User.volatile_timeout" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="ws.client.user.User.is_loggedin">
-<code class="descname">is_loggedin</code><a class="headerlink" href="#ws.client.user.User.is_loggedin" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_loggedin</code><a class="headerlink" href="#ws.client.user.User.is_loggedin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indicates whether the current session is authenticated (<code class="docutils literal notranslate"><span class="pre">True</span></code>) or
 not (<code class="docutils literal notranslate"><span class="pre">False</span></code>).</p>
 <p>The property is evaluated lazily and cached with the
@@ -84,21 +83,17 @@ not (<code class="docutils literal notranslate"><span class="pre">False</span></
 
 <dl class="method">
 <dt id="ws.client.user.User.set_option">
-<code class="descname">set_option</code><span class="sig-paren">(</span><em>option</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.user.User.set_option" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_option</code><span class="sig-paren">(</span><em class="sig-param">option</em>, <em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.user.User.set_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change preferences of the current user.</p>
 <p>See the list of <a class="reference external" href="https://www.mediawiki.org/wiki/API:Options#Available_Options">available options</a> on MediaWiki.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>option</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the option to be changed</li>
-<li><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the value to be set (if empty, it will be reset to the default value)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>option</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – the option to be changed</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – the value to be set (if empty, it will be reset to the default value)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -166,17 +161,23 @@ not (<code class="docutils literal notranslate"><span class="pre">False</span></
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -185,8 +186,8 @@ not (<code class="docutils literal notranslate"><span class="pre">False</span></
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/ws/ws.client.user.rst.txt"

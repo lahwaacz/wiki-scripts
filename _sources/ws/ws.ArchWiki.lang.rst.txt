@@ -2,6 +2,6 @@ ws.ArchWiki.lang module
 =======================
 
 .. automodule:: ws.ArchWiki.lang
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

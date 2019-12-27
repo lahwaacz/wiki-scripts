@@ -2,6 +2,6 @@ ws.client.api module
 ====================
 
 .. automodule:: ws.client.api
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

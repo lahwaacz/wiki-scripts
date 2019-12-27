@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ws.db.schema module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,6 +11,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,57 +37,54 @@
 <span id="ws-db-schema-module"></span><h1>ws.db.schema module<a class="headerlink" href="#module-ws.db.schema" title="Permalink to this headline">¶</a></h1>
 <p>Known incompatibilities from MediaWiki schema:</p>
 <ul class="simple">
-<li>Not binary compatible, but stores the same data. Thus compatibility can be
+<li><p>Not binary compatible, but stores the same data. Thus compatibility can be
 achieved via wiki-scripts &lt;-&gt; MWAPI interface, but wiki-scripts can’t read
 a MediaWiki database directly. This wouldn’t be possible even theoretically,
-since the database can contain serialized PHP objects etc.</li>
-<li>Added some custom tables.</li>
-<li>Enforced foreign key constraints, including namespaces stored in custom
-tables, and some check constraints.</li>
-<li>Columns not available via the API (e.g. user passwords) are nullable, since
+since the database can contain serialized PHP objects etc.</p></li>
+<li><p>Added some custom tables.</p></li>
+<li><p>Enforced foreign key constraints, including namespaces stored in custom
+tables, and some check constraints.</p></li>
+<li><p>Columns not available via the API (e.g. user passwords) are nullable, since
 they are not part of the mirroring process. Likewise revision.rev_text_id
-is nullable so that we can sync metadata and text separately.</li>
-<li>user_groups table has primary key to avoid duplicate entries.</li>
-<li><dl class="first docutils">
-<dt>Removed columns that were deprecated even in MediaWiki:</dt>
-<dd>page.page_restrictions
+is nullable so that we can sync metadata and text separately.</p></li>
+<li><dl class="simple">
+<dt>Removed columns that were deprecated even in MediaWiki:</dt><dd><p>page.page_restrictions
 archive.ar_text
-archive.ar_flags</dd>
+archive.ar_flags</p>
+</dd>
 </dl>
 </li>
-<li>Reordered columns in archive table to match the revision table.</li>
-<li>Revamped the protected_titles table - removed unnecessary columns pt_user,
+<li><p>Reordered columns in archive table to match the revision table.</p></li>
+<li><p>Revamped the protected_titles table - removed unnecessary columns pt_user,
 pt_reason and pt_timestamp since the information can be found in the logging
-table. See <a class="reference external" href="https://phabricator.wikimedia.org/T65318#2654217">https://phabricator.wikimedia.org/T65318#2654217</a> for reference.</li>
-<li>Boolean columns use Boolean type instead of SmallInteger as in MediaWiki.</li>
-<li>Unknown/invalid IDs are represented by NULL instead of 0. Except for user_id,
-where we add a dummy user with id = 0 to represent anonymous users.</li>
-<li>Removed default values from all timestamp columns.</li>
-<li>Removed silly default values - if we don’t know, let’s make it NULL.</li>
-<li><dl class="first docutils">
-<dt>Revamped the tags tables:</dt>
-<dd><ul class="first last">
-<li>Besides the tag name, we need to store everything that MediaWiki generates
-or stores elsewhere.</li>
-<li>The change_tag table was split into tagged_recentchange, tagged_logevent,
+table. See <a class="reference external" href="https://phabricator.wikimedia.org/T65318#2654217">https://phabricator.wikimedia.org/T65318#2654217</a> for reference.</p></li>
+<li><p>Boolean columns use Boolean type instead of SmallInteger as in MediaWiki.</p></li>
+<li><p>Unknown/invalid IDs are represented by NULL instead of 0. Except for user_id,
+where we add a dummy user with id = 0 to represent anonymous users.</p></li>
+<li><p>Removed default values from all timestamp columns.</p></li>
+<li><p>Removed silly default values - if we don’t know, let’s make it NULL.</p></li>
+<li><dl class="simple">
+<dt>Revamped the tags tables:</dt><dd><ul>
+<li><p>Besides the tag name, we need to store everything that MediaWiki generates
+or stores elsewhere.</p></li>
+<li><p>The change_tag table was split into tagged_recentchange, tagged_logevent,
 tagged_revision and tagged_archived_revision. Foreign keys on the other
-tables are enforced.</li>
-<li>The equivalent of the tag_summary table does not exist, we can live with
-the GROUP BY queries.</li>
+tables are enforced.</p></li>
+<li><p>The equivalent of the tag_summary table does not exist, we can live with
+the GROUP BY queries.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>Various notes on tables used by MediaWiki, but not wiki-scripts:</dt>
-<dd><ul class="first last">
-<li>site_stats: we don’t sync the site stats because the values are
-inconsistent even in MediaWiki</li>
-<li>sites, site_identifiers: as of MW 1.28, they are not visible via the API</li>
-<li>job, objectcache, querycache*, transcache, updatelog: not needed for
-wiki-scripts operation</li>
-<li>user_former_groups: used only to prevent user auto-promotion into groups
-from which they were already removed; not visible through the API</li>
+<li><dl class="simple">
+<dt>Various notes on tables used by MediaWiki, but not wiki-scripts:</dt><dd><ul>
+<li><p>site_stats: we don’t sync the site stats because the values are
+inconsistent even in MediaWiki</p></li>
+<li><p>sites, site_identifiers: as of MW 1.28, they are not visible via the API</p></li>
+<li><p>job, objectcache, querycache*, transcache, updatelog: not needed for
+wiki-scripts operation</p></li>
+<li><p>user_former_groups: used only to prevent user auto-promotion into groups
+from which they were already removed; not visible through the API</p></li>
 </ul>
 </dd>
 </dl>
@@ -96,47 +92,47 @@ from which they were already removed; not visible through the API</li>
 </ul>
 <dl class="function">
 <dt id="ws.db.schema.create_custom_tables">
-<code class="descclassname">ws.db.schema.</code><code class="descname">create_custom_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_custom_tables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.db.schema.</code><code class="sig-name descname">create_custom_tables</code><span class="sig-paren">(</span><em class="sig-param">metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_custom_tables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ws.db.schema.create_site_tables">
-<code class="descclassname">ws.db.schema.</code><code class="descname">create_site_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_site_tables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.db.schema.</code><code class="sig-name descname">create_site_tables</code><span class="sig-paren">(</span><em class="sig-param">metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_site_tables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ws.db.schema.create_recentchanges_tables">
-<code class="descclassname">ws.db.schema.</code><code class="descname">create_recentchanges_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_recentchanges_tables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.db.schema.</code><code class="sig-name descname">create_recentchanges_tables</code><span class="sig-paren">(</span><em class="sig-param">metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_recentchanges_tables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ws.db.schema.create_users_tables">
-<code class="descclassname">ws.db.schema.</code><code class="descname">create_users_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_users_tables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.db.schema.</code><code class="sig-name descname">create_users_tables</code><span class="sig-paren">(</span><em class="sig-param">metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_users_tables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ws.db.schema.create_revisions_tables">
-<code class="descclassname">ws.db.schema.</code><code class="descname">create_revisions_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_revisions_tables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.db.schema.</code><code class="sig-name descname">create_revisions_tables</code><span class="sig-paren">(</span><em class="sig-param">metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_revisions_tables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ws.db.schema.create_pages_tables">
-<code class="descclassname">ws.db.schema.</code><code class="descname">create_pages_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_pages_tables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.db.schema.</code><code class="sig-name descname">create_pages_tables</code><span class="sig-paren">(</span><em class="sig-param">metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_pages_tables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ws.db.schema.create_recomputable_tables">
-<code class="descclassname">ws.db.schema.</code><code class="descname">create_recomputable_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_recomputable_tables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.db.schema.</code><code class="sig-name descname">create_recomputable_tables</code><span class="sig-paren">(</span><em class="sig-param">metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_recomputable_tables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ws.db.schema.create_multimedia_tables">
-<code class="descclassname">ws.db.schema.</code><code class="descname">create_multimedia_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_multimedia_tables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.db.schema.</code><code class="sig-name descname">create_multimedia_tables</code><span class="sig-paren">(</span><em class="sig-param">metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_multimedia_tables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ws.db.schema.create_tables">
-<code class="descclassname">ws.db.schema.</code><code class="descname">create_tables</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_tables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ws.db.schema.</code><code class="sig-name descname">create_tables</code><span class="sig-paren">(</span><em class="sig-param">metadata</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.schema.create_tables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -202,17 +198,23 @@ from which they were already removed; not visible through the API</li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -221,8 +223,8 @@ from which they were already removed; not visible through the API</li>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/ws/ws.db.schema.rst.txt"

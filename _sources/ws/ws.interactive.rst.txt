@@ -2,6 +2,6 @@ ws.interactive module
 =====================
 
 .. automodule:: ws.interactive
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

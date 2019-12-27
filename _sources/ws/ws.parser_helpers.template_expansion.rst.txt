@@ -2,6 +2,6 @@ ws.parser\_helpers.template\_expansion module
 =============================================
 
 .. automodule:: ws.parser_helpers.template_expansion
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

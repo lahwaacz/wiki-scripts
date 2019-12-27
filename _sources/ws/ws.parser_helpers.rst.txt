@@ -2,9 +2,9 @@ ws.parser\_helpers package
 ==========================
 
 .. automodule:: ws.parser_helpers
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -15,4 +15,3 @@ Submodules
    ws.parser_helpers.template_expansion
    ws.parser_helpers.title
    ws.parser_helpers.wikicode
-

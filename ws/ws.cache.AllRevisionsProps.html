@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ws.cache.AllRevisionsProps module &#8212; wiki-scripts 1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,6 +11,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,57 +37,47 @@
 <span id="ws-cache-allrevisionsprops-module"></span><h1>ws.cache.AllRevisionsProps module<a class="headerlink" href="#module-ws.cache.AllRevisionsProps" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="ws.cache.AllRevisionsProps.AllRevisionsProps">
-<em class="property">class </em><code class="descclassname">ws.cache.AllRevisionsProps.</code><code class="descname">AllRevisionsProps</code><span class="sig-paren">(</span><em>api</em>, <em>cache_dir</em>, <em>autocommit=True</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.AllRevisionsProps" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">ws.cache.AllRevisionsProps.</code><code class="sig-name descname">AllRevisionsProps</code><span class="sig-paren">(</span><em class="sig-param">api</em>, <em class="sig-param">cache_dir</em>, <em class="sig-param">autocommit=True</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.AllRevisionsProps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ws.cache.html#ws.cache.CacheDb" title="ws.cache.CacheDb"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.cache.CacheDb</span></code></a></p>
 <dl class="method">
 <dt id="ws.cache.AllRevisionsProps.AllRevisionsProps.init">
-<code class="descname">init</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.AllRevisionsProps.init" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – ignored</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><em class="sig-param">key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.AllRevisionsProps.init" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> – ignored</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.AllRevisionsProps.AllRevisionsProps.update">
-<code class="descname">update</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.AllRevisionsProps.update" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – ignored</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.AllRevisionsProps.update" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> – ignored</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.AllRevisionsProps.AllRevisionsProps._get_last_revid_db">
-<code class="descname">_get_last_revid_db</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.AllRevisionsProps._get_last_revid_db" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_get_last_revid_db</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.AllRevisionsProps._get_last_revid_db" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get ID of the last revision stored in the cache database.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ws.cache.AllRevisionsProps.AllRevisionsProps._fetch_revisions">
-<code class="descname">_fetch_revisions</code><span class="sig-paren">(</span><em>first</em>, <em>last</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.AllRevisionsProps._fetch_revisions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_fetch_revisions</code><span class="sig-paren">(</span><em class="sig-param">first</em>, <em class="sig-param">last</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.cache.AllRevisionsProps.AllRevisionsProps._fetch_revisions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch properties of revisions in given numeric range and save the data
 to the database.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>first</strong> – (int) revision ID to start fetching from</li>
-<li><strong>last</strong> – (int) revision ID to end fetching</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>first</strong> – (int) revision ID to start fetching from</p></li>
+<li><p><strong>last</strong> – (int) revision ID to end fetching</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -156,17 +145,23 @@ to the database.</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -175,8 +170,8 @@ to the database.</p>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/ws/ws.cache.AllRevisionsProps.rst.txt"

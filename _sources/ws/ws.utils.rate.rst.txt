@@ -2,6 +2,6 @@ ws.utils.rate module
 ====================
 
 .. automodule:: ws.utils.rate
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
