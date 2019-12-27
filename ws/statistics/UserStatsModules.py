@@ -6,15 +6,19 @@ import itertools
 __all__ = ["UserStatsModules"]
 
 class UserStatsModules:
-    def __init__(self, db, round_to_midnight=False):
+    def __init__(self, db, *, round_to_midnight=False, active_days=30):
         """
         :param db:
             an instance of :py:class:`ws.db.Database`
         :param round_to_midnight:
             whether to ignore revisions made after the past UTC midnight
+        :param active_days:
+            the time span in days to consider users as active (used by the
+            `recent_edit_count` method)
         """
         self.db = db
         self.round_to_midnight = round_to_midnight
+        self.active_days = active_days
 
         # current UTC date
         self.today = datetime.datetime.utcnow()
@@ -22,19 +26,17 @@ class UserStatsModules:
             # round to midnight, keep the datetime.datetime type
             self.today = datetime.datetime(*(self.today.timetuple()[:3]))
 
-        rev_condition = lambda r: True
-        if self.round_to_midnight is True:
-            rev_condition = lambda r: r["timestamp"] <= self.today
+        revisions = list(db.query(list="allrevisions", arvlimit="max", arvdir="newer", arvend=self.today, arvprop={"ids", "timestamp", "user", "userid"}))
+        revisions += list(db.query(list="alldeletedrevisions", adrlimit="max", adrdir="newer", adrend=self.today, adrprop={"ids", "timestamp", "user", "userid"}))
 
-        def _inner_generator(revisions):
-            return (r for r in revisions if rev_condition(r))
-
-        revisions = list(db.query(list="allrevisions", arvlimit="max", arvdir="newer", arvprop={"ids", "timestamp", "user", "userid"}))
-        revisions += list(db.query(list="alldeletedrevisions", adrlimit="max", adrdir="newer", adrprop={"ids", "timestamp", "user", "userid"}))
+        # filter active users
+        recent_revisions = [r for r in revisions
+                            if r["timestamp"] >= self.today - datetime.timedelta(days=self.active_days)]
+        self.active_users = set(r["user"] for r in recent_revisions)
 
         # sort revisions by multiple keys: 1. user, 2. timestamp
-        # this way we can group the list by users and iterate through user_revisions to
-        # calculate just about everything
+        # this way we can group the list by users and iterate through user_revisions
+        # to calculate just about everything
         revisions.sort(key=lambda r: (r["user"], r["timestamp"]))
         revisions_grouper = itertools.groupby(revisions, key=lambda r: r["user"])
 
@@ -153,16 +155,48 @@ class UserStatsModules:
     def total_edit_count(self, user):
         """
         Return the count of all revisions made by the given user. When
-        :py:attribute:`self.round_to_midnight` is ``True``, only edits made before the past
-        UTC midnight are taken into account. This is the main difference over the
-        ``"editcount"`` property in MediaWiki (stored as `user_editcount` in the database),
-        which reflects the state as of the last update of the database. Other difference is
-        that the ``"editcount"`` property in MediaWiki includes also log actions such as
-        moving a page and deleted revisions which were permanently removed from the upstream
-        database.
+        :py:attribute:`self.round_to_midnight` is ``True``, only edits made
+        before the past UTC midnight are taken into account. This is the main
+        difference over the ``"editcount"`` property in MediaWiki (stored as
+        `user_editcount` in the database), which reflects the state as of the
+        last update of the database. Other difference is that the
+        ``"editcount"`` property in MediaWiki includes also log actions such as
+        moving a page and deleted revisions which were permanently removed from
+        the upstream database.
         """
+        if user not in self.revisions_groups:
+            return 0
         revisions = self.revisions_groups[user]
         return len(revisions)
+
+    def recent_edit_count(self, user):
+        """
+        Return the count of revisions made by the given user since
+        :py:attribute:`self.active_edits_per_day` days ago. When
+        :py:attribute:`self.round_to_midnight` is ``True``, both ends of the
+        time range are rounded to the past UTC midnight.
+        """
+        if user not in self.revisions_groups:
+            return 0
+        revisions = [r for r in self.revisions_groups[user]
+                     if r["timestamp"] >= self.today - datetime.timedelta(days=self.active_days)]
+        return len(revisions)
+
+    def active_users_count(self):
+        """
+        Returns the count of users who made at least one edit between today
+        and :py:attribute:`self.active_edits_per_day` days ago. When
+        :py:attribute:`self.round_to_midnight` is ``True``, both ends of the
+        time range are rounded to the past UTC midnight.
+        """
+        return len(self.active_users)
+
+    def format_first_date(self, *, format="%Y-%m-%d"):
+        firstdate = self.today - datetime.timedelta(days=self.active_days)
+        return firstdate.strftime(format)
+
+    def format_last_date(self, *, format="%Y-%m-%d"):
+        return self.today.strftime(format)
 
 if __name__ == "__main__":
     # this is only for testing...

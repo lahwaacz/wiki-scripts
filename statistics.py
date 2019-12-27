@@ -226,13 +226,13 @@ divided by the number of days between the user's first and last edits.
         self.MINTOTEDITS = mintotedits
         self.MINRECEDITS = minrecedits
 
-        self.db_userprops = ws.cache.AllUsersProps(api, cache_dir, active_days=days, round_to_midnight=True)
-        self.modules = UserStatsModules(self.db, round_to_midnight=True)
+        self.db_userprops = list(self.db.query(list="allusers", aulimit="max", auprop={"blockinfo", "groups", "editcount", "registration"}))
+        self.modules = UserStatsModules(self.db, round_to_midnight=True, active_days=days)
 
     def update(self):
         rows = self._compose_rows()
         majorusersN = len([1 for row in rows if row[self.FIELDS.index("editcount")] > self.MINTOTEDITS])
-        activeusersN = self.db_userprops.activeuserscount
+        activeusersN = self.modules.active_users_count()
         totalusersN = len(rows)
         self._compose_table(rows, majorusersN, activeusersN, totalusersN)
 
@@ -262,8 +262,8 @@ divided by the number of days between the user's first and last edits.
         for user in self.db_userprops:
             if "invalid" in user or "missing" in user or "blockid" in user:
                 continue
-            if user["editcount"] >= self.MINTOTEDITS or user["recenteditcount"] >= self.MINRECEDITS:
-                name = user["name"]
+            name = user["name"]
+            if user["editcount"] >= self.MINTOTEDITS or self.modules.recent_edit_count(name) >= self.MINRECEDITS:
                 # There seems to be users without registration date (?!?) TODO: investigate
                 if user["registration"]:
                     registration = user["registration"]
@@ -274,7 +274,7 @@ divided by the number of days between the user's first and last edits.
                 # TODO: perhaps it would be best if Wikitable.assemble could handle list of dicts
                 cells = [None] * len(self.FIELDS)
                 cells[self.FIELDS.index("user")]           = self._format_name(name)
-                cells[self.FIELDS.index("recenteditcount")] = user["recenteditcount"]
+                cells[self.FIELDS.index("recenteditcount")] = self.modules.recent_edit_count(name)
                 cells[self.FIELDS.index("editcount")]      = self.modules.total_edit_count(name)
                 cells[self.FIELDS.index("registration")]   = self._format_registration(registration)
                 cells[self.FIELDS.index("groups")]         = self._format_groups(user["groups"])
@@ -297,8 +297,8 @@ divided by the number of days between the user's first and last edits.
         newtext = (self.INTRO).format(majorusersN, self.MINTOTEDITS,
                                 activeusersN, self.MINRECEDITS,
                                 "edits" if self.MINRECEDITS > 1 else "edit",
-                                self.DAYS, self.db_userprops.firstdate,
-                                self.db_userprops.lastdate, totalusersN)
+                                self.DAYS, self.modules.format_first_date(),
+                                self.modules.format_last_date(), totalusersN)
         newtext += Wikitable.assemble(self.FIELDS_FORMAT, rows)
         self.text.replace(self.text, newtext, recursive=False)
 
