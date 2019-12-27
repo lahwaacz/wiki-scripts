@@ -37,21 +37,45 @@ def _check_entries(i, db_entry, api_entry):
         _pprint_diff(i, db_entry, api_entry)
         raise
 
-def _check_lists(db_list, api_list):
-    try:
-        assert len(db_list) == len(api_list), "{} vs. {}".format(len(db_list), len(api_list))
-        last_assert_exc = None
-        for i, entries in enumerate(zip(db_list, api_list)):
-            db_entry, api_entry = entries
-            try:
-                _check_entries(i, db_entry, api_entry)
-            except AssertionError as e:
-                last_assert_exc = e
-                pass
-        if last_assert_exc is not None:
-            raise AssertionError from last_assert_exc
-    except AssertionError:
-        traceback.print_exc()
+def _check_lists(db_list, api_list, *, key=None):
+    if key is not None and len(db_list) != len(api_list):
+        print("Lists have different lengths: {} vs {}".format(len(db_list), len(api_list)))
+        db_keys = set(item[key] for item in db_list)
+        api_keys = set(item[key] for item in api_list)
+
+        # compare common items
+        common_db_items = [item for item in db_list if item[key] in api_keys]
+        common_api_items = [item for item in api_list if item[key] in db_keys]
+        print("Comparing common items...")
+        _check_lists(common_db_items, common_api_items)
+
+        # extra DB items
+        extra_db_items = [item for item in db_list if item[key] not in api_keys]
+        if extra_db_items:
+            print("Extra items from the SQL database:")
+            pprint(extra_db_items)
+
+        # extra API items
+        extra_api_items = [item for item in api_list if item[key] not in db_keys]
+        if extra_api_items:
+            print("Extra items from the API:")
+            pprint(extra_api_items)
+
+    else:
+        try:
+            assert len(db_list) == len(api_list), "{} vs. {}".format(len(db_list), len(api_list))
+            last_assert_exc = None
+            for i, entries in enumerate(zip(db_list, api_list)):
+                db_entry, api_entry = entries
+                try:
+                    _check_entries(i, db_entry, api_entry)
+                except AssertionError as e:
+                    last_assert_exc = e
+                    pass
+            if last_assert_exc is not None:
+                raise AssertionError from last_assert_exc
+        except AssertionError:
+            traceback.print_exc()
 
 def _check_lists_of_unordered_pages(db_list, api_list):
     # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
@@ -60,7 +84,7 @@ def _check_lists_of_unordered_pages(db_list, api_list):
     api_list = sorted(api_list, key=lambda item: item["pageid"])
     db_list = sorted(db_list, key=lambda item: item["pageid"])
 
-    _check_lists(db_list, api_list)
+    _check_lists(db_list, api_list, key="pageid")
 
 # pages may be yielded multiple times, so we need to merge them manually
 def _squash_list_of_dicts(api_list, *, key="pageid"):
@@ -135,27 +159,21 @@ def check_recentchanges(api, db):
             new_api_list.append(rc)
     api_list = new_api_list
 
-    try:
-        assert len(db_list) == len(api_list), "{} vs {}".format(len(db_list), len(api_list))
-        for i, entries in enumerate(zip(db_list, api_list)):
-            db_entry, api_entry = entries
-            # TODO: how the hell should we know...
-            if "autopatrolled" in api_entry:
-                del api_entry["autopatrolled"]
-            # TODO: I don't know what this means
-            if "unpatrolled" in api_entry:
-                del api_entry["unpatrolled"]
+    for api_entry in api_list:
+        # TODO: how the hell should we know...
+        if "autopatrolled" in api_entry:
+            del api_entry["autopatrolled"]
+        # TODO: I don't know what this means
+        if "unpatrolled" in api_entry:
+            del api_entry["unpatrolled"]
 
-            # FIXME: rolled-back edits are automatically patrolled, but there does not seem to be any way to detect this
-            # skipping all patrol checks for now...
-            if "patrolled" in api_entry:
-                del api_entry["patrolled"]
-            if "patrolled" in db_entry:
-                del db_entry["patrolled"]
+    # FIXME: rolled-back edits are automatically patrolled, but there does not seem to be any way to detect this
+    # skipping all patrol checks for now...
+    for entry in chain(db_list, api_list):
+        if "patrolled" in entry:
+            del entry["patrolled"]
 
-            _check_entries(i, db_entry, api_entry)
-    except AssertionError:
-        traceback.print_exc()
+    _check_lists(db_list, api_list, key="rcid")
 
 
 def check_logging(api, db):
@@ -174,7 +192,7 @@ def check_logging(api, db):
     db_list = list(db.query(**params, leprop=leprop))
     api_list = list(api.list(**params, leprop="|".join(leprop)))
 
-    _check_lists(db_list, api_list)
+    _check_lists(db_list, api_list, key="logid")
 
 
 def check_users(api, db):
@@ -202,7 +220,7 @@ def check_users(api, db):
         if "autoconfirmed" in user["groups"]:
             user["groups"].remove("autoconfirmed")
 
-    _check_lists(db_list, api_list)
+    _check_lists(db_list, api_list, key="userid")
 
 
 def check_allpages(api, db):
@@ -277,7 +295,7 @@ def check_protected_titles(api, db):
             if abs(db_entry["timestamp"] - api_entry["timestamp"]) <= datetime.timedelta(seconds=1):
                 db_entry["timestamp"] = api_entry["timestamp"]
 
-    _check_lists(db_list, api_list)
+    _check_lists(db_list, api_list, key="pageid")
 
 
 def check_archive(api, db):
@@ -310,7 +328,7 @@ def check_archive(api, db):
     # WTF, the API list is not sorted by timestamp, but revid!
     api_list.sort(key=lambda rev: rev["timestamp"])
 
-    _check_lists(db_list, api_list)
+    _check_lists(db_list, api_list, key="revid")
 
 
 def check_revisions(api, db):
@@ -345,7 +363,7 @@ def check_revisions(api, db):
     for rev in chain(db_list, api_list):
         del rev["parentid"]
 
-    _check_lists(db_list, api_list)
+    _check_lists(db_list, api_list, key="revid")
 
 
 def check_latest_revisions(api, db):
@@ -384,11 +402,11 @@ def check_revisions_of_main_page(api, db):
     # first check the lists without revisions
     db_list_copy = copy.deepcopy(db_list)
     api_list_copy = copy.deepcopy(api_list)
-    _check_lists(db_list_copy, api_list_copy)
+    _check_lists(db_list_copy, api_list_copy, key="pageid")
 
     # then check only the revisions
     for db_page, api_page in zip(db_list, api_list):
-        _check_lists(db_page["revisions"], api_page["revisions"])
+        _check_lists(db_page["revisions"], api_page["revisions"], key="revid")
 
 
 def check_templatelinks(api, db):
