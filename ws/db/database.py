@@ -10,13 +10,17 @@ Prerequisites:
 2. One of the many drivers supported by sqlalchemy, e.g. psycopg2.
 """
 
+import sys
 import os.path
+import logging
 
 import sqlalchemy as sa
 import alembic.config
 
 from . import schema, selects, grabbers, parser_cache
 from ..parser_helpers.title import Context, Title
+
+logger = logging.getLogger(__name__)
 
 class Database:
     """
@@ -43,6 +47,9 @@ class Database:
         self.metadata = sa.MetaData(bind=self.engine)
         schema.create_tables(self.metadata)
 
+        alembic_cfg_path = os.path.join(os.path.dirname(__file__), "../..", "alembic.ini")
+        alembic_cfg = alembic.config.Config(alembic_cfg_path)
+
         insp = sa.engine.reflection.Inspector.from_engine(self.engine)
         if not insp.get_table_names():
             # Empty database - create all tables from scratch and stamp the
@@ -50,9 +57,19 @@ class Database:
             # will have to be migrated by alembic. From the cookbook:
             # http://alembic.zzzcomputing.com/en/latest/cookbook.html#building-an-up-to-date-database-from-scratch
             self.metadata.create_all()
-            cfg_path = os.path.join(os.path.dirname(__file__), "../..", "alembic.ini")
-            alembic_cfg = alembic.config.Config(cfg_path)
             alembic.command.stamp(alembic_cfg, "head")
+        else:
+            # Check if there are pending database migrations
+            # https://alembic.sqlalchemy.org/en/latest/cookbook.html#test-current-database-revision-is-at-head-s
+            directory = alembic.script.ScriptDirectory.from_config(alembic_cfg)
+            with self.engine.begin() as connection:
+                context = alembic.migration.MigrationContext.configure(connection)
+                context_heads = context.get_current_heads()
+            if set(context_heads) != set(directory.get_heads()):
+                logger.error("The wiki-scripts database is not up to date. Please "
+                             "run `alembic upgrade head` in the wiki-scripts "
+                             "repository to execute pending migrations.")
+                sys.exit(1)
 
     @staticmethod
     def set_argparser(argparser):

@@ -2,20 +2,23 @@
 
 import datetime
 import itertools
-import heapq
 
 __all__ = ["UserStatsModules"]
 
 class UserStatsModules:
-    def __init__(self, db_allrevprops, round_to_midnight=False):
+    def __init__(self, db, *, round_to_midnight=False, active_days=30):
         """
-        :param db_allrevprops:
-            an instance of :py:class:`cache.AllRevisionsProps`
+        :param db:
+            an instance of :py:class:`ws.db.Database`
         :param round_to_midnight:
             whether to ignore revisions made after the past UTC midnight
+        :param active_days:
+            the time span in days to consider users as active (used by the
+            `recent_edit_count` method)
         """
-        self.db = db_allrevprops
+        self.db = db
         self.round_to_midnight = round_to_midnight
+        self.active_days = active_days
 
         # current UTC date
         self.today = datetime.datetime.utcnow()
@@ -23,30 +26,19 @@ class UserStatsModules:
             # round to midnight, keep the datetime.datetime type
             self.today = datetime.datetime(*(self.today.timetuple()[:3]))
 
-        rev_condition = lambda r: True
-        if self.round_to_midnight is True:
-            rev_condition = lambda r: r["timestamp"] <= self.today
+        revisions = list(db.query(list="allrevisions", arvlimit="max", arvdir="newer", arvend=self.today, arvprop={"ids", "timestamp", "user", "userid"}))
+        revisions += list(db.query(list="alldeletedrevisions", adrlimit="max", adrdir="newer", adrend=self.today, adrprop={"ids", "timestamp", "user", "userid"}))
 
-        def _inner_generator(revisions):
-            return (r for r in revisions if rev_condition(r))
-
-        # merge revisions from multiple lists, preserve sorting by revision ID
-        # (the lists are already sorted)
-        # TODO: since Python 3.5, heapq.merge takes a key= parameter, which would greatly
-        #       simplify this: https://docs.python.org/3.5/library/heapq.html#heapq.merge
-        sortkey = lambda revision: (revision["revid"], revision)
-        unwrap = lambda sortkey, revision: revision
-        # first wrapping: to yield only revisions meeting the rev_condition
-        # second wrapping: to specify sorting order for heapq.merge
-        wrapped_input = [map(sortkey, _inner_generator(self.db["revisions"])), map(sortkey, _inner_generator(self.db["deletedrevisions"]))]
-        # unwrap to get the final generator
-        revisions_generator = itertools.starmap(unwrap, heapq.merge(*wrapped_input))
+        # fetch recent changes from the recentchanges table
+        # (does not include all revisions - "diffable" log events such as
+        # page protection changes or page moves are omitted)
+        firstday = self.today - datetime.timedelta(days=self.active_days)
+        self.recent_changes = list(self.db.query(list="recentchanges", rctype={"edit", "new"}, rcprop={"user", "timestamp"}, rclimit="max", rcstart=self.today, rcend=firstday))
 
         # sort revisions by multiple keys: 1. user, 2. timestamp
-        # this way we can group the list by users and iterate through user_revisions to
-        # calculate just about everything
-        # NOTE: access to database triggers an update, sorted() creates a shallow copy
-        revisions = sorted(revisions_generator, key=lambda r: (r["user"], r["timestamp"]))
+        # this way we can group the list by users and iterate through user_revisions
+        # to calculate just about everything
+        revisions.sort(key=lambda r: (r["user"], r["timestamp"]))
         revisions_grouper = itertools.groupby(revisions, key=lambda r: r["user"])
 
         # a list containing revisions made by given user, sorted by timestamp
@@ -164,21 +156,60 @@ class UserStatsModules:
     def total_edit_count(self, user):
         """
         Return the count of all revisions made by the given user. When
-        :py:attribute:`self.round_to_midnight` is ``True``, only edits made before the
-        past UTC midnight are taken into account. This is the main difference over the
-        ``"editcount"`` property in :py:class:`cache.AllUsersProps`, which reflects the
-        state as of the last update of the cache. Other difference is that the
-        ``"editcount"`` property in MediaWiki includes also log actions such as moving
-        a page and does not include deleted revisions, whereas this method includes
-        only normal revisions, including deleted ones.
+        :py:attribute:`self.round_to_midnight` is ``True``, only edits made
+        before the past UTC midnight are taken into account. This is the main
+        difference over the ``"editcount"`` property in MediaWiki (stored as
+        `user_editcount` in the database), which reflects the state as of the
+        last update of the database. Other difference is that the
+        ``"editcount"`` property in MediaWiki includes also log actions such as
+        moving a page and deleted revisions which were permanently removed from
+        the upstream database.
         """
+        if user not in self.revisions_groups:
+            return 0
         revisions = self.revisions_groups[user]
         return len(revisions)
+
+    def recent_edit_count(self, user):
+        """
+        Return the count of revisions made by the given user since
+        :py:attribute:`self.active_edits_per_day` days ago. When
+        :py:attribute:`self.round_to_midnight` is ``True``, both ends of the
+        time range are rounded to the past UTC midnight.
+
+        Note that recent edits are counted using the ``recentchanges`` table,
+        so "diffable" log events such as page protection changes or page moves
+        are omitted.
+        """
+        revisions = [r for r in self.recent_changes if r["user"] == user]
+        return len(revisions)
+
+    def active_users_count(self):
+        """
+        Returns the count of users who made at least one edit between today
+        and :py:attribute:`self.active_edits_per_day` days ago. When
+        :py:attribute:`self.round_to_midnight` is ``True``, both ends of the
+        time range are rounded to the past UTC midnight.
+
+        Note that recent edits are counted using the ``recentchanges`` table,
+        so "diffable" log events such as page protection changes or page moves
+        are omitted.
+        """
+        active_users = set(r["user"] for r in self.recent_changes)
+        return len(active_users)
+
+    def format_first_date(self, *, format="%Y-%m-%d"):
+        firstdate = self.today - datetime.timedelta(days=self.active_days)
+        return firstdate.strftime(format)
+
+    def format_last_date(self, *, format="%Y-%m-%d"):
+        return self.today.strftime(format)
 
 if __name__ == "__main__":
     # this is only for testing...
     from ws.client import API
-    import ws.cache
+    from ws.interactive import require_login
+    from ws.db.database import Database
     from ws.wikitable import Wikitable
 
     import ws.config
@@ -186,13 +217,16 @@ if __name__ == "__main__":
 
     argparser = ws.config.getArgParser()
     API.set_argparser(argparser)
+    Database.set_argparser(argparser)
+
     args = argparser.parse_args()
 
     # set up logging
     ws.logging.init(args)
 
     api = API.from_argparser(args)
-    db = ws.cache.AllRevisionsProps(api, args.cache_dir)
+    require_login(api)
+    db = Database.from_argparser(args)
 
     usm = UserStatsModules(db)
 

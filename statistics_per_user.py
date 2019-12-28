@@ -9,8 +9,6 @@ from ws.interactive import require_login
 from ws.db.database import Database
 from ws.utils import range_by_days
 
-from ws.statistics.UserStatsModules import UserStatsModules
-
 def plot_setup(title="", ylabel="edits"):
     fig = plt.figure(figsize=(12, 9))
     ax = fig.add_subplot(111)

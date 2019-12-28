@@ -333,7 +333,7 @@ def create_revisions_tables(metadata):
         Column("ar_deleted", SmallInteger, nullable=False, server_default="0"),
         Column("ar_len", Integer),
         Column("ar_parent_id", Integer),
-        Column("ar_sha1", SHA1, nullable=False, server_default=""),
+        Column("ar_sha1", SHA1),
         Column("ar_content_model", UnicodeText),
         Column("ar_content_format", UnicodeText),
         CheckConstraint("ar_namespace >= 0", name="check_namespace")
@@ -358,7 +358,7 @@ def create_revisions_tables(metadata):
         # FIXME: should be set as FK, but that probably breaks archiving
 #        Column("rev_parent_id", Integer, ForeignKey("revision.rev_id", ondelete="SET NULL")),
         Column("rev_parent_id", Integer),
-        Column("rev_sha1", SHA1, nullable=False, server_default=""),
+        Column("rev_sha1", SHA1),
         Column("rev_content_model", UnicodeText),
         Column("rev_content_format", UnicodeText),
     )
@@ -580,7 +580,7 @@ def create_multimedia_tables(metadata):
         Column("img_user", Integer, ForeignKey("user.user_id"), nullable=False),
         Column("img_user_text", UnicodeText, nullable=False),
         Column("img_timestamp", MWTimestamp, nullable=False),
-        Column("img_sha1", SHA1, nullable=False, server_default="")
+        Column("img_sha1", SHA1)
     )
     Index("img_usertext_timestamp", image.c.img_user_text, image.c.img_timestamp)
     Index("img_size", image.c.img_size)
@@ -604,7 +604,7 @@ def create_multimedia_tables(metadata):
         Column("oi_major_mime", Enum("unknown", "application", "audio", "image", "text", "video", "message", "model", "multipart", "chemical"), nullable=False, server_default="unknown"),
         Column("oi_minor_mime", UnicodeText, nullable=False, server_default="unknown"),
         Column("oi_deleted", SmallInteger, nullable=False, server_default="0"),
-        Column("oi_sha1", SHA1, nullable=False, server_default="")
+        Column("oi_sha1", SHA1)
     )
     Index("oi_usertext_timestamp", oldimage.c.oi_user_text, oldimage.c.oi_timestamp)
     Index("oi_name_timestamp", oldimage.c.oi_name, oldimage.c.oi_timestamp)
@@ -633,7 +633,7 @@ def create_multimedia_tables(metadata):
         Column("fa_user_text", UnicodeText),
         Column("fa_timestamp", MWTimestamp),
         Column("fa_deleted", SmallInteger, nullable=False, server_default="0"),
-        Column("fa_sha1", SHA1, nullable=False, server_default="")
+        Column("fa_sha1", SHA1)
     )
     Index("fa_name", filearchive.c.fa_name, filearchive.c.fa_timestamp)
     Index("fa_storage_group", filearchive.c.fa_storage_group, filearchive.c.fa_storage_key)
