@@ -7,7 +7,6 @@ import logging
 
 import sqlalchemy as sa
 
-import ws.cache
 from ws.db.database import Database
 import ws.db.mw_constants as mwconst
 
