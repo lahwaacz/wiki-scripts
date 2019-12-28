@@ -19,7 +19,7 @@ class Recategorize:
 
     def recategorize_page(self, page, source, target):
         title = page["title"]
-        text_old = page["revisions"][0]["*"]
+        text_old = page["revisions"][0]["slots"]["main"]["*"]
         timestamp = page["revisions"][0]["timestamp"]
 
         source = self.api.Title(source)
@@ -41,9 +41,9 @@ class Recategorize:
         _title = self.api.Title(title)
         assert(_title.namespace == "Category")
 
-        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", titles=title)
+        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", rvslots="main", titles=title)
         page = list(result["pages"].values())[0]
-        text_old = page["revisions"][0]["*"]
+        text_old = page["revisions"][0]["slots"]["main"]["*"]
         timestamp = page["revisions"][0]["timestamp"]
 
         text_new = text_old
@@ -62,7 +62,7 @@ class Recategorize:
             if ans is False:
                 continue
 
-            catmembers = self.api.generator(generator="categorymembers", gcmtitle=source, gcmlimit="max", prop="revisions", rvprop="content|timestamp")
+            catmembers = self.api.generator(generator="categorymembers", gcmtitle=source, gcmlimit="max", prop="revisions", rvprop="content|timestamp", rvslots="main")
             for page in catmembers:
                 # the same page might be yielded multiple times
                 if "revisions" in page:

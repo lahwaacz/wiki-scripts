@@ -51,12 +51,12 @@ class AutoPage:
         self.pageids = {}
 
         # TODO: query-continuation (query might be split due to extra long pages hitting PHP limits)
-        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", titles="|".join(titles))
+        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", rvslots="main", titles="|".join(titles))
         for page in result["pages"].values():
             if "revisions" in page:
                 title = page["title"]
                 revision = page["revisions"][0]
-                text = revision["*"]
+                text = revision["slots"]["main"]["*"]
                 self.contents[title] = text
                 self.timestamps[title] = revision["timestamp"]
                 self.pageids[title] = page["pageid"]

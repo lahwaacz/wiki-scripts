@@ -836,10 +836,10 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
                     pass
 
     def process_page(self, title):
-        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", titles=title)
+        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", rvslots="main", titles=title)
         page = list(result["pages"].values())[0]
         timestamp = page["revisions"][0]["timestamp"]
-        text_old = page["revisions"][0]["*"]
+        text_old = page["revisions"][0]["slots"]["main"]["*"]
         text_new, edit_summary = self.update_page(title, text_old)
         self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
 

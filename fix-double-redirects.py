@@ -18,7 +18,7 @@ class DoubleRedirects:
 
     def update_redirect_page(self, page, target):
         title = page["title"]
-        text_old = page["revisions"][0]["*"]
+        text_old = page["revisions"][0]["slots"]["main"]["*"]
         timestamp = page["revisions"][0]["timestamp"]
 
         if not is_redirect(text_old, full_match=True):
@@ -59,7 +59,7 @@ class DoubleRedirects:
             return
 
         # fetch all revisions at once
-        result = self.api.call_api(action="query", titles="|".join(double.keys()), prop="revisions", rvprop="content|timestamp")
+        result = self.api.call_api(action="query", titles="|".join(double.keys()), prop="revisions", rvprop="content|timestamp", rvslots="main")
         pages = result["pages"]
 
         for page in pages.values():
