@@ -164,12 +164,18 @@ class GrabberRevisions(GrabberBase):
             "list": "allrevisions",
             "arvprop": props,
             "arvlimit": "max",
+            # TODO: do multi-content revisions properly when MediaWiki actually
+            # starts using them for more than just the main slot
+            "arvslots": "main",
         }
 
         self.adr_params = {
             "list": "alldeletedrevisions",
             "adrprop": props,
             "adrlimit": "max",
+            # TODO: do multi-content revisions properly when MediaWiki actually
+            # starts using them for more than just the main slot
+            "adrslots": "main",
         }
 
         # TODO: check the permission to view deleted revisions
@@ -193,7 +199,9 @@ class GrabberRevisions(GrabberBase):
     def gen_text(self, rev, text_id):
         db_entry = {
             "old_id": text_id,
-            "old_text": rev["*"],
+            # TODO: do multi-content revisions properly when MediaWiki actually
+            # starts using them for more than just the main slot
+            "old_text": rev["slots"]["main"]["*"],
         }
         yield self.sql["insert", "text"], db_entry
 
@@ -211,8 +219,10 @@ class GrabberRevisions(GrabberBase):
                 "rev_len": rev["size"],
                 "rev_parent_id": rev.get("parentid"),
                 "rev_sha1": rev["sha1"],
-                "rev_content_model": rev["contentmodel"],        # always available
-                "rev_content_format": rev.get("contentformat"),  # available iff content is available
+                # TODO: do multi-content revisions properly when MediaWiki actually
+                # starts using them for more than just the main slot
+                "rev_content_model": rev["slots"]["main"]["contentmodel"],        # always available
+                "rev_content_format": rev["slots"]["main"].get("contentformat"),  # available iff content is available
             }
 
             if self.with_content is True:
@@ -248,8 +258,10 @@ class GrabberRevisions(GrabberBase):
                 "ar_len": rev["size"],
                 "ar_parent_id": rev.get("parentid"),
                 "ar_sha1": rev["sha1"],
-                "ar_content_model": rev["contentmodel"],        # always available
-                "ar_content_format": rev.get("contentformat"),  # available iff content is available
+                # TODO: do multi-content revisions properly when MediaWiki actually
+                # starts using them for more than just the main slot
+                "ar_content_model": rev["slots"]["main"]["contentmodel"],        # always available
+                "ar_content_format": rev["slots"]["main"].get("contentformat"),  # available iff content is available
             }
 
             if self.with_content is True:
@@ -388,6 +400,7 @@ class GrabberRevisions(GrabberBase):
                 "drvlimit": "max",
                 "drvstart": since,
                 "drvdir": "newer",
+                "drvslots": "main",
             }
             result = self.api.call_api(params, expand_result=False)
             # TODO: handle 'drvcontinue'
@@ -413,6 +426,8 @@ class GrabberRevisions(GrabberBase):
                 "drvlimit": "max",
                 "rvdir": "newer",
                 "drvdir": "newer",
+                "rvslots": "main",
+                "drvslots": "main",
             }
             result = self.api.call_api(params, expand_result=False)
             # TODO: handle 'rvcontinue' and 'drvcontinue'
@@ -517,6 +532,7 @@ class GrabberRevisions(GrabberBase):
                     "revids": "|".join(str(i) for i in chunk),
                     "prop": "revisions",
                     "rvprop": "ids|content",
+                    "rvslots": "main",
                 }
                 result = self.api.call_api(params, expand_result=False)
                 for page in result["query"]["pages"].values():
