@@ -73,13 +73,13 @@ class Categorization:
 
         for chunk in ws.utils.iter_chunks(pageids, self.api.max_ids_per_query):
             pageids = "|".join(str(pageid) for pageid in chunk)
-            result = self.api.call_api(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp")
+            result = self.api.call_api(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp", rvslots="main")
             pages = result["pages"]
             for page in pages.values():
                 logger.info("Fixing language of categories on page [[{}]]...".format(page["title"]))
 
                 timestamp = page["revisions"][0]["timestamp"]
-                text_old = page["revisions"][0]["*"]
+                text_old = page["revisions"][0]["slots"]["main"]["*"]
                 text_new = self.fix_page(page["title"], text_old)
 
                 if text_old != text_new:

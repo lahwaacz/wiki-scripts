@@ -354,7 +354,7 @@ class InterlanguageLinks:
         for chunk in ws.utils.iter_chunks(_updates_gen(self.allpages), self.api.max_ids_per_query):
             pages_props, pages_langlinks = zip(*list(chunk))
             pageids = "|".join(str(page["pageid"]) for page in pages_props)
-            result = self.api.call_api(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp")
+            result = self.api.call_api(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp", rvslots="main")
             pages = result["pages"]
 
             for page, langlinks in zip(pages_props, pages_langlinks):
@@ -362,7 +362,7 @@ class InterlanguageLinks:
                 page = pages[str(page["pageid"])]
 
                 timestamp = page["revisions"][0]["timestamp"]
-                text_old = page["revisions"][0]["*"]
+                text_old = page["revisions"][0]["slots"]["main"]["*"]
                 try:
                     text_new = self.update_page(page["title"], text_old, langlinks, weak_update=False)
                 except header.HeaderError:
