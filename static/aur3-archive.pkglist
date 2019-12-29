@@ -5092,7 +5092,6 @@ cpige-cli
 cpige-gui
 cpik
 cpipe
-cpl
 cplay-mplayer
 cpluff
 cplus
@@ -30393,7 +30392,6 @@ python-argscript
 python-arrow-git
 python-asciitable
 python-ass
-python-astlib
 python-astroid-hg
 python-async
 python-asyncio
@@ -32711,7 +32709,6 @@ python2-traitsui
 python2-traitsui-doc
 python2-traitsui-doc-git
 python2-traitsui-git
-python2-translationstring
 python2-trepan-git
 python2-trollius
 python2-trollop-hg
@@ -36118,7 +36115,6 @@ ruby-jbuilder
 ruby-jekyll-pagination
 ruby-jekyll_ext
 ruby-jeweler
-ruby-jira-ruby
 ruby-jist
 ruby-joiner
 ruby-jquery-rails
@@ -36540,7 +36536,6 @@ ruby-tzinfo-data
 ruby-uglifier
 ruby-ultrasphinx
 ruby-unf-ext
-ruby-unicode_utils
 ruby-unicorn
 ruby-uri-query-params
 ruby-uri-query_params
