@@ -212,6 +212,7 @@ def import_dataset(mediawiki):
     params = {
         "action": "import",
         "xml": xml,
+        "interwikiprefix": "wikipedia",
     }
     mediawiki.api.call_with_csrftoken(params)
     mediawiki.run_jobs()

@@ -17,8 +17,8 @@ from .postgresql import postgresql_proc
 
 from ws.client.api import API
 
-_mw_ver = "1.32"
-_mw_rel = _mw_ver + ".0"
+_mw_ver = "1.33"
+_mw_rel = _mw_ver + ".1"
 _mw_url = "https://releases.wikimedia.org/mediawiki/" + _mw_ver + "/mediawiki-" + _mw_rel + ".tar.gz"
 _mw_sha256 = "d29b635dd41aea62bd05229c7c7942d4b0aa38aee457f8dc7302b6e59acb721b"
 _mw_db_name = "mediawiki"
@@ -70,7 +70,7 @@ mw_nginx_proc = factories.nginx_php_proc("mw_server_root",
                                          php_fpm_params="--php-ini {}".format(_php_ini))
 
 # direct connection to MediaWiki's database
-mwpg_conn = postgresql("postgresql_proc", db=_mw_db_name)
+mwpg_conn = postgresql("postgresql_proc", db_name=_mw_db_name)
 
 class MediaWikiFixtureInstance:
     def __init__(self, mw_nginx_proc, postgresql_proc):
