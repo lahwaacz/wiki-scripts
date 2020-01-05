@@ -53,7 +53,7 @@ def list_redirects_broken_fragments(api, db):
         if valid_sectionname(db, title):
             continue
 
-        print("* [[{}]] --> [[{}]]".format(source, target))
+        print("* [[{}]] → [[{}]]".format(source, target))
 
 def list_redirects_wrong_capitalization(api):
     # limit to redirects pointing to the main namespace, others deserve special treatment
@@ -81,7 +81,7 @@ def list_redirects_wrong_capitalization(api):
         if count_uppercase(source) >= count_uppercase(target):
             continue
 
-        print("* [[{}]] --> [[{}]]".format(source, target))
+        print("* [[{}]] → [[{}]]".format(source, target))
 
 def list_talkpages_of_deleted_pages(api):
     # get titles of all pages in 'Main', 'ArchWiki' and 'Help' namespaces
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     list_redirects_broken_fragments(api, db)
     print()
 
-    print("== Redirects with wrong capitalization ==")
+    print("== Redirects with potentially wrong capitalization ==")
     print("""\
 According to ArchWiki standards, the title must be sentence-case (if it is not
 an acronym). We will print the wrong capitalized redirects, i.e. when
