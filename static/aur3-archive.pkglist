@@ -8773,7 +8773,6 @@ ffparser-git
 ffpoth
 ffs
 ffscreenvid
-ffts-git
 fftw-threads
 fftw2double
 ffxiiimanager
@@ -10034,7 +10033,6 @@ gaul-devel
 gav
 gavl-git
 gaw2
-gaw3
 gawk-source
 gawk3
 gayeogi
@@ -23361,18 +23359,8 @@ minos-mico
 minos-omniorb
 minpspw
 mint-artwork-gnome
-mint-backgrounds-helena
-mint-backgrounds-isadora
-mint-backgrounds-julia
-mint-backgrounds-lisa
-mint-backgrounds-maya
 mint-backgrounds-maya-extra
-mint-backgrounds-nadia
 mint-backgrounds-nadia-extra
-mint-backgrounds-olivia
-mint-backgrounds-petra
-mint-backgrounds-qiana
-mint-backgrounds-rebecca
 mint-cinnamon-themes-git
 mint-common
 mint-elementary-icons
@@ -27580,7 +27568,6 @@ perl-b-hooks-endofscope
 perl-bdb-wrapper
 perl-beancounter
 perl-biblio-citation-parser
-perl-bioperl
 perl-boost-geometry-utils.06
 perl-bot-training
 perl-bot-training-megahal
@@ -28634,7 +28621,6 @@ picocoin-git
 picocom
 picogen
 picometac
-picopt
 picospeaker
 picoxine
 picp
@@ -31659,7 +31645,6 @@ python2-chaco-doc
 python2-chaco-doc-git
 python2-chaco-git
 python2-cheat-git
-python2-cheetah
 python2-chiantipy
 python2-chrome
 python2-cinderclient
@@ -31911,7 +31896,6 @@ python2-flask-mako-git
 python2-flask-markdown
 python2-flask-mongoalchemy
 python2-flask-oauth
-python2-flask-openid
 python2-flask-peewee
 python2-flask-restless
 python2-flask-restless-git
@@ -32174,7 +32158,6 @@ python2-msgpack
 python2-msgpack-pure
 python2-msnlib
 python2-munkres
-python2-musicbrainzngs
 python2-myhdl-hg
 python2-mysql-connector
 python2-n3pygments-git
@@ -36817,7 +36800,6 @@ sage-mathematics
 sage-mathematics-devel
 sage-mathematics-git
 sage-mathematics-spkgs
-sage-notebook
 sagu
 sahana
 sai
