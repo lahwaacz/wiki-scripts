@@ -264,9 +264,9 @@ class MagicWords:
             prefix = prefix.lower()
 
             if prefix == "urlencode":
-                return encodings.urlencode(arg)
+                return encodings.queryencode(arg)
             elif prefix == "anchorencode":
-                return encodings.dotencode(arg)
+                return encodings.anchorencode(arg)
             elif prefix == "#if":
                 try:
                     if arg.strip():

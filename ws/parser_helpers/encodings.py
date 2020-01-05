@@ -2,6 +2,7 @@
 
 import string
 import re
+import unicodedata
 
 __all__ = ["encode", "decode", "dotencode", "urlencode", "urldecode", "queryencode", "querydecode"]
 
@@ -98,7 +99,8 @@ def _anchor_preprocess(str_):
 
 def dotencode(str_):
     """
-    Return an anchor-encoded string as shown in this `encoding table`_.
+    Return an anchor-encoded string as shown in this `encoding table`_. It uses
+    the ``legacy`` format for `$wgFragmentMode`_.
 
     .. note::
         The rules for handling special characters in section anchors are not
@@ -108,10 +110,46 @@ def dotencode(str_):
 
     .. _`encoding table`: https://www.mediawiki.org/wiki/Manual:PAGENAMEE_encoding#Encodings_compared
     .. _`T20431`: https://phabricator.wikimedia.org/T20431
+    .. _`$wgFragmentMode`: https://www.mediawiki.org/wiki/Manual:$wgFragmentMode
     """
     skipped = string.ascii_letters + string.digits + "-_.:"
     special = {" ": "_"}
     return encode(_anchor_preprocess(str_), escape_char=".", skip_chars=skipped, special_map=special)
+
+def anchorencode(str_, format="html5"):
+    """
+    Function corresponding to the ``{{anchorencode:}}`` `magic word`_.
+
+    :param str_: the string to be encoded
+    :param format: either ``"html5"`` or ``"legacy"`` (see `$wgFragmentMode`_)
+
+    .. _`magic word`: https://www.mediawiki.org/wiki/Help:Magic_words
+    .. _`$wgFragmentMode`: https://www.mediawiki.org/wiki/Manual:$wgFragmentMode
+    """
+    if format not in {"html5", "legacy"}:
+        raise ValueError(format)
+    if format == "legacy":
+        return dotencode(str_)
+    str_ = _anchor_preprocess(str_)
+    special_map = {" ": "_"}
+    escape_char = "."
+    charset="utf-8"
+    errors="strict"
+    # below is the code from the encode function, but without the encode_chars
+    # and skip_chars parameters, and adjusted for unicode categories
+    output = ""
+    for char in str_:
+        # encode only characters from the Separator and Other categories
+        # https://en.wikipedia.org/wiki/Unicode#General_Category_property
+        if unicodedata.category(char)[0] in {"Z", "C"}:
+            if special_map is not None and char in special_map:
+                output += special_map[char]
+            else:
+                for byte in bytes(char, charset, errors):
+                    output += "{}{:02X}".format(escape_char, byte)
+        else:
+            output += char
+    return output
 
 def urlencode(str_):
     """
