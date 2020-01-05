@@ -6,6 +6,7 @@ from functools import lru_cache
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import insert
 import mwparserfromhell
+import requests.packages.urllib3 as urllib3
 
 from .selects.namespaces import get_namespaces
 from ..parser_helpers.template_expansion import expand_templates
@@ -40,10 +41,23 @@ def get_normalized_extlinks(wikicode):
         except UnicodeDecodeError:
             pass
 
-    # Pass 3: skip empty URLs like "http://" or "https://" - workaround for https://github.com/earwig/mwparserfromhell/issues/196
-    extlinks = [el for el in extlinks if el.url.strip() not in {"http://", "https://", "ftp://", "ssh://", "git://"}]
+    # Pass 3: skip invalid URLs
+    filtered_extlinks = []
+    for el in extlinks:
+        try:
+            # try parse the URL - fails e.g. if port is not a number
+            # reference: https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#urllib3.util.parse_url
+            url = urllib3.util.url.parse_url(str(el.url))
+            # skip URLs with empty host, e.g. "http://" or "http://git@" or "http:///var/run"
+            # (partial workaround for https://github.com/earwig/mwparserfromhell/issues/196 )
+            # GOTCHA: mailto:user@host is scheme + path only; auth, host and port are recognized only after //
+            if url.scheme != "mailto" and not url.host:
+                continue
+            filtered_extlinks.append(el)
+        except urllib3.exceptions.LocationParseError:
+            pass
 
-    return extlinks
+    return filtered_extlinks
 
 class ParserCache:
     def __init__(self, db):
