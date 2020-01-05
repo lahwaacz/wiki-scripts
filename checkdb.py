@@ -8,6 +8,7 @@ from collections import OrderedDict
 from itertools import chain
 
 import sqlalchemy as sa
+import requests.packages.urllib3 as urllib3
 
 from ws.client import API
 from ws.interactive import require_login
@@ -334,7 +335,7 @@ def check_archive(api, db):
 def check_revisions(api, db):
     print("Checking the revision table...")
 
-    since = datetime.datetime.utcnow() - datetime.timedelta(days=365)
+    since = datetime.datetime.utcnow() - datetime.timedelta(days=30)
 
     params = {
         "list": "allrevisions",
@@ -424,10 +425,9 @@ def check_templatelinks(api, db):
     api_list = list(api.generator(**params, prop="|".join(prop)))
     api_list = _squash_list_of_dicts(api_list)
 
-    # sort the templates and templatelinks due to different locale (e.g. "Template:Related2" should come after "Template:Related")
+    # sort the templates due to different locale (e.g. "Template:Related2" should come after "Template:Related")
     for entry in api_list:
         entry.get("templates", []).sort(key=lambda t: (t["ns"], t["title"]))
-        entry.get("transcludedin", []).sort(key=lambda t: (t["ns"], t["title"]))
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
@@ -561,17 +561,31 @@ def check_external_links(api, db):
     api_list = list(api.generator(**params, prop="|".join(prop)))
     api_list = _squash_list_of_dicts(api_list)
 
+    hostname = urllib3.util.url.parse_url(api.index_url).host
+    def get_hostname(url):
+        try:
+            return urllib3.util.url.parse_url(url).host
+        except urllib3.exceptions.LocationParseError:
+            return None
+
     for page in db_list:
         if "extlinks" in page:
-            # MediaWiki does not track external links to itself
-            page["extlinks"] = [el for el in page["extlinks"] if not el["*"].startswith(api.index_url)]
+            # MediaWiki does not track external links to its self hostname
+            page["extlinks"] = [el for el in page["extlinks"] if get_hostname(el["*"]) != hostname]
+            # delete empty list
+            if len(page["extlinks"]) == 0:
+                del page["extlinks"]
     for page in api_list:
         if "extlinks" in page:
-            # MediaWiki does not order the URLs
-            page["extlinks"].sort(key=lambda d: d["*"])
             # MediaWiki has some characters URL-encoded and others decoded
             for el in page["extlinks"]:
                 el["*"] = urldecode(el["*"])
+
+    # make sure that extlinks are sorted the same way
+    # (MediaWiki does not order the URLs, PostgreSQL ordering does not match Python due to locale)
+    for page in chain(db_list, api_list):
+        if "extlinks" in page:
+            page["extlinks"].sort(key=lambda d: d["*"])
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
@@ -644,24 +658,15 @@ if __name__ == "__main__":
     if args.parser_cache:
         db.update_parser_cache()
 
-        # fails due to https://github.com/earwig/mwparserfromhell/issues/198
-        # ([[Template:META Error]] gets expanded because of it)
-#        check_templatelinks(api, db)
+        check_templatelinks(api, db)
 
-        # fails due to https://github.com/earwig/mwparserfromhell/issues/198
-        # ([[Help:Template]], transcluded from [[Template:META Error]], is linked because of it)
-#        check_pagelinks(api, db)
+        # FIXME:
+        #   - mwph can't parse "[[VirtualBox#Installation in EFI mode on VirtualBox < 6.1]]" as a wikilink
+        #     (most likely due to the single '<', see https://github.com/earwig/mwparserfromhell/issues/211#issuecomment-570898958 )
+        check_pagelinks(api, db)
 
         check_imagelinks(api, db)
-
-        # fails due to https://github.com/earwig/mwparserfromhell/issues/198
-        # ([[Template:META Error]] adds the pages using it to [[Category:Pages with broken templates]])
-#        check_categorylinks(api, db)
-
+        check_categorylinks(api, db)
         check_interwiki_links(api, db)
-
-        # fails due to https://github.com/earwig/mwparserfromhell/issues/197
-        # (URLs preceded by punctuation characters are not parsed)
-#        check_external_links(api, db)
-
+        check_external_links(api, db)
         check_redirects(api, db)
