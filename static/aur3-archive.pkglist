@@ -7583,7 +7583,6 @@ elerea-examples
 elev8-git
 elfdump-git
 elfkickers
-elflibviewer
 elforkane
 elfrc
 elfres
@@ -20892,7 +20891,6 @@ libxrandr-prime-git
 libxsd-frontend
 libxtract
 libxtrap-git
-libxxf86misc
 libxxf86vm-static
 libyahoo2
 libyaml-svn
@@ -22646,7 +22644,6 @@ melted-git
 melting
 mem
 membase-server-community
-members
 memcached-manager-svn
 memcached-repcached
 memcachedb
@@ -24467,7 +24464,6 @@ nagstamon-svn
 nailer
 nailgun
 naken430asm
-naken_asm
 nalfs
 nall
 nama-git
@@ -24607,7 +24603,6 @@ nct677x-ck-git
 ncurses-ada
 ncurses-arm-linux-gnueabi
 ncurses-arm-linux-gnueabihf
-ncurses-git
 ncurses-git-cxx
 ncurses-musl-static
 ncurses-ruby-git
@@ -25636,7 +25631,6 @@ objfw-hg
 objobf
 objopenssl-git
 obkey-dev
-oblogout
 oblogout-consolekit
 obmenu-langfix
 obmenugen
@@ -25773,7 +25767,6 @@ oclhashcat-plus-bin
 oclp
 ocr-a-font
 ocre
-ocrfeeder
 ocrfeeder-git
 ocropus
 ocropus-data-hg
@@ -27175,7 +27168,6 @@ partitionmanager-lang
 partitionmanager-svn
 partitionmanager_lang
 partlibrary
-pasaffe
 pascaltz
 pasco
 pasdoc
@@ -28594,7 +28586,6 @@ pianobar
 pianobarfly-patched-git
 pic30-binutils
 pic30-gcc
-pic32prog-git
 pic32prog-svn
 pica-pica
 picamera-git
@@ -30662,12 +30653,10 @@ python-flask-flatpages
 python-flask-login
 python-flask-mongoengine
 python-flask-oauth
-python-flask-oldsessions
 python-flask-openid
 python-flask-principal
 python-flask-restless
 python-flask-security
-python-flask-silk
 python-flask-themes
 python-flask-uploads
 python-flask-xml-rpc
@@ -31907,7 +31896,6 @@ python2-flickrapi
 python2-fluentxml
 python2-fluentxml-hg
 python2-flup-hg
-python2-foolscap
 python2-fred
 python2-freeimagepy
 python2-freshen-git
@@ -32255,7 +32243,6 @@ python2-pca
 python2-pcapy
 python2-pdbpp
 python2-pdfminer-git
-python2-pdfrw
 python2-peak-util
 python2-pebl
 python2-peewee-git
@@ -32362,7 +32349,6 @@ python2-pygtkhelpers-hg
 python2-pyhesiod
 python2-pyhesiodfs-git
 python2-pyhyphen
-python2-pyicu
 python2-pyimgur
 python2-pyinputevent
 python2-pyinterval
@@ -32704,7 +32690,6 @@ python2-twitter-hg
 python2-twitter-tools
 python2-twitter-tools-git
 python2-twoffein
-python2-txaio
 python2-txcarbonclient
 python2-txjson-rpc-bzr
 python2-txjsonrpc-bzr
@@ -33640,7 +33625,6 @@ quazaa-svn
 quazip-qt5
 quazip-qt5-svn
 qubes-vm-core
-qubes-vm-gui
 qubes-vm-kernel-builder
 qubes-vm-kernel-modules
 qubittorrent
@@ -36364,7 +36348,6 @@ ruby-rocco
 ruby-roflbalt-git
 ruby-romkan
 ruby-ronn
-ruby-rr
 ruby-rs-api-tools
 ruby-rspec
 ruby-rspec-1_1
@@ -36544,7 +36527,6 @@ ruby-watchr
 ruby-watir-webdriver
 ruby-wdm
 ruby-webgen
-ruby-webmock
 ruby-webrat
 ruby-websocket-1.0
 ruby-whichr
@@ -37121,7 +37103,6 @@ scribus-ece-14
 scribus-ece-15
 scribus-ng
 scribus-rc
-scribus-stable
 scribus-templates
 scripsi
 scripted-git
@@ -37515,7 +37496,6 @@ shblog-git
 shcov
 she
 she-darcs
-shedskin
 shedskin-svn
 sheepdog-openstack
 sheepshaver-cvs
@@ -37755,7 +37735,6 @@ siproxd
 sipsak
 sipvicious-svn
 sipwitch
-sirius
 sirm2
 sirmgui
 sisal
@@ -38309,7 +38288,6 @@ spacemouse-git
 spacerocks-git
 spaceshooter
 spacezero
-spambayes
 spamcup
 spamoracle
 spampd
@@ -43990,7 +43968,6 @@ x264-jeeb-git
 x264-shared-git
 x264-snapshot-hi10
 x264-tmod
-x264-tmod-git
 x264rip-tmod-git
 x265
 x265-10bit
