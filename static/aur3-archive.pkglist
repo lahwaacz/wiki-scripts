@@ -6248,7 +6248,6 @@ distrho-standalone-git
 distrho-tal
 distrho-wolpertinger
 district_thin_pro
-distro
 distro-bin
 disunity-git
 ditaa
@@ -10310,7 +10309,6 @@ gematria
 gemdropx
 gemini-terminal
 geminirue
-gemrb
 gems
 gemwest
 gencfs
@@ -10612,7 +10610,6 @@ git-latexdiff-git
 git-legacy
 git-makepkg-template-git
 git-mediawiki
-git-merge-changelog-git
 git-paradox-git
 git-pissed
 git-publish-branch
@@ -11480,7 +11477,6 @@ gns3-unofficial
 gns3-vbe
 gnu-efi
 gnu-efi-fedora-git
-gnu-efi-libs-fedora-git
 gnu-fdisk
 gnu-gift
 gnu-lightning
@@ -19294,7 +19290,6 @@ lib32-llvm-amdgpu-git
 lib32-llvm-amdgpu-svn
 lib32-lua51
 lib32-luafilesystem
-lib32-luajit
 lib32-lz4
 lib32-lzma
 lib32-lzo2
@@ -22354,7 +22349,6 @@ maven-3.1.0
 maven2
 maven2-opt
 maven3
-mavlink-git
 maxemumtvguide
 maxfighter
 maxima-clisp
@@ -30363,7 +30357,6 @@ python-appindicator
 python-appy
 python-apsw
 python-archive
-python-arff
 python-argh
 python-argscript
 python-arrow-git
@@ -30405,7 +30398,6 @@ python-blinker
 python-blist
 python-blist-git
 python-blosc
-python-blowfish
 python-bls
 python-boomslang
 python-botocore
