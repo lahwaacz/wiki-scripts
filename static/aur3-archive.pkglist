@@ -493,7 +493,6 @@ alac2flac
 alac_decoder
 alacarte
 alacarte-devel
-alacarte-git
 alacarte-lxde
 alacarte-xfce-devel
 alacconvert
@@ -3105,7 +3104,6 @@ bzr-avahi
 bzr-dev
 bzr-eclipse
 bzr-email
-bzr-fastimport
 bzr-fastimport-bzr
 bzr-fastimport-deleted-entries-fix
 bzr-fastimport-russo79-bzr
@@ -3504,7 +3502,6 @@ cdstatus
 cdtemp-hg
 cdtool
 cdtray
-cecilia
 cecilia4
 cecilia5
 cedega
@@ -9453,7 +9450,6 @@ fox-legacy
 foxitreader-bin
 foxkit
 foxkit-git
-fpart
 fpc-arm-android-lnet
 fpc-arm-android-lua52
 fpc-arm-android-pascaltz
@@ -9830,7 +9826,6 @@ fvkbd-git
 fvwm+-cvs
 fvwm-devel-ppc
 fvwm-menu-gnome
-fvwm-patched
 fvwm-themes-devel
 fvwm-themes-extra-devel
 fwbackups
@@ -10454,7 +10449,6 @@ ggrab
 ggseq
 ggt
 ggz-gtk-client
-gh
 gh-git
 ghamachi
 ghc-7.4.2
@@ -10639,7 +10633,6 @@ gitg3
 gitgitlab-git
 gitgraph
 gitgraph-git
-github-cli
 github-gem
 github-notifier-git
 gitignore-boilerplates
@@ -15034,7 +15027,6 @@ hippodraw
 hips-bin
 hircules
 hiredis
-hiredis-git
 hirocoin-daemon
 histo-git
 historian
@@ -21619,24 +21611,20 @@ lua50
 lua51-alien
 lua51-alt-getopt
 lua51-base64
-lua51-cassowary
 lua51-epnf
 lua51-ffi-git
 lua51-inspect
 lua51-json
 lua51-ldbi
 lua51-lgob
-lua51-linenoise
 lua51-lpeg
 lua51-pc
-lua51-repl
 lua51-resty-redis
 lua51-sec-prosody
 lua51-socket-devel
 lua51-socket-prosody
 lua51-sql-mysql
 lua51-static
-lua51-stdlib
 lua51-systemd
 lua51-systemd-git
 lua52-json
@@ -31838,7 +31826,6 @@ python2-fabric
 python2-fabulous
 python2-facebook-sdk-git
 python2-fann
-python2-fastimport
 python2-fastimport-bzr
 python2-fastrpc
 python2-faulthandler
@@ -38953,7 +38940,6 @@ submux-dvd
 subotage
 subplay
 subplay-git
-subs2srs
 subsonic-kang-git
 subsurface
 subsync-git
