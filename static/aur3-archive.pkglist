@@ -9713,7 +9713,6 @@ fssos-nsvs
 fst-git
 fstab-update
 fsthost-svn
-fstl-git
 fstransform
 fsv
 fsviewer
@@ -26424,7 +26423,6 @@ openssh-lpk
 openssh-mit-krb5
 openssh-multihomed
 openssh-opensc
-openssh-u2f
 openssh-x509
 openssh-xattr
 openssl-aesni
@@ -26704,7 +26702,6 @@ otf-entypo
 otf-equinox
 otf-essays
 otf-f910-shin-comic
-otf-fanwood
 otf-fira-mono
 otf-fira-sans
 otf-flop-design
@@ -26790,7 +26787,6 @@ ovmf-svn
 ovoplayer
 ovpngui
 ovz-web-panel
-owamp
 owl-browser-git
 owlboxer
 owlman-git
@@ -32138,7 +32134,6 @@ python2-netfilter
 python2-netlib
 python2-netlib-git
 python2-netsnmpagent
-python2-networkx
 python2-neurolab
 python2-neutronclient-deb
 python2-nfqueue
@@ -32255,7 +32250,6 @@ python2-praw-git
 python2-prctl
 python2-premailer
 python2-premailer-git
-python2-prettytable
 python2-primitivelogger-git
 python2-prody
 python2-progressbar
@@ -34077,7 +34071,6 @@ rdf3x
 rdfextras
 rdflib
 rdictcc
-rdiff-backup-fs
 rdiff-backup-kyr
 rdio-git
 rdis
@@ -36385,7 +36378,6 @@ ruby-scw
 ruby-sdl
 ruby-sdoc
 ruby-seed-fu
-ruby-selenium-webdriver
 ruby-sequel-4.0
 ruby-serialport
 ruby-serialport-1.1
@@ -36934,7 +36926,6 @@ scare
 scarface-extractor
 scate-git
 scavis
-scc
 scdp
 sced-svn
 scenebuilder-bin
@@ -39158,7 +39149,6 @@ sw-git
 sw-hg
 swaag
 swac-tools
-swami
 swank-clojure-git
 swapd
 swarmtv
@@ -41028,10 +41018,7 @@ ttf-segan-light
 ttf-selfism
 ttf-sevil-alias-esra-li
 ttf-shojumaru
-ttf-sil-apparatus
 ttf-sil-apparatus-old
-ttf-sil-dai-banna
-ttf-sil-doulos
 ttf-simpleicons-git
 ttf-sjfonts
 ttf-skyhookmono_regular
@@ -42478,8 +42465,6 @@ vim-gas
 vim-genutils
 vim-getscript
 vim-ghcmod
-vim-gist
-vim-gist-git
 vim-git-branch-info
 vim-gitv
 vim-gmsh-git
