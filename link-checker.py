@@ -594,8 +594,7 @@ class WikilinkRules:
 
 
 class ManTemplateRules:
-    url_template = "http://jlk.fjfi.cvut.cz/arch/manpages/man/{pagename}.{section}"
-    url_template_nosection = "http://jlk.fjfi.cvut.cz/arch/manpages/man/{pagename}"
+    url_prefix = "http://jlk.fjfi.cvut.cz/arch/manpages/man/"
 
     def __init__(self, timeout, max_retries):
         self.timeout = timeout
@@ -619,12 +618,15 @@ class ManTemplateRules:
             ensure_flagged_by_template(wikicode, template, "Dead link", *deadlink_params, overwrite_parameters=False)
             return
 
+        url = self.url_prefix
+        if template.has("pkg"):
+            url += template.get("pkg").value.strip() + "/"
+        url += queryencode(template.get(2).value.strip())
         if template.get(1).value.strip():
-            url = self.url_template.format(section=template.get(1).value.strip(), pagename=queryencode(template.get(2).value.strip()))
-        else:
-            url = self.url_template_nosection.format(pagename=queryencode(template.get(2).value.strip()))
+            url += "." + template.get(1).value.strip()
         if template.has(3):
             url += "#{}".format(queryencode(template.get(3).value.strip()))
+
         if template.has("url"):
             explicit_url = template.get("url").value.strip()
         else:
