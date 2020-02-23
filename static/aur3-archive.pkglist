@@ -3664,7 +3664,6 @@ cheerp-llvm-clang-git
 cheerp-llvm-git
 cheerp-newlib-git
 cheerp-utils-git
-cheese-git
 cheese-gst
 cheese2
 cheesetracker
@@ -4511,7 +4510,6 @@ clutter-gesture-git
 clutter-git-mys
 clutter-gst-gst-git
 clutter-gst1.6
-clutter-gtk-git
 clutter-gtk-git-mys
 clutter-imcontext
 clutter-imcontext-git
@@ -11159,7 +11157,6 @@ gnome-shell-extension-gmail-notify
 gnome-shell-extension-gnome2-notifications-git
 gnome-shell-extension-gnote
 gnome-shell-extension-gtg-git
-gnome-shell-extension-gtile-git
 gnome-shell-extension-hibernate-status
 gnome-shell-extension-hide-app-icon
 gnome-shell-extension-hide-dash-git
@@ -11425,7 +11422,6 @@ gnome-voice-control
 gnome-wallchanger
 gnome-wallpaper-slideshow
 gnome-weather
-gnome-weather-git
 gnome-whitenoise
 gnome-wild-shine-theme
 gnome-window-applets
@@ -11911,7 +11907,6 @@ granite-framework-bzr
 granola
 granola-connect
 granola-gui
-grantlee-git
 granule
 graphcalc
 graphene
@@ -15270,7 +15265,6 @@ hunalign
 hunalign-1.1
 hunnyb
 hunp
-hunspell-be
 hunspell-cz
 hunspell-de-de
 hunspell-el
@@ -19099,7 +19093,6 @@ lib32-gail
 lib32-gammaray-libs-qt4-git
 lib32-gc
 lib32-gcin
-lib32-gconf
 lib32-gcr
 lib32-gdk-pixbuf
 lib32-gecode
@@ -26131,7 +26124,6 @@ openbsd-calendar-cvs
 openbsd-malloc
 openbsd-pdksh-git
 openbsd-rs-git
-openbugs
 openbve
 openc2e-git
 openc6
@@ -27079,7 +27071,6 @@ paperbox
 papercut
 paperjam
 papersplease-beta
-paperwork-git
 papi-git
 papilio-loader
 papilio-prog
@@ -31581,7 +31572,6 @@ python2-bugwarrior-git
 python2-byteplay
 python2-caatinga-git
 python2-cached-property
-python2-cairocffi
 python2-cairocffi-xcffib-git
 python2-cairoplot
 python2-cairoplot-gnome15
@@ -31993,7 +31983,6 @@ python2-jellyfish
 python2-jenkins
 python2-jieba
 python2-jieba-git
-python2-jmespath
 python2-jq
 python2-jrpc
 python2-jsonpatch
@@ -32003,7 +31992,6 @@ python2-jsonrpc-bzr
 python2-jsonrpc-git
 python2-jsonrpc-svn
 python2-jsonrpclib
-python2-jsonschema
 python2-jsonschema1
 python2-jswebkit
 python2-juggernaut
@@ -36339,7 +36327,6 @@ ruby-rspec-support
 ruby-rsvg
 ruby-rubber-generate
 ruby-rubocop-checkstyle_formatter
-ruby-rubocop-rspec
 ruby-ruby-blockcache
 ruby-ruby-graphviz
 ruby-ruby-hmac
