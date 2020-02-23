@@ -397,7 +397,7 @@ class test_magic_words(common_base):
         }
 
         title = "Title 1"
-        expected = "http://example.com/foo%20bar/"
+        expected = "http://example.com/foo+bar/"
         self._do_test(title_context, d, title, expected)
 
         title = "Title 2"
