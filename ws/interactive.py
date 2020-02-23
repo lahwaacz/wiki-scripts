@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 __all__ = ["require_login", "edit_interactive", "InteractiveQuit", "ask_yesno"]
 
 _diffprog = shlex.split(os.environ.get("DIFFPROG", "vimdiff"))
+_editprog = shlex.split(os.environ.get("EDITOR", "vim"))
 
 def require_login(api):
     """
@@ -37,7 +38,7 @@ class TmpFileSeries:
 
     Reference: http://stackoverflow.com/questions/865115/how-do-i-correctly-clean-up-a-python-object/865272#865272
     """
-    def __init__(self, basename, text_new, text_old, suffix="mediawiki", dir="/tmp"):
+    def __init__(self, basename, text_new, text_old, *, suffix="mediawiki", dir="/tmp"):
         self.fname_new = "{}/{}.new.{}".format(dir, basename, suffix)
         self.file_new = open(self.fname_new, "w+")
         # text_new might be Wikicode object, but file.write() checks the type
@@ -55,6 +56,26 @@ class TmpFileSeries:
     def __exit__(self, type, value, traceback):
         os.unlink(self.fname_new)
         os.unlink(self.fname_old)
+
+class TmpFile:
+    """
+    Resource management wrapper around a temporary file. Use it with the `with`
+    statement.
+
+    Reference: http://stackoverflow.com/questions/865115/how-do-i-correctly-clean-up-a-python-object/865272#865272
+    """
+    def __init__(self, basename, text, *, suffix="mediawiki", dir="/tmp"):
+        self.fname = "{}/{}.{}".format(dir, basename, suffix)
+        self.file = open(self.fname, "w+")
+        # text might be Wikicode object, but file.write() checks the type
+        self.file.write(str(text))
+        self.file.flush()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        os.unlink(self.fname)
 
 class InteractiveQuit(Exception):
     """
@@ -74,6 +95,8 @@ def edit_interactive(api, title, pageid, text_old, text_new, basetimestamp, summ
       program know that it should quit.
     - ``e`` will open the revisions in an external merge program (configurable
       by the ``$DIFFPROG`` environment variable, defaults to ``vimdiff``).
+    - ``s`` will allow to change the edit summary using the program specified by
+      the ``$EDITOR`` environment variable, defaults to ``vim``.
     - ``?`` will print brief legend and repeat the highlighted diff and prompt.
 
     :param api: a :py:class:`MediaWiki.api.API` instance to operate on
@@ -87,6 +110,7 @@ def edit_interactive(api, title, pageid, text_old, text_new, basetimestamp, summ
         ("n", "do not make this edit"),
         ("q", "quit; do not make this edit or any of the following"),
         ("e", "manually edit this edit"),
+        ("s", "manually edit the edit summary"),
         ("?", "print this legend"),
     ]
     short_options = [opt[0] for opt in options]
@@ -115,6 +139,16 @@ def edit_interactive(api, title, pageid, text_old, text_new, basetimestamp, summ
                     subprocess.check_call(args)
                     wrapper.file_new.seek(0)
                     text_new = wrapper.file_new.read()
+                    logger.info("Command {} exited succesfully.".format(args))
+                except subprocess.CalledProcessError:
+                    logger.exception("Command {} failed.".format(args))
+        elif ans == "s":
+            with TmpFile("summary", summary) as wrapper:
+                args = _editprog + [wrapper.fname]
+                try:
+                    subprocess.check_call(args)
+                    wrapper.file.seek(0)
+                    summary = wrapper.file.read()
                     logger.info("Command {} exited succesfully.".format(args))
                 except subprocess.CalledProcessError:
                     logger.exception("Command {} failed.".format(args))
