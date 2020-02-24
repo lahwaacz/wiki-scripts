@@ -28,6 +28,11 @@ class ExtlinkStatusChecker:
         self.session.mount("https://", adapter)
         self.session.mount("http://", adapter)
 
+        self.headers = {
+            # fake user agent to bypass servers returning 404 or not responding at all to non-browser user agents
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36",
+        }
+
         # valid URLs - 2xx
         self.cache_valid_urls = set()
         # invalid URLs - 4xx
@@ -56,11 +61,11 @@ class ExtlinkStatusChecker:
         if url.lower() in ["http://", "https://"]:
             return
 
-        # TODO: blacklist domains which require javascript (e.g. code.google.com)
+        # TODO: drop the fragment from the URL (to optimize caching)
+        # TODO: skip links to localhost and 127.*.*.* and ::1
 
         logger.info("Checking link {} ...".format(extlink))
 
-        # TODO: Do we need to query-encode or not? Also drop the fragment.
         status = self.check_url(url)
         if status is True:
             # TODO: the link might still be flagged for a reason (e.g. when the server redirects to some dummy page without giving a proper status code)
@@ -70,6 +75,7 @@ class ExtlinkStatusChecker:
             # TODO: handle links inside {{man|url=...}} properly
             ensure_flagged_by_template(wikicode, extlink, "Dead link", *self.deadlink_params, overwrite_parameters=False)
         else:
+            # TODO: ask the user for manual check (good/bad/skip) and move the URL from self.cache_indeterminate_urls to self.cache_valid_urls or self.cache_invalid_urls
             logger.warning("status check indeterminate for external link {}".format(extlink))
 
     def check_url(self, url):
@@ -84,7 +90,10 @@ class ExtlinkStatusChecker:
             return None
 
         try:
-            response = self.session.head(url, timeout=self.timeout, allow_redirects=True)
+            # We need to use GET requests instead of HEAD, because many servers just return 404
+            # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
+            # response body content using the ``stream=True`` parameter.
+            response = self.session.get(url, headers=self.headers, timeout=self.timeout, stream=True)
         except requests.exceptions.ConnectionError as e:
             # TODO: how to handle DNS errors properly?
             if "name or service not known" in str(e).lower():
@@ -106,7 +115,6 @@ class ExtlinkStatusChecker:
             return False
         else:
             logger.warning("status code {} for URL {}".format(response.status_code, url))
-            # TODO: ask the user for manual check (good/bad/skip)
             self.cache_indeterminate_urls.add(url)
             return None
 
