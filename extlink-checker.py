@@ -101,6 +101,10 @@ class ExtlinkStatusChecker:
                 return False
             # other connection error - indeterminate, do not cache
             return None
+        except requests.exceptions.TooManyRedirects as e:
+            logger.error("TooManyRedirects error ({}) for URL {}".format(e, url))
+            self.cache_invalid_urls.add(url)
+            return False
         except requests.exceptions.RequestException as e:
             # base class exception - indeterminate error, do not cache
             logger.exception("URL {} could not be checked due to {}".format(url, e))
