@@ -9,6 +9,8 @@
 import logging
 import datetime
 import ipaddress
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 import requests
 import requests.packages.urllib3 as urllib3
@@ -209,7 +211,7 @@ class Checker(ExtlinkStatusChecker):
             langnames = set()
         return klass(api, db, first=args.first, title=args.title, langnames=langnames, connection_timeout=args.connection_timeout, max_retries=args.connection_max_retries)
 
-    def update_page(self, src_title, text):
+    async def update_page(self, src_title, text):
         """
         Parse the content of the page and call various methods to update the links.
 
@@ -222,8 +224,23 @@ class Checker(ExtlinkStatusChecker):
         # FIXME: skip_style_tags=True is a partial workaround for https://github.com/earwig/mwparserfromhell/issues/40
         wikicode = mwparserfromhell.parse(text, skip_style_tags=True)
 
-        for extlink in wikicode.ifilter_external_links(recursive=True):
-            self.check_extlink_status(wikicode, extlink)
+        # We could use the default single-threaded executor with basically the same performance
+        # (because of Python's GIL), but the ThreadPoolExecutor allows to limit the maximum number
+        # of workers and thus the maximum number of concurrent connections.
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            with requests.Session() as session:
+                loop = asyncio.get_event_loop()
+                tasks = [
+                    loop.run_in_executor(
+                        executor,
+                        self.check_extlink_status,
+                        # a way to pass multiple arguments to the check_extlink_status method
+                        *(wikicode, extlink)
+                    )
+                    for extlink in wikicode.ifilter_external_links(recursive=True)
+                ]
+                for result in await asyncio.gather(*tasks):
+                    pass
 
         edit_summary = "update status of external links (interactive)"
         return str(wikicode), edit_summary
@@ -244,7 +261,7 @@ class Checker(ExtlinkStatusChecker):
         page = list(result["pages"].values())[0]
         timestamp = page["revisions"][0]["timestamp"]
         text_old = page["revisions"][0]["slots"]["main"]["*"]
-        text_new, edit_summary = self.update_page(title, text_old)
+        text_new, edit_summary = asyncio.run(self.update_page(title, text_old))
         self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
 
     def process_allpages(self, apfrom=None, langnames=None):
@@ -271,7 +288,7 @@ class Checker(ExtlinkStatusChecker):
                 _title = self.api.Title(title)
                 timestamp = page["revisions"][0]["timestamp"]
                 text_old = page["revisions"][0]["*"]
-                text_new, edit_summary = self.update_page(title, text_old)
+                text_new, edit_summary = asyncio.run(self.update_page(title, text_old))
                 self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
             # the apfrom parameter is valid only for the first namespace
             apfrom = ""
