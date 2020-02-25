@@ -4,11 +4,14 @@
 # - merge with link-checker.py?
 # - cache the status results in the database, limit the number of checks per URL per day (and week/month too)
 # - per-domain whitelist for HTTP to HTTPS conversion (more suitable for link-checker.py, unless we need to compare the results for both requests)
+# - GRRR: When you get 404, unless you have Javascript enabled, in which case the code loaded on the 404 page might execute a redirection to a different address. Example: https://nzbget.net/Performance_tips
 
 import logging
 import datetime
+import ipaddress
 
 import requests
+import requests.packages.urllib3 as urllib3
 import mwparserfromhell
 
 from ws.client import API, APIError
@@ -29,7 +32,7 @@ class ExtlinkStatusChecker:
         self.session.mount("http://", adapter)
 
         self.headers = {
-            # fake user agent to bypass servers returning 404 or not responding at all to non-browser user agents
+            # fake user agent to bypass servers responding differently or not at all to non-browser user agents
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36",
         }
 
@@ -48,21 +51,45 @@ class ExtlinkStatusChecker:
         # make a copy of the URL object
         url = mwparserfromhell.parse(str(extlink.url))
 
+        # FIXME: fix parsing of URLs immediately followed by a template
+
         # replace HTML entities like "&#61" or "&Sigma;" with their unicode equivalents
         for entity in url.ifilter_html_entities(recursive=True):
             url.replace(entity, entity.normalize())
 
-        url = str(url)
+        try:
+            # try to parse the URL - fails e.g. if port is not a number
+            # reference: https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#urllib3.util.parse_url
+            url = urllib3.util.url.parse_url(str(url))
+        except urllib3.exceptions.LocationParseError:
+            return
 
         # skip unsupported schemes
-        if not url.lower().startswith("http://") and not url.lower().startswith("https://"):
+        if url.scheme not in ["http", "https"]:
             return
-        # skip empty URLs
-        if url.lower() in ["http://", "https://"]:
+        # skip URLs with empty host, e.g. "http://" or "http://git@" or "http:///var/run"
+        # (partial workaround for https://github.com/earwig/mwparserfromhell/issues/196 )
+        if not url.host:
             return
-
-        # TODO: drop the fragment from the URL (to optimize caching)
-        # TODO: skip links to localhost and 127.*.*.* and ::1
+        # skip links with top-level domains only
+        # (in practice they would be resolved relative to the local domain, on the wiki they are used
+        # mostly as a pseudo-variable like http://server/path or http://mydomain/path)
+        if "." not in url.host:
+            return
+        # skip links to localhost
+        if url.host == "localhost" or url.host.endswith(".localhost"):
+            return
+        # skip links to 127.*.*.* and ::1
+        try:
+            addr = ipaddress.ip_address(url.host)
+            local_network = ipaddress.ip_network("127.0.0.0/8")
+            if addr in local_network:
+                return
+        except ValueError:
+            pass
+        # drop the fragment from the URL (to optimize caching)
+        if url.fragment:
+            url = urllib3.util.url.parse_url(url.url.rsplit("#", maxsplit=1)[0])
 
         logger.info("Checking link {} ...".format(extlink))
 
@@ -79,9 +106,6 @@ class ExtlinkStatusChecker:
             logger.warning("status check indeterminate for external link {}".format(extlink))
 
     def check_url(self, url):
-        if url.startswith("ftp://"):
-            logger.error("The FTP protocol is not supported by the requests module. URL: {}".format(url))
-            return True
         if url in self.cache_valid_urls:
             return True
         elif url in self.cache_invalid_urls:
@@ -97,6 +121,7 @@ class ExtlinkStatusChecker:
         except requests.exceptions.ConnectionError as e:
             # TODO: how to handle DNS errors properly?
             if "name or service not known" in str(e).lower():
+                logger.error("domain name could not be resolved for URL {}".format(url))
                 self.cache_invalid_urls.add(url)
                 return False
             # other connection error - indeterminate, do not cache
@@ -124,7 +149,7 @@ class ExtlinkStatusChecker:
 
 
 class Checker(ExtlinkStatusChecker):
-    def __init__(self, api, db, first=None, title=None, langnames=None, connection_timeout=30, max_retries=3):
+    def __init__(self, api, db, first=None, title=None, langnames=None, connection_timeout=60, max_retries=3):
         # init inherited
         ExtlinkStatusChecker.__init__(self, connection_timeout, max_retries)
 
