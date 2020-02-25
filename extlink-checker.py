@@ -62,28 +62,34 @@ class ExtlinkStatusChecker:
             # reference: https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#urllib3.util.parse_url
             url = urllib3.util.url.parse_url(str(url))
         except urllib3.exceptions.LocationParseError:
+            logger.debug("skipped invalid URL: {}".format(url))
             return
 
         # skip unsupported schemes
         if url.scheme not in ["http", "https"]:
+            logger.debug("skipped URL with unsupported scheme: {}".format(url))
             return
         # skip URLs with empty host, e.g. "http://" or "http://git@" or "http:///var/run"
         # (partial workaround for https://github.com/earwig/mwparserfromhell/issues/196 )
         if not url.host:
+            logger.debug("skipped URL with empty host: {}".format(url))
             return
         # skip links with top-level domains only
         # (in practice they would be resolved relative to the local domain, on the wiki they are used
         # mostly as a pseudo-variable like http://server/path or http://mydomain/path)
         if "." not in url.host:
+            logger.debug("skipped URL with only top-level domain host: {}".format(url))
             return
         # skip links to localhost
         if url.host == "localhost" or url.host.endswith(".localhost"):
+            logger.debug("skipped URL to localhost: {}".format(url))
             return
         # skip links to 127.*.*.* and ::1
         try:
             addr = ipaddress.ip_address(url.host)
             local_network = ipaddress.ip_network("127.0.0.0/8")
             if addr in local_network:
+                logger.debug("skipped URL to local IP address: {}".format(url))
                 return
         except ValueError:
             pass
