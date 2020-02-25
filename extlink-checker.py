@@ -189,8 +189,8 @@ class Checker(ExtlinkStatusChecker):
                 help="the title of the first page to be processed")
         mode.add_argument("--title",
                 help="the title of the only page to be processed")
-        group.add_argument("--lang", default=None,
-                help="comma-separated list of language tags to process (default: all, choices: {})".format(lang.get_internal_tags()))
+        group.add_argument("--lang", default="en",
+                help="comma-separated list of language tags to process (default: en, choices: {})".format(lang.get_internal_tags()))
 
     @classmethod
     def from_argparser(klass, args, api=None, db=None):
