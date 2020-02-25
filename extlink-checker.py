@@ -230,6 +230,9 @@ class Checker(ExtlinkStatusChecker):
 
     def _edit(self, title, pageid, text_new, text_old, timestamp, edit_summary):
         if text_old != text_new:
+            # print the info message
+            print("\nSuggested edit for page [[{}]]. Please double-check all changes before accepting!".format(title))
+
             try:
                 # TODO: set bot="" only when the logged-in user is a bot
                 edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, edit_summary, bot="")
