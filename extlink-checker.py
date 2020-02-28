@@ -126,6 +126,11 @@ class ExtlinkStatusChecker:
             # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
             # response body content using the ``stream=True`` parameter.
             response = self.session.get(url, headers=self.headers, timeout=self.timeout, stream=True)
+        # SSLError inherits from ConnectionError so it has to be checked first
+        except requests.exceptions.SSLError as e:
+            logger.error("SSLError ({}) for URL {}".format(e, url))
+            self.cache_invalid_urls.add(url)
+            return False
         except requests.exceptions.ConnectionError as e:
             # TODO: how to handle DNS errors properly?
             if "name or service not known" in str(e).lower():
