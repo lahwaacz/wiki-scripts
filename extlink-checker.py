@@ -20,7 +20,7 @@ from ws.client import API, APIError
 from ws.db.database import Database
 from ws.interactive import edit_interactive, require_login, InteractiveQuit
 import ws.ArchWiki.lang as lang
-from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template
+from ws.parser_helpers.wikicode import get_parent_wikicode, ensure_flagged_by_template, ensure_unflagged_by_template
 
 logger = logging.getLogger(__name__)
 
@@ -50,10 +50,23 @@ class ExtlinkStatusChecker:
         self.deadlink_params = ["{:02d}".format(i) for i in self.deadlink_params]
 
     def check_extlink_status(self, wikicode, extlink):
-        # make a copy of the URL object
+        # make a copy of the URL object (the skip_style_flags parameter is False,
+        # so we will also properly parse URLs terminated by a wiki markup)
         url = mwparserfromhell.parse(str(extlink.url))
 
-        # FIXME: fix parsing of URLs immediately followed by a template
+        # mwparserfromhell parses free URLs immediately followed by a template
+        # (e.g. http://domain.tld/{{Dead link|2020|02|20}}) completely as one URL,
+        # so we need to split it manually
+        if "{{" in str(url):
+            url, rest = str(url).split("{{", maxsplit=1)
+            rest = "{{" + rest
+            url = mwparserfromhell.parse(url)
+            # remove everything after the real URL from the extlink...
+            for node in extlink.url.nodes[1:]:
+                extlink.url.remove(node)
+            # ...and insert it into the parent wikicode after the link
+            parent = get_parent_wikicode(wikicode, extlink)
+            parent.insert_after(extlink, rest)
 
         # replace HTML entities like "&#61" or "&Sigma;" with their unicode equivalents
         for entity in url.ifilter_html_entities(recursive=True):
