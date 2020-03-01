@@ -39,7 +39,7 @@ def valid_sectionname(db, title):
 
 def list_redirects_broken_fragments(api, db):
     db.sync_with_api(api)
-    db.sync_latest_revisions_content(api)
+    db.sync_revisions_content(api, mode="latest")
     db.update_parser_cache()
 
     # limit to redirects pointing to the content namespaces

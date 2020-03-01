@@ -191,7 +191,7 @@ class Checker(ExtlinkStatusChecker):
         self.langnames = langnames
 
         self.db.sync_with_api(api)
-        self.db.sync_latest_revisions_content(api)
+        self.db.sync_revisions_content(api, mode="latest")
         self.db.update_parser_cache()
 
     @staticmethod

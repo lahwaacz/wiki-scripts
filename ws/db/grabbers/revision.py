@@ -503,7 +503,9 @@ class GrabberRevisions(GrabberBase):
                 yield self.sql["delete", "tagged_recentchange"], db_entry
 
 
-    def sync_latest_revisions_content(self):
+    def sync_revisions_content(self, *, mode="latest"):
+        assert mode in {"latest", "all"}
+
         time1 = time.time()
         counter = 0
 
@@ -518,19 +520,31 @@ class GrabberRevisions(GrabberBase):
             result = conn.execute(query)
             return [r[0] for r in result]
 
-        def gen():
-            nonlocal counter
-            # we need one instance per transaction
+        def get_all_revids():
+            rev = self.db.revision
+            query = sa.select([rev.c.rev_id]).select_from(
+                        rev
+                    ).where(rev.c.rev_text_id == None).order_by(rev.c.rev_id)
+            conn = self.db.engine.connect()
+            result = conn.execute(query)
+            return [r[0] for r in result]
+
+        params = {
+            "action": "query",
+            "revids": get_latest_revids() if mode == "latest" else get_all_revids(),
+            "prop": "revisions",
+            "rvprop": "ids|content",
+            "rvslots": "main",
+        }
+        for result in self.api.call_api_autoiter_ids(params, expand_result=False):
+            fetched_revids = set()
+
+            # we need one instance per chunk/transaction
             self.text_id_gen = self._get_text_id_gen()
 
-            params = {
-                "action": "query",
-                "revids": get_latest_revids(),
-                "prop": "revisions",
-                "rvprop": "ids|content",
-                "rvslots": "main",
-            }
-            for result in self.api.call_api_autoiter_ids(params, expand_result=False):
+            def gen():
+                nonlocal counter
+                nonlocal fetched_revids
                 for page in result["query"]["pages"].values():
                     for rev in page["revisions"]:
                         text_id = next(self.text_id_gen)
@@ -541,21 +555,27 @@ class GrabberRevisions(GrabberBase):
                         yield from self.gen_text(rev, text_id)
                         yield self.sql["update", "revision"], db_entry
                         counter += 1
+                        fetched_revids.add(rev["revid"])
 
-        # snippet copy-pasted from GrabberBase._execute, but without calling _set_sync_timestamp
-        from ws.db.execution import DeferrableExecutionQueue
-        with self.db.engine.begin() as conn:
-            with DeferrableExecutionQueue(conn, self.db.chunk_size) as dfe:
-                for item in gen():
-                    if isinstance(item, tuple):
-                        # unpack the tuple
-                        dfe.execute(*item)
-                    else:
-                        # probably a single value
-                        dfe.execute(item)
+            # execute each chunk of the revids in its own transaction
+            # (if there are many chunks, we risk the API connection to be interrupted
+            # and losing lots of data)
+            from ws.db.execution import DeferrableExecutionQueue
+            with self.db.engine.begin() as conn:
+                with DeferrableExecutionQueue(conn, self.db.chunk_size) as dfe:
+                    for item in gen():
+                        if isinstance(item, tuple):
+                            # unpack the tuple
+                            dfe.execute(*item)
+                        else:
+                            # probably a single value
+                            dfe.execute(item)
+
+            if mode == "all":
+                logger.info("Fetched revids {}-{}.".format(min(fetched_revids), max(fetched_revids)))
 
         time2 = time.time()
         if counter > 0:
-            logger.info("Synchronization of the latest revisions content for {} pages took {:.2f} seconds.".format(counter, time2 - time1))
+            logger.info("Synchronization of {} revisions content for {} pages took {:.2f} seconds.".format(mode, counter, time2 - time1))
         else:
-            logger.info("Content of all latest revisions is already fetched.")
+            logger.info("The content of {} revisions is already fetched.".format(mode))

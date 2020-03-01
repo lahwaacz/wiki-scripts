@@ -620,6 +620,8 @@ if __name__ == "__main__":
             help="synchronize the SQL database with the remote wiki API (default: %(default)s)")
     argparser.add_argument("--no-sync", dest="sync", action="store_false",
             help="opposite of --sync")
+    argparser.add_argument("--content-sync-mode", choices=["latest", "all"], default="latest",
+            help="mode of revisions content synchronization")
     argparser.add_argument("--parser-cache", dest="parser_cache", action="store_true", default=False,
             help="update parser cache (default: %(default)s)")
     argparser.add_argument("--no-parser-cache", dest="parser_cache", action="store_false",
@@ -637,7 +639,7 @@ if __name__ == "__main__":
         require_login(api)
 
         db.sync_with_api(api)
-        db.sync_latest_revisions_content(api)
+        db.sync_revisions_content(api, mode=args.content_sync_mode)
 
         check_titles(api, db)
         check_specific_titles(api, db)

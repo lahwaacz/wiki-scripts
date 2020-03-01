@@ -143,16 +143,20 @@ class Database:
         """
         grabbers.synchronize(self, api, with_content=with_content)
 
-    def sync_latest_revisions_content(self, api):
+    def sync_revisions_content(self, api, *, mode="latest"):
         """
-        Sync the content of the latest revisions of all pages on the wiki.
+        Sync the revisions content with a remote MediaWiki instance.
 
         Note that the method :py:meth:`.sync_with_api` should be called prior to
         calling this method.
 
         :param ws.client.api.API api: interface to the remote MediaWiki instance
+        :param str mode: the mode of operation:
+                - `"latest"`: the content of the latest revisions of all pags on
+                  the wiki will be synchronized
+                - `"all"`: the content of all revisions will be synchronized
         """
-        grabbers.GrabberRevisions(api, self).sync_latest_revisions_content()
+        grabbers.GrabberRevisions(api, self).sync_revisions_content(mode=mode)
 
     def query(self, *args, **kwargs):
         """

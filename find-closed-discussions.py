@@ -6,7 +6,7 @@ from ws.utils.OrderedSet import OrderedSet
 
 def main(api, db):
     db.sync_with_api(api)
-    db.sync_latest_revisions_content(api)
+    db.sync_revisions_content(api, mode="latest")
     db.update_parser_cache()
 
     namespaces = ["1", "5", "11", "13", "15"]
