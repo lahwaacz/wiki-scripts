@@ -5,7 +5,6 @@ import time
 
 import sqlalchemy as sa
 
-import ws.utils
 from ws.utils import value_or_none
 
 from .GrabberBase import *
@@ -391,18 +390,17 @@ class GrabberRevisions(GrabberBase):
         # deleting an existing page, which creates an entry in the logging table. We
         # still need to query the API with prop=deletedrevisions to get even the
         # revisions that were created and deleted since the last sync.
-        for chunk in ws.utils.iter_chunks(deleted_pages, self.api.max_ids_per_query // 10):
-            params = {
-                "action": "query",
-                "titles": "|".join(chunk),
-                "prop": "deletedrevisions",
-                "drvprop": self.adr_params["adrprop"],
-                "drvlimit": "max",
-                "drvstart": since,
-                "drvdir": "newer",
-                "drvslots": "main",
-            }
-            result = self.api.call_api(params, expand_result=False)
+        params = {
+            "action": "query",
+            "titles": deleted_pages,
+            "prop": "deletedrevisions",
+            "drvprop": self.adr_params["adrprop"],
+            "drvlimit": "max",
+            "drvstart": since,
+            "drvdir": "newer",
+            "drvslots": "main",
+        }
+        for result in self.api.call_api_autoiter_ids(params, expand_result=False):
             # TODO: handle 'drvcontinue'
             if "drvcontinue" in result:
                 raise NotImplementedError("Handling of the 'drvcontinue' parameter is not implemented.")
@@ -415,21 +413,20 @@ class GrabberRevisions(GrabberBase):
                         new_revids.add(rev["revid"])
 
         # sync all revisions of imported pages
-        for chunk in ws.utils.iter_chunks(imported_pages, self.api.max_ids_per_query):
-            params = {
-                "action": "query",
-                "pageids": "|".join(str(i) for i in chunk),
-                "prop": "revisions|deletedrevisions",
-                "rvprop": self.arv_params["arvprop"],
-                "drvprop": self.adr_params["adrprop"],
-                "rvlimit": "max",
-                "drvlimit": "max",
-                "rvdir": "newer",
-                "drvdir": "newer",
-                "rvslots": "main",
-                "drvslots": "main",
-            }
-            result = self.api.call_api(params, expand_result=False)
+        params = {
+            "action": "query",
+            "pageids": imported_pages,
+            "prop": "revisions|deletedrevisions",
+            "rvprop": self.arv_params["arvprop"],
+            "drvprop": self.adr_params["adrprop"],
+            "rvlimit": "max",
+            "drvlimit": "max",
+            "rvdir": "newer",
+            "drvdir": "newer",
+            "rvslots": "main",
+            "drvslots": "main",
+        }
+        for result in self.api.call_api_autoiter_ids(params, expand_result=False):
             # TODO: handle 'rvcontinue' and 'drvcontinue'
             if "rvcontinue" in result or "drvcontinue" in result:
                 raise NotImplementedError("Handling of the 'rvcontinue' and 'drvcontinue' parameters is not implemented.")
@@ -519,22 +516,21 @@ class GrabberRevisions(GrabberBase):
                     ).where(rev.c.rev_text_id == None).order_by(rev.c.rev_id)
             conn = self.db.engine.connect()
             result = conn.execute(query)
-            return (r[0] for r in result)
+            return [r[0] for r in result]
 
         def gen():
             nonlocal counter
             # we need one instance per transaction
             self.text_id_gen = self._get_text_id_gen()
 
-            for chunk in ws.utils.iter_chunks(get_latest_revids(), self.api.max_ids_per_query):
-                params = {
-                    "action": "query",
-                    "revids": "|".join(str(i) for i in chunk),
-                    "prop": "revisions",
-                    "rvprop": "ids|content",
-                    "rvslots": "main",
-                }
-                result = self.api.call_api(params, expand_result=False)
+            params = {
+                "action": "query",
+                "revids": get_latest_revids(),
+                "prop": "revisions",
+                "rvprop": "ids|content",
+                "rvslots": "main",
+            }
+            for result in self.api.call_api_autoiter_ids(params, expand_result=False):
                 for page in result["query"]["pages"].values():
                     for rev in page["revisions"]:
                         text_id = next(self.text_id_gen)
