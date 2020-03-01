@@ -226,7 +226,7 @@ class Connection:
 
         return response
 
-    def call_api(self, params=None, expand_result=True, **kwargs):
+    def call_api(self, params=None, *, expand_result=True, check_warnings=True, **kwargs):
         """
         Convenient method to call the ``api.php`` entry point.
 
@@ -241,6 +241,9 @@ class Connection:
         :param expand_result:
             if ``True``, return only part of the response relevant to the given
             action, otherwise full response is returned
+        :param check_warnings:
+            if ``True``, the response is investigated and all API warnings are
+            output into the logger
         :param kwargs: API parameters passed as keyword arguments
         :returns: a dictionary containing (part of) the API response
         """
@@ -274,7 +277,9 @@ class Connection:
             for k in files:
                 del params[k]
             result = self.request("POST", self.api_url, data=params, files=files)
-        elif action in POST_ACTIONS:
+        # we also form-encode queries with titles, revids and pageids because the
+        # URL might be too long for GET, especially in case of titles
+        elif action in POST_ACTIONS or (action == "query" and {"titles", "revids", "pageids"} & set(params.keys())):
             # passing `params` to `data` will cause form-encoding to take place,
             # which is necessary when editing pages longer than 8000 characters
             result = self.request("POST", self.api_url, data=params)
@@ -291,7 +296,7 @@ class Connection:
         # see if there are errors/warnings
         if "error" in result:
             raise APIError(params, result["error"])
-        if "warnings" in result:
+        if check_warnings is True and "warnings" in result:
             msg = "API warning(s) for query {}:".format(params)
             for warning in result["warnings"].values():
                 msg += "\n* {}".format(warning["*"])

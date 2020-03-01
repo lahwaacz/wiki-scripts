@@ -3,7 +3,7 @@
 import hashlib
 import logging
 
-from ..utils import RateLimited, LazyProperty
+from ..utils import RateLimited, LazyProperty, dmerge
 
 from .connection import Connection, APIError
 from .site import Site
@@ -98,6 +98,8 @@ class API(Connection):
         ``pageids`` and ``revids`` parameters of the API. It is 500 for users
         with the ``apihighlimits`` right and 50 for others. These values
         correspond to the actual limits enforced by MediaWiki.
+
+        See also :py:meth:`API.call_api_autoiter_ids`.
         """
         return 500 if "apihighlimits" in self.user.rights else 50
 
@@ -180,6 +182,78 @@ class API(Connection):
         from ..parser_helpers.title import Context, Title
         return Title(Context.from_api(self), title)
 
+
+    def call_api_autoiter_ids(self, params=None, *, expand_result=True, **kwargs):
+        """
+        A wrapper method around :py:meth:`Connection.call_api` which
+        automatically splits the call into multiple queries due to
+        :py:attr:`API.max_ids_per_query`.
+
+        Note that this is applicable only to the ``titles``, ``pageids`` and
+        ``revids`` API parameters which have to be supplied as :py:type:`list`
+        or :py:type:`set` to this method. Exactly one of these parameters has
+        to be supplied.
+
+        The parameters have the same meaning as those in the
+        :py:meth:`Connection.call_api` method.
+
+        This method is a generator which yields the results of the call to the
+        :py:meth:`Connection.call_api` method for each chunk.
+        """
+        if params is None:
+            params = kwargs
+        elif not isinstance(params, dict):
+            raise ValueError("params must be dict or None")
+        elif kwargs and params:
+            # To let kwargs override params, we would have to create deep copy
+            # of params to avoid modifying the caller's data and then call
+            # utils.dmerge. Too complicated, not supported.
+            raise ValueError("specifying 'params' and 'kwargs' at the same time is not supported")
+
+        if "titles" in params:
+            iter_key = "titles"
+        elif "pageids" in params:
+            iter_key = "pageids"
+        elif "revids" in params:
+            iter_key = "revids"
+        else:
+            raise ValueError("neither of the parameters titles, pageids or revids is present")
+
+        iter_values = params[iter_key]
+        if not isinstance(iter_values, list) and not isinstance(iter_values, set):
+            raise TypeError("the value of the parameter '{}' must be either a list or a set".format(iter_key))
+
+        chunk_size = self.max_ids_per_query
+        while iter_values:
+            # take the next chunk
+            chunk = iter_values[:chunk_size]
+            # update params
+            params[iter_key] = "|".join(str(v) for v in chunk)
+            # call
+            chunk_result = self.call_api(params, expand_result=False, check_warnings=False)
+            # check for truncation warning
+            if "warnings" in chunk_result:
+                msg = "API warning(s) for query {}:".format(params)
+                truncated = False
+                for warning in chunk_result["warnings"].values():
+                    if "This result was truncated" in warning["*"] and chunk_size > 1:
+                        truncated = True
+                    msg += "\n* {}".format(warning["*"])
+                if truncated is True:
+                    # truncated result - decrease chunk size and try again
+                    chunk_size //= 2
+                    continue
+                logger.warning(msg)
+            # yield the chunk result
+            if expand_result is True:
+                action = params.get("action")
+                if action in chunk_result:
+                    yield chunk_result[action]
+                else:
+                    raise APIExpandResultFailed
+            yield chunk_result
+            # remove the processed values
+            iter_values = iter_values[chunk_size:]
 
     def query_continue(self, params=None, **kwargs):
         """
