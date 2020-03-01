@@ -45,7 +45,7 @@ def get_normalized_extlinks(wikicode):
     filtered_extlinks = []
     for el in extlinks:
         try:
-            # try parse the URL - fails e.g. if port is not a number
+            # try to parse the URL - fails e.g. if port is not a number
             # reference: https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#urllib3.util.parse_url
             url = urllib3.util.url.parse_url(str(el.url))
             # skip URLs with empty host, e.g. "http://" or "http://git@" or "http:///var/run"
