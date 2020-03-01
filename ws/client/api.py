@@ -225,6 +225,7 @@ class API(Connection):
 
         chunk_size = self.max_ids_per_query
         while iter_values:
+            logger.debug("call_api_autoiter_ids: current chunk size is {}".format(chunk_size))
             # take the next chunk
             chunk = iter_values[:chunk_size]
             # update params
@@ -244,6 +245,9 @@ class API(Connection):
                     chunk_size //= 2
                     continue
                 logger.warning(msg)
+            elif chunk_size < self.max_ids_per_query // 10:
+                # try to grow the chunk size if it dropped too much
+                chunk_size *= 4
             # yield the chunk result
             if expand_result is True:
                 action = params.get("action")
