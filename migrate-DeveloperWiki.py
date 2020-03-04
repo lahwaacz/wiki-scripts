@@ -69,6 +69,8 @@ if stage == 1:
                  movesubpages=False,
                  noredirect=True)
 
+        # TODO: flag the page with Template:Move
+
 elif stage == 2:
     # collect all DeveloperWiki pages and talk pages
     pages = []
@@ -81,7 +83,7 @@ elif stage == 2:
             pages.append(page["title"])
 
     for page in pages:
-        # uprotect the page (the whole "DeveloperWiki:" namespace will be protected)
+        # unprotect the page (the whole "DeveloperWiki:" namespace will be protected)
         api.call_with_csrftoken(action="protect",
                                 title=page,
                                 protections="edit=all|move=all",
@@ -97,6 +99,8 @@ elif stage == 2:
                  movetalk=False,
                  movesubpages=False,
                  noredirect=True)
+
+        # TODO: remove the Move flag if applicable
 
     for page in deleted_pages:
         if page in pages_to_archive:
