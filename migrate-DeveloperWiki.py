@@ -24,16 +24,7 @@ tmp_prefix = "Tmp:"
 deleted_pages = [
     "DeveloperWiki:DevopsMeetings/2019-01-02",
     "DeveloperWiki:DevopsMeetings/2019-10-9",
-    "DeveloperWiki:Dom0",
-    "DeveloperWiki:Gerolde (dev)",
-    "DeveloperWiki:Gudrun (web)",
     "DeveloperWiki:Policies",
-]
-# list of pages to archive after the migration
-pages_to_archive = [
-    "DeveloperWiki:Dom0",
-    "DeveloperWiki:Gerolde (dev)",
-    "DeveloperWiki:Gudrun (web)",
 ]
 
 if stage == 1:
@@ -102,17 +93,9 @@ elif stage == 2:
 
         # TODO: remove the Move flag if applicable
 
+    # redelete the previously deleted pages
     for page in deleted_pages:
-        if page in pages_to_archive:
-            # some previously deleted pages should be archived properly
-            api.call_with_csrftoken(action="edit",
-                                    title=page,
-                                    text="{{subst:AR}}",
-                                    summary="archive previously deleted page after the migration of DeveloperWiki pages; see [[ArchWiki talk:Maintenance Team#Namespace for developers' pages]] for details",
-                                    tags="wiki-scripts")
-        else:
-            # other previously deleted pages can be deleted again
-            api.call_with_csrftoken(action="delete",
-                                    title=page,
-                                    reason="delete previously deleted page after the migration of DeveloperWiki pages; see [[ArchWiki talk:Maintenance Team#Namespace for developers' pages]] for details",
-                                    tags="wiki-scripts")
+        api.call_with_csrftoken(action="delete",
+                                title=page,
+                                reason="delete previously deleted page after the migration of DeveloperWiki pages; see [[ArchWiki talk:Maintenance Team#Namespace for developers' pages]] for details",
+                                tags="wiki-scripts")
