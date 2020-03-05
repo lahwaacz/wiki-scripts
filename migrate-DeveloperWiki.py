@@ -60,8 +60,6 @@ if stage == 1:
                  movesubpages=False,
                  noredirect=True)
 
-        # TODO: flag the page with Template:Move
-
 elif stage == 2:
     # collect all DeveloperWiki pages and talk pages
     pages = []
@@ -90,8 +88,6 @@ elif stage == 2:
                  movetalk=False,
                  movesubpages=False,
                  noredirect=True)
-
-        # TODO: remove the Move flag if applicable
 
     # redelete the previously deleted pages
     for page in deleted_pages:
