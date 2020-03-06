@@ -222,6 +222,8 @@ class API(Connection):
         iter_values = params[iter_key]
         if not isinstance(iter_values, list) and not isinstance(iter_values, set):
             raise TypeError("the value of the parameter '{}' must be either a list or a set".format(iter_key))
+        # code below expects a list
+        iter_values = sorted(iter_values)
 
         chunk_size = self.max_ids_per_query
         while iter_values:
