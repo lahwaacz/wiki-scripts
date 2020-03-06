@@ -121,7 +121,7 @@ def parse_timestamps_in_struct(struct):
             if "timestamp" not in _strkeys and "registration" not in _strkeys and "expiry" not in _strkeys and "touched" not in _strkeys:
                 continue
 
-            if value.lower() == "infinity":
+            if value.lower() == "infinity" or value.lower() == "infinite":
                 set_ts(struct, keys, datetime.datetime.max)
             elif value.lower() == "-infinity":
                 set_ts(struct, keys, datetime.datetime.min)
