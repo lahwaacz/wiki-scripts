@@ -473,7 +473,7 @@ class API(Connection):
             logger.error("Failed to edit page [[{}]] due to APIError (code '{}': {})".format(title, e.server_response["code"], e.server_response["info"]))
             raise
 
-    @RateLimited(1, 10)
+    @RateLimited(1, 3)
     def create(self, title, text, summary, **kwargs):
         """
         Specialization of :py:meth:`edit` for creating pages. The ``createonly``
@@ -525,7 +525,7 @@ class API(Connection):
             logger.error("Failed to create page [[{}]] due to APIError (code '{}': {})".format(title, e.server_response["code"], e.server_response["info"]))
             raise
 
-    @RateLimited(1, 10)
+    @RateLimited(1, 3)
     def move(self, from_title, to_title, reason, *, movetalk=True, movesubpages=True, noredirect=False, **kwargs):
         """
         Interface to `API:Move`_. This method is rate-limited with the
