@@ -78,6 +78,10 @@ class GrabberLogging(GrabberBase):
         #   - Section anchor has to be included due to old log entries,
         #     apparently MediaWiki allowed ``#`` in user names at some point.
         log_title = title.format(iwprefix=True, namespace=False, sectionname=True)
+        # Hack for the introduction of a new namespace (if the namespace numbers
+        # don't match, use logevent["title"] verbatim).
+        if logevent["ns"] == 0 and title.namespacenumber != 0:
+            log_title = logevent["title"]
         # it's not an interwiki prefix -> capitalize first letter
         log_title = log_title[0].upper() + log_title[1:]
 
