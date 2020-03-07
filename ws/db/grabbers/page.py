@@ -337,12 +337,19 @@ class GrabberPages(GrabberBase):
                     "action": "query",
                     "titles": "|".join(chunk),
                 }
-                pages = list(self.api.call_api(params)["pages"].values())
+                result = self.api.call_api(params)
+                pages = list(result["pages"].values())
+
+                # build a title normalization mapping - we need to be able to
+                # map normalized titles to their original stored in rctitles
+                normalized = {}
+                for item in result.get("normalized", []):
+                    normalized[item["to"]] = item["from"]
 
                 # ordering of SQL inserts is important for moved pages, but MediaWiki does
                 # not return ordered results for the titles= parameter
                 keys = list(rctitles.keys())
-                pages.sort(key=lambda page: keys.index(page["title"]))
+                pages.sort(key=lambda page: keys.index(normalized.get(page["title"], page["title"])))
 
                 for page in pages:
                     # skip missing pages (we don't detect "move without leaving a redirect" until here)

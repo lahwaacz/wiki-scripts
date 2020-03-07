@@ -79,13 +79,19 @@ class GrabberRecentChanges(GrabberBase):
         if "suppressed" in rc:
             rc_deleted |= mwconst.DELETED_RESTRICTED
 
+        rc_title = title.dbtitle(rc["ns"])
+        # Hack for the introduction of a new namespace (if the namespace numbers
+        # don't match, use rc["title"] verbatim).
+        if rc["ns"] == 0 and title.namespacenumber != 0:
+            rc_title = rc["title"]
+
         db_entry = {
             "rc_id": rc["rcid"],
             "rc_timestamp": rc["timestamp"],
             "rc_user": rc.get("userid"),  # may be hidden due to rc_deleted
             "rc_user_text": rc["user"],  # may be hidden due to rc_deleted
             "rc_namespace": rc["ns"],
-            "rc_title": title.dbtitle(rc["ns"]),
+            "rc_title": rc_title,
             "rc_comment": rc["comment"],  # may be hidden due to rc_deleted
             "rc_minor": "minor" in rc,
             "rc_bot": "bot" in rc,
