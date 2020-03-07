@@ -24,6 +24,7 @@ class GrabberNamespaces(GrabberBase):
                         "ns_subpages":            ins_ns.excluded.ns_subpages,
                         "ns_nonincludable":       ins_ns.excluded.ns_nonincludable,
                         "ns_defaultcontentmodel": ins_ns.excluded.ns_defaultcontentmodel,
+                        "ns_protection":          ins_ns.excluded.ns_protection,
                     }),
             ("insert", "namespace_name"):
                 ins_nsn.on_conflict_do_update(
@@ -59,6 +60,7 @@ class GrabberNamespaces(GrabberBase):
                 "ns_nonincludable": "nonincludable" in ns,
                 # TODO: is this even available from the API?
                 "ns_defaultcontentmodel": None,
+                "ns_protection": ns.get("namespaceprotection"),
             }
             yield self.sql["insert", "namespace"], ns_entry
 

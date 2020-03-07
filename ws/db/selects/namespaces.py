@@ -23,6 +23,8 @@ def get_namespaces(db):
             ns["subpages"] = ""
         if row.ns_nonincludable:
             ns["nonincludable"] = ""
+        if row.ns_protection:
+            ns["namespaceprotection"] = row.ns_protection
         namespaces[row.ns_id] = ns
 
     result = conn.execute(nss_sel)

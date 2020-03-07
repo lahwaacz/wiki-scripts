@@ -67,7 +67,8 @@ def create_custom_tables(metadata):
         Column("ns_content", Boolean, nullable=False, server_default="0"),
         Column("ns_subpages", Boolean, nullable=False, server_default="0"),
         Column("ns_nonincludable", Boolean, nullable=False, server_default="0"),
-        Column("ns_defaultcontentmodel", UnicodeText)
+        Column("ns_defaultcontentmodel", UnicodeText),
+        Column("ns_protection", UnicodeText)
     )
 
     # table for all namespace names
