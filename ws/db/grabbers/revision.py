@@ -43,8 +43,11 @@ class GrabberRevisions(GrabberBase):
                 ins_archive.on_conflict_do_update(
                     index_elements=[db.archive.c.ar_rev_id],
                     set_={
-                        # this should be the only column that may change with an insert query
+                        # ar_text_id can change when the revision content is synchronized later
                         "ar_text_id": ins_archive.excluded.ar_text_id,
+                        # ar_namespace and ar_title can change when a new namespace is added and deleted pages migrated
+                        "ar_namespace": ins_archive.excluded.ar_namespace,
+                        "ar_title": ins_archive.excluded.ar_title,
                         # ar_parent_id was not visible via the API until about MW 1.33 (https://phabricator.wikimedia.org/T183376)
                         # so we may need to update old data
                         "ar_parent_id": ins_archive.excluded.ar_parent_id,
@@ -277,9 +280,6 @@ class GrabberRevisions(GrabberBase):
                 }
                 yield self.sql["insert", "tagged_archived_revision"], db_entry
 
-    # TODO: write custom insert and update methods, use discontinued API queries and wrap each chunk in a separate transaction
-    # TODO: generalize the above even for logging table
-
     def gen_insert(self):
         # we need one instance per transaction
         self.text_id_gen = self._get_text_id_gen()
@@ -396,7 +396,11 @@ class GrabberRevisions(GrabberBase):
             "prop": "deletedrevisions",
             "drvprop": self.adr_params["adrprop"],
             "drvlimit": "max",
-            "drvstart": since,
+            # NOTE: adrvstart is a useful optimization for the most common cases, but
+            #       it does not work when a page was undeleted and deleted again before
+            #       the synchronization (some fields can change even for older revisions,
+            #       e.g. when a new namespace is added in the meantime)
+#            "drvstart": since,
             "drvdir": "newer",
             "drvslots": "main",
         }
