@@ -226,8 +226,12 @@ def check_users(api, db):
     db_list = list(db.query(**params, auprop=auprop))
     api_list = list(api.list(**params, auprop="|".join(auprop)))
 
-    # skip the "Anynymous" dummy user residing in MediaWiki running on PostgreSQL
+    # skip the "Anonymous" dummy user residing in MediaWiki running on PostgreSQL
     api_list = [user for user in api_list if user["userid"] > 0]
+
+    # fix sorting due to potentially different locale
+    db_list.sort(key=lambda u: u["name"])
+    api_list.sort(key=lambda u: u["name"])
 
     # sort user groups - neither we or MediaWiki do that
     for user in chain(db_list, api_list):
