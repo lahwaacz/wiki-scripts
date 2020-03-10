@@ -4437,7 +4437,6 @@ cliofetion-hg
 clip2net
 clipandmerge
 clipit-git
-clipmenu-git
 clipodder
 clipodder-git
 clips-docs
@@ -11030,7 +11029,6 @@ gnome-fix
 gnome-flags
 gnome-flashback
 gnome-getting-started-docs
-gnome-getting-started-docs-git
 gnome-globalmenu
 gnome-globalmenu-git
 gnome-globalmenu-xfce4
@@ -11066,7 +11064,6 @@ gnome-modem-manager
 gnome-mount-notify-osd
 gnome-mplayer-gtk2
 gnome-mplayer-svn
-gnome-online-accounts-git
 gnome-online-miners
 gnome-online-miners-git
 gnome-osd
@@ -15154,7 +15151,6 @@ hpodder
 hpong
 hprotoc
 hpt-cli
-hptalx
 hpylos
 hq9plus
 hr-git
@@ -20395,7 +20391,6 @@ libreadopt-git
 libreadopt-hg
 libreadopt-svn
 librecad
-libredwg-git
 librelibrecell-git
 librem
 libreoffice-build
@@ -24011,7 +24006,6 @@ msgpack-git
 msgpack-git-neovim
 mshadow-git
 mshaper
-msktutil-git
 msmtp-git
 msmtp-nomta
 msmtp-pwpatched
@@ -27538,7 +27532,6 @@ perl-business-ismn
 perl-business-issn
 perl-cache-filecache
 perl-cache-memcached-libmemcached
-perl-cam-pdf
 perl-cassandra-simple
 perl-cassandra-simple-git
 perl-catalyst-component-accept_context
@@ -42656,7 +42649,6 @@ vim-r
 vim-r-plugin2
 vim-r_omni
 vim-rabl-git
-vim-racket-git
 vim-rainbow
 vim-rbenv-git
 vim-refactor
@@ -44104,7 +44096,6 @@ xcompmgr-dana
 xcompmgr_tint2-git
 xconq
 xcpu
-xcruiser
 xcrysden-bin
 xcsoar-git
 xcur2png
