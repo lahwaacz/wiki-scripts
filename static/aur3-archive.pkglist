@@ -10980,14 +10980,12 @@ gnome-baxc
 gnome-bluetooth-applet-git
 gnome-bluetooth-git
 gnome-boxes
-gnome-boxes-git
 gnome-build-svn
 gnome-builder
 gnome-buuf-deuce
 gnome-calculator
 gnome-calculator-gsoc2014
 gnome-calendar
-gnome-calendar-git
 gnome-carbonate-icon-theme
 gnome-characters
 gnome-chemistry-utils-devel
@@ -10996,7 +10994,6 @@ gnome-clock-screensaver
 gnome-clocks
 gnome-code-assistance-git
 gnome-color-chooser
-gnome-color-manager-git
 gnome-compiz-manager
 gnome-connection-manager
 gnome-control-center-dev
@@ -11020,7 +11017,6 @@ gnome-do-plugins-bzr
 gnome-do-plugins-lp
 gnome-doc-utils-git
 gnome-doc-utils-svn
-gnome-documents-git
 gnome-dvb-daemon
 gnome-encfs-lespez-hg
 gnome-exotic-theme
@@ -11079,7 +11075,6 @@ gnome-panel-noarrow
 gnome-panel-ubuntu
 gnome-password-generator
 gnome-photos
-gnome-photos-git
 gnome-pida
 gnome-pie
 gnome-plist-editor-git
@@ -11409,7 +11404,6 @@ gnome-themes-standard-git
 gnome-thumbnailer-geogebra
 gnome-tweak-tool-git
 gnome-typing-break-bzr
-gnome-user-docs-git
 gnome-vfs-libgcrypt
 gnome-vfs-no-hal
 gnome-video-arcade-git
@@ -11974,7 +11968,6 @@ griffon
 grilo
 grilo-git
 grilo-plugins
-grilo-plugins-git
 grimoire
 grisbi-beta
 grisbi-doc-fr
@@ -12667,10 +12660,8 @@ guzzle
 gv4l
 gvars3
 gvcall
-gvfs-git
 gvfs-lite
 gvfs-minimal
-gvfs-mtp-git
 gvfs-no-bluray
 gvfs-nosystemd-noudisks
 gvfs-obexftp-bluez4
@@ -16427,8 +16418,6 @@ isomd5sum
 isomd5sum-git
 isoplex-bin
 isotostick
-ispc-bin
-ispc-git
 ispcp-omega
 ispell-british
 ispell-czech
@@ -32188,7 +32177,6 @@ python2-pathtools
 python2-patsy
 python2-pattern
 python2-paycheck
-python2-pbkdf2
 python2-pbr
 python2-pbs
 python2-pca
@@ -36676,7 +36664,6 @@ rxvt-unicode-terminfo
 rxvt-unicode-unicode3
 rxvt-unicode-xres256
 rygel
-rygel-git
 rygel-systemd
 ryzom-client-latest-hg
 ryzom-client-official
@@ -37579,7 +37566,6 @@ sikuli-git
 sikuli-ide
 sila
 silentbob
-silentjack
 silicon-empire
 silicon-empire-git
 silk-icons
@@ -38930,16 +38916,11 @@ sudoku
 sudosh
 sugar-activity-contact
 sugar-activity-irc
-sugar-artwork-git
 sugar-artwork-unstable
 sugar-base-unstable
 sugar-browse-git
-sugar-datastore-git
 sugar-datastore-unstable
-sugar-git
 sugar-presence-service-unstable
-sugar-runner-git
-sugar-toolkit-gtk3-git
 sugar-toolkit-gtk3-unstable
 sugar-toolkit-unstable
 sugar-unstable
@@ -40344,7 +40325,6 @@ toshiba-pmfix-hg
 toshiba_acpi-modules-dkms
 toshset
 totalphase-usb-drivers
-totem-git
 totem-gst
 totem-mythtv
 totem-plugin-arte
