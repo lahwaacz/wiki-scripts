@@ -2810,7 +2810,6 @@ brother-cups-wrapper-extra
 brother-cups-wrapper-laser1
 brother-cups-wrapper-mfc-5890cn
 brother-dcp-153c
-brother-dcp110c
 brother-dcp110c-cupswrapper
 brother-dcp110c-lpr
 brother-dcp145c
@@ -4623,7 +4622,6 @@ cobxref-svn
 coccinella
 coccinella-bin
 cockatrice
-cocoalib
 cocom
 cocos2d
 cocos2d-x-2
@@ -15408,7 +15406,6 @@ ibus-git
 ibus-git-test
 ibus-git-ubuntu
 ibus-gjs-git
-ibus-googlepinyin
 ibus-googlepinyin-hg
 ibus-handwrite
 ibus-hangul-git
@@ -16954,7 +16951,6 @@ jsoftware-treemap-addon
 jsoftware-wikihtml-addon
 jsoftware-xml-addon
 json-c
-json-glib-git
 json-static
 json-tools
 json-voorhees
@@ -22991,7 +22987,6 @@ mingw-w64-pthreads
 mingw-w64-python-native
 mingw-w64-python2-native
 mingw-w64-python26-native
-mingw-w64-qrencode
 mingw-w64-qscintilla
 mingw-w64-qsint
 mingw-w64-qt
@@ -31602,7 +31597,6 @@ python2-cliff-rackspace
 python2-clouddns-git
 python2-cloudfiles
 python2-cloudfiles-git
-python2-cmd2
 python2-cocos2d
 python2-code-chat-git
 python2-codernitydb
@@ -32479,7 +32473,6 @@ python2-scruffy-git
 python2-seaborn
 python2-seaborn-git
 python2-sentry
-python2-setproctitle
 python2-setupdocs
 python2-setuptools
 python2-setuptools_git
