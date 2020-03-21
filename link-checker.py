@@ -676,6 +676,7 @@ class ManTemplateRules:
 
 class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
 
+    interactive_only_pages = ["ArchWiki:Sandbox"]
     skip_pages = ["Table of contents", "Help:Editing", "ArchWiki:Reports", "ArchWiki:Requests", "ArchWiki:Statistics"]
     # article status templates, lowercase
     skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
@@ -755,6 +756,9 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
         # FIXME: ideally "DeveloperWiki:" would be a proper namespace
         if lang.detect_language(src_title)[0] in self.skip_pages or src_title.startswith("DeveloperWiki:"):
             logger.info("Skipping blacklisted page [[{}]]".format(src_title))
+            return text, ""
+        if lang.detect_language(src_title)[0] in self.interactive_only_pages and self.interactive is False:
+            logger.info("Skipping page [[{}]] which is blacklisted for non-interactive mode".format(src_title))
             return text, ""
 
         logger.info("Parsing page [[{}]] ...".format(src_title))
