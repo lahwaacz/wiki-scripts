@@ -401,22 +401,25 @@ class PkgUpdater:
         # ensure that we are authenticated
         require_login(self.api)
 
-        for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", prop="revisions", rvprop="content|timestamp", rvslots="main"):
-            title = page["title"]
-            if title in self.blacklist_pages:
-                logger.info("skipping blacklisted page [[{}]]".format(title))
-                continue
-            timestamp = page["revisions"][0]["timestamp"]
-            text_old = page["revisions"][0]["slots"]["main"]["*"]
-            text_new = self.update_page(title, text_old)
-            if text_old != text_new:
-                try:
-                    if self.interactive:
-                        edit_interactive(self.api, title, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-                    else:
-                        self.api.edit(title, page["pageid"], text_new, timestamp, self.edit_summary, bot="")
-                except APIError:
-                    pass
+        namespaces = [0, 4, 14, 3000]
+        for ns in namespaces:
+            for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapnamespace=ns,
+                                           prop="revisions", rvprop="content|timestamp", rvslots="main"):
+                title = page["title"]
+                if title in self.blacklist_pages:
+                    logger.info("skipping blacklisted page [[{}]]".format(title))
+                    continue
+                timestamp = page["revisions"][0]["timestamp"]
+                text_old = page["revisions"][0]["slots"]["main"]["*"]
+                text_new = self.update_page(title, text_old)
+                if text_old != text_new:
+                    try:
+                        if self.interactive:
+                            edit_interactive(self.api, title, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+                        else:
+                            self.api.edit(title, page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+                    except APIError:
+                        pass
 
     def add_report_line(self, title, template, message):
         message = "<nowiki>{}</nowiki> ({})".format(template, message)
