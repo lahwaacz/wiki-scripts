@@ -2204,7 +2204,6 @@ biblatex-biber-git
 biblatex-historian
 biblatex-mla
 bible-runner
-bibleanalyzer
 bibledit-gtk
 bibletime
 biblioteq
@@ -8325,7 +8324,6 @@ expedite-svn
 expendable
 experiment-git
 experms
-explain
 exploitdb
 exploitdb-svn
 explore
@@ -16192,7 +16190,6 @@ inworldz-sse3-bin
 inx-icon-theme
 inx-icons-kde
 inyoka-edit
-inyokaedit
 inyokaedit-bzr
 io
 io-async
@@ -19152,7 +19149,6 @@ lib32-libdv
 lib32-libdvbpsi
 lib32-libeatmydata
 lib32-libepoxy
-lib32-libfaketime
 lib32-libflashsupport
 lib32-libflashsupport-jack
 lib32-libflashsupport-oss
@@ -19177,7 +19173,6 @@ lib32-libgusb
 lib32-libiconv
 lib32-libid3tag
 lib32-libidn
-lib32-libieee1284
 lib32-libimobiledevice
 lib32-libindicator
 lib32-libjpeg6
@@ -19326,7 +19321,6 @@ lib32-oxygen-gtk3
 lib32-oxygen-qt4
 lib32-p11-kit
 lib32-pam
-lib32-pcsclite
 lib32-pdcurses
 lib32-physfs-hg
 lib32-physx
@@ -19351,7 +19345,6 @@ lib32-qxorm
 lib32-rest
 lib32-rtmpdump-stable
 lib32-samba
-lib32-sane
 lib32-scim
 lib32-sdl-fullscreen-toggle
 lib32-sdl-joypatch
@@ -26712,7 +26705,6 @@ otf-source-code-pro-powerline
 otf-source-code-pro-powerline-git
 otf-source-sans-pro
 otf-sourcecodepro
-otf-symbola
 otf-titillium
 otf-triod-postnaja
 otf-ubuntu-mono-powerline-git
@@ -31760,7 +31752,6 @@ python2-epd-oss
 python2-epub-builder
 python2-epub-git
 python2-erlastic-git
-python2-espeak
 python2-espeak-bzr
 python2-ethumb
 python2-ethumb-git
@@ -31958,9 +31949,7 @@ python2-jieba
 python2-jieba-git
 python2-jq
 python2-jrpc
-python2-jsonpatch
 python2-jsonpickle
-python2-jsonpointer
 python2-jsonrpc-bzr
 python2-jsonrpc-git
 python2-jsonrpc-svn
@@ -34511,7 +34500,6 @@ rocksndiamonds-fedora
 rocrail-bzr
 rodentsrevenge
 rofi
-rofs-filtered
 rogg
 rogue
 roguestar-engine
@@ -44779,7 +44767,6 @@ xrr-events-git
 xrtti
 xruby
 xsact
-xsb
 xsbt
 xsbt-git
 xscrabble
