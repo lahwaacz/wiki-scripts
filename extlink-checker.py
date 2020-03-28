@@ -40,8 +40,8 @@ class ExtlinkStatusChecker:
 
         # valid URLs - 2xx
         self.cache_valid_urls = set()
-        # invalid URLs - 4xx
-        self.cache_invalid_urls = set()
+        # invalid URLs - 4xx, domain resolution errors, etc. - mapping of the URL to status text
+        self.cache_invalid_urls = {}
         # indeterminate - 3xx, 5xx
         self.cache_indeterminate_urls = set()
 
@@ -121,7 +121,20 @@ class ExtlinkStatusChecker:
         elif status is False:
             # TODO: handle bbs.archlinux.org (some links may require login)
             # TODO: handle links inside {{man|url=...}} properly
-            ensure_flagged_by_template(wikicode, extlink, "Dead link", *self.deadlink_params, overwrite_parameters=False)
+            # flag the link, but don't overwrite date and don't set status yet
+            flag = ensure_flagged_by_template(wikicode, extlink, "Dead link", *self.deadlink_params, overwrite_parameters=False)
+            # overwrite by default, but skip overwriting date when the status matches
+            overwrite = True
+            if flag.has("status"):
+                status = flag.get("status")
+                if str(status) == str(self.cache_invalid_urls[url]):
+                    overwrite = False
+            if overwrite is True:
+                # overwrite status as well as date
+                flag.add("status", self.cache_invalid_urls[url], showkey=True)
+                flag.add("1", self.deadlink_params[0], showkey=False)
+                flag.add("2", self.deadlink_params[1], showkey=False)
+                flag.add("3", self.deadlink_params[2], showkey=False)
         else:
             # TODO: ask the user for manual check (good/bad/skip) and move the URL from self.cache_indeterminate_urls to self.cache_valid_urls or self.cache_invalid_urls
             logger.warning("status check indeterminate for external link {}".format(extlink))
@@ -142,19 +155,19 @@ class ExtlinkStatusChecker:
         # SSLError inherits from ConnectionError so it has to be checked first
         except requests.exceptions.SSLError as e:
             logger.error("SSLError ({}) for URL {}".format(e, url))
-            self.cache_invalid_urls.add(url)
+            self.cache_invalid_urls[url] = "SSL error"
             return False
         except requests.exceptions.ConnectionError as e:
             # TODO: how to handle DNS errors properly?
             if "name or service not known" in str(e).lower():
                 logger.error("domain name could not be resolved for URL {}".format(url))
-                self.cache_invalid_urls.add(url)
+                self.cache_invalid_urls[url] = "domain name not resolved"
                 return False
             # other connection error - indeterminate, do not cache
             return None
         except requests.exceptions.TooManyRedirects as e:
             logger.error("TooManyRedirects error ({}) for URL {}".format(e, url))
-            self.cache_invalid_urls.add(url)
+            self.cache_invalid_urls[url] = "too many redirects"
             return False
         except requests.exceptions.RequestException as e:
             # base class exception - indeterminate error, do not cache
@@ -166,7 +179,7 @@ class ExtlinkStatusChecker:
             return True
         elif response.status_code >= 400 and response.status_code < 500:
             logger.error("status code {} for URL {}".format(response.status_code, url))
-            self.cache_invalid_urls.add(url)
+            self.cache_invalid_urls[url] = response.status_code
             return False
         else:
             logger.warning("status code {} for URL {}".format(response.status_code, url))
