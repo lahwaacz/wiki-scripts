@@ -17,7 +17,6 @@ import requests.packages.urllib3 as urllib3
 import mwparserfromhell
 
 from ws.client import API, APIError
-from ws.db.database import Database
 from ws.interactive import edit_interactive, require_login, InteractiveQuit
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.wikicode import get_parent_wikicode, ensure_flagged_by_template, ensure_unflagged_by_template
@@ -188,7 +187,7 @@ class ExtlinkStatusChecker:
 
 
 class Checker(ExtlinkStatusChecker):
-    def __init__(self, api, db, first=None, title=None, langnames=None, connection_timeout=60, max_retries=3):
+    def __init__(self, api, first=None, title=None, langnames=None, connection_timeout=60, max_retries=3):
         # init inherited
         ExtlinkStatusChecker.__init__(self, connection_timeout, max_retries)
 
@@ -196,16 +195,11 @@ class Checker(ExtlinkStatusChecker):
         require_login(api)
 
         self.api = api
-        self.db = db
 
         # parameters for self.run()
         self.first = first
         self.title = title
         self.langnames = langnames
-
-        self.db.sync_with_api(api)
-        self.db.sync_revisions_content(api, mode="latest")
-        self.db.update_parser_cache()
 
     @staticmethod
     def set_argparser(argparser):
@@ -213,8 +207,6 @@ class Checker(ExtlinkStatusChecker):
         present_groups = [group.title for group in argparser._action_groups]
         if "Connection parameters" not in present_groups:
             API.set_argparser(argparser)
-        if "Database parameters" not in present_groups:
-            Database.set_argparser(argparser)
 
         group = argparser.add_argument_group(title="script parameters")
         mode = group.add_mutually_exclusive_group()
@@ -226,11 +218,9 @@ class Checker(ExtlinkStatusChecker):
                 help="comma-separated list of language tags to process (default: en, choices: {})".format(lang.get_internal_tags()))
 
     @classmethod
-    def from_argparser(klass, args, api=None, db=None):
+    def from_argparser(klass, args, api=None):
         if api is None:
             api = API.from_argparser(args)
-        if db is None:
-            db = Database.from_argparser(args)
         if args.lang:
             tags = args.lang.split(",")
             for tag in tags:
@@ -240,7 +230,7 @@ class Checker(ExtlinkStatusChecker):
             langnames = {lang.langname_for_tag(tag) for tag in tags}
         else:
             langnames = set()
-        return klass(api, db, first=args.first, title=args.title, langnames=langnames, connection_timeout=args.connection_timeout, max_retries=args.connection_max_retries)
+        return klass(api, first=args.first, title=args.title, langnames=langnames, connection_timeout=args.connection_timeout, max_retries=args.connection_max_retries)
 
     async def update_page(self, src_title, text):
         """
@@ -311,14 +301,14 @@ class Checker(ExtlinkStatusChecker):
             apfrom = _title.pagename
 
         for ns in namespaces:
-            for page in self.db.query(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom,
-                                      prop="latestrevisions", rvprop={"timestamp", "content"}):
+            for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom,
+                                           prop="revisions", rvprop="content|timestamp", rvslots="main"):
                 title = page["title"]
                 if langnames and lang.detect_language(title)[1] not in langnames:
                     continue
                 _title = self.api.Title(title)
                 timestamp = page["revisions"][0]["timestamp"]
-                text_old = page["revisions"][0]["*"]
+                text_old = page["revisions"][0]["slots"]["main"]["*"]
                 text_new, edit_summary = asyncio.run(self.update_page(title, text_old))
                 self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
             # the apfrom parameter is valid only for the first namespace
