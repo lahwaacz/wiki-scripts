@@ -125,7 +125,7 @@ class ExtlinkStatusChecker:
             # overwrite by default, but skip overwriting date when the status matches
             overwrite = True
             if flag.has("status"):
-                status = flag.get("status")
+                status = flag.get("status").value
                 if str(status) == str(self.cache_invalid_urls[url]):
                     overwrite = False
             if overwrite is True:
