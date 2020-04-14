@@ -1892,7 +1892,6 @@ bamf-daemon
 bamf2
 bananalbum
 bandit
-bandwidthd
 bandwidthd-std
 bangarang
 bangarang-bin
@@ -10387,7 +10386,6 @@ gestures-kde-git
 get-cover
 getcaledonia
 getcurpos
-getdp
 getez
 getleft
 getmail-xoauth-git
@@ -11685,7 +11683,6 @@ golems-linux
 golismero
 golismero-fingerprinter
 gollage
-gollum
 golpy
 gom
 gom-git
@@ -12990,7 +12987,6 @@ haskell-blaze-builder-conduit
 haskell-blaze-builder-enumerator
 haskell-blaze-html
 haskell-blaze-markup
-haskell-blaze-svg
 haskell-blaze-textual
 haskell-blaze-textual-native
 haskell-blocking-transactions
@@ -13000,7 +12996,6 @@ haskell-blueprintcss
 haskell-bmp
 haskell-bnfc-git
 haskell-bool-extras
-haskell-boolean
 haskell-boundedchan
 haskell-boxes
 haskell-bpann
@@ -14076,7 +14071,6 @@ haskell-numerals
 haskell-numeric-extras
 haskell-numeric-prelude
 haskell-numeric-quest
-haskell-numinstances
 haskell-numlazybytestring
 haskell-numtype
 haskell-obdd
@@ -14439,7 +14433,6 @@ haskell-stm-io-hooks
 haskell-stmcontrol
 haskell-stmonadtrans
 haskell-storable
-haskell-storable-endian
 haskell-storable-record
 haskell-storable-tuple
 haskell-storablevector
@@ -14644,7 +14637,6 @@ haskell-vector-algorithms
 haskell-vector-binary-instances
 haskell-vector-instances
 haskell-vector-random
-haskell-vector-space
 haskell-vector-space-points
 haskell-vhdl
 haskell-visual-graphrewrite
@@ -15319,7 +15311,6 @@ hyperspec
 hypertable
 hyphen-en-base
 hyphen-nn
-hyphen-uk
 hyro
 i-librarian
 i-nex-bzr
@@ -15952,7 +15943,6 @@ immutant
 impacket
 impacket-svn
 impact
-implicitcad
 improviser
 imprudence-beta-bin
 imprudence-bin
@@ -22458,8 +22448,6 @@ mdtwm
 mdxplay
 mdz
 mdz-git
-me-tv
-me-tv-git
 me-tv2-bzr
 meanwhile-cvs
 meapsoft
@@ -30022,7 +30010,6 @@ pyloris
 pylotro
 pylouie
 pylzma
-pymacs-git
 pymagellan
 pymaxe
 pymazon
@@ -30339,7 +30326,6 @@ python-blinker
 python-blist
 python-blist-git
 python-blosc
-python-bls
 python-boomslang
 python-botocore
 python-bottle
@@ -32106,10 +32092,8 @@ python2-numba-git
 python2-numdisplay
 python2-numeric
 python2-numericalpython
-python2-numexpr
 python2-numpy-atlas
 python2-numpy-oldnumeric-hack
-python2-oauth2client
 python2-oauthlib
 python2-objectlistview
 python2-observer
@@ -32349,7 +32333,6 @@ python2-pysvg-svn
 python2-pyswf
 python2-pyswip
 python2-pysystemd-daemon-git
-python2-pytables
 python2-pytables-git
 python2-pytagcloud
 python2-pyte
@@ -32406,7 +32389,6 @@ python2-reimport
 python2-relaxml
 python2-remix
 python2-repoze-lru
-python2-repoze.lru
 python2-repoze.profile
 python2-repoze.tm2
 python2-repoze.who
@@ -32440,7 +32422,6 @@ python2-rospkg-git
 python2-routes
 python2-rpy2
 python2-rpy2-svn
-python2-rsa
 python2-rtjp_eventlet
 python2-rtmapi
 python2-rtmapi-hg
@@ -32664,7 +32645,6 @@ python2-webassets-0.10
 python2-webiopi
 python2-webob
 python2-webob-havana
-python2-websocket-client
 python2-websocket-client-git
 python2-webtest
 python2-wheezy-template
@@ -32712,7 +32692,6 @@ python2-yarp
 python2-yasal
 python2-yowsup-git
 python2-zanshin
-python2-zbar
 python2-zc-zookeeper-static
 python2-zibopt
 python2-zipline-git
@@ -33683,7 +33662,6 @@ qvfb
 qviaggiatreno
 qvideoconverter
 qvision
-qweechat-git
 qwertickle
 qwired
 qwired-svn
@@ -33719,7 +33697,6 @@ r-annotate
 r-annotationdbi
 r-beta
 r-cairodevice
-r-car
 r-colorbrewer
 r-compositions
 r-cran-car
@@ -33774,12 +33751,10 @@ r-javagd
 r-jgr
 r-ks
 r-mathlib
-r-multcomp
 r-mvoutlier
 r-mysql
 r-patched
 r-pcapp
-r-plotrix
 r-project
 r-proto
 r-r_matlab
@@ -35553,7 +35528,6 @@ rtl8723e
 rtl8723e-w110er
 rtl8812au-dkms
 rtl8812au-git-dkms
-rtlamr-git
 rtm-google-plasmoid
 rtmpdump-ksv
 rtmpdump-replay
@@ -39734,7 +39708,6 @@ terminal-screensaver
 terminal-urgency
 terminalhero-git
 terminator-dropdown-bzr
-terminator-git
 terminatorx
 terminess-powerline-font
 terminibbles
@@ -40859,7 +40832,6 @@ ttf-microsoft-yahei
 ttf-microsoft-youyuan
 ttf-mintspirit
 ttf-misaka
-ttf-misaki
 ttf-miso
 ttf-mitimasu
 ttf-mobo
@@ -45010,7 +44982,6 @@ ydcv
 ydpdict-plasmoid
 yeahconsole+yoffset-patch
 yedit
-yeganesh
 yeganesh-patched
 yencode
 yetihack-git
@@ -45406,7 +45377,6 @@ zsh-virtualbox
 zsh-xrandr-completion
 zsh-yaourt
 zsh-yaourt-hg
-zsh-z-git
 zsi
 zsnes-1-42
 zsnes-libao
