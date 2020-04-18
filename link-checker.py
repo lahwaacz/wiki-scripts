@@ -753,6 +753,9 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
         :returns: a (text, edit_summary) tuple, where text is the updated content
             and edit_summary is the description of performed changes
         """
+        if lang.detect_language(src_title)[0] in self.skip_pages:
+            logger.info("Skipping blacklisted page [[{}]]".format(src_title))
+            return text, ""
         if lang.detect_language(src_title)[0] in self.interactive_only_pages and self.interactive is False:
             logger.info("Skipping page [[{}]] which is blacklisted for non-interactive mode".format(src_title))
             return text, ""
