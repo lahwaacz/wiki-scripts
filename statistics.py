@@ -203,6 +203,7 @@ divided by the number of days between the user's first and last edits.
         "sysop": lambda groups: "",
         "cosysop": lambda groups: "",
         "bot": lambda groups: "[[ArchWiki:Bots|Bot]]",
+        "privileged": lambda groups: "",
 
         # User roles
         "maintainer": lambda groups: 'sysop' in groups and "[[ArchWiki:Administrators|Administrator]]" or "[[ArchWiki:Maintainers|Maintainer]]",
