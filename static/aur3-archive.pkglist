@@ -6730,7 +6730,6 @@ drbd
 drbd-userland
 drbl
 drcom-client
-dream
 dream-strobe
 dream-svn
 dreamass-git
@@ -19640,7 +19639,6 @@ libdispatch-svn
 libdivecomputer
 libdjbfft
 libdjconsole
-libdlibxx
 libdlo
 libdnsres
 libdojson-git
@@ -26845,7 +26843,6 @@ packetgarden
 packeth
 packetstorm
 packgraph
-packit
 packrat
 packrat-git
 pacls-git
@@ -28858,7 +28855,6 @@ plasma-konsolator-svn
 plasma-lastmoid
 plasma-luna2-plasmoid
 plasma-media-center-git
-plasma-mediacenter
 plasma-menu-bar
 plasma-message-indicator
 plasma-miniplayer-plasmoid
@@ -30404,7 +30400,6 @@ python-concurrence
 python-configglue
 python-confiture
 python-confu
-python-constraint
 python-construct
 python-coords
 python-corba
@@ -42327,7 +42322,6 @@ vim-dragvisuals-git
 vim-dual
 vim-dutyl
 vim-dutyl-git
-vim-easy-align-git
 vim-easybuffer-git
 vim-easydir-git
 vim-easyhtml
