@@ -3533,7 +3533,6 @@ celestia-planettours-enhanced-en
 cellout
 cellout-git
 cellsdk
-cellwriter
 celt-0.7
 celt0.11.1
 celt0.5.1
@@ -6160,7 +6159,6 @@ dino-font
 dino-run-se
 dio
 diogenes
-dirac
 dirac-codec
 dirac-git
 dirac-le
@@ -7192,7 +7190,6 @@ easypaint-git
 easyrpg-readers-git
 easyrpg-testgame-git
 easyssp
-easystroke
 easystroke-fixed-prefdb
 easystroke-mt
 easytag-resopt
@@ -7254,7 +7251,6 @@ eclipse-clp-x86_64
 eclipse-codecover
 eclipse-color-theme
 eclipse-coloreditor-plugin
-eclipse-cpp
 eclipse-cpw-plugin
 eclipse-current-maint
 eclipse-darkjuno
@@ -7284,9 +7280,7 @@ eclipse-icc
 eclipse-indigo
 eclipse-instasearch
 eclipse-integration
-eclipse-java
 eclipse-java-future
-eclipse-jee
 eclipse-jee-birt
 eclipse-jee-stand
 eclipse-jigloo
@@ -7315,7 +7309,6 @@ eclipse-p4
 eclipse-paho-git
 eclipse-pdt-all-in-one
 eclipse-pdt-debugger
-eclipse-php
 eclipse-platform-indigo
 eclipse-platform38
 eclipse-pleiades
@@ -12772,7 +12765,6 @@ haim
 haiq-svn
 hal-cups-utils
 hal-easy
-hal-git
 halcon
 hale
 halevt
@@ -19419,7 +19411,6 @@ libantlr3c
 libao-svn
 libapp-git
 libappindicator
-libappindicator-bzr
 libappindicator1
 libappindicator3
 libapreq2
@@ -21467,7 +21458,6 @@ lttv
 ltx
 lua-alien
 lua-alt-getopt
-lua-ansicolors
 lua-anyhub
 lua-anyhub-git
 lua-archive
@@ -21485,7 +21475,6 @@ lua-datadumper
 lua-datafilter
 lua-de-git
 lua-debug
-lua-discount
 lua-eigen
 lua-epnf
 lua-eris
@@ -25555,7 +25544,6 @@ objcdoc
 object-icon
 objfw
 objfw-docs-hg
-objfw-git
 objfw-hg
 objobf
 objopenssl-git
@@ -25764,7 +25752,6 @@ octplot
 oculus-wine-wrapper
 oculus-wine-wrapper-bin
 odamex-svn
-ode
 ode-compat
 ode-dp
 ode-r
@@ -28712,7 +28699,6 @@ pino
 pino-twitter-hg
 pino3-hg
 pinot-svn
-pinta
 pinyin-completion-git
 pion-net
 pipcalc
@@ -29451,7 +29437,6 @@ probcons
 procboss
 procenv
 process-getopt
-processing
 processing-beta
 processing-pre
 procmeter3
@@ -33424,7 +33409,6 @@ qtsingleapplication
 qtsixa
 qtsixa-gasia
 qtsozluk
-qtspim
 qtstalker-cvs
 qtstalker-qt4
 qtsvg-git
@@ -37864,7 +37848,6 @@ smarbs
 smarbs-svn
 smart
 smart-bzr
-smartcam
 smartcardpp-svn
 smartcoin-daemon
 smartcoin-qt
@@ -40147,7 +40130,6 @@ tmpfs-store
 tmpfs-sync
 tmpfs-varlog
 tmsnc
-tmsu-bin
 tmux-256color-it
 tmux-applets-git
 tmux-cvs
@@ -41081,8 +41063,6 @@ tuxkart
 tuxload
 tuxnes
 tuxonice-sources
-tuxpaint-config
-tuxpaint-stamps
 tuxrip
 tuxsaver
 tuxsaver-1.0-pkgbuild
