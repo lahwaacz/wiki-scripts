@@ -100,12 +100,12 @@ class Downloader:
             # unzip the list of tuples
             titles, pageids, fnames = zip(*snippet)
             print("  [downloading]   '{}' ... '{}'".format(titles[0], titles[-1]))
-            result = api.call_api(action="query", pageids="|".join(str(pid) for pid in pageids), prop="revisions", rvprop="content")
+            result = api.call_api(action="query", pageids="|".join(str(pid) for pid in pageids), prop="revisions", rvprop="content", rvslots="main")
 
             for page in result["pages"].values():
                 pageid = page["pageid"]
                 fname = fnames[pageids.index(pageid)]
-                text = page["revisions"][0]["*"]
+                text = page["revisions"][0]["slots"]["main"]["*"]
 
                 # ensure that target directory exists (necessary for subpages)
                 try:
