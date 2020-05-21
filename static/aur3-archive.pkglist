@@ -1204,7 +1204,6 @@ ark-frameworks-git
 arkadas-svn
 arkanoid
 arkanoidsb
-arm
 arm-2007q1-arm-none-linux-gnueabi
 arm-2009q1
 arm-2010-arm-none-eabi
@@ -8489,7 +8488,6 @@ fastboot
 fastboot-git
 fastboot-os
 fastbreeder
-fastcgi++
 fastcgiqt-git
 fastcoin-qt
 faster-init
@@ -10217,7 +10215,6 @@ gedit-euphoria
 gedit-flake8-git
 gedit-haml
 gedit-imitation-plugin
-gedit-latex-git
 gedit-latex-plugin
 gedit-macro-plugin
 gedit-macropy-git
@@ -11133,7 +11130,6 @@ gnome-shell-extension-gmail-notify
 gnome-shell-extension-gnome2-notifications-git
 gnome-shell-extension-gnote
 gnome-shell-extension-gtg-git
-gnome-shell-extension-hibernate-status
 gnome-shell-extension-hide-app-icon
 gnome-shell-extension-hide-dash-git
 gnome-shell-extension-hide-titlebar
@@ -11357,7 +11353,6 @@ gnome-terminal-darth-edition
 gnome-terminal-git-mys
 gnome-terminal-gtk2
 gnome-terminal-transparent
-gnome-terminal-urgent-hint
 gnome-terminal36
 gnome-theme-adwaita
 gnome-theme-airlines
@@ -18122,7 +18117,6 @@ kiso
 kissfft
 kit
 kitchensync
-kite
 kitemmodels
 kitemviews
 kitsh
@@ -20623,7 +20617,6 @@ libumberlog-git
 libumd
 libump
 libunicapgtk
-libunicodenames
 libunihan
 libuninum
 libunique3-git
@@ -21162,7 +21155,6 @@ lirc-utils-oss
 lirc-wpc8769l
 lirc-xmms-plugin
 lirc-zotac-git
-lis
 lisaac
 lisaem
 lisalo-git
@@ -25028,7 +25020,6 @@ nodejs-git-run-git
 nodejs-gittio
 nodejs-gittorrent
 nodejs-gorillascript
-nodejs-grunt-cli
 nodejs-grunt-egs
 nodejs-grunt-gorilla
 nodejs-gulp
@@ -27908,7 +27899,6 @@ perl-net-traceroute-pureperl
 perl-net-whois-ip
 perl-number-bytes-human
 perl-number-compare
-perl-number-range
 perl-object-accessor
 perl-object-quick
 perl-object-simple
@@ -31933,7 +31923,6 @@ python2-keystoneclient-deb
 python2-keystoneclient-git
 python2-khayyam
 python2-kivy
-python2-kiwisolver
 python2-kmod-git
 python2-kombu
 python2-konch
@@ -32086,7 +32075,6 @@ python2-okasha-git
 python2-olefileio
 python2-openelectrons-i2c
 python2-openelectrons-imubreakout
-python2-openid
 python2-openmdao
 python2-openopt-svn
 python2-opensearch
@@ -32503,7 +32491,6 @@ python2-storm-git
 python2-stratum
 python2-stringtemplate
 python2-stripe
-python2-subprocess32
 python2-suds
 python2-sumatra
 python2-sumatra-git
@@ -33876,7 +33863,6 @@ rasmol
 raspberry-gpio-python
 raspbootin-git
 raspi-off-button
-raspicam
 raspicommrs485
 raspyplayer
 raspyplayer-git
@@ -37467,7 +37453,6 @@ sidplay-residfp-alsa
 sidplay-residfp-libs
 sidplay-residfp-pulse
 sidplay2
-sidreloc
 sidu
 siefs
 siemens-screenshot-tool
@@ -37793,7 +37778,6 @@ slingshot-bzr
 slipstream
 slipstream-data
 slipstream-mod-manager-git
-slirp
 slisp
 slk
 slmenu-hg
@@ -42145,7 +42129,6 @@ vim-alternate-git
 vim-altr
 vim-ansible-yaml-git
 vim-ansicolors-git
-vim-ansiesc
 vim-ant_menu
 vim-arduino-snippets
 vim-arduino-syntax
@@ -42901,7 +42884,6 @@ vlcstreamer
 vlevel
 vlfeat-docs
 vlmc
-vlmcsd
 vlock-cmatrixreloaded
 vloopback
 vloopback-svn
@@ -43249,7 +43231,6 @@ websitebaker
 websocketpp
 webtocon-git
 webtvorange
-webvfx
 webvfx-qt5
 webvideo
 wecase-git
