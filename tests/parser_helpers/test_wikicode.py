@@ -257,6 +257,17 @@ class test_get_anchors:
         result = get_anchors(get_section_headings(snippet))
         assert result == expected
 
+    def test_casing(self):
+        snippet = """
+=== foo bar ===
+=== Foo Bar ===
+=== Foo bar ===
+=== foo Bar ===
+"""
+        expected = ["foo_bar", "Foo_Bar_2", "Foo_bar_3", "foo_Bar_4"]
+        result = get_anchors(get_section_headings(snippet))
+        assert result == expected
+
     def test_strip(self):
         snippet = """
 == Section with ''wikicode'' ==

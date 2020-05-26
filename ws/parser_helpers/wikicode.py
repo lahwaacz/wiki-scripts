@@ -171,7 +171,8 @@ def get_anchors(headings, pretty=False, suffix_sep="_"):
     # handle equivalent headings duplicated on the page
     for i, anchor in enumerate(anchors):
         j = 2
-        while anchor in anchors[:i]:
+        # this check should be case-insensitive, see https://wiki.archlinux.org/index.php/User:Lahwaacz/Notes#Section_anchors
+        while anchor.lower() in [a.lower() for a in anchors[:i]]:
             anchor = anchors[i] + suffix_sep + "{}".format(j)
             j += 1
         # update the main array
