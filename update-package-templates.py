@@ -68,7 +68,6 @@ class PkgFinder:
 
         self.aurpkgs = None
         self.pacdb = self.pacdb_init(PACCONF, os.path.join(self.tmpdir, "pacdbpath"), arch="x86_64")
-        self.aur_archived_pkgs = None
 
     def pacdb_init(self, config, dbpath, arch):
         os.makedirs(dbpath, exist_ok=True)
@@ -84,17 +83,6 @@ class PkgFinder:
         response = requests.get(aurpkgs_url, verify=self.ssl_verify)
         response.raise_for_status()
         self.aurpkgs = set(line for line in response.text.splitlines() if not line.startswith("#"))
-
-        self.aur_archived_pkgs = set(open("./static/aur3-archive.pkglist").read().split())
-        self.aur_archived_pkgs -= self.aurpkgs
-        try:
-            # gradually remove packages that were ever found in AUR4
-            # (if removed again, it's for a good reason, so we should not mark
-            # it as "archived in aur-mirror")
-            with open("./static/aur3-archive.pkglist", "w") as f:
-                f.write("\n".join(sorted(self.aur_archived_pkgs)))
-        except OSError:
-            pass
 
     # sync databases like pacman -Sy
     def pacdb_refresh(self, pacdb, force=False):
@@ -151,12 +139,6 @@ class PkgFinder:
         # all packages in AUR are strictly lowercase, but queries both via web (links) and helpers are case-insensitive
         pkgname = pkgname.lower()
         return pkgname in self.aurpkgs
-
-    # check that given package exists in AUR3 archive (aur-mirror.git)
-    def find_aur3_archive(self, pkgname):
-        # all packages in AUR are strictly lowercase, but queries both via web (links) and helpers are case-insensitive
-        pkgname = pkgname.lower()
-        return pkgname in self.aur_archived_pkgs
 
     # try to find a package that has given pkgname in its `replaces` array
     def find_replaces(self, pkgname, exact=True):
@@ -333,10 +315,6 @@ class PkgUpdater:
         replacedby = self.finder.find_replaces(pkgname, exact=False)
         if replacedby:
             return "replaced by {{Pkg|%s}}" % replacedby.name
-
-        # check AUR3 archive (aur-mirror.git)
-        if self.finder.find_aur3_archive(pkgname):
-            return "{{%s|%s}}" % (self._localized_template("aur-mirror", lang), pkgname.lower())
 
         return "package not found"
 
