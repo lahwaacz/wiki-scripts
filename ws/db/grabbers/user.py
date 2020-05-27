@@ -36,6 +36,9 @@ class GrabberUsers(GrabberBase):
                         "user_registration": ins_user.excluded.user_registration,
                         "user_editcount":    ins_user.excluded.user_editcount,
                     }),
+            ("update", "user"):
+                db.user.update() \
+                    .where(db.user.c.user_name == sa.bindparam("b_olduser")),
             ("insert", "user_groups"):
                 ins_user_groups.on_conflict_do_nothing(),
             ("delete", "user_groups"):
@@ -122,40 +125,19 @@ class GrabberUsers(GrabberBase):
 
 
     def gen_update(self, since):
-        rcusers = self.get_rcusers(since)
-        if rcusers:
-            for chunk in ws.utils.iter_chunks(rcusers, self.api.max_ids_per_query):
-                list_params = {
-                    "list": "users",
-                    "ususers": "|".join(chunk),
-                    # "groups" is needed just to catch autoconfirmed
-                    "usprop": "groups|groupmemberships|editcount|registration",
-                }
-                for user in self.api.list(list_params):
-                    yield from self.gen_inserts_from_user(user)
-                    yield from self.gen_deletes_from_user(user)
-
-        # delete expired group memberships
-        yield self.db.user_groups.delete().where(
-                        self.db.user_groups.c.ug_expiry < datetime.datetime.utcnow()
-                    )
-
-
-    def get_rcusers(self, since):
-        """
-        Find users whose properties may have changed since the last update.
-
-        :param datetime.datetime since: timestamp of the last update
-        :returns: a set of user names
-        """
-        rcusers = set()
-
         # Items in the recentchanges table are periodically purged according to
         # http://www.mediawiki.org/wiki/Manual:$wgRCMaxAge
         # By default the max age is 90 days: if a larger timespan is requested
         # here, it's very important to warn that the changes are not available
         if selects.oldest_rc_timestamp(self.db) > since:
             raise ShortRecentChangesError()
+
+        # users whose properties may have changed since the last update
+        rcusers = set()
+        # mapping of renamed users
+        # (we rely on dict keeping the insertion order, this is a Python 3.7
+        # feature: https://stackoverflow.com/a/39980744 )
+        renamed_users = {}
 
         rc_params = {
             "list": "recentchanges",
@@ -177,5 +159,32 @@ class GrabberUsers(GrabberBase):
                 # extract target user name
                 username = change["title"].split(":", maxsplit=1)[1]
                 rcusers.add(username)
+            # collect renamed users
+            elif change["type"] == "log" and change["logtype"] == "renameuser":
+                olduser = change["logparams"]["olduser"]
+                newuser = change["logparams"]["newuser"]
+                renamed_users[olduser] = newuser
 
-        return rcusers
+        # rename before handling rcusers
+        for olduser, newuser in renamed_users.items():
+            yield self.sql["update", "user"], {"b_olduser": olduser, "user_name": newuser}
+            if olduser in rcusers:
+                rcusers.remove(olduser)
+            rcusers.add(newuser)
+
+        if rcusers:
+            for chunk in ws.utils.iter_chunks(rcusers, self.api.max_ids_per_query):
+                list_params = {
+                    "list": "users",
+                    "ususers": "|".join(chunk),
+                    # "groups" is needed just to catch autoconfirmed
+                    "usprop": "groups|groupmemberships|editcount|registration",
+                }
+                for user in self.api.list(list_params):
+                    yield from self.gen_inserts_from_user(user)
+                    yield from self.gen_deletes_from_user(user)
+
+        # delete expired group memberships
+        yield self.db.user_groups.delete().where(
+                        self.db.user_groups.c.ug_expiry < datetime.datetime.utcnow()
+                    )
