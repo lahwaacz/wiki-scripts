@@ -8,6 +8,7 @@ from ws.db.grabbers.tags import GrabberTags
 from ws.db.grabbers.interwiki import GrabberInterwiki
 from ws.db.grabbers.recentchanges import GrabberRecentChanges
 from ws.db.grabbers.user import GrabberUsers
+from ws.db.grabbers.usermerge import GrabberUserMerge
 from ws.db.grabbers.ipblocks import GrabberIPBlocks
 from ws.db.grabbers.page import GrabberPages
 from ws.db.grabbers.protected_titles import GrabberProtectedTitles
@@ -30,6 +31,7 @@ def synchronize(db, api, *, with_content=False):
     GrabberRecentChanges(api, db).update()
     GrabberUsers(api, db).update()
     GrabberLogging(api, db).update()
+    GrabberUserMerge(api, db).update()
     GrabberInterwiki(api, db).update()
     GrabberIPBlocks(api, db).update()
     GrabberPages(api, db).update()
