@@ -167,14 +167,6 @@ def check_recentchanges(api, db):
         # TODO: I don't know what this means
         if "unpatrolled" in api_entry:
             del api_entry["unpatrolled"]
-        # hack for the comparison of infinite protection expirations
-        # (stored as string in the database, but converted to datetime.datetime
-        # in the API result)
-        if api_entry.get("logtype") == "protect" and "details" in api_entry["logparams"]:
-            details = api_entry["logparams"]["details"]
-            for item in details:
-                if item["expiry"] == datetime.datetime.max:
-                    item["expiry"] = "infinite"
 
     # FIXME: rolled-back edits are automatically patrolled, but there does not seem to be any way to detect this
     # skipping all patrol checks for now...
@@ -202,14 +194,12 @@ def check_logging(api, db):
     api_list = list(api.list(**params, leprop="|".join(leprop)))
 
     # hack for the comparison of infinite protection expirations
-    # (stored as string in the database, but converted to datetime.datetime
-    # in the API result)
-    for entry in api_list:
+    for entry in db_list:
         if entry["type"] == "protect" and "details" in entry["params"]:
             details = entry["params"]["details"]
             for item in details:
-                if item["expiry"] == datetime.datetime.max:
-                    item["expiry"] = "infinite"
+                if item["expiry"] == "infinite":
+                    item["expiry"] = datetime.datetime.max
 
     _check_lists(db_list, api_list, key="logid")
 
