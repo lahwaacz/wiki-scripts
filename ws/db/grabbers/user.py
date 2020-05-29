@@ -102,13 +102,15 @@ class GrabberUsers(GrabberBase):
 
 
     def gen_insert(self):
-        # Create a dummy user to satisfy FK contraints, especially with revisions
+        # create a user with user_id=0 to satisfy FK contraints (used for
+        # anonymous edits, log events etc.)
         dummy = {
             "user_id": 0,
-            "user_name": "__wiki_scripts_dummy_user__",
-            # IMPORTANT: Make sure to specify `None`s here, because the used columns are determined from
-            # the first value in a bulk insert. So if they were no specified here, server default would
-            # apply even if the following rows specified these columns.
+            "user_name": "Anonymous",
+            # IMPORTANT: Make sure to specify `None`s here, because the used
+            # columns are determined from the first value in a bulk insert. So
+            # if they were not specified here, server default would apply even
+            # if the following rows specified these columns.
             "user_registration": None,
             "user_editcount": None,
         }
