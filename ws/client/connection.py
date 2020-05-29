@@ -11,6 +11,7 @@ and making requests.
 #        + 'token' parameter should be specified last, see https://www.mediawiki.org/wiki/API:Edit
 
 import requests
+from requests.packages.urllib3.util.retry import Retry
 import http.cookiejar as cookielib
 import logging
 import copy
@@ -140,7 +141,9 @@ class Connection:
         session.params.update({"format": "json"})
         session.verify = ssl_verify
 
-        adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
+        # granular control over requests' retries: https://stackoverflow.com/a/35504626
+        retries = Retry(total=max_retries, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+        adapter = requests.adapters.HTTPAdapter(max_retries=retries)
         session.mount("https://", adapter)
         session.mount("http://", adapter)
         return session
