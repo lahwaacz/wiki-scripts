@@ -193,13 +193,23 @@ def check_logging(api, db):
     db_list = list(db.query(**params, leprop=leprop))
     api_list = list(api.list(**params, leprop="|".join(leprop)))
 
-    # hack for the comparison of infinite protection expirations
     for entry in db_list:
+        # hack for the comparison of infinite protection expirations
         if entry["type"] == "protect" and "details" in entry["params"]:
             details = entry["params"]["details"]
             for item in details:
                 if item["expiry"] == "infinite":
                     item["expiry"] = datetime.datetime.max
+        # hack for the comparison of moved DeveloperWiki pages
+        elif entry["type"] == "move":
+            if entry["params"]["target_title"].startswith("DeveloperWiki:"):
+                entry["params"]["target_ns"] = 3000
+            elif entry["params"]["target_title"].startswith("Talk:DeveloperWiki:"):
+                entry["params"]["target_ns"] = -1
+                entry["params"]["target_title"] = "Special:Badtitle/" + entry["params"]["target_title"]
+        elif entry["type"] == "protect" and entry["action"] == "move_prot":
+            if entry["params"]["oldtitle_title"].startswith("DeveloperWiki:"):
+                entry["params"]["oldtitle_ns"] = 3000
 
     _check_lists(db_list, api_list, key="logid")
 
