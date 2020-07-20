@@ -3,14 +3,13 @@
 import os.path
 
 from ws.client import API
-from ws.client.connection import Connection
 from ws.diff import RevisionDiffer
 
 api_url = "https://wiki.archlinux.org/api.php"
 index_url = "https://wiki.arclinux.org/index.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
-session = Connection.make_session(ssl_verify=True,
-                                  cookie_file=cookie_path)
+session = API.make_session(ssl_verify=True,
+                           cookie_file=cookie_path)
 
 api = API(api_url, index_url, session)
 
