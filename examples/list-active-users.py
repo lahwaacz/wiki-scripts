@@ -6,9 +6,12 @@ import datetime
 from ws.client import API
 
 api_url = "https://wiki.archlinux.org/api.php"
+index_url = "https://wiki.arclinux.org/index.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
+session = API.make_session(ssl_verify=True,
+                           cookie_file=cookie_path)
 
-api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
+api = API(api_url, index_url, session)
 
 # get list of all users, who:
 #   - are not bots

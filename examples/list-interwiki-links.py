@@ -8,10 +8,13 @@ api_urls = [
     "https://wiki.archlinux.org/api.php",
     "https://wiki.archlinux.de/api.php",
 ]
+index_url = "https://wiki.arclinux.org/index.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
+session = API.make_session(ssl_verify=True,
+                           cookie_file=cookie_path)
 
 for api_url in api_urls:
-    api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
+    api = API(api_url, index_url, session)
     prefixes = set()
     for ns in api.site.namespaces:
         if ns < 0:
