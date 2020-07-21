@@ -5,9 +5,12 @@ import os.path
 from ws.client import API
 
 api_url = "https://wiki.archlinux.org/api.php"
+index_url = "https://wiki.arclinux.org/index.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
+session = API.make_session(ssl_verify=True,
+                           cookie_file=cookie_path)
 
-api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
+api = API(api_url, index_url, session)
 
 # allpages
 # see list of parameters: https://www.mediawiki.org/wiki/API:Allpages

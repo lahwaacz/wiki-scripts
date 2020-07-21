@@ -6,14 +6,17 @@ from ws.client import API
 from ws.diff import RevisionDiffer
 
 api_url = "https://wiki.archlinux.org/api.php"
+index_url = "https://wiki.arclinux.org/index.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
+session = API.make_session(ssl_verify=True,
+                           cookie_file=cookie_path)
 
-api = API(api_url, cookie_file=cookie_path, ssl_verify=True)
+api = API(api_url, index_url, session)
 
 
 # show the diff for two revisions, colorized for 256-color terminal
-oldrevid = 325013
-newrevid = 325254
+oldrevid = 625761
+newrevid = 625800
 
 diff = RevisionDiffer(api)
 print(diff.diff(oldrevid, newrevid))
