@@ -70,10 +70,45 @@ class ExtlinkRules:
             None, 0, "https://{0}"),
 
         # migration of Arch's git URLs
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/commit\/\S*?id=([0-9A-Fa-f]+)\S*",
+        # commits
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/commit\/[^?&#]*?(?:[&?]h=[^&#]+?)?[&?]id=([0-9A-Fa-f]+)\S*",
             ".*", 0, "[https://github.com/archlinux/svntogit-{0}/commit/{1} {2}]"),
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/commit\/\S*?id=([0-9A-Fa-f]+)\S*",
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/commit\/[^?&#]*?(?:[&?]h=[^&#]+?)?[&?]id=([0-9A-Fa-f]+)\S*",
             None, 0, "https://github.com/archlinux/svntogit-{0}/commit/{1}"),
+        # blobs
+        # blobs with a branch, commit and line number or a commit and line number
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))#n(\d+)",
+            ".*", 0, "[https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}#L{3} {4}]"),
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))#n(\d+)",
+            None, 0, "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}#L{3}"),
+        # blobs with a branch and line number
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?h=([^&#]+?)#n(\d+)",
+            ".*", 0, "[https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}#L{3} {4}]"),
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?h=([^&#]+?)#n(\d+)",
+            None, 0, "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}#L{3}"),
+        # blobs with a branch and commit or just a commit
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
+            ".*", 0, "[https://github.com/archlinux/svntogit-{0}/blob/{2}/{1} {3}]"),
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
+            None, 0, "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}"),
+        # blobs with just a branch
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?h=([^&#]+?)",
+            ".*", 0, "[https://github.com/archlinux/svntogit-{0}/blob/{2}/{1} {3}]"),
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?h=([^&#]+?)",
+            None, 0, "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}"),
+        # raw
+        # TODO
+        # log
+        # log with a branch and commit or just a commit
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/log\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
+            ".*", 0, "[https://github.com/archlinux/svntogit-{0}/commits/{2}/{1} {3}]"),
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/log\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
+            None, 0, "https://github.com/archlinux/svntogit-{0}/commits/{2}/{1}"),
+        # log with just a branch
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/log\/([^?]*?)\?h=([^&#]+?)",
+            ".*", 0, "[https://github.com/archlinux/svntogit-{0}/commits/{2}/{1} {3}]"),
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/log\/([^?]+?)\?h=([^&#]+?)",
+            None, 0, "https://github.com/archlinux/svntogit-{0}/commits/{2}/{1}"),
     ]
 
     def __init__(self):
