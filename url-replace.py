@@ -309,7 +309,7 @@ class LinkChecker(ExtlinkRules):
         self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
 
     def process_allpages(self, apfrom=None, langnames=None):
-        namespaces = [0, 4, 14]
+        namespaces = [0, 4, 14, 3000]
         if self.interactive is True:
             namespaces.append(12)
 
