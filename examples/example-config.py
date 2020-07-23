@@ -3,7 +3,7 @@
 import ws.config
 
 if __name__ == "__main__":
-    argparser = ws.config.getArgParser(name="example", description="Simple example")
+    argparser = ws.config.getArgParser(description="Simple example")
 
     argparser.add_argument("--foo", help="foo option")
 
