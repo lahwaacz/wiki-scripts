@@ -5,6 +5,7 @@ import logging
 import contextlib
 
 import mwparserfromhell
+import jinja2
 
 from ws.client import API, APIError
 from ws.interactive import edit_interactive, require_login, InteractiveQuit
@@ -68,6 +69,14 @@ class ExtlinkRules:
     #   - url_regex: a regular expression matching the URL (using re.fullmatch)
     #   - url_replacement: a format string used as a replacement for the URL
     #                      (it is formatted using the groups matched by url_regex)
+    #       The string can be in either of two formats:
+    #       - as a native Python format string: matched groups are substituted for
+    #         {0}, {1} and so on. See the format string syntax for details:
+    #         https://docs.python.org/3/library/string.html#formatstrings
+    #       - as a Jinja2 template: named groups are passed as variables, unnamed
+    #         groups are in a special variable "m" and can be accessed as
+    #         {{m[0]}}, {{m[1]}} and so on. See the template language documentation
+    #         for details: https://jinja.palletsprojects.com/en/2.11.x/templates/
     # Note that this replaces URLs with URLs, in extlinks with or without an
     # alternative text. It is not possible to change extlink to other node type
     # such as wikilink here.
@@ -80,26 +89,13 @@ class ExtlinkRules:
         # commits
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/commit\/[^?&#]*?(?:[&?]h=[^&#]+?)?[&?]id=([0-9A-Fa-f]+)\S*",
           "https://github.com/archlinux/svntogit-{0}/commit/{1}"),
-        # blobs
-        # blobs with a branch, commit and line number or a commit and line number
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))#n(\d+)",
-          "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}#L{3}"),
-        # blobs with a branch and line number
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?h=([^&#]+?)#n(\d+)",
-          "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}#L{3}"),
-        # blobs with a branch and commit or just a commit
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
-          "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}"),
-        # blobs with just a branch
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?h=([^&#]+?)",
-          "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}"),
-        # raw
-        # raw files with a branch and commit or just a commit
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/plain\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
-          "https://github.com/archlinux/svntogit-{0}/raw/{2}/{1}"),
-        # raw files with just a branch
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/plain\/([^?]+?)\?h=([^&#]+?)",
-          "https://github.com/archlinux/svntogit-{0}/raw/{2}/{1}"),
+        # blobs and raws
+        # blobs/raws with a branch, commit and line number or a commit and optional line number
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/(tree|plain)\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))(#n(\d+))?",
+          "https://github.com/archlinux/svntogit-{{m[0]}}/{{m[1] | replace('tree', 'blob') | replace('plain', 'raw')}}/{{m[3]}}/{{m[2]}}{% if m[5] is not none %}#L{{m[5]}}{% endif %}"),
+        # blobs/raws with a branch and optional line number
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/(tree|plain)\/([^?]+?)\?h=([^&#]+?)(#n(\d+))?",
+          "https://github.com/archlinux/svntogit-{{m[0]}}/{{m[1] | replace('tree', 'blob') | replace('plain', 'raw')}}/{{m[3]}}/{{m[2]}}{% if m[5] is not none %}#L{{m[5]}}{% endif %}"),
         # log
         # log with a branch and commit or just a commit
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/log\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
@@ -175,7 +171,13 @@ class ExtlinkRules:
         for url_regex, url_replacement in self.url_replacements:
             match = url_regex.fullmatch(str(extlink.url))
             if match:
-                extlink.url = url_replacement.format(*match.groups())
+                if "{0}" in url_replacement:
+                    new_url = url_replacement.format(*match.groups())
+                else:
+                    env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
+                    template = env.from_string(url_replacement)
+                    new_url = template.render(m=match.groups(), **match.groupdict())
+                extlink.url = new_url
                 return True
         return False
 
