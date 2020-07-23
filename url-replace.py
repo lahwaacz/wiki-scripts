@@ -13,6 +13,10 @@ from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.title import canonicalize, TitleError, InvalidTitleCharError
 
+# "equivalent" to `from extlink-checker import ExtlinkStatusChecker` (except for the minus)
+_temp = __import__("extlink-checker", globals(), locals(), ["ExtlinkStatusChecker"], 0)
+ExtlinkStatusChecker = _temp.ExtlinkStatusChecker
+
 logger = logging.getLogger(__name__)
 
 
@@ -110,6 +114,8 @@ class ExtlinkRules:
             _url_replacements.append( (compiled, url_replacement) )
         self.url_replacements = _url_replacements
 
+        self.status_checker = ExtlinkStatusChecker(60, 3)
+
     @staticmethod
     def strip_extra_brackets(wikicode, extlink):
         """
@@ -169,7 +175,12 @@ class ExtlinkRules:
                     env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
                     template = env.from_string(url_replacement)
                     new_url = template.render(m=match.groups(), **match.groupdict())
-                extlink.url = new_url
+                # check if the resulting URL is valid
+                status = self.status_checker.check_url(new_url)
+                if status is True:
+                    extlink.url = new_url
+                else:
+                    logger.error("Link not replaced: {}".format(extlink))
                 return True
         return False
 
