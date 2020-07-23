@@ -326,20 +326,16 @@ class LinkChecker(ExtlinkRules):
             apfrom = _title.pagename
 
         for ns in namespaces:
-            # TODO/FIXME
-            for page in self.api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom):
+            for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapnamespace=ns,
+                                           prop="revisions", rvprop="content|timestamp", rvslots="main"):
                 title = page["title"]
-                self.process_page(title)
-#            for page in self.db.query(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom,
-#                                      prop="latestrevisions", rvprop={"timestamp", "content"}):
-#                title = page["title"]
-#                if langnames and lang.detect_language(title)[1] not in langnames:
-#                    continue
-#                _title = self.api.Title(title)
-#                timestamp = page["revisions"][0]["timestamp"]
-#                text_old = page["revisions"][0]["*"]
-#                text_new, edit_summary = self.update_page(title, text_old)
-#                self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
+                if langnames and lang.detect_language(title)[1] not in langnames:
+                    continue
+                _title = self.api.Title(title)
+                timestamp = page["revisions"][0]["timestamp"]
+                text_old = page["revisions"][0]["slots"]["main"]["*"]
+                text_new, edit_summary = self.update_page(title, text_old)
+                self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
             # the apfrom parameter is valid only for the first namespace
             apfrom = ""
 
