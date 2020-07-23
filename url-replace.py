@@ -94,7 +94,12 @@ class ExtlinkRules:
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?h=([^&#]+?)",
           "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}"),
         # raw
-        # TODO
+        # raw files with a branch and commit or just a commit
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/plain\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
+          "https://github.com/archlinux/svntogit-{0}/raw/{2}/{1}"),
+        # raw files with just a branch
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/plain\/([^?]+?)\?h=([^&#]+?)",
+          "https://github.com/archlinux/svntogit-{0}/raw/{2}/{1}"),
         # log
         # log with a branch and commit or just a commit
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/log\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
