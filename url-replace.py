@@ -89,20 +89,9 @@ class ExtlinkRules:
         # commits
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/commit\/[^?&#]*?(?:[&?]h=[^&#]+?)?[&?]id=([0-9A-Fa-f]+)\S*",
           "https://github.com/archlinux/svntogit-{0}/commit/{1}"),
-        # blobs and raws
-        # blobs/raws with a branch, commit and line number or a commit and optional line number
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/(tree|plain)\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))(#n(\d+))?",
-          "https://github.com/archlinux/svntogit-{{m[0]}}/{{m[1] | replace('tree', 'blob') | replace('plain', 'raw')}}/{{m[3]}}/{{m[2]}}{% if m[5] is not none %}#L{{m[5]}}{% endif %}"),
-        # blobs/raws with a branch and optional line number
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/(tree|plain)\/([^?]+?)\?h=([^&#]+?)(#n(\d+))?",
-          "https://github.com/archlinux/svntogit-{{m[0]}}/{{m[1] | replace('tree', 'blob') | replace('plain', 'raw')}}/{{m[3]}}/{{m[2]}}{% if m[5] is not none %}#L{{m[5]}}{% endif %}"),
-        # log
-        # log with a branch and commit or just a commit
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/log\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
-          "https://github.com/archlinux/svntogit-{0}/commits/{2}/{1}"),
-        # log with just a branch
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/log\/([^?]+?)\?h=([^&#]+?)",
-          "https://github.com/archlinux/svntogit-{0}/commits/{2}/{1}"),
+        # blobs, raws and logs
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(?P<repo>packages|community)\.git\/(?P<type>tree|plain|log)\/(?P<path>[^?]+?)(?:\?h=(?P<branch>[^&#?]+?))?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))?(?:#n(?P<linenum>\d+))?",
+          "https://github.com/archlinux/svntogit-{{repo}}/{{type | replace('tree', 'blob') | replace('plain', 'raw') | replace('log', 'commits')}}/{% if commit is not none %}{{commit}}{% elif branch is not none %}{{branch}}{% endif %}/{{path}}{% if linenum is not none %}#L{{linenum}}{% endif %}"),
     ]
 
     def __init__(self):
