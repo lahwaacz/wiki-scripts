@@ -86,8 +86,8 @@ class ExtlinkRules:
     # such as wikilink here.
     url_replacements = [
         # change http:// to https:// for archlinux.org and wikipedia.org (do it at the bottom, i.e. with least priority)
-        (r"http:\/\/((?:[a-z]+\.)?(?:archlinux|wikipedia)\.org(?:\/\S+)?\/?)",
-          "https://{0}"),
+#        (r"http:\/\/((?:[a-z]+\.)?(?:archlinux|wikipedia)\.org(?:\/\S+)?\/?)",
+#          "https://{0}"),
 
         # migration of Arch's git URLs
         # commits
@@ -186,18 +186,18 @@ class ExtlinkRules:
 
     def update_extlink(self, wikicode, extlink):
         # always make sure to return as soon as the extlink is invalidated
-        self.strip_extra_brackets(wikicode, extlink)
-        if self.extlink_replacements(wikicode, extlink):
-            return
+#        self.strip_extra_brackets(wikicode, extlink)
+        # temporarily disable old replacements
+#        if self.extlink_replacements(wikicode, extlink):
+#            return
         if self.extlink_url_replacements(wikicode, extlink):
             return
 
 class LinkChecker(ExtlinkRules):
 
     interactive_only_pages = ["ArchWiki:Sandbox"]
-    skip_pages = ["Table of contents", "Help:Editing", "ArchWiki:Reports", "ArchWiki:Requests", "ArchWiki:Statistics"]
-    # article status templates, lowercase
-    skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
+#    skip_pages = ["Table of contents", "Help:Editing", "ArchWiki:Reports", "ArchWiki:Requests", "ArchWiki:Statistics"]
+    skip_pages = []
 
     def __init__(self, api, db, interactive=False, dry_run=False, first=None, title=None, langnames=None, connection_timeout=30, max_retries=3):
         if not dry_run:
@@ -286,7 +286,9 @@ class LinkChecker(ExtlinkRules):
         summary = get_edit_checker(wikicode, summary_parts)
 
         for extlink in wikicode.ifilter_external_links(recursive=True):
-            with summary("replaced external links"):
+            # temporarily use descriptive edit summary
+#            with summary("replaced external links"):
+            with summary("update svntogit URLs from (projects|git).archlinux.org to github.com"):
                 self.update_extlink(wikicode, extlink)
 
         # deduplicate and keep order
@@ -325,9 +327,11 @@ class LinkChecker(ExtlinkRules):
         self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
 
     def process_allpages(self, apfrom=None, langnames=None):
-        namespaces = [0, 4, 14, 3000]
-        if self.interactive is True:
-            namespaces.append(12)
+#        namespaces = [0, 4, 14, 3000]
+#        if self.interactive is True:
+#            namespaces.append(12)
+        # temporarily enable all namespaces (Arch's git URLs migration)
+        namespaces = [0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 3000, 3001]
 
         # rewind to the right namespace (the API throws BadTitle error if the
         # namespace of apfrom does not match apnamespace)
