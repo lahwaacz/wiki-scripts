@@ -62,53 +62,46 @@ class ExtlinkRules:
             ".*", 0, "[[wikipedia:{0}|{1}]]"),
         (r"https?\:\/\/en\.wikipedia\.org\/wiki\/([^\]\?]+)",
             None, 0, "[[wikipedia:{0}]]"),
+    ]
 
+    # list of (url_regex, url_replacement) tuples, where:
+    #   - url_regex: a regular expression matching the URL (using re.fullmatch)
+    #   - url_replacement: a format string used as a replacement for the URL
+    #                      (it is formatted using the groups matched by url_regex)
+    # Note that this replaces URLs with URLs, in extlinks with or without an
+    # alternative text. It is not possible to change extlink to other node type
+    # such as wikilink here.
+    url_replacements = [
         # change http:// to https:// for archlinux.org and wikipedia.org (do it at the bottom, i.e. with least priority)
         (r"http:\/\/((?:[a-z]+\.)?(?:archlinux|wikipedia)\.org(?:\/\S+)?\/?)",
-            ".*", 0, "[https://{0} {1}]"),
-        (r"http:\/\/((?:[a-z]+\.)?(?:archlinux|wikipedia)\.org(?:\/\S+)?\/?)",
-            None, 0, "https://{0}"),
+          "https://{0}"),
 
         # migration of Arch's git URLs
         # commits
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/commit\/[^?&#]*?(?:[&?]h=[^&#]+?)?[&?]id=([0-9A-Fa-f]+)\S*",
-            ".*", 0, "[https://github.com/archlinux/svntogit-{0}/commit/{1} {2}]"),
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/commit\/[^?&#]*?(?:[&?]h=[^&#]+?)?[&?]id=([0-9A-Fa-f]+)\S*",
-            None, 0, "https://github.com/archlinux/svntogit-{0}/commit/{1}"),
+          "https://github.com/archlinux/svntogit-{0}/commit/{1}"),
         # blobs
         # blobs with a branch, commit and line number or a commit and line number
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))#n(\d+)",
-            ".*", 0, "[https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}#L{3} {4}]"),
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))#n(\d+)",
-            None, 0, "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}#L{3}"),
+          "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}#L{3}"),
         # blobs with a branch and line number
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?h=([^&#]+?)#n(\d+)",
-            ".*", 0, "[https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}#L{3} {4}]"),
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?h=([^&#]+?)#n(\d+)",
-            None, 0, "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}#L{3}"),
+          "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}#L{3}"),
         # blobs with a branch and commit or just a commit
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
-            ".*", 0, "[https://github.com/archlinux/svntogit-{0}/blob/{2}/{1} {3}]"),
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
-            None, 0, "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}"),
+          "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}"),
         # blobs with just a branch
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?h=([^&#]+?)",
-            ".*", 0, "[https://github.com/archlinux/svntogit-{0}/blob/{2}/{1} {3}]"),
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/tree\/([^?]+?)\?h=([^&#]+?)",
-            None, 0, "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}"),
+          "https://github.com/archlinux/svntogit-{0}/blob/{2}/{1}"),
         # raw
         # TODO
         # log
         # log with a branch and commit or just a commit
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/log\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
-            ".*", 0, "[https://github.com/archlinux/svntogit-{0}/commits/{2}/{1} {3}]"),
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/log\/([^?]+?)\?(?:h=[^&#]+?&)?(?:id=([0-9A-Fa-f]+))",
-            None, 0, "https://github.com/archlinux/svntogit-{0}/commits/{2}/{1}"),
+          "https://github.com/archlinux/svntogit-{0}/commits/{2}/{1}"),
         # log with just a branch
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/log\/([^?]*?)\?h=([^&#]+?)",
-            ".*", 0, "[https://github.com/archlinux/svntogit-{0}/commits/{2}/{1} {3}]"),
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/log\/([^?]+?)\?h=([^&#]+?)",
-            None, 0, "https://github.com/archlinux/svntogit-{0}/commits/{2}/{1}"),
+          "https://github.com/archlinux/svntogit-{0}/commits/{2}/{1}"),
     ]
 
     def __init__(self):
@@ -117,6 +110,12 @@ class ExtlinkRules:
             compiled = re.compile(url_regex)
             _replacements.append( (compiled, text_cond, text_cond_flags, replacement) )
         self.replacements = _replacements
+
+        _url_replacements = []
+        for url_regex, url_replacement in self.url_replacements:
+            compiled = re.compile(url_regex)
+            _url_replacements.append( (compiled, url_replacement) )
+        self.url_replacements = _url_replacements
 
     @staticmethod
     def strip_extra_brackets(wikicode, extlink):
@@ -167,10 +166,21 @@ class ExtlinkRules:
                         logger.warning("external link that should be replaced, but has custom alternative text: {}".format(extlink))
         return False
 
+    def extlink_url_replacements(self, wikicode, extlink):
+        for url_regex, url_replacement in self.url_replacements:
+            match = url_regex.fullmatch(str(extlink.url))
+            if match:
+                extlink.url = url_replacement.format(*match.groups())
+                return True
+        return False
+
     def update_extlink(self, wikicode, extlink):
         # always make sure to return as soon as the extlink is invalidated
         self.strip_extra_brackets(wikicode, extlink)
-        self.extlink_replacements(wikicode, extlink)
+        if self.extlink_replacements(wikicode, extlink):
+            return
+        if self.extlink_url_replacements(wikicode, extlink):
+            return
 
 class LinkChecker(ExtlinkRules):
 
