@@ -276,10 +276,6 @@ class LinkChecker(ExtlinkRules):
         summary = get_edit_checker(wikicode, summary_parts)
 
         for extlink in wikicode.ifilter_external_links(recursive=True):
-            # skip links inside article status templates
-            parent = wikicode.get(wikicode.index(extlink, recursive=True))
-            if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
-                continue
             with summary("replaced external links"):
                 self.update_extlink(wikicode, extlink)
 
