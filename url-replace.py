@@ -87,8 +87,8 @@ class ExtlinkRules:
 
         # migration of Arch's git URLs
         # commits
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(packages|community)\.git\/commit\/[^?&#]*?(?:[&?]h=[^&#]+?)?[&?]id=([0-9A-Fa-f]+)\S*",
-          "https://github.com/archlinux/svntogit-{0}/commit/{1}"),
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(?P<repo>packages|community)\.git\/commit\/(?P<path>[^?]+?)?(?:\?h=[^&#?]+?)?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))",
+          "https://github.com/archlinux/svntogit-{{repo}}/commit/{{commit}}{% if (path is not none) and ('/' in path) %}/{{path}}{% endif %}"),
         # blobs, raws and logs
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(?P<repo>packages|community)\.git\/(?P<type>tree|plain|log)\/(?P<path>[^?]+?)(?:\?h=(?P<branch>[^&#?]+?))?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))?(?:#n(?P<linenum>\d+))?",
           "https://github.com/archlinux/svntogit-{{repo}}/{{type | replace('tree', 'blob') | replace('plain', 'raw') | replace('log', 'commits')}}/{% if commit is not none %}{{commit}}{% elif branch is not none %}{{branch}}{% endif %}/{{path}}{% if linenum is not none %}#L{{linenum}}{% endif %}"),
