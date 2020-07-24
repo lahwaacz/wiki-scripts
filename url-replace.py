@@ -185,13 +185,28 @@ class ExtlinkRules:
         return False
 
     def update_extlink(self, wikicode, extlink):
-        # always make sure to return as soon as the extlink is invalidated
 #        self.strip_extra_brackets(wikicode, extlink)
+
+        # create copy to avoid changing links that don't match
+        if extlink.title is not None:
+            extlink_copy = mwparserfromhell.nodes.ExternalLink(str(extlink.url), str(extlink.title), extlink.brackets, extlink.suppress_space)
+        else:
+            extlink_copy = mwparserfromhell.nodes.ExternalLink(str(extlink.url), extlink.title, extlink.brackets, extlink.suppress_space)
+
+        # replace HTML entities like "&#61" or "&Sigma;" in the URL with their unicode equivalents
+        # TODO: this may break templates if the decoded "&#61" stays in the replaced URL
+        for entity in extlink.url.ifilter_html_entities(recursive=True):
+            extlink.url.replace(entity, entity.normalize())
+
+        # always make sure to return as soon as the extlink is matched and replaced
         # temporarily disable old replacements
 #        if self.extlink_replacements(wikicode, extlink):
 #            return
         if self.extlink_url_replacements(wikicode, extlink):
             return
+
+        # roll back the replacement of HTML entities if the extlink was not replaced by the rules
+        wikicode.replace(extlink, extlink_copy)
 
 class LinkChecker(ExtlinkRules):
 
