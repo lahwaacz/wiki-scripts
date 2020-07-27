@@ -363,6 +363,11 @@ class LinkChecker(ExtlinkRules):
         for ns in namespaces:
             for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapnamespace=ns,
                                            prop="revisions", rvprop="content|timestamp", rvslots="main"):
+                # if the user is not logged in, the limit for revisions may be lower than gaplimit,
+                # in which case the generator will yield some pages multiple times without revisions
+                # before the query-continuation kicks in
+                if "revisions" not in page:
+                    continue
                 title = page["title"]
                 if langnames and lang.detect_language(title)[1] not in langnames:
                     continue
