@@ -90,15 +90,20 @@ class ExtlinkRules:
 #          "https://{0}"),
 
         # migration of Arch's git URLs
-        # commits
+
+        # svntogit commits
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(?P<repo>packages|community)\.git\/commit\/(?P<path>[^?]+?)?(?:\?h=[^&#?]+?)?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))",
           "https://github.com/archlinux/svntogit-{{repo}}/commit/{{commit}}{% if (path is not none) and ('/' in path) %}/{{path}}{% endif %}"),
-        # blobs, raws and logs
+        # svntogit blobs, raws and logs
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(?P<repo>packages|community)\.git\/(?P<type>tree|plain|log)\/(?P<path>[^?]+?)(?:\?h=(?P<branch>[^&#?]+?))?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))?(?:#n(?P<linenum>\d+))?",
           "https://github.com/archlinux/svntogit-{{repo}}/{{type | replace('tree', 'blob') | replace('plain', 'raw') | replace('log', 'commits')}}/{% if commit is not none %}{{commit}}/{% elif branch is not none %}{{branch}}/{% elif (path is not none) and (not path.startswith('packages')) %}packages/{% endif %}{{path}}{% if linenum is not none %}#L{{linenum}}{% endif %}"),
-        # repos
+        # svntogit repos
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(?P<repo>packages|community)\.git(\/tree)?\/?",
           "https://github.com/archlinux/svntogit-{{repo}}"),
+
+        # other git repos
+        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/(?P<project>archiso|aurweb|infrastructure).git(?:\/(?P<type>commit|tree|plain|log))?(?P<path>[^?]+?)?(?:\?h=(?P<branch>[^&#?]+?))?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))?(?:#n(?P<linenum>\d+))?",
+          "https://gitlab.archlinux.org/archlinux/{{project}}{% if type is not none %}/{{type | replace('plain', 'raw') | replace('log', 'commits')}}{% if commit is not none %}/{{commit}}{% elif branch is not none %}/{{branch}}{% elif path is not none %}/master{% endif %}{% if (path is not none) and (path != '/') %}{{path}}{% endif %}{% if linenum is not none %}#L{{linenum}}{% endif %}{% endif %}"),
     ]
 
     def __init__(self):
