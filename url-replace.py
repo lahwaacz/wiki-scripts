@@ -176,7 +176,7 @@ class ExtlinkRules:
                     template = env.from_string(url_replacement)
                     new_url = template.render(m=match.groups(), **match.groupdict())
                 # check if the resulting URL is valid
-                status = self.status_checker.check_url(new_url)
+                status = self.status_checker.check_url(new_url, allow_redirects=False)
                 if status is True:
                     extlink.url = new_url
                 else:
