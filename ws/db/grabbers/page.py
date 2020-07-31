@@ -245,10 +245,17 @@ class GrabberPages(GrabberBase):
         # By default the max age is 90 days: if a larger timespan is requested
         # here, we need to look into the logging table instead of recentchanges.
         rc_oldest = selects.oldest_rc_timestamp(self.db)
-        if rc_oldest is None or rc_oldest > since:
-            delete_early, moved, pages = self.get_logpages(since)
-        else:
-            delete_early, moved, pages = self.get_rcpages(since)
+#        if rc_oldest is None or rc_oldest > since:
+#            delete_early, moved, pages = self.get_logpages(since)
+#        else:
+#            delete_early, moved, pages = self.get_rcpages(since)
+
+        # some log events such as suppress/delete are not recorded in the
+        # recentchanges table, fetching from logging is bulletproof
+        delete_early, moved, pages = self.get_logpages(since)
+        if rc_oldest is not None and rc_oldest <= since:
+            pages |= self.get_rcpages(since)[2]
+
         keys = list(pages.keys())
 
         # Always delete beforehand, otherwise inserts might violate the
@@ -377,5 +384,7 @@ class GrabberPages(GrabberBase):
                     modified.add(le["logpage"])
                     if le["action"] == "move":
                         moved.append((le["logpage"], le["params"]))
+            elif le["type"] == "suppress" and le["action"] == "delete":
+                deleted_pageids.add(le["logpage"])
 
         return deleted_pageids, moved, modified

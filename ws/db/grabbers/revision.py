@@ -6,6 +6,7 @@ import time
 import sqlalchemy as sa
 
 from ws.utils import value_or_none
+import ws.db.mw_constants as mwconst
 
 from .GrabberBase import *
 
@@ -113,6 +114,12 @@ class GrabberRevisions(GrabberBase):
             ("update", "revision"):
                 db.revision.update() \
                     .where(db.revision.c.rev_id == sa.bindparam("b_rev_id")),
+            # query for suppressing deleted pages
+            ("suppress-page", "archive"):
+                db.archive.update() \
+                    .where(sa.and_(db.archive.c.ar_namespace == sa.bindparam("b_ns"),
+                                   db.archive.c.ar_title == sa.bindparam("b_title"))
+                    ),
         }
 
         # build query to move data from the archive table into revision
@@ -313,6 +320,8 @@ class GrabberRevisions(GrabberBase):
         added_tags = {}
         removed_tags = {}
         imported_pages = set()
+        suppressed_pages = set()
+        # TODO: what about unsuppressed?
 
         le_params = {
             "list": "logevents",
@@ -337,6 +346,13 @@ class GrabberRevisions(GrabberBase):
                     assert le["params"]["type"] == "revision"
                     for revid in le["params"]["ids"]:
                         deleted_revisions[revid] = le["params"]["new"]["bitmask"]
+            # suppress/delete is like delete/delete + delete/revision
+            elif le["type"] == "suppress" and le["action"] == "delete":
+                deleted_pages.add(le["title"])
+                # keep only the most recent action
+                if le["title"] in undeleted_pages:
+                    del undeleted_pages[le["title"]]
+                suppressed_pages.add( (le["ns"], le["title"]) )
             # check imported pages
             elif le["type"] == "import":
                 imported_pages.add(le["logpage"])
@@ -467,6 +483,9 @@ class GrabberRevisions(GrabberBase):
         for revid, bitmask in deleted_revisions.items():
             yield self.sql["update", "rev_deleted"], {"b_rev_id": revid, "rev_deleted": bitmask}
             yield self.sql["update", "ar_deleted"], {"b_rev_id": revid, "ar_deleted": bitmask}
+        for ns, title in suppressed_pages:
+            ar_deleted = mwconst.DELETED_TEXT | mwconst.DELETED_COMMENT | mwconst.DELETED_USER | mwconst.DELETED_RESTRICTED
+            yield self.sql["suppress-page", "archive"], {"b_ns": ns, "b_title": title, "ar_deleted": ar_deleted }
 
         # update tags
         for revid, added in added_tags.items():
@@ -550,6 +569,11 @@ class GrabberRevisions(GrabberBase):
                 nonlocal counter
                 nonlocal fetched_revids
                 for page in result["query"]["pages"].values():
+                    if "revisions" not in page and "missing" in page:
+                        # skip pages which were deleted since the last synchronization
+                        # (their revisions have to be synchronized later)
+                        logger.warning("Skipping synchronization of revisions from deleted page [[{}]].".format(page["title"]))
+                        continue
                     for rev in page["revisions"]:
                         text_id = next(self.text_id_gen)
                         db_entry = {
@@ -575,8 +599,10 @@ class GrabberRevisions(GrabberBase):
                             # probably a single value
                             dfe.execute(item)
 
-            if mode == "all":
+            if mode == "all" and fetched_revids:
                 logger.info("Fetched revids {}-{}.".format(min(fetched_revids), max(fetched_revids)))
+
+        # TODO: sync content of all deleted revisions when mode == "all"
 
         time2 = time.time()
         if counter > 0:
