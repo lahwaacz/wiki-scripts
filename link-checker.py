@@ -24,7 +24,7 @@ from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.encodings import dotencode, queryencode
 from ws.parser_helpers.title import canonicalize, TitleError, InvalidTitleCharError
-from ws.parser_helpers.wikicode import get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template, remove_and_squash, get_parent_wikicode, get_adjacent_node
+from ws.parser_helpers.wikicode import get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template, get_parent_wikicode, get_adjacent_node
 
 logger = logging.getLogger(__name__)
 
@@ -62,24 +62,6 @@ def get_edit_checker(wikicode, summary_parts):
                 summary_parts.append(summary)
     return checker
 
-
-def ensure_unflagged(wikicode, node, template_name):
-    """
-    Makes sure that ``node`` in ``wikicode`` is not immediately (except for
-    whitespace) followed by a template with ``template_name`` or any of its
-    localized version.
-
-    :param wikicode: a :py:class:`mwparserfromhell.wikicode.Wikicode` object
-    :param node: a :py:class:`mwparserfromhell.nodes.Node` object
-    :param str template_name: the name of the template flag
-    """
-    parent = get_parent_wikicode(wikicode, node)
-    adjacent = get_adjacent_node(parent, node, ignore_whitespace=True)
-
-    if isinstance(adjacent, mwparserfromhell.nodes.Template):
-        adjname = lang.detect_language(str(adjacent.name))[0]
-        if canonicalize(adjname) == canonicalize(template_name):
-            remove_and_squash(wikicode, adjacent)
 
 def localize_flag(wikicode, node, template_name):
     """
@@ -631,13 +613,13 @@ class WikilinkRules(RulesBase):
         if anchor_result is False:
             with summary("flagged broken section links"):
                 # first unflag to remove any translated version of the flag
-                ensure_unflagged(wikicode, wikilink, "Broken section link")
+                ensure_unflagged_by_template(wikicode, wikilink, "Broken section link", match_only_prefix=True)
                 # flag with the correct translated template
                 flag = self.get_localized_template("Broken section link", src_lang)
                 ensure_flagged_by_template(wikicode, wikilink, flag)
         else:
             with summary("unflagged working section links"):
-                ensure_unflagged(wikicode, wikilink, "Broken section link")
+                ensure_unflagged_by_template(wikicode, wikilink, "Broken section link", match_only_prefix=True)
 
         with summary("simplification and beautification of wikilinks"):
             # partial second pass
@@ -728,7 +710,7 @@ class ManTemplateRules(RulesBase):
 
         # check if the template parameters form a valid URL
         if check_url(url):
-            ensure_unflagged(wikicode, template, "Dead link")
+            ensure_unflagged_by_template(wikicode, template, "Dead link", match_only_prefix=True)
             # remove explicit url= parameter - not necessary
             if explicit_url is not None:
                 template.remove("url")
@@ -740,7 +722,7 @@ class ManTemplateRules(RulesBase):
             ensure_flagged_by_template(wikicode, template, flag, *deadlink_params, overwrite_parameters=False)
         elif explicit_url != "":
             if check_url(explicit_url):
-                ensure_unflagged(wikicode, template, "Dead link")
+                ensure_unflagged_by_template(wikicode, template, "Dead link", match_only_prefix=True)
             else:
                 # first replace the existing template (if any) with a translated version
                 flag = self.get_localized_template("Dead link", src_lang)

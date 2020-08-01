@@ -5,6 +5,7 @@ import re
 import mwparserfromhell
 
 from .encodings import dotencode
+from .title import canonicalize
 
 __all__ = [
     "strip_markup", "get_adjacent_node", "get_parent_wikicode", "remove_and_squash",
@@ -214,7 +215,7 @@ def ensure_flagged_by_template(wikicode, node, template_name, *template_paramete
     assert(get_parent_wikicode(wikicode, flag) is parent)
     return flag
 
-def ensure_unflagged_by_template(wikicode, node, template_name):
+def ensure_unflagged_by_template(wikicode, node, template_name, *, match_only_prefix=False):
     """
     Makes sure that ``node`` in ``wikicode`` is not immediately (except for
     whitespace) followed by a template with ``template_name``.
@@ -222,12 +223,19 @@ def ensure_unflagged_by_template(wikicode, node, template_name):
     :param wikicode: a :py:class:`mwparserfromhell.wikicode.Wikicode` object
     :param node: a :py:class:`mwparserfromhell.nodes.Node` object
     :param str template_name: the name of the template flag
+    :param bool match_only_prefix: if ``True``, only the prefix of the adjacent
+                                   template must match ``template_name``
     """
     parent = get_parent_wikicode(wikicode, node)
     adjacent = get_adjacent_node(parent, node, ignore_whitespace=True)
 
-    if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches(template_name):
-        remove_and_squash(wikicode, adjacent)
+    if isinstance(adjacent, mwparserfromhell.nodes.Template):
+        if match_only_prefix is True:
+            if canonicalize(adjacent.name).startswith(canonicalize(template_name)):
+                remove_and_squash(wikicode, adjacent)
+        else:
+            if adjacent.name.matches(template_name):
+                remove_and_squash(wikicode, adjacent)
 
 def is_redirect(text, *, full_match=False):
     """
