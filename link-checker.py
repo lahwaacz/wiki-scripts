@@ -367,10 +367,6 @@ class WikilinkRules:
             logger.warning("wikilink to non-existing page: {}".format(wikilink))
             return
 
-        # FIXME: very common false positive
-        if title.pagename == "Wpa supplicant":
-            return
-
         # assemble new title
         # TODO: simplify (see #25)
         new = self.displaytitles[title.fullpagename]
