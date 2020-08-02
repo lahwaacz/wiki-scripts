@@ -272,8 +272,10 @@ class Checker(ExtlinkStatusChecker):
             print("\nSuggested edit for page [[{}]]. Please double-check all changes before accepting!".format(title))
 
             try:
-                # TODO: set bot="" only when the logged-in user is a bot
-                edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, edit_summary, bot="")
+                if "bot" in self.api.user.rights:
+                    edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, edit_summary, bot="")
+                else:
+                    edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, edit_summary)
             except APIError as e:
                 pass
 

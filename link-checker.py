@@ -24,7 +24,7 @@ from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.encodings import dotencode, queryencode
 from ws.parser_helpers.title import canonicalize, TitleError, InvalidTitleCharError
-from ws.parser_helpers.wikicode import get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template
+from ws.parser_helpers.wikicode import get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template, remove_and_squash, get_parent_wikicode, get_adjacent_node
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +63,65 @@ def get_edit_checker(wikicode, summary_parts):
     return checker
 
 
-class ExtlinkRules:
+def ensure_unflagged(wikicode, node, template_name):
+    """
+    Makes sure that ``node`` in ``wikicode`` is not immediately (except for
+    whitespace) followed by a template with ``template_name`` or any of its
+    localized version.
+
+    :param wikicode: a :py:class:`mwparserfromhell.wikicode.Wikicode` object
+    :param node: a :py:class:`mwparserfromhell.nodes.Node` object
+    :param str template_name: the name of the template flag
+    """
+    parent = get_parent_wikicode(wikicode, node)
+    adjacent = get_adjacent_node(parent, node, ignore_whitespace=True)
+
+    if isinstance(adjacent, mwparserfromhell.nodes.Template):
+        adjname = lang.detect_language(str(adjacent.name))[0]
+        if canonicalize(adjname) == canonicalize(template_name):
+            remove_and_squash(wikicode, adjacent)
+
+def localize_flag(wikicode, node, template_name):
+    """
+    If a ``node`` in ``wikicode`` is followed by a template with the same base
+    name as ``template_name``, this function changes the adjacent template's
+    name to ``template_name``.
+
+    :param wikicode: a :py:class:`mwparserfromhell.wikicode.Wikicode` object
+    :param node: a :py:class:`mwparserfromhell.nodes.Node` object
+    :param str template_name: the name of the template flag, potentially
+                              including a language name
+    """
+    parent = get_parent_wikicode(wikicode, node)
+    adjacent = get_adjacent_node(parent, node, ignore_whitespace=True)
+
+    if isinstance(adjacent, mwparserfromhell.nodes.Template):
+        adjname = lang.detect_language(str(adjacent.name))[0]
+        basename = lang.detect_language(template_name)[0]
+        if canonicalize(adjname) == canonicalize(basename):
+            adjacent.name = template_name
+
+
+class RulesBase:
+    def __init__(self, api, db):
+        self.api = api
+        self.db = db
+
+    @LazyProperty
+    def _alltemplates(self):
+        result = self.api.generator(generator="allpages", gapnamespace=10, gaplimit="max", gapfilterredir="nonredirects")
+        return {page["title"].split(":", maxsplit=1)[1] for page in result}
+
+    def get_localized_template(self, template, language="English"):
+        assert(canonicalize(template) in self._alltemplates)
+        localized = lang.format_title(template, language)
+        if canonicalize(localized) in self._alltemplates:
+            return localized
+        # fall back to English
+        return template
+
+
+class ExtlinkRules(RulesBase):
 
     retype = type(re.compile(""))
     # list of (url_regex, text_cond, text_cond_flags, replacement) tuples, where:
@@ -106,7 +164,9 @@ class ExtlinkRules:
             None, 0, "https://{0}"),
     ]
 
-    def __init__(self):
+    def __init__(self, api, db, **kwargs):
+        super().__init__(api, db)
+
         _replacements = []
         for url_regex, text_cond, text_cond_flags, replacement in self.replacements:
             compiled = re.compile(url_regex)
@@ -194,7 +254,7 @@ class ExtlinkRules:
         if self.extlink_replacements(wikicode, extlink):
             return
 
-class WikilinkRules:
+class WikilinkRules(RulesBase):
     """
     Assumptions:
 
@@ -202,9 +262,8 @@ class WikilinkRules:
     - alternative text is intentional, no replacements there
     """
 
-    def __init__(self, api, db, *, interactive=False):
-        self.api = api
-        self.db = db
+    def __init__(self, api, db, *, interactive=False, **kwargs):
+        super().__init__(api, db)
         self.interactive = interactive
 
         # mapping of canonical titles to displaytitles
@@ -365,10 +424,6 @@ class WikilinkRules:
         # report pages without DISPLAYTITLE (red links)
         if title.fullpagename not in self.displaytitles:
             logger.warning("wikilink to non-existing page: {}".format(wikilink))
-            return
-
-        # FIXME: very common false positive
-        if title.pagename == "Wpa supplicant":
             return
 
         # assemble new title
@@ -539,6 +594,7 @@ class WikilinkRules:
         if str(wikilink) in self.void_update_cache:
             logger.debug("Skipping wikilink {} due to void-update cache.".format(wikilink))
             return
+        src_lang = lang.detect_language(src_title)[1]
 
         title = self.api.Title(wikilink.title)
         # skip interlanguage links (handled by interlanguage.py)
@@ -561,7 +617,7 @@ class WikilinkRules:
             self.collapse_whitespace_pipe(wikilink)
             self.check_trivial(wikilink, title)
             self.check_relative(src_title, wikilink, title)
-            if lang.detect_language(src_title)[1] == "English":
+            if src_lang == "English":
                 self.check_redirect_exact(src_title, wikilink, title)
             self.check_redirect_capitalization(wikilink, title)
 
@@ -574,15 +630,19 @@ class WikilinkRules:
             anchor_result = self.check_anchor(src_title, wikilink, title)
         if anchor_result is False:
             with summary("flagged broken section links"):
-                ensure_flagged_by_template(wikicode, wikilink, "Broken section link")
+                # first unflag to remove any translated version of the flag
+                ensure_unflagged(wikicode, wikilink, "Broken section link")
+                # flag with the correct translated template
+                flag = self.get_localized_template("Broken section link", src_lang)
+                ensure_flagged_by_template(wikicode, wikilink, flag)
         else:
             with summary("unflagged working section links"):
-                ensure_unflagged_by_template(wikicode, wikilink, "Broken section link")
+                ensure_unflagged(wikicode, wikilink, "Broken section link")
 
         with summary("simplification and beautification of wikilinks"):
             # partial second pass
             self.check_trivial(wikilink, title)
-            if lang.detect_language(src_title)[1] == "English":
+            if src_lang == "English":
                 self.check_redirect_exact(src_title, wikilink, title)
 
             # collapse whitespace around the link, e.g. 'foo [[ bar]]' -> 'foo [[bar]]'
@@ -593,10 +653,12 @@ class WikilinkRules:
             self.void_update_cache.add(str(wikilink))
 
 
-class ManTemplateRules:
+class ManTemplateRules(RulesBase):
     url_prefix = "http://jlk.fjfi.cvut.cz/arch/manpages/man/"
 
-    def __init__(self, timeout, max_retries):
+    def __init__(self, api, db, *, timeout=30, max_retries=3, **kwargs):
+        super().__init__(api, db)
+
         self.timeout = timeout
         self.session = requests.Session()
         adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
@@ -606,16 +668,21 @@ class ManTemplateRules:
         self.cache_valid_urls = set()
         self.cache_invalid_urls = set()
 
-    def update_man_template(self, wikicode, template):
+    def update_man_template(self, wikicode, template, src_title):
         if template.name.lower() != "man":
             return
+        src_lang = lang.detect_language(src_title)[1]
 
         now = datetime.datetime.utcnow()
         deadlink_params = [now.year, now.month, now.day]
         deadlink_params = ["{:02d}".format(i) for i in deadlink_params]
 
         if not template.has(1) or not template.has(2, ignore_empty=True):
-            ensure_flagged_by_template(wikicode, template, "Dead link", *deadlink_params, overwrite_parameters=False)
+            # first replace the existing template (if any) with a translated version
+            flag = self.get_localized_template("Dead link", src_lang)
+            localize_flag(wikicode, template, flag)
+            # flag with the correct translated template
+            ensure_flagged_by_template(wikicode, template, flag, *deadlink_params, overwrite_parameters=False)
             return
 
         url = self.url_prefix
@@ -661,17 +728,25 @@ class ManTemplateRules:
 
         # check if the template parameters form a valid URL
         if check_url(url):
-            ensure_unflagged_by_template(wikicode, template, "Dead link")
+            ensure_unflagged(wikicode, template, "Dead link")
             # remove explicit url= parameter - not necessary
             if explicit_url is not None:
                 template.remove("url")
         elif explicit_url is None:
-            ensure_flagged_by_template(wikicode, template, "Dead link", *deadlink_params, overwrite_parameters=False)
+            # first replace the existing template (if any) with a translated version
+            flag = self.get_localized_template("Dead link", src_lang)
+            localize_flag(wikicode, template, flag)
+            # flag with the correct translated template
+            ensure_flagged_by_template(wikicode, template, flag, *deadlink_params, overwrite_parameters=False)
         elif explicit_url != "":
             if check_url(explicit_url):
-                ensure_unflagged_by_template(wikicode, template, "Dead link")
+                ensure_unflagged(wikicode, template, "Dead link")
             else:
-                ensure_flagged_by_template(wikicode, template, "Dead link", *deadlink_params, overwrite_parameters=False)
+                # first replace the existing template (if any) with a translated version
+                flag = self.get_localized_template("Dead link", src_lang)
+                localize_flag(wikicode, template, flag)
+                # flag with the correct translated template
+                ensure_flagged_by_template(wikicode, template, flag, *deadlink_params, overwrite_parameters=False)
 
 
 class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
@@ -686,13 +761,9 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
             # ensure that we are authenticated
             require_login(api)
 
-        # init inherited
-        ExtlinkRules.__init__(self)
-        WikilinkRules.__init__(self, api, db, interactive=interactive)
-        ManTemplateRules.__init__(self, connection_timeout, max_retries)
+        # init base classes (pass keyword arguments for all base classes together)
+        super().__init__(api, db, interactive=interactive, timeout=connection_timeout, max_retries=max_retries)
 
-        self.api = api
-        self.db = db
         self.interactive = interactive
         self.dry_run = dry_run
 
@@ -811,7 +882,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
                 wikicode.replace(wl, template)
             elif template.name.lower() == "man":
                 with summary("updated man page links"):
-                    self.update_man_template(wikicode, template)
+                    self.update_man_template(wikicode, template, src_title)
 
         # deduplicate and keep order
         parts = set()
