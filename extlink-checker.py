@@ -20,12 +20,15 @@ from ws.client import API, APIError
 from ws.interactive import edit_interactive, require_login, InteractiveQuit
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.wikicode import get_parent_wikicode, ensure_flagged_by_template, ensure_unflagged_by_template
+from ws.checkers import CheckerBase, localize_flag
 
 logger = logging.getLogger(__name__)
 
 
-class ExtlinkStatusChecker:
-    def __init__(self, timeout, max_retries):
+class ExtlinkStatusChecker(CheckerBase):
+    def __init__(self, api, db, *, timeout=60, max_retries=3, **kwargs):
+        super().__init__(api, db)
+
         self.timeout = timeout
         self.session = requests.Session()
         adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
@@ -48,7 +51,7 @@ class ExtlinkStatusChecker:
         self.deadlink_params = [now.year, now.month, now.day]
         self.deadlink_params = ["{:02d}".format(i) for i in self.deadlink_params]
 
-    def check_extlink_status(self, wikicode, extlink):
+    def check_extlink_status(self, wikicode, extlink, src_title):
         # make a copy of the URL object (the skip_style_flags parameter is False,
         # so we will also properly parse URLs terminated by a wiki markup)
         url = mwparserfromhell.parse(str(extlink.url))
@@ -116,12 +119,15 @@ class ExtlinkStatusChecker:
         status = self.check_url(url)
         if status is True:
             # TODO: the link might still be flagged for a reason (e.g. when the server redirects to some dummy page without giving a proper status code)
-            ensure_unflagged_by_template(wikicode, extlink, "Dead link")
+            ensure_unflagged_by_template(wikicode, extlink, "Dead link", match_only_prefix=True)
         elif status is False:
             # TODO: handle bbs.archlinux.org (some links may require login)
             # TODO: handle links inside {{man|url=...}} properly
+            # first replace the existing template (if any) with a translated version
+            flag = self.get_localized_template("Dead link", lang.detect_language(src_title)[1])
+            localize_flag(wikicode, extlink, flag)
             # flag the link, but don't overwrite date and don't set status yet
-            flag = ensure_flagged_by_template(wikicode, extlink, "Dead link", *self.deadlink_params, overwrite_parameters=False)
+            flag = ensure_flagged_by_template(wikicode, extlink, flag, *self.deadlink_params, overwrite_parameters=False)
             # overwrite by default, but skip overwriting date when the status matches
             overwrite = True
             if flag.has("status"):
@@ -188,13 +194,10 @@ class ExtlinkStatusChecker:
 
 class Checker(ExtlinkStatusChecker):
     def __init__(self, api, first=None, title=None, langnames=None, connection_timeout=60, max_retries=3):
-        # init inherited
-        ExtlinkStatusChecker.__init__(self, connection_timeout, max_retries)
-
         # ensure that we are authenticated
         require_login(api)
 
-        self.api = api
+        super().__init__(api, None, timeout=connection_timeout, max_retries=max_retries)
 
         # parameters for self.run()
         self.first = first
@@ -256,7 +259,7 @@ class Checker(ExtlinkStatusChecker):
                         executor,
                         self.check_extlink_status,
                         # a way to pass multiple arguments to the check_extlink_status method
-                        *(wikicode, extlink)
+                        *(wikicode, extlink, src_title)
                     )
                     for extlink in wikicode.ifilter_external_links(recursive=True)
                 ]
