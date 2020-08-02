@@ -841,7 +841,7 @@ class LinkChecker(ExtlinkRules, WikilinkRules, ManTemplateRules):
 
         for template in wikicode.ifilter_templates(recursive=True):
             # skip templates that may be added or removed
-            if str(template.name) in {"Broken section link", "Dead link"}:
+            if any(canonicalize(template.name).startswith(prefix) for prefix in {"Broken section link", "Dead link"}):
                 continue
             # skip links inside article status templates
             parent = wikicode.get(wikicode.index(template, recursive=True))
