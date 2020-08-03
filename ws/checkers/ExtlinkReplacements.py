@@ -6,6 +6,7 @@ import logging
 import mwparserfromhell
 import jinja2
 
+from .CheckerBase import get_edit_summary_tracker
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
 
 __all__ = ["ExtlinkReplacements"]
@@ -169,8 +170,11 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                 return True
         return False
 
-    def update_extlink(self, wikicode, extlink):
-#        self.strip_extra_brackets(wikicode, extlink)
+    def update_extlink(self, wikicode, extlink, summary_parts):
+        summary = get_edit_summary_tracker(wikicode, summary_parts)
+
+        with summary("removed extra brackets"):
+            self.strip_extra_brackets(wikicode, extlink)
 
         # create copy to avoid changing links that don't match
         if extlink.title is not None:
@@ -184,11 +188,13 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             extlink.url.replace(entity, entity.normalize())
 
         # always make sure to return as soon as the extlink is matched and replaced
-        # temporarily disable old replacements
-#        if self.check_extlink_replacements(wikicode, extlink):
-#            return
-        if self.check_url_replacements(wikicode, extlink):
-            return
+        with summary("replaced external links"):
+            if self.check_extlink_replacements(wikicode, extlink):
+                return
+        # TODO: update this when more URLs are being updated
+        with summary("update URLs from (projects|git).archlinux.org to github.com"):
+            if self.check_url_replacements(wikicode, extlink):
+                return
 
         # roll back the replacement of HTML entities if the extlink was not replaced by the rules
         wikicode.replace(extlink, extlink_copy)

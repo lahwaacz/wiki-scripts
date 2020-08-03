@@ -8,7 +8,7 @@ from ws.client import API, APIError
 from ws.interactive import edit_interactive, require_login, InteractiveQuit
 from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
-from ws.checkers import get_edit_summary_tracker, ExtlinkReplacements
+from ws.checkers import ExtlinkReplacements
 
 logger = logging.getLogger(__name__)
 
@@ -90,13 +90,8 @@ class LinkChecker(ExtlinkReplacements):
         wikicode = mwparserfromhell.parse(text, skip_style_tags=True)
         summary_parts = []
 
-        summary = get_edit_summary_tracker(wikicode, summary_parts)
-
         for extlink in wikicode.ifilter_external_links(recursive=True):
-            # temporarily use descriptive edit summary
-#            with summary("replaced external links"):
-            with summary("update svntogit URLs from (projects|git).archlinux.org to github.com"):
-                self.update_extlink(wikicode, extlink)
+            self.update_extlink(wikicode, extlink, summary_parts)
 
         # deduplicate and keep order
         parts = set()
