@@ -12,10 +12,7 @@ from ws.interactive import edit_interactive, require_login, InteractiveQuit
 from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.title import canonicalize, TitleError, InvalidTitleCharError
-
-# "equivalent" to `from extlink-checker import ExtlinkStatusChecker` (except for the minus)
-_temp = __import__("extlink-checker", globals(), locals(), ["ExtlinkStatusChecker"], 0)
-ExtlinkStatusChecker = _temp.ExtlinkStatusChecker
+from ws.checkers.ExtlinkStatusChecker import ExtlinkStatusChecker
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +116,7 @@ class ExtlinkRules:
             _url_replacements.append( (compiled, url_replacement) )
         self.url_replacements = _url_replacements
 
-        self.status_checker = ExtlinkStatusChecker(60, 3)
+        self.status_checker = ExtlinkStatusChecker(None, None, timeout=60, max_retries=3)
 
     @staticmethod
     def strip_extra_brackets(wikicode, extlink):
