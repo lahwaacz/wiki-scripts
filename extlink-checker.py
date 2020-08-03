@@ -19,7 +19,7 @@ class Checker(ExtlinkStatusChecker):
         # ensure that we are authenticated
         require_login(api)
 
-        super().__init__(api, None, timeout=connection_timeout, max_retries=max_retries)
+        super().__init__(api, None, interactive=True, timeout=connection_timeout, max_retries=max_retries)
 
         # parameters for self.run()
         self.first = first

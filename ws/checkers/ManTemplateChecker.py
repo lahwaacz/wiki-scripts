@@ -19,7 +19,7 @@ class ManTemplateChecker(CheckerBase):
     man_url_prefix = "http://jlk.fjfi.cvut.cz/arch/manpages/man/"
 
     def __init__(self, api, db, *, timeout=30, max_retries=3, **kwargs):
-        super().__init__(api, db)
+        super().__init__(api, db, **kwargs)
 
         self.timeout = timeout
         self.session = requests.Session()

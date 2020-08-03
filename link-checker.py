@@ -170,7 +170,6 @@ class LinkChecker(ExtlinkRules, WikilinkChecker, ManTemplateChecker):
         # init base classes (pass keyword arguments for all base classes together)
         super().__init__(api, db, interactive=interactive, timeout=connection_timeout, max_retries=max_retries)
 
-        self.interactive = interactive
         self.dry_run = dry_run
 
         # parameters for self.run()

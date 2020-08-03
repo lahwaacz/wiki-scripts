@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 class ExtlinkStatusChecker(CheckerBase):
     def __init__(self, api, db, *, timeout=60, max_retries=3, **kwargs):
-        super().__init__(api, db)
+        super().__init__(api, db, **kwargs)
 
         self.timeout = timeout
         self.session = requests.Session()

@@ -46,9 +46,10 @@ def localize_flag(wikicode, node, template_name):
 
 
 class CheckerBase:
-    def __init__(self, api, db):
+    def __init__(self, api, db, *, interactive=False, **kwargs):
         self.api = api
         self.db = db
+        self.interactive = interactive
 
     @LazyProperty
     def _alltemplates(self):

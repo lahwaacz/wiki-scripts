@@ -52,9 +52,8 @@ class WikilinkChecker(CheckerBase):
     - alternative text is intentional, no replacements there
     """
 
-    def __init__(self, api, db, *, interactive=False, **kwargs):
-        super().__init__(api, db)
-        self.interactive = interactive
+    def __init__(self, api, db, **kwargs):
+        super().__init__(api, db, **kwargs)
 
         # mapping of canonical titles to displaytitles
         self.displaytitles = {}
