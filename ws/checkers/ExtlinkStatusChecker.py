@@ -48,7 +48,7 @@ class ExtlinkStatusChecker(CheckerBase):
         self.deadlink_params = [now.year, now.month, now.day]
         self.deadlink_params = ["{:02d}".format(i) for i in self.deadlink_params]
 
-    def check_extlink_status(self, wikicode, extlink, src_title):
+    def prepare_url(self, wikicode, extlink):
         # make a copy of the URL object (the skip_style_flags parameter is False,
         # so we will also properly parse URLs terminated by a wiki markup)
         url = mwparserfromhell.parse(str(extlink.url))
@@ -111,35 +111,7 @@ class ExtlinkStatusChecker(CheckerBase):
         if url.fragment:
             url = urllib3.util.url.parse_url(url.url.rsplit("#", maxsplit=1)[0])
 
-        logger.info("Checking link {} ...".format(extlink))
-
-        status = self.check_url(url)
-        if status is True:
-            # TODO: the link might still be flagged for a reason (e.g. when the server redirects to some dummy page without giving a proper status code)
-            ensure_unflagged_by_template(wikicode, extlink, "Dead link", match_only_prefix=True)
-        elif status is False:
-            # TODO: handle bbs.archlinux.org (some links may require login)
-            # TODO: handle links inside {{man|url=...}} properly
-            # first replace the existing template (if any) with a translated version
-            flag = self.get_localized_template("Dead link", lang.detect_language(src_title)[1])
-            localize_flag(wikicode, extlink, flag)
-            # flag the link, but don't overwrite date and don't set status yet
-            flag = ensure_flagged_by_template(wikicode, extlink, flag, *self.deadlink_params, overwrite_parameters=False)
-            # overwrite by default, but skip overwriting date when the status matches
-            overwrite = True
-            if flag.has("status"):
-                status = flag.get("status").value
-                if str(status) == str(self.cache_invalid_urls[url]):
-                    overwrite = False
-            if overwrite is True:
-                # overwrite status as well as date
-                flag.add("status", self.cache_invalid_urls[url], showkey=True)
-                flag.add("1", self.deadlink_params[0], showkey=False)
-                flag.add("2", self.deadlink_params[1], showkey=False)
-                flag.add("3", self.deadlink_params[2], showkey=False)
-        else:
-            # TODO: ask the user for manual check (good/bad/skip) and move the URL from self.cache_indeterminate_urls to self.cache_valid_urls or self.cache_invalid_urls
-            logger.warning("status check indeterminate for external link {}".format(extlink))
+        return url
 
     def check_url(self, url, *, allow_redirects=True):
         if url in self.cache_valid_urls:
@@ -187,3 +159,38 @@ class ExtlinkStatusChecker(CheckerBase):
             logger.warning("status code {} for URL {}".format(response.status_code, url))
             self.cache_indeterminate_urls.add(url)
             return None
+
+    def check_extlink_status(self, wikicode, extlink, src_title):
+        url = self.prepare_url(wikicode, extlink)
+        if url is None:
+            return
+
+        logger.info("Checking link {} ...".format(extlink))
+
+        status = self.check_url(url)
+        if status is True:
+            # TODO: the link might still be flagged for a reason (e.g. when the server redirects to some dummy page without giving a proper status code)
+            ensure_unflagged_by_template(wikicode, extlink, "Dead link", match_only_prefix=True)
+        elif status is False:
+            # TODO: handle bbs.archlinux.org (some links may require login)
+            # TODO: handle links inside {{man|url=...}} properly
+            # first replace the existing template (if any) with a translated version
+            flag = self.get_localized_template("Dead link", lang.detect_language(src_title)[1])
+            localize_flag(wikicode, extlink, flag)
+            # flag the link, but don't overwrite date and don't set status yet
+            flag = ensure_flagged_by_template(wikicode, extlink, flag, *self.deadlink_params, overwrite_parameters=False)
+            # overwrite by default, but skip overwriting date when the status matches
+            overwrite = True
+            if flag.has("status"):
+                status = flag.get("status").value
+                if str(status) == str(self.cache_invalid_urls[url]):
+                    overwrite = False
+            if overwrite is True:
+                # overwrite status as well as date
+                flag.add("status", self.cache_invalid_urls[url], showkey=True)
+                flag.add("1", self.deadlink_params[0], showkey=False)
+                flag.add("2", self.deadlink_params[1], showkey=False)
+                flag.add("3", self.deadlink_params[2], showkey=False)
+        else:
+            # TODO: ask the user for manual check (good/bad/skip) and move the URL from self.cache_indeterminate_urls to self.cache_valid_urls or self.cache_invalid_urls
+            logger.warning("status check indeterminate for external link {}".format(extlink))

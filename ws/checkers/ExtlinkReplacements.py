@@ -5,7 +5,6 @@ import logging
 
 import mwparserfromhell
 import jinja2
-import requests.packages.urllib3 as urllib3
 
 from .CheckerBase import get_edit_summary_tracker
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
@@ -212,15 +211,18 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         return False
 
     def check_http_to_https(self, wikicode, extlink):
-        try:
-            # try to parse the URL - fails e.g. if port is not a number
-            # reference: https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#urllib3.util.parse_url
-            url = urllib3.util.url.parse_url(str(extlink.url))
-        except urllib3.exceptions.LocationParseError:
+        # prepare URL - fix parsing of adjacent templates, replace HTML entities, parse with urllib3
+        url = self.prepare_url(wikicode, extlink)
+        if url is None:
             return
 
         if url.scheme == "http" and self.http_to_https_domains_regex.fullmatch(str(url.host)):
-            extlink.url = str(extlink.url).replace("http://", "https://", 1)
+            new_url = str(extlink.url).replace("http://", "https://", 1)
+            # there is no reason to update broken links
+            if self.check_url(new_url):
+                extlink.url = new_url
+            else:
+                logger.warning("Broken link not updated to https: {}".format(extlink.url))
 
     def update_extlink(self, wikicode, extlink, summary_parts):
         summary = get_edit_summary_tracker(wikicode, summary_parts)
