@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+import contextlib
+
 import mwparserfromhell
 
 import ws.ArchWiki.lang as lang
@@ -7,7 +9,20 @@ from ws.utils import LazyProperty
 from ws.parser_helpers.title import canonicalize
 from ws.parser_helpers.wikicode import get_parent_wikicode, get_adjacent_node
 
-__all__ = ["localize_flag", "CheckerBase"]
+__all__ = ["get_edit_summary_tracker", "localize_flag", "CheckerBase"]
+
+
+def get_edit_summary_tracker(wikicode, summary_parts):
+    @contextlib.contextmanager
+    def checker(summary):
+        text = str(wikicode)
+        try:
+            yield
+        finally:
+            if text != str(wikicode):
+                summary_parts.append(summary)
+    return checker
+
 
 def localize_flag(wikicode, node, template_name):
     """
