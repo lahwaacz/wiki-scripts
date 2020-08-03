@@ -5,6 +5,7 @@ import logging
 
 import mwparserfromhell
 import jinja2
+import requests.packages.urllib3 as urllib3
 
 from .CheckerBase import get_edit_summary_tracker
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
@@ -67,10 +68,6 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
     # alternative text. It is not possible to change extlink to other node type
     # such as wikilink here.
     url_replacements = [
-        # change http:// to https:// for archlinux.org and wikipedia.org (do it at the bottom, i.e. with least priority)
-#        (r"http:\/\/((?:[a-z]+\.)?(?:archlinux|wikipedia)\.org(?:\/\S+)?\/?)",
-#          "https://{0}"),
-
         # migration of Arch's git URLs
 
         # svntogit commits
@@ -88,6 +85,15 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
           "https://gitlab.archlinux.org/archlinux/{{project}}{% if type is not none %}/{{type | replace('plain', 'raw') | replace('log', 'commits')}}{% if commit is not none %}/{{commit}}{% elif branch is not none %}/{{branch}}{% elif path is not none %}/master{% endif %}{% if (path is not none) and (path != '/') %}{{path}}{% endif %}{% if linenum is not none %}#L{{linenum}}{% endif %}{% endif %}"),
     ]
 
+    # a set of domains for which http should be updated to https
+    # Note that a very limited globbing is supported: the "*." prefix can be used to match
+    # zero or more subdomains (e.g. "*.foo.bar" matches "foo.bar", "sub1.sub2.foo.bar", etc.)
+    http_to_https_domains = {
+        "*.archlinux.org",
+        "*.wikipedia.org",
+        "*.github.com",
+    }
+
     def __init__(self, api, db, **kwargs):
         super().__init__(api, db, **kwargs)
 
@@ -102,6 +108,16 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             compiled = re.compile(url_regex)
             _url_replacements.append( (compiled, url_replacement) )
         self.url_replacements = _url_replacements
+
+        regex_parts = []
+        for pattern in self.http_to_https_domains:
+            if pattern.startswith("*."):
+                domain = pattern[2:]
+                regex_parts.append("(?:[a-zA-Z0-9-_\.]+\.)?" + re.escape(domain))
+            else:
+                regex_parts.append(re.escape(pattern))
+        regex = "(" + "|".join(regex_parts) + ")"
+        self.http_to_https_domains_regex = re.compile(regex)
 
     @LazyProperty
     def wikisite_extlink_regex(self):
@@ -195,6 +211,17 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                 return True
         return False
 
+    def check_http_to_https(self, wikicode, extlink):
+        try:
+            # try to parse the URL - fails e.g. if port is not a number
+            # reference: https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#urllib3.util.parse_url
+            url = urllib3.util.url.parse_url(str(extlink.url))
+        except urllib3.exceptions.LocationParseError:
+            return
+
+        if url.scheme == "http" and self.http_to_https_domains_regex.fullmatch(str(url.host)):
+            extlink.url = str(extlink.url).replace("http://", "https://", 1)
+
     def update_extlink(self, wikicode, extlink, summary_parts):
         summary = get_edit_summary_tracker(wikicode, summary_parts)
 
@@ -225,3 +252,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
         # roll back the replacement of HTML entities if the extlink was not replaced by the rules
         wikicode.replace(extlink, extlink_copy)
+        extlink = extlink_copy
+
+        with summary("update http to https for known domains"):
+            self.check_http_to_https(wikicode, extlink)
