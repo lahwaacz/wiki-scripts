@@ -3,159 +3,22 @@
 # FIXME: space-initialized code blocks should be skipped, but mwparserfromhell does not support that
 # TODO: changes rejected interactively should be logged
 
-import re
 import logging
 
-import requests
 import mwparserfromhell
 
 from ws.client import API, APIError
 from ws.db.database import Database
-from ws.utils import LazyProperty
 from ws.interactive import edit_interactive, require_login, InteractiveQuit
 from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.title import canonicalize, InvalidTitleCharError
-from ws.checkers import get_edit_summary_tracker, CheckerBase, ManTemplateChecker, WikilinkChecker
+from ws.checkers import get_edit_summary_tracker, ExtlinkReplacements, ManTemplateChecker, WikilinkChecker
 
 logger = logging.getLogger(__name__)
 
 
-class ExtlinkRules(CheckerBase):
-
-    retype = type(re.compile(""))
-    # list of (url_regex, text_cond, text_cond_flags, replacement) tuples, where:
-    #   - url_regex: a regular expression matching the URL (using re.fullmatch)
-    #   - text_cond:
-    #       - as str: a format string used to create the regular expression described above
-    #                 (it is formatted using the groups matched by url_regex)
-    #       - as None: the extlink must not have any alternative text
-    #   - text_cond_flags: flags for the text_cond regex
-    #   - replacement: a format string used as a replacement (it is formatted
-    #                  using the groups matched by url_regex and the alternative
-    #                  text (if present))
-    replacements = [
-        # Arch bug tracker
-        (re.escape("https://bugs.archlinux.org/task/") + "(\d+)",
-            "(FS|flyspray) *#?{0}", 0, "{{{{Bug|{0}}}}}"),
-
-        # official packages, with and without alternative text
-        (r"https?\:\/\/(?:www\.)?archlinux\.org\/packages\/[\w-]+\/(?:any|i686|x86_64)\/([a-zA-Z0-9@._+-]+)\/?",
-            "{0}", re.IGNORECASE, "{{{{Pkg|{0}}}}}"),
-        (r"https?\:\/\/(?:www\.)?archlinux\.org\/packages\/[\w-]+\/(?:any|i686|x86_64)\/([a-zA-Z0-9@._+-]+)\/?",
-            None, 0, "{{{{Pkg|{0}}}}}"),
-
-        # AUR packages, with and without alternative text
-        (r"https?\:\/\/aur\.archlinux\.org\/packages\/([a-zA-Z0-9@._+-]+)\/?",
-            "{0}", re.IGNORECASE, "{{{{AUR|{0}}}}}"),
-        (r"https?\:\/\/aur\.archlinux\.org\/packages\/([a-zA-Z0-9@._+-]+)\/?",
-            None, 0, "{{{{AUR|{0}}}}}"),
-
-        # Wikipedia interwiki
-        (r"https?\:\/\/en\.wikipedia\.org\/wiki\/([^\]\?]+)",
-            ".*", 0, "[[wikipedia:{0}|{1}]]"),
-        (r"https?\:\/\/en\.wikipedia\.org\/wiki\/([^\]\?]+)",
-            None, 0, "[[wikipedia:{0}]]"),
-
-        # change http:// to https:// for archlinux.org and wikipedia.org (do it at the bottom, i.e. with least priority)
-        (r"http:\/\/((?:[a-z]+\.)?(?:archlinux|wikipedia)\.org(?:\/\S+)?\/?)",
-            ".*", 0, "[https://{0} {1}]"),
-        (r"http:\/\/((?:[a-z]+\.)?(?:archlinux|wikipedia)\.org(?:\/\S+)?\/?)",
-            None, 0, "https://{0}"),
-    ]
-
-    def __init__(self, api, db, **kwargs):
-        super().__init__(api, db)
-
-        _replacements = []
-        for url_regex, text_cond, text_cond_flags, replacement in self.replacements:
-            compiled = re.compile(url_regex)
-            _replacements.append( (compiled, text_cond, text_cond_flags, replacement) )
-        self.replacements = _replacements
-
-    @LazyProperty
-    def extlink_regex(self):
-        general = self.api.site.general
-        regex = re.escape(general["server"] + general["articlepath"].split("$1")[0])
-        regex += "(?P<pagename>[^\s\?]+)"
-        return re.compile(regex)
-
-    @staticmethod
-    def strip_extra_brackets(wikicode, extlink):
-        """
-        Strip extra brackets around an external link, for example:
-
-            [[http://example.com/ foo]] -> [http://example.com/ foo]
-        """
-        parent, _ = wikicode._do_strong_search(extlink, True)
-        index = parent.index(extlink)
-
-        def _get_text(index):
-            try:
-                node = parent.get(index)
-                if not isinstance(node, mwparserfromhell.nodes.text.Text):
-                    return None
-                return node
-            except IndexError:
-                return None
-
-        prev = _get_text(index - 1)
-        next_ = _get_text(index + 1)
-
-        if prev is not None and next_ is not None and prev.endswith("[") and next_.startswith("]"):
-            prev.value = prev.value[:-1]
-            next_.value = next_.value[1:]
-
-    def extlink_to_wikilink(self, wikicode, extlink):
-        match = self.extlink_regex.fullmatch(str(extlink.url))
-        if match:
-            pagename = match.group("pagename")
-            title = self.api.Title(pagename)
-            target = title.format(iwprefix=True, namespace=True, sectionname=True)
-            # handle links to special namespaces correctly
-            if title.namespacenumber in {-2, 6, 14}:
-                target = ":" + target
-            if extlink.title:
-                wikilink = "[[{}|{}]]".format(target, extlink.title)
-            else:
-                wikilink = "[[{}]]".format(target)
-            wikicode.replace(extlink, wikilink)
-            return True
-        return False
-
-    def extlink_replacements(self, wikicode, extlink):
-        for url_regex, text_cond, text_cond_flags, replacement in self.replacements:
-            if (text_cond is None and extlink.title is not None) or (text_cond is not None and extlink.title is None):
-                continue
-            match = url_regex.fullmatch(str(extlink.url))
-            if match:
-                if extlink.title is None:
-                    repl = replacement.format(*match.groups())
-                    # FIXME: hack to preserve brackets (e.g. [http://example.com/] )
-                    if extlink.brackets and not repl.startswith("[") and not repl.endswith("]"):
-                        repl = "[{}]".format(repl)
-                    wikicode.replace(extlink, repl)
-                    return True
-                else:
-                    groups = [re.escape(g) for g in match.groups()]
-                    alt_text = str(extlink.title).strip()
-                    if re.fullmatch(text_cond.format(*groups), alt_text, text_cond_flags):
-                        wikicode.replace(extlink, replacement.format(*match.groups(), extlink.title))
-                        return True
-                    else:
-                        logger.warning("external link that should be replaced, but has custom alternative text: {}".format(extlink))
-        return False
-
-    def update_extlink(self, wikicode, extlink):
-        # always make sure to return as soon as the extlink is invalidated
-        self.strip_extra_brackets(wikicode, extlink)
-        if self.extlink_to_wikilink(wikicode, extlink):
-            return
-        if self.extlink_replacements(wikicode, extlink):
-            return
-
-
-class LinkChecker(ExtlinkRules, WikilinkChecker, ManTemplateChecker):
+class LinkChecker(ExtlinkReplacements, WikilinkChecker, ManTemplateChecker):
 
     interactive_only_pages = ["ArchWiki:Sandbox"]
     skip_pages = ["Table of contents", "Help:Editing", "ArchWiki:Reports", "ArchWiki:Requests", "ArchWiki:Statistics"]
@@ -248,8 +111,7 @@ class LinkChecker(ExtlinkRules, WikilinkChecker, ManTemplateChecker):
             parent = wikicode.get(wikicode.index(extlink, recursive=True))
             if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
                 continue
-            with summary("replaced external links"):
-                self.update_extlink(wikicode, extlink)
+            self.update_extlink(wikicode, extlink, summary_parts)
 
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
             # skip links inside article status templates

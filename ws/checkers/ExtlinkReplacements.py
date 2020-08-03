@@ -8,6 +8,7 @@ import jinja2
 
 from .CheckerBase import get_edit_summary_tracker
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
+from ws.utils import LazyProperty
 
 __all__ = ["ExtlinkReplacements"]
 
@@ -102,6 +103,13 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             _url_replacements.append( (compiled, url_replacement) )
         self.url_replacements = _url_replacements
 
+    @LazyProperty
+    def wikisite_extlink_regex(self):
+        general = self.api.site.general
+        regex = re.escape(general["server"] + general["articlepath"].split("$1")[0])
+        regex += "(?P<pagename>[^\s\?]+)"
+        return re.compile(regex)
+
     @staticmethod
     def strip_extra_brackets(wikicode, extlink):
         """
@@ -127,6 +135,23 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         if prev is not None and next_ is not None and prev.endswith("[") and next_.startswith("]"):
             prev.value = prev.value[:-1]
             next_.value = next_.value[1:]
+
+    def check_extlink_to_wikilink(self, wikicode, extlink):
+        match = self.wikisite_extlink_regex.fullmatch(str(extlink.url))
+        if match:
+            pagename = match.group("pagename")
+            title = self.api.Title(pagename)
+            target = title.format(iwprefix=True, namespace=True, sectionname=True)
+            # handle links to special namespaces correctly
+            if title.namespacenumber in {-2, 6, 14}:
+                target = ":" + target
+            if extlink.title:
+                wikilink = "[[{}|{}]]".format(target, extlink.title)
+            else:
+                wikilink = "[[{}]]".format(target)
+            wikicode.replace(extlink, wikilink)
+            return True
+        return False
 
     def check_extlink_replacements(self, wikicode, extlink):
         for url_regex, text_cond, text_cond_flags, replacement in self.extlink_replacements:
@@ -189,6 +214,8 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
         # always make sure to return as soon as the extlink is matched and replaced
         with summary("replaced external links"):
+            if self.check_extlink_to_wikilink(wikicode, extlink):
+                return
             if self.check_extlink_replacements(wikicode, extlink):
                 return
         # TODO: update this when more URLs are being updated
