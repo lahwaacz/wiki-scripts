@@ -180,10 +180,6 @@ class WikilinkChecker(CheckerBase):
         if self.interactive is False:
             return
 
-        # FIXME: very common false positive
-        if title.pagename.lower().startswith("wpa supplicant"):
-            return
-
         # might be only a section, e.g. [[#foo]]
         if title.fullpagename:
             target = self.api.redirects.map.get(title.fullpagename)
