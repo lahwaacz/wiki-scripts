@@ -2,7 +2,6 @@
 
 import re
 import logging
-import contextlib
 
 import mwparserfromhell
 import jinja2
@@ -12,24 +11,12 @@ from ws.interactive import edit_interactive, require_login, InteractiveQuit
 from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.title import canonicalize, TitleError, InvalidTitleCharError
-from ws.checkers.ExtlinkStatusChecker import ExtlinkStatusChecker
+from ws.checkers import get_edit_summary_tracker, ExtlinkStatusChecker
 
 logger = logging.getLogger(__name__)
 
 
-def get_edit_checker(wikicode, summary_parts):
-    @contextlib.contextmanager
-    def checker(summary):
-        text = str(wikicode)
-        try:
-            yield
-        finally:
-            if text != str(wikicode):
-                summary_parts.append(summary)
-    return checker
-
-
-class ExtlinkRules:
+class ExtlinkRules(ExtlinkStatusChecker):
 
     retype = type(re.compile(""))
     # list of (url_regex, text_cond, text_cond_flags, replacement) tuples, where:
@@ -103,7 +90,9 @@ class ExtlinkRules:
           "https://gitlab.archlinux.org/archlinux/{{project}}{% if type is not none %}/{{type | replace('plain', 'raw') | replace('log', 'commits')}}{% if commit is not none %}/{{commit}}{% elif branch is not none %}/{{branch}}{% elif path is not none %}/master{% endif %}{% if (path is not none) and (path != '/') %}{{path}}{% endif %}{% if linenum is not none %}#L{{linenum}}{% endif %}{% endif %}"),
     ]
 
-    def __init__(self):
+    def __init__(self, api, db, **kwargs):
+        super().__init__(api, db, **kwargs)
+
         _replacements = []
         for url_regex, text_cond, text_cond_flags, replacement in self.replacements:
             compiled = re.compile(url_regex)
@@ -115,8 +104,6 @@ class ExtlinkRules:
             compiled = re.compile(url_regex)
             _url_replacements.append( (compiled, url_replacement) )
         self.url_replacements = _url_replacements
-
-        self.status_checker = ExtlinkStatusChecker(None, None, timeout=60, max_retries=3)
 
     @staticmethod
     def strip_extra_brackets(wikicode, extlink):
@@ -178,7 +165,7 @@ class ExtlinkRules:
                     template = env.from_string(url_replacement)
                     new_url = template.render(m=match.groups(), **match.groupdict())
                 # check if the resulting URL is valid
-                status = self.status_checker.check_url(new_url, allow_redirects=False)
+                status = self.check_url(new_url, allow_redirects=False)
                 if status is True:
                     extlink.url = new_url
                 else:
@@ -216,18 +203,13 @@ class LinkChecker(ExtlinkRules):
 #    skip_pages = ["Table of contents", "Help:Editing", "ArchWiki:Reports", "ArchWiki:Requests", "ArchWiki:Statistics"]
     skip_pages = []
 
-    def __init__(self, api, db, interactive=False, dry_run=False, first=None, title=None, langnames=None, connection_timeout=30, max_retries=3):
+    def __init__(self, api, interactive=False, dry_run=False, first=None, title=None, langnames=None, connection_timeout=30, max_retries=3):
         if not dry_run:
             # ensure that we are authenticated
             require_login(api)
 
-        # init inherited
-        ExtlinkRules.__init__(self)
+        super().__init__(api, None, interactive=interactive, timeout=connection_timeout, max_retries=max_retries)
 
-        self.api = api
-        self.db = db
-#        self.interactive = interactive
-        self.interactive = True
         self.dry_run = dry_run
 
         # parameters for self.run()
@@ -235,18 +217,12 @@ class LinkChecker(ExtlinkRules):
         self.title = title
         self.langnames = langnames
 
-#        self.db.sync_with_api(api)
-#        self.db.sync_revisions_content(api, mode="latest")
-#        self.db.update_parser_cache()
-
     @staticmethod
     def set_argparser(argparser):
         # first try to set options for objects we depend on
         present_groups = [group.title for group in argparser._action_groups]
         if "Connection parameters" not in present_groups:
             API.set_argparser(argparser)
-#        if "Database parameters" not in present_groups:
-#            Database.set_argparser(argparser)
 
         group = argparser.add_argument_group(title="script parameters")
 #        group.add_argument("-i", "--interactive", action="store_true",
@@ -262,11 +238,9 @@ class LinkChecker(ExtlinkRules):
                 help="comma-separated list of language tags to process (default: all, choices: {})".format(lang.get_internal_tags()))
 
     @classmethod
-    def from_argparser(klass, args, api=None, db=None):
+    def from_argparser(klass, args, api=None):
         if api is None:
             api = API.from_argparser(args)
-#        if db is None:
-#            db = Database.from_argparser(args)
         if args.lang:
             tags = args.lang.split(",")
             for tag in tags:
@@ -276,8 +250,8 @@ class LinkChecker(ExtlinkRules):
             langnames = {lang.langname_for_tag(tag) for tag in tags}
         else:
             langnames = set()
-#        return klass(api, db, interactive=args.interactive, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames, connection_timeout=args.connection_timeout, max_retries=args.connection_max_retries)
-        return klass(api, db, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames, connection_timeout=args.connection_timeout, max_retries=args.connection_max_retries)
+#        return klass(api, interactive=args.interactive, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames, connection_timeout=args.connection_timeout, max_retries=args.connection_max_retries)
+        return klass(api, interactive=True, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames, connection_timeout=args.connection_timeout, max_retries=args.connection_max_retries)
 
     def update_page(self, src_title, text):
         """
@@ -300,7 +274,7 @@ class LinkChecker(ExtlinkRules):
         wikicode = mwparserfromhell.parse(text, skip_style_tags=True)
         summary_parts = []
 
-        summary = get_edit_checker(wikicode, summary_parts)
+        summary = get_edit_summary_tracker(wikicode, summary_parts)
 
         for extlink in wikicode.ifilter_external_links(recursive=True):
             # temporarily use descriptive edit summary
