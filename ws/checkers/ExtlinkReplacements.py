@@ -91,6 +91,11 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         "*.archlinux.org",
         "*.wikipedia.org",
         "*.github.com",
+        "*.gitlab.com",
+        "*.bitbucket.org",
+        "sourceforge.net",   # some subdomains are http only
+        "*.freedesktop.org",
+        "*.kernel.org",
     }
 
     def __init__(self, api, db, **kwargs):
