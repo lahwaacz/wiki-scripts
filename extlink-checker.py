@@ -144,7 +144,7 @@ class ExtlinkStatusChecker(CheckerBase):
             # TODO: ask the user for manual check (good/bad/skip) and move the URL from self.cache_indeterminate_urls to self.cache_valid_urls or self.cache_invalid_urls
             logger.warning("status check indeterminate for external link {}".format(extlink))
 
-    def check_url(self, url):
+    def check_url(self, url, *, allow_redirects=True):
         if url in self.cache_valid_urls:
             return True
         elif url in self.cache_invalid_urls:
@@ -156,7 +156,7 @@ class ExtlinkStatusChecker(CheckerBase):
             # We need to use GET requests instead of HEAD, because many servers just return 404
             # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
             # response body content using the ``stream=True`` parameter.
-            response = self.session.get(url, headers=self.headers, timeout=self.timeout, stream=True)
+            response = self.session.get(url, headers=self.headers, timeout=self.timeout, stream=True, allow_redirects=allow_redirects)
         # SSLError inherits from ConnectionError so it has to be checked first
         except requests.exceptions.SSLError as e:
             logger.error("SSLError ({}) for URL {}".format(e, url))
