@@ -198,6 +198,9 @@ class ExtlinkStatusChecker(CheckerBase):
             localize_flag(wikicode, extlink, flag)
             # flag the link, but don't overwrite date and don't set status yet
             flag = ensure_flagged_by_template(wikicode, extlink, flag, *self.deadlink_params, overwrite_parameters=False)
+            # drop the fragment from the URL before looking into the cache
+            if url.fragment:
+                url = urllib3.util.url.parse_url(url.url.rsplit("#", maxsplit=1)[0])
             # overwrite by default, but skip overwriting date when the status matches
             overwrite = True
             if flag.has("status"):
