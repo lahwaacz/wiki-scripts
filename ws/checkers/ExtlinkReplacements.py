@@ -302,7 +302,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                 return
 
         # TODO: update this when more URLs are being updated
-        with summary("update URLs from (projects|git).archlinux.org to github.com"):
+        with summary("update old links to (projects|git).archlinux.org"):
             if self.check_url_replacements(wikicode, extlink, url):
                 return
 
