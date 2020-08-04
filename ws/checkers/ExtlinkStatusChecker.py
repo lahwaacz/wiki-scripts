@@ -37,11 +37,11 @@ class ExtlinkStatusChecker(CheckerBase):
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36",
         }
 
-        # valid URLs - 2xx
+        # valid URLs - 2xx, 3xx (when allow_redirects=True)
         self.cache_valid_urls = set()
         # invalid URLs - 4xx, domain resolution errors, etc. - mapping of the URL to status text
         self.cache_invalid_urls = {}
-        # indeterminate - 3xx, 5xx
+        # indeterminate - 5xx, 3xx (when allow_redirects=False)
         self.cache_indeterminate_urls = set()
 
         now = datetime.datetime.utcnow()
