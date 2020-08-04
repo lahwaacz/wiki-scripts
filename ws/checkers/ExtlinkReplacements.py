@@ -33,6 +33,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             "(FS|flyspray) *#?{0}", 0, "{{{{Bug|{0}}}}}"),
 
         # official packages, with and without alternative text
+        # FIXME: don't match pkgbase - see [[Firefox]]
         (r"https?\:\/\/(?:www\.)?archlinux\.org\/packages\/[\w-]+\/(?:any|i686|x86_64)\/([a-zA-Z0-9@._+-]+)\/?",
             "{0}", re.IGNORECASE, "{{{{Pkg|{0}}}}}"),
         (r"https?\:\/\/(?:www\.)?archlinux\.org\/packages\/[\w-]+\/(?:any|i686|x86_64)\/([a-zA-Z0-9@._+-]+)\/?",
@@ -82,6 +83,10 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         # other git repos
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/(?P<project>archiso|aurweb|infrastructure).git(?:\/(?P<type>commit|tree|plain|log))?(?P<path>[^?]+?)?(?:\?h=(?P<branch>[^&#?]+?))?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))?(?:#n(?P<linenum>\d+))?",
           "https://gitlab.archlinux.org/archlinux/{{project}}{% if type is not none %}/{{type | replace('plain', 'raw') | replace('log', 'commits')}}{% if commit is not none %}/{{commit}}{% elif branch is not none %}/{{branch}}{% elif path is not none %}/master{% endif %}{% if (path is not none) and (path != '/') %}{{path}}{% endif %}{% if linenum is not none %}#L{{linenum}}{% endif %}{% endif %}"),
+
+        # TODO: https?://wireless.kernel.org/en/users/Drivers/brcm80211 → https://wireless.wiki.kernel.org/en/users/Drivers/brcm80211
+        # TODO: remove language codes from mozilla.org links: https://wiki.archlinux.org/index.php?title=Firefox&diff=494556&oldid=494544
+        # TODO: remove user IDs from short links to stackexchange/stackoverflow posts
     ]
 
     # a set of domains for which http should be updated to https
@@ -89,13 +94,42 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
     # zero or more subdomains (e.g. "*.foo.bar" matches "foo.bar", "sub1.sub2.foo.bar", etc.)
     http_to_https_domains = {
         "*.archlinux.org",
+        "*.wikimedia.org",
         "*.wikipedia.org",
+        "*.wiktionary.org",
+        "*.wikiquote.org",
+        "*.wikibooks.org",
+        "*.wikisource.org",
+        "*.wikinews.org",
+        "*.wikiversity.org",
+        "*.mediawiki.org",
+        "*.wikidata.org",
+        "*.wikivoyage.org",
+        "*.wikimediafoundation.org",
+        "*.stackexchange.com",
+        "*.stackoverflow.com",
+        "*.askubuntu.com",
+        "*.serverfault.com",
+        "*.superuser.com",
+        "*.mathoverflow.net",
         "*.github.com",
+        "*.github.io",
         "*.gitlab.com",
         "*.bitbucket.org",
         "sourceforge.net",   # some subdomains are http only
         "*.freedesktop.org",
         "*.kernel.org",
+        "*.gnu.org",
+        "*.fsf.org",
+        "tldp.org",   # some subdomains are http only
+        "*.microsoft.com",
+        "*.blogspot.com",
+        "*.wordpress.com",
+        "*.mozilla.org",
+        "*.mozilla.com",
+        "*.kde.org",
+        "*.gnome.org",
+        "*.archive.org",
     }
 
     def __init__(self, api, db, **kwargs):
@@ -119,7 +153,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                 domain = pattern[2:]
                 regex_parts.append("(?:[a-zA-Z0-9-_\.]+\.)?" + re.escape(domain))
             else:
-                regex_parts.append(re.escape(pattern))
+                regex_parts.append("(www\.)?" + re.escape(pattern))
         regex = "(" + "|".join(regex_parts) + ")"
         self.http_to_https_domains_regex = re.compile(regex)
 
