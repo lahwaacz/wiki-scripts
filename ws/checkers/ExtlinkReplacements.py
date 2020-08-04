@@ -234,18 +234,42 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         for url_regex, url_replacement in self.url_replacements:
             match = url_regex.fullmatch(url.url)
             if match:
+                # there is no reason to update broken links
+                if not self.check_url(url):
+                    logger.warning("broken URL not replaced: {}".format(url))
+                    return False
+
                 if "{0}" in url_replacement:
                     new_url = url_replacement.format(*match.groups())
                 else:
                     env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
                     template = env.from_string(url_replacement)
                     new_url = template.render(m=match.groups(), **match.groupdict())
+
                 # check if the resulting URL is valid
-                status = self.check_url(new_url, allow_redirects=False)
-                if status is True:
-                    extlink.url = new_url
-                else:
-                    logger.error("Link not replaced: {}".format(extlink))
+                if not self.check_url(new_url, allow_redirects=True):
+                    logger.warning("URL not replaced: {}".format(url))
+                    return False
+
+                # post-processing for gitlab.archlinux.org links
+                #   - gitlab uses "blob" for files and "tree" for directories
+                #   - if "blob" or "tree" is used incorrectly, gitlab gives 302 to the correct one
+                #     (so we should replace new_url with what gitlab gives us)
+                #   - the "/-/" disambiguator (which is added by gitlab's redirects) is ugly and should be removed thereafter
+                #   - gitlab gives 302 to the master branch instead of 404 for non-existent files/directories
+                #     (so we check if the original URL gives 404 and give up)
+                if new_url.startswith("https://gitlab.archlinux.org"):
+                    # use same query as ExtlinkStatusChecker.check_url
+                    response = self.session.get(new_url, headers=self.headers, timeout=self.timeout, stream=True, allow_redirects=True)
+                    if len(response.history) > 0:
+                        if response.url.endswith("/master"):
+                            # this is gitlab's "404" in most cases
+                            logger.warning("URL not replaced (Gitlab redirected to a master branch): {}".format(url))
+                            return False
+                        new_url = response.url
+                    new_url = new_url.replace("/-/", "/", 1)
+
+                extlink.url = new_url
                 return True
         return False
 
@@ -256,7 +280,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             if self.check_url(new_url):
                 extlink.url = new_url
             else:
-                logger.warning("Broken link not updated to https: {}".format(extlink.url))
+                logger.warning("broken URL not updated to https: {}".format(url))
 
     def update_extlink(self, wikicode, extlink, summary_parts):
         # prepare URL - fix parsing of adjacent templates, replace HTML entities, parse with urllib3
