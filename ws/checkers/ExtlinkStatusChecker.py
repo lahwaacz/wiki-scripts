@@ -107,13 +107,18 @@ class ExtlinkStatusChecker(CheckerBase):
                 return
         except ValueError:
             pass
-        # drop the fragment from the URL (to optimize caching)
-        if url.fragment:
-            url = urllib3.util.url.parse_url(url.url.rsplit("#", maxsplit=1)[0])
 
         return url
 
     def check_url(self, url, *, allow_redirects=True):
+        if not isinstance(url, urllib3.util.url.Url):
+            url = urllib3.util.url.parse_url(url)
+
+        # drop the fragment from the URL (to optimize caching)
+        if url.fragment:
+            url = urllib3.util.url.parse_url(url.url.rsplit("#", maxsplit=1)[0])
+
+        # check the caches
         if url in self.cache_valid_urls:
             return True
         elif url in self.cache_invalid_urls:
