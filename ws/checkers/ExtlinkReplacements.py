@@ -156,8 +156,8 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             prev.value = prev.value[:-1]
             next_.value = next_.value[1:]
 
-    def check_extlink_to_wikilink(self, wikicode, extlink):
-        match = self.wikisite_extlink_regex.fullmatch(str(extlink.url))
+    def check_extlink_to_wikilink(self, wikicode, extlink, url):
+        match = self.wikisite_extlink_regex.fullmatch(url.url)
         if match:
             pagename = match.group("pagename")
             title = self.api.Title(pagename)
@@ -173,11 +173,11 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             return True
         return False
 
-    def check_extlink_replacements(self, wikicode, extlink):
+    def check_extlink_replacements(self, wikicode, extlink, url):
         for url_regex, text_cond, text_cond_flags, replacement in self.extlink_replacements:
             if (text_cond is None and extlink.title is not None) or (text_cond is not None and extlink.title is None):
                 continue
-            match = url_regex.fullmatch(str(extlink.url))
+            match = url_regex.fullmatch(url.url)
             if match:
                 if extlink.title is None:
                     repl = replacement.format(*match.groups())
@@ -196,9 +196,9 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                         logger.warning("external link that should be replaced, but has custom alternative text: {}".format(extlink))
         return False
 
-    def check_url_replacements(self, wikicode, extlink):
+    def check_url_replacements(self, wikicode, extlink, url):
         for url_regex, url_replacement in self.url_replacements:
-            match = url_regex.fullmatch(str(extlink.url))
+            match = url_regex.fullmatch(url.url)
             if match:
                 if "{0}" in url_replacement:
                     new_url = url_replacement.format(*match.groups())
@@ -215,12 +215,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                 return True
         return False
 
-    def check_http_to_https(self, wikicode, extlink):
-        # prepare URL - fix parsing of adjacent templates, replace HTML entities, parse with urllib3
-        url = self.prepare_url(wikicode, extlink)
-        if url is None:
-            return
-
+    def check_http_to_https(self, wikicode, extlink, url):
         if url.scheme == "http" and self.http_to_https_domains_regex.fullmatch(str(url.host)):
             new_url = str(extlink.url).replace("http://", "https://", 1)
             # there is no reason to update broken links
@@ -230,36 +225,28 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                 logger.warning("Broken link not updated to https: {}".format(extlink.url))
 
     def update_extlink(self, wikicode, extlink, summary_parts):
+        # prepare URL - fix parsing of adjacent templates, replace HTML entities, parse with urllib3
+        url = self.prepare_url(wikicode, extlink)
+        if url is None:
+            return
+
         summary = get_edit_summary_tracker(wikicode, summary_parts)
 
         with summary("removed extra brackets"):
             self.strip_extra_brackets(wikicode, extlink)
 
-        # create copy to avoid changing links that don't match
-        if extlink.title is not None:
-            extlink_copy = mwparserfromhell.nodes.ExternalLink(str(extlink.url), str(extlink.title), extlink.brackets, extlink.suppress_space)
-        else:
-            extlink_copy = mwparserfromhell.nodes.ExternalLink(str(extlink.url), extlink.title, extlink.brackets, extlink.suppress_space)
-
-        # replace HTML entities like "&#61" or "&Sigma;" in the URL with their unicode equivalents
-        # TODO: this may break templates if the decoded "&#61" stays in the replaced URL
-        for entity in extlink.url.ifilter_html_entities(recursive=True):
-            extlink.url.replace(entity, entity.normalize())
-
         # always make sure to return as soon as the extlink is matched and replaced
         with summary("replaced external links"):
-            if self.check_extlink_to_wikilink(wikicode, extlink):
+            if self.check_extlink_to_wikilink(wikicode, extlink, url):
                 return
-            if self.check_extlink_replacements(wikicode, extlink):
+            # TODO: HTML entities were replaced, templates may break if the decoded "&#61" stays in the replaced URL
+            if self.check_extlink_replacements(wikicode, extlink, url):
                 return
+
         # TODO: update this when more URLs are being updated
         with summary("update URLs from (projects|git).archlinux.org to github.com"):
-            if self.check_url_replacements(wikicode, extlink):
+            if self.check_url_replacements(wikicode, extlink, url):
                 return
 
-        # roll back the replacement of HTML entities if the extlink was not replaced by the rules
-        wikicode.replace(extlink, extlink_copy)
-        extlink = extlink_copy
-
         with summary("update http to https for known domains"):
-            self.check_http_to_https(wikicode, extlink)
+            self.check_http_to_https(wikicode, extlink, url)
