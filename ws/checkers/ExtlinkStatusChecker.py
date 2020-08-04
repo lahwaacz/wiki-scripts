@@ -57,15 +57,29 @@ class ExtlinkStatusChecker(CheckerBase):
         # (e.g. http://domain.tld/{{Dead link|2020|02|20}}) completely as one URL,
         # so we need to split it manually
         if "{{" in str(url):
+            # back up original wikicode
+            text_old = str(wikicode)
+
             url, rest = str(url).split("{{", maxsplit=1)
             rest = "{{" + rest
             url = mwparserfromhell.parse(url)
-            # remove everything after the real URL from the extlink...
-            for node in extlink.url.nodes[1:]:
+            # find the index of the template in extlink.url.nodes
+            # (note that it may be greater than 1, e.g. when there are HTML entities)
+            for idx in range(len(extlink.url.nodes)):
+                if "".join(str(n) for n in extlink.url.nodes[idx:]) == rest:
+                    break
+            assert "".join(str(n) for n in extlink.url.nodes[idx:]) == str(rest)
+            # remove the template and everything after it from the extlink...
+            # GOTCHA: the list shrinks during iteration, so we need to create a copy
+            for node in list(extlink.url.nodes[idx:]):
                 extlink.url.remove(node)
             # ...and insert it into the parent wikicode after the link
             parent = get_parent_wikicode(wikicode, extlink)
             parent.insert_after(extlink, rest)
+
+            # make sure that this was a no-op
+            text_new = str(wikicode)
+            assert text_old == text_new, "failed to fix parsing of templates after URL"
 
         # replace HTML entities like "&#61" or "&Sigma;" with their unicode equivalents
         for entity in url.ifilter_html_entities(recursive=True):
