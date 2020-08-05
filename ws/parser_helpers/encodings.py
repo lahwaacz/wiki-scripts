@@ -4,7 +4,7 @@ import string
 import re
 import unicodedata
 
-__all__ = ["encode", "decode", "dotencode", "urlencode", "urldecode", "queryencode", "querydecode"]
+__all__ = ["encode", "decode", "dotencode", "anchorencode", "urlencode", "urldecode", "queryencode", "querydecode"]
 
 def encode(str_, escape_char="%", encode_chars="", skip_chars="", special_map=None, charset="utf-8", errors="strict"):
     """

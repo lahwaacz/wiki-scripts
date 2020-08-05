@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+import pytest
+
 import urllib.parse
 import string
 
@@ -106,3 +108,21 @@ class test_encodings:
         # (also linked correctly from TOC)
         e = ".2B.3A.253A.5D.5D"
         assert dotencode(s) == e
+
+    def test_anchorencode_legacy(self):
+        for s in [string.ascii_letters, string.digits, string.punctuation, self.unicode_sample]:
+            assert anchorencode(s, format="legacy") == dotencode(s)
+
+    def test_anchorencode_html5(self):
+        for s in [string.ascii_letters, string.digits, string.punctuation, self.unicode_sample]:
+            assert anchorencode(s, format="html5") == s
+
+    def test_anchorencode_html5_separator(self):
+        # soft hyphen - character with the "Other" general category property
+        # https://en.wikipedia.org/wiki/Unicode#General_Category_property
+        s = "\u00AD"
+        assert anchorencode(s, format="html5") == dotencode(s)
+
+    def test_anchorencode_invalid_format(self):
+        with pytest.raises(ValueError):
+            anchorencode("foo", format="invalid")
