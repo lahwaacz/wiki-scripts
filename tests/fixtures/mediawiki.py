@@ -5,6 +5,8 @@ import hashlib
 import tarfile
 import subprocess
 import re
+import json
+from pprint import pprint
 
 import requests
 import sqlalchemy as sa
@@ -194,8 +196,11 @@ class MediaWikiFixtureInstance:
             "--php-ini",
             _php_ini,
             "maintenance/runJobs.php",
+            "--result",
+            "json",
         ]
-        subprocess.run(cmd, cwd=self._mw_nginx_proc.server_root, check=True)
+        result = subprocess.run(cmd, cwd=self._mw_nginx_proc.server_root, check=True, capture_output=True)
+#        pprint(json.loads(result.stdout))
         del self.api.site
         assert self.api.site.statistics["jobs"] == 0, "failed to execute all queued jobs"
 

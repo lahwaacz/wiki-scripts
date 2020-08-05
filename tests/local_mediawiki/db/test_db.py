@@ -17,7 +17,8 @@ def empty_wsdb(db):
 
 @when("I synchronize the wiki-scripts database")
 def sync_page_tables(mediawiki, db):
-    db.sync_with_api(mediawiki.api, with_content=True)
+    mediawiki.run_jobs()
+    db.sync_with_api(mediawiki.api, with_content=True, check_needs_update=False)
 
 @when(parsers.parse("I create page \"{title}\""))
 def create_page(mediawiki, title):
@@ -66,14 +67,10 @@ def unprotect_page(mediawiki, title):
 @when(parsers.parse("I delete page \"{title}\""))
 def delete_page(mediawiki, title):
     mediawiki.api.call_with_csrftoken(action="delete", title=title)
-    # FIXME: running jobs is not necessary, but the call adds a small delay which stabilizes the tests
-    mediawiki.run_jobs()
 
 @when(parsers.parse("I undelete page \"{title}\""))
 def undelete_page(mediawiki, title):
     mediawiki.api.call_with_csrftoken(action="undelete", title=title)
-    # FIXME: running jobs is not necessary, but the call adds a small delay which stabilizes the tests
-    mediawiki.run_jobs()
 
 @when(parsers.parse("I merge page \"{source}\" into \"{target}\""))
 def merge_page(mediawiki, source, target):
@@ -83,8 +80,6 @@ def merge_page(mediawiki, source, target):
         "to": target,
     }
     mediawiki.api.call_with_csrftoken(params)
-    # FIXME: running jobs is not necessary, but the call adds a small delay which stabilizes the tests
-    mediawiki.run_jobs()
 
 @when(parsers.parse("I delete the oldest revision of page \"{title}\""))
 def delete_revision(mediawiki, title):
@@ -190,8 +185,6 @@ def tag_logevent(mediawiki, tag):
         "add": tag,
     }
     mediawiki.api.call_with_csrftoken(params)
-    # FIXME: running jobs is not necessary, but the call adds a small delay which stabilizes the tests
-    mediawiki.run_jobs()
 
 @when(parsers.parse("I remove tag \"{tag}\" from the first logevent"))
 def untag_logevent(mediawiki, tag):
@@ -202,8 +195,6 @@ def untag_logevent(mediawiki, tag):
         "remove": tag,
     }
     mediawiki.api.call_with_csrftoken(params)
-    # FIXME: running jobs is not necessary, but the call adds a small delay which stabilizes the tests
-    mediawiki.run_jobs()
 
 @when(parsers.parse("I import the testing dataset"))
 def import_dataset(mediawiki):
@@ -215,7 +206,6 @@ def import_dataset(mediawiki):
         "interwikiprefix": "wikipedia",
     }
     mediawiki.api.call_with_csrftoken(params)
-    mediawiki.run_jobs()
 
 # debugging step
 @when(parsers.parse("I wait {num:d} seconds"))
@@ -226,10 +216,6 @@ def wait(num):
 @when(parsers.parse("I make a null edit to page \"{title}\""))
 def null_edit(mediawiki, title):
     mediawiki.api.call_with_csrftoken(action="edit", title=title, appendtext="")
-
-@when(parsers.parse("I execute MediaWiki jobs"))
-def run_jobs(mediawiki):
-    mediawiki.run_jobs()
 
 @then("the recent changes should match")
 def check_recentchanges(mediawiki, db):

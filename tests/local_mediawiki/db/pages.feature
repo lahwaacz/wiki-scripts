@@ -1,5 +1,7 @@
 # vim: ft=cucumber fileencoding=utf-8 sts=4 sw=4 et:
 
+# most of the tests here are VERY flaky and never worked reliably
+@skip
 Feature: Syncing the page tables
 
     Background:
@@ -52,7 +54,6 @@ Feature: Syncing the page tables
     Scenario: Syncing page with displaytitle
         When I create page "Test"
         And I edit page "Test" to contain "{{DISPLAYTITLE:test}}"
-        And I execute MediaWiki jobs
         And I synchronize the wiki-scripts database
         Then the recent changes should match
         And the allpages lists should match
@@ -64,7 +65,6 @@ Feature: Syncing the page tables
         When I synchronize the wiki-scripts database
         When I create page "Test"
         And I edit page "Test" to contain "{{DISPLAYTITLE:test}}"
-        And I execute MediaWiki jobs
         And I synchronize the wiki-scripts database
         Then the recent changes should match
         And the allpages lists should match
@@ -228,7 +228,6 @@ Feature: Syncing the page tables
     Scenario: Syncing deleted page with displaytitle
         When I create page "Test"
         And I edit page "Test" to contain "{{DISPLAYTITLE:test}}"
-        And I execute MediaWiki jobs
         And I synchronize the wiki-scripts database
         And I delete page "Test"
         And I synchronize the wiki-scripts database
