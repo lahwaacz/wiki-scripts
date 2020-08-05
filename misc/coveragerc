@@ -2,6 +2,7 @@
 branch = True
 data_file = .tox/.coverage
 source = ws
+omit = ws/db/migrations/*
 
 [report]
 # Regexes for lines to exclude from consideration
