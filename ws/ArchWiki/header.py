@@ -100,9 +100,7 @@ def get_header_parts(wikicode, magics=None, cats=None, langlinks=None, remove_fr
         # (typos such as [[en:Main page]] in text are quite rare)
         _remove(langlink)
         if not any(_prefix(link.get(0).title).lower() == _prefix(langlink.title).lower() for link in langlinks):
-            # not all tags work as interlanguage links
-            if lang.is_interlanguage_tag(_prefix(langlink.title).lower()):
-                langlinks.append(mwparserfromhell.utils.parse_anything(langlink))
+            langlinks.append(mwparserfromhell.utils.parse_anything(langlink))
 
     def _is_in_includeonly(node):
         ancestors = wikicode.get_ancestors(node)
@@ -129,7 +127,8 @@ def get_header_parts(wikicode, magics=None, cats=None, langlinks=None, remove_fr
         if prefix == "category":
             _add_to_cats(link)
             _extracted_count += 1
-        elif prefix in lang.get_language_tags():
+        # GOTCHA: not all tags work as interlanguage links
+        elif lang.is_interlanguage_tag(prefix):
             _add_to_langlinks(link)
             _extracted_count += 1
 
