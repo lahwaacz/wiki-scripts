@@ -84,8 +84,11 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/(?P<project>archiso|aurweb|infrastructure).git(?:\/(?P<type>commit|tree|plain|log))?(?P<path>[^?]+?)?(?:\?h=(?P<branch>[^&#?]+?))?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))?(?:#n(?P<linenum>\d+))?",
           "https://gitlab.archlinux.org/archlinux/{{project}}{% if type is not none %}/{{type | replace('plain', 'raw') | replace('log', 'commits')}}{% if commit is not none %}/{{commit}}{% elif branch is not none %}/{{branch}}{% elif path is not none %}/master{% endif %}{% if (path is not none) and (path != '/') %}{{path}}{% endif %}{% if linenum is not none %}#L{{linenum}}{% endif %}{% endif %}"),
 
+        # Remove language codes from addons.mozilla.org and addons.thunderbird.net
+        (r"https?\:\/\/addons\.(?:mozilla\.org|thunderbird\.net)/([^/]+?\/)?(?P<application>firefox|android|thunderbird|seamonkey)(?P<path>.+)?",
+          "https://addons.{% if (application is not none) and (application in [ 'thunderbird', 'seamonkey' ]) %}thunderbird.net{% else %}mozilla.org{% endif %}/{% if application is not none %}{{application}}{% endif %}{% if path is not none %}{{path}}{% endif %}"),
+
         # TODO: https?://wireless.kernel.org/en/users/Drivers/brcm80211 → https://wireless.wiki.kernel.org/en/users/Drivers/brcm80211
-        # TODO: remove language codes from mozilla.org links: https://wiki.archlinux.org/index.php?title=Firefox&diff=494556&oldid=494544
         # TODO: remove user IDs from short links to stackexchange/stackoverflow posts
     ]
 
