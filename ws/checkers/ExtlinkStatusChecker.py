@@ -53,6 +53,12 @@ class ExtlinkStatusChecker(CheckerBase):
         # so we will also properly parse URLs terminated by a wiki markup)
         url = mwparserfromhell.parse(str(extlink.url))
 
+        # mwparserfromhell parses free URLs immediately followed by a template argument
+        # (e.g. http://domain.tld/{{{1}}}) completely as one URL, so we can use this
+        # to skip partial URLs inside templates
+        if url.filter_arguments(recursive=True):
+            return
+
         # mwparserfromhell parses free URLs immediately followed by a template
         # (e.g. http://domain.tld/{{Dead link|2020|02|20}}) completely as one URL,
         # so we need to split it manually
