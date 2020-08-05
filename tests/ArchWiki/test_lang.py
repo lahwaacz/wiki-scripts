@@ -118,6 +118,10 @@ class test_detect_language:
         # https://bugs.archlinux.org/task/39668
         "foo/bar (Česky)": ("foo/bar", "Česky"),
         "foo (Česky)/bar": ("foo/bar", "Česky"),
+        # new scheme as of 2019:
+        # https://wiki.archlinux.org/index.php?title=Help_talk:I18n&oldid=624942#Localized_subpages
+        "foo (Česky)/bar (Česky)": ("foo/bar", "Česky"),
+        "foo (Italiano)/bar (Česky)": ("foo (Italiano)/bar", "Česky"),
 
         # this case used to be for old pages, the suffix for English pages is not used
         # nevertheless it is useful to keep the algorithm simple
@@ -154,6 +158,10 @@ class test_format_title:
         "foo (Česky)": ("foo", "Česky"),
         "foo(Česky)": ("foo(Česky)", default),
         "foo/bar": ("foo/bar", default),
+
+        # new scheme as of 2019:
+        # https://wiki.archlinux.org/index.php?title=Help_talk:I18n&oldid=624942#Localized_subpages
+        "foo (Česky)/bar (Česky)": ("foo/bar", "Česky"),
 
         # language categories
         "Category:Foo": ("Category:Foo", default),
