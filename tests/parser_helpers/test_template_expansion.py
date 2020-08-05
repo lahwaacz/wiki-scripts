@@ -492,6 +492,25 @@ class test_magic_words(common_base):
         expected = "The main article for this category is [[Cat main]]."
         self._do_test(title_context, d, title, expected)
 
+    # simplified test for https://github.com/earwig/mwparserfromhell/issues/241
+    def test_adjacent_templates_in_link(self, title_context):
+        d = {
+            "Template:Foo": "",
+            "Template:Bar": "",
+            "Template:Baz": "",
+            "Template:Boo": "",
+            "Title 1": "{{Foo}}{{Bar}}{{Baz}}{{Boo}}",
+            "Title 2": "[[{{Foo}}{{Bar}}{{Baz}}{{Boo}}]]",
+        }
+
+        title = "Title 1"
+        expected = ""
+        self._do_test(title_context, d, title, expected)
+
+        title = "Title 2"
+        expected = "[[]]"
+        self._do_test(title_context, d, title, expected)
+
 class test_transclusion_modifiers(common_base):
     @pytest.mark.parametrize("modifier", ["subst", "safesubst"])
     def test_subst_existing_template(self, title_context, modifier):

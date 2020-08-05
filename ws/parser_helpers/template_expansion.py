@@ -522,6 +522,12 @@ def expand_templates(title, wikicode, content_getter_func, *,
                     # MediaWiki fallback message
                     content = "<span class=\"error\">Template loop detected: [[{}]]</span>".format(target_title)
 
+                # make sure that the node is not removed from the AST, otherwise
+                # recursive iteration would be messed up
+                # https://github.com/earwig/mwparserfromhell/issues/241
+                if str(content) == "":
+                    content = mwparserfromhell.nodes.text.Text("")
+
 #                wikicode.replace(template, content)
                 parent.replace(template, content, recursive=False)
 
