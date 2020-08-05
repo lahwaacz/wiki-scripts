@@ -398,6 +398,24 @@ class test_ensure_unflagged:
         flag = ensure_unflagged_by_template(wikicode, link, "bar")
         assert str(wikicode) == "[[foo]]"
 
+    def test_no_remove(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{bar (Language)}}")
+        link = wikicode.nodes[0]
+        flag = ensure_unflagged_by_template(wikicode, link, "bar")
+        assert str(wikicode) == "[[foo]] {{bar (Language)}}"
+
+    def test_match_only_prefix(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{bar (Language)}}")
+        link = wikicode.nodes[0]
+        flag = ensure_unflagged_by_template(wikicode, link, "bar", match_only_prefix=True)
+        assert str(wikicode) == "[[foo]]"
+
+    def test_match_only_prefix_no_remove(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{baz (Language)}}")
+        link = wikicode.nodes[0]
+        flag = ensure_unflagged_by_template(wikicode, link, "bar", match_only_prefix=True)
+        assert str(wikicode) == "[[foo]] {{baz (Language)}}"
+
 class test_is_redirect:
     redirects = [
         # any number of spaces
