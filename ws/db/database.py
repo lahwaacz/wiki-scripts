@@ -134,14 +134,18 @@ class Database:
             raise AttributeError("Table '{}' does not exist in the database.".format(table_name))
         return self.metadata.tables[table_name]
 
-    def sync_with_api(self, api, *, with_content=False):
+    def sync_with_api(self, api, *, with_content=False, check_needs_update=True):
         """
         Sync the local data with a remote MediaWiki instance.
 
         :param ws.client.api.API api: interface to the remote MediaWiki instance
-        :param bool with_content: whether to synchronize the content of all revisions
+        :param bool with_content:
+            whether to synchronize the content of all revisions
+        :param bool check_needs_update:
+            whether to use the ``recentchanges`` table to check if the
+            synchronization is needed and otherwise exit early
         """
-        grabbers.synchronize(self, api, with_content=with_content)
+        grabbers.synchronize(self, api, with_content=with_content, check_needs_update=check_needs_update)
 
     def sync_revisions_content(self, api, *, mode="latest"):
         """
