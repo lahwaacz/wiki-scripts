@@ -96,6 +96,11 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             r"https?\:\/\/addons\.(?:mozilla\.org|thunderbird\.net)/([^/]+?\/)?(?P<application>firefox|android|thunderbird|seamonkey)(?P<path>.+)?",
             "https://addons.{% if application in [ 'thunderbird', 'seamonkey' ] %}thunderbird.net{% else %}mozilla.org{% endif %}/{% if application is not none %}{{application}}{% endif %}{% if path is not none %}{{path}}{% endif %}"),
 
+        # kernel.org documentation links
+        ("link to HTML versions of kernel docs",
+            r"https?\:\/\/(?:www\.)?kernel.org/doc/Documentation(?P<path>\/.+?)(?P<extension>\.txt|\.rst)?",
+            "https://www.kernel.org/doc/html/latest{{path}}{% if extension is not none %}.html{% endif %}"),
+
         # TODO: https?://wireless.kernel.org/en/users/Drivers/brcm80211 → https://wireless.wiki.kernel.org/en/users/Drivers/brcm80211
         # TODO: remove user IDs from short links to stackexchange/stackoverflow posts
         # TODO: use Special:Permalink on ArchWiki: https://wiki.archlinux.org/index.php?title=Pacman/Tips_and_tricks&diff=next&oldid=630006
