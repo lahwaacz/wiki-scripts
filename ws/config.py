@@ -1,62 +1,46 @@
 #! /usr/bin/env python3
 
+import argparse
+import collections
+import configparser
+import logging
 import os
 import sys
-import collections
-import logging
-
-# TODO: make this an optional dependency, the from_argparser factory should work with plain argparse
-import ConfigArgParse.configargparse as configargparse
-import configfile
-# allow '-' in config keys and section names
-configfile.Section._OPTION = r'^[a-zA-Z_]+[a-zA-Z0-9_-]*$'
-configfile.Section._SECTION_SUB = r'^[a-zA-Z_]+(?:\.?[a-zA-Z0-9_-]+)*$'
-configfile.Section._SECTION_PLAIN = r'^[a-zA-Z_]+[a-zA-Z0-9_-]*$'
 
 import ws.logging
 
-logger = logging.getLogger(__name__)
+logging = logger.getLogger(__name__)
 
-__all__ = ["ConfigFileParser", "argtype_existing_dir", "argtype_dirname_must_exist", "getArgParser", "object_from_argparser"]
+__all__ = [
+    "ConfigFileParser", 
+    "argtype_existing_dir", 
+    "argtype_dirname_must_exist", 
+    "getArgParser", 
+    "object_from_argparser",
+]
 
 class ConfigFileParser:
 
-    def __init__(self, top_level_arg, subname=None):
-        self.top_level_arg = top_level_arg
+    def __init__(self, subname=None):
         self.subname = subname
 
-    def parse(self, stream, context=None):
+    def parse(self, configfile):
+        """Parse a config file and return a dict of options."""
+        cf = configparser.ConfigParser()
+        cf.read(configfile)
+        return dict(cf[self.subname])
+
+    def parse_to_list(self, configfile):
+        """Parse a config file and return the options
+        as the list of strings.
         """
-        Parses a config file and returns a dictionary of settings
-        """
-        # TODO: convert (all?) exceptions to configargparse.ConfigFileParserException
-        cf = configfile.ConfigFile(stream, inherit_options=True, safe_calls=True, interpolation=True)
+        cf = self.parse(configfile)
+        conv = []
+        for option, value in cf.items():
+            conv.append('--' + option)
+            conf.append(value)
+        return conv
 
-        try:
-            _arg = "--" + self.top_level_arg
-            _i = context.index(_arg)
-            top_level = context[_i + 1]
-        except (ValueError, IndexError):
-            top_level = None
-
-        if top_level is None:
-            top_level = cf[self.top_level_arg]
-            if not top_level:
-                raise configargparse.ConfigFileParserException("top-level parameter '{}' not found")
-        return cf(top_level, self.subname).get_options()
-
-    def serialize(self, items):
-        """
-        Does the inverse of config parsing by taking parsed values and
-        converting them back to a string representing config file contents.
-
-        :param items: an ``OrderedDict`` with items to be written to the config file
-        :returns: contents of config file as a string
-        """
-        raise NotImplementedError
-
-    def get_syntax_description(self):
-        return ""
 
 class Defaults(collections.UserDict):
     def __init__(self):
@@ -78,7 +62,6 @@ class Defaults(collections.UserDict):
         self.data["api_url"] = "https://wiki.archlinux.org/api.php"
         self.data["index_url"] = "https://wiki.archlinux.org/index.php"
 
-# strict string to bool conversion
 def argtype_bool(value):
     if isinstance(value, bool):
         return value
@@ -89,21 +72,21 @@ def argtype_bool(value):
         return False
     else:
         print("value '%s' cannot be converted to boolean" % value)
-        raise configargparse.ArgumentTypeError("value '%s' cannot be converted to boolean" % value)
+        raise argparse.ArgumentTypeError("value '%s' cannot be converted to boolean" % value)
 
 # any path, the dirname part must exist (e.g. path to a file that will be created in the future)
 def argtype_dirname_must_exist(string):
     string = os.path.abspath(os.path.expanduser(string))
     dirname, _ = os.path.split(string)
     if not os.path.isdir(dirname):
-        raise configargparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
+        raise argparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
     return string
 
 # path to existing directory
 def argtype_existing_dir(string):
     string = os.path.abspath(os.path.expanduser(string))
     if not os.path.isdir(string):
-        raise configargparse.ArgumentTypeError("directory '%s' does not exist" % string)
+        raise argparse.ArgumentTypeError("directory '%s' does not exist" % string)
     return string
 
 # list of comma-separated items from a fixed set
@@ -114,33 +97,25 @@ def argtype_comma_list_choices(choices):
         items = [item.strip() for item in string.split(",")]
         for item in items:
             if item not in choices:
-                raise configargparse.ArgumentTypeError("unknown item: '{}' (available choices: {})".format(item, choices))
+                raise argparse.ArgumentTypeError("unknown item: '{}' (available choices: {})".format(item, choices))
         return items
 
     return wrapped
 
-def getArgParser(subname=None, *args, **kwargs):
+def getArgParser(subname=None, **kwargs):
     if subname is None:
         _, _script = os.path.split(sys.argv[0])
-        subname, _ = os.path.splitext(_script)
-
-    # create config file parser
-    cfp = ConfigFileParser("site", subname)
-    kwargs["config_file_parser"] = cfp
-    kwargs["ignore_unknown_config_file_keys"] = True
+        subname, _ = os.path.splittext(_script)
 
     # set brief usage parameter by default
     kwargs.setdefault("usage", "%(prog)s [options]")
-    # TODO: the supplied description is merged with the one from configargparse, which looks very ugly, regardless of the used formatter
-    kwargs.setdefault("formatter_class", configargparse.RawDescriptionHelpFormatter)
+    kwargs.setdefault("formatter_class", argparse.RawDescriptionHelpFormatter)
 
-    ap = configargparse.ArgParser(*args, **kwargs)
+    ap = argparse.ArgumentParser(**kwargs)
 
-    # add config file and site arguments
-    ap.add_argument("-c", "--config", metavar="PATH", is_config_file_arg=True,
+    # add config file argument
+    ap.add_argument("-c", "--config", metavar="PATH",
             help="path to config file (default: %(default)s)")
-    ap.add_argument("--site",
-            help="sets the top-level section to be read from config files (default: %(default)s)")
 
     # include logging arguments into the global group
     ws.logging.set_argparser(ap)
@@ -153,7 +128,7 @@ def getArgParser(subname=None, *args, **kwargs):
 
     return ap
 
-def object_from_argparser(klass, subname=None, *args, **kwargs):
+def object_from_argparser(klass, subname=None, **kwargs):
     """
     Create an instance of ``klass`` using its :py:meth:`klass.from_argparser()`
     factory and a clean instance of :py:class:`argparse.ArgumentParser`. On top
@@ -163,13 +138,19 @@ def object_from_argparser(klass, subname=None, *args, **kwargs):
     :param subname:
         The name of the subsection to be read from the configuration file
         (usually the name of the script). By default ``sys.argv[0]`` is taken.
-    :param args: passed to :py:class:`argparse.ArgumentParser()` constructor
     :param kwargs: passed to :py:class:`argparse.ArgumentParser()` constructor
     :returns: an instance of :py:class:`klass`
     """
-    argparser = getArgParser(*args, **kwargs)
+    if subname is None:
+        _, _script = os.path.split(sys.argv[0])
+        subname, _ = os.path.splittext(_script)
+    argparser = getArgParser(subname, **kwargs)
+    args, remaining_argv = argparser.parse_known_args()
     klass.set_argparser(argparser)
-    args = argparser.parse_args()
+    cfp = ConfigFileParser(subname)
+    config_args = cfp.parse_to_list(args.config)
+    argparser.parse_args(config_args, namespace=args)
+    argparser.parse_args(remaining_argv, namespace=args)
 
     # set up logging
     ws.logging.init(args)

@@ -25,9 +25,8 @@ schema.create_tables(target_metadata)
 import ws.config
 def get_url():
     ws_config_path = config.get_main_option("ws_config_path")
-    f = open(os.path.expanduser(ws_config_path), "r")
-    parser = ws.config.ConfigFileParser("site", "alembic")
-    conf = parser.parse(f, [])
+    parser = ws.config.ConfigFileParser(subname="alembic")
+    conf = parser.parse(configfile=ws_config_path)
 
     db_dialect = conf.get("db-dialect", "postgresql")
     db_driver = conf.get("db-driver", "psycopg2")
