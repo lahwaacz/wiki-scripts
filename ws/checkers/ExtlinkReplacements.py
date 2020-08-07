@@ -90,6 +90,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
         # TODO: https?://wireless.kernel.org/en/users/Drivers/brcm80211 → https://wireless.wiki.kernel.org/en/users/Drivers/brcm80211
         # TODO: remove user IDs from short links to stackexchange/stackoverflow posts
+        # TODO: use Special:Permalink on ArchWiki: https://wiki.archlinux.org/index.php?title=Pacman/Tips_and_tricks&diff=next&oldid=630006
     ]
 
     # a set of domains for which http should be updated to https
@@ -207,6 +208,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             else:
                 wikilink = "[[{}]]".format(target)
             wikicode.replace(extlink, wikilink)
+            # TODO: what if the extlink was flagged with Dead link?
             return True
         return False
 
@@ -222,12 +224,14 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                     if extlink.brackets and not repl.startswith("[") and not repl.endswith("]"):
                         repl = "[{}]".format(repl)
                     wikicode.replace(extlink, repl)
+                    # TODO: make sure that the link is unflagged after replacement
                     return True
                 else:
                     groups = [re.escape(g) for g in match.groups()]
                     alt_text = str(extlink.title).strip()
                     if re.fullmatch(text_cond.format(*groups), alt_text, text_cond_flags):
                         wikicode.replace(extlink, replacement.format(*match.groups(), extlink.title))
+                        # TODO: make sure that the link is unflagged after replacement
                         return True
                     else:
                         logger.warning("external link that should be replaced, but has custom alternative text: {}".format(extlink))
@@ -273,6 +277,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                     new_url = new_url.replace("/-/", "/", 1)
 
                 extlink.url = new_url
+                # TODO: make sure that the link is unflagged after replacement
                 return True
         return False
 
@@ -293,6 +298,8 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
         summary = get_edit_summary_tracker(wikicode, summary_parts)
 
+        # FIXME: this can break templates because of "=", e.g. https://wiki.archlinux.org/index.php?title=Systemd_(Espa%C3%B1ol)/User_(Espa%C3%B1ol)&diff=629483&oldid=617318
+        # see https://wiki.archlinux.org/index.php/User:Lahwaacz/Notes#Double_brackets_escape_template-breaking_characters
         with summary("removed extra brackets"):
             self.strip_extra_brackets(wikicode, extlink)
 
