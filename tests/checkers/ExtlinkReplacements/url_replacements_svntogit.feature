@@ -200,7 +200,7 @@ Feature: ExtlinkReplacements: svntogit links migration
             https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc
         When a page contains an extlink with <url> and content <pattern>
         And I run ExtlinkReplacements
-        Then the <url> should not be replaced
+        Then the page should have the original content
         And the last edit summary should be empty
 
         Examples:
@@ -213,7 +213,7 @@ Feature: ExtlinkReplacements: svntogit links migration
             https://github.com/archlinux/svntogit-packages/commit/c46609a4b0325c363455264844091b71de01eddc
         When a page contains an extlink with <url> and content <pattern>
         And I run ExtlinkReplacements
-        Then the <url> should not be replaced
+        Then the page should have the original content
         And the last edit summary should be empty
 
         Examples:
