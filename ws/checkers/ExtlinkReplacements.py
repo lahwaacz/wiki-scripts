@@ -31,6 +31,8 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         # Arch bug tracker
         (re.escape("https://bugs.archlinux.org/task/") + "(\d+)",
             "(FS|flyspray) *#?{0}", 0, "{{{{Bug|{0}}}}}"),
+        (re.escape("https://bugs.archlinux.org/task/") + "(\d+)",
+            None, 0, "{{{{Bug|{0}}}}}"),
 
         # official packages, with and without alternative text
         # FIXME: don't match pkgbase - see [[Firefox]]
