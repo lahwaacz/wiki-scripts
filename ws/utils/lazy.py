@@ -32,6 +32,10 @@ class LazyProperty(property):
             self._cache[instance] = self.func(instance)
         return self._cache[instance]
 
+    # allow overriding the cached value (useful e.g. for mocking in tests)
+    def __set__(self, instance, value):
+        self._cache[instance] = value
+
     def __delete__(self, instance):
         if instance in self._cache:  # pragma: no branch
             del self._cache[instance]

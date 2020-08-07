@@ -129,6 +129,6 @@ namespaces = {
 }
 legaltitlechars = " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+"
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def title_context():
     return Context(interwikimap, namespacenames, namespaces, legaltitlechars)

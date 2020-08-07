@@ -1,4 +1,5 @@
 requests
+jinja2
 # mwparserfromhell
 git+https://github.com/earwig/mwparserfromhell.git
 git+https://github.com/kynikos/lib.py.configfile.git
