@@ -220,9 +220,6 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             if match:
                 if extlink.title is None:
                     repl = replacement.format(*match.groups())
-                    # FIXME: hack to preserve brackets (e.g. [http://example.com/] )
-                    if extlink.brackets and not repl.startswith("[") and not repl.endswith("]"):
-                        repl = "[{}]".format(repl)
                     wikicode.replace(extlink, repl)
                     # TODO: make sure that the link is unflagged after replacement
                     return True
