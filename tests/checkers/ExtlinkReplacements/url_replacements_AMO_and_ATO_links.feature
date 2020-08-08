@@ -11,6 +11,7 @@ Feature: ExtlinkReplacements: remove language codes from AMO and ATN links
         | [{} foo] |
         | foo {} bar |
         | foo [{}] bar |
+        | foo [{} baz] bar |
 
     Scenario Outline: AMO, firefox
         When the URL https://addons.mozilla.org/firefox/search-tools/ gives status 200

@@ -11,6 +11,7 @@ Feature: ExtlinkReplacements: Arch projects links migration
         | [{} foo] |
         | foo {} bar |
         | foo [{}] bar |
+        | foo [{} baz] bar |
 
     Scenario Outline: infrastructure, tree
         When the URL https://gitlab.archlinux.org/archlinux/infrastructure/tree/master/roles/docker-image gives status 200

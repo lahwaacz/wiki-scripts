@@ -11,6 +11,7 @@ Feature: ExtlinkReplacements: update http to https
         | [{} foo] |
         | foo {} bar |
         | foo [{}] bar |
+        | foo [{} baz] bar |
 
     Scenario Outline: archlinux.org
         When the URL https://archlinux.org/some/page/ gives status 200

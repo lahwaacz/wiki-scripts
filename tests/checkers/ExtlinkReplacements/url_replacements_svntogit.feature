@@ -11,6 +11,7 @@ Feature: ExtlinkReplacements: svntogit links migration
         | [{} foo] |
         | foo {} bar |
         | foo [{}] bar |
+        | foo [{} baz] bar |
 
     Background:
         Given these working URLs:
