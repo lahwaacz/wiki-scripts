@@ -15,48 +15,24 @@ Feature: ExtlinkReplacements: svntogit links migration
     Background:
         Given these working URLs:
             # packages, commit
-            https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc
-            https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc
             https://github.com/archlinux/svntogit-packages/commit/c46609a4b0325c363455264844091b71de01eddc
             # packages, blob
-            https://projects.archlinux.org/svntogit/packages.git/tree/sudo/trunk/PKGBUILD
-            https://git.archlinux.org/svntogit/packages.git/tree/sudo/trunk/PKGBUILD
             https://github.com/archlinux/svntogit-packages/blob/packages/sudo/trunk/PKGBUILD
             # packages, raw
-            https://projects.archlinux.org/svntogit/packages.git/plain/sudo/trunk/PKGBUILD
-            https://git.archlinux.org/svntogit/packages.git/plain/sudo/trunk/PKGBUILD
             https://github.com/archlinux/svntogit-packages/raw/packages/sudo/trunk/PKGBUILD
             # packages, log
-            https://projects.archlinux.org/svntogit/packages.git/log/trunk?h=packages/grub
-            https://git.archlinux.org/svntogit/packages.git/log/trunk?h=packages/grub
             https://github.com/archlinux/svntogit-packages/commits/packages/grub/trunk
             # packages, repo
-            https://projects.archlinux.org/svntogit/packages.git
-            https://projects.archlinux.org/svntogit/packages.git/tree
-            https://git.archlinux.org/svntogit/packages.git
-            https://git.archlinux.org/svntogit/packages.git/tree
             https://github.com/archlinux/svntogit-packages
             # community, commit
-            https://projects.archlinux.org/svntogit/community.git/tree/trunk/PKGBUILD?h=packages/nextcloud&id=91e4262f91ee883ba9766ee61097027c3bfa88f5#n56
-            https://git.archlinux.org/svntogit/community.git/tree/trunk/PKGBUILD?h=packages/nextcloud&id=91e4262f91ee883ba9766ee61097027c3bfa88f5#n56
             https://github.com/archlinux/svntogit-community/blob/91e4262f91ee883ba9766ee61097027c3bfa88f5/trunk/PKGBUILD#L56
             # community, blob
-            https://projects.archlinux.org/svntogit/community.git/tree/mpv/trunk/PKGBUILD#n42
-            https://git.archlinux.org/svntogit/community.git/tree/mpv/trunk/PKGBUILD#n42
             https://github.com/archlinux/svntogit-community/blob/packages/mpv/trunk/PKGBUILD#L42
             # community, raw
-            https://projects.archlinux.org/svntogit/community.git/plain/mpv/trunk/PKGBUILD
-            https://git.archlinux.org/svntogit/community.git/plain/mpv/trunk/PKGBUILD
             https://github.com/archlinux/svntogit-community/raw/packages/mpv/trunk/PKGBUILD
             # community, log
-            https://projects.archlinux.org/svntogit/community.git/log/trunk?h=packages/mpv
-            https://git.archlinux.org/svntogit/community.git/log/trunk?h=packages/mpv
             https://github.com/archlinux/svntogit-community/commits/packages/mpv/trunk
             # community, repo
-            https://projects.archlinux.org/svntogit/community.git
-            https://projects.archlinux.org/svntogit/community.git/tree
-            https://git.archlinux.org/svntogit/community.git
-            https://git.archlinux.org/svntogit/community.git/tree
             https://github.com/archlinux/svntogit-community
 
     Scenario Outline: packages, commit
