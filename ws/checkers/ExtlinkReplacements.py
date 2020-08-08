@@ -54,7 +54,8 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             None, 0, "[[wikipedia:{0}]]"),
     ]
 
-    # list of (url_regex, url_replacement) tuples, where:
+    # list of (edit_summary, url_regex, url_replacement) tuples, where:
+    #   - edit_summary: a string with the edit summary to use for this replacement
     #   - url_regex: a regular expression matching the URL (using re.fullmatch)
     #   - url_replacement: a format string used as a replacement for the URL
     #                      (it is formatted using the groups matched by url_regex)
@@ -73,22 +74,27 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         # migration of Arch's git URLs
 
         # svntogit commits
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(?P<repo>packages|community)\.git\/commit\/(?P<path>[^?]+?)?(?:\?h=[^&#?]+?)?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))",
-          "https://github.com/archlinux/svntogit-{{repo}}/commit/{{commit}}{% if (path is not none) and ('/' in path) %}/{{path}}{% endif %}"),
+        ("update svntogit URLs from (projects|git).archlinux.org to github.com",
+            r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(?P<repo>packages|community)\.git\/commit\/(?P<path>[^?]+?)?(?:\?h=[^&#?]+?)?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))",
+            "https://github.com/archlinux/svntogit-{{repo}}/commit/{{commit}}{% if (path is not none) and ('/' in path) %}/{{path}}{% endif %}"),
         # svntogit blobs, raws and logs
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(?P<repo>packages|community)\.git\/(?P<type>tree|plain|log)\/(?P<path>[^?]+?)(?:\?h=(?P<branch>[^&#?]+?))?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))?(?:#n(?P<linenum>\d+))?",
-          "https://github.com/archlinux/svntogit-{{repo}}/{{type | replace('tree', 'blob') | replace('plain', 'raw') | replace('log', 'commits')}}/{% if commit is not none %}{{commit}}/{% elif branch is not none %}{{branch}}/{% elif (path is not none) and (not path.startswith('packages')) %}packages/{% endif %}{{path}}{% if linenum is not none %}#L{{linenum}}{% endif %}"),
+        ("update svntogit URLs from (projects|git).archlinux.org to github.com",
+            r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(?P<repo>packages|community)\.git\/(?P<type>tree|plain|log)\/(?P<path>[^?]+?)(?:\?h=(?P<branch>[^&#?]+?))?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))?(?:#n(?P<linenum>\d+))?",
+            "https://github.com/archlinux/svntogit-{{repo}}/{{type | replace('tree', 'blob') | replace('plain', 'raw') | replace('log', 'commits')}}/{% if commit is not none %}{{commit}}/{% elif branch is not none %}{{branch}}/{% elif (path is not none) and (not path.startswith('packages')) %}packages/{% endif %}{{path}}{% if linenum is not none %}#L{{linenum}}{% endif %}"),
         # svntogit repos
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(?P<repo>packages|community)\.git(\/tree)?\/?",
-          "https://github.com/archlinux/svntogit-{{repo}}"),
+        ("update svntogit URLs from (projects|git).archlinux.org to github.com",
+            r"https?\:\/\/(?:projects|git)\.archlinux\.org\/svntogit\/(?P<repo>packages|community)\.git(\/tree)?\/?",
+            "https://github.com/archlinux/svntogit-{{repo}}"),
 
         # other git repos
-        (r"https?\:\/\/(?:projects|git)\.archlinux\.org\/(?P<project>archiso|aurweb|infrastructure).git(?:\/(?P<type>commit|tree|plain|log))?(?P<path>[^?]+?)?(?:\?h=(?P<branch>[^&#?]+?))?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))?(?:#n(?P<linenum>\d+))?",
-          "https://gitlab.archlinux.org/archlinux/{{project}}{% if type is not none %}/{{type | replace('plain', 'raw') | replace('log', 'commits')}}{% if commit is not none %}/{{commit}}{% elif branch is not none %}/{{branch}}{% elif path is not none %}/master{% endif %}{% if (path is not none) and (path != '/') %}{{path}}{% endif %}{% if linenum is not none %}#L{{linenum}}{% endif %}{% endif %}"),
+        ("update old links to (projects|git).archlinux.org",
+            r"https?\:\/\/(?:projects|git)\.archlinux\.org\/(?P<project>archiso|aurweb|infrastructure).git(?:\/(?P<type>commit|tree|plain|log))?(?P<path>[^?]+?)?(?:\?h=(?P<branch>[^&#?]+?))?(?:[&?]id=(?P<commit>[0-9A-Fa-f]+))?(?:#n(?P<linenum>\d+))?",
+            "https://gitlab.archlinux.org/archlinux/{{project}}{% if type is not none %}/{{type | replace('plain', 'raw') | replace('log', 'commits')}}{% if commit is not none %}/{{commit}}{% elif branch is not none %}/{{branch}}{% elif path is not none %}/master{% endif %}{% if (path is not none) and (path != '/') %}{{path}}{% endif %}{% if linenum is not none %}#L{{linenum}}{% endif %}{% endif %}"),
 
         # Remove language codes from addons.mozilla.org and addons.thunderbird.net
-        (r"https?\:\/\/addons\.(?:mozilla\.org|thunderbird\.net)/([^/]+?\/)?(?P<application>firefox|android|thunderbird|seamonkey)(?P<path>.+)?",
-          "https://addons.{% if (application is not none) and (application in [ 'thunderbird', 'seamonkey' ]) %}thunderbird.net{% else %}mozilla.org{% endif %}/{% if application is not none %}{{application}}{% endif %}{% if path is not none %}{{path}}{% endif %}"),
+        ("remove language codes from AMO and ATN links",
+            r"https?\:\/\/addons\.(?:mozilla\.org|thunderbird\.net)/([^/]+?\/)?(?P<application>firefox|android|thunderbird|seamonkey)(?P<path>.+)?",
+            "https://addons.{% if (application is not none) and (application in [ 'thunderbird', 'seamonkey' ]) %}thunderbird.net{% else %}mozilla.org{% endif %}/{% if application is not none %}{{application}}{% endif %}{% if path is not none %}{{path}}{% endif %}"),
 
         # TODO: https?://wireless.kernel.org/en/users/Drivers/brcm80211 → https://wireless.wiki.kernel.org/en/users/Drivers/brcm80211
         # TODO: remove user IDs from short links to stackexchange/stackoverflow posts
@@ -148,9 +154,9 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         self.extlink_replacements = _extlink_replacements
 
         _url_replacements = []
-        for url_regex, url_replacement in self.url_replacements:
+        for edit_summary, url_regex, url_replacement in self.url_replacements:
             compiled = re.compile(url_regex)
-            _url_replacements.append( (compiled, url_replacement) )
+            _url_replacements.append( (edit_summary, compiled, url_replacement) )
         self.url_replacements = _url_replacements
 
         regex_parts = []
@@ -237,7 +243,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         return False
 
     def check_url_replacements(self, wikicode, extlink, url):
-        for url_regex, url_replacement in self.url_replacements:
+        for edit_summary, url_regex, url_replacement in self.url_replacements:
             match = url_regex.fullmatch(url.url)
             if match:
                 # there is no reason to update broken links
@@ -277,7 +283,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
                 extlink.url = new_url
                 # TODO: make sure that the link is unflagged after replacement
-                return True
+                return edit_summary
         return False
 
     def check_http_to_https(self, wikicode, extlink, url):
@@ -310,10 +316,11 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             if self.check_extlink_replacements(wikicode, extlink, url):
                 return
 
-        # TODO: update this when more URLs are being updated
-        with summary("update old links to (projects|git).archlinux.org"):
-            if self.check_url_replacements(wikicode, extlink, url):
-                return
+        # URL replacements use separate edit summaries
+        es = self.check_url_replacements(wikicode, extlink, url)
+        if es:
+            summary_parts.append(es)
+            return
 
         with summary("update http to https for known domains"):
             self.check_http_to_https(wikicode, extlink, url)

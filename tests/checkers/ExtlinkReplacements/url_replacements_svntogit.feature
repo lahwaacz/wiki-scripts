@@ -63,9 +63,7 @@ Feature: ExtlinkReplacements: svntogit links migration
         When a page contains an extlink with <url> and content <pattern>
         And I run ExtlinkReplacements
         Then the <url> should be replaced with "https://github.com/archlinux/svntogit-packages/commit/c46609a4b0325c363455264844091b71de01eddc"
-        # FIXME
-#        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
-        And the last edit summary should be "update old links to (projects|git).archlinux.org"
+        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
 
         Examples:
             | url |
@@ -76,9 +74,7 @@ Feature: ExtlinkReplacements: svntogit links migration
         When a page contains an extlink with <url> and content <pattern>
         And I run ExtlinkReplacements
         Then the <url> should be replaced with "https://github.com/archlinux/svntogit-packages/blob/packages/sudo/trunk/PKGBUILD"
-        # FIXME
-#        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
-        And the last edit summary should be "update old links to (projects|git).archlinux.org"
+        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
 
         Examples:
             | url |
@@ -89,9 +85,7 @@ Feature: ExtlinkReplacements: svntogit links migration
         When a page contains an extlink with <url> and content <pattern>
         And I run ExtlinkReplacements
         Then the <url> should be replaced with "https://github.com/archlinux/svntogit-packages/raw/packages/sudo/trunk/PKGBUILD"
-        # FIXME
-#        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
-        And the last edit summary should be "update old links to (projects|git).archlinux.org"
+        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
 
         Examples:
             | url |
@@ -102,9 +96,7 @@ Feature: ExtlinkReplacements: svntogit links migration
         When a page contains an extlink with <url> and content <pattern>
         And I run ExtlinkReplacements
         Then the <url> should be replaced with "https://github.com/archlinux/svntogit-packages/commits/packages/grub/trunk"
-        # FIXME
-#        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
-        And the last edit summary should be "update old links to (projects|git).archlinux.org"
+        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
 
         Examples:
             | url |
@@ -115,9 +107,7 @@ Feature: ExtlinkReplacements: svntogit links migration
         When a page contains an extlink with <url> and content <pattern>
         And I run ExtlinkReplacements
         Then the <url> should be replaced with "https://github.com/archlinux/svntogit-packages"
-        # FIXME
-#        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
-        And the last edit summary should be "update old links to (projects|git).archlinux.org"
+        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
 
         Examples:
             | url |
@@ -130,9 +120,7 @@ Feature: ExtlinkReplacements: svntogit links migration
         When a page contains an extlink with <url> and content <pattern>
         And I run ExtlinkReplacements
         Then the <url> should be replaced with "https://github.com/archlinux/svntogit-community/blob/91e4262f91ee883ba9766ee61097027c3bfa88f5/trunk/PKGBUILD#L56"
-        # FIXME
-#        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
-        And the last edit summary should be "update old links to (projects|git).archlinux.org"
+        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
 
         Examples:
             | url |
@@ -143,9 +131,7 @@ Feature: ExtlinkReplacements: svntogit links migration
         When a page contains an extlink with <url> and content <pattern>
         And I run ExtlinkReplacements
         Then the <url> should be replaced with "https://github.com/archlinux/svntogit-community/blob/packages/mpv/trunk/PKGBUILD#L42"
-        # FIXME
-#        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
-        And the last edit summary should be "update old links to (projects|git).archlinux.org"
+        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
 
         Examples:
             | url |
@@ -156,9 +142,7 @@ Feature: ExtlinkReplacements: svntogit links migration
         When a page contains an extlink with <url> and content <pattern>
         And I run ExtlinkReplacements
         Then the <url> should be replaced with "https://github.com/archlinux/svntogit-community/raw/packages/mpv/trunk/PKGBUILD"
-        # FIXME
-#        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
-        And the last edit summary should be "update old links to (projects|git).archlinux.org"
+        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
 
         Examples:
             | url |
@@ -169,9 +153,7 @@ Feature: ExtlinkReplacements: svntogit links migration
         When a page contains an extlink with <url> and content <pattern>
         And I run ExtlinkReplacements
         Then the <url> should be replaced with "https://github.com/archlinux/svntogit-community/commits/packages/mpv/trunk"
-        # FIXME
-#        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
-        And the last edit summary should be "update old links to (projects|git).archlinux.org"
+        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
 
         Examples:
             | url |
@@ -182,9 +164,7 @@ Feature: ExtlinkReplacements: svntogit links migration
         When a page contains an extlink with <url> and content <pattern>
         And I run ExtlinkReplacements
         Then the <url> should be replaced with "https://github.com/archlinux/svntogit-packages"
-        # FIXME
-#        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
-        And the last edit summary should be "update old links to (projects|git).archlinux.org"
+        And the last edit summary should be "update svntogit URLs from (projects|git).archlinux.org to github.com"
 
         Examples:
             | url |
