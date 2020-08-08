@@ -246,11 +246,6 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         for edit_summary, url_regex, url_replacement in self.url_replacements:
             match = url_regex.fullmatch(url.url)
             if match:
-                # there is no reason to update broken links
-                if not self.check_url(url):
-                    logger.warning("broken URL not replaced: {}".format(url))
-                    return False
-
                 if "{0}" in url_replacement:
                     new_url = url_replacement.format(*match.groups())
                 else:
@@ -269,7 +264,6 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                 #     (so we should replace new_url with what gitlab gives us)
                 #   - the "/-/" disambiguator (which is added by gitlab's redirects) is ugly and should be removed thereafter
                 #   - gitlab gives 302 to the master branch instead of 404 for non-existent files/directories
-                #     (so we check if the original URL gives 404 and give up)
                 if new_url.startswith("https://gitlab.archlinux.org"):
                     # use same query as ExtlinkStatusChecker.check_url
                     response = self.session.get(new_url, headers=self.headers, timeout=self.timeout, stream=True, allow_redirects=True)
@@ -322,5 +316,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             summary_parts.append(es)
             return
 
+        # this is run as the last step to avoid an unnecessary edit summary in
+        # case a http link matches a previous replacement rule
         with summary("update http to https for known domains"):
             self.check_http_to_https(wikicode, extlink, url)

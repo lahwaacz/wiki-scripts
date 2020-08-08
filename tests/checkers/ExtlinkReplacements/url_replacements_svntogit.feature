@@ -178,6 +178,7 @@ Feature: ExtlinkReplacements: svntogit links migration
         Given these broken URLs:
             https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc
             https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc
+            https://github.com/archlinux/svntogit-packages/commit/c46609a4b0325c363455264844091b71de01eddc
         When a page contains an extlink with <url> and content <pattern>
         And I run ExtlinkReplacements
         Then the page should have the original content
