@@ -94,7 +94,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         # Remove language codes from addons.mozilla.org and addons.thunderbird.net
         ("remove language codes from AMO and ATN links",
             r"https?\:\/\/addons\.(?:mozilla\.org|thunderbird\.net)/([^/]+?\/)?(?P<application>firefox|android|thunderbird|seamonkey)(?P<path>.+)?",
-            "https://addons.{% if (application is not none) and (application in [ 'thunderbird', 'seamonkey' ]) %}thunderbird.net{% else %}mozilla.org{% endif %}/{% if application is not none %}{{application}}{% endif %}{% if path is not none %}{{path}}{% endif %}"),
+            "https://addons.{% if application in [ 'thunderbird', 'seamonkey' ] %}thunderbird.net{% else %}mozilla.org{% endif %}/{% if application is not none %}{{application}}{% endif %}{% if path is not none %}{{path}}{% endif %}"),
 
         # TODO: https?://wireless.kernel.org/en/users/Drivers/brcm80211 → https://wireless.wiki.kernel.org/en/users/Drivers/brcm80211
         # TODO: remove user IDs from short links to stackexchange/stackoverflow posts
