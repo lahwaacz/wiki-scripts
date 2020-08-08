@@ -1,6 +1,6 @@
 # vim: ft=cucumber fileencoding=utf-8 sts=4 sw=4 et:
 
-Feature: ExtlinkReplacements: strip_extra_brackets
+Feature: ExtlinkReplacements: extlink to wikilink or template replacements
 
     Scenario: Replacing a plain link to Arch bug tracker
         When a page contains "see https://bugs.archlinux.org/task/12345"

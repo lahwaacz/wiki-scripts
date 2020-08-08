@@ -39,15 +39,15 @@ def create_page(page, text):
     page.text = text
 
 # both url and pattern are parametrized in the scenario outline
-@when("a page contains an extlink with <url> and content <pattern>")
-def create_page_with_extlink(page, url, pattern):
+@when("a page contains <pattern> formatted with <url>")
+def create_page_with_extlink(page, pattern, url):
     page.text = pattern.format(url)
     page.original_text = page.text
 
-# only pattern is parametrized in the scenario outline
-@when(parsers.parse("a page contains an extlink with {url} and content <pattern>"))
-def create_page_with_extlink(page, url, pattern):
-    page.text = pattern.format(url)
+# only pattern is parametrized in the scenario outline, but the format value is generic
+@when(parsers.parse("a page contains <pattern> formatted with {value}"))
+def create_page_with_extlink(page, pattern, value):
+    page.text = pattern.format(value)
     page.original_text = page.text
 
 @when("I run ExtlinkReplacements")
