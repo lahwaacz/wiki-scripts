@@ -275,6 +275,11 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                         new_url = response.url
                     new_url = new_url.replace("/-/", "/", 1)
 
+                # some patterns match even the target
+                # (e.g. links on addons.mozilla.org which already do not have a language code)
+                if url.url == new_url:
+                    return False
+
                 extlink.url = new_url
                 # TODO: make sure that the link is unflagged after replacement
                 return edit_summary
