@@ -9,6 +9,7 @@ import jinja2
 from .CheckerBase import get_edit_summary_tracker
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
 from ws.utils import LazyProperty
+from ws.parser_helpers.wikicode import ensure_unflagged_by_template
 
 __all__ = ["ExtlinkReplacements"]
 
@@ -100,11 +101,15 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             "https://addons.thunderbird.net/{{application}}{% if path is not none %}{{path}}{% endif %}"),
 
         # kernel.org documentation links
-        ("link to HTML versions of kernel docs",
+        ("link to HTML version of kernel documentation",
             r"https?\:\/\/(?:www\.)?kernel.org/doc/Documentation(?P<path>\/.+?)(?P<extension>\.txt|\.rst)?",
             "https://www.kernel.org/doc/html/latest{{path}}{% if extension is not none %}.html{% endif %}"),
 
-        # TODO: https?://wireless.kernel.org/en/users/Drivers/brcm80211 → https://wireless.wiki.kernel.org/en/users/Drivers/brcm80211
+        # wireless.wiki.kernel.org
+        ("update wireless.kernel.org links",
+            r"https?\:\/\/wireless\.kernel\.org/(?P<path>[^#]*)(?P<fragment>#.+)?",
+            "https://wireless.wiki.kernel.org/{{path}}{% if fragment is not none %}{{fragment | lower}}{% endif %}"),
+
         # TODO: remove user IDs from short links to stackexchange/stackoverflow posts
         # TODO: use Special:Permalink on ArchWiki: https://wiki.archlinux.org/index.php?title=Pacman/Tips_and_tricks&diff=next&oldid=630006
     ]
@@ -289,7 +294,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                     return False
 
                 extlink.url = new_url
-                # TODO: make sure that the link is unflagged after replacement
+                ensure_unflagged_by_template(wikicode, extlink, "Dead link", match_only_prefix=True)
                 return edit_summary
         return False
 
