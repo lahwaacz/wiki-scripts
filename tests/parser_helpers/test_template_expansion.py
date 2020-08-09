@@ -373,6 +373,25 @@ class test_expand_templates(common_base):
         expected = "#redirect [[Template:C]]"
         self._do_test(title_context, d, title, expected)
 
+    # simplified test for https://github.com/earwig/mwparserfromhell/issues/241
+    def test_adjacent_templates_in_link(self, title_context):
+        d = {
+            "Template:Foo": "",
+            "Template:Bar": "",
+            "Template:Baz": "",
+            "Template:Boo": "",
+            "Title 1": "{{Foo}}{{Bar}}{{Baz}}{{Boo}}",
+            "Title 2": "[[{{Foo}}{{Bar}}{{Baz}}{{Boo}}]]",
+        }
+
+        title = "Title 1"
+        expected = ""
+        self._do_test(title_context, d, title, expected)
+
+        title = "Title 2"
+        expected = "[[]]"
+        self._do_test(title_context, d, title, expected)
+
 class test_magic_words(common_base):
     def test_page_names(self, title_context):
         d = {
@@ -439,6 +458,17 @@ class test_magic_words(common_base):
         for title in d.keys():
             self._do_test(title_context, d, title, title)
 
+    # does not work due to https://github.com/earwig/mwparserfromhell/issues/251
+    @pytest.mark.xfail
+    def test_if_with_tags(self, title_context):
+        d = {
+            "Title": "foo{{#if:<nowiki>bar</nowiki>|true|false}}baz"
+        }
+
+        title = "Title"
+        expected = "footruebaz"
+        self._do_test(title_context, d, title, expected)
+
     def test_switch(self, title_context):
         d = {
             "Baz": "{{#switch: baz | foo = Foo | baz = Baz | Bar }}",
@@ -490,25 +520,6 @@ class test_magic_words(common_base):
 
         title = "Template:Cat main"
         expected = "The main article for this category is [[Cat main]]."
-        self._do_test(title_context, d, title, expected)
-
-    # simplified test for https://github.com/earwig/mwparserfromhell/issues/241
-    def test_adjacent_templates_in_link(self, title_context):
-        d = {
-            "Template:Foo": "",
-            "Template:Bar": "",
-            "Template:Baz": "",
-            "Template:Boo": "",
-            "Title 1": "{{Foo}}{{Bar}}{{Baz}}{{Boo}}",
-            "Title 2": "[[{{Foo}}{{Bar}}{{Baz}}{{Boo}}]]",
-        }
-
-        title = "Title 1"
-        expected = ""
-        self._do_test(title_context, d, title, expected)
-
-        title = "Title 2"
-        expected = "[[]]"
         self._do_test(title_context, d, title, expected)
 
 class test_transclusion_modifiers(common_base):
