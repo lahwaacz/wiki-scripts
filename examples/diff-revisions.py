@@ -3,7 +3,7 @@
 import os.path
 
 from ws.client import API
-from ws.diff import RevisionDiffer
+from ws.diff import diff_revisions
 
 api_url = "https://wiki.archlinux.org/api.php"
 index_url = "https://wiki.arclinux.org/index.php"
@@ -18,5 +18,4 @@ api = API(api_url, index_url, session)
 oldrevid = 625761
 newrevid = 625800
 
-diff = RevisionDiffer(api)
-print(diff.diff(oldrevid, newrevid))
+print(diff_revisions(api, oldrevid, newrevid))
