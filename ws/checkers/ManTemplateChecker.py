@@ -9,7 +9,7 @@ import mwparserfromhell
 from .CheckerBase import get_edit_summary_tracker, localize_flag
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
 import ws.ArchWiki.lang as lang
-from ws.parser_helpers.encodings import queryencode
+from ws.parser_helpers.encodings import urlencode, anchorencode
 from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template
 
 __all__ = ["ManTemplateChecker"]
@@ -43,7 +43,7 @@ class ManTemplateChecker(ExtlinkStatusChecker):
         url = self.man_url_prefix
         if template.has("pkg"):
             url += template.get("pkg").value.strip() + "/"
-        url += queryencode(template.get(2).value.strip())
+        url += urlencode(template.get(2).value.strip())
         # template parameter 1= should be empty
         if not template.has(1, ignore_empty=True):
             response = self.session.head(url, timeout=self.timeout, allow_redirects=True)
@@ -54,7 +54,7 @@ class ManTemplateChecker(ExtlinkStatusChecker):
         if template.get(1).value.strip():
             url += "." + template.get(1).value.strip()
         if template.has(3):
-            url += "#{}".format(queryencode(template.get(3).value.strip()))
+            url += "#{}".format(urlencode(anchorencode(template.get(3).value.strip())))
 
         if template.has("url"):
             explicit_url = template.get("url").value.strip()
