@@ -22,7 +22,7 @@ class PageUpdater:
     # subclasses can set this to True to force the interactive mode
     force_interactive = False
 
-    interactive_only_pages = []
+    interactive_only_pages = ["ArchWiki:Sandbox"]
     skip_pages = []
     skip_templates = {"Broken package link", "Broken section link", "Dead link"}
 
@@ -40,7 +40,7 @@ class PageUpdater:
         self.title = title
         self.langnames = langnames
 
-        self.namespaces = [0, 4, 14]
+        self.namespaces = [0, 4, 14, 3000]
         if self.interactive is True:
             self.namespaces.append(12)
 

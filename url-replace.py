@@ -7,17 +7,13 @@ from ws.pageupdater import PageUpdater
 
 class Updater(PageUpdater):
     force_interactive = True
-    interactive_only_pages = ["ArchWiki:Sandbox"]
-#    skip_pages = ["Table of contents", "Help:Editing", "ArchWiki talk:Requests", "ArchWiki:Statistics"]
+    skip_pages = ["Help:Editing"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-#        self.namespaces = [0, 4, 14, 3000]
-#        if self.interactive is True:
-#            self.namespaces.append(12)
         # temporarily enable all namespaces (Arch's git URLs migration)
-        self.namespaces = [0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 3000, 3001]
+        #self.namespaces = [0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 3000, 3001]
 
 if __name__ == "__main__":
     import ws.config

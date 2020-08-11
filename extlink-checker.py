@@ -7,7 +7,6 @@ from ws.pageupdater import PageUpdater
 
 class Updater(PageUpdater):
     force_interactive = True
-    interactive_only_pages = ["ArchWiki:Sandbox"]
 
 if __name__ == "__main__":
     import ws.config

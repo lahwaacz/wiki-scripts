@@ -25,7 +25,6 @@ class LinkChecker(ExtlinkReplacements, WikilinkChecker, ManTemplateChecker):
 
 
 class Updater(PageUpdater):
-    interactive_only_pages = ["ArchWiki:Sandbox"]
     skip_pages = ["Table of contents", "Help:Editing", "ArchWiki talk:Requests", "ArchWiki:Statistics"]
 
 if __name__ == "__main__":
