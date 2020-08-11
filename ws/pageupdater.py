@@ -4,6 +4,8 @@
 # TODO: changes rejected interactively should be logged
 
 import logging
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 import mwparserfromhell
 
@@ -98,7 +100,7 @@ class PageUpdater:
         checker.interactive = self.interactive
         self.checkers.setdefault(node_type, []).append(checker)
 
-    def update_page(self, src_title, text):
+    async def update_page(self, src_title, text):
         """
         Parse the content of the page and call various methods to update the links.
 
@@ -119,16 +121,46 @@ class PageUpdater:
         wikicode = mwparserfromhell.parse(text, skip_style_tags=True)
         summary_parts = []
 
-        for node_type, checkers in self.checkers.items():
-            for node in wikicode.ifilter(recursive=True, forcetype=node_type):
-                # skip templates that may be added or removed
-                if node_type is mwparserfromhell.nodes.Template and \
-                        any(canonicalize(node.name).startswith(prefix) for prefix in self.skip_templates):
-                    continue
-                for checker in checkers:
-                    # NOTE: for async processing we need to synchronize access to wikicode
-                    #       (summary_parts doesn't matter - we only append and deduplicate later)
-                    checker.handle_node(src_title, wikicode, node, summary_parts)
+        def gen_nodes():
+            for node_type, checkers in self.checkers.items():
+                for node in wikicode.ifilter(recursive=True, forcetype=node_type):
+                    # skip templates that may be added or removed
+                    if node_type is mwparserfromhell.nodes.Template and \
+                            any(canonicalize(node.name).startswith(prefix) for prefix in self.skip_templates):
+                        continue
+                    # skip all nodes (templates etc.) inside wikilinks
+                    # (This is because WikilinkChecker replaces wikilink.text
+                    # with its string representation and causing re-parsing,
+                    # which leads to the original node being dropped from the
+                    # wikicode. Since we need to prepare a list of all nodes
+                    # for the ThreadPoolExecutor, processing would fail.)
+                    # FIXME: figure out more robust solution
+                    # TODO: write proper tests for this
+                    parent = wikicode.get_parent(node)
+                    if isinstance(parent, mwparserfromhell.nodes.Wikilink):
+                        continue
+                    # handle the node with all registered checkers
+                    for checker in checkers:
+                        yield checker, node
+
+        # We could use the default single-threaded executor with basically the
+        # same performance (because of Python's GIL), but the ThreadPoolExecutor
+        # allows to limit the maximum number of workers (and thus the maximum
+        # number of concurrent HTTP connections). Moreover, we can use the locks
+        # from the threading module for synchronization.
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            loop = asyncio.get_event_loop()
+            tasks = [
+                loop.run_in_executor(
+                    executor,
+                    checker.handle_node,
+                    # a way to pass multiple arguments to the handle_node method
+                    *(src_title, wikicode, node, summary_parts)
+                )
+                for checker, node in gen_nodes()
+            ]
+            for result in await asyncio.gather(*tasks):
+                pass
 
         # deduplicate and keep order
         parts = set()
@@ -171,7 +203,7 @@ class PageUpdater:
         page = list(result["pages"].values())[0]
         timestamp = page["revisions"][0]["timestamp"]
         text_old = page["revisions"][0]["slots"]["main"]["*"]
-        text_new, edit_summary = self.update_page(title, text_old)
+        text_new, edit_summary = asyncio.run(self.update_page(title, text_old))
         self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
 
     def process_allpages(self, apfrom=None, langnames=None):
@@ -204,7 +236,7 @@ class PageUpdater:
                 _title = self.api.Title(title)
                 timestamp = page["revisions"][0]["timestamp"]
                 text_old = page["revisions"][0]["slots"]["main"]["*"]
-                text_new, edit_summary = self.update_page(title, text_old)
+                text_new, edit_summary = asyncio.run(self.update_page(title, text_old))
                 self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
             # the apfrom parameter is valid only for the first namespace
             apfrom = ""

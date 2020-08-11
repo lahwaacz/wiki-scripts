@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import re
+import asyncio
 
 from pytest_bdd import scenarios, given, when, then, parsers
 import mwparserfromhell
@@ -61,7 +62,7 @@ def run_ExtlinkReplacements(page, extlink_replacements, mocker):
     updater = PageUpdater(extlink_replacements.api)
     updater.add_checker(mwparserfromhell.nodes.ExternalLink, extlink_replacements)
 
-    page.text, page.last_edit_summary = updater.update_page("dummy page", page.text)
+    page.text, page.last_edit_summary = asyncio.run(updater.update_page("dummy page", page.text))
 
 
 @then(parsers.parse("the page should contain \"{text}\""))

@@ -16,6 +16,7 @@ import requests.packages.urllib3 as urllib3
 from .CheckerBase import get_edit_summary_tracker, localize_flag, CheckerBase
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.wikicode import get_parent_wikicode, ensure_flagged_by_template, ensure_unflagged_by_template
+from ws.diff import diff_highlighted
 
 __all__ = ["ExtlinkStatusChecker"]
 
@@ -85,7 +86,8 @@ class ExtlinkStatusChecker(CheckerBase):
 
             # make sure that this was a no-op
             text_new = str(wikicode)
-            assert text_old == text_new, "failed to fix parsing of templates after URL"
+            diff = diff_highlighted(text_old, text_new, "old", "new", "<utcnow>", "<utcnow>")
+            assert text_old == text_new, "failed to fix parsing of templates after URL. The diff is:\n{}".format(diff)
 
         # replace HTML entities like "&#61" or "&Sigma;" with their unicode equivalents
         for entity in url.ifilter_html_entities(recursive=True):
@@ -186,42 +188,44 @@ class ExtlinkStatusChecker(CheckerBase):
             return None
 
     def check_extlink_status(self, wikicode, extlink, src_title):
-        url = self.prepare_url(wikicode, extlink)
+        with self.lock_wikicode:
+            url = self.prepare_url(wikicode, extlink)
         if url is None:
             return
 
         logger.info("Checking link {} ...".format(extlink))
-
         status = self.check_url(url)
-        if status is True:
-            # TODO: the link might still be flagged for a reason (e.g. when the server redirects to some dummy page without giving a proper status code)
-            ensure_unflagged_by_template(wikicode, extlink, "Dead link", match_only_prefix=True)
-        elif status is False:
-            # TODO: handle bbs.archlinux.org (some links may require login)
-            # TODO: handle links inside {{man|url=...}} properly
-            # first replace the existing template (if any) with a translated version
-            flag = self.get_localized_template("Dead link", lang.detect_language(src_title)[1])
-            localize_flag(wikicode, extlink, flag)
-            # flag the link, but don't overwrite date and don't set status yet
-            flag = ensure_flagged_by_template(wikicode, extlink, flag, *self.deadlink_params, overwrite_parameters=False)
-            # drop the fragment from the URL before looking into the cache
-            if url.fragment:
-                url = urllib3.util.url.parse_url(url.url.rsplit("#", maxsplit=1)[0])
-            # overwrite by default, but skip overwriting date when the status matches
-            overwrite = True
-            if flag.has("status"):
-                status = flag.get("status").value
-                if str(status) == str(self.cache_invalid_urls[url]):
-                    overwrite = False
-            if overwrite is True:
-                # overwrite status as well as date
-                flag.add("status", self.cache_invalid_urls[url], showkey=True)
-                flag.add("1", self.deadlink_params[0], showkey=False)
-                flag.add("2", self.deadlink_params[1], showkey=False)
-                flag.add("3", self.deadlink_params[2], showkey=False)
-        else:
-            # TODO: ask the user for manual check (good/bad/skip) and move the URL from self.cache_indeterminate_urls to self.cache_valid_urls or self.cache_invalid_urls
-            logger.warning("status check indeterminate for external link {}".format(extlink))
+
+        with self.lock_wikicode:
+            if status is True:
+                # TODO: the link might still be flagged for a reason (e.g. when the server redirects to some dummy page without giving a proper status code)
+                ensure_unflagged_by_template(wikicode, extlink, "Dead link", match_only_prefix=True)
+            elif status is False:
+                # TODO: handle bbs.archlinux.org (some links may require login)
+                # TODO: handle links inside {{man|url=...}} properly
+                # first replace the existing template (if any) with a translated version
+                flag = self.get_localized_template("Dead link", lang.detect_language(src_title)[1])
+                localize_flag(wikicode, extlink, flag)
+                # flag the link, but don't overwrite date and don't set status yet
+                flag = ensure_flagged_by_template(wikicode, extlink, flag, *self.deadlink_params, overwrite_parameters=False)
+                # drop the fragment from the URL before looking into the cache
+                if url.fragment:
+                    url = urllib3.util.url.parse_url(url.url.rsplit("#", maxsplit=1)[0])
+                # overwrite by default, but skip overwriting date when the status matches
+                overwrite = True
+                if flag.has("status"):
+                    status = flag.get("status").value
+                    if str(status) == str(self.cache_invalid_urls[url]):
+                        overwrite = False
+                if overwrite is True:
+                    # overwrite status as well as date
+                    flag.add("status", self.cache_invalid_urls[url], showkey=True)
+                    flag.add("1", self.deadlink_params[0], showkey=False)
+                    flag.add("2", self.deadlink_params[1], showkey=False)
+                    flag.add("3", self.deadlink_params[2], showkey=False)
+            else:
+                # TODO: ask the user for manual check (good/bad/skip) and move the URL from self.cache_indeterminate_urls to self.cache_valid_urls or self.cache_invalid_urls
+                logger.warning("status check indeterminate for external link {}".format(extlink))
 
     def handle_node(self, src_title, wikicode, node, summary_parts):
         if isinstance(node, mwparserfromhell.nodes.ExternalLink):

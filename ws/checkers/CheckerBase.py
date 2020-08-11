@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import contextlib
+import threading
 
 import mwparserfromhell
 
@@ -50,6 +51,12 @@ class CheckerBase:
         self.api = api
         self.db = db
         self.interactive = interactive
+
+        # lock used for synchronizing access to the wikicode AST
+        # FIXME: the lock should not be an attribute of the checker, but of the wikicode
+        # maybe we can create a wrapper class (e.g. ThreadSafeWikicode) which would transparently synchronize all method calls: https://stackoverflow.com/a/17494777
+        # (we would still have to manually lock for wrapper functions and longer parts in the checkers)
+        self.lock_wikicode = threading.RLock()
 
     @LazyProperty
     def _alltemplates(self):

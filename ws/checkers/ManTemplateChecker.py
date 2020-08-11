@@ -33,11 +33,12 @@ class ManTemplateChecker(ExtlinkStatusChecker):
         deadlink_params = ["{:02d}".format(i) for i in deadlink_params]
 
         if not template.has(1) or not template.has(2, ignore_empty=True):
-            # first replace the existing template (if any) with a translated version
-            flag = self.get_localized_template("Dead link", src_lang)
-            localize_flag(wikicode, template, flag)
-            # flag with the correct translated template
-            ensure_flagged_by_template(wikicode, template, flag, *deadlink_params, overwrite_parameters=False)
+            with self.lock_wikicode:
+                # first replace the existing template (if any) with a translated version
+                flag = self.get_localized_template("Dead link", src_lang)
+                localize_flag(wikicode, template, flag)
+                # flag with the correct translated template
+                ensure_flagged_by_template(wikicode, template, flag, *deadlink_params, overwrite_parameters=False)
             return
 
         url = self.man_url_prefix
@@ -62,26 +63,29 @@ class ManTemplateChecker(ExtlinkStatusChecker):
             explicit_url = None
 
         # check if the template parameters form a valid URL
-        if self.check_url(url):
-            ensure_unflagged_by_template(wikicode, template, "Dead link", match_only_prefix=True)
-            # remove explicit url= parameter - not necessary
-            if explicit_url is not None:
-                template.remove("url")
-        elif explicit_url is None:
-            # first replace the existing template (if any) with a translated version
-            flag = self.get_localized_template("Dead link", src_lang)
-            localize_flag(wikicode, template, flag)
-            # flag with the correct translated template
-            ensure_flagged_by_template(wikicode, template, flag, *deadlink_params, overwrite_parameters=False)
-        elif explicit_url != "":
-            if self.check_url(explicit_url):
+        status = self.check_url(url)
+
+        with self.lock_wikicode:
+            if status:
                 ensure_unflagged_by_template(wikicode, template, "Dead link", match_only_prefix=True)
-            else:
+                # remove explicit url= parameter - not necessary
+                if explicit_url is not None:
+                    template.remove("url")
+            elif explicit_url is None:
                 # first replace the existing template (if any) with a translated version
                 flag = self.get_localized_template("Dead link", src_lang)
                 localize_flag(wikicode, template, flag)
                 # flag with the correct translated template
                 ensure_flagged_by_template(wikicode, template, flag, *deadlink_params, overwrite_parameters=False)
+            elif explicit_url != "":
+                if self.check_url(explicit_url):
+                    ensure_unflagged_by_template(wikicode, template, "Dead link", match_only_prefix=True)
+                else:
+                    # first replace the existing template (if any) with a translated version
+                    flag = self.get_localized_template("Dead link", src_lang)
+                    localize_flag(wikicode, template, flag)
+                    # flag with the correct translated template
+                    ensure_flagged_by_template(wikicode, template, flag, *deadlink_params, overwrite_parameters=False)
 
     def handle_node(self, src_title, wikicode, node, summary_parts):
         if isinstance(node, mwparserfromhell.nodes.Template):
