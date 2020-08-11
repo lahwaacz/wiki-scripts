@@ -22,6 +22,7 @@ class PageUpdater:
 
     interactive_only_pages = []
     skip_pages = []
+    skip_templates = {"Broken package link", "Broken section link", "Dead link"}
 
     def __init__(self, api, interactive=False, dry_run=False, first=None, title=None, langnames=None):
         if not dry_run:
@@ -122,7 +123,7 @@ class PageUpdater:
             for node in wikicode.ifilter(recursive=True, forcetype=node_type):
                 # skip templates that may be added or removed
                 if node_type is mwparserfromhell.nodes.Template and \
-                        any(canonicalize(node.name).startswith(prefix) for prefix in {"Broken package link", "Broken section link", "Dead link"}):
+                        any(canonicalize(node.name).startswith(prefix) for prefix in self.skip_templates):
                     continue
                 for checker in checkers:
                     # NOTE: for async processing we need to synchronize access to wikicode
