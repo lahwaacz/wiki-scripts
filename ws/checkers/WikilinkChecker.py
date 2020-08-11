@@ -14,7 +14,7 @@ import mwparserfromhell
 from .CheckerBase import get_edit_summary_tracker, CheckerBase
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.encodings import dotencode
-from ws.parser_helpers.title import canonicalize, TitleError
+from ws.parser_helpers.title import canonicalize, TitleError, InvalidTitleCharError
 from ws.parser_helpers.wikicode import get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template
 
 __all__ = ["WikilinkChecker"]
@@ -51,6 +51,9 @@ class WikilinkChecker(CheckerBase):
     - all titles are case-insensitive on the first letter (true on ArchWiki)
     - alternative text is intentional, no replacements there
     """
+
+    # article status templates, lowercase
+    skip_templates = ["accuracy", "archive", "bad translation", "expansion", "laptop style", "merge", "move", "out of date", "remove", "stub", "style", "translateme"]
 
     def __init__(self, api, db, **kwargs):
         super().__init__(api, db, **kwargs)
@@ -438,3 +441,32 @@ class WikilinkChecker(CheckerBase):
         # cache context-less, correct wikilinks that don't need any update
         if title.pagename and len(summary_parts) == 0 and anchor_result is True:
             self.void_update_cache.add(str(wikilink))
+
+    def handle_node(self, src_title, wikicode, node, summary_parts):
+        # skip links inside article status templates
+        parent = wikicode.get(wikicode.index(node, recursive=True))
+        if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
+            return
+
+        if isinstance(node, mwparserfromhell.nodes.Wikilink):
+            try:
+                self.update_wikilink(wikicode, node, src_title, summary_parts)
+            # this can happen, e.g. due to [[{{TALKPAGENAME}}]]
+            except InvalidTitleCharError:
+                pass
+        elif isinstance(node, mwparserfromhell.nodes.Template):
+            _pure_template = lang.detect_language(str(node.name))[0]
+            if _pure_template.lower() in {"related", "related2"}:
+                target = node.get(1).value
+                # temporarily convert the {{Related}} to wikilink to reuse the update code
+                wl = mwparserfromhell.nodes.wikilink.Wikilink(target)
+                wikicode.replace(node, wl)
+                # update
+                try:
+                    self.update_wikilink(wikicode, wl, src_title, summary_parts)
+                # this can happen, e.g. due to [[{{TALKPAGENAME}}]]
+                except InvalidTitleCharError:
+                    return
+                # replace back
+                target.value = str(wl.title)
+                wikicode.replace(wl, node)

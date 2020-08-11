@@ -1,0 +1,215 @@
+#! /usr/bin/env python3
+
+# FIXME: space-initialized code blocks should be skipped, but mwparserfromhell does not support that
+# TODO: changes rejected interactively should be logged
+
+import logging
+
+import mwparserfromhell
+
+from ws.client import API, APIError
+from ws.interactive import require_login, edit_interactive
+from ws.diff import diff_highlighted
+import ws.ArchWiki.lang as lang
+from ws.parser_helpers.title import canonicalize
+
+logger = logging.getLogger(__name__)
+
+class PageUpdater:
+
+    # subclasses can set this to True to force the interactive mode
+    force_interactive = False
+
+    interactive_only_pages = []
+    skip_pages = []
+
+    def __init__(self, api, interactive=False, dry_run=False, first=None, title=None, langnames=None):
+        if not dry_run:
+            # ensure that we are authenticated
+            require_login(api)
+        self.api = api
+
+        self.interactive = interactive if self.force_interactive is False else True
+        self.dry_run = dry_run
+
+        # parameters for self.run()
+        self.first = first
+        self.title = title
+        self.langnames = langnames
+
+        self.namespaces = [0, 4, 14]
+        if self.interactive is True:
+            self.namespaces.append(12)
+
+        # mapping of mwparserfromhell node types to lists of checker objects
+        self.checkers = {}
+
+    @classmethod
+    def set_argparser(klass, argparser):
+        # first try to set options for objects we depend on
+        present_groups = [group.title for group in argparser._action_groups]
+        if "Connection parameters" not in present_groups:
+            API.set_argparser(argparser)
+
+        group = argparser.add_argument_group(title="script parameters")
+        if klass.force_interactive is False:
+            group.add_argument("-i", "--interactive", action="store_true",
+                    help="enables interactive mode")
+        group.add_argument("--dry-run", action="store_true",
+                help="enables dry-run mode (changes are only shown and discarded)")
+        mode = group.add_mutually_exclusive_group()
+        mode.add_argument("--first", default=None, metavar="TITLE",
+                help="the title of the first page to be processed")
+        mode.add_argument("--title",
+                help="the title of the only page to be processed")
+        group.add_argument("--lang", default=None,
+                help="comma-separated list of language tags to process (default: all, choices: {})".format(lang.get_internal_tags()))
+
+    @classmethod
+    def from_argparser(klass, args, api=None):
+        if api is None:
+            api = API.from_argparser(args)
+        if args.lang:
+            tags = args.lang.split(",")
+            for tag in tags:
+                if tag not in lang.get_internal_tags():
+                    # FIXME: more elegant solution
+                    raise Exception("{} is not a valid language tag".format(tag))
+            langnames = {lang.langname_for_tag(tag) for tag in tags}
+        else:
+            langnames = set()
+        interactive = args.interactive if klass.force_interactive is False else True
+        return klass(api, interactive=interactive, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames)
+
+    def add_checker(self, node_type, checker):
+        """
+        Register a new checker for the given node type.
+
+        :param node_type:
+            the node type for which the checker will be registered. Must be a
+            subtype of :py:class:`mwparserfromhell.nodes.Node`.
+        :param checker:
+            the checker which will handle nodes of the given node type. Should
+            be an instance of :py:class:`ws.checkers.CheckerBase`.
+        """
+        if not issubclass(node_type, mwparserfromhell.nodes.Node):
+            raise TypeError("node_type must be a subclass of `mwparserfromhell.nodes.Node`")
+        checker.interactive = self.interactive
+        self.checkers.setdefault(node_type, []).append(checker)
+
+    def update_page(self, src_title, text):
+        """
+        Parse the content of the page and call various methods to update the links.
+
+        :param str src_title: title of the page
+        :param str text: content of the page
+        :returns: a (text, edit_summary) tuple, where text is the updated content
+            and edit_summary is the description of performed changes
+        """
+        if lang.detect_language(src_title)[0] in self.skip_pages:
+            logger.info("Skipping blacklisted page [[{}]]".format(src_title))
+            return text, ""
+        if lang.detect_language(src_title)[0] in self.interactive_only_pages and self.interactive is False:
+            logger.info("Skipping page [[{}]] which is blacklisted for non-interactive mode".format(src_title))
+            return text, ""
+
+        logger.info("Parsing page [[{}]] ...".format(src_title))
+        # FIXME: skip_style_tags=True is a partial workaround for https://github.com/earwig/mwparserfromhell/issues/40
+        wikicode = mwparserfromhell.parse(text, skip_style_tags=True)
+        summary_parts = []
+
+        for node_type, checkers in self.checkers.items():
+            for node in wikicode.ifilter(recursive=True, forcetype=node_type):
+                # skip templates that may be added or removed
+                if node_type is mwparserfromhell.nodes.Template and \
+                        any(canonicalize(node.name).startswith(prefix) for prefix in {"Broken package link", "Broken section link", "Dead link"}):
+                    continue
+                for checker in checkers:
+                    # NOTE: for async processing we need to synchronize access to wikicode
+                    #       (summary_parts doesn't matter - we only append and deduplicate later)
+                    checker.handle_node(src_title, wikicode, node, summary_parts)
+
+        # deduplicate and keep order
+        parts = set()
+        parts_add = parts.add
+        summary_parts = [part for part in summary_parts if not (part in parts or parts_add(part))]
+
+        edit_summary = ", ".join(summary_parts)
+        if self.force_interactive is False and self.interactive is True:
+            edit_summary += " (interactive)"
+
+        return str(wikicode), edit_summary
+
+    def _edit(self, title, pageid, text_new, text_old, timestamp, edit_summary):
+        if text_old == text_new:
+            return
+
+        if self.dry_run:
+            diff = diff_highlighted(text_old, text_new, title + ".old", title + ".new", timestamp, "<utcnow>")
+            print(diff)
+            print("Edit summary:  " + edit_summary)
+            print("(edit discarded due to --dry-run)")
+            return
+
+        try:
+            if self.interactive is False:
+                self.api.edit(title, pageid, text_new, timestamp, edit_summary, bot="")
+            else:
+                # print the info message
+                print("\nSuggested edit for page [[{}]]. Please double-check all changes before accepting!".format(title))
+
+                if "bot" in self.api.user.rights:
+                    edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, edit_summary, bot="")
+                else:
+                    edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, edit_summary)
+        except APIError as e:
+            pass
+
+    def process_page(self, title):
+        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", rvslots="main", titles=title)
+        page = list(result["pages"].values())[0]
+        timestamp = page["revisions"][0]["timestamp"]
+        text_old = page["revisions"][0]["slots"]["main"]["*"]
+        text_new, edit_summary = self.update_page(title, text_old)
+        self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
+
+    def process_allpages(self, apfrom=None, langnames=None):
+        # clone the list of namespaces so that we can modify it for this method
+        namespaces = self.namespaces.copy()
+
+        # rewind to the right namespace (the API throws BadTitle error if the
+        # namespace of apfrom does not match apnamespace)
+        if apfrom is not None:
+            _title = self.api.Title(apfrom)
+            if _title.namespacenumber not in namespaces:
+                logger.error("Valid namespaces for the --first option are {}.".format([self.api.site.namespaces[ns] for ns in namespaces]))
+                return
+            while namespaces[0] != _title.namespacenumber:
+                del namespaces[0]
+            # apfrom must be without namespace prefix
+            apfrom = _title.pagename
+
+        for ns in namespaces:
+            for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom,
+                                           prop="revisions", rvprop="content|timestamp", rvslots="main"):
+                # if the user is not logged in, the limit for revisions may be lower than gaplimit,
+                # in which case the generator will yield some pages multiple times without revisions
+                # before the query-continuation kicks in
+                if "revisions" not in page:
+                    continue
+                title = page["title"]
+                if langnames and lang.detect_language(title)[1] not in langnames:
+                    continue
+                _title = self.api.Title(title)
+                timestamp = page["revisions"][0]["timestamp"]
+                text_old = page["revisions"][0]["slots"]["main"]["*"]
+                text_new, edit_summary = self.update_page(title, text_old)
+                self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
+            # the apfrom parameter is valid only for the first namespace
+            apfrom = ""
+
+    def run(self):
+        if self.title is not None:
+            self.process_page(self.title)
+        else:
+            self.process_allpages(apfrom=self.first, langnames=self.langnames)

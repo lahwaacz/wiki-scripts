@@ -13,7 +13,7 @@ import mwparserfromhell
 import requests
 import requests.packages.urllib3 as urllib3
 
-from .CheckerBase import localize_flag, CheckerBase
+from .CheckerBase import get_edit_summary_tracker, localize_flag, CheckerBase
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.wikicode import get_parent_wikicode, ensure_flagged_by_template, ensure_unflagged_by_template
 
@@ -222,3 +222,9 @@ class ExtlinkStatusChecker(CheckerBase):
         else:
             # TODO: ask the user for manual check (good/bad/skip) and move the URL from self.cache_indeterminate_urls to self.cache_valid_urls or self.cache_invalid_urls
             logger.warning("status check indeterminate for external link {}".format(extlink))
+
+    def handle_node(self, src_title, wikicode, node, summary_parts):
+        if isinstance(node, mwparserfromhell.nodes.ExternalLink):
+            summary = get_edit_summary_tracker(wikicode, summary_parts)
+            with summary("update status of external links"):
+                self.check_extlink_status(wikicode, node, src_title)

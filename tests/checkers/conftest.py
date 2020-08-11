@@ -4,11 +4,9 @@ import logging
 
 import pytest
 import requests_mock
-import mwparserfromhell
 
+from ws.client import API
 from ws.checkers import ExtlinkReplacements
-from ws.client import API, APIError
-import ws.ArchWiki.lang as lang
 
 # set up the global logger
 logging.basicConfig()
@@ -72,72 +70,11 @@ def api_mock(session_mocker, title_context):
     return api
 
 
-logger = logging.getLogger(__name__)
-
-def require_login(api):
-    pass
-
-class ExtlinkReplacementsChecker(ExtlinkReplacements):
-    # TODO: refactoring - this should be in some class in the ws.checkers subpackage
-
-    interactive_only_pages = []
-    skip_pages = []
-
-    def __init__(self, api, interactive=False, dry_run=False, first=None, title=None, langnames=None, connection_timeout=30, max_retries=3):
-        if not dry_run:
-            # ensure that we are authenticated
-            require_login(api)
-
-        super().__init__(api, None, interactive=interactive, timeout=connection_timeout, max_retries=max_retries)
-
-        self.dry_run = dry_run
-
-        # parameters for self.run()
-        self.first = first
-        self.title = title
-        self.langnames = langnames
-
-    def update_page(self, src_title, text):
-        """
-        Parse the content of the page and call various methods to update the links.
-
-        :param str src_title: title of the page
-        :param str text: content of the page
-        :returns: a (text, edit_summary) tuple, where text is the updated content
-            and edit_summary is the description of performed changes
-        """
-        if lang.detect_language(src_title)[0] in self.skip_pages:
-            logger.info("Skipping blacklisted page [[{}]]".format(src_title))
-            return text, ""
-        if lang.detect_language(src_title)[0] in self.interactive_only_pages and self.interactive is False:
-            logger.info("Skipping page [[{}]] which is blacklisted for non-interactive mode".format(src_title))
-            return text, ""
-
-        logger.info("Parsing page [[{}]] ...".format(src_title))
-        # FIXME: skip_style_tags=True is a partial workaround for https://github.com/earwig/mwparserfromhell/issues/40
-        wikicode = mwparserfromhell.parse(text, skip_style_tags=True)
-        summary_parts = []
-
-        for extlink in wikicode.ifilter_external_links(recursive=True):
-            self.update_extlink(wikicode, extlink, summary_parts)
-
-        # deduplicate and keep order
-        parts = set()
-        parts_add = parts.add
-        summary_parts = [part for part in summary_parts if not (part in parts or parts_add(part))]
-
-        edit_summary = ", ".join(summary_parts)
-#        if self.interactive is True:
-#            edit_summary += " (interactive)"
-
-        return str(wikicode), edit_summary
-
-
 # this should be function-scoped so that ExtlinkStatusChecker's requests session
 # and URL status caches are properly reset between tests
 @pytest.fixture(scope="function")
-def extlink_replacements(api_mock, mocker):
-    checker = ExtlinkReplacementsChecker(api_mock)
+def extlink_replacements(api_mock):
+    checker = ExtlinkReplacements(api_mock, None)
 
     # mock the checker's requests session
     # https://requests-mock.readthedocs.io/en/latest/mocker.html#mocking-specific-sessions

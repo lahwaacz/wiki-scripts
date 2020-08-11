@@ -63,3 +63,6 @@ class CheckerBase:
             return localized
         # fall back to English
         return template
+
+    def handle_node(self, src_title, wikicode, node, summary_parts):
+        raise NotImplementedError("the handle_node method was not implemented in the derived class")

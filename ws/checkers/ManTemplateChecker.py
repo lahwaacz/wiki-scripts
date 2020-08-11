@@ -4,8 +4,9 @@ import logging
 import datetime
 
 import requests
+import mwparserfromhell
 
-from .CheckerBase import localize_flag
+from .CheckerBase import get_edit_summary_tracker, localize_flag
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.encodings import queryencode
@@ -81,3 +82,9 @@ class ManTemplateChecker(ExtlinkStatusChecker):
                 localize_flag(wikicode, template, flag)
                 # flag with the correct translated template
                 ensure_flagged_by_template(wikicode, template, flag, *deadlink_params, overwrite_parameters=False)
+
+    def handle_node(self, src_title, wikicode, node, summary_parts):
+        if isinstance(node, mwparserfromhell.nodes.Template):
+            summary = get_edit_summary_tracker(wikicode, summary_parts)
+            with summary("updated man page links"):
+                self.update_man_template(wikicode, node, src_title)

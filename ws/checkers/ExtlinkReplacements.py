@@ -338,3 +338,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         # case a http link matches a previous replacement rule
         with summary("update http to https for known domains"):
             self.check_http_to_https(wikicode, extlink, url)
+
+    def handle_node(self, src_title, wikicode, node, summary_parts):
+        if isinstance(node, mwparserfromhell.nodes.ExternalLink):
+            self.update_extlink(wikicode, node, summary_parts)

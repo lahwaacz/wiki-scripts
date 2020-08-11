@@ -3,6 +3,9 @@
 import re
 
 from pytest_bdd import scenarios, given, when, then, parsers
+import mwparserfromhell
+
+from ws.pageupdater import PageUpdater
 
 scenarios("ExtlinkReplacements")
 
@@ -51,8 +54,14 @@ def create_page_with_extlink(page, pattern, value):
     page.original_text = page.text
 
 @when("I run ExtlinkReplacements")
-def run_ExtlinkReplacements(page, extlink_replacements):
-    page.text, page.last_edit_summary = extlink_replacements.update_page("dummy page", page.text)
+def run_ExtlinkReplacements(page, extlink_replacements, mocker):
+    # mock the require_login function which is used by PageUpdater
+    mocker.patch("ws.pageupdater.require_login", return_value=lambda api: None)
+
+    updater = PageUpdater(extlink_replacements.api)
+    updater.add_checker(mwparserfromhell.nodes.ExternalLink, extlink_replacements)
+
+    page.text, page.last_edit_summary = updater.update_page("dummy page", page.text)
 
 
 @then(parsers.parse("the page should contain \"{text}\""))
