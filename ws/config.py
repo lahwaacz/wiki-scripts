@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import argparse
-import collections
 import configparser
 import logging
 import os
@@ -9,70 +8,120 @@ import sys
 
 import ws.logging
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 __all__ = [
-    "ConfigFileParser", 
-    "argtype_existing_dir", 
-    "argtype_dirname_must_exist", 
-    "getArgParser", 
-    "object_from_argparser",
+    'ConfigParser', 
+    'getArgParser', 
+    'object_from_argparser',
+    'argtype_configfile',
+    'argtype_existing_dir', 
+    'argtype_dirname_must_exist', 
 ]
 
-class ConfigFileParser:
+PROJECT_NAME = 'wiki-scripts'
+CONFIG_DIR = '~/.config/'       # Can be overriden by XDG_CONFIG_HOME
+CACHE_DIR = '~/.cache/'         # Can be overriden by XDG_CACHE_HOME
+DEFAULT_CONF = 'archwiki'       # Can be overriden with '--config' option
 
-    def __init__(self, subname=None):
-        self.subname = subname
+class ConfigParser(configparser.ConfigParser):
+    """Drop-in replacement for :py:class:`configparser.Configparser`."""
 
-    def parse(self, configfile):
-        """Parse a config file and return a dict of options."""
-        cf = configparser.ConfigParser()
-        cf.read(configfile)
-        return dict(cf[self.subname])
-
-    def parse_to_list(self, configfile):
-        """Parse a config file and return the options
-        as the list of strings.
-        """
-        cf = self.parse(configfile)
-        conv = []
-        for option, value in cf.items():
-            conv.append('--' + option)
-            conf.append(value)
-        return conv
-
-
-class Defaults(collections.UserDict):
-    def __init__(self):
+    def __init__(self, configfile):
         super().__init__()
-        project_name = "wiki-scripts"
+        self.configfile = configfile
 
-        # global arguments
-        config_dir = os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
-        self.data["config"] = os.path.join(config_dir, "{0}/{0}.conf".format(project_name))
+    def fetch_section(self, section=None, to_list=True):
+        """
+        Fetches a specific section from a config file.
 
-        cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
-        self.data["cache_dir"] = os.path.join(cache_dir, project_name)
+        :param section: section name for fetching.
+        :param to_list: defines the format of the returned value (see below).
+        :returns:
+            The data from the fetched config file section. The format is
+            a list of strings if ``to_list=True`` (default value) and
+            a dictionary otherwise.
+        """
+        with open(self.configfile) as f:
+            self.read_file(f)
 
-        # ArchWiki specifics
-        self.data["site"] = "ArchWiki"
-        # NOTE: These depend on site=ArchWiki, but (config)argparse does not support conditional defaults
-        # TODO: document the behaviour properly; also emphasize that --help does not
-        #       take defaults from the config file (which is just right)
-        self.data["api_url"] = "https://wiki.archlinux.org/api.php"
-        self.data["index_url"] = "https://wiki.archlinux.org/index.php"
+        if section is None:
+            section, _ = os.path.splitext(os.path.basename(sys.argv[0]))
+        if not self.has_section(section):
+            section = configparser.DEFAULTSECT
 
-def argtype_bool(value):
-    if isinstance(value, bool):
-        return value
-    string = str(value).lower()
-    if string in ["1", "true", "yes"]:
+        data = self.items(section)
+        return [f'--{k}={v}' for k, v in data] if to_list else dict(data)
+
+
+class ArgumentParser(argparse.ArgumentParser):
+    """Drop-in replacement for :py:class:`argparse.ArgumentParser`."""
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('usage', '%(prog)s [options]')
+        kwargs.setdefault('formatter_class',
+                          argparse.RawDescriptionHelpFormatter)
+        super().__init__(**kwargs)
+
+    def setup(self):
+        """Initial argparser setup."""
+        
+        self.add_argument('-c', '--config',
+                          type=argtype_configfile,
+                          metavar='NAME',
+                          default=DEFAULT_CONF,
+                          help='name of config file (default: %(default)s')
+        self.add_argument('--cache-dir',
+                          type=argtype_dirname_must_exist,
+                          metavar='PATH',
+                          help=('directory for storing cached data'
+                                ' (will be created if necessary,'
+                                ' but parent directory must exist)'
+                                ' (default: %(default)s')
+                          
+        # Some argument defaults that cannot be set with the 'default='
+        # parameter
+        arg_defaults = {}
+
+        cache_dir = os.getenv('XDG_CACHE_HOME', os.path.expanduser(CACHE_HOME))
+        arg_defaults['cache_dir'] = os.path.join(cache_dir, PROJECT_NAME)
+        
+        self.set_defaults(**arg_defaults)
+
+
+def argtype_configfile(string):
+    """Convert `--config` argument to the full config file path. Check file
+    existance.
+
+    :param string: configuration name.
+    :returns: the config file path.
+    """
+    confdir = os.getenv('XDG_CONFIG_HOME', os.path.expanduser(CONFIG_DIR))
+    config = os.path.join(confdir, '{}/{}.conf'.format(PROJECT_NAME, string))
+    if not os.path.isfile(config):
+        raise FileNotFoundError(
+            'No such configuration file: "{}"'.format(config))
+    else:
+        return config
+        
+
+def argtype_bool(string):
+    """
+    Convert the string represenation of a bool value to the true
+    :py:class:`bool` instance.
+
+    :returns: ``True`` or ``False``.
+    """
+    string = string.lower()
+    true_values = {'yes', 'true', 'on', '1'}
+    false_values = {'no', 'false', 'off', '0'}
+    if string in true_values:
         return True
-    elif string in ["0", "false", "no"]:
+    elif string in false_values:
         return False
     else:
-        print("value '%s' cannot be converted to boolean" % value)
-        raise argparse.ArgumentTypeError("value '%s' cannot be converted to boolean" % value)
+        raise argparse.ArgumentTypeError(
+            'string "{}" cannot be converted to a bool.'.format(sting))
 
 # any path, the dirname part must exist (e.g. path to a file that will be created in the future)
 def argtype_dirname_must_exist(string):
@@ -102,60 +151,54 @@ def argtype_comma_list_choices(choices):
 
     return wrapped
 
-def getArgParser(subname=None, **kwargs):
-    if subname is None:
-        _, _script = os.path.split(sys.argv[0])
-        subname, _ = os.path.splittext(_script)
 
-    # set brief usage parameter by default
-    kwargs.setdefault("usage", "%(prog)s [options]")
-    kwargs.setdefault("formatter_class", argparse.RawDescriptionHelpFormatter)
+def getArgParser(**kwargs):
+    """
+    Create an instance of :py:class:`ArgumentParser`. Make its initial setup
+    and set the logging arguments.
 
-    ap = argparse.ArgumentParser(**kwargs)
-
-    # add config file argument
-    ap.add_argument("-c", "--config", metavar="PATH",
-            help="path to config file (default: %(default)s)")
+    :param kwargs: passed to :py:class:`ArgumentParser()` constructor.
+    :returns: an instance of :py:class:`ArgumentParser`.
+    """
+    ap = ArgumentParser(**kwargs)
+    ap.setup()
 
     # include logging arguments into the global group
     ws.logging.set_argparser(ap)
 
-    # add other global arguments
-    ap.add_argument("--cache-dir", type=argtype_dirname_must_exist, metavar="PATH",
-            help="directory for storing cached data (will be created if necessary, but parent directory must exist) (default: %(default)s)")
-
-    ap.set_defaults(**Defaults())
-
     return ap
 
-def object_from_argparser(klass, subname=None, **kwargs):
+
+def object_from_argparser(klass, section=None, **kwargs):
     """
     Create an instance of ``klass`` using its :py:meth:`klass.from_argparser()`
-    factory and a clean instance of :py:class:`argparse.ArgumentParser`. On top
-    of that, logging interface is set up using the :py:mod:`ws.logging` module.
+    factory and a instance of :py:class:`ArgumentParser`. On top of that, 
+    logging interface is set up using the :py:mod:`ws.logging` module.
 
     :param klass: the class to instantiate
-    :param subname:
+    :param section:
         The name of the subsection to be read from the configuration file
         (usually the name of the script). By default ``sys.argv[0]`` is taken.
-    :param kwargs: passed to :py:class:`argparse.ArgumentParser()` constructor
+    :param kwargs: passed to :py:class:`ArgumentParser()` constructor
     :returns: an instance of :py:class:`klass`
     """
-    if subname is None:
-        _, _script = os.path.split(sys.argv[0])
-        subname, _ = os.path.splittext(_script)
-    argparser = getArgParser(subname, **kwargs)
+
+    # argparser creation, initial setup and parsing sys.argv
+    # for config/site/etc options
+    argparser = getArgParser(**kwargs)
+    argparser.setup()
     args, remaining_argv = argparser.parse_known_args()
+    
+    # read the config file and fetch the script-related section options
+    cfp = ConfigParser(args.config)
+    config_args = cfp.fetch_section(section)
+    
+    # class parser setup and final parsing
     klass.set_argparser(argparser)
-    cfp = ConfigFileParser(subname)
-    config_args = cfp.parse_to_list(args.config)
-    argparser.parse_args(config_args, namespace=args)
-    argparser.parse_args(remaining_argv, namespace=args)
+    argparser.parse_args(config_args + remaining_argv, namespace=args)
 
     # set up logging
     ws.logging.init(args)
-
-    # TODO: depends on ConfigArgParse, in case of argparse just log the Namespace
     logger.debug("Parsed arguments:\n" + argparser.format_values())
 
     return klass.from_argparser(args)
