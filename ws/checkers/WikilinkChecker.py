@@ -448,28 +448,25 @@ class WikilinkChecker(CheckerBase):
         if isinstance(parent, mwparserfromhell.nodes.template.Template) and parent.name.lower() in self.skip_templates:
             return
 
-        # everything in WikilinkChecker is synchronous, there is nothing to
-        # overlap (no HTTP connections etc.)
-        with self.lock_wikicode:
-            if isinstance(node, mwparserfromhell.nodes.Wikilink):
+        if isinstance(node, mwparserfromhell.nodes.Wikilink):
+            try:
+                self.update_wikilink(wikicode, node, src_title, summary_parts)
+            # this can happen, e.g. due to [[{{TALKPAGENAME}}]]
+            except InvalidTitleCharError:
+                pass
+        elif isinstance(node, mwparserfromhell.nodes.Template):
+            _pure_template = lang.detect_language(str(node.name))[0]
+            if _pure_template.lower() in {"related", "related2"}:
+                target = node.get(1).value
+                # temporarily convert the {{Related}} to wikilink to reuse the update code
+                wl = mwparserfromhell.nodes.wikilink.Wikilink(target)
+                wikicode.replace(node, wl)
+                # update
                 try:
-                    self.update_wikilink(wikicode, node, src_title, summary_parts)
+                    self.update_wikilink(wikicode, wl, src_title, summary_parts)
                 # this can happen, e.g. due to [[{{TALKPAGENAME}}]]
                 except InvalidTitleCharError:
-                    pass
-            elif isinstance(node, mwparserfromhell.nodes.Template):
-                _pure_template = lang.detect_language(str(node.name))[0]
-                if _pure_template.lower() in {"related", "related2"}:
-                    target = node.get(1).value
-                    # temporarily convert the {{Related}} to wikilink to reuse the update code
-                    wl = mwparserfromhell.nodes.wikilink.Wikilink(target)
-                    wikicode.replace(node, wl)
-                    # update
-                    try:
-                        self.update_wikilink(wikicode, wl, src_title, summary_parts)
-                    # this can happen, e.g. due to [[{{TALKPAGENAME}}]]
-                    except InvalidTitleCharError:
-                        return
-                    # replace back
-                    target.value = str(wl.title)
-                    wikicode.replace(wl, node)
+                    return
+                # replace back
+                target.value = str(wl.title)
+                wikicode.replace(wl, node)

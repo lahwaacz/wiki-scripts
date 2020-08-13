@@ -13,6 +13,7 @@ from ws.parser_helpers.wikicode import get_parent_wikicode, get_adjacent_node
 __all__ = ["get_edit_summary_tracker", "localize_flag", "CheckerBase"]
 
 
+# WARNING: using the context manager is not thread-safe
 def get_edit_summary_tracker(wikicode, summary_parts):
     @contextlib.contextmanager
     def checker(summary):

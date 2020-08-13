@@ -228,9 +228,8 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                 wikilink = "[[{}|{}]]".format(target, extlink.title)
             else:
                 wikilink = "[[{}]]".format(target)
-            with self.lock_wikicode:
-                wikicode.replace(extlink, wikilink)
-                # TODO: what if the extlink was flagged with Dead link?
+            wikicode.replace(extlink, wikilink)
+            # TODO: what if the extlink was flagged with Dead link?
             return True
         return False
 
@@ -242,17 +241,15 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             if match:
                 if extlink.title is None:
                     repl = replacement.format(*match.groups())
-                    with self.lock_wikicode:
-                        wikicode.replace(extlink, repl)
-                        # TODO: make sure that the link is unflagged after replacement
+                    wikicode.replace(extlink, repl)
+                    # TODO: make sure that the link is unflagged after replacement
                     return True
                 else:
                     groups = [re.escape(g) for g in match.groups()]
                     alt_text = str(extlink.title).strip()
                     if re.fullmatch(text_cond.format(*groups), alt_text, text_cond_flags):
-                        with self.lock_wikicode:
-                            wikicode.replace(extlink, replacement.format(*match.groups(), extlink.title))
-                            # TODO: make sure that the link is unflagged after replacement
+                        wikicode.replace(extlink, replacement.format(*match.groups(), extlink.title))
+                        # TODO: make sure that the link is unflagged after replacement
                         return True
                     else:
                         logger.warning("external link that should be replaced, but has custom alternative text: {}".format(extlink))
@@ -296,9 +293,8 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                 if url.url == new_url:
                     return False
 
-                with self.lock_wikicode:
-                    extlink.url = new_url
-                    ensure_unflagged_by_template(wikicode, extlink, "Dead link", match_only_prefix=True)
+                extlink.url = new_url
+                ensure_unflagged_by_template(wikicode, extlink, "Dead link", match_only_prefix=True)
                 return edit_summary
         return False
 
@@ -307,15 +303,13 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             new_url = str(extlink.url).replace("http://", "https://", 1)
             # there is no reason to update broken links
             if self.check_url(new_url):
-                with self.lock_wikicode:
-                    extlink.url = new_url
+                extlink.url = new_url
             else:
                 logger.warning("broken URL not updated to https: {}".format(url))
 
     def update_extlink(self, wikicode, extlink, summary_parts):
         # prepare URL - fix parsing of adjacent templates, replace HTML entities, parse with urllib3
-        with self.lock_wikicode:
-            url = self.prepare_url(wikicode, extlink)
+        url = self.prepare_url(wikicode, extlink)
         if url is None:
             return
 
@@ -324,8 +318,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         # FIXME: this can break templates because of "=", e.g. https://wiki.archlinux.org/index.php?title=Systemd_(Espa%C3%B1ol)/User_(Espa%C3%B1ol)&diff=629483&oldid=617318
         # see https://wiki.archlinux.org/index.php/User:Lahwaacz/Notes#Double_brackets_escape_template-breaking_characters
         with summary("removed extra brackets"):
-            with self.lock_wikicode:
-                self.strip_extra_brackets(wikicode, extlink)
+            self.strip_extra_brackets(wikicode, extlink)
 
         # always make sure to return as soon as the extlink is matched and replaced
         with summary("replaced external links"):
