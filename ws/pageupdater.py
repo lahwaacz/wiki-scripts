@@ -51,7 +51,7 @@ class PageUpdater:
         self.interactive = interactive if self.force_interactive is False else True
         self.dry_run = dry_run
 
-        # parameters for self.run()
+        # parameters for the selection of page titles
         self.first = first
         self.title = title
         self.langnames = langnames
@@ -210,20 +210,30 @@ class PageUpdater:
         except APIError as e:
             pass
 
-    def process_page(self, title):
-        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", rvslots="main", titles=title)
-        page = list(result["pages"].values())[0]
+    def process_page(self, page):
+        """
+        :param dict page:
+            the ``page`` part of the API response (must include the page title,
+            pageid, and the timestamp and content of the last revision)
+        """
         timestamp = page["revisions"][0]["timestamp"]
         text_old = page["revisions"][0]["slots"]["main"]["*"]
-        text_new, edit_summary = self.update_page(title, text_old)
-        self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
+        text_new, edit_summary = self.update_page(page["title"], text_old)
+        self._edit(page["title"], page["pageid"], text_new, text_old, timestamp, edit_summary)
 
-    def process_allpages(self, apfrom=None, langnames=None):
+    def generate_pages(self):
+        # handle the trivial case first
+        if self.title is not None:
+            result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", rvslots="main", titles=self.title)
+            yield list(result["pages"].values())[0]
+            return
+
         # clone the list of namespaces so that we can modify it for this method
         namespaces = self.namespaces.copy()
 
         # rewind to the right namespace (the API throws BadTitle error if the
         # namespace of apfrom does not match apnamespace)
+        apfrom = self.first
         if apfrom is not None:
             _title = self.api.Title(apfrom)
             if _title.namespacenumber not in namespaces:
@@ -242,19 +252,12 @@ class PageUpdater:
                 # before the query-continuation kicks in
                 if "revisions" not in page:
                     continue
-                title = page["title"]
-                if langnames and lang.detect_language(title)[1] not in langnames:
+                if self.langnames and lang.detect_language(page["title"])[1] not in self.langnames:
                     continue
-                _title = self.api.Title(title)
-                timestamp = page["revisions"][0]["timestamp"]
-                text_old = page["revisions"][0]["slots"]["main"]["*"]
-                text_new, edit_summary = self.update_page(title, text_old)
-                self._edit(title, page["pageid"], text_new, text_old, timestamp, edit_summary)
+                yield page
             # the apfrom parameter is valid only for the first namespace
             apfrom = ""
 
     def run(self):
-        if self.title is not None:
-            self.process_page(self.title)
-        else:
-            self.process_allpages(apfrom=self.first, langnames=self.langnames)
+        for page in self.generate_pages():
+            self.process_page(page)
