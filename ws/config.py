@@ -11,18 +11,24 @@ import ws.logging
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    'ConfigParser', 
-    'getArgParser', 
-    'object_from_argparser',
-    'argtype_configfile',
-    'argtype_existing_dir', 
-    'argtype_dirname_must_exist', 
+    "ConfigParser", 
+    "getArgParser", 
+    "object_from_argparser",
+    "argtype_bool",
+    "argtype_configfile",
+    "argtype_comma_list_choices",
+    "argtype_path",
 ]
 
 PROJECT_NAME = 'wiki-scripts'
 CONFIG_DIR = '~/.config/'       # Can be overriden by XDG_CONFIG_HOME
 CACHE_DIR = '~/.cache/'         # Can be overriden by XDG_CACHE_HOME
-DEFAULT_CONF = 'archwiki'       # Can be overriden with '--config' option
+DEFAULT_CONF = 'default'        # Can be overriden with '--config' option
+
+
+# ==============
+# Parser classes
+# ==============
 
 class ConfigParser(configparser.ConfigParser):
     """Drop-in replacement for :py:class:`configparser.Configparser`."""
@@ -50,11 +56,23 @@ class ConfigParser(configparser.ConfigParser):
         if not self.has_section(section):
             section = configparser.DEFAULTSECT
 
-        data = self.items(section)
-        return [f'--{k}={v}' for k, v in data] if to_list else dict(data)
+        option_dict = dict(self.items(section))
+        for key, value in option_dict.items():
+            if ' ' in value:
+                option_dict[key] = value.split()
+        if to_list:
+            option_list = []
+            for key, value in option_dict.items():
+                option_list.append(key)
+                if isinstance(value, list):
+                    option_list.extend(value)
+                else:
+                    option_list.append(value)
+            
+        return option_list if to_list else option_dict
 
 
-class ArgumentParser(argparse.ArgumentParser):
+class _ArgumentParser(argparse.ArgumentParser):
     """Drop-in replacement for :py:class:`argparse.ArgumentParser`."""
 
     def __init__(self, **kwargs):
@@ -62,6 +80,9 @@ class ArgumentParser(argparse.ArgumentParser):
         kwargs.setdefault('formatter_class',
                           argparse.RawDescriptionHelpFormatter)
         super().__init__(**kwargs)
+        # register new actions
+        self.register('action', 'check_path', _ActionCheckPath)
+        self.register('action', 'check_dirname', _ActionCheckDirname)
 
     def setup(self):
         """Initial argparser setup."""
@@ -79,7 +100,7 @@ class ArgumentParser(argparse.ArgumentParser):
                                 ' but parent directory must exist)'
                                 ' (default: %(default)s')
                           
-        # Some argument defaults that cannot be set with the 'default='
+        # some argument defaults that cannot be set with the 'default='
         # parameter
         arg_defaults = {}
 
@@ -89,21 +110,9 @@ class ArgumentParser(argparse.ArgumentParser):
         self.set_defaults(**arg_defaults)
 
 
-def argtype_configfile(string):
-    """Convert `--config` argument to the full config file path. Check file
-    existance.
-
-    :param string: configuration name.
-    :returns: the config file path.
-    """
-    confdir = os.getenv('XDG_CONFIG_HOME', os.path.expanduser(CONFIG_DIR))
-    config = os.path.join(confdir, '{}/{}.conf'.format(PROJECT_NAME, string))
-    if not os.path.isfile(config):
-        raise FileNotFoundError(
-            'No such configuration file: "{}"'.format(config))
-    else:
-        return config
-        
+# =======================
+# Type conversion methods
+# =======================
 
 def argtype_bool(string):
     """
@@ -121,22 +130,33 @@ def argtype_bool(string):
         return False
     else:
         raise argparse.ArgumentTypeError(
-            'string "{}" cannot be converted to a bool.'.format(sting))
+            "cannot convert '{}'to boolean".format(string))
 
-# any path, the dirname part must exist (e.g. path to a file that will be created in the future)
-def argtype_dirname_must_exist(string):
-    string = os.path.abspath(os.path.expanduser(string))
-    dirname, _ = os.path.split(string)
-    if not os.path.isdir(dirname):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
-    return string
 
-# path to existing directory
-def argtype_existing_dir(string):
-    string = os.path.abspath(os.path.expanduser(string))
-    if not os.path.isdir(string):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % string)
-    return string
+def argtype_configfile(string):
+    """Convert `--config` argument to an absolute file path."""
+    dirname = os.path.dirname(string)
+    name, ext = os.path.splitext(os.path.basename(string))
+
+    # Configuration name was specified.
+    if not dirname and not ext:
+        config_dir = os.getenv('XDG_CONFIG_HOME',
+                               os.path.expanduser(CONFIG_DIR))
+        path = os.path.join(config_dir,
+                            "{}/{}.conf".format(PROJECT_NAME, string))
+    # Relational or absolute path was specified.
+    elif:
+        if ext != '.conf':
+            raise argparse.ArgumentTypeError(
+                "config filename must end with '.conf' suffix")
+        path = os.path.abspath(os.path.expanduser(string))
+
+    return path
+        
+def argtype_path(string):
+    """Convert a string to an absolute filesystem path."""
+    return os.path.abspath(os.path.expanduser(string))
+
 
 # list of comma-separated items from a fixed set
 def argtype_comma_list_choices(choices):
@@ -151,16 +171,38 @@ def argtype_comma_list_choices(choices):
 
     return wrapped
 
+# ==============
+# Action classes
+# ==============
+
+class _ActionCheckPath(argparse.Action):
+
+    def __call__(self, parser, namespace, path, option_string=None):
+        if not os.path.lexists(path)
+            raise FileNotFoundError(
+                "no such file or directory: {}".format(path)
+        setattr(namespace, self.dest, path)
+    
+
+class _ActionCheckDirname(argparse.Action):
+
+    def __call__(self, parser, namespace, path, option_string=None):
+        dirname = os.path.dirname(path)
+        if not os.path.isdir(dirname)
+            raise FileNotFoundError(
+                "no such directory: {}".format(dirname))
+        setattr(namespace, self.dest, path)
+
 
 def getArgParser(**kwargs):
     """
-    Create an instance of :py:class:`ArgumentParser`. Make its initial setup
+    Create an instance of :py:class:`_ArgumentParser`. Make its initial setup
     and set the logging arguments.
 
-    :param kwargs: passed to :py:class:`ArgumentParser()` constructor.
-    :returns: an instance of :py:class:`ArgumentParser`.
+    :param kwargs: passed to :py:class:`_ArgumentParser()` constructor.
+    :returns: an instance of :py:class:`_ArgumentParser`.
     """
-    ap = ArgumentParser(**kwargs)
+    ap = _ArgumentParser(**kwargs)
     ap.setup()
 
     # include logging arguments into the global group
@@ -172,19 +214,19 @@ def getArgParser(**kwargs):
 def object_from_argparser(klass, section=None, **kwargs):
     """
     Create an instance of ``klass`` using its :py:meth:`klass.from_argparser()`
-    factory and a instance of :py:class:`ArgumentParser`. On top of that, 
+    factory and a instance of :py:class:`_ArgumentParser`. On top of that, 
     logging interface is set up using the :py:mod:`ws.logging` module.
 
     :param klass: the class to instantiate
     :param section:
         The name of the subsection to be read from the configuration file
         (usually the name of the script). By default ``sys.argv[0]`` is taken.
-    :param kwargs: passed to :py:class:`ArgumentParser()` constructor
+    :param kwargs: passed to :py:class:`_ArgumentParser()` constructor
     :returns: an instance of :py:class:`klass`
     """
 
     # argparser creation, initial setup and parsing sys.argv
-    # for config/site/etc options
+    # for config/cache-dir/etc options
     argparser = getArgParser(**kwargs)
     argparser.setup()
     args, remaining_argv = argparser.parse_known_args()
