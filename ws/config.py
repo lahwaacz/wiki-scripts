@@ -16,7 +16,6 @@ __all__ = [
     "object_from_argparser",
     "argtype_bool",
     "argtype_configfile",
-    "argtype_comma_list_choices",
     "argtype_path",
 ]
 
@@ -157,19 +156,6 @@ def argtype_path(string):
     """Convert a string to an absolute filesystem path."""
     return os.path.abspath(os.path.expanduser(string))
 
-
-# list of comma-separated items from a fixed set
-def argtype_comma_list_choices(choices):
-    choices = set(choices)
-
-    def wrapped(string):
-        items = [item.strip() for item in string.split(",")]
-        for item in items:
-            if item not in choices:
-                raise argparse.ArgumentTypeError("unknown item: '{}' (available choices: {})".format(item, choices))
-        return items
-
-    return wrapped
 
 # ==============
 # Action classes
