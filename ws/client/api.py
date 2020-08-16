@@ -3,7 +3,7 @@
 import hashlib
 import logging
 
-from ..utils import RateLimited, LazyProperty, dmerge
+from ..utils import RateLimited, LazyProperty
 
 from .connection import Connection, APIError
 from .site import Site
@@ -574,6 +574,13 @@ class API(Connection):
 class LoginFailed(Exception):
     """
     Raised when the :py:meth:`API.login` call failed.
+    """
+    pass
+
+class APIExpandResultFailed(APIError):
+    """
+    Raised when the :py:meth:`API.call_api_autoiter_ids` fails to expand an API
+    response while iterating over the split ID set.
     """
     pass
 

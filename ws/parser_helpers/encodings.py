@@ -133,8 +133,8 @@ def anchorencode(str_, format="html5"):
     str_ = _anchor_preprocess(str_)
     special_map = {" ": "_"}
     escape_char = "."
-    charset="utf-8"
-    errors="strict"
+    charset = "utf-8"
+    errors = "strict"
     # below is the code from the encode function, but without the encode_chars
     # and skip_chars parameters, and adjusted for unicode categories
     output = ""

@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import sqlalchemy as sa
-
 def get_namespaces(db):
     ns_sel = db.namespace.select()
     nss_sel = db.namespace_starname.select()

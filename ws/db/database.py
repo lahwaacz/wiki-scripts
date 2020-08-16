@@ -81,7 +81,6 @@ class Database:
 
         :param argparser: an instance of :py:class:`argparse.ArgumentParser`
         """
-        import ws.config
         group = argparser.add_argument_group(title="Database parameters")
         group.add_argument("--db-dialect", metavar="DIALECT", choices=["postgresql"],
                 help="an SQL dialect (default: %(default)s)")
@@ -209,7 +208,6 @@ Usage:
 >>>     print(row[0])
 """
 
-from sqlalchemy import *
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import Executable, ClauseElement, _literal_as_text
 

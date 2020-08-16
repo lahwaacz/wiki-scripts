@@ -292,9 +292,9 @@ class Connection:
         try:
             result = result.json()
         except ValueError:
-            raise APIJsonError("Failed to decode server response. Please make sure " +
-                               "that the API is enabled on the wiki and that the " +
-                               "API URL is correct.")
+            raise APIJsonError("Failed to decode server response. Please make "
+                               "sure that the API is enabled on the wiki and "
+                               "that the API URL is correct.")
 
         # see if there are errors/warnings
         if "error" in result:

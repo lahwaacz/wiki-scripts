@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import re
+from itertools import chain
 
 import mwparserfromhell
 
@@ -253,8 +254,6 @@ def is_redirect(text, *, full_match=False):
         f = re.match
     match = f(r"#redirect\s*:?\s*\[\[[^[\]{}]+\]\]", text.strip(), flags=re.MULTILINE | re.IGNORECASE)
     return bool(match)
-
-from itertools import chain
 
 # default flags copied from mwparserfromhell
 FLAGS = re.IGNORECASE | re.DOTALL | re.UNICODE

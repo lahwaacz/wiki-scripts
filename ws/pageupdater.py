@@ -207,7 +207,7 @@ class PageUpdater:
                     edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, edit_summary, bot="")
                 else:
                     edit_interactive(self.api, title, pageid, text_old, text_new, timestamp, edit_summary)
-        except APIError as e:
+        except APIError:
             pass
 
     def process_page(self, page):

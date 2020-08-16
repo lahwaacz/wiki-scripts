@@ -32,7 +32,7 @@ def canonicalize(title):
     # strip left-to-right and right-to-left marks
     # TODO: strip all non-printable characters?
     title = title.replace("\u200e", "").replace("\u200f", "").strip()
-    title = re.sub("( )+", "\g<1>", title)
+    title = re.sub("( )+", r"\g<1>", title)
     if title == "":
         return ""
     title = title[0].upper() + title[1:]

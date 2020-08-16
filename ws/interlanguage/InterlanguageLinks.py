@@ -10,7 +10,7 @@ import logging
 import mwparserfromhell
 
 from ws.client import APIError
-from ws.interactive import *
+from ws.interactive import ask_yesno
 import ws.ArchWiki.lang as lang
 import ws.ArchWiki.header as header
 import ws.utils
