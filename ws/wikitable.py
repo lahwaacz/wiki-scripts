@@ -39,14 +39,14 @@ class Wikitable:
                   matrix-like row-major format
         """
         # 1st group = header, 2nd group = rows
-        tablere = re.compile("^\{\|.*?(^.*?(?=\|\-))(.*?^\|\})", flags=re.MULTILINE | re.DOTALL)
+        tablere = re.compile(r"^\{\|.*?(^.*?(?=\|\-))(.*?^\|\})", flags=re.MULTILINE | re.DOTALL)
         # fields are the same as cells, but separated with ! instead of |
         # TODO: parse single-line field row
-        fieldre = re.compile("^\!\s*(.*?)$", flags=re.MULTILINE)
+        fieldre = re.compile(r"^\!\s*(.*?)$", flags=re.MULTILINE)
         # rows are separated by |-
-        rowre = re.compile("^\|\-(.*?)(?=(\|\-|\|\}))", flags=re.MULTILINE | re.DOTALL)
+        rowre = re.compile(r"^\|\-(.*?)(?=(\|\-|\|\}))", flags=re.MULTILINE | re.DOTALL)
         # TODO: parse single-line rows
-        cellre = re.compile("^\|\s*(.*?)(?=$|^\|)", flags=re.MULTILINE)
+        cellre = re.compile(r"^\|\s*(.*?)(?=$|^\|)", flags=re.MULTILINE)
 
         table = re.search(tablere, str(text))
         if not table:

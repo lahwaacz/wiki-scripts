@@ -5,8 +5,6 @@ import datetime
 import re
 import logging
 
-import sqlalchemy as sa
-
 from ws.db.database import Database
 import ws.db.mw_constants as mwconst
 
@@ -41,7 +39,7 @@ def migrate(revision, username_to_id):
             r'^(MediaWiki default|\d{1,3}(\.\d{1,3}){3})$',
             username,
         ):
-            if not 'anon' in revision:
+            if 'anon' not in revision:
                 raise ValueError(revision)
             userid = 0
         # User "Thayer.w" was renamed to "Thayer" at some stage

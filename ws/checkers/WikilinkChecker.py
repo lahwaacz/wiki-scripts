@@ -318,7 +318,7 @@ class WikilinkChecker(CheckerBase):
 
         # assemble new section fragment
         # try to preserve the character separating base anchor and numeric suffix
-        dupl_match = re.match("(.+)([_ ])(\d+)$", str(wikilink.title))
+        dupl_match = re.match(r"(.+)([_ ])(\d+)$", str(wikilink.title))
         if dupl_match:
             suffix_sep = dupl_match.group(2)
         else:

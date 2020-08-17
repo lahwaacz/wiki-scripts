@@ -1,9 +1,7 @@
 #! /usr/bin/env python3
 
-import logging
 import datetime
 
-import requests
 import mwparserfromhell
 
 from .CheckerBase import get_edit_summary_tracker, localize_flag
@@ -13,8 +11,6 @@ from ws.parser_helpers.encodings import urlencode, anchorencode
 from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template
 
 __all__ = ["ManTemplateChecker"]
-
-logger = logging.getLogger(__name__)
 
 
 class ManTemplateChecker(ExtlinkStatusChecker):

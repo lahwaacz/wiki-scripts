@@ -2,7 +2,7 @@
 
 import sqlalchemy as sa
 
-from .GrabberBase import *
+from .GrabberBase import GrabberBase
 
 class GrabberInterwiki(GrabberBase):
 

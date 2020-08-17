@@ -129,7 +129,7 @@ class Statistics:
                 logger.info("The page has been saved: do not forget to "
                             "double-check the diff")
                 ret |= 2
-            except APIError as err:
+            except APIError:
                 ret |= 1
 
         if self.cliargs.clipboard or ret is False:

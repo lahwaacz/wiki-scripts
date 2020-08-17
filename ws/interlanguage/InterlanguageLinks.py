@@ -107,10 +107,12 @@ class InterlanguageLinks:
                 if lang.is_interlanguage_tag(tag):
                     yield page
 
-        if case_sensitive is True:
-            _family_key = lambda page: lang.detect_language(page["title"])[0]
-        else:
-            _family_key = lambda page: lang.detect_language(page["title"])[0].lower()
+        def _family_key(page):
+            key = lang.detect_language(page["title"])[0]
+            if case_sensitive is False:
+                key = key.lower()
+            return key
+
         pages = sorted(pages, key=_family_key)
         families_groups = itertools.groupby(_valid_interlanguage_pages(pages), key=_family_key)
 

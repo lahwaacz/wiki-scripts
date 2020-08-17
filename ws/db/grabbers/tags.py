@@ -4,7 +4,7 @@ import sqlalchemy as sa
 
 from ws.utils import value_or_none
 
-from .GrabberBase import *
+from .GrabberBase import GrabberBase
 
 class GrabberTags(GrabberBase):
 

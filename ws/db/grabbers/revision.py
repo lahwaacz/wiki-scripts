@@ -8,7 +8,7 @@ import sqlalchemy as sa
 from ws.utils import value_or_none
 import ws.db.mw_constants as mwconst
 
-from .GrabberBase import *
+from .GrabberBase import GrabberBase
 
 logger = logging.getLogger(__name__)
 
@@ -56,45 +56,45 @@ class GrabberRevisions(GrabberBase):
             ("insert", "tagged_revision"):
                 ins_tgrev.values(
                     tgrev_rev_id=sa.bindparam("b_rev_id"),
-                    tgrev_tag_id=sa.select([db.tag.c.tag_id]) \
-                                        .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
+                    tgrev_tag_id=sa.select([db.tag.c.tag_id])
+                                        .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))
                     .on_conflict_do_nothing(),
             ("insert", "tagged_archived_revision"):
                 ins_tgar.values(
                     tgar_rev_id=sa.bindparam("b_rev_id"),
-                    tgar_tag_id=sa.select([db.tag.c.tag_id]) \
-                                        .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
+                    tgar_tag_id=sa.select([db.tag.c.tag_id])
+                                        .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))
                     .on_conflict_do_nothing(),
             ("insert", "tagged_recentchange"):
                 ins_tgrc.values(
-                    tgrc_rc_id=sa.select([db.recentchanges.c.rc_id]) \
+                    tgrc_rc_id=sa.select([db.recentchanges.c.rc_id])
                                     .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
-                    tgrc_tag_id=sa.select([db.tag.c.tag_id]) \
-                                    .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
+                    tgrc_tag_id=sa.select([db.tag.c.tag_id])
+                                    .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))
                     .on_conflict_do_nothing(),
             ("delete", "tagged_revision"):
-                db.tagged_revision.delete() \
+                db.tagged_revision.delete()
                     .where(sa.and_(db.tagged_revision.c.tgrev_rev_id == sa.bindparam("b_rev_id"),
-                                   db.tagged_revision.c.tgrev_tag_id == sa.select([db.tag.c.tag_id]) \
+                                   db.tagged_revision.c.tgrev_tag_id == sa.select([db.tag.c.tag_id])
                                             .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             ("delete", "tagged_archived_revision"):
-                db.tagged_archived_revision.delete() \
+                db.tagged_archived_revision.delete()
                     .where(sa.and_(db.tagged_archived_revision.c.tgar_rev_id == sa.bindparam("b_rev_id"),
-                                   db.tagged_archived_revision.c.tgar_tag_id == sa.select([db.tag.c.tag_id]) \
+                                   db.tagged_archived_revision.c.tgar_tag_id == sa.select([db.tag.c.tag_id])
                                             .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             ("delete", "tagged_recentchange"):
-                db.tagged_recentchange.delete() \
-                    .where(sa.and_(db.tagged_recentchange.c.tgrc_rc_id == sa.select([db.recentchanges.c.rc_id]) \
+                db.tagged_recentchange.delete()
+                    .where(sa.and_(db.tagged_recentchange.c.tgrc_rc_id == sa.select([db.recentchanges.c.rc_id])
                                             .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
-                                   db.tagged_recentchange.c.tgrc_tag_id == sa.select([db.tag.c.tag_id]) \
+                                   db.tagged_recentchange.c.tgrc_tag_id == sa.select([db.tag.c.tag_id])
                                             .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             # query for updating archive.ar_page_id
             ("update", "archive.ar_page_id"):
-                db.archive.update() \
+                db.archive.update()
                     .where(sa.and_(db.archive.c.ar_namespace == sa.bindparam("b_namespace"),
                                    db.archive.c.ar_title == sa.bindparam("b_title"))),
             ("merge", "revision"):
-                db.revision.update() \
+                db.revision.update()
                     .where(sa.and_(db.revision.c.rev_page == sa.bindparam("b_src_page_id"),
                                    # MW defect: timestamp-based merge points are not sufficient,
                                    # see https://phabricator.wikimedia.org/T183501
@@ -105,18 +105,18 @@ class GrabberRevisions(GrabberBase):
                                 )
                     ),
             ("update", "rev_deleted"):
-                db.revision.update() \
+                db.revision.update()
                     .where(db.revision.c.rev_id == sa.bindparam("b_rev_id")),
             ("update", "ar_deleted"):
-                db.archive.update() \
+                db.archive.update()
                     .where(db.archive.c.ar_rev_id == sa.bindparam("b_rev_id")),
             # query for updating revision.rev_text_id
             ("update", "revision"):
-                db.revision.update() \
+                db.revision.update()
                     .where(db.revision.c.rev_id == sa.bindparam("b_rev_id")),
             # query for suppressing deleted pages
             ("suppress-page", "archive"):
-                db.archive.update() \
+                db.archive.update()
                     .where(sa.and_(db.archive.c.ar_namespace == sa.bindparam("b_ns"),
                                    db.archive.c.ar_title == sa.bindparam("b_title"))
                     ),
@@ -128,21 +128,21 @@ class GrabberRevisions(GrabberBase):
             .returning(*db.archive.c._all_columns) \
             .cte("deleted_revision")
         columns = [
-                deleted_revision.c.ar_rev_id,
-                deleted_revision.c.ar_page_id,
-                deleted_revision.c.ar_text_id,
-                deleted_revision.c.ar_comment,
-                deleted_revision.c.ar_user,
-                deleted_revision.c.ar_user_text,
-                deleted_revision.c.ar_timestamp,
-                deleted_revision.c.ar_minor_edit,
-                deleted_revision.c.ar_deleted,
-                deleted_revision.c.ar_len,
-                deleted_revision.c.ar_parent_id,
-                deleted_revision.c.ar_sha1,
-                deleted_revision.c.ar_content_model,
-                deleted_revision.c.ar_content_format,
-            ]
+            deleted_revision.c.ar_rev_id,
+            deleted_revision.c.ar_page_id,
+            deleted_revision.c.ar_text_id,
+            deleted_revision.c.ar_comment,
+            deleted_revision.c.ar_user,
+            deleted_revision.c.ar_user_text,
+            deleted_revision.c.ar_timestamp,
+            deleted_revision.c.ar_minor_edit,
+            deleted_revision.c.ar_deleted,
+            deleted_revision.c.ar_len,
+            deleted_revision.c.ar_parent_id,
+            deleted_revision.c.ar_sha1,
+            deleted_revision.c.ar_content_model,
+            deleted_revision.c.ar_content_format,
+        ]
         insert = db.revision.insert().from_select(
             db.revision.c._all_columns,
             sa.select(columns).select_from(deleted_revision)
@@ -152,11 +152,11 @@ class GrabberRevisions(GrabberBase):
         # build query to move data from the tagged_archived_revision table into tagged_revision
         deleted_tagged_archived_revision = db.tagged_archived_revision.delete() \
             .where(db.tagged_archived_revision.c.tgar_rev_id.in_(
-                        sa.select([db.archive.c.ar_rev_id]) \
-                            .select_from(db.archive) \
+                        sa.select([db.archive.c.ar_rev_id])
+                            .select_from(db.archive)
                             .where(db.archive.c.ar_page_id == sa.bindparam("b_page_id"))
-                        )
-                    ) \
+                    )
+                ) \
             .returning(*db.tagged_archived_revision.c._all_columns) \
             .cte("deleted_tagged_archived_revision")
         insert = db.tagged_revision.insert().from_select(

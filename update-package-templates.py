@@ -423,7 +423,7 @@ class PkgUpdater:
 
     def save_report_to_file(self, text, basename):
         f = open(basename + ".mediawiki", "w")
-        f.write(mwreport)
+        f.write(text)
         f.close()
         logger.info("Saved report in '{}.mediawiki'".format(basename))
 

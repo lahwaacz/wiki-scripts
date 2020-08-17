@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import sqlalchemy as sa
-
 def get_interwikimap(db):
     conn = db.engine.connect()
     result = conn.execute(db.interwiki.select())

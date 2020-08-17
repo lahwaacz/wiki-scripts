@@ -98,15 +98,15 @@ def _squash_list_of_dicts(api_list, *, key="pageid"):
             dmerge(item, api_dict[key_value])
     return list(api_dict.values())
 
-def _deduplicate_list_of_dicts(l):
-    return [dict(t) for t in {tuple(d.items()) for d in l}]
+def _deduplicate_list_of_dicts(iterable):
+    return [dict(t) for t in {tuple(d.items()) for d in iterable}]
 
 
 def check_titles(api, db):
     print("Checking individual titles...")
 
     titles = {"Main page", "Nonexistent"}
-    pageids = {1,2,3,4,5}
+    pageids = {1, 2, 3, 4, 5}
 
     db_list = list(db.query(titles=titles))
     api_list = api.call_api(action="query", titles="|".join(titles))["pages"]

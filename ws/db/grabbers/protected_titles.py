@@ -6,7 +6,7 @@ import ws.utils
 from ws.client.api import ShortRecentChangesError
 import ws.db.selects as selects
 
-from .GrabberBase import *
+from .GrabberBase import GrabberBase
 
 class GrabberProtectedTitles(GrabberBase):
 

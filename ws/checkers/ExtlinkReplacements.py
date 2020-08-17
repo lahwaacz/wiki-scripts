@@ -30,9 +30,9 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
     #                  text (if present))
     extlink_replacements = [
         # Arch bug tracker
-        (re.escape("https://bugs.archlinux.org/task/") + "(\d+)",
+        (re.escape("https://bugs.archlinux.org/task/") + r"(\d+)",
             "(FS|flyspray) *#?{0}", 0, "{{{{Bug|{0}}}}}"),
-        (re.escape("https://bugs.archlinux.org/task/") + "(\d+)",
+        (re.escape("https://bugs.archlinux.org/task/") + r"(\d+)",
             None, 0, "{{{{Bug|{0}}}}}"),
 
         # official packages, with and without alternative text
@@ -176,9 +176,9 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         for pattern in self.http_to_https_domains:
             if pattern.startswith("*."):
                 domain = pattern[2:]
-                regex_parts.append("(?:[a-zA-Z0-9-_\.]+\.)?" + re.escape(domain))
+                regex_parts.append(r"(?:[a-zA-Z0-9-_\.]+\.)?" + re.escape(domain))
             else:
-                regex_parts.append("(www\.)?" + re.escape(pattern))
+                regex_parts.append(r"(www\.)?" + re.escape(pattern))
         regex = "(" + "|".join(regex_parts) + ")"
         self.http_to_https_domains_regex = re.compile(regex)
 
@@ -186,7 +186,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
     def wikisite_extlink_regex(self):
         general = self.api.site.general
         regex = re.escape(general["server"] + general["articlepath"].split("$1")[0])
-        regex += "(?P<pagename>[^\s\?]+)"
+        regex += r"(?P<pagename>[^\s\?]+)"
         return re.compile(regex)
 
     @staticmethod

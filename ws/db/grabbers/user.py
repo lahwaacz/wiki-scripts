@@ -10,7 +10,7 @@ from ws.client.api import ShortRecentChangesError
 from ws.db.mw_constants import implicit_groups
 import ws.db.selects as selects
 
-from .GrabberBase import *
+from .GrabberBase import GrabberBase
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class GrabberUsers(GrabberBase):
                         "user_editcount":    ins_user.excluded.user_editcount,
                     }),
             ("update", "user"):
-                db.user.update() \
+                db.user.update()
                     .where(db.user.c.user_name == sa.bindparam("b_olduser")),
             ("insert", "user_groups"):
                 ins_user_groups.on_conflict_do_nothing(),

@@ -15,7 +15,7 @@ def is_ascii(text):
     try:
         text.encode("ascii")
         return True
-    except:
+    except UnicodeError:
         return False
 
 # split ``list_`` into chunks of fixed length ``bs``
