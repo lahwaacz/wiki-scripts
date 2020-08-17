@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 class ExtlinkReplacements(ExtlinkStatusChecker):
 
-    retype = type(re.compile(""))
     # list of (url_regex, text_cond, text_cond_flags, replacement) tuples, where:
     #   - url_regex: a regular expression matching the URL (using re.fullmatch)
     #   - text_cond:
