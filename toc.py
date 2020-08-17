@@ -210,7 +210,7 @@ class TableOfContents:
         # TODO: maybe leave only the short option to forbid configurability in config file
         group.add_argument("-f", "--force", action="store_true",
                 help="try to update the page even if it was last saved in the same UTC day")
-        group.add_argument("--toc-languages", default="all", nargs="*", choices=["all"] + lang.get_internal_tags(),
+        group.add_argument("--toc-languages", default="all", nargs="+", choices=["all"] + lang.get_internal_tags(),
                 help="a comma-separated list of language tags whose ToC pages should be updated (default: %(default)s)")
         group.add_argument("--toc-page", default="Table of contents",
                 help="the page name on the wiki to fetch and update (the language suffix "
