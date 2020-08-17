@@ -19,10 +19,10 @@ __all__ = [
     "argtype_path",
 ]
 
-PROJECT_NAME = 'wiki-scripts'
-CONFIG_DIR = '~/.config/'       # Can be overriden by XDG_CONFIG_HOME
-CACHE_DIR = '~/.cache/'         # Can be overriden by XDG_CACHE_HOME
-DEFAULT_CONF = 'default'        # Can be overriden with '--config' option
+PROJECT_NAME = "wiki-scripts"
+CONFIG_DIR = "~/.config/"       # Can be overriden by XDG_CONFIG_HOME
+CACHE_DIR = "~/.cache/"         # Can be overriden by XDG_CACHE_HOME
+DEFAULT_CONF = "default"        # Can be overriden with "--config" option
 
 
 # ==============
@@ -57,7 +57,7 @@ class ConfigParser(configparser.ConfigParser):
 
         option_dict = dict(self.items(section))
         for key, value in option_dict.items():
-            if ' ' in value:
+            if " " in value:
                 option_dict[key] = value.split()
         if to_list:
             option_list = []
@@ -75,36 +75,36 @@ class _ArgumentParser(argparse.ArgumentParser):
     """Drop-in replacement for :py:class:`argparse.ArgumentParser`."""
 
     def __init__(self, **kwargs):
-        kwargs.setdefault('usage', '%(prog)s [options]')
-        kwargs.setdefault('formatter_class',
+        kwargs.setdefault("usage", "%(prog)s [options]")
+        kwargs.setdefault("formatter_class",
                           argparse.RawDescriptionHelpFormatter)
         super().__init__(**kwargs)
         # register new actions
-        self.register('action', 'check_path', _ActionCheckPath)
-        self.register('action', 'check_dirname', _ActionCheckDirname)
+        self.register("action", "check_path", _ActionCheckPath)
+        self.register("action", "check_dirname", _ActionCheckDirname)
 
     def setup(self):
         """Initial argparser setup."""
         
-        self.add_argument('-c', '--config',
+        self.add_argument("-c", "--config",
                           type=argtype_configfile,
-                          metavar='NAME',
+                          metavar="NAME",
                           default=DEFAULT_CONF,
-                          help='name of config file (default: %(default)s')
-        self.add_argument('--cache-dir',
+                          help="name of config file (default: %(default)s")
+        self.add_argument("--cache-dir",
                           type=argtype_dirname_must_exist,
-                          metavar='PATH',
-                          help=('directory for storing cached data'
-                                ' (will be created if necessary,'
-                                ' but parent directory must exist)'
-                                ' (default: %(default)s')
+                          metavar="PATH",
+                          help=("directory for storing cached data"
+                                " (will be created if necessary,"
+                                " but parent directory must exist)"
+                                " (default: %(default)s")
                           
-        # some argument defaults that cannot be set with the 'default='
+        # some argument defaults that cannot be set with the "default="
         # parameter
         arg_defaults = {}
 
-        cache_dir = os.getenv('XDG_CACHE_HOME', os.path.expanduser(CACHE_HOME))
-        arg_defaults['cache_dir'] = os.path.join(cache_dir, PROJECT_NAME)
+        cache_dir = os.getenv("XDG_CACHE_HOME", os.path.expanduser(CACHE_HOME))
+        arg_defaults["cache_dir"] = os.path.join(cache_dir, PROJECT_NAME)
         
         self.set_defaults(**arg_defaults)
 
@@ -121,15 +121,15 @@ def argtype_bool(string):
     :returns: ``True`` or ``False``.
     """
     string = string.lower()
-    true_values = {'yes', 'true', 'on', '1'}
-    false_values = {'no', 'false', 'off', '0'}
+    true_values = {"yes", "true", "on", "1"}
+    false_values = {"no", "false", "off", "0"}
     if string in true_values:
         return True
     elif string in false_values:
         return False
     else:
         raise argparse.ArgumentTypeError(
-            "cannot convert '{}'to boolean".format(string))
+            "cannot convert "{}"to boolean".format(string))
 
 
 def argtype_configfile(string):
@@ -139,13 +139,13 @@ def argtype_configfile(string):
 
     # Configuration name was specified.
     if not dirname and not ext:
-        config_dir = os.getenv('XDG_CONFIG_HOME',
+        config_dir = os.getenv("XDG_CONFIG_HOME",
                                os.path.expanduser(CONFIG_DIR))
         path = os.path.join(config_dir,
                             "{}/{}.conf".format(PROJECT_NAME, string))
     # Relational or absolute path was specified.
     elif:
-        if ext != '.conf':
+        if ext != ".conf":
             raise argparse.ArgumentTypeError(
                 "config filename must end with '.conf' suffix")
         path = os.path.abspath(os.path.expanduser(string))
