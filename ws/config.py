@@ -32,8 +32,10 @@ DEFAULT_CONF = "default"        # Can be overriden with "--config" option
 class ConfigParser(configparser.ConfigParser):
     """Drop-in replacement for :py:class:`configparser.Configparser`."""
 
-    def __init__(self, configfile):
-        super().__init__()
+    def __init__(self, configfile, **kwargs):
+        kwargs.setdefault('interpolation',
+                          configparser.ExtendedInterpolation())
+        super().__init__(**kwargs)
         self.configfile = configfile
 
     def fetch_section(self, section=None, to_list=True):
@@ -62,7 +64,7 @@ class ConfigParser(configparser.ConfigParser):
         if to_list:
             option_list = []
             for key, value in option_dict.items():
-                option_list.append(key)
+                option_list.append('--' + key)
                 if isinstance(value, list):
                     option_list.extend(value)
                 else:
@@ -224,13 +226,13 @@ def object_from_argparser(klass, section=None, **kwargs):
     # read the config file and fetch the script-related section options
     cfp = ConfigParser(args.config)
     config_args = cfp.fetch_section(section)
-    
+
     # class parser setup and final parsing
     klass.set_argparser(argparser)
-    argparser.parse_args(config_args + remaining_argv, namespace=args)
+    argparser.parse_known_args(config_args + remaining_argv, namespace=args)
 
     # set up logging
     ws.logging.init(args)
-    logger.debug("Parsed arguments:\n" + argparser.format_values())
+    logger.debug("Parsed arguments:\n" + str(args))
 
     return klass.from_argparser(args)
