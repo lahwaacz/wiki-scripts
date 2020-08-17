@@ -15,7 +15,7 @@ __all__ = [
     "getArgParser", 
     "object_from_argparser",
     "argtype_bool",
-    "argtype_configfile",
+    "argtype_config",
     "argtype_path",
 ]
 
@@ -87,23 +87,25 @@ class _ArgumentParser(argparse.ArgumentParser):
         """Initial argparser setup."""
         
         self.add_argument("-c", "--config",
-                          type=argtype_configfile,
+                          type=argtype_config,
+                          action="check_path",
                           metavar="NAME",
                           default=DEFAULT_CONF,
                           help="name of config file (default: %(default)s")
         self.add_argument("--cache-dir",
-                          type=argtype_dirname_must_exist,
+                          type=argtype_path,
+                          action="check_dirname",
                           metavar="PATH",
                           help=("directory for storing cached data"
                                 " (will be created if necessary,"
                                 " but parent directory must exist)"
-                                " (default: %(default)s")
+                                " (default: %(default)s"))
                           
         # some argument defaults that cannot be set with the "default="
         # parameter
         arg_defaults = {}
 
-        cache_dir = os.getenv("XDG_CACHE_HOME", os.path.expanduser(CACHE_HOME))
+        cache_dir = os.getenv("XDG_CACHE_HOME", os.path.expanduser(CACHE_DIR))
         arg_defaults["cache_dir"] = os.path.join(cache_dir, PROJECT_NAME)
         
         self.set_defaults(**arg_defaults)
@@ -129,22 +131,22 @@ def argtype_bool(string):
         return False
     else:
         raise argparse.ArgumentTypeError(
-            "cannot convert "{}"to boolean".format(string))
+            "cannot convert '{}' to boolean".format(string))
 
 
-def argtype_configfile(string):
+def argtype_config(string):
     """Convert `--config` argument to an absolute file path."""
     dirname = os.path.dirname(string)
     name, ext = os.path.splitext(os.path.basename(string))
 
-    # Configuration name was specified.
+    # configuration name was specified
     if not dirname and not ext:
         config_dir = os.getenv("XDG_CONFIG_HOME",
                                os.path.expanduser(CONFIG_DIR))
         path = os.path.join(config_dir,
                             "{}/{}.conf".format(PROJECT_NAME, string))
-    # Relational or absolute path was specified.
-    elif:
+    # relative or absolute path was specified
+    else:
         if ext != ".conf":
             raise argparse.ArgumentTypeError(
                 "config filename must end with '.conf' suffix")
@@ -163,10 +165,13 @@ def argtype_path(string):
 
 class _ActionCheckPath(argparse.Action):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def __call__(self, parser, namespace, path, option_string=None):
-        if not os.path.lexists(path)
+        if not os.path.lexists(path):
             raise FileNotFoundError(
-                "no such file or directory: {}".format(path)
+                "no such file or directory: {}".format(path))
         setattr(namespace, self.dest, path)
     
 
@@ -174,7 +179,7 @@ class _ActionCheckDirname(argparse.Action):
 
     def __call__(self, parser, namespace, path, option_string=None):
         dirname = os.path.dirname(path)
-        if not os.path.isdir(dirname)
+        if not os.path.isdir(dirname):
             raise FileNotFoundError(
                 "no such directory: {}".format(dirname))
         setattr(namespace, self.dest, path)
@@ -214,7 +219,6 @@ def object_from_argparser(klass, section=None, **kwargs):
     # argparser creation, initial setup and parsing sys.argv
     # for config/cache-dir/etc options
     argparser = getArgParser(**kwargs)
-    argparser.setup()
     args, remaining_argv = argparser.parse_known_args()
     
     # read the config file and fetch the script-related section options
