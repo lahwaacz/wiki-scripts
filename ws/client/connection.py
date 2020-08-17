@@ -170,8 +170,12 @@ class Connection:
                 help="maximum number of retries for each connection (default: %(default)s)")
         group.add_argument("--connection-timeout", default=60, type=float,
                 help="connection timeout in seconds (default: %(default)s)")
-        group.add_argument("--cookie-file", type=ws.config.argtype_dirname_must_exist, metavar="PATH",
-                help="path to cookie file (default: $cache_dir/$site.cookie)")
+        group.add_argument("--cookie-file",
+                           type=ws.config.argtype_path,
+                           action="check_dirname",
+                           metavar="PATH",
+                           help=("path to cookie file"
+                                 " (default: $cache_dir/$site.cookie)"))
         # TODO: expose also user_agent, http_user, http_password?
 
     @classmethod
