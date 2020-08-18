@@ -12,11 +12,12 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "ConfigParser", 
-    "getArgParser", 
-    "object_from_argparser",
     "argtype_bool",
     "argtype_config",
-    "argtype_path",
+    "argtype_dirname_must_exist",
+    "argtype_existing_dir",
+    "getArgParser", 
+    "object_from_argparser",
 ]
 
 PROJECT_NAME = "wiki-scripts"
@@ -26,11 +27,11 @@ DEFAULT_CONF = "default"
 
 
 class ConfigParser(configparser.ConfigParser):
-    """Drop-in replacement for :py:class:`configparser.Configparser`."""
-
+    """
+    Drop-in replacement for :py:class:`configparser.Configparser`.
+    """
     def __init__(self, configfile, **kwargs):
-        kwargs.setdefault('interpolation',
-                          configparser.ExtendedInterpolation())
+        kwargs.setdefault('interpolation', configparser.ExtendedInterpolation())
         super().__init__(**kwargs)
         self.configfile = configfile
 
@@ -54,6 +55,7 @@ class ConfigParser(configparser.ConfigParser):
             section = configparser.DEFAULTSECT
 
         option_dict = dict(self.items(section))
+        # TODO: rewrite parsing of "multi-value" values
         for key, value in option_dict.items():
             if "," in value:
                 option_dict[key] = [item.strip() for item in value.split(',')]
@@ -70,54 +72,31 @@ class ConfigParser(configparser.ConfigParser):
 
 
 class _ArgumentParser(argparse.ArgumentParser):
-    """Drop-in replacement for :py:class:`argparse.ArgumentParser`."""
-
+    """
+    Drop-in replacement for :py:class:`argparse.ArgumentParser`.
+    """
     def __init__(self, **kwargs):
         kwargs.setdefault("usage", "%(prog)s [options]")
-        kwargs.setdefault("formatter_class",
-                          argparse.RawDescriptionHelpFormatter)
+        kwargs.setdefault("formatter_class", argparse.RawDescriptionHelpFormatter)
         super().__init__(**kwargs)
-        # register new actions
-        self.register("action", "check_path", _ActionCheckPath)
-        self.register("action", "check_dirname", _ActionCheckDirname)
 
     def setup(self):
         """Initial argparser setup."""
-        self.add_argument("-c", "--config",
-                          type=argtype_config,
-                          action="check_path",
-                          metavar="NAME",
-                          default=DEFAULT_CONF,
-                          help="name of config file (default: %(default)s)")
-        self.add_argument("--cache-dir",
-                          type=argtype_path,
-                          action="check_dirname",
-                          metavar="PATH",
-                          help=("directory for storing cached data"
-                                " (will be created if necessary,"
-                                " but parent directory must exist)"
-                                " (default: %(default)s)"))
+        self.add_argument("-c", "--config", type=argtype_config, metavar="NAME", default=DEFAULT_CONF,
+                help="name of config file (default: %(default)s)")
+        self.add_argument("--cache-dir", type=argtype_dirname_must_exist, metavar="PATH",
+                help=("directory for storing cached data (will be created if necessary, but parent directory must exist) (default: %(default)s)"))
+        self.add_argument("--site", metavar="NAME",
+                help="site name used in file naming schemes")
                           
-        # some argument defaults that cannot be set with the "default="
-        # parameter
+        # some argument defaults that cannot be set with the "default=" parameter
         arg_defaults = {}
-
         cache_dir = os.getenv("XDG_CACHE_HOME", CACHE_DIR)
         arg_defaults["cache_dir"] = os.path.join(cache_dir, PROJECT_NAME)
-        
         self.set_defaults(**arg_defaults)
 
-
-# =======================
-# Type conversion methods
-# =======================
-
+# strict string to bool conversion
 def argtype_bool(string):
-    """Convert the string represenation of a bool value to the true
-    :py:class:`bool` instance.
-
-    :returns: ``True`` or ``False``.
-    """
     string = string.lower()
     true_values = {"yes", "true", "on", "1"}
     false_values = {"no", "false", "off", "0"}
@@ -126,68 +105,41 @@ def argtype_bool(string):
     elif string in false_values:
         return False
     else:
-        raise argparse.ArgumentTypeError(
-            "cannot convert '{}' to boolean".format(string))
-
+        raise argparse.ArgumentTypeError("value '{}' cannot be converted to boolean".format(string))
 
 def argtype_config(string):
     """Convert `--config` argument to an absolute file path."""
     dirname = os.path.dirname(string)
     name, ext = os.path.splitext(os.path.basename(string))
 
+    # TODO: algorythm works wrong, fully rewrite
     # configuration name was specified
     if not dirname and not ext:
         config_dir = os.getenv("XDG_CONFIG_HOME", CONFIG_DIR)
-        path = os.path.join(config_dir,
-                            "{}/{}.conf".format(PROJECT_NAME, string))
+        path = os.path.join(config_dir, "{}/{}.conf".format(PROJECT_NAME, string))
     # relative or absolute path was specified
     else:
         if ext != ".conf":
-            raise argparse.ArgumentTypeError(
-                "config filename must end with '.conf' suffix")
+            raise argparse.ArgumentTypeError("config filename must end with '.conf' suffix")
         path = os.path.abspath(os.path.expanduser(string))
 
     return path
+
+# path to existing directory
+def argtype_existing_dir(string):
+    string = os.path.abspath(os.path.expanduser(string))
+    if not os.path.isdir(string):
+        raise configargparse.ArgumentTypeError("directory '%s' does not exist" % string)
+    return string
+
+# any path, the dirname part must exist (e.g. path to a file that will be created in the future)
+def argtype_dirname_must_exist(string):
+    string = os.path.abspath(os.path.expanduser(string))
+    dirname, _ = os.path.split(string)
+    if not os.path.isdir(dirname):
+        raise configargparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
+    return string
         
-def argtype_path(string):
-    """Convert a string to a filesystem path by making
-    tilde expansion if possible.
-    """
-    return os.path.abspath(os.path.expanduser(string))
-
-
-# ==============
-# Action classes
-# ==============
-
-class _ActionCheckPath(argparse.Action):
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        if self.nargs == None:
-            values = [values]
-        for path in values:
-            if not os.path.lexists(path):
-                raise FileNotFoundError(
-                    "no such file or directory: {}".format(path))
-        if self.nargs == None:
-            values = values[0]
-        setattr(namespace, self.dest, values)
-    
-
-class _ActionCheckDirname(argparse.Action):
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        if self.nargs == None:
-            values = [values]
-        for path in values:
-            dirname = os.path.dirname(path)
-            if not os.path.isdir(dirname):
-                raise FileNotFoundError(
-                    "no such directory: {}".format(dirname))
-        if self.nargs == None:
-            values = values[0]
-        setattr(namespace, self.dest, values)
-
 
 def getArgParser(**kwargs):
     """
@@ -219,9 +171,7 @@ def object_from_argparser(klass, section=None, **kwargs):
     :param kwargs: passed to :py:class:`_ArgumentParser()` constructor
     :returns: an instance of :py:class:`klass`
     """
-
-    # argparser creation, initial setup and parsing sys.argv
-    # for config/cache-dir/etc options
+    # argparser creation, initial setup and parsing sys.argv for config/cache-dir/etc options
     argparser = getArgParser(**kwargs)
     args, remaining_argv = argparser.parse_known_args()
     
