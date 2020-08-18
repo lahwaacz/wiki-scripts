@@ -160,8 +160,6 @@ class Connection:
         """
         import ws.config
         group = argparser.add_argument_group(title="Connection parameters")
-        group.add_argument("--site", metavar="NAME",
-                help="site name used in file naming schemes")
         group.add_argument("--api-url", metavar="URL",
                 help="the URL to the wiki's api.php (default: %(default)s)")
         group.add_argument("--index-url", metavar="URL",
@@ -172,8 +170,7 @@ class Connection:
                 help="maximum number of retries for each connection (default: %(default)s)")
         group.add_argument("--connection-timeout", default=60, type=float,
                 help="connection timeout in seconds (default: %(default)s)")
-        group.add_argument("--cookie-file", type=ws.config.argtype_path,
-                action="check_dirname", metavar="PATH",
+        group.add_argument("--cookie-file", type=ws.config.argtype_dirname_must_exist, metavar="PATH",
                 help=("path to cookie file (default: $cache_dir/$site.cookie)"))
         # TODO: expose also user_agent, http_user, http_password?
 
