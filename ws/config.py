@@ -145,7 +145,7 @@ def argtype_config(string):
         if ext != ".conf":
             raise argparse.ArgumentTypeError(
                 "config filename must end with '.conf' suffix")
-        path = os.path.expanduser(string)
+        path = os.path.abspath(os.path.expanduser(string))
 
     return path
         
@@ -153,7 +153,7 @@ def argtype_path(string):
     """Convert a string to a filesystem path by making
     tilde expansion if possible.
     """
-    return os.path.expanduser(string)
+    return os.path.abspath(os.path.expanduser(string))
 
 
 # ==============
@@ -162,21 +162,31 @@ def argtype_path(string):
 
 class _ActionCheckPath(argparse.Action):
 
-    def __call__(self, parser, namespace, path, option_string=None):
-        if not os.path.lexists(path):
-            raise FileNotFoundError(
-                "no such file or directory: {}".format(path))
-        setattr(namespace, self.dest, path)
+    def __call__(self, parser, namespace, values, option_string=None):
+        if self.nargs == None:
+            values = [values]
+        for path in values:
+            if not os.path.lexists(path):
+                raise FileNotFoundError(
+                    "no such file or directory: {}".format(path))
+        if self.nargs == None:
+            values = values[0]
+        setattr(namespace, self.dest, values)
     
 
 class _ActionCheckDirname(argparse.Action):
 
-    def __call__(self, parser, namespace, path, option_string=None):
-        dirname = os.path.dirname(path)
-        if not os.path.isdir(dirname):
-            raise FileNotFoundError(
-                "no such directory: {}".format(dirname))
-        setattr(namespace, self.dest, path)
+    def __call__(self, parser, namespace, values, option_string=None):
+        if self.nargs == None:
+            values = [values]
+        for path in values:
+            dirname = os.path.dirname(path)
+            if not os.path.isdir(dirname):
+                raise FileNotFoundError(
+                    "no such directory: {}".format(dirname))
+        if self.nargs == None:
+            values = values[0]
+        setattr(namespace, self.dest, values)
 
 
 def getArgParser(**kwargs):
