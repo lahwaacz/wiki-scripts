@@ -171,11 +171,7 @@ class Connection:
         group.add_argument("--connection-timeout", default=60, type=float,
                 help="connection timeout in seconds (default: %(default)s)")
         group.add_argument("--cookie-file", type=ws.config.argtype_dirname_must_exist, metavar="PATH",
-<<<<<<< HEAD
                 help="path to cookie file (default: $cache_dir/$site.cookie)")
-=======
-                help=("path to cookie file (default: $cache_dir/$site.cookie)"))
->>>>>>> 1a2a752e3f7f7a7531490fbeae05a09d157d6b62
         # TODO: expose also user_agent, http_user, http_password?
 
     @classmethod
