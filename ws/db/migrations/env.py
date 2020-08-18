@@ -26,7 +26,7 @@ import ws.config
 def get_url():
     ws_config_path = config.get_main_option("ws_config_path")
     parser = ws.config.ConfigParser(ws_config_path)
-    conf = parser.fetch_section('alembic', to_list=False)
+    conf = parser.fetch_section("alembic", to_list=False)
 
     db_dialect = conf.get("db-dialect", "postgresql")
     db_driver = conf.get("db-driver", "psycopg2")

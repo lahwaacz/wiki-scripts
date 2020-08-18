@@ -20,14 +20,10 @@ __all__ = [
 ]
 
 PROJECT_NAME = "wiki-scripts"
-CONFIG_DIR = "~/.config/"       # Can be overriden by XDG_CONFIG_HOME
-CACHE_DIR = "~/.cache/"         # Can be overriden by XDG_CACHE_HOME
-DEFAULT_CONF = "default"        # Can be overriden with "--config" option
+CONFIG_DIR = os.path.expanduser("~/.config/")
+CACHE_DIR = os.path.expanduser("~/.cache/")
+DEFAULT_CONF = "default"
 
-
-# ==============
-# Parser classes
-# ==============
 
 class ConfigParser(configparser.ConfigParser):
     """Drop-in replacement for :py:class:`configparser.Configparser`."""
@@ -42,8 +38,8 @@ class ConfigParser(configparser.ConfigParser):
         """
         Fetches a specific section from a config file.
 
-        :param section: section name for fetching.
-        :param to_list: defines the format of the returned value (see below).
+        :param str section: section name for fetching.
+        :param bool to_list: defines the format of the returned value (see below).
         :returns:
             The data from the fetched config file section. The format is
             a list of strings if ``to_list=True`` (default value) and
@@ -59,8 +55,8 @@ class ConfigParser(configparser.ConfigParser):
 
         option_dict = dict(self.items(section))
         for key, value in option_dict.items():
-            if " " in value:
-                option_dict[key] = value.split()
+            if "," in value:
+                option_dict[key] = [item.strip() for item in value.split(',')]
         if to_list:
             option_list = []
             for key, value in option_dict.items():
@@ -87,13 +83,12 @@ class _ArgumentParser(argparse.ArgumentParser):
 
     def setup(self):
         """Initial argparser setup."""
-        
         self.add_argument("-c", "--config",
                           type=argtype_config,
                           action="check_path",
                           metavar="NAME",
                           default=DEFAULT_CONF,
-                          help="name of config file (default: %(default)s")
+                          help="name of config file (default: %(default)s)")
         self.add_argument("--cache-dir",
                           type=argtype_path,
                           action="check_dirname",
@@ -101,13 +96,13 @@ class _ArgumentParser(argparse.ArgumentParser):
                           help=("directory for storing cached data"
                                 " (will be created if necessary,"
                                 " but parent directory must exist)"
-                                " (default: %(default)s"))
+                                " (default: %(default)s)"))
                           
         # some argument defaults that cannot be set with the "default="
         # parameter
         arg_defaults = {}
 
-        cache_dir = os.getenv("XDG_CACHE_HOME", os.path.expanduser(CACHE_DIR))
+        cache_dir = os.getenv("XDG_CACHE_HOME", CACHE_DIR)
         arg_defaults["cache_dir"] = os.path.join(cache_dir, PROJECT_NAME)
         
         self.set_defaults(**arg_defaults)
@@ -118,8 +113,7 @@ class _ArgumentParser(argparse.ArgumentParser):
 # =======================
 
 def argtype_bool(string):
-    """
-    Convert the string represenation of a bool value to the true
+    """Convert the string represenation of a bool value to the true
     :py:class:`bool` instance.
 
     :returns: ``True`` or ``False``.
@@ -143,8 +137,7 @@ def argtype_config(string):
 
     # configuration name was specified
     if not dirname and not ext:
-        config_dir = os.getenv("XDG_CONFIG_HOME",
-                               os.path.expanduser(CONFIG_DIR))
+        config_dir = os.getenv("XDG_CONFIG_HOME", CONFIG_DIR)
         path = os.path.join(config_dir,
                             "{}/{}.conf".format(PROJECT_NAME, string))
     # relative or absolute path was specified
@@ -152,13 +145,15 @@ def argtype_config(string):
         if ext != ".conf":
             raise argparse.ArgumentTypeError(
                 "config filename must end with '.conf' suffix")
-        path = os.path.abspath(os.path.expanduser(string))
+        path = os.path.expanduser(string)
 
     return path
         
 def argtype_path(string):
-    """Convert a string to an absolute filesystem path."""
-    return os.path.abspath(os.path.expanduser(string))
+    """Convert a string to a filesystem path by making
+    tilde expansion if possible.
+    """
+    return os.path.expanduser(string)
 
 
 # ==============
@@ -166,9 +161,6 @@ def argtype_path(string):
 # ==============
 
 class _ActionCheckPath(argparse.Action):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     def __call__(self, parser, namespace, path, option_string=None):
         if not os.path.lexists(path):
@@ -211,7 +203,7 @@ def object_from_argparser(klass, section=None, **kwargs):
     logging interface is set up using the :py:mod:`ws.logging` module.
 
     :param klass: the class to instantiate
-    :param section:
+    :param str section:
         The name of the subsection to be read from the configuration file
         (usually the name of the script). By default ``sys.argv[0]`` is taken.
     :param kwargs: passed to :py:class:`_ArgumentParser()` constructor
@@ -233,6 +225,6 @@ def object_from_argparser(klass, section=None, **kwargs):
 
     # set up logging
     ws.logging.init(args)
-    logger.debug("Parsed arguments:\n" + str(args))
+    logger.debug("Parsed arguments:\n{}".format(args))
 
     return klass.from_argparser(args)
