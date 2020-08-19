@@ -2,6 +2,7 @@
 
 import argparse
 import configparser
+import json
 import logging
 import os
 import sys
@@ -55,10 +56,10 @@ class ConfigParser(configparser.ConfigParser):
             section = configparser.DEFAULTSECT
 
         option_dict = dict(self.items(section))
-        # TODO: rewrite parsing of "multi-value" values
         for key, value in option_dict.items():
-            if "," in value:
-                option_dict[key] = [item.strip() for item in value.split(',')]
+            value = value.strip()
+            if value.startswith("["):
+                option_dict[key] = [str(item) for item in json.loads(value)]
         if to_list:
             option_list = []
             for key, value in option_dict.items():
