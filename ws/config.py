@@ -112,16 +112,18 @@ def argtype_config(string):
     dirname = os.path.dirname(string)
     name, ext = os.path.splitext(os.path.basename(string))
 
-    # TODO: algorythm works wrong, fully rewrite
     # configuration name was specified
-    if not dirname and not ext:
+    if not dirname and ext != ".conf":
         config_dir = os.getenv("XDG_CONFIG_HOME", CONFIG_DIR)
         path = os.path.join(config_dir, "{}/{}.conf".format(PROJECT_NAME, string))
     # relative or absolute path was specified
     else:
         if ext != ".conf":
-            raise argparse.ArgumentTypeError("config filename must end with '.conf' suffix")
+            raise argparse.ArgumentTypeError("config filename must end with '.conf' suffix: '%s'" % string)
         path = os.path.abspath(os.path.expanduser(string))
+
+    if not os.path.exists(path):
+        raise argparse.ArgumentTypeError("file does not exist or is a broken link: '%s'" % path)
 
     return path
 
