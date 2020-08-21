@@ -19,6 +19,10 @@ __all__ = [
     "argtype_existing_dir",
     "getArgParser", 
     "object_from_argparser",
+    "PROJECT_NAME",
+    "CONFIG_DIR",
+    "CACHE_DIR",
+    "DEFAULT_CONF",
 ]
 
 PROJECT_NAME = "wiki-scripts"
@@ -106,9 +110,9 @@ def argtype_bool(string):
     elif string in false_values:
         return False
     else:
-        raise argparse.ArgumentTypeError("value '{}' cannot be converted to boolean".format(string))
+        raise argparse.ArgumentTypeError("value '%s' cannot be converted to boolean" % string)
 
-def argtype_config(string):
+def _get_config_filepath(string):
     """Convert `--config` argument to an absolute file path."""
     dirname = os.path.dirname(string)
     name, ext = os.path.splitext(os.path.basename(string))
@@ -122,17 +126,20 @@ def argtype_config(string):
         if ext != ".conf":
             raise argparse.ArgumentTypeError("config filename must end with '.conf' suffix: '%s'" % string)
         path = os.path.abspath(os.path.expanduser(string))
+    return path
 
+def argtype_config(string):
+    """Compute config filepath and check its existence."""
+    path = _get_config_filepath(string)
     if not os.path.exists(path):
         raise argparse.ArgumentTypeError("file does not exist or is a broken link: '%s'" % path)
-
     return path
 
 # path to existing directory
 def argtype_existing_dir(string):
     string = os.path.abspath(os.path.expanduser(string))
     if not os.path.isdir(string):
-        raise configargparse.ArgumentTypeError("directory '%s' does not exist" % string)
+        raise argparse.ArgumentTypeError("directory '%s' does not exist" % string)
     return string
 
 # any path, the dirname part must exist (e.g. path to a file that will be created in the future)
@@ -140,7 +147,7 @@ def argtype_dirname_must_exist(string):
     string = os.path.abspath(os.path.expanduser(string))
     dirname, _ = os.path.split(string)
     if not os.path.isdir(dirname):
-        raise configargparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
+        raise argparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
     return string
         
 
@@ -174,11 +181,11 @@ def object_from_argparser(klass, section=None, **kwargs):
     :param kwargs: passed to :py:class:`_ArgumentParser()` constructor
     :returns: an instance of :py:class:`klass`
     """
-    # argparser creation, initial setup and parsing sys.argv for config/cache-dir/etc options
+    # argparser creation, initial setup and parsing sys.argv for global options
     argparser = getArgParser(**kwargs)
     args, remaining_argv = argparser.parse_known_args()
     
-    # read the config file and fetch the script-related section options
+    # read the config file and fetch the script-related section
     cfp = ConfigParser(args.config)
     config_args = cfp.fetch_section(section)
 
