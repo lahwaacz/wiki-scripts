@@ -2,6 +2,8 @@
 
 from collections import OrderedDict
 
+import sqlalchemy as sa
+
 from .namespaces import *
 from .interwiki import *
 
