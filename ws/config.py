@@ -177,16 +177,18 @@ def object_from_argparser(klass, section=None, **kwargs):
     :param kwargs: passed to :py:class:`_ArgumentParser()` constructor
     :returns: an instance of :py:class:`klass`
     """
-    # argparser creation, initial setup and parsing sys.argv for global options
+    # argparser creation
     argparser = getArgParser(**kwargs)
+    klass.set_argparser(argparser)
+
+    # parse sys.argv for global options
     args, remaining_argv = argparser.parse_known_args()
-    
+
     # read the config file and fetch the script-related section
     cfp = ConfigParser(args.config)
     config_args = cfp.fetch_section(section)
 
-    # class parser setup and final parsing
-    klass.set_argparser(argparser)
+    # final parsing
     argparser.parse_known_args(config_args + remaining_argv, namespace=args)
 
     # set up logging
