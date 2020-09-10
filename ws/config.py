@@ -22,8 +22,9 @@ __all__ = [
 ]
 
 PROJECT_NAME = "wiki-scripts"
-CONFIG_DIR = os.path.expanduser("~/.config/")
-CACHE_DIR = os.path.expanduser("~/.cache/")
+CONFIG_DIR = os.getenv("XDG_CONFIG_HOME", os.path.expanduser("~/.config/"))
+CACHE_DIR = os.getenv("XDG_CACHE_HOME", os.path.expanduser("~/.cache/"))
+CACHE_DIR = os.path.join(CACHE_DIR, PROJECT_NAME)
 DEFAULT_CONF = "default"
 
 
@@ -68,33 +69,9 @@ class ConfigParser(configparser.ConfigParser):
                     option_list.extend(value)
                 else:
                     option_list.append(value)
-            
+
         return option_list if to_list else option_dict
 
-
-class _ArgumentParser(argparse.ArgumentParser):
-    """
-    Drop-in replacement for :py:class:`argparse.ArgumentParser`.
-    """
-    def __init__(self, **kwargs):
-        kwargs.setdefault("usage", "%(prog)s [options]")
-        kwargs.setdefault("formatter_class", argparse.RawDescriptionHelpFormatter)
-        super().__init__(**kwargs)
-
-    def setup(self):
-        """Initial argparser setup."""
-        self.add_argument("-c", "--config", type=argtype_config, metavar="NAME", default=DEFAULT_CONF,
-                help="name of config file (default: %(default)s)")
-        self.add_argument("--cache-dir", type=argtype_dirname_must_exist, metavar="PATH",
-                help=("directory for storing cached data (will be created if necessary, but parent directory must exist) (default: %(default)s)"))
-        self.add_argument("--site", metavar="NAME",
-                help="site name used in file naming schemes")
-                          
-        # some argument defaults that cannot be set with the "default=" parameter
-        arg_defaults = {}
-        cache_dir = os.getenv("XDG_CACHE_HOME", CACHE_DIR)
-        arg_defaults["cache_dir"] = os.path.join(cache_dir, PROJECT_NAME)
-        self.set_defaults(**arg_defaults)
 
 # strict string to bool conversion
 def argtype_bool(string):
@@ -115,8 +92,7 @@ def _get_config_filepath(string):
 
     # configuration name was specified
     if not dirname and ext != ".conf":
-        config_dir = os.getenv("XDG_CONFIG_HOME", CONFIG_DIR)
-        path = os.path.join(config_dir, "{}/{}.conf".format(PROJECT_NAME, string))
+        path = os.path.join(CONFIG_DIR, "{}/{}.conf".format(PROJECT_NAME, string))
     # relative or absolute path was specified
     else:
         if ext != ".conf":
@@ -149,14 +125,25 @@ def argtype_dirname_must_exist(string):
 
 def getArgParser(**kwargs):
     """
-    Create an instance of :py:class:`_ArgumentParser`. Make its initial setup
+    Create an instance of :py:class:`argparse.ArgumentParser`. Make its initial setup
     and set the logging arguments.
 
-    :param kwargs: passed to :py:class:`_ArgumentParser()` constructor.
-    :returns: an instance of :py:class:`_ArgumentParser`.
+    :param kwargs: passed to :py:class:`argparse.ArgumentParser()` constructor.
+    :returns: an instance of :py:class:`argparse.ArgumentParser`.
     """
-    ap = _ArgumentParser(**kwargs)
-    ap.setup()
+    kwargs.setdefault("usage", "%(prog)s [options]")
+    # TODO: original desc from configargparse:
+    # Args that start with '--' (eg. --site) can also be set in a config file (specified via -c).  If an arg is specified in more than one place, then commandline values override config file values which override defaults.
+    kwargs.setdefault("formatter_class", argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(**kwargs)
+
+    # add global arguments
+    ap.add_argument("-c", "--config", type=argtype_config, metavar="NAME", default=DEFAULT_CONF,
+            help="name of config file (default: %(default)s)")
+    ap.add_argument("--cache-dir", type=argtype_dirname_must_exist, metavar="PATH", default=CACHE_DIR,
+            help=("directory for storing cached data (will be created if necessary, but parent directory must exist) (default: %(default)s)"))
+    ap.add_argument("--site", metavar="NAME",
+            help="site name used in file naming schemes")
 
     # include logging arguments into the global group
     ws.logging.set_argparser(ap)
@@ -167,14 +154,14 @@ def getArgParser(**kwargs):
 def object_from_argparser(klass, section=None, **kwargs):
     """
     Create an instance of ``klass`` using its :py:meth:`klass.from_argparser()`
-    factory and a instance of :py:class:`_ArgumentParser`. On top of that, 
-    logging interface is set up using the :py:mod:`ws.logging` module.
+    factory and an instance of :py:class:`argparse.ArgumentParser`. On top of
+    that, logging interface is set up using the :py:mod:`ws.logging` module.
 
     :param klass: the class to instantiate
     :param str section:
         The name of the subsection to be read from the configuration file
         (usually the name of the script). By default ``sys.argv[0]`` is taken.
-    :param kwargs: passed to :py:class:`_ArgumentParser()` constructor
+    :param kwargs: passed to :py:class:`argparse.ArgumentParser()` constructor
     :returns: an instance of :py:class:`klass`
     """
     # argparser creation
