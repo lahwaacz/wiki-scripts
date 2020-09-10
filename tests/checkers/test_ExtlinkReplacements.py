@@ -26,16 +26,14 @@ def mock_url_status_404(extlink_replacements, text):
     for url in text.splitlines():
         extlink_replacements.session_mock.get(url, status_code=404)
 
-
-# given steps cannot be reused - see this epic issue:
-# https://github.com/pytest-dev/pytest-bdd/issues/157
-@when(parsers.parse("the URL {url} gives status {status:d}"))
+@given(parsers.parse("the URL {url} gives status {status:d}"))
 def mock_url_status(extlink_replacements, url, status):
     extlink_replacements.session_mock.get(url, status_code=status)
 
-@when(parsers.parse("the URL {url} redirects to {target_url}"))
+@given(parsers.parse("the URL {url} redirects to {target_url}"))
 def mock_url_status(extlink_replacements, url, target_url):
     extlink_replacements.session_mock.get(url, status_code=302, headers={"Location": target_url})
+
 
 @when(parsers.parse("a page contains \"{text}\""))
 def create_page(page, text):

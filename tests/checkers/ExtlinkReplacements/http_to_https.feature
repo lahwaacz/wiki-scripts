@@ -14,36 +14,36 @@ Feature: ExtlinkReplacements: update http to https
         | foo [{} baz] bar |
 
     Scenario Outline: archlinux.org
-        When the URL https://archlinux.org/some/page/ gives status 200
-        And a page contains <pattern> formatted with http://archlinux.org/some/page/
+        Given the URL https://archlinux.org/some/page/ gives status 200
+        When a page contains <pattern> formatted with http://archlinux.org/some/page/
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://archlinux.org/some/page/"
         And the last edit summary should be "update http to https for known domains"
 
     Scenario Outline: wiki.archlinux.org
-        When the URL https://wiki.archlinux.org/some/page/ gives status 200
-        And a page contains <pattern> formatted with http://wiki.archlinux.org/some/page/
+        Given the URL https://wiki.archlinux.org/some/page/ gives status 200
+        When a page contains <pattern> formatted with http://wiki.archlinux.org/some/page/
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://wiki.archlinux.org/some/page/"
         And the last edit summary should be "update http to https for known domains"
 
     Scenario Outline: wiki.archlinux.org/invalid/page
-        When the URL https://wiki.archlinux.org/invalid/page/ gives status 404
-        And a page contains <pattern> formatted with http://wiki.archlinux.org/invalid/page/
+        Given the URL https://wiki.archlinux.org/invalid/page/ gives status 404
+        When a page contains <pattern> formatted with http://wiki.archlinux.org/invalid/page/
         And I run ExtlinkReplacements
         Then the page should have the original content
         And the last edit summary should be empty
 
     Scenario Outline: sourceforge.net
-        When the URL https://sourceforge.net/some/page/ gives status 200
-        And a page contains <pattern> formatted with http://sourceforge.net/some/page/
+        Given the URL https://sourceforge.net/some/page/ gives status 200
+        When a page contains <pattern> formatted with http://sourceforge.net/some/page/
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://sourceforge.net/some/page/"
         And the last edit summary should be "update http to https for known domains"
 
     Scenario Outline: www.sourceforge.net
-        When the URL https://www.sourceforge.net/some/page/ gives status 200
-        And a page contains <pattern> formatted with http://www.sourceforge.net/some/page/
+        Given the URL https://www.sourceforge.net/some/page/ gives status 200
+        When a page contains <pattern> formatted with http://www.sourceforge.net/some/page/
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://www.sourceforge.net/some/page/"
         And the last edit summary should be "update http to https for known domains"
