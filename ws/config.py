@@ -61,7 +61,7 @@ class ConfigParser(configparser.ConfigParser):
             value = value.strip()
             if value.startswith("["):
                 option_dict[key] = [str(item) for item in json.loads(value)]
-        if to_list:
+        if to_list is True:
             option_list = []
             for key, value in option_dict.items():
                 option_list.append('--' + key)
@@ -69,8 +69,8 @@ class ConfigParser(configparser.ConfigParser):
                     option_list.extend(value)
                 else:
                     option_list.append(value)
-
-        return option_list if to_list else option_dict
+            return option_list
+        return option_dict
 
 
 # strict string to bool conversion
