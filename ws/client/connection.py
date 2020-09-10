@@ -171,7 +171,7 @@ class Connection:
         group.add_argument("--connection-timeout", default=60, type=float,
                 help="connection timeout in seconds (default: %(default)s)")
         group.add_argument("--cookie-file", type=ws.config.argtype_dirname_must_exist, metavar="PATH",
-                help="path to cookie file (default: $cache_dir/$site.cookie)")
+                help="path to cookie file (default: %(default)s)")
         # TODO: expose also user_agent, http_user, http_password?
 
     @classmethod
@@ -180,25 +180,15 @@ class Connection:
         Construct a :py:class:`Connection` object from arguments parsed by
         :py:class:`argparse.ArgumentParser`.
 
-        :param args:
-            an instance of :py:class:`argparse.Namespace`. In addition to the
-            arguments set by :py:meth:`Connection.set_argparser`,
-            it is expected to also contain ``site`` and ``cache_dir`` arguments.
+        :param args: an instance of :py:class:`argparse.Namespace`.
         :returns: an instance of :py:class:`Connection`
         """
-        if args.cookie_file is None:
-            import os
-            if not os.path.exists(args.cache_dir):
-                os.mkdir(args.cache_dir)
-            cookie_file = args.cache_dir + "/" + args.site + ".cookie"
-        else:
-            cookie_file = args.cookie_file
         # retype from int to bool
         args.ssl_verify = True if args.ssl_verify == 1 else False
 
         session = Connection.make_session(ssl_verify=args.ssl_verify,
                                           max_retries=args.connection_max_retries,
-                                          cookie_file=cookie_file)
+                                          cookie_file=args.cookie_file)
         return klass(args.api_url, args.index_url, session=session, timeout=args.connection_timeout)
 
     @RateLimited(10, 3)
