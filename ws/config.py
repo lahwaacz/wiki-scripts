@@ -33,8 +33,9 @@ class ConfigParser(configparser.ConfigParser):
     Drop-in replacement for :py:class:`configparser.Configparser`.
     """
     def __init__(self, configfile, **kwargs):
-        kwargs.setdefault('interpolation', configparser.ExtendedInterpolation())
+        kwargs.setdefault("interpolation", configparser.ExtendedInterpolation())
         super().__init__(**kwargs)
+        assert configfile is not None
         self.configfile = configfile
 
     def fetch_section(self, section=None, to_list=True):
@@ -85,8 +86,10 @@ def argtype_bool(string):
     else:
         raise argparse.ArgumentTypeError("value '{}' cannot be converted to boolean".format(string))
 
-def _get_config_filepath(string):
-    """Convert `--config` argument to an absolute file path."""
+def argtype_config(string):
+    """
+    Compute config filepath and check its existence.
+    """
     dirname = os.path.dirname(string)
     name, ext = os.path.splitext(os.path.basename(string))
 
@@ -98,12 +101,10 @@ def _get_config_filepath(string):
         if ext != ".conf":
             raise argparse.ArgumentTypeError("config filename must end with '.conf' suffix: '{}'".format(string))
         path = os.path.abspath(os.path.expanduser(string))
-    return path
 
-def argtype_config(string):
-    """Compute config filepath and check its existence."""
-    path = _get_config_filepath(string)
     if not os.path.exists(path):
+        if string == DEFAULT_CONF:
+            return None
         raise argparse.ArgumentTypeError("file does not exist or is a broken link: '{}'".format(path))
     return path
 
@@ -169,12 +170,13 @@ def object_from_argparser(klass, section=None, **kwargs):
     # parse sys.argv for global options
     args, remaining_argv = argparser.parse_known_args()
 
-    # read the config file and fetch the script-related section
-    cfp = ConfigParser(args.config)
-    config_args = cfp.fetch_section(section)
+    if args.config is not None:
+        # read the config file and fetch the script-related section
+        cfp = ConfigParser(args.config)
+        config_args = cfp.fetch_section(section)
 
-    # final parsing
-    argparser.parse_known_args(config_args + remaining_argv, namespace=args)
+        # final parsing
+        argparser.parse_known_args(config_args + remaining_argv, namespace=args)
 
     # set up logging
     ws.logging.init(args)
