@@ -106,7 +106,7 @@ def argtype_bool(string):
     elif string in false_values:
         return False
     else:
-        raise argparse.ArgumentTypeError("value '%s' cannot be converted to boolean" % string)
+        raise argparse.ArgumentTypeError("value '{}' cannot be converted to boolean".format(string))
 
 def _get_config_filepath(string):
     """Convert `--config` argument to an absolute file path."""
@@ -120,7 +120,7 @@ def _get_config_filepath(string):
     # relative or absolute path was specified
     else:
         if ext != ".conf":
-            raise argparse.ArgumentTypeError("config filename must end with '.conf' suffix: '%s'" % string)
+            raise argparse.ArgumentTypeError("config filename must end with '.conf' suffix: '{}'".format(string))
         path = os.path.abspath(os.path.expanduser(string))
     return path
 
@@ -128,14 +128,14 @@ def argtype_config(string):
     """Compute config filepath and check its existence."""
     path = _get_config_filepath(string)
     if not os.path.exists(path):
-        raise argparse.ArgumentTypeError("file does not exist or is a broken link: '%s'" % path)
+        raise argparse.ArgumentTypeError("file does not exist or is a broken link: '{}'".format(path))
     return path
 
 # path to existing directory
 def argtype_existing_dir(string):
     string = os.path.abspath(os.path.expanduser(string))
     if not os.path.isdir(string):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % string)
+        raise argparse.ArgumentTypeError("directory '{}' does not exist".format(string))
     return string
 
 # any path, the dirname part must exist (e.g. path to a file that will be created in the future)
@@ -143,9 +143,9 @@ def argtype_dirname_must_exist(string):
     string = os.path.abspath(os.path.expanduser(string))
     dirname, _ = os.path.split(string)
     if not os.path.isdir(dirname):
-        raise argparse.ArgumentTypeError("directory '%s' does not exist" % dirname)
+        raise argparse.ArgumentTypeError("directory '{}' does not exist".format(dirname))
     return string
-        
+
 
 def getArgParser(**kwargs):
     """
