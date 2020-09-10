@@ -12,17 +12,13 @@ import ws.logging
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    "ConfigParser", 
+    "ConfigParser",
     "argtype_bool",
     "argtype_config",
     "argtype_dirname_must_exist",
     "argtype_existing_dir",
-    "getArgParser", 
+    "getArgParser",
     "object_from_argparser",
-    "PROJECT_NAME",
-    "CONFIG_DIR",
-    "CACHE_DIR",
-    "DEFAULT_CONF",
 ]
 
 PROJECT_NAME = "wiki-scripts"
