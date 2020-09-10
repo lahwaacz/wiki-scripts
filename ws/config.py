@@ -142,8 +142,6 @@ def getArgParser(**kwargs):
             help="name of config file (default: %(default)s)")
     ap.add_argument("--cache-dir", type=argtype_dirname_must_exist, metavar="PATH", default=CACHE_DIR,
             help=("directory for storing cached data (will be created if necessary, but parent directory must exist) (default: %(default)s)"))
-    ap.add_argument("--site", metavar="NAME",
-            help="site name used in file naming schemes")
 
     # include logging arguments into the global group
     ws.logging.set_argparser(ap)
