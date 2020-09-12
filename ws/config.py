@@ -133,9 +133,12 @@ def getArgParser(**kwargs):
     :returns: an instance of :py:class:`argparse.ArgumentParser`.
     """
     kwargs.setdefault("usage", "%(prog)s [options]")
-    # TODO: original desc from configargparse:
-    # Args that start with '--' (eg. --site) can also be set in a config file (specified via -c).  If an arg is specified in more than one place, then commandline values override config file values which override defaults.
     kwargs.setdefault("formatter_class", argparse.RawDescriptionHelpFormatter)
+    msg = kwargs.get("description", "")
+    msg += ("\n\nArgs that start with '--' (eg. --cache-dir) can also be set in a config file (specified via -c)."
+            " If an arg is specified in more than one place, then commandline values override config file values"
+            " which override defaults.")
+    kwargs["description"] = msg
     ap = argparse.ArgumentParser(**kwargs)
 
     # add global arguments
