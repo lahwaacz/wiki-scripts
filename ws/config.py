@@ -23,6 +23,7 @@ __all__ = [
 
 PROJECT_NAME = "wiki-scripts"
 CONFIG_DIR = os.getenv("XDG_CONFIG_HOME", os.path.expanduser("~/.config/"))
+CONFIG_DIR = os.path.join(CONFIG_DIR, PROJECT_NAME)
 CACHE_DIR = os.getenv("XDG_CACHE_HOME", os.path.expanduser("~/.cache/"))
 CACHE_DIR = os.path.join(CACHE_DIR, PROJECT_NAME)
 DEFAULT_CONF = "default"
@@ -95,7 +96,7 @@ def argtype_config(string):
 
     # configuration name was specified
     if not dirname and ext != ".conf":
-        path = os.path.join(CONFIG_DIR, "{}/{}.conf".format(PROJECT_NAME, string))
+        path = os.path.join(CONFIG_DIR, string + ".conf")
     # relative or absolute path was specified
     else:
         if ext != ".conf":
