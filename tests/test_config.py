@@ -35,31 +35,28 @@ class test_argtype_bool:
         assert msg in str(excinfo.value)
 
 
-class test__get_config_filepath:
-    """Tests for '_get_config_filepath()' function."""
-
-    @pytest.mark.parametrize("string", ["default", "archwiki", "wiki.archlinux.org", "hello-world.py"])
-    def test_configuration_name(self, string):
-        path = ws.config._get_config_filepath(string)
-        config_dir = os.getenv("XDG_CONFIG_HOME", ws.config.CONFIG_DIR)
-        result = os.path.join(config_dir, "{}/{}.conf".format(ws.config.PROJECT_NAME, string))
-        assert path == result
-
-    @pytest.mark.parametrize("string", ["./hello", "~/hello.world", "/home/username/.config/config"])
-    def test_path_with_slashes_but_without_conf_suffix(self, string):
-        with pytest.raises(ArgumentTypeError) as excinfo:
-            path = ws.config._get_config_filepath(string)
-        msg = "config filename must end with '.conf' suffix" 
-        assert msg in str(excinfo.value)
-
-    @pytest.mark.parametrize("string", ["./hello.conf", "~/hello.world.conf", "/home/.config/config.conf"])
-    def test_path_with_slashes_and_conf_suffix(self, string):
-        path = ws.config._get_config_filepath(string)
-        result = os.path.abspath(os.path.expanduser(string))
-        assert path == result
-
-
 class test_argtype_config:
+
+    @pytest.mark.parametrize("string", [ws.config.DEFAULT_CONF, "archwiki", "wiki.archlinux.org", "hello-world.py"])
+    def test_configuration_name(self, tmp_path, monkeypatch, string):
+        monkeypatch.setattr(ws.config, "CONFIG_DIR", tmp_path)
+        config = tmp_path / (string + ".conf")
+        config.touch()
+        path = ws.config.argtype_config(string)
+        assert path == str(config)
+
+    def test_default_fallback(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(ws.config, "CONFIG_DIR", tmp_path)
+        path = ws.config.argtype_config(ws.config.DEFAULT_CONF)
+        assert path is None
+
+    @pytest.mark.parametrize("string", [ws.config.DEFAULT_CONF, "archwiki", "wiki.archlinux.org", "hello-world.py"])
+    def test_path_with_slashes_but_without_conf_suffix(self, tmp_path, string):
+        config = tmp_path / string
+        with pytest.raises(ArgumentTypeError) as excinfo:
+            path = ws.config.argtype_config(config)
+        msg = "config filename must end with '.conf' suffix"
+        assert msg in str(excinfo.value)
 
     def test_existing_file(self, tmp_path):
         config = tmp_path / "archwiki.conf"
@@ -71,7 +68,7 @@ class test_argtype_config:
         config = tmp_path / "helloworld.conf"
         with pytest.raises(ArgumentTypeError) as excinfo:
             path = ws.config.argtype_config(config)
-        msg = "file does not exist or is a broken link" 
+        msg = "file does not exist or is a broken link"
         assert msg in str(excinfo.value)
 
     def test_symbolic_link(self, tmp_path):
@@ -88,7 +85,7 @@ class test_argtype_config:
         config.symlink_to(dummy_file)
         with pytest.raises(ArgumentTypeError) as excinfo:
             path = ws.config.argtype_config(config)
-        msg = "file does not exist or is a broken link" 
+        msg = "file does not exist or is a broken link"
         assert msg in str(excinfo.value)
 
 
@@ -100,7 +97,7 @@ class test_argtype_existing_dir:
         directory.mkdir()
         path = ws.config.argtype_existing_dir(directory)
         assert path == str(directory)
-    
+
     def test_nonexising_dir(self, tmp_path):
         directory = tmp_path / "non-existing-dir"
         with pytest.raises(ArgumentTypeError) as excinfo:
