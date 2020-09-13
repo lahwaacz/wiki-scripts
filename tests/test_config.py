@@ -2,6 +2,7 @@
 
 from argparse import ArgumentTypeError
 import os
+import sys
 import pytest
 
 import ws.config
@@ -172,3 +173,47 @@ class test_fetch_section:
         values = cfp.fetch_section(to_list=False)
         result = {"default_opt1": "value1", "default_opt2": "value2"}
         assert values == result
+
+
+class obj_simple:
+    def __init__(self, foo):
+        self.foo = foo
+
+    @staticmethod
+    def set_argparser(argparser):
+        argparser.add_argument("--foo", required=True, choices=["a", "b"])
+
+    @classmethod
+    def from_argparser(klass, args):
+        return klass(args.foo)
+
+class test_object_from_argparser:
+    """Tests for the :py:func:`ws.config.object_from_argparser` function."""
+
+    def test_undefined(self, capsys):
+        with pytest.raises(SystemExit) as excinfo:
+            ws.config.object_from_argparser(obj_simple)
+        assert excinfo.type == SystemExit
+        assert excinfo.value.code == 2
+        assert "error: the following arguments are required: --foo" in capsys.readouterr().err
+
+    def test_defined_on_cli(self, monkeypatch):
+        monkeypatch.setattr(sys, "argv", ["prog", "--foo", "a"])
+        obj = ws.config.object_from_argparser(obj_simple)
+        assert obj.foo == "a"
+
+    def test_defined_in_config(self, monkeypatch, tmp_path):
+        config = tmp_path / "default.conf"
+        with open(config, "w") as f:
+            f.write("[DEFAULT]\nfoo = a\n")
+        monkeypatch.setattr(sys, "argv", ["prog", "--config", str(config)])
+        obj = ws.config.object_from_argparser(obj_simple)
+        assert obj.foo == "a"
+
+    def test_defined_in_both(self, monkeypatch, tmp_path):
+        config = tmp_path / "default.conf"
+        with open(config, "w") as f:
+            f.write("[DEFAULT]\nfoo = a\n")
+        monkeypatch.setattr(sys, "argv", ["prog", "--foo", "b", "--config", str(config)])
+        obj = ws.config.object_from_argparser(obj_simple)
+        assert obj.foo == "b"
