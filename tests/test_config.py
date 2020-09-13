@@ -46,6 +46,7 @@ class test_argtype_config:
         path = ws.config.argtype_config(string)
         assert path == str(config)
 
+    @pytest.mark.xfail()
     def test_default_fallback(self, tmp_path, monkeypatch):
         monkeypatch.setattr(ws.config, "CONFIG_DIR", tmp_path)
         path = ws.config.argtype_config(ws.config.DEFAULT_CONF)
@@ -55,20 +56,20 @@ class test_argtype_config:
     def test_path_with_slashes_but_without_conf_suffix(self, tmp_path, string):
         config = tmp_path / string
         with pytest.raises(ArgumentTypeError) as excinfo:
-            path = ws.config.argtype_config(config)
+            path = ws.config.argtype_config(str(config))
         msg = "config filename must end with '.conf' suffix"
         assert msg in str(excinfo.value)
 
     def test_existing_file(self, tmp_path):
         config = tmp_path / "archwiki.conf"
         config.touch()
-        path = ws.config.argtype_config(config)
+        path = ws.config.argtype_config(str(config))
         assert path == str(config)
 
     def test_nonexisting_file(self, tmp_path):
         config = tmp_path / "helloworld.conf"
         with pytest.raises(ArgumentTypeError) as excinfo:
-            path = ws.config.argtype_config(config)
+            path = ws.config.argtype_config(str(config))
         msg = "file does not exist or is a broken link"
         assert msg in str(excinfo.value)
 
@@ -77,7 +78,7 @@ class test_argtype_config:
         dummy_file = tmp_path / "config.conf"
         dummy_file.touch()
         config.symlink_to(dummy_file)
-        path = ws.config.argtype_config(config)
+        path = ws.config.argtype_config(str(config))
         assert path == str(config)
 
     def test_broken_link(self, tmp_path):
@@ -85,7 +86,7 @@ class test_argtype_config:
         dummy_file = tmp_path / "not-exist.conf"
         config.symlink_to(dummy_file)
         with pytest.raises(ArgumentTypeError) as excinfo:
-            path = ws.config.argtype_config(config)
+            path = ws.config.argtype_config(str(config))
         msg = "file does not exist or is a broken link"
         assert msg in str(excinfo.value)
 

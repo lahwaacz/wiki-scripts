@@ -91,6 +91,9 @@ def argtype_config(string):
     """
     Compute config filepath and check its existence.
     """
+    if string.upper() == "NONE":
+        return None
+
     dirname = os.path.dirname(string)
     name, ext = os.path.splitext(os.path.basename(string))
 
@@ -104,8 +107,6 @@ def argtype_config(string):
         path = os.path.abspath(os.path.expanduser(string))
 
     if not os.path.exists(path):
-        if string == DEFAULT_CONF:
-            return None
         raise argparse.ArgumentTypeError("file does not exist or is a broken link: '{}'".format(path))
     return path
 
