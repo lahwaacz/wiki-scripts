@@ -136,6 +136,7 @@ def getArgParser(**kwargs):
     """
     kwargs.setdefault("usage", "%(prog)s [options]")
     kwargs.setdefault("formatter_class", argparse.RawDescriptionHelpFormatter)
+    kwargs.setdefault("allow_abbrev", False)
     msg = kwargs.get("description", "")
     msg += ("\n\nArgs that start with '--' (eg. --cache-dir) can also be set in a config file (specified via -c)."
             " If an arg is specified in more than one place, then commandline values override config file values"
@@ -168,20 +169,30 @@ def object_from_argparser(klass, section=None, **kwargs):
     :param kwargs: passed to :py:class:`argparse.ArgumentParser()` constructor
     :returns: an instance of :py:class:`klass`
     """
-    # argparser creation
     argparser = getArgParser(**kwargs)
     klass.set_argparser(argparser)
 
-    # parse sys.argv for global options
-    args, remaining_argv = argparser.parse_known_args()
+    cli_args = sys.argv[1:]
+    config_args = []
+    args = argparse.Namespace()
 
+    # manual parsing for "--config" option; from end to start to be consistent
+    # with argparse's parser (that takes the last valid option if multiple
+    # were specified)
+    for i in range(len(cli_args)-2, -1, -1):
+        if cli_args[i] == "-c" or cli_args[i] == "--config":
+            setattr(args, "config", argtype_config(cli_args[i+1]))
+            break
+    else:
+        setattr(args, "config", argtype_config(DEFAULT_CONF))
+
+    # read the config file and fetch the script-related section
     if args.config is not None:
-        # read the config file and fetch the script-related section
         cfp = ConfigParser(args.config)
-        config_args = cfp.fetch_section(section)
+        config_args += cfp.fetch_section(section)
 
-        # final parsing
-        argparser.parse_known_args(config_args + remaining_argv, namespace=args)
+    # parsing
+    argparser.parse_known_args(config_args + cli_args, namespace=args)
 
     # set up logging
     ws.logging.init(args)
