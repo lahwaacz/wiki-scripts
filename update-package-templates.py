@@ -195,7 +195,7 @@ class PkgUpdater:
         group.add_argument("--aurpkgs-url", default="https://aur.archlinux.org/packages.gz", metavar="URL",
                 help="the URL to packages.gz file on the AUR (default: %(default)s)")
         group.add_argument("--report-dir", type=ws.config.argtype_existing_dir, default=".", metavar="PATH",
-                help="directory where the report should be saved")
+                help="directory where the report should be saved (default: %(default)s)")
         group.add_argument("--report-page", type=str, default=None, metavar="PATH",
                 help="existing report page on the wiki (default: %(default)s)")
 
