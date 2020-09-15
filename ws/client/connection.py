@@ -163,7 +163,7 @@ class Connection:
         group.add_argument("--api-url", metavar="URL",
                 help="the URL to the wiki's api.php (default: %(default)s)")
         group.add_argument("--index-url", metavar="URL",
-                help="the URL to the wiki's api.php (default: %(default)s)")
+                help="the URL to the wiki's index.php (default: %(default)s)")
         group.add_argument("--ssl-verify", default=True, type=ws.config.argtype_bool,
                 help="whether to verify SSL certificates (default: %(default)s)")
         group.add_argument("--connection-max-retries", default=3, type=int,
