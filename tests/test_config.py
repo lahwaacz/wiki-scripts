@@ -46,7 +46,6 @@ class test_argtype_config:
         path = ws.config.argtype_config(string)
         assert path == str(config)
 
-    @pytest.mark.xfail()
     def test_default_fallback(self, tmp_path, monkeypatch):
         monkeypatch.setattr(ws.config, "CONFIG_DIR", tmp_path)
         path = ws.config.argtype_config(ws.config.DEFAULT_CONF)
