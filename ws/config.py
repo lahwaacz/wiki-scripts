@@ -148,10 +148,13 @@ def getArgParser(**kwargs):
     ap = argparse.ArgumentParser(**kwargs)
 
     # add global arguments
-    ap.add_argument("-c", "--config", type=argtype_config, metavar="NAME", default=DEFAULT_CONF,
-            help="name of config file (default: %(default)s)")
+    group = ap.add_mutually_exclusive_group()
+    group.add_argument("-c", "--config", type=argtype_config, metavar="PATH", default=DEFAULT_CONF,
+            help="path to the config file; the shorthand name can be specified for files stored in {0} directory (default: {0}/{1}.conf)".format(CONFIG_DIR, DEFAULT_CONF))
+    group.add_argument("--no-config", dest="config", const=None, action="store_const",
+            help="run the script without parsing a config file")
     ap.add_argument("--cache-dir", type=argtype_dirname_must_exist, metavar="PATH", default=CACHE_DIR,
-            help=("directory for storing cached data (will be created if necessary, but parent directory must exist) (default: %(default)s)"))
+            help="directory for storing cached data (will be created if necessary, but parent directory must exist) (default: %(default)s)")
 
     # include logging arguments into the global group
     ws.logging.set_argparser(ap)

@@ -176,16 +176,18 @@ class test_fetch_section:
 
 
 class obj_simple:
-    def __init__(self, foo):
-        self.foo = foo
+    def __init__(self, args):
+        self.foo = args.foo
+        self.bar = args.bar
 
     @staticmethod
     def set_argparser(argparser):
         argparser.add_argument("--foo", required=True, choices=["a", "b"])
+        argparser.add_argument("--bar", default="baz")
 
     @classmethod
     def from_argparser(klass, args):
-        return klass(args.foo)
+        return klass(args)
 
 class test_object_from_argparser:
     """Tests for the :py:func:`ws.config.object_from_argparser` function."""
@@ -217,3 +219,22 @@ class test_object_from_argparser:
         monkeypatch.setattr(sys, "argv", ["prog", "--foo", "b", "--config", str(config)])
         obj = ws.config.object_from_argparser(obj_simple)
         assert obj.foo == "b"
+
+    def test_no_config(self, monkeypatch, tmp_path):
+        config = tmp_path / "default.conf"
+        with open(config, "w") as f:
+            f.write("[DEFAULT]\nfoo = a\nbar = c\n")
+        monkeypatch.setattr(sys, "argv", ["prog", "--foo", "b", "--no-config"])
+        obj = ws.config.object_from_argparser(obj_simple)
+        assert obj.bar == "baz"
+
+    def test_no_config_side_by_side_with_config(self, monkeypatch, tmp_path, capsys):
+        config = tmp_path / "default.conf"
+        with open(config, "w") as f:
+            f.write("[DEFAULT]\nfoo = a\nbar = c\n")
+        monkeypatch.setattr(sys, "argv", ["prog", "--foo", "b", "--no-config", "--config", str(config)])
+        with pytest.raises(SystemExit) as excinfo:
+            obj = ws.config.object_from_argparser(obj_simple)
+        assert excinfo.type == SystemExit
+        assert excinfo.value.code == 2
+        assert "error: argument -c/--config: not allowed with argument --no-config" in capsys.readouterr().err
