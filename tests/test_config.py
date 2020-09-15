@@ -69,7 +69,7 @@ class test_argtype_config:
         config = tmp_path / "helloworld.conf"
         with pytest.raises(ArgumentTypeError) as excinfo:
             path = ws.config.argtype_config(str(config))
-        msg = "file does not exist or is a broken link"
+        msg = "file does not exist"
         assert msg in str(excinfo.value)
 
     def test_symbolic_link(self, tmp_path):
@@ -86,7 +86,7 @@ class test_argtype_config:
         config.symlink_to(dummy_file)
         with pytest.raises(ArgumentTypeError) as excinfo:
             path = ws.config.argtype_config(str(config))
-        msg = "file does not exist or is a broken link"
+        msg = "symbolic link is broken"
         assert msg in str(excinfo.value)
 
 

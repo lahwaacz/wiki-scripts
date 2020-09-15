@@ -105,9 +105,12 @@ def argtype_config(string):
         path = os.path.abspath(os.path.expanduser(string))
 
     if not os.path.exists(path):
-        if string == DEFAULT_CONF:
+        if os.path.islink(path):
+            raise argparse.ArgumentTypeError("symbolic link is broken: '{}'".format(path))
+        elif string == DEFAULT_CONF:
             return None
-        raise argparse.ArgumentTypeError("file does not exist or is a broken link: '{}'".format(path))
+        else:
+            raise argparse.ArgumentTypeError("file does not exist: '{}'".format(path))
     return path
 
 # path to existing directory
