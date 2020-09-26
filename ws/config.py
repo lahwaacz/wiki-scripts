@@ -193,7 +193,10 @@ def parse_args(argparser, section=None):
         config_args += cfp.fetch_section(section)
 
     # parsing
-    argparser.parse_known_args(config_args + cli_args, namespace=args)
+    _, unrecognized = argparser.parse_known_args(config_args + cli_args, namespace=args)
+    # FIXME: filter out arguments defined in the config file, they should be just ignored
+    if unrecognized:
+        argparser.error("unrecognized arguments: {}".format(" ".join(unrecognized)))
 
     # set up logging
     ws.logging.init(args)

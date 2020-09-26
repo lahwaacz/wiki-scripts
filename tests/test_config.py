@@ -220,6 +220,22 @@ class test_object_from_argparser:
         obj = ws.config.object_from_argparser(obj_simple)
         assert obj.foo == "b"
 
+    def test_unknown_config_argument(self, monkeypatch, tmp_path):
+        config = tmp_path / "default.conf"
+        with open(config, "w") as f:
+            f.write("[DEFAULT]\nunknown = value\n")
+        monkeypatch.setattr(sys, "argv", ["prog", "--foo", "a", "--config", str(config)])
+        obj = ws.config.object_from_argparser(obj_simple)
+        assert obj.foo == "a"
+
+    def test_unknown_command_line_argument(self, monkeypatch, capsys):
+        monkeypatch.setattr(sys, "argv", ["prog", "--foo", "a", "--unknown", "value"])
+        with pytest.raises(SystemExit) as excinfo:
+            obj = ws.config.object_from_argparser(obj_simple)
+        assert excinfo.type == SystemExit
+        assert excinfo.value.code == 2
+        assert "error: unrecognized arguments: --unknown" in capsys.readouterr().err
+
     def test_no_config(self, monkeypatch, tmp_path):
         monkeypatch.setattr(ws.config, "CONFIG_DIR", tmp_path)
         config = tmp_path / "default.conf"
