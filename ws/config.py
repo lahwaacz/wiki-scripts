@@ -74,6 +74,14 @@ class ConfigParser(configparser.ConfigParser):
             return option_list
         return option_dict
 
+    @staticmethod
+    def set_argparser(argparser):
+        group = argparser.add_mutually_exclusive_group()
+        group.add_argument("-c", "--config", type=argtype_config, metavar="PATH", default=DEFAULT_CONF,
+                help="path to the config file, or a base file name for config files looked up as {0}/<name>.conf (default: %s(default)s)".format(CONFIG_DIR))
+        group.add_argument("--no-config", dest="config", const=None, action="store_const",
+                help="do not read any config file")
+
 
 # strict string to bool conversion
 def argtype_bool(string):
@@ -91,7 +99,6 @@ def argtype_config(string):
     """
     Compute config filepath and check its existence.
     """
-
     dirname = os.path.dirname(string)
     name, ext = os.path.splitext(os.path.basename(string))
 
@@ -131,21 +138,12 @@ def argtype_dirname_must_exist(string):
 
 def getArgParser(**kwargs):
     """
-    Create an instance of :py:class:`argparse.ArgumentParser`. Make its initial setup
-    and set the logging arguments.
+    Create an instance of :py:class:`argparse.ArgumentParser` and set the global
+    arguments (e.g. for logging).
 
     :param kwargs: passed to :py:class:`argparse.ArgumentParser()` constructor.
     :returns: an instance of :py:class:`argparse.ArgumentParser`.
     """
-    # parser for '--config' and '--no-config' options
-    conf_ap = argparse.ArgumentParser(add_help=False)
-    group = conf_ap.add_mutually_exclusive_group()
-    group.add_argument("-c", "--config", type=argtype_config, metavar="PATH", default=DEFAULT_CONF,
-            help="path to the config file; the shorthand name can be specified for files stored in {0} directory (default: {0}/{1}.conf)".format(CONFIG_DIR, DEFAULT_CONF))
-    group.add_argument("--no-config", dest="config", const=None, action="store_const",
-            help="run the script without parsing a config file")
-
-    # main parser parameters
     kwargs.setdefault("usage", "%(prog)s [options]")
     kwargs.setdefault("formatter_class", argparse.RawDescriptionHelpFormatter)
     kwargs.setdefault("allow_abbrev", False)
@@ -153,17 +151,17 @@ def getArgParser(**kwargs):
            " If an arg is specified in more than one place, then commandline values override config file values"
            " which override defaults.")
     kwargs["description"] = kwargs.get("description", "") + msg
-    kwargs["parents"] = kwargs.get("parents", []) + [conf_ap]
 
     # create the main parser and add global arguments
     ap = argparse.ArgumentParser(**kwargs)
+    ConfigParser.set_argparser(ap)
     ap.add_argument("--cache-dir", type=argtype_dirname_must_exist, metavar="PATH", default=CACHE_DIR,
             help="directory for storing cached data (will be created if necessary, but parent directory must exist) (default: %(default)s)")
 
     # include logging arguments into the global group
     ws.logging.set_argparser(ap)
 
-    return (ap, conf_ap)
+    return ap
 
 
 def object_from_argparser(klass, section=None, **kwargs):
@@ -179,7 +177,12 @@ def object_from_argparser(klass, section=None, **kwargs):
     :param kwargs: passed to :py:class:`argparse.ArgumentParser()` constructor
     :returns: an instance of :py:class:`klass`
     """
-    ap, conf_ap = getArgParser(**kwargs)
+    # parser for '--config' and '--no-config' options
+    conf_ap = argparse.ArgumentParser(add_help=False)
+    ConfigParser.set_argparser(conf_ap)
+
+    # main parser
+    ap = getArgParser(**kwargs)
     klass.set_argparser(ap)
 
     cli_args = sys.argv[1:]
