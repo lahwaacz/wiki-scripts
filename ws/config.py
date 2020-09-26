@@ -163,27 +163,23 @@ def getArgParser(**kwargs):
 
     return ap
 
-
-def object_from_argparser(klass, section=None, **kwargs):
+def parse_args(argparser, section=None):
     """
-    Create an instance of ``klass`` using its :py:meth:`klass.from_argparser()`
-    factory and an instance of :py:class:`argparse.ArgumentParser`. On top of
-    that, logging interface is set up using the :py:mod:`ws.logging` module.
+    Parses arguments given on the command line as well as in the config file.
 
-    :param klass: the class to instantiate
+    :param argparser:
+        An instance of :py:class:`argparse.ArgumentParser`. It **must** be
+        created by calling the :py:func:`getArgParser` function, otherwise this
+        function may access undefined arguments.
     :param str section:
         The name of the subsection to be read from the configuration file
         (usually the name of the script). By default ``sys.argv[0]`` is taken.
-    :param kwargs: passed to :py:class:`argparse.ArgumentParser()` constructor
-    :returns: an instance of :py:class:`klass`
+    :returns:
+        an instance of :py:class:`argparse.Namespace` with the parsed arguments.
     """
     # parser for '--config' and '--no-config' options
     conf_ap = argparse.ArgumentParser(add_help=False)
     ConfigParser.set_argparser(conf_ap)
-
-    # main parser
-    ap = getArgParser(**kwargs)
-    klass.set_argparser(ap)
 
     cli_args = sys.argv[1:]
     config_args = []
@@ -197,10 +193,26 @@ def object_from_argparser(klass, section=None, **kwargs):
         config_args += cfp.fetch_section(section)
 
     # parsing
-    ap.parse_known_args(config_args + cli_args, namespace=args)
+    argparser.parse_known_args(config_args + cli_args, namespace=args)
 
     # set up logging
     ws.logging.init(args)
     logger.debug("Parsed arguments:\n{}".format(args))
 
+    return args
+
+def object_from_argparser(klass, section=None, **kwargs):
+    """
+    Create an instance of ``klass`` using its :py:meth:`klass.from_argparser()`
+    factory and an instance of :py:class:`argparse.ArgumentParser`. On top of
+    that, logging interface is set up using the :py:mod:`ws.logging` module.
+
+    :param klass: the class to instantiate
+    :param str section: passed to :py:func:`parse_args`
+    :param kwargs: passed to :py:func:`getArgParser`
+    :returns: an instance of :py:class:`klass`
+    """
+    ap = getArgParser(**kwargs)
+    klass.set_argparser(ap)
+    args = parse_args(ap, section)
     return klass.from_argparser(args)
