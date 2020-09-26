@@ -176,9 +176,9 @@ class test_fetch_section:
 
 
 class obj_simple:
-    def __init__(self, args):
-        self.foo = args.foo
-        self.bar = args.bar
+    def __init__(self, foo, bar):
+        self.foo = foo
+        self.bar = bar
 
     @staticmethod
     def set_argparser(argparser):
@@ -187,7 +187,7 @@ class obj_simple:
 
     @classmethod
     def from_argparser(klass, args):
-        return klass(args)
+        return klass(args.foo, args.bar)
 
 class test_object_from_argparser:
     """Tests for the :py:func:`ws.config.object_from_argparser` function."""
