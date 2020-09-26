@@ -55,20 +55,20 @@ class test_argtype_config:
     def test_path_with_slashes_but_without_conf_suffix(self, tmp_path, string):
         config = tmp_path / string
         with pytest.raises(ArgumentTypeError) as excinfo:
-            path = ws.config.argtype_config(str(config))
+            path = ws.config.argtype_config(config)
         msg = "config filename must end with '.conf' suffix"
         assert msg in str(excinfo.value)
 
     def test_existing_file(self, tmp_path):
         config = tmp_path / "archwiki.conf"
         config.touch()
-        path = ws.config.argtype_config(str(config))
+        path = ws.config.argtype_config(config)
         assert path == str(config)
 
     def test_nonexisting_file(self, tmp_path):
         config = tmp_path / "helloworld.conf"
         with pytest.raises(ArgumentTypeError) as excinfo:
-            path = ws.config.argtype_config(str(config))
+            path = ws.config.argtype_config(config)
         msg = "file does not exist"
         assert msg in str(excinfo.value)
 
@@ -77,7 +77,7 @@ class test_argtype_config:
         dummy_file = tmp_path / "config.conf"
         dummy_file.touch()
         config.symlink_to(dummy_file)
-        path = ws.config.argtype_config(str(config))
+        path = ws.config.argtype_config(config)
         assert path == str(config)
 
     def test_broken_link(self, tmp_path):
@@ -85,7 +85,7 @@ class test_argtype_config:
         dummy_file = tmp_path / "not-exist.conf"
         config.symlink_to(dummy_file)
         with pytest.raises(ArgumentTypeError) as excinfo:
-            path = ws.config.argtype_config(str(config))
+            path = ws.config.argtype_config(config)
         msg = "symbolic link is broken"
         assert msg in str(excinfo.value)
 
