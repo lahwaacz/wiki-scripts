@@ -143,6 +143,9 @@ def cfp(tmp_path):
         "hello-world.conf",
         "/file/path/with spaces,and, commas"
         ]
+
+    [section3]
+    a = spam
     """
     configfile = tmp_path / "config.conf"
     with open(configfile, "w") as f:
@@ -174,6 +177,11 @@ class test_fetch_section:
         result = {"default_opt1": "value1", "default_opt2": "value2"}
         assert values == result
 
+    def test_short_option_in_config_file(self, cfp):
+        with pytest.raises(ArgumentTypeError) as excinfo:
+            values = cfp.fetch_section(section="section3")
+        msg = "short options are not allowed in a config file: 'a'"
+        assert msg == str(excinfo.value)
 
 class obj_simple:
     def __init__(self, foo, bar):
@@ -251,6 +259,15 @@ class test_object_from_argparser:
         assert excinfo.type == SystemExit
         assert excinfo.value.code == 2
         assert "error: unrecognized arguments: --unknown -u" in capsys.readouterr().err
+
+    def test_multiple_unknown_short_options_in_cli(self, monkeypatch, capsys):
+        monkeypatch.setattr(sys, "argv", ["prog", "--foo", "b", "-abc"])
+        with pytest.raises(SystemExit) as excinfo:
+            obj = ws.config.object_from_argparser(obj_simple)
+        assert excinfo.type == SystemExit
+        assert excinfo.value.code == 2
+        assert "error: unrecognized arguments: -abc" in capsys.readouterr().err
+
 
     def test_no_config(self, monkeypatch, tmp_path):
         monkeypatch.setattr(ws.config, "CONFIG_DIR", tmp_path)

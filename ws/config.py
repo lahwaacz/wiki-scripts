@@ -60,6 +60,9 @@ class ConfigParser(configparser.ConfigParser):
 
         option_dict = dict(self.items(section))
         for key, value in option_dict.items():
+            if len(key) == 1:
+                msg = "short options are not allowed in a config file: '{}'".format(key)
+                raise argparse.ArgumentTypeError(msg)
             value = value.strip()
             if value.startswith("["):
                 option_dict[key] = [str(item) for item in json.loads(value)]
