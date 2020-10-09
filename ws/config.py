@@ -69,7 +69,7 @@ class ConfigParser(configparser.ConfigParser):
         if to_list is True:
             option_list = []
             for key, value in option_dict.items():
-                option_list.append('--' + key)
+                option_list.append("--" + key)
                 if isinstance(value, list):
                     option_list.extend(value)
                 else:
@@ -199,7 +199,7 @@ def parse_args(argparser, section=None):
     _, remainder = argparser.parse_known_args(config_args + cli_args, namespace=args)
     unrecogn_cli_args = []
     for item in remainder:
-        if item.startswith('-') and item in cli_args:
+        if item.startswith("-") and item in cli_args:
             unrecogn_cli_args.append(item)
     if unrecogn_cli_args:
         argparser.error("unrecognized arguments: {}".format(" ".join(unrecogn_cli_args)))
