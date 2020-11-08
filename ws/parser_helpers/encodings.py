@@ -86,7 +86,7 @@ def _anchor_preprocess(str_):
     .. _`MediaWiki`: https://www.mediawiki.org/wiki/Manual:PAGENAMEE_encoding
     """
     # underscores are treated as spaces during this pre-processing, so they are
-    # convert to spaces first (the encoding later converts them back)
+    # converted to spaces first (the encoding later converts them back)
     str_ = str_.replace("_", " ")
     # strip leading + trailing whitespace
     str_ = str_.strip()
