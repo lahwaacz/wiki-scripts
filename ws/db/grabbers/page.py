@@ -382,7 +382,7 @@ class GrabberPages(GrabberBase):
                     deleted_pageids.add(le["logpage"])
                 else:
                     modified.add(le["logpage"])
-                    if le["action"] == "move":
+                    if le["action"] in {"move", "move_redir"}:
                         moved.append((le["logpage"], le["params"]))
             elif le["type"] == "suppress" and le["action"] == "delete":
                 deleted_pageids.add(le["logpage"])
