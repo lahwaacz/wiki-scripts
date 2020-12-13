@@ -245,7 +245,7 @@ class PageUpdater:
             apfrom = _title.pagename
 
         for ns in namespaces:
-            for page in self.api.generator(generator="allpages", gaplimit="100", gapfilterredir="nonredirects", gapnamespace=ns, gapfrom=apfrom,
+            for page in self.api.generator(generator="allpages", gaplimit="100", gapnamespace=ns, gapfrom=apfrom,
                                            prop="revisions", rvprop="content|timestamp", rvslots="main"):
                 # if the user is not logged in, the limit for revisions may be lower than gaplimit,
                 # in which case the generator will yield some pages multiple times without revisions

@@ -2,7 +2,6 @@
 
 # TODO:
 #   detect self-redirects (definitely interactive only)
-#   detect and fix redirects with broken section fragments
 #   warn if the link leads to an archived page
 
 import difflib
