@@ -71,6 +71,31 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
     # alternative text. It is not possible to change extlink to other node type
     # such as wikilink here.
     url_replacements = [
+        # Archweb
+
+        # people
+        ("update old archweb people URLs to archlinux.org/people/",
+         r"https?\:\/\/(?:www\.)?archlinux\.org\/(?P<group>developers|fellows|trustedusers)\/(?P<person>#.+)?",
+            "https://archlinux.org/people/{{group | replace ('fellows', 'developer-fellows') | replace('trustedusers', 'trusted-users')}}/{% if person is not none %}{{person}}{% endif %}"),
+
+        # mailman
+        ("update old mailman URLs from archlinux.org/mailman/listinfo/ to lists.archlinux.org/listinfo/",
+            r"https?\:\/\/(?:www\.)?archlinux\.org\/mailman\/listinfo\/(?P<mailinglist>.+)?",
+            "https://lists.archlinux.org/listinfo/{% if mailinglist is not none %}{{mailinglist}}{% endif %}"),
+        ("update old mailman URLs from archlinux.org/pipermail/ to lists.archlinux.org/pipermail/",
+            r"https?\:\/\/(?:www\.)?archlinux\.org\/pipermail\/(?P<mail>.+)?",
+            "https://lists.archlinux.org/pipermail/{% if mail is not none %}{{mail}}{% endif %}"),
+
+        # ancient php pages
+        ("update ancient archweb URLs from archlinux.org/*.php to archlinux.org/*/",
+            r"https?\:\/\/(?:www\.)?archlinux\.org\/(?P<page>.+?)\.php",
+            "https://archlinux.org/{{page}}/"),
+
+        # Archweb
+        ("update archweb URLs from www.archlinux.org to archlinux.org",
+            r"https?\:\/\/www\.archlinux\.org(?P<path>\/.*)?",
+            "https://archlinux.org{% if path is not none %}{{path}}{% endif %}"),
+
         # migration of Arch's git URLs
 
         # svntogit commits
