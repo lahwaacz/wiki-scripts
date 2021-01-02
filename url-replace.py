@@ -7,7 +7,7 @@ from ws.pageupdater import PageUpdater
 
 class Updater(PageUpdater):
     force_interactive = True
-    skip_pages = ["Help:Editing"]
+    skip_pages = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
