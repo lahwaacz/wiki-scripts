@@ -14,7 +14,7 @@ __all__ = ["ManTemplateChecker"]
 
 
 class ManTemplateChecker(ExtlinkStatusChecker):
-    man_url_prefix = "https://jlk.fjfi.cvut.cz/arch/manpages/man/"
+    man_url_prefix = "https://man.archlinux.org/man/"
 
     def __init__(self, api, db, **kwargs):
         super().__init__(api, db, **kwargs)
