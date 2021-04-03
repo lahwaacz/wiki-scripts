@@ -229,10 +229,14 @@ class WikilinkChecker(CheckerBase):
         if wikilink.title[1:] != new[1:]:
             first_letter = wikilink.title[0]
             wikilink.title = new
-            # preserve the case of the first letter if the rest differs only in spaces/underscores
-            # (e.g. don't replace [[environment_variables]] with [[Environment variables]])
-            if wikilink.title[1:].replace(" ", "_") == new[1:].replace(" ", "_"):
-                wikilink.title = first_letter + wikilink.title[1:]
+            # if the displaytitle has first letter lowercase, it is used
+            # (e.g. from [[Template:Lowercase title]])
+            if not new[0].islower():
+                # otherwise preserve the case of the first letter if the rest
+                # differs only in spaces/underscores (e.g. don't replace
+                # [[environment_variables]] with [[Environment variables]])
+                if wikilink.title[1:].replace(" ", "_") == new[1:].replace(" ", "_"):
+                    wikilink.title = first_letter + wikilink.title[1:]
             title.parse(wikilink.title)
 
     def check_anchor(self, src_title, wikilink, title):
