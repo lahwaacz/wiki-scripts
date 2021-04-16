@@ -2,12 +2,16 @@
 
 import re
 import logging
+import os.path
+import json
 
 import mwparserfromhell
 import jinja2
 
 from .CheckerBase import get_edit_summary_tracker
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
+from .https_everywhere.rules import Ruleset
+from .https_everywhere.rule_trie import RuleTrie
 from ws.utils import LazyProperty
 from ws.parser_helpers.wikicode import ensure_unflagged_by_template
 
@@ -141,9 +145,14 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         # TODO: use Special:Permalink on ArchWiki: https://wiki.archlinux.org/index.php?title=Pacman/Tips_and_tricks&diff=next&oldid=630006
     ]
 
-    # a set of domains for which http should be updated to https
-    # Note that a very limited globbing is supported: the "*." prefix can be used to match
-    # zero or more subdomains (e.g. "*.foo.bar" matches "foo.bar", "sub1.sub2.foo.bar", etc.)
+    https_everywhere_rules_path = os.path.join(os.path.dirname(__file__), "https_everywhere/default.rulesets.json")
+
+    # additional set of domains for which http should be updated to https
+    # (because HTTPS Everywhere does not have rules e.g. for *.archlinux.org,
+    # which redirects itself from http to https)
+    # Note that a very limited globbing is supported: the "*." prefix can be
+    # used to match zero or more subdomains (e.g. "*.foo.bar" matches "foo.bar",
+    # "sub1.sub2.foo.bar", etc.)
     http_to_https_domains = {
         "*.archlinux.org",
         "*.wikimedia.org",
@@ -158,30 +167,9 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         "*.wikidata.org",
         "*.wikivoyage.org",
         "*.wikimediafoundation.org",
-        "*.stackexchange.com",
-        "*.stackoverflow.com",
-        "*.askubuntu.com",
-        "*.serverfault.com",
-        "*.superuser.com",
-        "*.mathoverflow.net",
         "*.github.com",
         "*.github.io",
-        "*.gitlab.com",
         "*.bitbucket.org",
-        "sourceforge.net",   # some subdomains are http only
-        "*.freedesktop.org",
-        "*.kernel.org",
-        "*.gnu.org",
-        "*.fsf.org",
-        "tldp.org",   # some subdomains are http only
-        "*.microsoft.com",
-        "*.blogspot.com",
-        "*.wordpress.com",
-        "*.mozilla.org",
-        "*.mozilla.com",
-        "*.kde.org",
-        "*.gnome.org",
-        "*.archive.org",
     }
 
     def __init__(self, api, db, **kwargs):
@@ -208,6 +196,15 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                 regex_parts.append(r"(www\.)?" + re.escape(pattern))
         regex = "(" + "|".join(regex_parts) + ")"
         self.http_to_https_domains_regex = re.compile(regex)
+
+        self.https_everywhere_rules = RuleTrie()
+        data = json.load(open(self.https_everywhere_rules_path, "r"))
+        for r in data:
+            ruleset = Ruleset(r, "<unknown file>")
+            if ruleset.defaultOff:
+                logging.debug("Skipping HTTPS Everywhere rule '{}', reason: {}".format(ruleset.name, ruleset.defaultOff))
+                continue
+            self.https_everywhere_rules.addRuleset(ruleset)
 
     @LazyProperty
     def wikisite_extlink_regex(self):
@@ -326,13 +323,24 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         return False
 
     def check_http_to_https(self, wikicode, extlink, url):
-        if url.scheme == "http" and self.http_to_https_domains_regex.fullmatch(str(url.host)):
+        if url.scheme != "http":
+            return
+
+        # check HTTPS Everywhere rules first
+        if self.https_everywhere_rules.matchingRulesets(url.netloc.lower()):
+            match = self.https_everywhere_rules.transformUrl(url)
+            new_url = match.url
+        # check additional list
+        elif self.http_to_https_domains_regex.fullmatch(str(url.host)):
             new_url = str(extlink.url).replace("http://", "https://", 1)
-            # there is no reason to update broken links
-            if self.check_url(new_url):
-                extlink.url = new_url
-            else:
-                logger.warning("broken URL not updated to https: {}".format(url))
+        else:
+            return
+
+        # there is no reason to update broken links
+        if self.check_url(new_url):
+            extlink.url = new_url
+        else:
+            logger.warning("broken URL not updated to https: {}".format(url))
 
     def update_extlink(self, wikicode, extlink, summary_parts):
         # prepare URL - fix parsing of adjacent templates, replace HTML entities, parse with urllib3
@@ -363,7 +371,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
         # this is run as the last step to avoid an unnecessary edit summary in
         # case a http link matches a previous replacement rule
-        with summary("update http to https for known domains"):
+        with summary("update http to https"):
             self.check_http_to_https(wikicode, extlink, url)
 
     def handle_node(self, src_title, wikicode, node, summary_parts):
