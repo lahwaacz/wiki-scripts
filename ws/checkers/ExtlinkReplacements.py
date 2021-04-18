@@ -7,6 +7,7 @@ import json
 
 import mwparserfromhell
 import jinja2
+from hstspreload import in_hsts_preload
 
 from .CheckerBase import get_edit_summary_tracker
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
@@ -147,31 +148,6 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
     https_everywhere_rules_path = os.path.join(os.path.dirname(__file__), "https_everywhere/default.rulesets.json")
 
-    # additional set of domains for which http should be updated to https
-    # (because HTTPS Everywhere does not have rules e.g. for *.archlinux.org,
-    # which redirects itself from http to https)
-    # Note that a very limited globbing is supported: the "*." prefix can be
-    # used to match zero or more subdomains (e.g. "*.foo.bar" matches "foo.bar",
-    # "sub1.sub2.foo.bar", etc.)
-    http_to_https_domains = {
-        "*.archlinux.org",
-        "*.wikimedia.org",
-        "*.wikipedia.org",
-        "*.wiktionary.org",
-        "*.wikiquote.org",
-        "*.wikibooks.org",
-        "*.wikisource.org",
-        "*.wikinews.org",
-        "*.wikiversity.org",
-        "*.mediawiki.org",
-        "*.wikidata.org",
-        "*.wikivoyage.org",
-        "*.wikimediafoundation.org",
-        "*.github.com",
-        "*.github.io",
-        "*.bitbucket.org",
-    }
-
     def __init__(self, api, db, **kwargs):
         super().__init__(api, db, **kwargs)
 
@@ -186,16 +162,6 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             compiled = re.compile(url_regex)
             _url_replacements.append( (edit_summary, compiled, url_replacement) )
         self.url_replacements = _url_replacements
-
-        regex_parts = []
-        for pattern in self.http_to_https_domains:
-            if pattern.startswith("*."):
-                domain = pattern[2:]
-                regex_parts.append(r"(?:[a-zA-Z0-9-_\.]+\.)?" + re.escape(domain))
-            else:
-                regex_parts.append(r"(www\.)?" + re.escape(pattern))
-        regex = "(" + "|".join(regex_parts) + ")"
-        self.http_to_https_domains_regex = re.compile(regex)
 
         self.https_everywhere_rules = RuleTrie()
         data = json.load(open(self.https_everywhere_rules_path, "r"))
@@ -326,13 +292,14 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         if url.scheme != "http":
             return
 
-        # check HTTPS Everywhere rules first
-        if self.https_everywhere_rules.matchingRulesets(url.netloc.lower()):
+        # check HSTS preload list first
+        # (Chromium's static list of sites supporting HTTP Strict Transport Security)
+        if in_hsts_preload(url.netloc.lower()):
+            new_url = str(extlink.url).replace("http://", "https://", 1)
+        # check HTTPS Everywhere rules next
+        elif self.https_everywhere_rules.matchingRulesets(url.netloc.lower()):
             match = self.https_everywhere_rules.transformUrl(url)
             new_url = match.url
-        # check additional list
-        elif self.http_to_https_domains_regex.fullmatch(str(url.host)):
-            new_url = str(extlink.url).replace("http://", "https://", 1)
         else:
             return
 

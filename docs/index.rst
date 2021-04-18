@@ -108,12 +108,14 @@ The following are required only by some scripts:
 - `Pygments`_ (alternative highlighter when WikEdDiff is not available)
 - `pyalpm`_ (for ``update-package-templates.py``)
 - `NumPy`_ and `matplotlib`_ (for ``statistics_histograms.py``)
+- `hstspreload`_ (for ``link-checker.py`` and ``url-replace.py``)
 
 .. _WikEdDiff: https://github.com/lahwaacz/python-wikeddiff
 .. _Pygments: http://pygments.org/
 .. _pyalpm: https://projects.archlinux.org/users/remy/pyalpm.git/
 .. _NumPy: http://www.numpy.org/
 .. _matplotlib: http://matplotlib.org/
+.. _hstspreload: https://github.com/sethmlarson/hstspreload
 
 Optional dependencies:
 
