@@ -51,6 +51,7 @@ __languages = [
     {"name": "Türkçe", "subtag": "tr", "english": "Turkish"},
     {"name": "Українська", "subtag": "uk", "english": "Ukrainian"},
     {"name": "Tiếng Việt", "subtag": "vi", "english": "Vietnamese"},
+    {"name": "粵語", "subtag": "yue", "english": "Cantonese"},
     {"name": "简体中文", "subtag": "zh-hans", "english": "Chinese (Simplified)"},
     {"name": "正體中文", "subtag": "zh-hant", "english": "Chinese (Traditional)"},
 ]
