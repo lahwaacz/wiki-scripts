@@ -55,39 +55,6 @@ __languages = [
     {"name": "简体中文", "subtag": "zh-hans", "english": "Chinese (Simplified)"},
     {"name": "正體中文", "subtag": "zh-hant", "english": "Chinese (Traditional)"},
 ]
-# languages that have a category "Category:<lang>" on ArchWiki
-__category_languages = [
-    "العربية",
-    "Bosanski",
-    "Български",
-    "Català",
-    "Čeština",
-    "Dansk",
-    "Ελληνικά",
-    "English",
-    "Esperanto",
-    "Español",
-    "Suomi",
-    "עברית",
-    "Hrvatski",
-    "Magyar",
-    "Bahasa Indonesia",
-    "Italiano",
-    "日本語",
-    "한국어",
-    "Lietuvių",
-    "Norsk Bokmål",
-    "Nederlands",
-    "Polski",
-    "Português",
-    "Русский",
-    "Slovenčina",
-    "Српски",
-    "ไทย",
-    "Українська",
-    "简体中文",
-    "正體中文"
-]
 # languages with right-to-left script
 __rtl = ["ar", "he"]
 __interlanguage_external = ["de", "fa", "fr", "ja", "sv"]
@@ -117,13 +84,6 @@ def get_language_tags():
 
 def is_language_tag(tag):
     return tag.lower() in get_language_tags()
-
-
-def get_category_languages():
-    return __category_languages
-
-def is_category_language(lang):
-    return lang in get_category_languages()
 
 
 def is_rtl_tag(tag):

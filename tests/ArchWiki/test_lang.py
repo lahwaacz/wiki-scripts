@@ -8,7 +8,6 @@ from ws.ArchWiki.lang import *
 language_names = ["العربية", "Bosanski", "Български", "Català", "Čeština", "Dansk", "Deutsch", "Ελληνικά", "English", "Esperanto", "Español", "فارسی", "Suomi", "Français", "עברית", "Hrvatski", "Magyar", "Bahasa Indonesia", "Italiano", "日本語", "한국어", "Lietuvių", "Norsk Bokmål", "Nederlands", "Polski", "Português", "Română", "Русский", "Slovenčina", "Српски", "Svenska", "ไทย", "Türkçe", "Українська", "Tiếng Việt", "粵語", "简体中文", "正體中文"]
 english_language_names = ["Arabic", "Bosnian", "Bulgarian", "Catalan", "Czech", "Danish", "German", "Greek", "English", "Esperanto", "Spanish", "Persian", "Finnish", "French", "Hebrew", "Croatian", "Hungarian", "Indonesian", "Italian", "Japanese", "Korean", "Lithuanian", "Norwegian (Bokmål)", "Dutch", "Polish", "Portuguese", "Romanian", "Russian", "Slovak", "Serbian", "Swedish", "Thai", "Turkish", "Ukrainian", "Vietnamese", "Cantonese", "Chinese (Simplified)", "Chinese (Traditional)"]
 language_tags = ["ar", "bs", "bg", "ca", "cs", "da", "de", "el", "en", "eo", "es", "fa", "fi", "fr", "he", "hr", "hu", "id", "it", "ja", "ko", "lt", "nb", "nl", "pl", "pt", "ro", "ru", "sk", "sr", "sv", "th", "tr", "uk", "vi", "yue", "zh-hans", "zh-hant"]
-category_languages = ["العربية", "Bosanski", "Български", "Català", "Čeština", "Dansk", "Ελληνικά", "English", "Esperanto", "Español", "Suomi", "עברית", "Hrvatski", "Magyar", "Bahasa Indonesia", "Italiano", "日本語", "한국어", "Lietuvių", "Norsk Bokmål", "Nederlands", "Polski", "Português", "Русский", "Slovenčina", "Српски", "ไทย", "Українська", "简体中文", "正體中文"]
 external_tags = ["de", "fa", "fr", "ja", "sv"]
 internal_tags = ["ar", "bs", "bg", "cs", "da", "el", "en", "es", "fi", "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt", "ru", "sk", "sr", "th", "tr", "uk", "zh-hans", "zh-hant"]
 rtl_languages = ["עברית", "العربية"]
@@ -27,9 +26,6 @@ class test_getters:
 
     def test_get_language_tags(self):
         self._test(language_tags, get_language_tags)
-
-    def test_get_category_languages(self):
-        self._test(category_languages, get_category_languages)
 
     def test_get_external_tags(self):
         self._test(external_tags, get_external_tags)
@@ -51,9 +47,6 @@ class test_checkers:
     def test_is_language_tag(self):
         self._test(language_tags, is_language_tag)
 
-    def test_is_category_language(self):
-        self._test(category_languages, is_category_language)
-
     def test_is_rtl_tag(self):
         self._test(rtl_tags, is_rtl_tag)
 
@@ -66,20 +59,16 @@ class test_checkers:
     def test_is_internal_tag(self):
         self._test(internal_tags, is_internal_tag)
 
-class test_languages_data_sanity:
-    """
-    Tests sanity of the languages' data.
-    """
-
+#class test_languages_data_sanity:
+#    """
+#    Tests sanity of the languages' data.
+#    """
+#
 ## FIXME: failing because some tags are not supported (i.e. not registered in the
 ##        interwiki map on ArchWiki, see the table in
 ##        https://wiki.archlinux.org/index.php/Help:I18n
 #    def test_tags_concatenation(self):
 #        assert_count_equal(get_language_tags(), get_external_tags() + get_internal_tags())
-
-    def test_category_languages_validity(self):
-        for lang in get_category_languages():
-            assert is_language_name(lang) is True
 
 class test_conversion:
     # list of (targetlist, srclist, target_for_src_function) tuples
