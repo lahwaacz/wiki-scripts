@@ -415,6 +415,8 @@ def expand_templates(title, wikicode, content_getter_func, *,
 
     def get_target_title(src_title, title):
         target = Title(src_title.context, title)
+        if target.iwprefix:
+            raise TitleError("cannot expand templates from interwiki")
         if title.startswith("/"):
             return target.make_absolute(src_title)
         elif target.leading_colon:
