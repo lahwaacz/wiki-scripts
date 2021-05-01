@@ -5,10 +5,10 @@ import pytest
 from ws.ArchWiki.lang import *
 
 # data for testing (expected values)
-language_names = ["العربية", "Bosanski", "Български", "Català", "Česky", "Dansk", "Deutsch", "Ελληνικά", "English", "Esperanto", "Español", "فارسی", "Suomi", "Français", "עברית", "Hrvatski", "Magyar", "Indonesia", "Italiano", "日本語", "한국어", "Lietuviškai", "Norsk Bokmål", "Nederlands", "Polski", "Português", "Română", "Русский", "Slovenský", "Српски", "Svenska", "ไทย", "Türkçe", "Українська", "Tiếng Việt", "简体中文", "正體中文"]
-english_language_names = ["Arabic", "Bosnian", "Bulgarian", "Catalan", "Czech", "Danish", "German", "Greek", "English", "Esperanto", "Spanish", "Persian", "Finnish", "French", "Hebrew", "Croatian", "Hungarian", "Indonesian", "Italian", "Japanese", "Korean", "Lithuanian", "Norwegian (Bokmål)", "Dutch", "Polish", "Portuguese", "Romanian", "Russian", "Slovak", "Serbian", "Swedish", "Thai", "Turkish", "Ukrainian", "Vietnamese", "Chinese (Simplified)", "Chinese (Traditional)"]
-language_tags = ["ar", "bs", "bg", "ca", "cs", "da", "de", "el", "en", "eo", "es", "fa", "fi", "fr", "he", "hr", "hu", "id", "it", "ja", "ko", "lt", "nb", "nl", "pl", "pt", "ro", "ru", "sk", "sr", "sv", "th", "tr", "uk", "vi", "zh-hans", "zh-hant"]
-category_languages = ["العربية", "Bosanski", "Български", "Català", "Česky", "Dansk", "Ελληνικά", "English", "Esperanto", "Español", "Suomi", "עברית", "Hrvatski", "Magyar", "Indonesia", "Italiano", "日本語", "한국어", "Lietuviškai", "Norsk Bokmål", "Nederlands", "Polski", "Português", "Русский", "Slovenský", "Српски", "ไทย", "Українська", "简体中文", "正體中文"]
+language_names = ["العربية", "Bosanski", "Български", "Català", "Čeština", "Dansk", "Deutsch", "Ελληνικά", "English", "Esperanto", "Español", "فارسی", "Suomi", "Français", "עברית", "Hrvatski", "Magyar", "Bahasa Indonesia", "Italiano", "日本語", "한국어", "Lietuvių", "Norsk Bokmål", "Nederlands", "Polski", "Português", "Română", "Русский", "Slovenčina", "Српски", "Svenska", "ไทย", "Türkçe", "Українська", "Tiếng Việt", "粵語", "简体中文", "正體中文"]
+english_language_names = ["Arabic", "Bosnian", "Bulgarian", "Catalan", "Czech", "Danish", "German", "Greek", "English", "Esperanto", "Spanish", "Persian", "Finnish", "French", "Hebrew", "Croatian", "Hungarian", "Indonesian", "Italian", "Japanese", "Korean", "Lithuanian", "Norwegian (Bokmål)", "Dutch", "Polish", "Portuguese", "Romanian", "Russian", "Slovak", "Serbian", "Swedish", "Thai", "Turkish", "Ukrainian", "Vietnamese", "Cantonese", "Chinese (Simplified)", "Chinese (Traditional)"]
+language_tags = ["ar", "bs", "bg", "ca", "cs", "da", "de", "el", "en", "eo", "es", "fa", "fi", "fr", "he", "hr", "hu", "id", "it", "ja", "ko", "lt", "nb", "nl", "pl", "pt", "ro", "ru", "sk", "sr", "sv", "th", "tr", "uk", "vi", "yue", "zh-hans", "zh-hant"]
+category_languages = ["العربية", "Bosanski", "Български", "Català", "Čeština", "Dansk", "Ελληνικά", "English", "Esperanto", "Español", "Suomi", "עברית", "Hrvatski", "Magyar", "Bahasa Indonesia", "Italiano", "日本語", "한국어", "Lietuvių", "Norsk Bokmål", "Nederlands", "Polski", "Português", "Русский", "Slovenčina", "Српски", "ไทย", "Українська", "简体中文", "正體中文"]
 external_tags = ["de", "fa", "fr", "ja", "sv"]
 internal_tags = ["ar", "bs", "bg", "cs", "da", "el", "en", "es", "fi", "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt", "ru", "sk", "sr", "th", "tr", "uk", "zh-hans", "zh-hant"]
 rtl_languages = ["עברית", "العربية"]
@@ -107,21 +107,21 @@ class test_detect_language:
         "": ("", default),
         "foo": ("foo", default),
         "foo (bar)": ("foo (bar)", default),
-        "foo (Česky)": ("foo", "Česky"),
+        "foo (Čeština)": ("foo", "Čeština"),
         "foo_bar": ("foo_bar", default),
-        "foo_(Česky)": ("foo", "Česky"),
-        "foo(Česky)": ("foo(Česky)", default),
+        "foo_(Čeština)": ("foo", "Čeština"),
+        "foo(Čeština)": ("foo(Čeština)", default),
         "foo/bar": ("foo/bar", default),
 
         # ArchWiki uses only one scheme, but wiki-scripts should detect both
         # schemes to not be confused by users' errors. See also FS#39668:
         # https://bugs.archlinux.org/task/39668
-        "foo/bar (Česky)": ("foo/bar", "Česky"),
-        "foo (Česky)/bar": ("foo/bar", "Česky"),
+        "foo/bar (Čeština)": ("foo/bar", "Čeština"),
+        "foo (Čeština)/bar": ("foo/bar", "Čeština"),
         # new scheme as of 2019:
         # https://wiki.archlinux.org/index.php?title=Help_talk:I18n&oldid=624942#Localized_subpages
-        "foo (Česky)/bar (Česky)": ("foo/bar", "Česky"),
-        "foo (Italiano)/bar (Česky)": ("foo (Italiano)/bar", "Česky"),
+        "foo (Čeština)/bar (Čeština)": ("foo/bar", "Čeština"),
+        "foo (Italiano)/bar (Čeština)": ("foo (Italiano)/bar", "Čeština"),
 
         # this case used to be for old pages, the suffix for English pages is not used
         # nevertheless it is useful to keep the algorithm simple
@@ -129,7 +129,7 @@ class test_detect_language:
 
         # language categories
         "Category:Foo": ("Category:Foo", default),
-        "Category:Česky": ("Category:Česky", "Česky"),
+        "Category:Čeština": ("Category:Čeština", "Čeština"),
     }
 
     @pytest.mark.parametrize("title, expected", testsuite.items())
@@ -153,19 +153,19 @@ class test_format_title:
         "": ("", default),
         "foo": ("foo", default),
         "foo (bar)": ("foo (bar)", default),
-        "foo (Česky)": ("foo", "Česky"),
+        "foo (Čeština)": ("foo", "Čeština"),
         "foo bar": ("foo bar", default),
-        "foo (Česky)": ("foo", "Česky"),
-        "foo(Česky)": ("foo(Česky)", default),
+        "foo (Čeština)": ("foo", "Čeština"),
+        "foo(Čeština)": ("foo(Čeština)", default),
         "foo/bar": ("foo/bar", default),
 
         # new scheme as of 2019:
         # https://wiki.archlinux.org/index.php?title=Help_talk:I18n&oldid=624942#Localized_subpages
-        "foo (Česky)/bar (Česky)": ("foo/bar", "Česky"),
+        "foo (Čeština)/bar (Čeština)": ("foo/bar", "Čeština"),
 
         # language categories
         "Category:Foo": ("Category:Foo", default),
-        "Category:Česky": ("Category:Česky", "Česky"),
+        "Category:Čeština": ("Category:Čeština", "Čeština"),
     }
 
     @pytest.mark.parametrize("title, expected", testsuite.items())
