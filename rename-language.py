@@ -40,12 +40,11 @@ class Renamer:
             new_title = title.replace(f"({lang})", f"({new_lang})")
 
         summary = self.edit_summary.format(old_lang=lang, new_lang=new_lang)
-        # TODO
         logger.info(f"Move [[{title}]] to [[{new_title}]] ({summary})")
         try:
-            self.api.move(title, new_title, summary)
+            self.api.move(title, new_title, summary, movesubpages=False)
         except APIError:
-            # skip errors (e.g. when a subpage was already moved)
+            # skip errors
             pass
 
     def check_allpages(self):
