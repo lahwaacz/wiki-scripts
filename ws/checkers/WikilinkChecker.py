@@ -15,6 +15,7 @@ import ws.ArchWiki.lang as lang
 from ws.parser_helpers.encodings import dotencode
 from ws.parser_helpers.title import canonicalize, TitleError, InvalidTitleCharError
 from ws.parser_helpers.wikicode import get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template
+from ws.db.selects.interwiki_redirects import get_interwiki_redirects
 
 __all__ = ["WikilinkChecker"]
 
@@ -64,6 +65,9 @@ class WikilinkChecker(CheckerBase):
                 continue
             for page in self.api.generator(generator="allpages", gaplimit="max", gapnamespace=ns, prop="info", inprop="displaytitle"):
                 self.displaytitles[page["title"]] = page["displaytitle"]
+
+        # mapping of interwiki redirects (the API does not have a query for this)
+        self.interwiki_redirects = get_interwiki_redirects(self.db)
 
         self.void_update_cache = set()
 
@@ -260,6 +264,10 @@ class WikilinkChecker(CheckerBase):
         # determine target page
         _target_title = title.make_absolute(src_title)
 
+        # we can't check interwiki links
+        if _target_title.fullpagename in self.interwiki_redirects:
+            return None
+
         # skip links to special pages (e.g. [[Special:Preferences#mw-prefsection-rc]])
         if _target_title.namespacenumber < 0:
             return None
@@ -268,6 +276,7 @@ class WikilinkChecker(CheckerBase):
         anchor_on_redirect_to_section = False
         if _target_title.fullpagename in self.api.redirects.map:
             _target_title = self.api.Title(self.api.redirects.resolve(_target_title.fullpagename))
+            # check double-anchor redirects
             if _target_title.sectionname:
                 logger.warning("warning: section fragment placed on a redirect to possibly different section: {}".format(wikilink))
                 anchor_on_redirect_to_section = True
