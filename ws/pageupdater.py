@@ -26,6 +26,9 @@ class PageUpdater:
     skip_pages = []
     skip_templates = {"Broken package link", "Broken section link", "Dead link"}
 
+    # either "all", "nonredirects", or "redirects"
+    apfilterredir = "all"
+
     # number of threads to use for the update_page processing
     # WARNING: threading in update_page is not safe:
     #   - modifications to the wikicode has to be synchronized
@@ -245,7 +248,7 @@ class PageUpdater:
             apfrom = _title.pagename
 
         for ns in namespaces:
-            for page in self.api.generator(generator="allpages", gaplimit="100", gapnamespace=ns, gapfrom=apfrom,
+            for page in self.api.generator(generator="allpages", gaplimit="100", gapnamespace=ns, gapfrom=apfrom, gapfilterredir=self.apfilterredir,
                                            prop="revisions", rvprop="content|timestamp", rvslots="main"):
                 # if the user is not logged in, the limit for revisions may be lower than gaplimit,
                 # in which case the generator will yield some pages multiple times without revisions
