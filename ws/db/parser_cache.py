@@ -488,3 +488,11 @@ class ParserCache:
     def invalidate_all(self):
         with self.db.engine.begin() as conn:
             conn.execute(self.db.ws_parser_cache_sync.delete())
+
+    def invalidate_pageids(self, pageids):
+        with self.db.engine.begin() as conn:
+            conn.execute(self.db.ws_parser_cache_sync.delete()
+                    .where(
+                        self.db.ws_parser_cache_sync.c.wspc_page_id.in_(pageids)
+                    )
+                )

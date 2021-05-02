@@ -12,7 +12,7 @@ import requests.packages.urllib3 as urllib3
 
 from ws.client import API
 from ws.interactive import require_login
-from ws.db.database import Database
+from ws.db.database import Database, parser_cache
 from ws.utils.containers import dmerge
 import ws.diff
 from ws.parser_helpers.encodings import urldecode
@@ -38,7 +38,7 @@ def _check_entries(i, db_entry, api_entry):
         _pprint_diff(i, db_entry, api_entry)
         raise
 
-def _check_lists(db_list, api_list, *, key=None):
+def _check_lists(db_list, api_list, *, key=None, db=None):
     if key is not None and len(db_list) != len(api_list):
         print("Lists have different lengths: {} vs {}".format(len(db_list), len(api_list)))
         db_keys = set(item[key] for item in db_list)
@@ -66,26 +66,33 @@ def _check_lists(db_list, api_list, *, key=None):
         try:
             assert len(db_list) == len(api_list), "{} vs. {}".format(len(db_list), len(api_list))
             last_assert_exc = None
+            invalid_keys = set()
             for i, entries in enumerate(zip(db_list, api_list)):
                 db_entry, api_entry = entries
                 try:
                     _check_entries(i, db_entry, api_entry)
                 except AssertionError as e:
+                    if key:
+                        invalid_keys.add(db_entry[key])
                     last_assert_exc = e
                     pass
+            if db and key == "pageid" and invalid_keys:
+                cache = parser_cache.ParserCache(db)
+                cache.invalidate_pageids(invalid_keys)
+                print("Invalidated pageids in the parser cache:", invalid_keys)
             if last_assert_exc is not None:
                 raise AssertionError from last_assert_exc
         except AssertionError:
             traceback.print_exc()
 
-def _check_lists_of_unordered_pages(db_list, api_list):
+def _check_lists_of_unordered_pages(db_list, api_list, *, db=None):
     # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
     # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
     # TODO: if we connect to MediaWiki running on PostgreSQL, its locale might be anything...
     api_list = sorted(api_list, key=lambda item: item["pageid"])
     db_list = sorted(db_list, key=lambda item: item["pageid"])
 
-    _check_lists(db_list, api_list, key="pageid")
+    _check_lists(db_list, api_list, key="pageid", db=db)
 
 # pages may be yielded multiple times, so we need to merge them manually
 def _squash_list_of_dicts(api_list, *, key="pageid"):
@@ -451,7 +458,7 @@ def check_templatelinks(api, db):
     for entry in api_list:
         entry.get("templates", []).sort(key=lambda t: (t["ns"], t["title"]))
 
-    _check_lists_of_unordered_pages(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
 
 def check_pagelinks(api, db):
@@ -474,7 +481,7 @@ def check_pagelinks(api, db):
         page.get("links", []).sort(key=lambda d: (d["ns"], d["title"]))
         page.get("linkshere", []).sort(key=lambda d: (d["pageid"]))
 
-    _check_lists_of_unordered_pages(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
 
 def check_imagelinks(api, db):
@@ -491,7 +498,7 @@ def check_imagelinks(api, db):
     api_list = list(api.generator(**params, prop="|".join(prop)))
     api_list = _squash_list_of_dicts(api_list)
 
-    _check_lists_of_unordered_pages(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
 
 def check_categorylinks(api, db):
@@ -531,7 +538,7 @@ def check_categorylinks(api, db):
             if not page["categories"]:
                 del page["categories"]
 
-    _check_lists_of_unordered_pages(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
 
 def check_interwiki_links(api, db):
@@ -566,7 +573,7 @@ def check_interwiki_links(api, db):
         page.get("langlinks", []).sort(key=lambda d: (d["lang"], d["*"]))
         page.get("iwlinks", []).sort(key=lambda d: (d["prefix"], d["*"]))
 
-    _check_lists_of_unordered_pages(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
 
 def check_external_links(api, db):
@@ -609,7 +616,7 @@ def check_external_links(api, db):
         if "extlinks" in page:
             page["extlinks"].sort(key=lambda d: d["*"])
 
-    _check_lists_of_unordered_pages(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
 
 def check_redirects(api, db):
@@ -627,7 +634,7 @@ def check_redirects(api, db):
     api_list = list(api.generator(**params, prop="|".join(prop), rdprop="|".join(rdprop)))
     api_list = _squash_list_of_dicts(api_list)
 
-    _check_lists_of_unordered_pages(db_list, api_list)
+    _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
 
 if __name__ == "__main__":
