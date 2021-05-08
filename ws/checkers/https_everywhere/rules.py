@@ -91,7 +91,9 @@ class Ruleset(object):
 
     # extracts value of first attribute in list as a string
     def _strAttr(attrList):
-        return attrList[0]
+        if isinstance(attrList, list):
+            return attrList[0]
+        return attrList
 
     # extract attribute value
     def _targetAttrs(attrList):
