@@ -13,6 +13,7 @@ from .CheckerBase import get_edit_summary_tracker
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
 from .https_everywhere.rules import Ruleset
 from .https_everywhere.rule_trie import RuleTrie
+from .smarter_encryption_list import SmarterEncryptionList
 from ws.utils import LazyProperty
 from ws.parser_helpers.wikicode import ensure_unflagged_by_template
 
@@ -172,6 +173,11 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                 continue
             self.https_everywhere_rules.addRuleset(ruleset)
 
+        # pass timeout and max_retries
+        self.selist = SmarterEncryptionList(**kwargs)
+        assert "wiki.archlinux.org" in self.selist
+        assert "foo" not in self.selist
+
     @LazyProperty
     def wikisite_extlink_regex(self):
         general = self.api.site.general
@@ -300,6 +306,9 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         elif self.https_everywhere_rules.matchingRulesets(url.netloc.lower()):
             match = self.https_everywhere_rules.transformUrl(url)
             new_url = match.url
+        # check the Smarter Encryption list
+        elif url.netloc.lower() in self.selist:
+            new_url = str(extlink.url).replace("http://", "https://", 1)
         else:
             return
 
