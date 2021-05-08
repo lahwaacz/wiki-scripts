@@ -142,7 +142,7 @@ class Connection:
         session.verify = ssl_verify
 
         # granular control over requests' retries: https://stackoverflow.com/a/35504626
-        retries = Retry(total=max_retries, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+        retries = Retry(total=max_retries, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
         adapter = requests.adapters.HTTPAdapter(max_retries=retries)
         session.mount("https://", adapter)
         session.mount("http://", adapter)
