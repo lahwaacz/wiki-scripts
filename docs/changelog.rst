@@ -29,6 +29,9 @@ Unreleased
   (:py:func:`ws.parser_helpers.wikicode.is_redirect`).
 - Fixed handling of relative links and leading colons in the :py:class:`Title
   <ws.parser_helpers.title.Title>` class.
+- The parameter `--ssl-verify` is removed, SSL certificates are always verified
+  for HTTPS requests. Furthermore, TLS 1.2 or newer is required for all HTTPS
+  requests.
 
 Version 1.2
 -----------

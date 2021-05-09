@@ -8,10 +8,12 @@
 import logging
 import datetime
 import ipaddress
+import ssl
 
 import mwparserfromhell
 import requests
 import requests.packages.urllib3 as urllib3
+from ws.utils import TLSAdapter
 
 from .CheckerBase import get_edit_summary_tracker, localize_flag, CheckerBase
 import ws.ArchWiki.lang as lang
@@ -29,7 +31,10 @@ class ExtlinkStatusChecker(CheckerBase):
 
         self.timeout = timeout
         self.session = requests.Session()
-        adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
+        # disallow TLS1.0 and TLS1.1, allow only TLS1.2 (and newer if suported
+        # by the used openssl version)
+        ssl_options = ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
+        adapter = TLSAdapter(ssl_options=ssl_options, max_retries=max_retries)
         self.session.mount("https://", adapter)
         self.session.mount("http://", adapter)
 

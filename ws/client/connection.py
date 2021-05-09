@@ -12,12 +12,13 @@ and making requests.
 
 import requests
 from requests.packages.urllib3.util.retry import Retry
+import ssl
 import http.cookiejar as cookielib
 import logging
 import copy
 
 from ws import __version__, __url__
-from ..utils import RateLimited, parse_timestamps_in_struct, serialize_timestamps_in_struct
+from ws.utils import TLSAdapter, RateLimited, parse_timestamps_in_struct, serialize_timestamps_in_struct
 
 logger = logging.getLogger(__name__)
 
@@ -139,9 +140,12 @@ class Connection:
         session.auth = _auth
         session.params.update({"format": "json"})
 
+        # disallow TLS1.0 and TLS1.1, allow only TLS1.2 (and newer if suported
+        # by the used openssl version)
+        ssl_options = ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
         # granular control over requests' retries: https://stackoverflow.com/a/35504626
         retries = Retry(total=max_retries, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
-        adapter = requests.adapters.HTTPAdapter(max_retries=retries)
+        adapter = TLSAdapter(ssl_options=ssl_options, max_retries=retries)
         session.mount("https://", adapter)
         session.mount("http://", adapter)
         return session

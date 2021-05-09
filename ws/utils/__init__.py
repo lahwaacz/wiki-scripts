@@ -9,6 +9,7 @@ from .json import *
 from .lazy import *
 from .OrderedSet import *
 from .rate import *
+from .TLSAdapter import *
 
 # test if given string is ASCII
 def is_ascii(text):
