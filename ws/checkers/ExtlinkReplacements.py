@@ -26,8 +26,9 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
     # list of (url_regex, text_cond, text_cond_flags, replacement) tuples, where:
     #   - url_regex: a regular expression matching the URL (using re.fullmatch)
     #   - text_cond:
-    #       - as str: a format string used to create the regular expression described above
-    #                 (it is formatted using the groups matched by url_regex)
+    #       - as str: a format string used to create the regular expression for
+    #                 matching the link's alternative text (it is formatted using
+    #                 the groups matched by url_regex)
     #       - as None: the extlink must not have any alternative text
     #   - text_cond_flags: flags for the text_cond regex
     #   - replacement: a format string used as a replacement (it is formatted
@@ -37,11 +38,17 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         # Arch bug tracker
         (re.escape("https://bugs.archlinux.org/task/") + r"(\d+)",
             "(FS|flyspray) *#?{0}", 0, "{{{{Bug|{0}}}}}"),
-        (re.escape("https://bugs.archlinux.org/task/") + r"(\d+)",
-            None, 0, "{{{{Bug|{0}}}}}"),
+        # URLs with brackets but without an alternative text should be left alone
+        #(re.escape("https://bugs.archlinux.org/task/") + r"(\d+)",
+        #    None, 0, "{{{{Bug|{0}}}}}"),
+
+        # exclude the replacement of some links using pkgbase - see [[Firefox]]
+        (r"https:\/\/www.archlinux.org\/packages\/extra\/(?:any)/(firefox-i18n)\/",
+            "{0}", re.IGNORECASE, "[https://www.archlinux.org/packages/extra/any/firefox-i18n/ {0}]"),
+        (r"https:\/\/www.archlinux.org\/packages\/community\/(?:any)\/(firefox-developer-edition-i18n)\/?",
+            "{0}", re.IGNORECASE, "[https://www.archlinux.org/packages/community/any/firefox-developer-edition-i18n/ {0}]"),
 
         # official packages, with and without alternative text
-        # FIXME: don't match pkgbase - see [[Firefox]]
         (r"https?\:\/\/(?:www\.)?archlinux\.org\/packages\/[\w-]+\/(?:any|i686|x86_64)\/([a-zA-Z0-9@._+-]+)\/?",
             "{0}", re.IGNORECASE, "{{{{Pkg|{0}}}}}"),
         (r"https?\:\/\/(?:www\.)?archlinux\.org\/packages\/[\w-]+\/(?:any|i686|x86_64)\/([a-zA-Z0-9@._+-]+)\/?",
@@ -129,6 +136,11 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         ("update links from addons.mozilla.org to addons.thunderbird.net",
             r"https?\:\/\/addons\.mozilla\.org/(?P<application>thunderbird|seamonkey)(?P<path>.+)?",
             "https://addons.thunderbird.net/{{application}}{% if path is not none %}{{path}}{% endif %}"),
+
+        # exclude the replacement of specific links
+        (None,
+            "https://www.kernel.org/doc/Documentation/filesystems/",
+            "https://www.kernel.org/doc/Documentation/filesystems/"),
 
         # kernel.org documentation links
         ("link to HTML version of kernel documentation",
