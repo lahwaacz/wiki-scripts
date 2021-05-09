@@ -100,7 +100,7 @@ class Connection:
         self.timeout = timeout
 
     @staticmethod
-    def make_session(user_agent=DEFAULT_UA, ssl_verify=None, max_retries=0,
+    def make_session(user_agent=DEFAULT_UA, max_retries=0,
                      cookie_file=None, cookiejar=None,
                      http_user=None, http_password=None):
         """
@@ -111,7 +111,6 @@ class Connection:
         is ignored.
 
         :param str user_agent: string sent as ``User-Agent`` header to the web server
-        :param bool ssl_verify: if ``True``, the SSL certificate will be verified
         :param int max_retries:
             Maximum number of retries for each connection. Applies only to
             failed DNS lookups, socket connections and connection timeouts, never
@@ -139,7 +138,6 @@ class Connection:
         session.headers.update({"user-agent": user_agent})
         session.auth = _auth
         session.params.update({"format": "json"})
-        session.verify = ssl_verify
 
         # granular control over requests' retries: https://stackoverflow.com/a/35504626
         retries = Retry(total=max_retries, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
@@ -164,8 +162,6 @@ class Connection:
                 help="the URL to the wiki's api.php (default: %(default)s)")
         group.add_argument("--index-url", metavar="URL",
                 help="the URL to the wiki's api.php (default: %(default)s)")
-        group.add_argument("--ssl-verify", default=True, type=ws.config.argtype_bool,
-                help="whether to verify SSL certificates (default: %(default)s)")
         group.add_argument("--connection-max-retries", default=3, type=int,
                 help="maximum number of retries for each connection (default: %(default)s)")
         group.add_argument("--connection-timeout", default=60, type=float,
@@ -193,11 +189,8 @@ class Connection:
             cookie_file = args.cache_dir + "/" + args.site + ".cookie"
         else:
             cookie_file = args.cookie_file
-        # retype from int to bool
-        args.ssl_verify = True if args.ssl_verify == 1 else False
 
-        session = Connection.make_session(ssl_verify=args.ssl_verify,
-                                          max_retries=args.connection_max_retries,
+        session = Connection.make_session(max_retries=args.connection_max_retries,
                                           cookie_file=cookie_file)
         return klass(args.api_url, args.index_url, session=session, timeout=args.connection_timeout)
 
