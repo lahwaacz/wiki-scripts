@@ -184,6 +184,11 @@ class ExtlinkStatusChecker(CheckerBase):
             self.cache_valid_urls.add(url)
             return True
         elif response.status_code >= 400 and response.status_code < 500:
+            # detect cloudflare captcha https://github.com/pielco11/fav-up/issues/13
+            if "CF-Chl-Bypass" in response.headers:
+                logger.warning("CloudFlare CAPTCHA detected for URL {}".format(url))
+                self.cache_indeterminate_urls.add(url)
+                return None
             logger.error("status code {} for URL {}".format(response.status_code, url))
             self.cache_invalid_urls[url] = response.status_code
             return False
