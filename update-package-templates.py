@@ -61,10 +61,9 @@ Include = /etc/pacman.d/mirrorlist
 """
 
 class PkgFinder:
-    def __init__(self, aurpkgs_url, tmpdir, ssl_verify):
+    def __init__(self, aurpkgs_url, tmpdir):
         self.aurpkgs_url = aurpkgs_url
         self.tmpdir = os.path.abspath(os.path.join(tmpdir, "wiki-scripts"))
-        self.ssl_verify = ssl_verify
 
         self.aurpkgs = None
         self.pacdb = self.pacdb_init(PACCONF, os.path.join(self.tmpdir, "pacdbpath"), arch="x86_64")
@@ -80,7 +79,7 @@ class PkgFinder:
 
     # sync database of AUR packages
     def aurpkgs_refresh(self, aurpkgs_url):
-        response = requests.get(aurpkgs_url, verify=self.ssl_verify)
+        response = requests.get(aurpkgs_url)
         response.raise_for_status()
         self.aurpkgs = set(line for line in response.text.splitlines() if not line.startswith("#"))
 
@@ -166,9 +165,9 @@ class PkgUpdater:
         "CVE",
     ]
 
-    def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify, report_dir, report_page, interactive=False):
+    def __init__(self, api, aurpkgs_url, tmpdir, report_dir, report_page, interactive=False):
         self.api = api
-        self.finder = PkgFinder(aurpkgs_url, tmpdir, ssl_verify)
+        self.finder = PkgFinder(aurpkgs_url, tmpdir)
         self.report_dir = report_dir
         self.report_page = report_page
         self.interactive = interactive
@@ -203,7 +202,7 @@ class PkgUpdater:
     def from_argparser(klass, args, api=None):
         if api is None:
             api = API.from_argparser(args)
-        return klass(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify, args.report_dir, args.report_page, args.interactive)
+        return klass(api, args.aurpkgs_url, args.tmp_dir, args.report_dir, args.report_page, args.interactive)
 
     @LazyProperty
     def _alltemplates(self):
