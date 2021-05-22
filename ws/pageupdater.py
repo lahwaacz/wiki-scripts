@@ -152,11 +152,14 @@ class PageUpdater:
                         yield checker, node
 
         async def async_exec():
-            # We could use the default single-threaded executor with basically the
-            # same performance (because of Python's GIL), but the ThreadPoolExecutor
-            # allows to limit the maximum number of workers (and thus the maximum
-            # number of concurrent HTTP connections). Moreover, we can use the locks
-            # from the threading module for synchronization.
+            # - We could use native asyncio tasks with basically the same
+            #   performance (threading is limited by the GIL), but we would
+            #   have to add "async" everyhwere.
+            # - The default executor is also ThreadPoolExecutor, but with
+            #   unspecified number of threads.
+            # - The maximum number of threads does not matter much, fine-grained
+            #   resoource limits are enforced by managers (e.g. urllib3's
+            #   PoolManager and ConnectionPool for TCP connections)
             with ThreadPoolExecutor(max_workers=self.threads_update_page) as executor:
                 loop = asyncio.get_event_loop()
                 tasks = [

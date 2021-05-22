@@ -8,8 +8,8 @@ from ws.pageupdater import PageUpdater
 class Updater(PageUpdater):
     force_interactive = True
 
-    # enable threading to overlap HTTP requests
-    threads_update_page = 10
+    # enable threading to overlap HTTP requests (NOTE: highly unreliable)
+#    threads_update_page = 10
 
 if __name__ == "__main__":
     import ws.config

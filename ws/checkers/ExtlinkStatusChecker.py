@@ -2,8 +2,8 @@
 
 # TODO:
 # - cache the status results in the database, limit the number of checks per URL per day (and week/month too)
-# - per-domain whitelist for HTTP to HTTPS conversion (more suitable for link-checker.py, unless we need to compare the results for both requests)
 # - GRRR: When you get 404, unless you have Javascript enabled, in which case the code loaded on the 404 page might execute a redirection to a different address. Example: https://nzbget.net/Performance_tips
+# - handle 429 (Too Many Requests), often returned by archive.is
 
 import logging
 import datetime
@@ -26,15 +26,26 @@ logger = logging.getLogger(__name__)
 
 
 class ExtlinkStatusChecker(CheckerBase):
-    def __init__(self, api, db, *, timeout=60, max_retries=3, **kwargs):
+    def __init__(self, api, db, *, timeout=60, max_retries=3,
+                 num_pools=100, max_connections_per_host=10,
+                 **kwargs):
         super().__init__(api, db, **kwargs)
 
         self.timeout = timeout
         self.session = requests.Session()
-        # disallow TLS1.0 and TLS1.1, allow only TLS1.2 (and newer if suported
-        # by the used openssl version)
-        ssl_options = ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
-        adapter = TLSAdapter(ssl_options=ssl_options, max_retries=max_retries)
+        adapter_params = {
+            "max_retries": max_retries,
+            # disallow TLS1.0 and TLS1.1, allow only TLS1.2 (and newer if suported
+            # by the used openssl version)
+            "ssl_options": ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1,
+            # configure the connection pool
+            # https://docs.python-requests.org/en/latest/api/#requests.adapters.HTTPAdapter
+            # https://urllib3.readthedocs.io/en/latest/advanced-usage.html#customizing-pool-behavior
+            "pool_connections": num_pools,
+            "pool_maxsize": max_connections_per_host,
+            "pool_block": True,
+        }
+        adapter = TLSAdapter(**adapter_params)
         self.session.mount("https://", adapter)
         self.session.mount("http://", adapter)
 
@@ -158,6 +169,9 @@ class ExtlinkStatusChecker(CheckerBase):
             # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
             # response body content using the ``stream=True`` parameter.
             response = self.session.get(url, headers=self.headers, timeout=self.timeout, stream=True, allow_redirects=allow_redirects)
+            # explicitly close the responses to release the connection back to the pool
+            # (this is important, especially when we use pool_block=True)
+            response.close()
         # SSLError inherits from ConnectionError so it has to be checked first
         except requests.exceptions.SSLError as e:
             logger.error("SSLError ({}) for URL {}".format(e, url))
