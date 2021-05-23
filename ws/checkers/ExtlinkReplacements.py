@@ -148,9 +148,9 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             "https://www.kernel.org/doc/html/latest{{path}}{% if extension is not none %}.html{% endif %}"),
 
         # wireless.wiki.kernel.org
-        ("update wireless.kernel.org links",
-            r"https?\:\/\/wireless\.kernel\.org/(?P<path>[^#]*)(?P<fragment>#.+)?",
-            "https://wireless.wiki.kernel.org/{{path}}{% if fragment is not none %}{{fragment | lower}}{% endif %}"),
+        ("update linuxwireless.org/wireless.kernel.org links",
+            r"https?\:\/\/(?:(?:www\.)?linuxwireless|wireless\.kernel)\.org/(?P<path>[^#]*)(?P<fragment>#.+)?",
+            "https://wireless.wiki.kernel.org/{{path | lower}}{% if fragment is not none %}{{fragment | lower}}{% endif %}"),
 
         # Stack Exchange short links
         ("remove user IDs from short links to Stack Exchange posts",
