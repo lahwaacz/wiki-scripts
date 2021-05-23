@@ -154,7 +154,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
         # Stack Exchange short links
         ("remove user IDs from short links to Stack Exchange posts",
-            r"https?\:\/\/(?P<domain>(:?\w+\.)?stackexchange\.com|stackoverflow\.com|askubuntu\.com|serverfault\.com|superuser\.com|mathoverflow\.net)\/a\/(?P<answer>\d+)\/\d+",
+            r"https?\:\/\/(?P<domain>(?:\w+\.)?stackexchange\.com|stackoverflow\.com|askubuntu\.com|serverfault\.com|superuser\.com|mathoverflow\.net)\/a\/(?P<answer>\d+)\/\d+",
             "https://{{domain}}/a/{{answer}}"),
         # TODO: use Special:Permalink on ArchWiki: https://wiki.archlinux.org/index.php?title=Pacman/Tips_and_tricks&diff=next&oldid=630006
     ]
