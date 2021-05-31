@@ -3,12 +3,14 @@
 This script aims to replace unlocalised templates in localised pages with the localised templates.
 '''
 import os
+import copy
 from ws.client import API
 import ws.ArchWiki.lang as lang
+import mwparserfromhell as mw
 
 
-localised_lang_name = "简体中文" # simplified Chinese (zh-Hans)
-templates = ["Translateme"]
+localised_lang_name: str = "简体中文" # not required, can omit val; simplified Chinese (zh-Hans)
+templates: list[str] = ["Translateme"]
 api_url = "https://wiki.archlinux.org/api.php"
 index_url = "https://wiki.arclinux.org/index.php"
 cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
@@ -16,13 +18,17 @@ session = API.make_session(ssl_verify=True,
                            cookie_file=cookie_path)
 
 
-def edit(api: API, timestamp: str, text: str, page, template: str):
-    new = text.replace(r"{{" + template, r"{{" + template + f" ({localised_lang_name})")
+def edit(api: API, timestamp: str, text: str, page, template: str, language: str):
+    code = mw.parse(text)
+    for curTemplate in code.filter_templates():
+        if curTemplate.name.matches(template):
+            curTemplate.name = f"{template} ({language})"
+    text = str(code)
     api.edit(pageid=page['pageid'], title=page['title'], basetimestamp=timestamp, text=new, summary="localize templates", bot="")
     print(f"Edited {page['title']}")
 
 
-def main(template: str):
+def process(template: str, language: str):
     pages = []
     texts: list[str] = []
     timestamps: list[str] = []
@@ -47,7 +53,7 @@ def main(template: str):
     print(end="Calling API: query generator...", flush=True)
     ret = api.call_api(**kwargs)
     for page in ret['pages']:
-        if page['title'].endswith(f" ({localised_lang_name})"):
+        if lang.detect_language(page['title'])[1] == language:
             pages.append(page)
     print("Done")
 
@@ -73,9 +79,19 @@ def main(template: str):
         print(f"Checked {page['title']}")
 
     for i, text in enumerate(texts):
-        edit(api, timestamps[i], text, pages[i], template)
+        edit(api, timestamps[i], text, pages[i], template, language)
+    return
 
+
+def main():
+    if localised_lang_name:
+        for template in templates:
+            process(template, localised_lang_name)
+        return
+    for language in lang.get_language_names(): # just in case language is not specified
+        for template in templates:
+            process(template, language)
+    return
 
 if __name__ == '__main__':
-    for template in templates:
-        main(template)
+    main()
