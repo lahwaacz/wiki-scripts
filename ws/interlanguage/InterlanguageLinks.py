@@ -355,8 +355,10 @@ class InterlanguageLinks:
 
         for chunk in ws.utils.iter_chunks(_updates_gen(self.allpages), self.api.max_ids_per_query):
             pages_props, pages_langlinks = zip(*list(chunk))
-            pageids = "|".join(str(page["pageid"]) for page in pages_props)
-            result = self.api.call_api(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp", rvslots="main")
+            pageids = [page["pageid"] for page in pages_props]
+            result = {}
+            for chunk in self.api.call_api_autoiter_ids(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp", rvslots="main"):
+                ws.utils.dmerge(chunk, result)
             pages = result["pages"]
 
             for page, langlinks in zip(pages_props, pages_langlinks):
