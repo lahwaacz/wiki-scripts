@@ -4,7 +4,6 @@ This script aims to replace unlocalised templates in localised pages with the lo
 
 """
 import os
-import copy
 from ws.interactive import edit_interactive
 from ws.client import API
 from ws.ArchWiki import lang
@@ -28,11 +27,10 @@ def ukw(kw: dict):
 
 
 def get_templates(api: API):
-    """Get templates with i18n"""
+    """Get templates with i18n"""   
     ret = api.list(**ukw({
         "prop": "langlinks",
         "list": "allpages",
-        "lllang": "zh-hant",
         "lllimit": "max",
         "apnamespace": "10",
         "apfilterlanglinks": "withlanglinks",
