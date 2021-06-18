@@ -65,7 +65,10 @@ class ExtlinkStatusChecker(CheckerBase):
         self.deadlink_params = [now.year, now.month, now.day]
         self.deadlink_params = ["{:02d}".format(i) for i in self.deadlink_params]
 
-    def prepare_url(self, wikicode, extlink):
+    def prepare_url(self, wikicode, extlink, *, allow_schemes=None):
+        if allow_schemes is None:
+            allow_schemes = ["http", "https"]
+
         # make a copy of the URL object (the skip_style_flags parameter is False,
         # so we will also properly parse URLs terminated by a wiki markup)
         url = mwparserfromhell.parse(str(extlink.url))
@@ -118,7 +121,7 @@ class ExtlinkStatusChecker(CheckerBase):
             return
 
         # skip unsupported schemes
-        if url.scheme not in ["http", "https"]:
+        if url.scheme not in allow_schemes:
             logger.debug("skipped URL with unsupported scheme: {}".format(url))
             return
         # skip URLs with empty host, e.g. "http://" or "http://git@" or "http:///var/run"

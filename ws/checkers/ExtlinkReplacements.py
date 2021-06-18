@@ -156,6 +156,15 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         ("remove user IDs from short links to Stack Exchange posts",
             r"https?\:\/\/(?P<domain>(?:\w+\.)?stackexchange\.com|stackoverflow\.com|askubuntu\.com|serverfault\.com|superuser\.com|mathoverflow\.net)\/a\/(?P<answer>\d+)\/\d+",
             "https://{{domain}}/a/{{answer}}"),
+
+        # IRC links
+        ("update links for IRC channels that left Freenode (if a particular channel is not on Libera, please fix it manually)",
+            r"ircs?\:\/\/\w+\.freenode\.net/(?P<channel>archlinux.*)",
+            "ircs://irc.libera.chat/{{channel}}"),
+        ("replace irc:// with ircs:// for networks that support it",
+            r"ircs?\:\/\/(?P<domain>\w+\.freenode\.net|irc\.libera\.chat|irc\.oftc\.net|irc\.rizon\.net|irc\.azzurra\.org)(?P<path>\/.*)?",
+            "ircs://{{domain}}{% if (path is not none) %}{{path}}{% endif %}"),
+
         # TODO: use Special:Permalink on ArchWiki: https://wiki.archlinux.org/index.php?title=Pacman/Tips_and_tricks&diff=next&oldid=630006
     ]
 
@@ -275,7 +284,8 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                     new_url = template.render(m=match.groups(), **match.groupdict())
 
                 # check if the resulting URL is valid
-                if not self.check_url(new_url, allow_redirects=True):
+                # (irc:// and ircs:// cannot be validated - requests throws requests.exceptions.InvalidSchema)
+                if not new_url.startswith("irc://") and not new_url.startswith("ircs://") and not self.check_url(new_url, allow_redirects=True):
                     logger.warning("URL not replaced: {}".format(url))
                     return False
 
@@ -335,7 +345,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
     def update_extlink(self, wikicode, extlink, summary_parts):
         # prepare URL - fix parsing of adjacent templates, replace HTML entities, parse with urllib3
-        url = self.prepare_url(wikicode, extlink)
+        url = self.prepare_url(wikicode, extlink, allow_schemes=["http", "https", "irc", "ircs"])
         if url is None:
             return
 
