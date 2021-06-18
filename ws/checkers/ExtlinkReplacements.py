@@ -158,8 +158,11 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             "https://{{domain}}/a/{{answer}}"),
 
         # IRC links
+        # note: old links may use "#" or "/#" instead of "/" as the separator
+        # note: using "#" unescaped in the URL (as part of the channel name) is discouraged,
+        #       there are even channel names starting with "##" (but we are not matching that)
         ("update links for IRC channels that left Freenode (if a particular channel is not on Libera, please fix it manually)",
-            r"ircs?\:\/\/\w+\.freenode\.net/(?P<channel>archlinux.*)",
+            r"ircs?\:\/\/\w+\.freenode\.net(\/#|\/|#)(?P<channel>archlinux.*|bash)",
             "ircs://irc.libera.chat/{{channel}}"),
         ("replace irc:// with ircs:// for networks that support it",
             r"ircs?\:\/\/(?P<domain>\w+\.freenode\.net|irc\.libera\.chat|irc\.oftc\.net|irc\.rizon\.net|irc\.azzurra\.org)(?P<path>\/.*)?",
