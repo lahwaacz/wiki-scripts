@@ -82,19 +82,19 @@ class Database:
         :param argparser: an instance of :py:class:`argparse.ArgumentParser`
         """
         group = argparser.add_argument_group(title="Database parameters")
-        group.add_argument("--db-dialect", metavar="DIALECT", choices=["postgresql"],
+        group.add_argument("--db-dialect", metavar="DIALECT", choices=["postgresql"], default="postgresql",
                 help="an SQL dialect (default: %(default)s)")
-        group.add_argument("--db-driver", metavar="DRIVER",
+        group.add_argument("--db-driver", metavar="DRIVER", default="psycopg2",
                 help="a driver for given SQL dialect supported by sqlalchemy (default: %(default)s)")
         group.add_argument("--db-user", metavar="USER",
                 help="username for database connection (default: %(default)s)")
         group.add_argument("--db-password", metavar="PASSWORD",
                 help="password for database connection (default: %(default)s)")
-        group.add_argument("--db-host", metavar="HOST",
+        group.add_argument("--db-host", metavar="HOST", default="localhost",
                 help="hostname of the database server (default: %(default)s)")
-        group.add_argument("--db-port", metavar="PORT",
+        group.add_argument("--db-port", metavar="PORT", default=5432,
                 help="port on which the database server listens (default: %(default)s)")
-        group.add_argument("--db-name", metavar="DATABASE",
+        group.add_argument("--db-name", metavar="DATABASE", required=True,
                 help="name of the database (default: %(default)s)")
 
     @classmethod
