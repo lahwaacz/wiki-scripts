@@ -4,17 +4,21 @@ Changelog
 Version 1.3
 -----------
 
-Unreleased
-(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.2...master>`__)
+`Released Jun 19, 2021 <https://github.com/lahwaacz/wiki-scripts/tree/1.3>`_
+(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.2...1.3>`__)
 
 - SQL database:
     - Implemented a subset of MediaWiki API querie. Lists: ``allpages``,
-      ``alldeletedrevisions``, ``allrevisions``, ``logevents``,
-      ``protectedtitles``, ``recentchanges``; props: ``deletedrevisions``,
-      ``revisions``, ``pageprops``, ``info``; including ``generator``,
-      ``titles`` and ``pageids`` parameters. See the GitHub issue for more
-      information: https://github.com/lahwaacz/wiki-scripts/issues/35.
-    - Implemented synchronization of the latest revisions contents.
+      ``alldeletedrevisions``, ``allrevisions``, ``allusers``, ``logevents``,
+      ``protectedtitles``, ``recentchanges``; props: ``categories``,
+      ``deletedrevisions``, ``extlinks``, ``images``, ``info``, ``iwlinks``,
+      ``langlinks``, ``linkshere``, ``links``, ``pageprops``, ``redirects``,
+      ``revisions``, ``sections``, ``templates``, ``transcludedin``; including
+      ``generator``, ``titles`` and ``pageids`` parameters. See the GitHub
+      issue for more information:
+      https://github.com/lahwaacz/wiki-scripts/issues/35.
+    - Implemented synchronization of revisions contents (either full or just
+      the latest revision for each page).
     - Fixed many bugs in the synchronization process.
     - Implemented custom parser cache, see the GitHub issue for more
       information: https://github.com/lahwaacz/wiki-scripts/issues/42
@@ -32,6 +36,7 @@ Unreleased
 - The parameter `--ssl-verify` is removed, SSL certificates are always verified
   for HTTPS requests. Furthermore, TLS 1.2 or newer is required for all HTTPS
   requests.
+- And much more...
 
 Version 1.2
 -----------
