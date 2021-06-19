@@ -174,7 +174,7 @@ class TableOfContents:
         if self.cliargs.save is False and self.cliargs.print is False:
             self.cliargs.print = True
 
-        if len(self.cliargs.toc_languages) == 1 and self.cliargs.toc_languages[0] == "all":
+        if self.cliargs.toc_languages == ["all"]:
             self.cliargs.toc_languages = lang.get_internal_tags()
         # strip "(Language)" suffix
         self.cliargs.toc_page = lang.detect_language(canonicalize(self.cliargs.toc_page))[0]
@@ -210,8 +210,8 @@ class TableOfContents:
         # TODO: maybe leave only the short option to forbid configurability in config file
         group.add_argument("-f", "--force", action="store_true",
                 help="try to update the page even if it was last saved in the same UTC day")
-        group.add_argument("--toc-languages", default="all", nargs="+", choices=["all"] + lang.get_internal_tags(),
-                help="a comma-separated list of language tags whose ToC pages should be updated (default: %(default)s)")
+        group.add_argument("--toc-languages", metavar="LANG", default=["all"], nargs="+", choices=["all"] + lang.get_internal_tags(),
+                help="a list of language tags whose ToC pages should be updated (options: {}, default: %(default)s)".format(lang.get_internal_tags()))
         group.add_argument("--toc-page", default="Table of contents",
                 help="the page name on the wiki to fetch and update (the language suffix "
                      "is added automatically as necessary) (default: %(default)s)")
