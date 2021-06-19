@@ -80,8 +80,8 @@ class ConfigParser(configparser.ConfigParser):
     @staticmethod
     def set_argparser(argparser):
         group = argparser.add_mutually_exclusive_group()
-        group.add_argument("-c", "--config", type=argtype_config, metavar="PATH", default=DEFAULT_CONF,
-                help="path to the config file, or a base file name for config files looked up as {0}/<name>.conf (default: %s(default)s)".format(CONFIG_DIR))
+        group.add_argument("-c", "--config", type=argtype_config, metavar="PATH_OR_NAME", default=DEFAULT_CONF,
+                help="path to the config file, or a base file name for config files looked up as {0}/<name>.conf (default: %(default)s)".format(CONFIG_DIR))
         group.add_argument("--no-config", dest="config", const=None, action="store_const",
                 help="do not read any config file")
 
