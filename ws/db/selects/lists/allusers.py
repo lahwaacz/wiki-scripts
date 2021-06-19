@@ -2,8 +2,6 @@
 
 import sqlalchemy as sa
 
-import ws.db.mw_constants as mwconst
-
 from .ListBase import ListBase
 
 __all__ = ["AllUsers"]

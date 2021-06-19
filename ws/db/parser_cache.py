@@ -117,10 +117,10 @@ class ParserCache:
         target_page = page.alias()
         query = sa.select([src_page.c.page_id]) \
                 .select_from(
-                    src_page.join(tl, tl.c.tl_from == src_page.c.page_id) \
+                    src_page.join(tl, tl.c.tl_from == src_page.c.page_id)
                     .join(target_page, ( tl.c.tl_namespace == target_page.c.page_namespace ) &
                                        ( tl.c.tl_title == target_page.c.page_title )
-                    ) \
+                    )
                     .outerjoin(wspc, target_page.c.page_id == wspc.c.wspc_page_id)
                 ).where(
                     ( wspc.c.wspc_rev_id == None ) |
@@ -165,7 +165,7 @@ class ParserCache:
             db_entries.append(entry)
 
         # drop duplicates
-        db_entries = list({ (v["pl_from"], v["pl_namespace"], v["pl_title"] ):v for v in db_entries}.values())
+        db_entries = list({ (v["pl_from"], v["pl_namespace"], v["pl_title"] ): v for v in db_entries}.values())
 
         if db_entries:
             conn.execute(self.sql_inserts["pagelinks"], db_entries)
@@ -180,7 +180,7 @@ class ParserCache:
             db_entries.append(entry)
 
         # drop duplicates
-        db_entries = list({ (v["il_from"], v["il_to"] ):v for v in db_entries}.values())
+        db_entries = list({ (v["il_from"], v["il_to"] ): v for v in db_entries}.values())
 
         if db_entries:
             conn.execute(self.sql_inserts["imagelinks"], db_entries)
@@ -210,7 +210,7 @@ class ParserCache:
             db_entries.append(entry)
 
         # drop duplicates
-        db_entries = list({ (v["cl_from"], v["cl_to"] ):v for v in db_entries}.values())
+        db_entries = list({ (v["cl_from"], v["cl_to"] ): v for v in db_entries}.values())
 
         if db_entries:
             conn.execute(self.sql_inserts["categorylinks"], db_entries)
@@ -233,7 +233,7 @@ class ParserCache:
             db_entries.append(entry)
 
         # drop duplicates
-        db_entries = list({ (v["ll_from"], v["ll_lang"] ):v for v in db_entries}.values())
+        db_entries = list({ (v["ll_from"], v["ll_lang"] ): v for v in db_entries}.values())
 
         if db_entries:
             conn.execute(self.sql_inserts["langlinks"], db_entries)
@@ -249,7 +249,7 @@ class ParserCache:
             db_entries.append(entry)
 
         # drop duplicates
-        db_entries = list({ (v["iwl_from"], v["iwl_prefix"], v["iwl_title"] ):v for v in db_entries}.values())
+        db_entries = list({ (v["iwl_from"], v["iwl_prefix"], v["iwl_title"] ): v for v in db_entries}.values())
 
         if db_entries:
             conn.execute(self.sql_inserts["iwlinks"], db_entries)
@@ -265,7 +265,7 @@ class ParserCache:
             db_entries.append(entry)
 
         # drop duplicates
-        db_entries = list({ (v["el_from"], v["el_to"] ):v for v in db_entries}.values())
+        db_entries = list({ (v["el_from"], v["el_to"] ): v for v in db_entries}.values())
 
         if db_entries:
             conn.execute(self.sql_inserts["externallinks"], db_entries)
@@ -488,3 +488,11 @@ class ParserCache:
     def invalidate_all(self):
         with self.db.engine.begin() as conn:
             conn.execute(self.db.ws_parser_cache_sync.delete())
+
+    def invalidate_pageids(self, pageids):
+        with self.db.engine.begin() as conn:
+            conn.execute(self.db.ws_parser_cache_sync.delete()
+                    .where(
+                        self.db.ws_parser_cache_sync.c.wspc_page_id.in_(pageids)
+                    )
+                )

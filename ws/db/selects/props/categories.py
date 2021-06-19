@@ -50,14 +50,14 @@ class Categories(SelectBase):
 
         # restrictions
         if "categories" in params:
-            categories = params["images"]
-            if not isinstance(images, set):
-                images = {images}
+            categories = params["categories"]
+            if not isinstance(categories, set):
+                categories = {categories}
             basenames = set()
-            for category in categories:
-                category = self.db.Title(category)
-                if category.namespacenumber != 14:
-                    logger.warn("prop=categories: title '{}' is not a category".format(category))
+            for title in categories:
+                title = self.db.Title(title)
+                if title.namespacenumber != 14:
+                    logger.warn("prop=categories: title '{}' is not a category".format(title))
                 basenames.add(title.pagename)
             s = s.where(cl.c.cl_to.in_(basenames))
 

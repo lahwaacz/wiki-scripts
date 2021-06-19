@@ -3,7 +3,7 @@
 import hashlib
 import logging
 
-from ..utils import RateLimited, LazyProperty, dmerge
+from ..utils import RateLimited, LazyProperty
 
 from .connection import Connection, APIError
 from .site import Site
@@ -190,8 +190,8 @@ class API(Connection):
         :py:attr:`API.max_ids_per_query`.
 
         Note that this is applicable only to the ``titles``, ``pageids`` and
-        ``revids`` API parameters which have to be supplied as :py:type:`list`
-        or :py:type:`set` to this method. Exactly one of these parameters has
+        ``revids`` API parameters which have to be supplied as :py:class:`!list`
+        or :py:class:`set` to this method. Exactly one of these parameters has
         to be supplied.
 
         The parameters have the same meaning as those in the
@@ -574,6 +574,13 @@ class API(Connection):
 class LoginFailed(Exception):
     """
     Raised when the :py:meth:`API.login` call failed.
+    """
+    pass
+
+class APIExpandResultFailed(APIError):
+    """
+    Raised when the :py:meth:`API.call_api_autoiter_ids` fails to expand an API
+    response while iterating over the split ID set.
     """
     pass
 

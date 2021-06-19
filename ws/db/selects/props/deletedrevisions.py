@@ -50,6 +50,7 @@ class DeletedRevisions(SelectBase):
 
     def join_with_pageset(self, pageset):
         ar = self.db.archive
+        page = self.db.page
         return ar.outerjoin(pageset, (ar.c.ar_namespace == page.c.page_namespace) &
                                      (ar.c.ar_title == page.c.page_title))
 

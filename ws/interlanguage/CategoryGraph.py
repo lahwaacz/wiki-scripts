@@ -186,14 +186,19 @@ class CategoryGraph:
                 return "Category:{}".format(langname)
             return lang.format_title(pure, langname)
 
-        parents = [localized_category(p, langname) for p in self.parents[local]]
-        content = "\n".join("[[{}]]".format(p) for p in parents)
+        if local in self.parents.keys():
+            parents = [localized_category(p, langname) for p in self.parents[local]]
+            content = "\n".join("[[{}]]".format(p) for p in parents)
+        else:
+            parents = None
+            content = ""
 
         self.api.create(title=category, text=content, summary="init wanted category")
         self.update()
 
-        for p in parents:
-            self.create_category(p)
+        if parents is not None:
+            for p in parents:
+                self.create_category(p)
 
     def init_wanted_categories(self):
         for page in self.api.list(list="querypage", qppage="Wantedcategories", qplimit="max"):

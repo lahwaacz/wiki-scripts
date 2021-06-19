@@ -32,7 +32,7 @@ def canonicalize(title):
     # strip left-to-right and right-to-left marks
     # TODO: strip all non-printable characters?
     title = title.replace("\u200e", "").replace("\u200f", "").strip()
-    title = re.sub("( )+", "\g<1>", title)
+    title = re.sub("( )+", r"\g<1>", title)
     if title == "":
         return ""
     title = title[0].upper() + title[1:]
@@ -201,7 +201,9 @@ class Title:
         pagename = urldecode(pagename)
         # FIXME: how does MediaWiki handle unicode titles?  https://phabricator.wikimedia.org/T139881
         # as a workaround, any UTF-8 character, which is not an ASCII character, is allowed
-        if re.search("[^{}\\u0100-\\uFFFF]".format(self.context.legaltitlechars), pagename):
+        # Note: \uFFFF is not the last UTF-8 character, it is \U0010FFFF (can be checked with hex(sys.maxunicode))
+        # see https://en.wikipedia.org/wiki/UTF-8#Description
+        if re.search("[^{}\\u0100-\\U0010FFFF]".format(self.context.legaltitlechars), pagename):
             raise InvalidTitleCharError("Given title contains illegal character(s): '{}'".format(pagename))
         # canonicalize title
         self.pure = canonicalize(pagename)

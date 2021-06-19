@@ -13,6 +13,9 @@ class test_fix_header:
         fix_header(wikicode)
         assert str(wikicode) == expected
 
+    def test_empty(self):
+        self._do_test("", "")
+
     def test_fixed_point(self):
         snippet = """\
 {{DISPLAYTITLE:foo}}
@@ -145,6 +148,40 @@ Some other text [[link]]
 """
         self._do_test(snippet, expected)
 
+    def test_duplicate_lowercase_title(self):
+        snippet = """\
+{{Lowercase title}}
+{{lowercase title}}
+"""
+        expected = """\
+{{Lowercase title}}
+"""
+        self._do_test(snippet, expected)
+
+    def test_duplicate_langlink(self):
+        snippet = """\
+[[en:foo]]
+[[cs:foo]]
+[[en:foo]]
+"""
+        expected = """\
+[[cs:foo]]
+[[en:foo]]
+"""
+        self._do_test(snippet, expected)
+
+    def test_nb(self):
+        # NOTE: nb is in language tags, but it does not work as an interlanguage link
+        snippet = """\
+== section ==
+[[nb:foo]]
+"""
+        expected = """\
+== section ==
+[[nb:foo]]
+"""
+        self._do_test(snippet, expected)
+
     def test_noinclude(self):
         snippet = """\
 <noinclude>{{Template}}
@@ -185,6 +222,7 @@ Some other text [[link]]
 </noinclude>
 <includeonly>
 [[Category:Foo]]
+{{foo}}
 </includeonly>
 """
         expected = """\
@@ -198,6 +236,29 @@ Some other text [[link]]
 </noinclude>
 <includeonly>
 [[Category:Foo]]
+{{foo}}
 </includeonly>
 """
         self._do_test(snippet, expected)
+
+class test_get_header_parts:
+    def test_combining_sections(self):
+        snippets = ["[[Category:Foo]]", "[[en:Bar]]", "{{DISPLAYTITLE:baz}}"]
+
+        magics = []
+        cats = []
+        langlinks = []
+        for snippet in snippets:
+            wikicode = mwparserfromhell.parse(snippet)
+            # get_header_parts takes the input arrays, but creates internal copies so they are not modified via mutable arguments
+            parent, magics, cats, langlinks = get_header_parts(wikicode, magics, cats, langlinks)
+            assert str(wikicode) == snippet
+        assert len(magics) == len(cats) == len(langlinks) == 1
+
+        wikicode = mwparserfromhell.parse("")
+        build_header(wikicode, wikicode, magics, cats, langlinks)
+        assert str(wikicode) == """\
+{{DISPLAYTITLE:baz}}
+[[Category:Foo]]
+[[en:Bar]]
+"""

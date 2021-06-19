@@ -43,9 +43,14 @@ Featured scripts
   updates the interlanguage links based on the ArchWiki's `interlanguage map`_
   and fixes categories of local pages.
 - ``link-checker.py``
-  parses all pages on the wiki and tries to fix broken wikilinks, simplify
-  links over redirects and relative links, and to beautify them based on
-  ArchWiki's `style recommendations`_.
+  parses all pages on the wiki and tries to fix various functional and `stylistic`_
+  issues with wikilinks, external links and manual page links.
+- ``url-replace.py``
+  parses all pages on the wiki and performs various replacements on external
+  link URLs. This functionality is also included in ``link-checker.py``.
+- ``extlink-checker.py``
+  parses all pages and checks if external links are accessible and marks them
+  with the `Dead link`_ template if they are clearly broken.
 - ``statistics.py``
   generates automatic updates to the `ArchWiki:Statistics`_ page.
 - ``toc.py``
@@ -59,13 +64,14 @@ For a full list of available scripts see the `root directory`_ in the git
 repository. The `examples directory`_ contains less notable notable scripts
 showing various ways of the core :py:mod:`ws` module usage.
 
-.. _`interlanguage map`: https://wiki.archlinux.org/index.php/Help:I18n
-.. _`style recommendations`: https://wiki.archlinux.org/index.php/Help:Style
-.. _`ArchWiki:Statistics`: https://wiki.archlinux.org/index.php/ArchWiki:Statistics
-.. _`Table of contents`: https://wiki.archlinux.org/index.php/Table_of_contents
-.. _`AUR`: https://wiki.archlinux.org/index.php/Template:AUR
-.. _`Grp`: https://wiki.archlinux.org/index.php/Template:Grp
-.. _`Pkg`: https://wiki.archlinux.org/index.php/Template:Pkg
+.. _`interlanguage map`: https://wiki.archlinux.org/title/Help:I18n
+.. _`stylistic`: https://wiki.archlinux.org/title/Help:Style
+.. _`ArchWiki:Statistics`: https://wiki.archlinux.org/title/ArchWiki:Statistics
+.. _`Table of contents`: https://wiki.archlinux.org/title/Table_of_contents
+.. _`Dead link`: https://wiki.archlinux.org/title/Template:Dead_link
+.. _`AUR`: https://wiki.archlinux.org/title/Template:AUR
+.. _`Grp`: https://wiki.archlinux.org/title/Template:Grp
+.. _`Pkg`: https://wiki.archlinux.org/title/Template:Pkg
 .. _`root directory`: https://github.com/lahwaacz/wiki-scripts
 .. _`examples directory`: https://github.com/lahwaacz/wiki-scripts/blob/master/examples
 
@@ -108,12 +114,14 @@ The following are required only by some scripts:
 - `Pygments`_ (alternative highlighter when WikEdDiff is not available)
 - `pyalpm`_ (for ``update-package-templates.py``)
 - `NumPy`_ and `matplotlib`_ (for ``statistics_histograms.py``)
+- `hstspreload`_ (for ``link-checker.py`` and ``url-replace.py``)
 
 .. _WikEdDiff: https://github.com/lahwaacz/python-wikeddiff
 .. _Pygments: http://pygments.org/
 .. _pyalpm: https://projects.archlinux.org/users/remy/pyalpm.git/
 .. _NumPy: http://www.numpy.org/
 .. _matplotlib: http://matplotlib.org/
+.. _hstspreload: https://github.com/sethmlarson/hstspreload
 
 Optional dependencies:
 

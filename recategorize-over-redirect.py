@@ -47,7 +47,7 @@ class Recategorize:
         timestamp = page["revisions"][0]["timestamp"]
 
         text_new = text_old
-        if not re.search("{{deletion\|", text_old, flags=re.IGNORECASE):
+        if not re.search(r"{{deletion\|", text_old, flags=re.IGNORECASE):
             text_new += "\n{{Deletion|unused category}}"
         if text_old != text_new:
             logger.info("Flagging page [[{}]] for deletion.".format(title))

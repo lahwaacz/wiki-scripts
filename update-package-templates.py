@@ -15,7 +15,7 @@ from ws.utils import LazyProperty
 from ws.interactive import edit_interactive, require_login, InteractiveQuit
 from ws.autopage import AutoPage
 from ws.ArchWiki.lang import detect_language, format_title
-from ws.parser_helpers.wikicode import get_parent_wikicode, get_adjacent_node
+from ws.parser_helpers.wikicode import get_parent_wikicode, ensure_flagged_by_template, ensure_unflagged_by_template
 from ws.parser_helpers.title import canonicalize
 
 logger = logging.getLogger(__name__)
@@ -61,10 +61,9 @@ Include = /etc/pacman.d/mirrorlist
 """
 
 class PkgFinder:
-    def __init__(self, aurpkgs_url, tmpdir, ssl_verify):
+    def __init__(self, aurpkgs_url, tmpdir):
         self.aurpkgs_url = aurpkgs_url
         self.tmpdir = os.path.abspath(os.path.join(tmpdir, "wiki-scripts"))
-        self.ssl_verify = ssl_verify
 
         self.aurpkgs = None
         self.pacdb = self.pacdb_init(PACCONF, os.path.join(self.tmpdir, "pacdbpath"), arch="x86_64")
@@ -80,7 +79,7 @@ class PkgFinder:
 
     # sync database of AUR packages
     def aurpkgs_refresh(self, aurpkgs_url):
-        response = requests.get(aurpkgs_url, verify=self.ssl_verify)
+        response = requests.get(aurpkgs_url)
         response.raise_for_status()
         self.aurpkgs = set(line for line in response.text.splitlines() if not line.startswith("#"))
 
@@ -166,9 +165,9 @@ class PkgUpdater:
         "CVE",
     ]
 
-    def __init__(self, api, aurpkgs_url, tmpdir, ssl_verify, report_dir, report_page, interactive=False):
+    def __init__(self, api, aurpkgs_url, tmpdir, report_dir, report_page, interactive=False):
         self.api = api
-        self.finder = PkgFinder(aurpkgs_url, tmpdir, ssl_verify)
+        self.finder = PkgFinder(aurpkgs_url, tmpdir)
         self.report_dir = report_dir
         self.report_page = report_page
         self.interactive = interactive
@@ -195,7 +194,7 @@ class PkgUpdater:
         group.add_argument("--aurpkgs-url", default="https://aur.archlinux.org/packages.gz", metavar="URL",
                 help="the URL to packages.gz file on the AUR (default: %(default)s)")
         group.add_argument("--report-dir", type=ws.config.argtype_existing_dir, default=".", metavar="PATH",
-                help="directory where the report should be saved")
+                help="directory where the report should be saved (default: %(default)s)")
         group.add_argument("--report-page", type=str, default=None, metavar="PATH",
                 help="existing report page on the wiki (default: %(default)s)")
 
@@ -203,14 +202,14 @@ class PkgUpdater:
     def from_argparser(klass, args, api=None):
         if api is None:
             api = API.from_argparser(args)
-        return klass(api, args.aurpkgs_url, args.tmp_dir, args.ssl_verify, args.report_dir, args.report_page, args.interactive)
+        return klass(api, args.aurpkgs_url, args.tmp_dir, args.report_dir, args.report_page, args.interactive)
 
     @LazyProperty
     def _alltemplates(self):
         result = self.api.generator(generator="allpages", gapnamespace=10, gaplimit="max", gapfilterredir="nonredirects")
         return {page["title"].split(":", maxsplit=1)[1] for page in result}
 
-    def _localized_template(self, template, lang="English"):
+    def get_localized_template(self, template, lang="English"):
         assert(canonicalize(template) in self._alltemplates)
         localized = format_title(template, lang)
         if canonicalize(localized) in self._alltemplates:
@@ -354,21 +353,16 @@ class PkgUpdater:
             hint = self.update_package_template(template, lang)
 
             # add/remove/update {{Broken package link}} flag
-            parent = get_parent_wikicode(wikicode, template)
-            adjacent = get_adjacent_node(parent, template, ignore_whitespace=True)
             if hint is not None:
                 logger.warning("broken package link: {}: {}".format(template, hint))
                 self.add_report_line(title, template, hint)
-                broken_flag = "{{%s|%s}}" % (self._localized_template("Broken package link", lang), hint)
-                if isinstance(adjacent, mwparserfromhell.nodes.Template) and canonicalize(adjacent.name).startswith("Broken package link"):
-                    # replace since the hint might be different
-                    wikicode.replace(adjacent, broken_flag)
-                else:
-                    wikicode.insert_after(template, broken_flag)
+                # first unflag since the localized template might change
+                ensure_unflagged_by_template(wikicode, template, "Broken package link", match_only_prefix=True)
+                # flag with a localized template and hint
+                flag = self.get_localized_template("Broken package link", lang)
+                ensure_flagged_by_template(wikicode, template, flag, hint, overwrite_parameters=True)
             else:
-                if isinstance(adjacent, mwparserfromhell.nodes.Template) and canonicalize(adjacent.name).startswith("Broken package link"):
-                    # package has been found again, remove existing flag
-                    wikicode.remove(adjacent)
+                ensure_unflagged_by_template(wikicode, template, "Broken package link", match_only_prefix=True)
 
         return wikicode
 
@@ -428,7 +422,7 @@ class PkgUpdater:
 
     def save_report_to_file(self, text, basename):
         f = open(basename + ".mediawiki", "w")
-        f.write(mwreport)
+        f.write(text)
         f.close()
         logger.info("Saved report in '{}.mediawiki'".format(basename))
 

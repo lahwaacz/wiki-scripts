@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-from pprint import pprint
-
 from ws.client import API
 from ws.interactive import require_login
 import ws.config

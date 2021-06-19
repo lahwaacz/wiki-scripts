@@ -4,7 +4,7 @@ import string
 import re
 import unicodedata
 
-__all__ = ["encode", "decode", "dotencode", "urlencode", "urldecode", "queryencode", "querydecode"]
+__all__ = ["encode", "decode", "dotencode", "anchorencode", "urlencode", "urldecode", "queryencode", "querydecode"]
 
 def encode(str_, escape_char="%", encode_chars="", skip_chars="", special_map=None, charset="utf-8", errors="strict"):
     """
@@ -86,7 +86,7 @@ def _anchor_preprocess(str_):
     .. _`MediaWiki`: https://www.mediawiki.org/wiki/Manual:PAGENAMEE_encoding
     """
     # underscores are treated as spaces during this pre-processing, so they are
-    # convert to spaces first (the encoding later converts them back)
+    # converted to spaces first (the encoding later converts them back)
     str_ = str_.replace("_", " ")
     # strip leading + trailing whitespace
     str_ = str_.strip()
@@ -133,8 +133,8 @@ def anchorencode(str_, format="html5"):
     str_ = _anchor_preprocess(str_)
     special_map = {" ": "_"}
     escape_char = "."
-    charset="utf-8"
-    errors="strict"
+    charset = "utf-8"
+    errors = "strict"
     # below is the code from the encode function, but without the encode_chars
     # and skip_chars parameters, and adjusted for unicode categories
     output = ""

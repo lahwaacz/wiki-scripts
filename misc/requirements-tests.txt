@@ -3,3 +3,5 @@ pytest-cov
 pytest-postgresql
 pytest-nginx
 pytest-bdd
+pytest-mock
+requests-mock

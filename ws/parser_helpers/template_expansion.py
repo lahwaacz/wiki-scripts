@@ -415,6 +415,8 @@ def expand_templates(title, wikicode, content_getter_func, *,
 
     def get_target_title(src_title, title):
         target = Title(src_title.context, title)
+        if target.iwprefix:
+            raise TitleError("cannot expand templates from interwiki")
         if title.startswith("/"):
             return target.make_absolute(src_title)
         elif target.leading_colon:
@@ -521,6 +523,12 @@ def expand_templates(title, wikicode, content_getter_func, *,
                 else:
                     # MediaWiki fallback message
                     content = "<span class=\"error\">Template loop detected: [[{}]]</span>".format(target_title)
+
+                # make sure that the node is not removed from the AST, otherwise
+                # recursive iteration would be messed up
+                # https://github.com/earwig/mwparserfromhell/issues/241
+                if str(content) == "":
+                    content = mwparserfromhell.nodes.text.Text("")
 
 #                wikicode.replace(template, content)
                 parent.replace(template, content, recursive=False)

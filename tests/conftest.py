@@ -9,6 +9,7 @@ import ws.db.schema as schema
 
 from fixtures.postgresql import *
 from fixtures.mediawiki import *
+from fixtures.title_context import *
 
 # disable rate-limiting for tests
 def pytest_configure(config):

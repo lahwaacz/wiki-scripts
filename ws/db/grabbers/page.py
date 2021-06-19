@@ -5,7 +5,7 @@ import sqlalchemy as sa
 import ws.utils
 import ws.db.selects as selects
 
-from .GrabberBase import *
+from .GrabberBase import GrabberBase
 
 class GrabberPages(GrabberBase):
 
@@ -91,26 +91,26 @@ class GrabberPages(GrabberBase):
             .returning(*db.revision.c._all_columns) \
             .cte("deleted_revision")
         columns = [
-                db.page.c.page_namespace,
-                db.page.c.page_title,
-                deleted_revision.c.rev_id,
-                deleted_revision.c.rev_page,
-                deleted_revision.c.rev_text_id,
-                deleted_revision.c.rev_comment,
-                deleted_revision.c.rev_user,
-                deleted_revision.c.rev_user_text,
-                deleted_revision.c.rev_timestamp,
-                deleted_revision.c.rev_minor_edit,
-                deleted_revision.c.rev_deleted,
-                deleted_revision.c.rev_len,
-                deleted_revision.c.rev_parent_id,
-                deleted_revision.c.rev_sha1,
-                deleted_revision.c.rev_content_model,
-                deleted_revision.c.rev_content_format,
-            ]
+            db.page.c.page_namespace,
+            db.page.c.page_title,
+            deleted_revision.c.rev_id,
+            deleted_revision.c.rev_page,
+            deleted_revision.c.rev_text_id,
+            deleted_revision.c.rev_comment,
+            deleted_revision.c.rev_user,
+            deleted_revision.c.rev_user_text,
+            deleted_revision.c.rev_timestamp,
+            deleted_revision.c.rev_minor_edit,
+            deleted_revision.c.rev_deleted,
+            deleted_revision.c.rev_len,
+            deleted_revision.c.rev_parent_id,
+            deleted_revision.c.rev_sha1,
+            deleted_revision.c.rev_content_model,
+            deleted_revision.c.rev_content_format,
+        ]
         select = sa.select(columns).select_from(
-                deleted_revision.join(db.page, deleted_revision.c.rev_page == db.page.c.page_id)
-            )
+            deleted_revision.join(db.page, deleted_revision.c.rev_page == db.page.c.page_id)
+        )
         insert = db.archive.insert().from_select(
             # populate all columns except ar_id
             db.archive.c._all_columns[1:],
@@ -121,11 +121,11 @@ class GrabberPages(GrabberBase):
         # build query to move data from the tagged_revision table into tagged_archived_revision
         deleted_tagged_revision = db.tagged_revision.delete() \
             .where(db.tagged_revision.c.tgrev_rev_id.in_(
-                        sa.select([db.revision.c.rev_id]) \
-                            .select_from(db.revision) \
+                        sa.select([db.revision.c.rev_id])
+                            .select_from(db.revision)
                             .where(db.revision.c.rev_page == sa.bindparam("b_rev_page"))
-                        )
-                    ) \
+                    )
+                ) \
             .returning(*db.tagged_revision.c._all_columns) \
             .cte("deleted_tagged_revision")
         insert = db.tagged_archived_revision.insert().from_select(
@@ -382,7 +382,7 @@ class GrabberPages(GrabberBase):
                     deleted_pageids.add(le["logpage"])
                 else:
                     modified.add(le["logpage"])
-                    if le["action"] == "move":
+                    if le["action"] in {"move", "move_redir"}:
                         moved.append((le["logpage"], le["params"]))
             elif le["type"] == "suppress" and le["action"] == "delete":
                 deleted_pageids.add(le["logpage"])

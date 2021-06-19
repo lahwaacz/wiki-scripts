@@ -12,12 +12,13 @@ and making requests.
 
 import requests
 from requests.packages.urllib3.util.retry import Retry
+import ssl
 import http.cookiejar as cookielib
 import logging
 import copy
 
 from ws import __version__, __url__
-from ..utils import RateLimited, parse_timestamps_in_struct, serialize_timestamps_in_struct
+from ws.utils import TLSAdapter, RateLimited, parse_timestamps_in_struct, serialize_timestamps_in_struct
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +101,7 @@ class Connection:
         self.timeout = timeout
 
     @staticmethod
-    def make_session(user_agent=DEFAULT_UA, ssl_verify=None, max_retries=0,
+    def make_session(user_agent=DEFAULT_UA, max_retries=0,
                      cookie_file=None, cookiejar=None,
                      http_user=None, http_password=None):
         """
@@ -111,7 +112,6 @@ class Connection:
         is ignored.
 
         :param str user_agent: string sent as ``User-Agent`` header to the web server
-        :param bool ssl_verify: if ``True``, the SSL certificate will be verified
         :param int max_retries:
             Maximum number of retries for each connection. Applies only to
             failed DNS lookups, socket connections and connection timeouts, never
@@ -139,11 +139,13 @@ class Connection:
         session.headers.update({"user-agent": user_agent})
         session.auth = _auth
         session.params.update({"format": "json"})
-        session.verify = ssl_verify
 
+        # disallow TLS1.0 and TLS1.1, allow only TLS1.2 (and newer if suported
+        # by the used openssl version)
+        ssl_options = ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
         # granular control over requests' retries: https://stackoverflow.com/a/35504626
-        retries = Retry(total=max_retries, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
-        adapter = requests.adapters.HTTPAdapter(max_retries=retries)
+        retries = Retry(total=max_retries, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
+        adapter = TLSAdapter(ssl_options=ssl_options, max_retries=retries)
         session.mount("https://", adapter)
         session.mount("http://", adapter)
         return session
@@ -164,8 +166,6 @@ class Connection:
                 help="the URL to the wiki's api.php (default: %(default)s)")
         group.add_argument("--index-url", metavar="URL",
                 help="the URL to the wiki's index.php (default: %(default)s)")
-        group.add_argument("--ssl-verify", default=True, type=ws.config.argtype_bool,
-                help="whether to verify SSL certificates (default: %(default)s)")
         group.add_argument("--connection-max-retries", default=3, type=int,
                 help="maximum number of retries for each connection (default: %(default)s)")
         group.add_argument("--connection-timeout", default=60, type=float,
@@ -183,11 +183,7 @@ class Connection:
         :param args: an instance of :py:class:`argparse.Namespace`.
         :returns: an instance of :py:class:`Connection`
         """
-        # retype from int to bool
-        args.ssl_verify = True if args.ssl_verify == 1 else False
-
-        session = Connection.make_session(ssl_verify=args.ssl_verify,
-                                          max_retries=args.connection_max_retries,
+        session = Connection.make_session(max_retries=args.connection_max_retries,
                                           cookie_file=args.cookie_file)
         return klass(args.api_url, args.index_url, session=session, timeout=args.connection_timeout)
 
@@ -282,9 +278,9 @@ class Connection:
         try:
             result = result.json()
         except ValueError:
-            raise APIJsonError("Failed to decode server response. Please make sure " +
-                               "that the API is enabled on the wiki and that the " +
-                               "API URL is correct.")
+            raise APIJsonError("Failed to decode server response. Please make "
+                               "sure that the API is enabled on the wiki and "
+                               "that the API URL is correct.")
 
         # see if there are errors/warnings
         if "error" in result:

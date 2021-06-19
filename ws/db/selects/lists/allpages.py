@@ -4,8 +4,6 @@ import datetime
 
 import sqlalchemy as sa
 
-import ws.db.mw_constants as mwconst
-
 from .GeneratorBase import GeneratorBase
 
 __all__ = ["AllPages"]

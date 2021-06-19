@@ -10,7 +10,7 @@ import logging
 import mwparserfromhell
 
 from ws.client import APIError
-from ws.interactive import *
+from ws.interactive import ask_yesno
 import ws.ArchWiki.lang as lang
 import ws.ArchWiki.header as header
 import ws.utils
@@ -107,10 +107,12 @@ class InterlanguageLinks:
                 if lang.is_interlanguage_tag(tag):
                     yield page
 
-        if case_sensitive is True:
-            _family_key = lambda page: lang.detect_language(page["title"])[0]
-        else:
-            _family_key = lambda page: lang.detect_language(page["title"])[0].lower()
+        def _family_key(page):
+            key = lang.detect_language(page["title"])[0]
+            if case_sensitive is False:
+                key = key.lower()
+            return key
+
         pages = sorted(pages, key=_family_key)
         families_groups = itertools.groupby(_valid_interlanguage_pages(pages), key=_family_key)
 
@@ -353,8 +355,10 @@ class InterlanguageLinks:
 
         for chunk in ws.utils.iter_chunks(_updates_gen(self.allpages), self.api.max_ids_per_query):
             pages_props, pages_langlinks = zip(*list(chunk))
-            pageids = "|".join(str(page["pageid"]) for page in pages_props)
-            result = self.api.call_api(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp", rvslots="main")
+            pageids = [page["pageid"] for page in pages_props]
+            result = {}
+            for chunk in self.api.call_api_autoiter_ids(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp", rvslots="main"):
+                ws.utils.dmerge(chunk, result)
             pages = result["pages"]
 
             for page, langlinks in zip(pages_props, pages_langlinks):

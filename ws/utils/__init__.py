@@ -9,13 +9,14 @@ from .json import *
 from .lazy import *
 from .OrderedSet import *
 from .rate import *
+from .TLSAdapter import *
 
 # test if given string is ASCII
 def is_ascii(text):
     try:
         text.encode("ascii")
         return True
-    except:
+    except UnicodeError:
         return False
 
 # split ``list_`` into chunks of fixed length ``bs``

@@ -6,7 +6,7 @@ import sqlalchemy as sa
 
 import ws.utils
 
-from .GrabberBase import *
+from .GrabberBase import GrabberBase
 
 class GrabberIPBlocks(GrabberBase):
 

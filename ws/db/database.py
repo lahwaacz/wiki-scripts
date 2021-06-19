@@ -81,7 +81,6 @@ class Database:
 
         :param argparser: an instance of :py:class:`argparse.ArgumentParser`
         """
-        import ws.config
         group = argparser.add_argument_group(title="Database parameters")
         group.add_argument("--db-dialect", metavar="DIALECT", choices=["postgresql"],
                 help="an SQL dialect (default: %(default)s)")
@@ -134,14 +133,18 @@ class Database:
             raise AttributeError("Table '{}' does not exist in the database.".format(table_name))
         return self.metadata.tables[table_name]
 
-    def sync_with_api(self, api, *, with_content=False):
+    def sync_with_api(self, api, *, with_content=False, check_needs_update=True):
         """
         Sync the local data with a remote MediaWiki instance.
 
         :param ws.client.api.API api: interface to the remote MediaWiki instance
-        :param bool with_content: whether to synchronize the content of all revisions
+        :param bool with_content:
+            whether to synchronize the content of all revisions
+        :param bool check_needs_update:
+            whether to use the ``recentchanges`` table to check if the
+            synchronization is needed and otherwise exit early
         """
-        grabbers.synchronize(self, api, with_content=with_content)
+        grabbers.synchronize(self, api, with_content=with_content, check_needs_update=check_needs_update)
 
     def sync_revisions_content(self, api, *, mode="latest"):
         """
@@ -152,6 +155,7 @@ class Database:
 
         :param ws.client.api.API api: interface to the remote MediaWiki instance
         :param str mode: the mode of operation:
+
                 - `"latest"`: the content of the latest revisions of all pags on
                   the wiki will be synchronized
                 - `"all"`: the content of all revisions will be synchronized
@@ -205,7 +209,6 @@ Usage:
 >>>     print(row[0])
 """
 
-from sqlalchemy import *
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import Executable, ClauseElement, _literal_as_text
 

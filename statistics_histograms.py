@@ -47,7 +47,7 @@ def plot_date_bars(bin_data, bin_edges, title, ylabel, fname):
     plt.tick_params(axis="x", which="both", direction="out")
     plt.xticks([date2num(ts) for ts in bin_edges if ts.month % 12 == 1])
 
-    plt.savefig(fname, papertype="a4")
+    plt.savefig(fname)
 
 def create_histograms(revisions):
     """

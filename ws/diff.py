@@ -76,40 +76,30 @@ def diff_highlighted(old, new, fromfile="", tofile="", fromfiledate="", tofileda
             text = pygments.highlight(text, lexer, formatter)
         return text
 
-class RevisionDiffer:
+def diff_revisions(api, oldrevid, newrevid):
     """
-    Object for comparing revisions.
+    Get a visual diff of two revisions obtained via a MediaWiki API.
+
+    Calls :py:func:`diff_highlighted` and includes basic meta data (title,
+    username, timestamp and comment) in the diff header.
 
     :param api: a :py:class:`MediaWiki.api.API` instance to operate on
+    :param oldrevid: revision ID for old revision
+    :param newrevid: revision ID for new revision
     """
-    def __init__(self, api):
-        self.api = api
+    # query content + meta data for each revision
+    result = api.call_api(action="query", prop="revisions", rvprop="content|timestamp|user|comment", revids="%s|%s" % (oldrevid, newrevid))
+    page = list(result["pages"].values())[0]    # returned structure is the same as for generators
 
-    def diff(self, oldrevid, newrevid):
-        """
-        Method to get highlighted diff of two revisions. Uses ANSI color sequences
-        for output in a 256-color terminal.
+    title = page["title"]
+    if len(page["revisions"]) != 2:
+        raise Exception("API returned wrong number of revisions, are the revision IDs valid?")
+    rev_old = page["revisions"][0]
+    rev_new = page["revisions"][1]
+    # fields to show in header (extended, abusing original field titles)
+    fn_old = "%s\t(%s)" % (title, rev_old["user"])
+    fn_new = "%s\t(%s)" % (title, rev_new["user"])
+    ts_old = "%s\t%s" % (rev_old["timestamp"], rev_old["comment"])
+    ts_new = "%s\t%s" % (rev_new["timestamp"], rev_new["comment"])
 
-        Basic meta data (title, username, timestamp and comment) is included in the
-        diff header. Original *unified diff* format supports only file name and
-        timestamp fields, we show more.
-
-        :param oldrevid: revision ID for old revision
-        :param newrevid: revision ID for new revision
-        """
-        # query content + meta data for each revision
-        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp|user|comment", revids="%s|%s" % (oldrevid, newrevid))
-        page = list(result["pages"].values())[0]    # returned structure is the same as for generators
-
-        title = page["title"]
-        if len(page["revisions"]) != 2:
-            raise Exception("API returned wrong number of revisions, are the revision IDs valid?")
-        rev_old = page["revisions"][0]
-        rev_new = page["revisions"][1]
-        # fields to show in header (extended, abusing original field titles)
-        fn_old = "%s\t(%s)" % (title, rev_old["user"])
-        fn_new = "%s\t(%s)" % (title, rev_new["user"])
-        ts_old = "%s\t%s" % (rev_old["timestamp"], rev_old["comment"])
-        ts_new = "%s\t%s" % (rev_new["timestamp"], rev_new["comment"])
-
-        return diff_highlighted(rev_old["*"], rev_new["*"], fn_old, fn_new, ts_old, ts_new)
+    return diff_highlighted(rev_old["*"], rev_new["*"], fn_old, fn_new, ts_old, ts_new)

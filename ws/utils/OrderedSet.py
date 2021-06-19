@@ -17,7 +17,7 @@ class OrderedSet(collections.OrderedDict, collections.abc.MutableSet):
 
         for s in args:
             for e in s:
-                 self.add(e)
+                self.add(e)
 
     def add(self, elem):
         self[elem] = None

@@ -2,7 +2,7 @@
 
 import sqlalchemy as sa
 
-from .GrabberBase import *
+from .GrabberBase import GrabberBase
 
 class GrabberUserMerge(GrabberBase):
 
@@ -11,19 +11,19 @@ class GrabberUserMerge(GrabberBase):
 
         self.sql = {
             ("delete", "user"):
-                db.user.delete() \
+                db.user.delete()
                     .where(db.user.c.user_id == sa.bindparam("b_oldid")),
             ("update", "logging"):
-                db.logging.update() \
+                db.logging.update()
                     .where(db.logging.c.log_user == sa.bindparam("b_oldid")),
             ("update", "ipb"):
-                db.ipblocks.update() \
+                db.ipblocks.update()
                     .where(db.ipblocks.c.ipb_by == sa.bindparam("b_oldid")),
             ("update", "archive"):
-                db.archive.update() \
+                db.archive.update()
                     .where(db.archive.c.ar_user == sa.bindparam("b_oldid")),
             ("update", "revision"):
-                db.revision.update() \
+                db.revision.update()
                     .where(db.revision.c.rev_user == sa.bindparam("b_oldid")),
         }
 

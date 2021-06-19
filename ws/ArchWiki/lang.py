@@ -20,7 +20,7 @@ __languages = [
     {"name": "Bosanski", "subtag": "bs", "english": "Bosnian"},
     {"name": "Български", "subtag": "bg", "english": "Bulgarian"},
     {"name": "Català", "subtag": "ca", "english": "Catalan"},
-    {"name": "Česky", "subtag": "cs", "english": "Czech"},
+    {"name": "Čeština", "subtag": "cs", "english": "Czech"},
     {"name": "Dansk", "subtag": "da", "english": "Danish"},
     {"name": "Deutsch", "subtag": "de", "english": "German"},
     {"name": "Ελληνικά", "subtag": "el", "english": "Greek"},
@@ -33,65 +33,33 @@ __languages = [
     {"name": "עברית", "subtag": "he", "english": "Hebrew"},
     {"name": "Hrvatski", "subtag": "hr", "english": "Croatian"},
     {"name": "Magyar", "subtag": "hu", "english": "Hungarian"},
-    {"name": "Indonesia", "subtag": "id", "english": "Indonesian"},
+    {"name": "Bahasa Indonesia", "subtag": "id", "english": "Indonesian"},
     {"name": "Italiano", "subtag": "it", "english": "Italian"},
     {"name": "日本語", "subtag": "ja", "english": "Japanese"},
     {"name": "한국어", "subtag": "ko", "english": "Korean"},
-    {"name": "Lietuviškai", "subtag": "lt", "english": "Lithuanian"},
+    {"name": "Lietuvių", "subtag": "lt", "english": "Lithuanian"},
     {"name": "Norsk Bokmål", "subtag": "nb", "english": "Norwegian (Bokmål)"},
     {"name": "Nederlands", "subtag": "nl", "english": "Dutch"},
     {"name": "Polski", "subtag": "pl", "english": "Polish"},
     {"name": "Português", "subtag": "pt", "english": "Portuguese"},
     {"name": "Română", "subtag": "ro", "english": "Romanian"},
     {"name": "Русский", "subtag": "ru", "english": "Russian"},
-    {"name": "Slovenský", "subtag": "sk", "english": "Slovak"},
+    {"name": "Slovenčina", "subtag": "sk", "english": "Slovak"},
     {"name": "Српски", "subtag": "sr", "english": "Serbian"},
     {"name": "Svenska", "subtag": "sv", "english": "Swedish"},
     {"name": "ไทย", "subtag": "th", "english": "Thai"},
     {"name": "Türkçe", "subtag": "tr", "english": "Turkish"},
     {"name": "Українська", "subtag": "uk", "english": "Ukrainian"},
     {"name": "Tiếng Việt", "subtag": "vi", "english": "Vietnamese"},
+    {"name": "粵語", "subtag": "yue", "english": "Cantonese"},
     {"name": "简体中文", "subtag": "zh-hans", "english": "Chinese (Simplified)"},
     {"name": "正體中文", "subtag": "zh-hant", "english": "Chinese (Traditional)"},
 ]
-# languages that have a category "Category:<lang>" on ArchWiki
-__category_languages = [
-    "العربية",
-    "Bosanski",
-    "Български",
-    "Català",
-    "Česky",
-    "Dansk",
-    "Ελληνικά",
-    "English",
-    "Esperanto",
-    "Español",
-    "Suomi",
-    "עברית",
-    "Hrvatski",
-    "Magyar",
-    "Indonesia",
-    "Italiano",
-    "日本語",
-    "한국어",
-    "Lietuviškai",
-    "Norsk Bokmål",
-    "Nederlands",
-    "Polski",
-    "Português",
-    "Русский",
-    "Slovenský",
-    "Српски",
-    "ไทย",
-    "Українська",
-    "简体中文",
-    "正體中文"
-]
 # languages with right-to-left script
 __rtl = ["ar", "he"]
-__interlanguage_external = ["de", "fa", "fr", "ja", "sv"]
-__interlanguage_internal = ["ar", "bs", "bg", "cs", "da", "el", "en", "es", "fi", "he",
-                            "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt",
+__interlanguage_external = ["de", "fa", "ja", "sv"]
+__interlanguage_internal = ["ar", "bs", "bg", "cs", "da", "el", "en", "es", "fi", "fr",
+                            "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt",
                             "ru", "sk", "sr", "th", "tr", "uk", "zh-hans", "zh-hant"]
 
 
@@ -116,13 +84,6 @@ def get_language_tags():
 
 def is_language_tag(tag):
     return tag.lower() in get_language_tags()
-
-
-def get_category_languages():
-    return __category_languages
-
-def is_category_language(lang):
-    return lang in get_category_languages()
 
 
 def is_rtl_tag(tag):
