@@ -202,8 +202,14 @@ class PageUpdater:
             print("(edit discarded due to --dry-run)")
             return
 
+        interactive = self.interactive
+
+        # override interactive mode for edits which are very frequent and "always" correct
+        if "bot" in self.api.user.rights and edit_summary == "update http to https":
+            interactive = False
+
         try:
-            if self.interactive is False:
+            if interactive is False:
                 self.api.edit(title, pageid, text_new, timestamp, edit_summary, bot="")
             else:
                 # print the info message
