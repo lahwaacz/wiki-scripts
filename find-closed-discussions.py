@@ -27,7 +27,7 @@ if __name__ == "__main__":
     API.set_argparser(argparser)
     Database.set_argparser(argparser)
 
-    args = ws.config.parse_args()
+    args = ws.config.parse_args(argparser)
 
     api = API.from_argparser(args)
     db = Database.from_argparser(args)

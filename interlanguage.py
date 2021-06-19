@@ -48,7 +48,7 @@ if __name__ == "__main__":
     _group = argparser.add_argument_group("interlanguage")
     _group.add_argument("--mode", choices=modes, default="update", help="operation mode of the script")
 
-    args = ws.config.parse_args()
+    args = ws.config.parse_args(argparser)
 
     api = API.from_argparser(args)
     require_login(api)

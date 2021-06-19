@@ -112,7 +112,7 @@ if __name__ == "__main__":
     Database.set_argparser(argparser)
 
     # TODO: script-specific arguments (e.g. output path)
-    args = ws.config.parse_args()
+    args = ws.config.parse_args(argparser)
 
     api = API.from_argparser(args)
     require_login(api)

@@ -158,7 +158,7 @@ if __name__ == "__main__":
     _script.add_argument("--safe-filenames", action="store_true",
             help="Force using ASCII file names instead of the default Unicode.")
 
-    args = ws.config.parse_args()
+    args = ws.config.parse_args(argparser)
 
     api = API.from_argparser(args)
 

@@ -655,7 +655,7 @@ if __name__ == "__main__":
     argparser.add_argument("--no-parser-cache", dest="parser_cache", action="store_false",
             help="opposite of --parser-cache")
 
-    args = ws.config.parse_args()
+    args = ws.config.parse_args(argparser)
 
     api = API.from_argparser(args)
     db = Database.from_argparser(args)

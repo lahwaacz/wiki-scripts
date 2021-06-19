@@ -39,7 +39,7 @@ if __name__ == "__main__":
     # checkers don't have their own set_argparser method at the moment,
     # they just reuse API's and PageUpdater's options
 
-    args = argparser.parse_args()
+    args = ws.config.parse_args(argparser)
 
     # set up logging
     ws.logging.init(args)
