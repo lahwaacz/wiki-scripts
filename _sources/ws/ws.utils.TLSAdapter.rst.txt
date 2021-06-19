@@ -1,0 +1,7 @@
+ws.utils.TLSAdapter module
+==========================
+
+.. automodule:: ws.utils.TLSAdapter
+   :members:
+   :undoc-members:
+   :show-inheritance:

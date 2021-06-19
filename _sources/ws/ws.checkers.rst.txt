@@ -1,0 +1,20 @@
+ws.checkers package
+===================
+
+.. automodule:: ws.checkers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   ws.checkers.CheckerBase
+   ws.checkers.ExtlinkReplacements
+   ws.checkers.ExtlinkStatusChecker
+   ws.checkers.ManTemplateChecker
+   ws.checkers.WikilinkChecker
+   ws.checkers.smarter_encryption_list

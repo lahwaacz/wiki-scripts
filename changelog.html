@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
     <title>Changelog &#8212; wiki-scripts 1.2 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -33,22 +34,26 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="changelog">
+  <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="version-1-3">
+<section id="version-1-3">
 <h2>Version 1.3<a class="headerlink" href="#version-1-3" title="Permalink to this headline">¶</a></h2>
-<p>Unreleased
-(<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/compare/1.2...master">changes</a>)</p>
+<p><a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/tree/1.3">Released Jun 19, 2021</a>
+(<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/compare/1.2...1.3">changes</a>)</p>
 <ul class="simple">
 <li><dl class="simple">
 <dt>SQL database:</dt><dd><ul>
 <li><p>Implemented a subset of MediaWiki API querie. Lists: <code class="docutils literal notranslate"><span class="pre">allpages</span></code>,
-<code class="docutils literal notranslate"><span class="pre">alldeletedrevisions</span></code>, <code class="docutils literal notranslate"><span class="pre">allrevisions</span></code>, <code class="docutils literal notranslate"><span class="pre">logevents</span></code>,
-<code class="docutils literal notranslate"><span class="pre">protectedtitles</span></code>, <code class="docutils literal notranslate"><span class="pre">recentchanges</span></code>; props: <code class="docutils literal notranslate"><span class="pre">deletedrevisions</span></code>,
-<code class="docutils literal notranslate"><span class="pre">revisions</span></code>, <code class="docutils literal notranslate"><span class="pre">pageprops</span></code>, <code class="docutils literal notranslate"><span class="pre">info</span></code>; including <code class="docutils literal notranslate"><span class="pre">generator</span></code>,
-<code class="docutils literal notranslate"><span class="pre">titles</span></code> and <code class="docutils literal notranslate"><span class="pre">pageids</span></code> parameters. See the GitHub issue for more
-information: <a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/issues/35">https://github.com/lahwaacz/wiki-scripts/issues/35</a>.</p></li>
-<li><p>Implemented synchronization of the latest revisions contents.</p></li>
+<code class="docutils literal notranslate"><span class="pre">alldeletedrevisions</span></code>, <code class="docutils literal notranslate"><span class="pre">allrevisions</span></code>, <code class="docutils literal notranslate"><span class="pre">allusers</span></code>, <code class="docutils literal notranslate"><span class="pre">logevents</span></code>,
+<code class="docutils literal notranslate"><span class="pre">protectedtitles</span></code>, <code class="docutils literal notranslate"><span class="pre">recentchanges</span></code>; props: <code class="docutils literal notranslate"><span class="pre">categories</span></code>,
+<code class="docutils literal notranslate"><span class="pre">deletedrevisions</span></code>, <code class="docutils literal notranslate"><span class="pre">extlinks</span></code>, <code class="docutils literal notranslate"><span class="pre">images</span></code>, <code class="docutils literal notranslate"><span class="pre">info</span></code>, <code class="docutils literal notranslate"><span class="pre">iwlinks</span></code>,
+<code class="docutils literal notranslate"><span class="pre">langlinks</span></code>, <code class="docutils literal notranslate"><span class="pre">linkshere</span></code>, <code class="docutils literal notranslate"><span class="pre">links</span></code>, <code class="docutils literal notranslate"><span class="pre">pageprops</span></code>, <code class="docutils literal notranslate"><span class="pre">redirects</span></code>,
+<code class="docutils literal notranslate"><span class="pre">revisions</span></code>, <code class="docutils literal notranslate"><span class="pre">sections</span></code>, <code class="docutils literal notranslate"><span class="pre">templates</span></code>, <code class="docutils literal notranslate"><span class="pre">transcludedin</span></code>; including
+<code class="docutils literal notranslate"><span class="pre">generator</span></code>, <code class="docutils literal notranslate"><span class="pre">titles</span></code> and <code class="docutils literal notranslate"><span class="pre">pageids</span></code> parameters. See the GitHub
+issue for more information:
+<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/issues/35">https://github.com/lahwaacz/wiki-scripts/issues/35</a>.</p></li>
+<li><p>Implemented synchronization of revisions contents (either full or just
+the latest revision for each page).</p></li>
 <li><p>Fixed many bugs in the synchronization process.</p></li>
 <li><p>Implemented custom parser cache, see the GitHub issue for more
 information: <a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/issues/42">https://github.com/lahwaacz/wiki-scripts/issues/42</a></p></li>
@@ -66,9 +71,13 @@ the SQL database. See <a class="reference internal" href="ws/ws.parser_helpers.t
 <li><p>Implemented a regex-based function to check if a page is a redirect
 (<a class="reference internal" href="ws/ws.parser_helpers.wikicode.html#ws.parser_helpers.wikicode.is_redirect" title="ws.parser_helpers.wikicode.is_redirect"><code class="xref py py-func docutils literal notranslate"><span class="pre">ws.parser_helpers.wikicode.is_redirect()</span></code></a>).</p></li>
 <li><p>Fixed handling of relative links and leading colons in the <a class="reference internal" href="ws/ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal notranslate"><span class="pre">Title</span></code></a> class.</p></li>
+<li><p>The parameter <cite>–ssl-verify</cite> is removed, SSL certificates are always verified
+for HTTPS requests. Furthermore, TLS 1.2 or newer is required for all HTTPS
+requests.</p></li>
+<li><p>And much more…</p></li>
 </ul>
-</div>
-<div class="section" id="version-1-2">
+</section>
+<section id="version-1-2">
 <h2>Version 1.2<a class="headerlink" href="#version-1-2" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/tree/1.2">Released December 31, 2017</a>
 (<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/compare/1.1...1.2">changes</a>)</p>
@@ -91,8 +100,8 @@ new dependencies, see the README file for details.</p></li>
 <code class="xref py py-func docutils literal notranslate"><span class="pre">ws.utils.parse_date()</span></code> and <code class="xref py py-func docutils literal notranslate"><span class="pre">ws.utils.format_date()</span></code> functions
 should not be necessary when working with the API.</p></li>
 </ul>
-</div>
-<div class="section" id="version-1-1">
+</section>
+<section id="version-1-1">
 <h2>Version 1.1<a class="headerlink" href="#version-1-1" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/tree/1.1">Released March 6, 2016</a>
 (<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/compare/1.0...1.1">changes</a>)</p>
@@ -119,8 +128,8 @@ the sections existing on the target page.</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">--connection-max-retries</span></code> and <code class="docutils literal notranslate"><span class="pre">--connection-timeout</span></code> options.</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">toc.py</span></code> script to update the “Table of contents” page on the wiki.</p></li>
 </ul>
-</div>
-<div class="section" id="version-1-0">
+</section>
+<section id="version-1-0">
 <h2>Version 1.0<a class="headerlink" href="#version-1-0" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/tree/1.0">Released August 19, 2015</a>
 (<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/compare/0.6...1.0">changes</a>)</p>
@@ -138,7 +147,7 @@ the <code class="docutils literal notranslate"><span class="pre">index.php</span
 <li><p>Created the <code class="xref py py-class docutils literal notranslate"><span class="pre">ws.core.lazy.LazyProperty</span></code> decorator and made
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">ws.core.api.API.is_loggedin</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">ws.core.api.API.user_rights</span></code>
 and <code class="xref py py-attr docutils literal notranslate"><span class="pre">ws.core.api.API.namespaces</span></code> proper properties.</p></li>
-<li><p>Started using the <a class="reference external" href="https://docs.python.org/3/library/logging.html#module-logging" title="(in Python v3.8)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code></a> module for messages.</p></li>
+<li><p>Started using the <a class="reference external" href="https://docs.python.org/3/library/logging.html#module-logging" title="(in Python v3.9)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code></a> module for messages.</p></li>
 <li><p>New unified configuration interface for all scripts, using the
 <a class="reference internal" href="ws/ws.config.html#module-ws.config" title="ws.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.config</span></code></a> submodule. See <a class="reference external" href="configuration">Configuration</a> for
 details.</p>
@@ -182,8 +191,8 @@ broken fragments by comparing dot-encoded fragments)</p></li>
 </ul>
 </li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -238,7 +247,7 @@ broken fragments by comparing dot-encoded fragments)</p></li>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -255,7 +264,7 @@ broken fragments by comparing dot-encoded fragments)</p></li>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

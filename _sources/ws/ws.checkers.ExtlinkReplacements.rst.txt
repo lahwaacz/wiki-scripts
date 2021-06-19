@@ -1,0 +1,7 @@
+ws.checkers.ExtlinkReplacements module
+======================================
+
+.. automodule:: ws.checkers.ExtlinkReplacements
+   :members:
+   :undoc-members:
+   :show-inheritance:

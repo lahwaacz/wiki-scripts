@@ -1,0 +1,7 @@
+ws.checkers.WikilinkChecker module
+==================================
+
+.. automodule:: ws.checkers.WikilinkChecker
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>ws.utils.TLSAdapter module &#8212; wiki-scripts 1.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ws.utils.base_enc module" href="ws.utils.base_enc.html" />
+    <link rel="prev" title="ws.utils.OrderedSet module" href="ws.utils.OrderedSet.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-ws.utils.TLSAdapter">
+<span id="ws-utils-tlsadapter-module"></span><h1>ws.utils.TLSAdapter module<a class="headerlink" href="#module-ws.utils.TLSAdapter" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="ws.utils.TLSAdapter.TLSAdapter">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ws.utils.TLSAdapter.</span></span><span class="sig-name descname"><span class="pre">TLSAdapter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ssl_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.TLSAdapter.TLSAdapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python-requests.org/en/latest/api/#requests.adapters.HTTPAdapter" title="(in Requests v2.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.adapters.HTTPAdapter</span></code></a></p>
+<p>Snippet based on <a class="reference external" href="https://stackoverflow.com/a/44432829">https://stackoverflow.com/a/44432829</a></p>
+<p>Example:</p>
+<blockquote>
+<div><p>session = requests.session()
+# disallow TLS1.0 and TLS1.1, allow only TLS1.2 (and newer if suported
+# by the used openssl version)
+adapter = TLSAdapter(ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1)
+session.mount(”<a class="reference external" href="https://">https://</a>”, adapter)</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.utils.TLSAdapter.TLSAdapter.init_poolmanager">
+<span class="sig-name descname"><span class="pre">init_poolmanager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">pool_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">pool_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.utils.TLSAdapter.TLSAdapter.init_poolmanager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a urllib3 PoolManager.</p>
+<p>This method should not be called from user code, and is only
+exposed for use when subclassing the
+<a class="reference external" href="https://docs.python-requests.org/en/latest/api/#requests.adapters.HTTPAdapter" title="(in Requests v2.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">HTTPAdapter</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>connections</strong> – The number of urllib3 connection pools to cache.</p></li>
+<li><p><strong>maxsize</strong> – The maximum number of connections to save in the pool.</p></li>
+<li><p><strong>block</strong> – Block when no free connections are available.</p></li>
+<li><p><strong>pool_kwargs</strong> – Extra keyword arguments used to initialize the Pool Manager.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/wiki-scripts.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../index.html">wiki-scripts</a></h1>
+
+
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Writing new scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ws.html">ws package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="ws.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="ws.ArchWiki.html">ws.ArchWiki package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.checkers.html">ws.checkers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.client.html">ws.client package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.db.html">ws.db package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.interlanguage.html">ws.interlanguage package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.parser_helpers.html">ws.parser_helpers package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="ws.utils.html">ws.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ws.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../modules.html">API reference</a><ul>
+  <li><a href="ws.html">ws package</a><ul>
+  <li><a href="ws.utils.html">ws.utils package</a><ul>
+      <li>Previous: <a href="ws.utils.OrderedSet.html" title="previous chapter">ws.utils.OrderedSet module</a></li>
+      <li>Next: <a href="ws.utils.base_enc.html" title="next chapter">ws.utils.base_enc module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014-2018, Jakub Klinkovský.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/ws/ws.utils.TLSAdapter.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/lahwaacz/wiki-scripts" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

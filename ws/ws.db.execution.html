@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
     <title>ws.db.execution module &#8212; wiki-scripts 1.2 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -33,12 +34,12 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-ws.db.execution">
+  <section id="module-ws.db.execution">
 <span id="ws-db-execution-module"></span><h1>ws.db.execution module<a class="headerlink" href="#module-ws.db.execution" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="ws.db.execution.DeferrableExecutionQueue">
-<em class="property">class </em><code class="sig-prename descclassname">ws.db.execution.</code><code class="sig-name descname">DeferrableExecutionQueue</code><span class="sig-paren">(</span><em class="sig-param">conn</em>, <em class="sig-param">chunk_size</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.execution.DeferrableExecutionQueue" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ws.db.execution.DeferrableExecutionQueue">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ws.db.execution.</span></span><span class="sig-name descname"><span class="pre">DeferrableExecutionQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.execution.DeferrableExecutionQueue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>An execution wrapper which defers the execution of statements until the
 queue is full.</p>
 <p>This is useful to aggregate the values from Python generators to utilize
@@ -55,39 +56,29 @@ may hit constraint errors.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>conn</strong> (<a class="reference external" href="https://docs.sqlalchemy.org/en/13/core/connections.html#sqlalchemy.engine.Connection" title="(in SQLAlchemy v1.3)"><em>sqlalchemy.engine.Connection</em></a>) – a connection (with an established transaction) to the database where the
+<li><p><strong>conn</strong> (<a class="reference external" href="https://docs.sqlalchemy.org/en/14/core/connections.html#sqlalchemy.engine.Connection" title="(in SQLAlchemy v1.4)"><em>sqlalchemy.engine.Connection</em></a>) – a connection (with an established transaction) to the database where the
 statements are executed</p></li>
-<li><p><strong>chunk_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – maximum queue size</p></li>
+<li><p><strong>chunk_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – maximum queue size</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="ws.db.execution.DeferrableExecutionQueue.execute">
-<code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param">statement</em>, <em class="sig-param">*multiparams</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.execution.DeferrableExecutionQueue.execute" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.db.execution.DeferrableExecutionQueue.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statement</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">multiparams</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.execution.DeferrableExecutionQueue.execute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a statement into the execution queue.</p>
 <p>The semantics of the parameters is the same as of
-<a class="reference external" href="https://docs.sqlalchemy.org/en/13/core/connections.html#sqlalchemy.engine.Connection.execute" title="(in SQLAlchemy v1.3)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sqlalchemy.engine.Connection.execute()</span></code></a>.</p>
+<a class="reference external" href="https://docs.sqlalchemy.org/en/14/core/connections.html#sqlalchemy.engine.Connection.execute" title="(in SQLAlchemy v1.4)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sqlalchemy.engine.Connection.execute()</span></code></a>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="ws.db.execution.DeferrableExecutionQueue.execute_deferred">
-<code class="sig-name descname">execute_deferred</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.execution.DeferrableExecutionQueue.execute_deferred" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.db.execution.DeferrableExecutionQueue.execute_deferred">
+<span class="sig-name descname"><span class="pre">execute_deferred</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.execution.DeferrableExecutionQueue.execute_deferred" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute all deferred statements and clear the queue.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="ws.db.execution.DeferrableExecutionQueue.__enter__">
-<code class="sig-name descname">__enter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.execution.DeferrableExecutionQueue.__enter__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="ws.db.execution.DeferrableExecutionQueue.__exit__">
-<code class="sig-name descname">__exit__</code><span class="sig-paren">(</span><em class="sig-param">exc_type</em>, <em class="sig-param">exc_val</em>, <em class="sig-param">exc_tb</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.execution.DeferrableExecutionQueue.__exit__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -119,7 +110,7 @@ statements are executed</p></li>
 <li class="toctree-l2 current"><a class="reference internal" href="ws.html">ws package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="ws.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="ws.ArchWiki.html">ws.ArchWiki package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ws.cache.html">ws.cache package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.checkers.html">ws.checkers package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.client.html">ws.client package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="ws.db.html">ws.db package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.interlanguage.html">ws.interlanguage package</a></li>
@@ -158,7 +149,7 @@ statements are executed</p></li>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -175,7 +166,7 @@ statements are executed</p></li>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

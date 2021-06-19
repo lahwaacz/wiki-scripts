@@ -1,0 +1,7 @@
+ws.pageupdater module
+=====================
+
+.. automodule:: ws.pageupdater
+   :members:
+   :undoc-members:
+   :show-inheritance:

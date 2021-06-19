@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
     <title>Configuration &#8212; wiki-scripts 1.2 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -33,7 +34,7 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="configuration">
+  <section id="configuration">
 <h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
 <p>The scripts in the project’s root directory use a configuration interface from
 the <a class="reference internal" href="ws/ws.config.html#module-ws.config" title="ws.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.config</span></code></a> submodule, which relies on the <a class="reference external" href="https://github.com/lahwaacz/ConfigArgParse/tree/config_files_without_merging">ConfigArgParse</a> and
@@ -89,7 +90,7 @@ setting all arguments this way may not be a good idea – for example setting
 the <code class="docutils literal notranslate"><span class="pre">help</span></code> argument from the configuration file does not make sense.</p>
 </dd>
 </dl>
-<div class="section" id="configuration-file-format">
+<section id="configuration-file-format">
 <h2>Configuration file format<a class="headerlink" href="#configuration-file-format" title="Permalink to this headline">¶</a></h2>
 <p>It is important to note that all argument keys in a configuration file are
 global and shared by all scripts, but can be structured into multiple sections
@@ -141,8 +142,8 @@ with the <a class="reference external" href="https://kynikos.github.io/lib.py.co
 </pre></div>
 </div>
 <p>The full example of a configuration file is available as <a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/blob/master/examples/sample.conf">sample.conf</a>.</p>
-</div>
-<div class="section" id="database-configuration-settings">
+</section>
+<section id="database-configuration-settings">
 <h2>Database configuration settings<a class="headerlink" href="#database-configuration-settings" title="Permalink to this headline">¶</a></h2>
 <p>Some scripts require access to a PostgreSQL database to be configured via the
 following options:</p>
@@ -176,8 +177,8 @@ Note that <code class="docutils literal notranslate"><span class="pre">db-name</
 <span class="na">...</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -230,7 +231,7 @@ Note that <code class="docutils literal notranslate"><span class="pre">db-name</
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -247,7 +248,7 @@ Note that <code class="docutils literal notranslate"><span class="pre">db-name</
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

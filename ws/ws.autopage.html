@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
     <title>ws.autopage module &#8212; wiki-scripts 1.2 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -33,79 +34,79 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-ws.autopage">
+  <section id="module-ws.autopage">
 <span id="ws-autopage-module"></span><h1>ws.autopage module<a class="headerlink" href="#module-ws.autopage" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="ws.autopage.AutoPage">
-<em class="property">class </em><code class="sig-prename descclassname">ws.autopage.</code><code class="sig-name descname">AutoPage</code><span class="sig-paren">(</span><em class="sig-param">api</em>, <em class="sig-param">title=None</em>, <em class="sig-param">fetch_titles=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.autopage.AutoPage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ws.autopage.AutoPage">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ws.autopage.</span></span><span class="sig-name descname"><span class="pre">AutoPage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fetch_titles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.autopage.AutoPage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A quick interface for maintaining automatic content on wiki pages.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>api</strong> – an <a class="reference internal" href="ws.client.api.html#ws.client.api.API" title="ws.client.api.API"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.client.api.API</span></code></a> instance</p></li>
-<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – the title of the initial page to use</p></li>
-<li><p><strong>fetch_titles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.8)"><em>set</em></a>) – A set of titles whose content should be fetched from the wiki. These are
+<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – the title of the initial page to use</p></li>
+<li><p><strong>fetch_titles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.9)"><em>set</em></a>) – A set of titles whose content should be fetched from the wiki. These are
 the pages that will be updated later on; the page title should be
 switched by the <a class="reference internal" href="#ws.autopage.AutoPage.set_title" title="ws.autopage.AutoPage.set_title"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_title()</span></code></a> method. If <code class="docutils literal notranslate"><span class="pre">None</span></code> is supplied,
 <code class="docutils literal notranslate"><span class="pre">fetch_titles</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">[title]</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="ws.autopage.AutoPage.fetch_pages">
-<code class="sig-name descname">fetch_pages</code><span class="sig-paren">(</span><em class="sig-param">titles</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.autopage.AutoPage.fetch_pages" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.autopage.AutoPage.fetch_pages">
+<span class="sig-name descname"><span class="pre">fetch_pages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">titles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.autopage.AutoPage.fetch_pages" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch content of given pages from the API. As an optimization, as many
 pages as possible should be fetched in a single query.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>titles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.8)"><em>set</em></a>) – set of page titles</p>
+<dd class="field-odd"><p><strong>titles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.9)"><em>set</em></a>) – set of page titles</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="ws.autopage.AutoPage.set_title">
-<code class="sig-name descname">set_title</code><span class="sig-paren">(</span><em class="sig-param">title</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.autopage.AutoPage.set_title" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.autopage.AutoPage.set_title">
+<span class="sig-name descname"><span class="pre">set_title</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.autopage.AutoPage.set_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set current title to <code class="docutils literal notranslate"><span class="pre">title</span></code> and parse its content. Unsaved changes to
 previous page will be lost. The content of the page should have been
-fetched by <a class="reference internal" href="#ws.autopage.AutoPage.fetch_pages" title="ws.autopage.AutoPage.fetch_pages"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fetch_pages()</span></code></a>, otherwise <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> will
+fetched by <a class="reference internal" href="#ws.autopage.AutoPage.fetch_pages" title="ws.autopage.AutoPage.fetch_pages"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fetch_pages()</span></code></a>, otherwise <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> will
 be raised.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – the page title</p>
+<dd class="field-odd"><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – the page title</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="ws.autopage.AutoPage.get_tag_by_id">
-<code class="sig-name descname">get_tag_by_id</code><span class="sig-paren">(</span><em class="sig-param">tag</em>, <em class="sig-param">id</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.autopage.AutoPage.get_tag_by_id" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.autopage.AutoPage.get_tag_by_id">
+<span class="sig-name descname"><span class="pre">get_tag_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.autopage.AutoPage.get_tag_by_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds a tag in the wikicode of the current page with given ID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The type of the <code class="xref py py-class docutils literal notranslate"><span class="pre">Tag</span> <span class="pre">&lt;mwparserfromhell.nodes.tag.Tag</span></code>,
+<li><p><strong>tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The type of the <code class="xref py py-class docutils literal notranslate"><span class="pre">Tag</span> <span class="pre">&lt;mwparserfromhell.nodes.tag.Tag</span></code>,
 e.g. <code class="docutils literal notranslate"><span class="pre">&quot;div&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;table&quot;</span></code>.</p></li>
-<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The value of the <code class="docutils literal notranslate"><span class="pre">id</span></code> attribute of the tag to be matched.</p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The value of the <code class="docutils literal notranslate"><span class="pre">id</span></code> attribute of the tag to be matched.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.nodes.html#mwparserfromhell.nodes.tag.Tag" title="(in mwparserfromhell v0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mwparserfromhell.nodes.tag.Tag</span></code></a> instance if found,
+<dd class="field-even"><p>A <a class="reference external" href="https://mwparserfromhell.readthedocs.io/en/latest/api/mwparserfromhell.nodes.html#mwparserfromhell.nodes.tag.Tag" title="(in mwparserfromhell v0.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mwparserfromhell.nodes.tag.Tag</span></code></a> instance if found,
 otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="ws.autopage.AutoPage.is_old_enough">
-<code class="sig-name descname">is_old_enough</code><span class="sig-paren">(</span><em class="sig-param">min_interval=datetime.timedelta(0)</em>, <em class="sig-param">strip_time=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.autopage.AutoPage.is_old_enough" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.autopage.AutoPage.is_old_enough">
+<span class="sig-name descname"><span class="pre">is_old_enough</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">datetime.timedelta(0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strip_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.autopage.AutoPage.is_old_enough" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the page on the wiki is old enough to be updated again.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>min_interval</strong> (<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.8)"><em>datetime.timedelta</em></a>) – Minimum desired interval between two consecutive updates.</p></li>
-<li><p><strong>strip_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, time is stripped from the UTC timestamps and only the
+<li><p><strong>min_interval</strong> (<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.9)"><em>datetime.timedelta</em></a>) – Minimum desired interval between two consecutive updates.</p></li>
+<li><p><strong>strip_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, time is stripped from the UTC timestamps and only the
 dates are compared.</p></li>
 </ul>
 </dd>
@@ -115,15 +116,15 @@ dates are compared.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="ws.autopage.AutoPage.save">
-<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">edit_summary</em>, <em class="sig-param">interactive=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.autopage.AutoPage.save" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.autopage.AutoPage.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edit_summary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.autopage.AutoPage.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves the updated wikicode of the page to the wiki.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>edit_summary</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Summary of the change.</p></li>
-<li><p><strong>interactive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, calls <a class="reference internal" href="ws.interactive.html#ws.interactive.edit_interactive" title="ws.interactive.edit_interactive"><code class="xref py py-func docutils literal notranslate"><span class="pre">ws.interactive.edit_interactive()</span></code></a> to ask
+<li><p><strong>edit_summary</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Summary of the change.</p></li>
+<li><p><strong>interactive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, calls <a class="reference internal" href="ws.interactive.html#ws.interactive.edit_interactive" title="ws.interactive.edit_interactive"><code class="xref py py-func docutils literal notranslate"><span class="pre">ws.interactive.edit_interactive()</span></code></a> to ask
 the user before making the change; otherwise calls
 <a class="reference internal" href="ws.client.api.html#ws.client.api.API.edit" title="ws.client.api.API.edit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">API.edit</span></code></a> directly.</p></li>
 <li><p><strong>kwargs</strong> – Additional keyword arguments passed to the API query.</p></li>
@@ -134,7 +135,7 @@ the user before making the change; otherwise calls
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -171,6 +172,7 @@ the user before making the change; otherwise calls
 <li class="toctree-l4"><a class="reference internal" href="ws.diff.html">ws.diff module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.interactive.html">ws.interactive module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.logging.html">ws.logging module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.pageupdater.html">ws.pageupdater module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.wikitable.html">ws.wikitable module</a></li>
 </ul>
 </li>
@@ -202,7 +204,7 @@ the user before making the change; otherwise calls
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -219,7 +221,7 @@ the user before making the change; otherwise calls
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

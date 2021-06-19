@@ -1,0 +1,7 @@
+ws.db.selects.interwiki\_redirects module
+=========================================
+
+.. automodule:: ws.db.selects.interwiki_redirects
+   :members:
+   :undoc-members:
+   :show-inheritance:

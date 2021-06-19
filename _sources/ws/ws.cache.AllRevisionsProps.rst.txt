@@ -1,7 +1,0 @@
-ws.cache.AllRevisionsProps module
-=================================
-
-.. automodule:: ws.cache.AllRevisionsProps
-   :members:
-   :undoc-members:
-   :show-inheritance:

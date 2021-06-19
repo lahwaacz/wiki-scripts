@@ -1,0 +1,7 @@
+ws.checkers.ExtlinkStatusChecker module
+=======================================
+
+.. automodule:: ws.checkers.ExtlinkStatusChecker
+   :members:
+   :undoc-members:
+   :show-inheritance:

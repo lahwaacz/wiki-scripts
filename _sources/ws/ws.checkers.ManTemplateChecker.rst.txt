@@ -1,0 +1,7 @@
+ws.checkers.ManTemplateChecker module
+=====================================
+
+.. automodule:: ws.checkers.ManTemplateChecker
+   :members:
+   :undoc-members:
+   :show-inheritance:

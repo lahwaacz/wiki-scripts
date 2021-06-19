@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
     <title>ws.client.meta module &#8212; wiki-scripts 1.2 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -33,59 +34,49 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-ws.client.meta">
+  <section id="module-ws.client.meta">
 <span id="ws-client-meta-module"></span><h1>ws.client.meta module<a class="headerlink" href="#module-ws.client.meta" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="ws.client.meta.Meta">
-<em class="property">class </em><code class="sig-prename descclassname">ws.client.meta.</code><code class="sig-name descname">Meta</code><span class="sig-paren">(</span><em class="sig-param">api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.meta.Meta" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ws.client.meta.Meta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ws.client.meta.</span></span><span class="sig-name descname"><span class="pre">Meta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.meta.Meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Meta-class for <code class="docutils literal notranslate"><span class="pre">siteinfo</span></code> and <code class="docutils literal notranslate"><span class="pre">userinfo</span></code> functionality.</p>
 <p>Subclasses must configure the <a class="reference internal" href="#ws.client.meta.Meta.module" title="ws.client.meta.Meta.module"><code class="xref py py-attr docutils literal notranslate"><span class="pre">module</span></code></a> and <a class="reference internal" href="#ws.client.meta.Meta.properties" title="ws.client.meta.Meta.properties"><code class="xref py py-attr docutils literal notranslate"><span class="pre">properties</span></code></a>
 attributes.</p>
-<dl class="attribute">
-<dt id="ws.client.meta.Meta.module">
-<code class="sig-name descname">module</code><em class="property"> = ''</em><a class="headerlink" href="#ws.client.meta.Meta.module" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ws.client.meta.Meta.module">
+<span class="sig-name descname"><span class="pre">module</span></span><em class="property"> <span class="pre">=</span> <span class="pre">''</span></em><a class="headerlink" href="#ws.client.meta.Meta.module" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="ws.client.meta.Meta.properties">
-<code class="sig-name descname">properties</code><em class="property"> = {}</em><a class="headerlink" href="#ws.client.meta.Meta.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ws.client.meta.Meta.properties">
+<span class="sig-name descname"><span class="pre">properties</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{}</span></em><a class="headerlink" href="#ws.client.meta.Meta.properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="ws.client.meta.Meta.volatile_properties">
-<code class="sig-name descname">volatile_properties</code><em class="property"> = {}</em><a class="headerlink" href="#ws.client.meta.Meta.volatile_properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ws.client.meta.Meta.volatile_properties">
+<span class="sig-name descname"><span class="pre">volatile_properties</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{}</span></em><a class="headerlink" href="#ws.client.meta.Meta.volatile_properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="ws.client.meta.Meta.timeout">
-<code class="sig-name descname">timeout</code><em class="property"> = 0</em><a class="headerlink" href="#ws.client.meta.Meta.timeout" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ws.client.meta.Meta.timeout">
+<span class="sig-name descname"><span class="pre">timeout</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#ws.client.meta.Meta.timeout" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="ws.client.meta.Meta.volatile_timeout">
-<code class="sig-name descname">volatile_timeout</code><em class="property"> = 0</em><a class="headerlink" href="#ws.client.meta.Meta.volatile_timeout" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ws.client.meta.Meta.volatile_timeout">
+<span class="sig-name descname"><span class="pre">volatile_timeout</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#ws.client.meta.Meta.volatile_timeout" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="ws.client.meta.Meta._abbreviation">
-<em class="property">classmethod </em><code class="sig-name descname">_abbreviation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.meta.Meta._abbreviation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="ws.client.meta.Meta.fetch">
-<code class="sig-name descname">fetch</code><span class="sig-paren">(</span><em class="sig-param">prop=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.meta.Meta.fetch" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.client.meta.Meta.fetch">
+<span class="sig-name descname"><span class="pre">fetch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.meta.Meta.fetch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Auxiliary method for querying properties.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="ws.client.meta.Meta.__getattr__">
-<code class="sig-name descname">__getattr__</code><span class="sig-paren">(</span><em class="sig-param">attr</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.meta.Meta.__getattr__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -117,7 +108,7 @@ attributes.</p>
 <li class="toctree-l2 current"><a class="reference internal" href="ws.html">ws package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="ws.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="ws.ArchWiki.html">ws.ArchWiki package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ws.cache.html">ws.cache package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.checkers.html">ws.checkers package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="ws.client.html">ws.client package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.db.html">ws.db package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.interlanguage.html">ws.interlanguage package</a></li>
@@ -156,7 +147,7 @@ attributes.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -173,7 +164,7 @@ attributes.</p>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

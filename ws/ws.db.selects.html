@@ -1,22 +1,23 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
     <title>ws.db.selects package &#8212; wiki-scripts 1.2 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ws.db.selects.SelectBase module" href="ws.db.selects.SelectBase.html" />
-    <link rel="prev" title="ws.db.grabbers.user module" href="ws.db.grabbers.user.html" />
+    <link rel="prev" title="ws.db.grabbers.usermerge module" href="ws.db.grabbers.usermerge.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -33,47 +34,48 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-ws.db.selects">
+  <section id="module-ws.db.selects">
 <span id="ws-db-selects-package"></span><h1>ws.db.selects package<a class="headerlink" href="#module-ws.db.selects" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="ws.db.selects.list">
-<code class="sig-prename descclassname">ws.db.selects.</code><code class="sig-name descname">list</code><span class="sig-paren">(</span><em class="sig-param">db</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.selects.list" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="ws.db.selects.list">
+<span class="sig-prename descclassname"><span class="pre">ws.db.selects.</span></span><span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.selects.list" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="ws.db.selects.get_pageset">
-<code class="sig-prename descclassname">ws.db.selects.</code><code class="sig-name descname">get_pageset</code><span class="sig-paren">(</span><em class="sig-param">db</em>, <em class="sig-param">titles=None</em>, <em class="sig-param">pageids=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.selects.get_pageset" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="ws.db.selects.get_pageset">
+<span class="sig-prename descclassname"><span class="pre">ws.db.selects.</span></span><span class="sig-name descname"><span class="pre">get_pageset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">titles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pageids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.selects.get_pageset" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>titles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – list of <a class="reference internal" href="ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.parser_helpers.title.Title</span></code></a> objects</p></li>
-<li><p><strong>pageids</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – list of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a> objects</p></li>
+<li><p><strong>titles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – list of <a class="reference internal" href="ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.parser_helpers.title.Title</span></code></a> objects</p></li>
+<li><p><strong>pageids</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – list of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a> objects</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="ws.db.selects.query_pageset">
-<code class="sig-prename descclassname">ws.db.selects.</code><code class="sig-name descname">query_pageset</code><span class="sig-paren">(</span><em class="sig-param">db</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.selects.query_pageset" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="ws.db.selects.query_pageset">
+<span class="sig-prename descclassname"><span class="pre">ws.db.selects.</span></span><span class="sig-name descname"><span class="pre">query_pageset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.selects.query_pageset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="ws.db.selects.query">
-<code class="sig-prename descclassname">ws.db.selects.</code><code class="sig-name descname">query</code><span class="sig-paren">(</span><em class="sig-param">db</em>, <em class="sig-param">params=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.selects.query" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="ws.db.selects.query">
+<span class="sig-prename descclassname"><span class="pre">ws.db.selects.</span></span><span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.selects.query" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<div class="section" id="submodules">
+<section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="ws.db.selects.SelectBase.html">ws.db.selects.SelectBase module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ws.db.selects.interwiki.html">ws.db.selects.interwiki module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ws.db.selects.interwiki_redirects.html">ws.db.selects.interwiki_redirects module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ws.db.selects.namespaces.html">ws.db.selects.namespaces module</a></li>
 </ul>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -105,7 +107,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="ws.html">ws package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="ws.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="ws.ArchWiki.html">ws.ArchWiki package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ws.cache.html">ws.cache package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.checkers.html">ws.checkers package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.client.html">ws.client package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="ws.db.html">ws.db package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.interlanguage.html">ws.interlanguage package</a></li>
@@ -127,7 +129,7 @@
   <li><a href="../modules.html">API reference</a><ul>
   <li><a href="ws.html">ws package</a><ul>
   <li><a href="ws.db.html">ws.db package</a><ul>
-      <li>Previous: <a href="ws.db.grabbers.user.html" title="previous chapter">ws.db.grabbers.user module</a></li>
+      <li>Previous: <a href="ws.db.grabbers.usermerge.html" title="previous chapter">ws.db.grabbers.usermerge module</a></li>
       <li>Next: <a href="ws.db.selects.SelectBase.html" title="next chapter">ws.db.selects.SelectBase module</a></li>
   </ul></li>
   </ul></li>
@@ -144,7 +146,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -161,7 +163,7 @@
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

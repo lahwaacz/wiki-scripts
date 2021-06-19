@@ -1,0 +1,7 @@
+ws.db.grabbers.usermerge module
+===============================
+
+.. automodule:: ws.db.grabbers.usermerge
+   :members:
+   :undoc-members:
+   :show-inheritance:

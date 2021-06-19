@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
     <title>ws.client.site module &#8212; wiki-scripts 1.2 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -33,11 +34,11 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-ws.client.site">
+  <section id="module-ws.client.site">
 <span id="ws-client-site-module"></span><h1>ws.client.site module<a class="headerlink" href="#module-ws.client.site" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="ws.client.site.Site">
-<em class="property">class </em><code class="sig-prename descclassname">ws.client.site.</code><code class="sig-name descname">Site</code><span class="sig-paren">(</span><em class="sig-param">api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.site.Site" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="ws.client.site.Site">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ws.client.site.</span></span><span class="sig-name descname"><span class="pre">Site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.client.site.Site" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ws.client.meta.html#ws.client.meta.Meta" title="ws.client.meta.Meta"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.client.meta.Meta</span></code></a></p>
 <p>The <a class="reference internal" href="#ws.client.site.Site" title="ws.client.site.Site"><code class="xref py py-class docutils literal notranslate"><span class="pre">Site</span></code></a> class holds information about the wiki site.</p>
 <p>Valid properties are listed in the <a class="reference internal" href="#ws.client.site.Site.properties" title="ws.client.site.Site.properties"><code class="xref py py-attr docutils literal notranslate"><span class="pre">properties</span></code></a> attribute, which is
@@ -47,61 +48,61 @@ representation these <cite>automatic</cite> properties is the same as returned b
 name in this class.</p>
 <p>All <a class="reference internal" href="#ws.client.site.Site.properties" title="ws.client.site.Site.properties"><code class="xref py py-attr docutils literal notranslate"><span class="pre">properties</span></code></a> are evaluated lazily and cached. The cache is
 never automatically invalidated, you should create a new instance for this.</p>
-<dl class="attribute">
-<dt id="ws.client.site.Site.module">
-<code class="sig-name descname">module</code><em class="property"> = 'siteinfo'</em><a class="headerlink" href="#ws.client.site.Site.module" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ws.client.site.Site.module">
+<span class="sig-name descname"><span class="pre">module</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'siteinfo'</span></em><a class="headerlink" href="#ws.client.site.Site.module" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="ws.client.site.Site.properties">
-<code class="sig-name descname">properties</code><em class="property"> = {'dbrepllag', 'defaultoptions', 'extensions', 'extensiontags', 'fileextensions', 'functionhooks', 'general', 'interwikimap', 'languages', 'languagevariants', 'libraries', 'magicwords', 'namespacealiases', 'namespaces', 'protocols', 'restrictions', 'rightsinfo', 'showhooks', 'skins', 'specialpagealiases', 'statistics', 'uploaddialog', 'usergroups', 'variables'}</em><a class="headerlink" href="#ws.client.site.Site.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ws.client.site.Site.properties">
+<span class="sig-name descname"><span class="pre">properties</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'dbrepllag',</span> <span class="pre">'defaultoptions',</span> <span class="pre">'extensions',</span> <span class="pre">'extensiontags',</span> <span class="pre">'fileextensions',</span> <span class="pre">'functionhooks',</span> <span class="pre">'general',</span> <span class="pre">'interwikimap',</span> <span class="pre">'languages',</span> <span class="pre">'languagevariants',</span> <span class="pre">'libraries',</span> <span class="pre">'magicwords',</span> <span class="pre">'namespacealiases',</span> <span class="pre">'namespaces',</span> <span class="pre">'protocols',</span> <span class="pre">'restrictions',</span> <span class="pre">'rightsinfo',</span> <span class="pre">'showhooks',</span> <span class="pre">'skins',</span> <span class="pre">'specialpagealiases',</span> <span class="pre">'statistics',</span> <span class="pre">'uploaddialog',</span> <span class="pre">'usergroups',</span> <span class="pre">'variables'}</span></em><a class="headerlink" href="#ws.client.site.Site.properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="ws.client.site.Site.interwikimap">
-<em class="property">property </em><code class="sig-name descname">interwikimap</code><a class="headerlink" href="#ws.client.site.Site.interwikimap" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="ws.client.site.Site.interwikimap">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">interwikimap</span></span><a class="headerlink" href="#ws.client.site.Site.interwikimap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interwiki prefixes on the wiki, represented as a dictionary where
 keys are the available prefixes and additional information (as returned
 by the <cite>siteinfo/interwikimap</cite> API query).</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="ws.client.site.Site.interlanguagemap">
-<em class="property">property </em><code class="sig-name descname">interlanguagemap</code><a class="headerlink" href="#ws.client.site.Site.interlanguagemap" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="ws.client.site.Site.interlanguagemap">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">interlanguagemap</span></span><a class="headerlink" href="#ws.client.site.Site.interlanguagemap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interlanguage prefixes on the wiki, filtered from the general
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">interwikimap</span></code> property.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="ws.client.site.Site.namespaces">
-<em class="property">property </em><code class="sig-name descname">namespaces</code><a class="headerlink" href="#ws.client.site.Site.namespaces" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="ws.client.site.Site.namespaces">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">namespaces</span></span><a class="headerlink" href="#ws.client.site.Site.namespaces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Namespaces represented as a mapping (dictionary) of namespace IDs to
 dictionaries with information returned by the API.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="ws.client.site.Site.namespacealiases">
-<em class="property">property </em><code class="sig-name descname">namespacealiases</code><a class="headerlink" href="#ws.client.site.Site.namespacealiases" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="ws.client.site.Site.namespacealiases">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">namespacealiases</span></span><a class="headerlink" href="#ws.client.site.Site.namespacealiases" title="Permalink to this definition">¶</a></dt>
 <dd><p>Namespace aliases represented as a mapping (dictionary) of namespace
 names to dictionaries with information returned by the API.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="ws.client.site.Site.namespacenames">
-<em class="property">property </em><code class="sig-name descname">namespacenames</code><a class="headerlink" href="#ws.client.site.Site.namespacenames" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="ws.client.site.Site.namespacenames">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">namespacenames</span></span><a class="headerlink" href="#ws.client.site.Site.namespacenames" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mapping of all valid namespace names, including canonical names and
 aliases, to the corresponding namespace ID.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="ws.client.site.Site.tags">
-<em class="property">property </em><code class="sig-name descname">tags</code><a class="headerlink" href="#ws.client.site.Site.tags" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="ws.client.site.Site.tags">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">tags</span></span><a class="headerlink" href="#ws.client.site.Site.tags" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list of all <a class="reference external" href="https://www.mediawiki.org/wiki/Manual:Tags">change tags</a> available on the wiki.</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -133,7 +134,7 @@ aliases, to the corresponding namespace ID.</p>
 <li class="toctree-l2 current"><a class="reference internal" href="ws.html">ws package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="ws.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="ws.ArchWiki.html">ws.ArchWiki package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ws.cache.html">ws.cache package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.checkers.html">ws.checkers package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="ws.client.html">ws.client package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.db.html">ws.db package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.interlanguage.html">ws.interlanguage package</a></li>
@@ -172,7 +173,7 @@ aliases, to the corresponding namespace ID.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -189,7 +190,7 @@ aliases, to the corresponding namespace ID.</p>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

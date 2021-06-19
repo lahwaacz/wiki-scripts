@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>ws.db.grabbers.usermerge module &#8212; wiki-scripts 1.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ws.db.selects package" href="ws.db.selects.html" />
+    <link rel="prev" title="ws.db.grabbers.user module" href="ws.db.grabbers.user.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-ws.db.grabbers.usermerge">
+<span id="ws-db-grabbers-usermerge-module"></span><h1>ws.db.grabbers.usermerge module<a class="headerlink" href="#module-ws.db.grabbers.usermerge" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="ws.db.grabbers.usermerge.GrabberUserMerge">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ws.db.grabbers.usermerge.</span></span><span class="sig-name descname"><span class="pre">GrabberUserMerge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.usermerge.GrabberUserMerge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ws.db.grabbers.GrabberBase.html#ws.db.grabbers.GrabberBase.GrabberBase" title="ws.db.grabbers.GrabberBase.GrabberBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.db.grabbers.GrabberBase.GrabberBase</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.db.grabbers.usermerge.GrabberUserMerge.gen_insert">
+<span class="sig-name descname"><span class="pre">gen_insert</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.usermerge.GrabberUserMerge.gen_insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator for database entries which assumes that the tables are
+empty.</p>
+<p>To be implemented in subclasses.</p>
+<p>The yielded values are passed to <a class="reference external" href="https://docs.sqlalchemy.org/en/14/core/connections.html#sqlalchemy.engine.Connection.execute" title="(in SQLAlchemy v1.4)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sqlalchemy.engine.Connection.execute()</span></code></a>,
+so the accepted formats for the values are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">(stmt,</span> <span class="pre">entry)</span></code> tuple, where <code class="docutils literal notranslate"><span class="pre">stmt</span></code> is an object accepted by
+sqlalchemy’s execute method (e.g. plain string or an executable SQL
+statement construct) and <code class="docutils literal notranslate"><span class="pre">entry</span></code> is a dict holding the bound
+parameter values to be used in the execution. The execution is
+deferred with <a class="reference internal" href="ws.db.execution.html#ws.db.execution.DeferrableExecutionQueue" title="ws.db.execution.DeferrableExecutionQueue"><code class="xref py py-class docutils literal notranslate"><span class="pre">ws.db.execution.DeferrableExecutionQueue</span></code></a>
+to exploit the <em>executemany</em> execution strategy.</p></li>
+<li><p>Or it can yield <code class="docutils literal notranslate"><span class="pre">stmt</span></code> objects directly, if the <em>executemany</em>
+execution strategy is not applicable.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.db.grabbers.usermerge.GrabberUserMerge.gen_update">
+<span class="sig-name descname"><span class="pre">gen_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">since</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.db.grabbers.usermerge.GrabberUserMerge.gen_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator for database entries which assumes incremental updates.</p>
+<p>To be implemented in subclasses.</p>
+<p>If <code class="xref py py-exc docutils literal notranslate"><span class="pre">ws.client.api.ShortRecentChangesError</span></code> is raised while
+executing this generator, <code class="xref py py-meth docutils literal notranslate"><span class="pre">update()</span></code> starts from scratch
+with <code class="xref py py-meth docutils literal notranslate"><span class="pre">insert()</span></code>. The exception should be raised as soon as
+possible to save unnecessary work.</p>
+<p>The yielded values should follow the same rules as the
+<a class="reference internal" href="#ws.db.grabbers.usermerge.GrabberUserMerge.gen_insert" title="ws.db.grabbers.usermerge.GrabberUserMerge.gen_insert"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gen_insert()</span></code></a> method.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/wiki-scripts.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../index.html">wiki-scripts</a></h1>
+
+
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Writing new scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ws.html">ws package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="ws.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="ws.ArchWiki.html">ws.ArchWiki package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.checkers.html">ws.checkers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.client.html">ws.client package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="ws.db.html">ws.db package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.interlanguage.html">ws.interlanguage package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.parser_helpers.html">ws.parser_helpers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.utils.html">ws.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ws.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../modules.html">API reference</a><ul>
+  <li><a href="ws.html">ws package</a><ul>
+  <li><a href="ws.db.html">ws.db package</a><ul>
+  <li><a href="ws.db.grabbers.html">ws.db.grabbers package</a><ul>
+      <li>Previous: <a href="ws.db.grabbers.user.html" title="previous chapter">ws.db.grabbers.user module</a></li>
+      <li>Next: <a href="ws.db.selects.html" title="next chapter">ws.db.selects package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014-2018, Jakub Klinkovský.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/ws/ws.db.grabbers.usermerge.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/lahwaacz/wiki-scripts" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

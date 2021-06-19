@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
     <title>ws.diff module &#8212; wiki-scripts 1.2 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -33,15 +34,15 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-ws.diff">
+  <section id="module-ws.diff">
 <span id="ws-diff-module"></span><h1>ws.diff module<a class="headerlink" href="#module-ws.diff" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="ws.diff.diff_highlighted">
-<code class="sig-prename descclassname">ws.diff.</code><code class="sig-name descname">diff_highlighted</code><span class="sig-paren">(</span><em class="sig-param">old</em>, <em class="sig-param">new</em>, <em class="sig-param">fromfile=''</em>, <em class="sig-param">tofile=''</em>, <em class="sig-param">fromfiledate=''</em>, <em class="sig-param">tofiledate=''</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.diff.diff_highlighted" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="ws.diff.diff_highlighted">
+<span class="sig-prename descclassname"><span class="pre">ws.diff.</span></span><span class="sig-name descname"><span class="pre">diff_highlighted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fromfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tofile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fromfiledate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tofiledate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.diff.diff_highlighted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a diff between two texts formatted with ANSI color sequences
 suitable for output in 256-color terminal.</p>
 <p>When available, the <code class="xref py py-mod docutils literal notranslate"><span class="pre">WikEdDiff</span></code> library and its
-<code class="xref py py-class docutils literal notranslate"><span class="pre">AnsiFormatter</span></code> is used. Otherwise the <a class="reference external" href="https://docs.python.org/3/library/difflib.html#module-difflib" title="(in Python v3.8)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">difflib</span></code></a>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">AnsiFormatter</span></code> is used. Otherwise the <a class="reference external" href="https://docs.python.org/3/library/difflib.html#module-difflib" title="(in Python v3.9)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">difflib</span></code></a>
 module from the standard library is used to generate the diff in unified
 format and <code class="xref py py-mod docutils literal notranslate"><span class="pre">pygments</span></code> is used (when available) as the highlighter.</p>
 <dl class="field-list simple">
@@ -61,27 +62,16 @@ format and <code class="xref py py-mod docutils literal notranslate"><span class
 </dl>
 </dd></dl>
 
-<dl class="class">
-<dt id="ws.diff.RevisionDiffer">
-<em class="property">class </em><code class="sig-prename descclassname">ws.diff.</code><code class="sig-name descname">RevisionDiffer</code><span class="sig-paren">(</span><em class="sig-param">api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.diff.RevisionDiffer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Object for comparing revisions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>api</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">MediaWiki.api.API</span></code> instance to operate on</p>
-</dd>
-</dl>
-<dl class="method">
-<dt id="ws.diff.RevisionDiffer.diff">
-<code class="sig-name descname">diff</code><span class="sig-paren">(</span><em class="sig-param">oldrevid</em>, <em class="sig-param">newrevid</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.diff.RevisionDiffer.diff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to get highlighted diff of two revisions. Uses ANSI color sequences
-for output in a 256-color terminal.</p>
-<p>Basic meta data (title, username, timestamp and comment) is included in the
-diff header. Original <em>unified diff</em> format supports only file name and
-timestamp fields, we show more.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ws.diff.diff_revisions">
+<span class="sig-prename descclassname"><span class="pre">ws.diff.</span></span><span class="sig-name descname"><span class="pre">diff_revisions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oldrevid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newrevid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.diff.diff_revisions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a visual diff of two revisions obtained via a MediaWiki API.</p>
+<p>Calls <a class="reference internal" href="#ws.diff.diff_highlighted" title="ws.diff.diff_highlighted"><code class="xref py py-func docutils literal notranslate"><span class="pre">diff_highlighted()</span></code></a> and includes basic meta data (title,
+username, timestamp and comment) in the diff header.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>api</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">MediaWiki.api.API</span></code> instance to operate on</p></li>
 <li><p><strong>oldrevid</strong> – revision ID for old revision</p></li>
 <li><p><strong>newrevid</strong> – revision ID for new revision</p></li>
 </ul>
@@ -89,9 +79,7 @@ timestamp fields, we show more.</p>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-</div>
+</section>
 
 
           </div>
@@ -128,6 +116,7 @@ timestamp fields, we show more.</p>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">ws.diff module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.interactive.html">ws.interactive module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.logging.html">ws.logging module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.pageupdater.html">ws.pageupdater module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.wikitable.html">ws.wikitable module</a></li>
 </ul>
 </li>
@@ -159,7 +148,7 @@ timestamp fields, we show more.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -176,7 +165,7 @@ timestamp fields, we show more.</p>
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -10,9 +10,10 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    ws.ArchWiki
-   ws.cache
+   ws.checkers
    ws.client
    ws.db
    ws.interlanguage
@@ -23,10 +24,12 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    ws.autopage
    ws.config
    ws.diff
    ws.interactive
    ws.logging
+   ws.pageupdater
    ws.wikitable

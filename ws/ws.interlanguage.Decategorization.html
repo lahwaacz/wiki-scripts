@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
     <title>ws.interlanguage.Decategorization module &#8212; wiki-scripts 1.2 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/wiki-scripts.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -33,36 +34,36 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-ws.interlanguage.Decategorization">
+  <section id="module-ws.interlanguage.Decategorization">
 <span id="ws-interlanguage-decategorization-module"></span><h1>ws.interlanguage.Decategorization module<a class="headerlink" href="#module-ws.interlanguage.Decategorization" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="ws.interlanguage.Decategorization.Decategorization">
-<em class="property">class </em><code class="sig-prename descclassname">ws.interlanguage.Decategorization.</code><code class="sig-name descname">Decategorization</code><span class="sig-paren">(</span><em class="sig-param">api</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.Decategorization.Decategorization" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ws.interlanguage.Decategorization.Decategorization">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ws.interlanguage.Decategorization.</span></span><span class="sig-name descname"><span class="pre">Decategorization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.Decategorization.Decategorization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Checks if pages in the User namespace and talk pages are not categorized.</p>
-<dl class="attribute">
-<dt id="ws.interlanguage.Decategorization.Decategorization.uncat_namespaces">
-<code class="sig-name descname">uncat_namespaces</code><em class="property"> = [1, 2, 3, 5, 7, 9, 11, 13, 15]</em><a class="headerlink" href="#ws.interlanguage.Decategorization.Decategorization.uncat_namespaces" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ws.interlanguage.Decategorization.Decategorization.uncat_namespaces">
+<span class="sig-name descname"><span class="pre">uncat_namespaces</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">5,</span> <span class="pre">7,</span> <span class="pre">9,</span> <span class="pre">11,</span> <span class="pre">13,</span> <span class="pre">15]</span></em><a class="headerlink" href="#ws.interlanguage.Decategorization.Decategorization.uncat_namespaces" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="ws.interlanguage.Decategorization.Decategorization.find_categorized">
-<code class="sig-name descname">find_categorized</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.Decategorization.Decategorization.find_categorized" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.interlanguage.Decategorization.Decategorization.find_categorized">
+<span class="sig-name descname"><span class="pre">find_categorized</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.Decategorization.Decategorization.find_categorized" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="ws.interlanguage.Decategorization.Decategorization.decategorize">
-<em class="property">static </em><code class="sig-name descname">decategorize</code><span class="sig-paren">(</span><em class="sig-param">title</em>, <em class="sig-param">text_old</em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.Decategorization.Decategorization.decategorize" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.interlanguage.Decategorization.Decategorization.decategorize">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">decategorize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_old</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.Decategorization.Decategorization.decategorize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="ws.interlanguage.Decategorization.Decategorization.fix_allpages">
-<code class="sig-name descname">fix_allpages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.Decategorization.Decategorization.fix_allpages" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="ws.interlanguage.Decategorization.Decategorization.fix_allpages">
+<span class="sig-name descname"><span class="pre">fix_allpages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.interlanguage.Decategorization.Decategorization.fix_allpages" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -94,7 +95,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="ws.html">ws package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="ws.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="ws.ArchWiki.html">ws.ArchWiki package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ws.cache.html">ws.cache package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ws.checkers.html">ws.checkers package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.client.html">ws.client package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ws.db.html">ws.db package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="ws.interlanguage.html">ws.interlanguage package</a></li>
@@ -133,7 +134,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -150,7 +151,7 @@
       &copy;2014-2018, Jakub Klinkovský.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

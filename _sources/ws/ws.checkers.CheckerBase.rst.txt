@@ -1,0 +1,7 @@
+ws.checkers.CheckerBase module
+==============================
+
+.. automodule:: ws.checkers.CheckerBase
+   :members:
+   :undoc-members:
+   :show-inheritance:

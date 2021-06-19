@@ -10,7 +10,9 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    ws.db.selects.SelectBase
    ws.db.selects.interwiki
+   ws.db.selects.interwiki_redirects
    ws.db.selects.namespaces
