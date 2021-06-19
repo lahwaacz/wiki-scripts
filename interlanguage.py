@@ -42,17 +42,13 @@ def main(args, api):
 
 if __name__ == "__main__":
     import ws.config
-    import ws.logging
 
     argparser = ws.config.getArgParser(description="Update interlanguage links", epilog=modes_description)
     API.set_argparser(argparser)
     _group = argparser.add_argument_group("interlanguage")
     _group.add_argument("--mode", choices=modes, default="update", help="operation mode of the script")
 
-    args = argparser.parse_args()
-
-    # set up logging
-    ws.logging.init(args)
+    args = ws.config.parse_args()
 
     api = API.from_argparser(args)
     require_login(api)

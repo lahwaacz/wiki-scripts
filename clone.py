@@ -141,7 +141,6 @@ class Downloader:
 
 if __name__ == "__main__":
     import ws.config
-    import ws.logging
 
     argparser = ws.config.getArgParser(description="Clone latest revisions of pages on the wiki")
     API.set_argparser(argparser)
@@ -159,10 +158,7 @@ if __name__ == "__main__":
     _script.add_argument("--safe-filenames", action="store_true",
             help="Force using ASCII file names instead of the default Unicode.")
 
-    args = argparser.parse_args()
-
-    # set up logging
-    ws.logging.init(args)
+    args = ws.config.parse_args()
 
     api = API.from_argparser(args)
 

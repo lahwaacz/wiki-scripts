@@ -22,16 +22,12 @@ def main(api, db):
 
 if __name__ == "__main__":
     import ws.config
-    import ws.logging
 
     argparser = ws.config.getArgParser(description="Find closed discussions")
     API.set_argparser(argparser)
     Database.set_argparser(argparser)
 
-    args = argparser.parse_args()
-
-    # set up logging
-    ws.logging.init(args)
+    args = ws.config.parse_args()
 
     api = API.from_argparser(args)
     db = Database.from_argparser(args)

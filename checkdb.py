@@ -639,7 +639,6 @@ def check_redirects(api, db):
 
 if __name__ == "__main__":
     import ws.config
-    import ws.logging
 
     argparser = ws.config.getArgParser(description="Test database synchronization")
     API.set_argparser(argparser)
@@ -656,10 +655,7 @@ if __name__ == "__main__":
     argparser.add_argument("--no-parser-cache", dest="parser_cache", action="store_false",
             help="opposite of --parser-cache")
 
-    args = argparser.parse_args()
-
-    # set up logging
-    ws.logging.init(args)
+    args = ws.config.parse_args()
 
     api = API.from_argparser(args)
     db = Database.from_argparser(args)
