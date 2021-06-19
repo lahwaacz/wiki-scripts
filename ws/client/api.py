@@ -190,8 +190,8 @@ class API(Connection):
         :py:attr:`API.max_ids_per_query`.
 
         Note that this is applicable only to the ``titles``, ``pageids`` and
-        ``revids`` API parameters which have to be supplied as :py:type:`list`
-        or :py:type:`set` to this method. Exactly one of these parameters has
+        ``revids`` API parameters which have to be supplied as :py:class:`!list`
+        or :py:class:`set` to this method. Exactly one of these parameters has
         to be supplied.
 
         The parameters have the same meaning as those in the

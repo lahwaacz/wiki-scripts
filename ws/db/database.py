@@ -155,6 +155,7 @@ class Database:
 
         :param ws.client.api.API api: interface to the remote MediaWiki instance
         :param str mode: the mode of operation:
+
                 - `"latest"`: the content of the latest revisions of all pags on
                   the wiki will be synchronized
                 - `"all"`: the content of all revisions will be synchronized
