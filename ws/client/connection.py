@@ -162,10 +162,10 @@ class Connection:
         """
         import ws.config
         group = argparser.add_argument_group(title="Connection parameters")
-        group.add_argument("--api-url", metavar="URL",
-                help="the URL to the wiki's api.php (default: %(default)s)")
-        group.add_argument("--index-url", metavar="URL",
-                help="the URL to the wiki's index.php (default: %(default)s)")
+        group.add_argument("--api-url", metavar="URL", required=True,
+                help="the URL to the wiki's api.php")
+        group.add_argument("--index-url", metavar="URL", required=True,
+                help="the URL to the wiki's index.php")
         group.add_argument("--connection-max-retries", default=3, type=int,
                 help="maximum number of retries for each connection (default: %(default)s)")
         group.add_argument("--connection-timeout", default=60, type=float,
