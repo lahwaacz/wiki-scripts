@@ -24,8 +24,6 @@ __all__ = [
 PROJECT_NAME = "wiki-scripts"
 CONFIG_DIR = os.getenv("XDG_CONFIG_HOME", os.path.expanduser("~/.config/"))
 CONFIG_DIR = os.path.join(CONFIG_DIR, PROJECT_NAME)
-CACHE_DIR = os.getenv("XDG_CACHE_HOME", os.path.expanduser("~/.cache/"))
-CACHE_DIR = os.path.join(CACHE_DIR, PROJECT_NAME)
 DEFAULT_CONF = "default"
 
 
@@ -150,7 +148,7 @@ def getArgParser(**kwargs):
     kwargs.setdefault("usage", "%(prog)s [options]")
     kwargs.setdefault("formatter_class", argparse.RawDescriptionHelpFormatter)
     kwargs.setdefault("allow_abbrev", False)
-    msg = ("\n\nArgs that start with '--' (e.g., --cache-dir) can also be set in a config file (specified via -c)."
+    msg = ("\n\nArgs that start with '--' (e.g., --log-level) can also be set in a config file (specified via -c)."
            " If an arg is specified in more than one place, then commandline values override config file values"
            " which override defaults.")
     kwargs["description"] = kwargs.get("description", "") + msg
@@ -158,10 +156,6 @@ def getArgParser(**kwargs):
     # create the main parser and add global arguments
     ap = argparse.ArgumentParser(**kwargs)
     ConfigParser.set_argparser(ap)
-    ap.add_argument("--cache-dir", type=argtype_dirname_must_exist, metavar="PATH", default=CACHE_DIR,
-            help="directory for storing cached data (will be created if necessary, but parent directory must exist) (default: %(default)s)")
-
-    # include logging arguments into the global group
     ws.logging.set_argparser(ap)
 
     return ap
