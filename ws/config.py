@@ -170,6 +170,9 @@ def parse_args(argparser, section=None):
     """
     Parses arguments given on the command line as well as in the config file.
 
+    Additionally, logging interface is set up using the :py:mod:`ws.logging`
+    module.
+
     :param argparser:
         An instance of :py:class:`argparse.ArgumentParser`. It **must** be
         created by calling the :py:func:`getArgParser` function, otherwise this
@@ -213,8 +216,7 @@ def parse_args(argparser, section=None):
 def object_from_argparser(klass, section=None, **kwargs):
     """
     Create an instance of ``klass`` using its :py:meth:`klass.from_argparser()`
-    factory and an instance of :py:class:`argparse.ArgumentParser`. On top of
-    that, logging interface is set up using the :py:mod:`ws.logging` module.
+    factory and an instance of :py:class:`argparse.ArgumentParser`.
 
     :param klass: the class to instantiate
     :param str section: passed to :py:func:`parse_args`

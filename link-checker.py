@@ -29,7 +29,6 @@ class Updater(PageUpdater):
 
 if __name__ == "__main__":
     import ws.config
-    import ws.logging
     from ws.interactive import InteractiveQuit
 
     argparser = ws.config.getArgParser(description="Parse all pages on the wiki and try to fix/simplify/beautify links")
@@ -40,9 +39,6 @@ if __name__ == "__main__":
     # they just reuse API's and PageUpdater's options
 
     args = ws.config.parse_args(argparser)
-
-    # set up logging
-    ws.logging.init(args)
 
     api = API.from_argparser(args)
     db = Database.from_argparser(args)
