@@ -254,6 +254,8 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         return False
 
     def check_extlink_replacements(self, wikicode, extlink, url):
+        repl = None
+
         for url_regex, text_cond, text_cond_flags, replacement in self.extlink_replacements:
             if (text_cond is None and extlink.title is not None) or (text_cond is not None and extlink.title is None):
                 continue
@@ -261,19 +263,27 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             if match:
                 if extlink.title is None:
                     repl = replacement.format(*match.groups())
-                    wikicode.replace(extlink, repl)
-                    # TODO: make sure that the link is unflagged after replacement
-                    return True
+                    break
                 else:
                     groups = [re.escape(g) for g in match.groups()]
                     alt_text = str(extlink.title).strip()
                     if re.fullmatch(text_cond.format(*groups), alt_text, text_cond_flags):
-                        wikicode.replace(extlink, replacement.format(*match.groups(), extlink.title))
-                        # TODO: make sure that the link is unflagged after replacement
-                        return True
+                        repl = replacement.format(*match.groups(), extlink.title)
+                        break
                     else:
                         logger.warning("external link that should be replaced, but has custom alternative text: {}".format(extlink))
-        return False
+
+        if repl is None:
+            # no replacement found
+            return False
+        elif repl == str(extlink):
+            # some replacements are intended to actually avoid a change in the wikicode
+            return False
+        else:
+            # we have a replacement that changes the wikicode
+            wikicode.replace(extlink, repl)
+            # TODO: make sure that the link is unflagged after replacement
+            return True
 
     def check_url_replacements(self, wikicode, extlink, url):
         for edit_summary, url_regex, url_replacement in self.url_replacements:
