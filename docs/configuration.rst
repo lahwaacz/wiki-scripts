@@ -2,14 +2,11 @@ Configuration
 -------------
 
 The scripts in the project's root directory use a configuration interface from
-the :py:mod:`ws.config` submodule, which relies on the `ConfigArgParse`_ and
-`configfile`_ libraries.
-
-.. _ConfigArgParse: https://github.com/lahwaacz/ConfigArgParse/tree/config_files_without_merging
-.. _configfile: https://github.com/kynikos/lib.py.configfile
+the :py:mod:`ws.config` submodule, which relies on the :py:mod:`argparse` and
+:py:mod:`configparser` Python modules.
 
 All options can be passed as command line arguments, the special ``--help`` option
-prints all available options for a script:
+prints all available options for a particular script:
 
 .. code::
 
@@ -18,148 +15,162 @@ prints all available options for a script:
 
     optional arguments:
       -h, --help            show this help message and exit
-      -c PATH, --config PATH
-                            path to config file (default:
-                            /home/lahwaacz/.config/wiki-scripts/wiki-scripts.conf)
-      --site SITE           sets the top-level section to be read from config
-                            files (default: ArchWiki)
+      -c PATH_OR_NAME, --config PATH_OR_NAME
+                            path to the config file, or a base file name for config files looked up as
+                            /home/lahwaacz/.config/wiki-scripts/<name>.conf (default: default)
+      --no-config           do not read any config file
       --log-level {debug,info,warning,error,critical}
-                            the verbosity level for terminal logging (default:
-                            info)
+                            the verbosity level for terminal logging (default: info)
       -d, --debug           shortcut for '--log-level debug'
       -q, --quiet           shortcut for '--log-level warning'
-      --cache-dir PATH      directory for storing cached data (will be created if
-                            necessary, but parent directory must exist) (default:
-                            /home/lahwaacz/.cache/wiki-scripts)
 
     Connection parameters:
-      --api-url URL         the URL to the wiki's api.php (default:
-                            https://wiki.archlinux.org/api.php)
-      --index-url URL       the URL to the wiki's api.php (default:
-                            https://wiki.archlinux.org/index.php)
-      --ssl-verify SSL_VERIFY
-                            whether to verify SSL certificates (default: True)
+      --api-url URL         the URL to the wiki's api.php
+      --index-url URL       the URL to the wiki's index.php
       --connection-max-retries CONNECTION_MAX_RETRIES
-                            maximum number of retries for each connection
-                            (default: 3)
+                            maximum number of retries for each connection (default: 3)
       --connection-timeout CONNECTION_TIMEOUT
-                            connection timeout in seconds (default: 30)
-      --cookie-file PATH    path to cookie file (default: $cache_dir/$site.cookie)
+                            connection timeout in seconds (default: 60)
+      --cookie-file PATH    path to cookie file (default: None)
 
 The long arguments that start with ``--`` can be set in a configuration file
-specified by the ``--config`` option. The configuration file uses an extended INI
-format to specify a ``(key, value)`` pairs, where ``key`` corresponds to the long
-argument name without the ``--`` prefix. Options from the configuration file are
-internally processed by adding them to the command line, so ``debug = true`` in a
-config file is equivalent to passing ``--debug`` on the command line. Values
-passed on the command line take precedence over those specified in a
-configuration file.
+specified by the ``-c``/``--config`` option. The configuration file uses an
+extended INI format as implemented by the :py:mod:`configparser` Python module.
+The configuration file contains a key-value pairs, where keys correspond to the
+long argument names without the ``--`` prefix. Options from the configuration
+file are internally processed by adding them to the command line, so
+``debug = true`` in a config file is equivalent to passing ``--debug`` on the
+command line. Values passed on the command line take precedence over those
+specified in a configuration file.
 
 :Note:
 
-    Although it is possible to set _all_ long arguments in a configuration file,
+    Although it is possible to set `all` long arguments in a configuration file,
     setting all arguments this way may not be a good idea -- for example setting
     the ``help`` argument from the configuration file does not make sense.
+
+Configuration file location
+...........................
+
+The value of the ``-c``/``--config`` option can be either a path to the
+configuration file (which must have a ``.conf`` suffix), or a `name` of the
+configuration which is looked up in the ``$XDG_CONFIG_HOME/wiki-scripts/``
+directory as ``<name>.conf``. The default value of the ``-c``/``--config``
+option is ``default``, i.e., the default configuration file path is
+``$XDG_CONFIG_HOME/wiki-scripts/default.conf``.
+
+:Tip:
+
+    To quickly switch between default configurations, you can create a symbolic
+    link from ``$XDG_CONFIG_HOME/wiki-scripts/default.conf`` to a different
+    configuration file.
 
 Configuration file format
 .........................
 
-It is important to note that all argument keys in a configuration file are
-global and shared by all scripts, but can be structured into multiple sections
-to allow better flexibility over setting all options in the top-level section.
-The ``--site`` argument specifies the section to be read from the configuration
-file, e.g. ``--site ArchWiki`` selects the ``[ArchWiki]`` section. This allows
-maintaining a configuration file for multiple sites, for example
+The configuration file contains a top-level ``[DEFAULTS]`` section which
+contains global options that are applied to all scripts:
 
 .. code-block:: ini
 
-    site = ArchWiki-de
-
-    [ArchWiki]
+    # Default options (applicable to all scripts).
+    [DEFAULTS]
     api-url = https://wiki.archlinux.org/api.php
     index-url = https://wiki.archlinux.org/index.php
+    cookie-file = ~/.local/share/wiki-scripts/ArchWiki.cookie
 
-    [ArchWiki-de]
-    api-url = https://wiki.archlinux.de/api.php
-    index-url = https://wiki.archlinux.de/index.php
-
-The global option ``site`` can be set in the configuration file to set different
-default site, which can be overridden with ``--site ArchWiki`` on the command
-line.
-
-To override the site options on a per-script basis, it is possible to create a
-``[sitename.scriptname]`` subsections, which inherit all options from the parent 
-section. For example:
+Options can be applied only to a specific script by defining them in a section
+named after the script, i.e., options from the ``[script]`` section are read by
+a script named ``script.py``. Options defined in a specific section also
+override corresponding options from the ``[DEFAULTS]`` section. For example:
 
 .. code-block:: ini
 
+    # Default options (applicable to all scripts).
+    [DEFAULTS]
+    api-url = https://wiki.archlinux.org/api.php
+    index-url = https://wiki.archlinux.org/index.php
+    cookie-file = ~/.local/share/wiki-scripts/ArchWiki.cookie
+
+    # Script-specific options.
+    [update-pkg-templates]
+    cookie-file = ~/.local/share/wiki-scripts/ArchWiki.bot.cookie
+
+To avoid duplicating option values, :py:mod:`configparser` supports sharing
+common parts with the `interpolation syntax`_ (wiki-scripts uses the
+:py:class:`~configparser.ExtendedInterpolation` handler). Note that you can also
+define custom keys in the configuration file, which do not correspond to
+wiki-scripts options, but are used for the interpolation. The previous example
+can be simplified into:
+
+.. code-block:: ini
+
+    # Default options (applicable to all scripts).
+    [DEFAULTS]
+    # custom options for interpolation
     site = ArchWiki
+    data-dir = ~/.local/share/wiki-scripts/
 
-    [ArchWiki]
+    # wiki-scripts options.
     api-url = https://wiki.archlinux.org/api.php
     index-url = https://wiki.archlinux.org/index.php
-    cookie-file = ~/.cache/wiki-scripts/ArchWiki.cookie
+    cookie-file = ${data-dir}/${site}.cookie
 
-    [ArchWiki.update-pkg-templates]
-    cookie-file = ~/.cache/wiki-scripts/ArchWiki.bot.cookie
-
-To avoid duplicating option values, `configfile`_ supports sharing common parts
-with the `interpolation syntax`_. The previous example can be simplified into:
-
-.. code-block:: ini
-
-    site = ArchWiki
-
-    cache-dir = ~/.cache/wiki-scripts/
-
-    [ArchWiki]
-    api-url = https://wiki.archlinux.org/api.php
-    index-url = https://wiki.archlinux.org/index.php
-    cookie-file = ${cache-dir$}/ArchWiki.cookie
-
-    [ArchWiki.update-pkg-templates]
-    cookie-file = ${cache-dir$}/ArchWiki.bot.cookie
+    # Script-specific options.
+    [update-pkg-templates]
+    cookie-file = ${data-dir}/${site}.bot.cookie
 
 The full example of a configuration file is available as `sample.conf`_.
 
-.. _interpolation syntax: https://kynikos.github.io/lib.py.configfile/#interpolation
+.. _interpolation syntax: https://docs.python.org/3/library/configparser.html#interpolation-of-values
 .. _sample.conf: https://github.com/lahwaacz/wiki-scripts/blob/master/examples/sample.conf
 
-Database configuration settings
-...............................
+Migrating configuration from pre-2.0 versions
+.............................................
 
-Some scripts require access to a PostgreSQL database to be configured via the
-following options:
+Versions up to 1.3 used the `ConfigArgParse`_ and `configfile`_ libraries for
+handling configuration, which were replaced with standard Python modules
+(:py:mod:`argparse` and :py:mod:`configparser`) in version 2.0. This section
+helps users to migrate their configuration for the new implementation.
 
-.. code-block:: none
+Firstly, the default path for the ``-c``/``--config`` option is different:
 
-    ...
+- Old path: ``$XDG_CONFIG_HOME/wiki-scripts/wiki-scripts.conf``
+- New path: ``$XDG_CONFIG_HOME/wiki-scripts/default.conf``
 
-    Database parameters:
-      --db-dialect DIALECT  an SQL dialect (default: None)
-      --db-driver DRIVER    a driver for given SQL dialect supported by sqlalchemy (default:
-                            None)
-      --db-user USER        username for database connection (default: None)
-      --db-password PASSWORD
-                            password for database connection (default: None)
-      --db-host HOST        hostname of the database server (default: None)
-      --db-port PORT        port on which the database server listens (default: None)
-      --db-name DATABASE    name of the database (default: None)
+Next, the configuration needs to be updated from the `configfile`_ syntax to the
+:py:mod:`configparser` syntax. Note that the features supported by these two
+libraries differ:
 
-For convenience, these options should can be set in the configuration file.
-Note that ``db-name`` must be different for every site. For example:
+- :py:mod:`configparser` does not support nested sections (subsections),
+- `configfile`_ has different syntax for the interpolation of option values than
+  :py:mod:`configparser`.
 
-.. code-block:: ini
+Also note that the ``--site`` and ``--cache-dir`` options have become unused and were
+removed. Hence, the main things that will need to be changed are:
 
-    ...
+- Start the configuration with a ``[DEFAULTS]`` section.
+- Avoid nested sections. For example, if you had a configuration for ``--site
+  ArchWiki``, move all options from ``[ArchWiki]`` into ``[DEFAULTS]`` and
+  remove ``ArchWiki.`` from all sections starting with this prefix.
+- Update the interpolation syntax. For example, use ``${option}`` instead of
+  ``${option$}``.
 
-    db-dialect = postgresql
-    db-driver = psycopg2
+The structuring that was previously achieved by the ``--site`` option
+can now be done with the ``--config`` option. For example, if you had a
+non-default configuration for ``--site Wikipedia``, you can create a
+configuration file at ``$XDG_CONFIG_HOME/wiki-scripts/Wikipedia.conf``
+containing all former ``[Wikipedia.*]`` sections (but without the
+``Wikipedia.`` prefix in section names) and select it with ``--config
+Wikipedia``.
 
-    db-user = wiki-scripts
-    db-password = password
-    db-host = localhost
+For more insights into the migration, you can compare the `sample.conf`_ file
+with its `1.3 version
+<https://github.com/lahwaacz/wiki-scripts/blob/1.3/examples/sample.conf>`_.
 
-    [ArchWiki]
-    db-name = ws_archwiki
-    ...
+Finally, note that some options may have different behaviour (e.g., different
+default value) in the new version compared to version 1.3, but we did not keep
+an exact list of differences.
+
+.. _ConfigArgParse: https://github.com/lahwaacz/ConfigArgParse/tree/config_files_without_merging
+.. _configfile: https://github.com/kynikos/lib.py.configfile
