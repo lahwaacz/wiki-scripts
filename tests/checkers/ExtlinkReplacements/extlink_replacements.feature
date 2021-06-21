@@ -64,10 +64,11 @@ Feature: ExtlinkReplacements: extlink to wikilink or template replacements
         And the last edit summary should be "replaced external links"
 
     Scenario: Not replacing a www link to an Arch package with a custom title
+        Given the URL https://archlinux.org/packages/core/x86_64/linux/ gives status 200
         When a page contains "install [https://www.archlinux.org/packages/core/x86_64/linux/ linux package]"
         And I run ExtlinkReplacements
-        Then the page should contain "install [https://www.archlinux.org/packages/core/x86_64/linux/ linux package]"
-        And the last edit summary should be empty
+        Then the page should contain "install [https://archlinux.org/packages/core/x86_64/linux/ linux package]"
+        And the last edit summary should be "update archweb URLs from www.archlinux.org to archlinux.org"
 
     Scenario: Not replacing a link to an Arch package with a custom title
         When a page contains "install [https://archlinux.org/packages/core/any/linux/ linux package]"

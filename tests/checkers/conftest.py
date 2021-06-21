@@ -40,7 +40,7 @@ def api_mock(req_mock, module_mocker, title_context):
     # create the API object
     api_url = "http://wiki-scripts.localhost/api.php"
     index_url = "http://wiki-scripts.localhost/index.php"
-    session = API.make_session(ssl_verify=False)
+    session = API.make_session()
     api = API(api_url, index_url, session)
 
     # register a callback function for dynamic responses
@@ -74,12 +74,37 @@ def api_mock(req_mock, module_mocker, title_context):
 
     return api
 
+@pytest.fixture(scope="module")
+def SmarterEncryptionList_mock(req_mock, module_mocker):
+    mocked_http_domains = [
+        "foo",
+        "foo.sourceforge.net",
+    ]
+    mocked_https_domains = [
+        "wiki.archlinux.org",
+    ]
+    # map of prefixes to the set of full hashes
+    hash_map = {}
+    import hashlib
+    for domain in mocked_http_domains + mocked_https_domains:
+        h = hashlib.sha1(bytes(domain, encoding="utf-8"))
+        value = h.hexdigest()
+        key = value[:4]
+        s = hash_map.setdefault(key, set())
+        if domain in mocked_https_domains:
+            s.add(value)
+
+    # mock SmarterEncryption queries
+    # reference: https://help.duckduckgo.com/duckduckgo-help-pages/privacy/smarter-encryption/
+    endpoint = "https://duckduckgo.com/smarter_encryption.js?pv1={hash_prefix}"
+    for prefix, hashes in hash_map.items():
+        req_mock.get(endpoint.format(hash_prefix=prefix), json=sorted(hashes))
 
 # this should be function-scoped so that ExtlinkStatusChecker's requests session
 # and URL status caches are properly reset between tests
 @pytest.fixture(scope="function")
-def extlink_replacements(api_mock):
-    checker = ExtlinkReplacements(api_mock, None)
+def extlink_replacements(api_mock, SmarterEncryptionList_mock):
+    checker = ExtlinkReplacements(api_mock, None, timeout=1, max_retries=1)
 
     # mock the checker's requests session
     # https://requests-mock.readthedocs.io/en/latest/mocker.html#mocking-specific-sessions

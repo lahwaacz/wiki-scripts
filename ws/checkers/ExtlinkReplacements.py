@@ -172,6 +172,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
     ]
 
     https_everywhere_rules_path = os.path.join(os.path.dirname(__file__), "https_everywhere/default.rulesets.json")
+    https_everywhere_rules = None
 
     def __init__(self, api, db, **kwargs):
         super().__init__(api, db, **kwargs)
@@ -188,14 +189,17 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             _url_replacements.append( (edit_summary, compiled, url_replacement) )
         self.url_replacements = _url_replacements
 
-        self.https_everywhere_rules = RuleTrie()
-        data = json.load(open(self.https_everywhere_rules_path, "r"))
-        for r in data:
-            ruleset = Ruleset(r, "<unknown file>")
-            if ruleset.defaultOff:
-                logging.debug("Skipping HTTPS Everywhere rule '{}', reason: {}".format(ruleset.name, ruleset.defaultOff))
-                continue
-            self.https_everywhere_rules.addRuleset(ruleset)
+        # initialize HTTPS Everywhere rules as a klass (static) attribute, because it is rather expensive
+        # (note that the class is initialized many times in tests)
+        if ExtlinkReplacements.https_everywhere_rules is None:
+            ExtlinkReplacements.https_everywhere_rules = RuleTrie()
+            data = json.load(open(self.https_everywhere_rules_path, "r"))
+            for r in data:
+                ruleset = Ruleset(r, "<unknown file>")
+                if ruleset.defaultOff:
+                    logging.debug("Skipping HTTPS Everywhere rule '{}', reason: {}".format(ruleset.name, ruleset.defaultOff))
+                    continue
+                self.https_everywhere_rules.addRuleset(ruleset)
 
         # pass timeout and max_retries
         self.selist = SmarterEncryptionList(**kwargs)

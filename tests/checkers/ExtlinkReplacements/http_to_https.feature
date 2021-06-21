@@ -18,14 +18,14 @@ Feature: ExtlinkReplacements: update http to https
         When a page contains <pattern> formatted with http://archlinux.org/some/page/
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://archlinux.org/some/page/"
-        And the last edit summary should be "update http to https for known domains"
+        And the last edit summary should be "update http to https"
 
     Scenario Outline: wiki.archlinux.org
         Given the URL https://wiki.archlinux.org/some/page/ gives status 200
         When a page contains <pattern> formatted with http://wiki.archlinux.org/some/page/
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://wiki.archlinux.org/some/page/"
-        And the last edit summary should be "update http to https for known domains"
+        And the last edit summary should be "update http to https"
 
     Scenario Outline: wiki.archlinux.org/invalid/page
         Given the URL https://wiki.archlinux.org/invalid/page/ gives status 404
@@ -39,14 +39,14 @@ Feature: ExtlinkReplacements: update http to https
         When a page contains <pattern> formatted with http://sourceforge.net/some/page/
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://sourceforge.net/some/page/"
-        And the last edit summary should be "update http to https for known domains"
+        And the last edit summary should be "update http to https"
 
     Scenario Outline: www.sourceforge.net
         Given the URL https://www.sourceforge.net/some/page/ gives status 200
         When a page contains <pattern> formatted with http://www.sourceforge.net/some/page/
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://www.sourceforge.net/some/page/"
-        And the last edit summary should be "update http to https for known domains"
+        And the last edit summary should be "update http to https"
 
     Scenario Outline: foo.sourceforge.net
         When a page contains <pattern> formatted with http://foo.sourceforge.net/some/page/

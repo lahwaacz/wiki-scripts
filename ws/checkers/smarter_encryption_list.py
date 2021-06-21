@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import logging
 from functools import lru_cache
 import hashlib
 
@@ -8,6 +9,8 @@ import ssl
 from ws.utils import TLSAdapter
 
 __all__ = ["SmarterEncryptionList"]
+
+logger = logging.getLogger(__name__)
 
 class SmarterEncryptionList:
     """
@@ -28,6 +31,7 @@ class SmarterEncryptionList:
 
     @lru_cache(maxsize=1024)
     def __contains__(self, value):
+        logger.debug("checking domain {} in the SmarterEncryptionList".format(value))
         h = hashlib.sha1(bytes(value, encoding="utf-8"))
         data = self._query_hash_prefix(h.hexdigest()[:4])
         return h.hexdigest() in data
