@@ -170,7 +170,9 @@ with its `1.3 version
 
 Finally, note that some options may have different behaviour (e.g., different
 default value) in the new version compared to version 1.3, but we did not keep
-an exact list of differences.
+an exact list of differences. Most notably, the ``--cookie-file`` option lost
+its default value, so it has to be set explicitly in the configuration file for
+persistent authenticated session.
 
 .. _ConfigArgParse: https://github.com/lahwaacz/ConfigArgParse/tree/config_files_without_merging
 .. _configfile: https://github.com/kynikos/lib.py.configfile

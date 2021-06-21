@@ -12,6 +12,8 @@ Unreleased
   https://github.com/lahwaacz/wiki-scripts/pull/69
 - As a result, the configuration file format has changed. See `Configuration
   <configuration.html>`_ for details on migrating your configuration.
+- The default value of the ``--cookie-file`` option was removed, so it has to be
+  set explicitly in the configuration file for persistent authenticated session.
 - The ``--site`` and ``--cache-dir`` options were removed.
 
 Version 1.3
