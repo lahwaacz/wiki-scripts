@@ -36,6 +36,18 @@
             
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<section id="version-2-0">
+<h2>Version 2.0<a class="headerlink" href="#version-2-0" title="Permalink to this headline">¶</a></h2>
+<p>Unreleased
+(<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/compare/1.3...master">changes</a>)</p>
+<ul class="simple">
+<li><p>Replaced the third-party modules <code class="docutils literal notranslate"><span class="pre">ConfigArgParse</span></code> and <code class="docutils literal notranslate"><span class="pre">configfile</span></code> with
+their built-in alternatives. See the merge request for details:
+<a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/pull/69">https://github.com/lahwaacz/wiki-scripts/pull/69</a></p></li>
+<li><p>As a result, the configuration file format has changed. See <a class="reference external" href="configuration.html">Configuration</a> for details on migrating your configuration.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">--site</span></code> and <code class="docutils literal notranslate"><span class="pre">--cache-dir</span></code> options were removed.</p></li>
+</ul>
+</section>
 <section id="version-1-3">
 <h2>Version 1.3<a class="headerlink" href="#version-1-3" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https://github.com/lahwaacz/wiki-scripts/tree/1.3">Released Jun 19, 2021</a>
@@ -71,7 +83,7 @@ the SQL database. See <a class="reference internal" href="ws/ws.parser_helpers.t
 <li><p>Implemented a regex-based function to check if a page is a redirect
 (<a class="reference internal" href="ws/ws.parser_helpers.wikicode.html#ws.parser_helpers.wikicode.is_redirect" title="ws.parser_helpers.wikicode.is_redirect"><code class="xref py py-func docutils literal notranslate"><span class="pre">ws.parser_helpers.wikicode.is_redirect()</span></code></a>).</p></li>
 <li><p>Fixed handling of relative links and leading colons in the <a class="reference internal" href="ws/ws.parser_helpers.title.html#ws.parser_helpers.title.Title" title="ws.parser_helpers.title.Title"><code class="xref py py-class docutils literal notranslate"><span class="pre">Title</span></code></a> class.</p></li>
-<li><p>The parameter <cite>–ssl-verify</cite> is removed, SSL certificates are always verified
+<li><p>The parameter <code class="docutils literal notranslate"><span class="pre">--ssl-verify</span></code> is removed, SSL certificates are always verified
 for HTTPS requests. Furthermore, TLS 1.2 or newer is required for all HTTPS
 requests.</p></li>
 <li><p>And much more…</p></li>
@@ -149,7 +161,7 @@ the <code class="docutils literal notranslate"><span class="pre">index.php</span
 and <code class="xref py py-attr docutils literal notranslate"><span class="pre">ws.core.api.API.namespaces</span></code> proper properties.</p></li>
 <li><p>Started using the <a class="reference external" href="https://docs.python.org/3/library/logging.html#module-logging" title="(in Python v3.9)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code></a> module for messages.</p></li>
 <li><p>New unified configuration interface for all scripts, using the
-<a class="reference internal" href="ws/ws.config.html#module-ws.config" title="ws.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.config</span></code></a> submodule. See <a class="reference external" href="configuration">Configuration</a> for
+<a class="reference internal" href="ws/ws.config.html#module-ws.config" title="ws.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.config</span></code></a> submodule. See <a class="reference external" href="configuration.html">Configuration</a> for
 details.</p>
 <ul>
 <li><p>Basically all scripts were modified to use the <a class="reference internal" href="ws/ws.config.html#module-ws.config" title="ws.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.config</span></code></a>
@@ -220,6 +232,7 @@ broken fragments by comparing dot-encoded fragments)</p></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Writing new scripts</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-2-0">Version 2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-1-3">Version 1.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-1-2">Version 1.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-1-1">Version 1.1</a></li>

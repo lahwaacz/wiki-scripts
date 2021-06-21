@@ -1,6 +1,19 @@
 Changelog
 =========
 
+Version 2.0
+-----------
+
+Unreleased
+(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.3...master>`__)
+
+- Replaced the third-party modules ``ConfigArgParse`` and ``configfile`` with
+  their built-in alternatives. See the merge request for details:
+  https://github.com/lahwaacz/wiki-scripts/pull/69
+- As a result, the configuration file format has changed. See `Configuration
+  <configuration.html>`_ for details on migrating your configuration.
+- The ``--site`` and ``--cache-dir`` options were removed.
+
 Version 1.3
 -----------
 
@@ -33,7 +46,7 @@ Version 1.3
   (:py:func:`ws.parser_helpers.wikicode.is_redirect`).
 - Fixed handling of relative links and leading colons in the :py:class:`Title
   <ws.parser_helpers.title.Title>` class.
-- The parameter `--ssl-verify` is removed, SSL certificates are always verified
+- The parameter ``--ssl-verify`` is removed, SSL certificates are always verified
   for HTTPS requests. Furthermore, TLS 1.2 or newer is required for all HTTPS
   requests.
 - And much more...
@@ -111,7 +124,7 @@ Version 1.0
   and :py:attr:`ws.core.api.API.namespaces` proper properties.
 - Started using the :py:mod:`logging` module for messages.
 - New unified configuration interface for all scripts, using the
-  :py:mod:`ws.config` submodule. See `Configuration <configuration>`_ for
+  :py:mod:`ws.config` submodule. See `Configuration <configuration.html>`_ for
   details.
 
   - Basically all scripts were modified to use the :py:mod:`ws.config`

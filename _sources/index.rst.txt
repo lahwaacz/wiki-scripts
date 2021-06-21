@@ -98,14 +98,10 @@ Requirements
 - `Python`_ version 3
 - `Requests`_
 - `mwparserfromhell`_
-- `ConfigArgParse`_ (modified, bundled as git submodule)
-- `configfile`_
 
 .. _Python: https://www.python.org/
 .. _Requests: http://python-requests.org
 .. _mwparserfromhell: https://github.com/earwig/mwparserfromhell
-.. _ConfigArgParse: https://github.com/lahwaacz/ConfigArgParse/tree/config_files_without_merging
-.. _configfile: https://github.com/kynikos/lib.py.configfile
 
 The following are required only by some scripts:
 

@@ -37,41 +37,46 @@
   <section id="module-ws.config">
 <span id="ws-config-module"></span><h1>ws.config module<a class="headerlink" href="#module-ws.config" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="ws.config.ConfigFileParser">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ws.config.</span></span><span class="sig-name descname"><span class="pre">ConfigFileParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">top_level_arg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.ConfigFileParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dt class="sig sig-object py" id="ws.config.ConfigParser">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ws.config.</span></span><span class="sig-name descname"><span class="pre">ConfigParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configfile</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.ConfigParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/configparser.html#configparser.ConfigParser" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">configparser.ConfigParser</span></code></a></p>
+<p>Drop-in replacement for <code class="xref py py-class docutils literal notranslate"><span class="pre">configparser.Configparser</span></code>.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="ws.config.ConfigFileParser.parse">
-<span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.ConfigFileParser.parse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses a config file and returns a dictionary of settings</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ws.config.ConfigFileParser.serialize">
-<span class="sig-name descname"><span class="pre">serialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.ConfigFileParser.serialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Does the inverse of config parsing by taking parsed values and
-converting them back to a string representing config file contents.</p>
+<dt class="sig sig-object py" id="ws.config.ConfigParser.fetch_section">
+<span class="sig-name descname"><span class="pre">fetch_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.ConfigParser.fetch_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches a specific section from a config file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>items</strong> – an <code class="docutils literal notranslate"><span class="pre">OrderedDict</span></code> with items to be written to the config file</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>section</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – section name for fetching.</p></li>
+<li><p><strong>to_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – defines the format of the returned value (see below).</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>contents of config file as a string</p>
+<dd class="field-even"><p>The data from the fetched config file section. The format is
+a list of strings if <code class="docutils literal notranslate"><span class="pre">to_list=True</span></code> (default value) and
+a dictionary otherwise.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ws.config.ConfigFileParser.get_syntax_description">
-<span class="sig-name descname"><span class="pre">get_syntax_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.ConfigFileParser.get_syntax_description" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ws.config.ConfigParser.set_argparser">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">set_argparser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argparser</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.ConfigParser.set_argparser" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ws.config.argtype_existing_dir">
-<span class="sig-prename descclassname"><span class="pre">ws.config.</span></span><span class="sig-name descname"><span class="pre">argtype_existing_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.argtype_existing_dir" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ws.config.argtype_bool">
+<span class="sig-prename descclassname"><span class="pre">ws.config.</span></span><span class="sig-name descname"><span class="pre">argtype_bool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.argtype_bool" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ws.config.argtype_config">
+<span class="sig-prename descclassname"><span class="pre">ws.config.</span></span><span class="sig-name descname"><span class="pre">argtype_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.argtype_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute config filepath and check its existence.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ws.config.argtype_dirname_must_exist">
@@ -79,24 +84,36 @@ converting them back to a string representing config file contents.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ws.config.getArgParser">
-<span class="sig-prename descclassname"><span class="pre">ws.config.</span></span><span class="sig-name descname"><span class="pre">getArgParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.getArgParser" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ws.config.argtype_existing_dir">
+<span class="sig-prename descclassname"><span class="pre">ws.config.</span></span><span class="sig-name descname"><span class="pre">argtype_existing_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.argtype_existing_dir" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ws.config.getArgParser">
+<span class="sig-prename descclassname"><span class="pre">ws.config.</span></span><span class="sig-name descname"><span class="pre">getArgParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.getArgParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a> and set the global
+arguments (e.g. for logging).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – passed to <code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser()</span></code> constructor.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ws.config.object_from_argparser">
-<span class="sig-prename descclassname"><span class="pre">ws.config.</span></span><span class="sig-name descname"><span class="pre">object_from_argparser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">klass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.object_from_argparser" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ws.config.</span></span><span class="sig-name descname"><span class="pre">object_from_argparser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">klass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ws.config.object_from_argparser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an instance of <code class="docutils literal notranslate"><span class="pre">klass</span></code> using its <code class="xref py py-meth docutils literal notranslate"><span class="pre">klass.from_argparser()</span></code>
-factory and a clean instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a>. On top
-of that, logging interface is set up using the <a class="reference internal" href="ws.logging.html#module-ws.logging" title="ws.logging"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ws.logging</span></code></a> module.</p>
+factory and an instance of <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>klass</strong> – the class to instantiate</p></li>
-<li><p><strong>subname</strong> – The name of the subsection to be read from the configuration file
-(usually the name of the script). By default <code class="docutils literal notranslate"><span class="pre">sys.argv[0]</span></code> is taken.</p></li>
-<li><p><strong>args</strong> – passed to <code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser()</span></code> constructor</p></li>
-<li><p><strong>kwargs</strong> – passed to <code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser()</span></code> constructor</p></li>
+<li><p><strong>section</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">parse_args()</span></code></p></li>
+<li><p><strong>kwargs</strong> – passed to <a class="reference internal" href="#ws.config.getArgParser" title="ws.config.getArgParser"><code class="xref py py-func docutils literal notranslate"><span class="pre">getArgParser()</span></code></a></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
