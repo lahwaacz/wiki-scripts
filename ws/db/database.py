@@ -209,18 +209,19 @@ Usage:
 >>>     print(row[0])
 """
 
-from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import Executable, ClauseElement, _literal_as_text
-
-class explain(Executable, ClauseElement):
-    def __init__(self, stmt, analyze=False):
-        self.statement = _literal_as_text(stmt)
-        self.analyze = analyze
-        # helps with INSERT statements
-        self.inline = getattr(stmt, 'inline', None)
-
-@compiles(explain)
-def visit_explain(element, compiler, **kw):
-    text = "EXPLAIN ANALYZE "
-    text += compiler.process(element.statement, **kw)
-    return text
+# FIXME: _literal_as_text was removed from sqlalchemy 1.4
+#from sqlalchemy.ext.compiler import compiles
+#from sqlalchemy.sql.expression import Executable, ClauseElement, _literal_as_text
+#
+#class explain(Executable, ClauseElement):
+#    def __init__(self, stmt, analyze=False):
+#        self.statement = _literal_as_text(stmt)
+#        self.analyze = analyze
+#        # helps with INSERT statements
+#        self.inline = getattr(stmt, 'inline', None)
+#
+#@compiles(explain)
+#def visit_explain(element, compiler, **kw):
+#    text = "EXPLAIN ANALYZE "
+#    text += compiler.process(element.statement, **kw)
+#    return text
