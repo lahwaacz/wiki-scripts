@@ -68,13 +68,13 @@ option is ``default``, i.e., the default configuration file path is
 Configuration file format
 .........................
 
-The configuration file contains a top-level ``[DEFAULTS]`` section which
+The configuration file contains a top-level ``[DEFAULT]`` section which
 contains global options that are applied to all scripts:
 
 .. code-block:: ini
 
     # Default options (applicable to all scripts).
-    [DEFAULTS]
+    [DEFAULT]
     api-url = https://wiki.archlinux.org/api.php
     index-url = https://wiki.archlinux.org/index.php
     cookie-file = ~/.local/share/wiki-scripts/ArchWiki.cookie
@@ -82,12 +82,12 @@ contains global options that are applied to all scripts:
 Options can be applied only to a specific script by defining them in a section
 named after the script, i.e., options from the ``[script]`` section are read by
 a script named ``script.py``. Options defined in a specific section also
-override corresponding options from the ``[DEFAULTS]`` section. For example:
+override corresponding options from the ``[DEFAULT]`` section. For example:
 
 .. code-block:: ini
 
     # Default options (applicable to all scripts).
-    [DEFAULTS]
+    [DEFAULT]
     api-url = https://wiki.archlinux.org/api.php
     index-url = https://wiki.archlinux.org/index.php
     cookie-file = ~/.local/share/wiki-scripts/ArchWiki.cookie
@@ -106,7 +106,7 @@ can be simplified into:
 .. code-block:: ini
 
     # Default options (applicable to all scripts).
-    [DEFAULTS]
+    [DEFAULT]
     # custom options for interpolation
     site = ArchWiki
     data-dir = ~/.local/share/wiki-scripts/
@@ -149,9 +149,9 @@ libraries differ:
 Also note that the ``--site`` and ``--cache-dir`` options have become unused and were
 removed. Hence, the main things that will need to be changed are:
 
-- Start the configuration with a ``[DEFAULTS]`` section.
+- Start the configuration with a ``[DEFAULT]`` section.
 - Avoid nested sections. For example, if you had a configuration for ``--site
-  ArchWiki``, move all options from ``[ArchWiki]`` into ``[DEFAULTS]`` and
+  ArchWiki``, move all options from ``[ArchWiki]`` into ``[DEFAULT]`` and
   remove ``ArchWiki.`` from all sections starting with this prefix.
 - Update the interpolation syntax. For example, use ``${option}`` instead of
   ``${option$}``.

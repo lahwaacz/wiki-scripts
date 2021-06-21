@@ -99,10 +99,10 @@ configuration file.</p>
 </section>
 <section id="configuration-file-format">
 <h2>Configuration file format<a class="headerlink" href="#configuration-file-format" title="Permalink to this headline">¶</a></h2>
-<p>The configuration file contains a top-level <code class="docutils literal notranslate"><span class="pre">[DEFAULTS]</span></code> section which
+<p>The configuration file contains a top-level <code class="docutils literal notranslate"><span class="pre">[DEFAULT]</span></code> section which
 contains global options that are applied to all scripts:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># Default options (applicable to all scripts).</span>
-<span class="k">[DEFAULTS]</span>
+<span class="k">[DEFAULT]</span>
 <span class="na">api-url</span> <span class="o">=</span> <span class="s">https://wiki.archlinux.org/api.php</span>
 <span class="na">index-url</span> <span class="o">=</span> <span class="s">https://wiki.archlinux.org/index.php</span>
 <span class="na">cookie-file</span> <span class="o">=</span> <span class="s">~/.local/share/wiki-scripts/ArchWiki.cookie</span>
@@ -111,9 +111,9 @@ contains global options that are applied to all scripts:</p>
 <p>Options can be applied only to a specific script by defining them in a section
 named after the script, i.e., options from the <code class="docutils literal notranslate"><span class="pre">[script]</span></code> section are read by
 a script named <code class="docutils literal notranslate"><span class="pre">script.py</span></code>. Options defined in a specific section also
-override corresponding options from the <code class="docutils literal notranslate"><span class="pre">[DEFAULTS]</span></code> section. For example:</p>
+override corresponding options from the <code class="docutils literal notranslate"><span class="pre">[DEFAULT]</span></code> section. For example:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># Default options (applicable to all scripts).</span>
-<span class="k">[DEFAULTS]</span>
+<span class="k">[DEFAULT]</span>
 <span class="na">api-url</span> <span class="o">=</span> <span class="s">https://wiki.archlinux.org/api.php</span>
 <span class="na">index-url</span> <span class="o">=</span> <span class="s">https://wiki.archlinux.org/index.php</span>
 <span class="na">cookie-file</span> <span class="o">=</span> <span class="s">~/.local/share/wiki-scripts/ArchWiki.cookie</span>
@@ -130,7 +130,7 @@ define custom keys in the configuration file, which do not correspond to
 wiki-scripts options, but are used for the interpolation. The previous example
 can be simplified into:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># Default options (applicable to all scripts).</span>
-<span class="k">[DEFAULTS]</span>
+<span class="k">[DEFAULT]</span>
 <span class="c1"># custom options for interpolation</span>
 <span class="na">site</span> <span class="o">=</span> <span class="s">ArchWiki</span>
 <span class="na">data-dir</span> <span class="o">=</span> <span class="s">~/.local/share/wiki-scripts/</span>
@@ -169,9 +169,9 @@ libraries differ:</p>
 <p>Also note that the <code class="docutils literal notranslate"><span class="pre">--site</span></code> and <code class="docutils literal notranslate"><span class="pre">--cache-dir</span></code> options have become unused and were
 removed. Hence, the main things that will need to be changed are:</p>
 <ul class="simple">
-<li><p>Start the configuration with a <code class="docutils literal notranslate"><span class="pre">[DEFAULTS]</span></code> section.</p></li>
+<li><p>Start the configuration with a <code class="docutils literal notranslate"><span class="pre">[DEFAULT]</span></code> section.</p></li>
 <li><p>Avoid nested sections. For example, if you had a configuration for <code class="docutils literal notranslate"><span class="pre">--site</span>
-<span class="pre">ArchWiki</span></code>, move all options from <code class="docutils literal notranslate"><span class="pre">[ArchWiki]</span></code> into <code class="docutils literal notranslate"><span class="pre">[DEFAULTS]</span></code> and
+<span class="pre">ArchWiki</span></code>, move all options from <code class="docutils literal notranslate"><span class="pre">[ArchWiki]</span></code> into <code class="docutils literal notranslate"><span class="pre">[DEFAULT]</span></code> and
 remove <code class="docutils literal notranslate"><span class="pre">ArchWiki.</span></code> from all sections starting with this prefix.</p></li>
 <li><p>Update the interpolation syntax. For example, use <code class="docutils literal notranslate"><span class="pre">${option}</span></code> instead of
 <code class="docutils literal notranslate"><span class="pre">${option$}</span></code>.</p></li>
