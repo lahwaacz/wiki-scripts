@@ -80,7 +80,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'wiki-scripts'
-copyright = '2014-2018, Jakub Klinkovský'
+copyright = '2014-2021, Jakub Klinkovský'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -138,11 +138,9 @@ html_theme = 'alabaster'
 
 # alabaster options: https://pypi.python.org/pypi/alabaster
 html_theme_options = {
-    # show "Fork me on github" banner in the top-right corner
-    "github_user": "lahwaacz",
-    "github_repo": "wiki-scripts",
-    "github_banner": True,
-    "github_button": False,
+    # hide project name under the logo
+    "logo": "wiki-scripts.png",
+    "logo_name": False,
     # wide layout
     "page_width": "95%",
     # use standard font families
@@ -162,7 +160,7 @@ html_theme_options = {
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = "./_static/wiki-scripts.png"
+#html_logo = "./_static/wiki-scripts.png"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
