@@ -4,6 +4,7 @@ import re
 import logging
 import os.path
 import json
+import enum
 
 import mwparserfromhell
 import jinja2
@@ -23,13 +24,20 @@ logger = logging.getLogger(__name__)
 
 class ExtlinkReplacements(ExtlinkStatusChecker):
 
+    class ExtlinkBehaviour(enum.Enum):
+        # the extlink must not have any alternative text (but brackets are not checked)
+        NO_TEXT = 1
+        # the extlink must not have brackets (and hence also no alternative text)
+        NO_BRACKETS = 2
+
     # list of (url_regex, text_cond, text_cond_flags, replacement) tuples, where:
     #   - url_regex: a regular expression matching the URL (using re.fullmatch)
     #   - text_cond:
     #       - as str: a format string used to create the regular expression for
     #                 matching the link's alternative text (it is formatted using
     #                 the groups matched by url_regex)
-    #       - as None: the extlink must not have any alternative text
+    #       - as ExtlinkBehaviour: special behaviour without an alternative text
+    #                              (see the enum for details)
     #   - text_cond_flags: flags for the text_cond regex
     #   - replacement: a format string used as a replacement (it is formatted
     #                  using the groups matched by url_regex and the alternative
@@ -39,8 +47,8 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         (re.escape("https://bugs.archlinux.org/task/") + r"(\d+)",
             "(FS|flyspray) *#?{0}", 0, "{{{{Bug|{0}}}}}"),
         # URLs with brackets but without an alternative text should be left alone
-        #(re.escape("https://bugs.archlinux.org/task/") + r"(\d+)",
-        #    None, 0, "{{{{Bug|{0}}}}}"),
+        (re.escape("https://bugs.archlinux.org/task/") + r"(\d+)",
+            ExtlinkBehaviour.NO_BRACKETS, 0, "{{{{Bug|{0}}}}}"),
 
         # exclude the replacement of some links using pkgbase - see [[Firefox]]
         (r"https:\/\/www.archlinux.org\/packages\/extra\/(?:any)/(firefox-i18n)\/",
@@ -52,19 +60,19 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         (r"https?\:\/\/(?:www\.)?archlinux\.org\/packages\/[\w-]+\/(?:any|i686|x86_64)\/([a-zA-Z0-9@._+-]+)\/?",
             "{0}", re.IGNORECASE, "{{{{Pkg|{0}}}}}"),
         (r"https?\:\/\/(?:www\.)?archlinux\.org\/packages\/[\w-]+\/(?:any|i686|x86_64)\/([a-zA-Z0-9@._+-]+)\/?",
-            None, 0, "{{{{Pkg|{0}}}}}"),
+            ExtlinkBehaviour.NO_TEXT, 0, "{{{{Pkg|{0}}}}}"),
 
         # AUR packages, with and without alternative text
         (r"https?\:\/\/aur\.archlinux\.org\/packages\/([a-zA-Z0-9@._+-]+)\/?",
             "{0}", re.IGNORECASE, "{{{{AUR|{0}}}}}"),
         (r"https?\:\/\/aur\.archlinux\.org\/packages\/([a-zA-Z0-9@._+-]+)\/?",
-            None, 0, "{{{{AUR|{0}}}}}"),
+            ExtlinkBehaviour.NO_TEXT, 0, "{{{{AUR|{0}}}}}"),
 
         # Wikipedia interwiki
         (r"https?\:\/\/en\.wikipedia\.org\/wiki\/([^\]\?]+)",
             ".*", 0, "[[wikipedia:{0}|{1}]]"),
         (r"https?\:\/\/en\.wikipedia\.org\/wiki\/([^\]\?]+)",
-            None, 0, "[[wikipedia:{0}]]"),
+            ExtlinkBehaviour.NO_TEXT, 0, "[[wikipedia:{0}]]"),
     ]
 
     # list of (edit_summary, url_regex, url_replacement) tuples, where:
@@ -261,7 +269,15 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         repl = None
 
         for url_regex, text_cond, text_cond_flags, replacement in self.extlink_replacements:
-            if (text_cond is None and extlink.title is not None) or (text_cond is not None and extlink.title is None):
+            assert text_cond is not None
+            # regex requires extlink.title
+            if isinstance(text_cond, str) and extlink.title is None:
+                continue
+            # all enum values of ExtlinkBehaviour require extlink.title to be None
+            if isinstance(text_cond, self.ExtlinkBehaviour) and extlink.title is not None:
+                continue
+            # check ExtlinkBehaviour.NO_BRACKETS
+            if text_cond == self.ExtlinkBehaviour.NO_BRACKETS and extlink.brackets:
                 continue
             match = url_regex.fullmatch(url.url)
             if match:

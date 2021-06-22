@@ -8,6 +8,12 @@ Feature: ExtlinkReplacements: extlink to wikilink or template replacements
         Then the page should contain "see {{Bug|12345}}"
         And the last edit summary should be "replaced external links"
 
+    Scenario: Not replacing a plain link with brackets to Arch bug tracker
+        When a page contains "see [https://bugs.archlinux.org/task/12345]"
+        And I run ExtlinkReplacements
+        Then the page should contain "see [https://bugs.archlinux.org/task/12345]"
+        And the last edit summary should be empty
+
     Scenario: Replacing a link to Arch bug tracker with FS 12345 title
         When a page contains "see [https://bugs.archlinux.org/task/12345 FS 12345]"
         And I run ExtlinkReplacements
