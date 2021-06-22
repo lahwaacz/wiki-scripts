@@ -82,6 +82,12 @@ Feature: ExtlinkReplacements: extlink to wikilink or template replacements
         Then the page should contain "install [https://archlinux.org/packages/core/any/linux/ linux package]"
         And the last edit summary should be empty
 
+    Scenario: Not replacing an excluded link to an Arch package
+        When a page contains "install [https://archlinux.org/packages/extra/any/firefox-i18n/ firefox-i18n]"
+        And I run ExtlinkReplacements
+        Then the page should contain "install [https://archlinux.org/packages/extra/any/firefox-i18n/ firefox-i18n]"
+        And the last edit summary should be empty
+
 
     Scenario: Replacing a plain link to an AUR package
         When a page contains "install https://aur.archlinux.org/packages/linux/ package"

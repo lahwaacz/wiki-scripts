@@ -52,10 +52,10 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             ExtlinkBehaviour.NO_BRACKETS, 0, "{{{{Bug|{0}}}}}"),
 
         # exclude the replacement of some links using pkgbase - see [[Firefox]]
-        (r"https:\/\/www.archlinux.org\/packages\/extra\/(?:any)/(firefox-i18n)\/",
-            "{0}", re.IGNORECASE, "[https://www.archlinux.org/packages/extra/any/firefox-i18n/ {0}]"),
-        (r"https:\/\/www.archlinux.org\/packages\/community\/(?:any)\/(firefox-developer-edition-i18n)\/?",
-            "{0}", re.IGNORECASE, "[https://www.archlinux.org/packages/community/any/firefox-developer-edition-i18n/ {0}]"),
+        (r"https:\/\/archlinux.org\/packages\/extra\/(?:any)/(firefox-i18n)\/",
+            "{0}", re.IGNORECASE, "[https://archlinux.org/packages/extra/any/firefox-i18n/ {0}]"),
+        (r"https:\/\/archlinux.org\/packages\/community\/(?:any)\/(firefox-developer-edition-i18n)\/?",
+            "{0}", re.IGNORECASE, "[https://archlinux.org/packages/community/any/firefox-developer-edition-i18n/ {0}]"),
 
         # official packages, with and without alternative text
         (r"https?\:\/\/(?:www\.)?archlinux\.org\/packages\/[\w-]+\/(?:any|i686|x86_64)\/([a-zA-Z0-9@._+-]+)\/?",
