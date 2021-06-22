@@ -34,6 +34,13 @@ Feature: ExtlinkReplacements: kernel.org links
         Then the page content should be "<pattern>" formatted with "https://www.kernel.org/doc/html/latest/fb/"
         And the last edit summary should be "link to HTML version of kernel documentation"
 
+    Scenario Outline: not replacing excluded kernel.org link
+        Given the URL https://www.kernel.org/doc/Documentation/filesystems/ gives status 200
+        When a page contains <pattern> formatted with https://www.kernel.org/doc/Documentation/filesystems/
+        And I run ExtlinkReplacements
+        Then the page content should be "<pattern>" formatted with "https://www.kernel.org/doc/Documentation/filesystems/"
+        And the last edit summary should be empty
+
 
     Scenario Outline: wireless.kernel.org
         Given the URL https://wireless.wiki.kernel.org/ gives status 200
