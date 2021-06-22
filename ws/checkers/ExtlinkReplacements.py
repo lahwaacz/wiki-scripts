@@ -79,15 +79,12 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
     #   - edit_summary: a string with the edit summary to use for this replacement
     #   - url_regex: a regular expression matching the URL (using re.fullmatch)
     #   - url_replacement: a format string used as a replacement for the URL
-    #                      (it is formatted using the groups matched by url_regex)
-    #       The string can be in either of two formats:
-    #       - as a native Python format string: matched groups are substituted for
-    #         {0}, {1} and so on. See the format string syntax for details:
-    #         https://docs.python.org/3/library/string.html#formatstrings
-    #       - as a Jinja2 template: named groups are passed as variables, unnamed
-    #         groups are in a special variable "m" and can be accessed as
-    #         {{m[0]}}, {{m[1]}} and so on. See the template language documentation
-    #         for details: https://jinja.palletsprojects.com/en/2.11.x/templates/
+    #       (it is formatted using the groups matched by url_regex). The string
+    #       must be formatted as a Jinja2 template: named groups are passed as
+    #       variables, unnamed groups are in a special variable "m" and can be
+    #       accessed as {{m[0]}}, {{m[1]}} and so on. See the template language
+    #       documentation for details:
+    #       https://jinja.palletsprojects.com/en/2.11.x/templates/
     # Note that this replaces URLs with URLs, in extlinks with or without an
     # alternative text. It is not possible to change extlink to other node type
     # such as wikilink here.
@@ -309,12 +306,9 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         for edit_summary, url_regex, url_replacement in self.url_replacements:
             match = url_regex.fullmatch(url.url)
             if match:
-                if "{0}" in url_replacement:
-                    new_url = url_replacement.format(*match.groups())
-                else:
-                    env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
-                    template = env.from_string(url_replacement)
-                    new_url = template.render(m=match.groups(), **match.groupdict())
+                env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
+                template = env.from_string(url_replacement)
+                new_url = template.render(m=match.groups(), **match.groupdict())
 
                 # check if the resulting URL is valid
                 # (irc:// and ircs:// cannot be validated - requests throws requests.exceptions.InvalidSchema)
