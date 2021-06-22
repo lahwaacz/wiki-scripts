@@ -17,6 +17,7 @@ from .https_everywhere.rule_trie import RuleTrie
 from .smarter_encryption_list import SmarterEncryptionList
 from ws.utils import LazyProperty
 from ws.parser_helpers.wikicode import ensure_unflagged_by_template
+from ws.parser_helpers.encodings import querydecode
 
 __all__ = ["ExtlinkReplacements"]
 
@@ -70,9 +71,15 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
         # Wikipedia interwiki
         (r"https?\:\/\/en\.wikipedia\.org\/wiki\/([^\]\?]+)",
-            ".*", 0, "[[wikipedia:{0}|{1}]]"),
+            ".*", 0, "[[Wikipedia:{0}|{1}]]"),
         (r"https?\:\/\/en\.wikipedia\.org\/wiki\/([^\]\?]+)",
-            ExtlinkBehaviour.NO_TEXT, 0, "[[wikipedia:{0}]]"),
+            ExtlinkBehaviour.NO_TEXT, 0, "[[Wikipedia:{0}]]"),
+
+        # international Wikipedia links
+        (r"https?:\/\/([a-z]+?)\.wikipedia\.org\/wiki\/([^\]\?]+)",
+            ".+", 0, "[[Wikipedia:{0}:{1}|{2}]]"),
+        (r"https?:\/\/([a-z]+?)\.wikipedia\.org\/wiki\/([^\]\?]+)",
+            ExtlinkBehaviour.NO_TEXT, 0, "[[Wikipedia:{0}:{1}]]"),
     ]
 
     # list of (edit_summary, url_regex, url_replacement) tuples, where:
@@ -276,7 +283,8 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             # check ExtlinkBehaviour.NO_BRACKETS
             if text_cond == self.ExtlinkBehaviour.NO_BRACKETS and extlink.brackets:
                 continue
-            match = url_regex.fullmatch(url.url)
+            # decode unicode characters in the URL before matching
+            match = url_regex.fullmatch(querydecode(url.url))
             if match:
                 if extlink.title is None:
                     repl = replacement.format(*match.groups())

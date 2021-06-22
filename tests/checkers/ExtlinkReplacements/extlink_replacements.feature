@@ -105,17 +105,35 @@ Feature: ExtlinkReplacements: extlink to wikilink or template replacements
     Scenario: Replacing a plain link to Wikipedia
         When a page contains "see https://en.wikipedia.org/wiki/Main_page"
         And I run ExtlinkReplacements
-        Then the page should contain "see [[wikipedia:Main_page]]"
+        Then the page should contain "see [[Wikipedia:Main_page]]"
         And the last edit summary should be "replaced external links"
 
     Scenario: Replacing a bracketed link to Wikipedia
         When a page contains "see [https://en.wikipedia.org/wiki/Main_page]"
         And I run ExtlinkReplacements
-        Then the page should contain "see [[wikipedia:Main_page]]"
+        Then the page should contain "see [[Wikipedia:Main_page]]"
         And the last edit summary should be "replaced external links"
 
     Scenario: Replacing a link to Wikipedia with a title
         When a page contains "see [https://en.wikipedia.org/wiki/Main_page Wikipedia's main page]"
         And I run ExtlinkReplacements
-        Then the page should contain "see [[wikipedia:Main_page|Wikipedia's main page]]"
+        Then the page should contain "see [[Wikipedia:Main_page|Wikipedia's main page]]"
+        And the last edit summary should be "replaced external links"
+
+    Scenario: Replacing a link to Chinese wikipedia
+        When a page contains "see https://zh.wikipedia.org/wiki/分時系統"
+        And I run ExtlinkReplacements
+        Then the page should contain "see [[Wikipedia:zh:分時系統]]"
+        And the last edit summary should be "replaced external links"
+
+    Scenario: Replacing a bracketed link to Chinese wikipedia
+        When a page contains "see [https://zh.wikipedia.org/wiki/分時系統]"
+        And I run ExtlinkReplacements
+        Then the page should contain "see [[Wikipedia:zh:分時系統]]"
+        And the last edit summary should be "replaced external links"
+
+    Scenario: Replacing a link to Chinese wikipedia with a title
+        When a page contains "see [https://zh.wikipedia.org/wiki/分時系統 分时系统]"
+        And I run ExtlinkReplacements
+        Then the page should contain "see [[Wikipedia:zh:分時系統|分时系统]]"
         And the last edit summary should be "replaced external links"
