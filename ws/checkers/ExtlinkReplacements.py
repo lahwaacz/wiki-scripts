@@ -137,9 +137,14 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             "https://github.com/archlinux/svntogit-{{repo}}"),
 
         # other git repos
-        ("update old links to (projects|git).archlinux.org",
+        ("update old (projects|git).archlinux.org links",
             r"https?\:\/\/(?:projects|git)\.archlinux\.org\/(?P<project>archboot|archiso|aurweb|infrastructure|pacman).git(?:\/(?P<type>commit|tree|plain|log))?(?P<path>[^?]+?)?(?:\?h=(?P<branch>[^&#?]+?))?(?:[&?]id=(?P<commit>[0-9A-Ha-f]+))?(?:#n(?P<linenum>\d+))?",
             "https://gitlab.archlinux.org/{% if project == 'archboot' %}tpowa{% elif project == 'pacman' %}pacman{% else %}archlinux{% endif %}/{{project}}{% if type is not none %}/{{type | replace('plain', 'raw') | replace('log', 'commits')}}{% if commit is not none %}/{{commit}}{% elif branch is not none %}/{{branch}}{% elif path is not none %}/master{% endif %}{% if (path is not none) and (path != '/') %}{{path}}{% endif %}{% if linenum is not none %}#L{{linenum}}{% endif %}{% endif %}"),
+        ("update old (projects|git).archlinux.org links",
+            r"https?\:\/\/(?:projects|git)\.archlinux\.org\/(?P<project>archweb|mkinitcpio|linux).git(?:\/(?P<type>commit|tree|plain|log))?(?P<path>[^?]+?)?(?:\?h=(?P<branch>[^&#?]+?))?(?:[&?]id=(?P<commit>[0-9A-Ha-f]+))?(?:#n(?P<linenum>\d+))?",
+            "https://github.com/archlinux/{{project}}{% if type is not none %}/{{type | replace('plain', 'raw') | replace('log', 'commits')}}{% if commit is not none %}/{{commit}}{% elif branch is not none %}/{{branch}}{% elif path is not none %}/master{% endif %}{% if (path is not none) and (path != '/') %}{{path}}{% endif %}{% if linenum is not none %}#L{{linenum}}{% endif %}{% endif %}"),
+        # TODO: github.com/archlinux/ to gitlab.archlinux.org
+        # the only difference should be line selection. GitHub uses #L10-L15 while GitLab uses #L10-15
 
         # update addons.mozilla.org and addons.thunderbird.net
         ("remove language codes from addons.mozilla.org and addons.thunderbird.net links",
