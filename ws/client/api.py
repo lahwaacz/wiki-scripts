@@ -472,7 +472,9 @@ class API(Connection):
         try:
             return self.call_with_csrftoken(action="edit", md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, nocreate="1", **kwargs)
         except APIError as e:
-            logger.error("Failed to edit page [[{}]] due to APIError (code '{}': {})".format(title, e.server_response["code"], e.server_response["info"]))
+            ecode = e.server_response["code"]
+            einfo = e.server_response["info"]
+            logger.error(f"Failed to edit page [[{title}]] due to APIError (code '{ecode}': {einfo})")
             raise
 
     @RateLimited(1, 3)
@@ -481,7 +483,7 @@ class API(Connection):
         Specialization of :py:meth:`edit` for creating pages. The ``createonly``
         parameter is always added to the query. This method is rate-limited with
         the :py:class:`@RateLimited <ws.utils.rate.RateLimited>` decorator to
-        allow 1 call per 10 seconds.
+        allow 1 call per 3 seconds.
 
         :param str title: the title of the page to be created
         :param str text: new page content
@@ -524,7 +526,9 @@ class API(Connection):
         try:
             return self.call_with_csrftoken(action="edit", title=title, md5=md5, text=text, summary=summary, createonly="1", **kwargs)
         except APIError as e:
-            logger.error("Failed to create page [[{}]] due to APIError (code '{}': {})".format(title, e.server_response["code"], e.server_response["info"]))
+            ecode = e.server_response["code"]
+            einfo = e.server_response["info"]
+            logger.error(f"Failed to create page [[{title}]] due to APIError (code '{ecode}': {einfo})")
             raise
 
     @RateLimited(1, 3)
@@ -532,7 +536,7 @@ class API(Connection):
         """
         Interface to `API:Move`_. This method is rate-limited with the
         :py:class:`@RateLimited <ws.utils.rate.RateLimited>` decorator to allow
-        1 call per 10 seconds.
+        1 call per 3 seconds.
 
         :param str from_title: the original title of the page to be renamed
         :param str to_title: the new title of the page to be renamed
@@ -568,7 +572,9 @@ class API(Connection):
         try:
             return self.call_with_csrftoken(**kwargs)
         except APIError as e:
-            logger.error("Failed to move page [[{}]] to [[{}]] due to APIError (code '{}': {})".format(from_title, to_title, e.server_response["code"], e.server_response["info"]))
+            ecode = e.server_response["code"]
+            einfo = e.server_response["info"]
+            logger.error(f"Failed to move page [[{from_title}]] to [[{to_title}]] due to APIError (code '{ecode}': {einfo})")
             raise
 
 class LoginFailed(Exception):
