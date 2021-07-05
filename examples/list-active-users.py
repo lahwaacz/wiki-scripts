@@ -7,9 +7,7 @@ from ws.client import API
 
 api_url = "https://wiki.archlinux.org/api.php"
 index_url = "https://wiki.arclinux.org/index.php"
-cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
-session = API.make_session(ssl_verify=True,
-                           cookie_file=cookie_path)
+session = API.make_session()
 
 api = API(api_url, index_url, session)
 
