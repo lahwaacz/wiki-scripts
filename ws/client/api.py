@@ -577,6 +577,43 @@ class API(Connection):
             logger.error(f"Failed to move page [[{from_title}]] to [[{to_title}]] due to APIError (code '{ecode}': {einfo})")
             raise
 
+    @RateLimited(1, 3)
+    def set_page_language(self, title, lang, reason, **kwargs):
+        """
+        Interface to `API:SetPageLanguage`_. This method is rate-limited with the
+        :py:class:`@RateLimited <ws.utils.rate.RateLimited>` decorator to allow
+        1 call per 3 seconds.
+
+        :param str title: title of the page whose language should be changed
+        :param str lang: language code of the language to be set for the page
+        :param str reason: reason for the change
+        :param kwargs: Additional query parameters, see `API:SetPageLanguage`_.
+
+        .. _`API:SetPageLanguage`: https://www.mediawiki.org/wiki/API:SetPageLanguage
+        """
+        kwargs["action"] = "setpagelanguage"
+        kwargs["title"] = title
+        kwargs["lang"] = lang
+        kwargs["reason"] = reason
+
+        # check and apply tags
+        if "applychangetags" in self.user.rights and "wiki-scripts" in self.tags.applicable:
+            kwargs.setdefault("tags", [])
+            kwargs["tags"].append("wiki-scripts")
+        elif "applychangetags" not in self.user.rights and "tags" in kwargs:
+            logger.warning("Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(kwargs["tags"]))
+            del kwargs["tags"]
+
+        logger.info(f"Setting the page language of [[{title}]] to {lang} ...")
+
+        try:
+            return self.call_with_csrftoken(**kwargs)
+        except APIError as e:
+            ecode = e.server_response["code"]
+            einfo = e.server_response["info"]
+            logger.error(f"Failed to set page language of [[{title}]] to {lang} due to APIError (code '{ecode}': {einfo})")
+            raise
+
 class LoginFailed(Exception):
     """
     Raised when the :py:meth:`API.login` call failed.
