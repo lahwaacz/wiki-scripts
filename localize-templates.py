@@ -6,27 +6,9 @@ from ws.utils import dmerge
 from ws.ArchWiki import lang
 import mwparserfromhell
 
-dl = lambda page: lang.detect_language(page["title"])[1]
-dfkw = {"format": "json", "utf8": 1, "formatversion": 2}
 
-
-def ukw(kw: dict):
-    """add common attribs on kw"""
-    k = dfkw.copy()
-    k.update(kw)
-    return k
-
-
-def get_templates(api: API):
-    """Get templates with i18n"""   
-    ret = api.list(**ukw({
-        "prop": "langlinks",
-        "list": "allpages",
-        "lllimit": "max",
-        "apnamespace": "10",
-        "apfilterlanglinks": "withlanglinks",
-    }))
-    return (page["title"] for page in ret if dl(page) == "English")
+def page_language(page):
+    return lang.detect_language(page["title"])[1]
 
 
 def edit(api: API, page, templates):
@@ -37,27 +19,30 @@ def edit(api: API, page, templates):
     for curTemplate in code.filter_templates():
         for template in templates:
             if curTemplate.name.matches(template[9:]):
-                curTemplate.name = f"{template[9:]} ({dl(page)})"
+                curTemplate.name = f"{template[9:]} ({page_language(page)})"
     if __name__ == "__main__":
         edit_interactive(api, page["title"], page["pageid"], text, str(code), timestamp, "localize templates")
     else:
         api.edit(page['title'], page['pageid'], str(code), timestamp, "localize templates", bot="")
-        print(f"Edited {page['title']}")
 
 
 def main(api: API):
     print("Getting page IDs...")
     pageids = set()
     templates = []
-    for template in get_templates(api):
-        templates.append(template)
-        # get IDs of the pages using this template
-        for page in api.generator(generator="embeddedin",
-                                  geifilterredir="nonredirects",
-                                  geilimit="max",
-                                  geititle=template):
-            if dl(page) != "English":
-                pageids.add(page["pageid"])
+    for template in api.list(list="allpages",
+                             apnamespace="10",
+                             apfilterlanglinks="withlanglinks",
+                             aplimit="max"):
+        if page_language(template) == "English":
+            templates.append(template["title"])
+            # get IDs of the pages using this template
+            for page in api.generator(generator="embeddedin",
+                                      geifilterredir="nonredirects",
+                                      geilimit="max",
+                                      geititle=template["title"]):
+                if page_language(page) != "English":
+                    pageids.add(page["pageid"])
     print(f"Fetched {len(pageids)} pages.")
 
     print("Getting page contents...")
