@@ -38,7 +38,10 @@ def edit(api: API, page, templates):
 
     if str(code) != text:
         if __name__ == "__main__":
-            edit_interactive(api, page["title"], page["pageid"], text, str(code), timestamp, "localize templates")
+            if "bot" in api.user.rights:
+                edit_interactive(api, page["title"], page["pageid"], text, str(code), timestamp, "localize templates", bot="")
+            else:
+                edit_interactive(api, page["title"], page["pageid"], text, str(code), timestamp, "localize templates")
         else:
             api.edit(page['title'], page['pageid'], str(code), timestamp, "localize templates", bot="")
 
