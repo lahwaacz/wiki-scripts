@@ -1,19 +1,10 @@
 #! /usr/bin/env python3
-"""
-This script aims to replace unlocalised templates in localised pages with the localised templates.
 
-"""
 import os
 from ws.interactive import edit_interactive
 from ws.client import API
 from ws.ArchWiki import lang
 import mwparserfromhell as mw
-
-api_url = "https://wiki.archlinux.org/api.php"
-index_url = "https://wiki.arclinux.org/index.php"
-cookie_path = os.path.expanduser("~/.cache/ArchWiki.cookie")
-session = API.make_session(ssl_verify=True,
-                           cookie_file=cookie_path)
 
 dl = lambda page: lang.detect_language(page["title"])[1]
 dfkw = {"format": "json", "utf8": 1, "formatversion": 2}
@@ -53,9 +44,8 @@ def edit(api: API, page, templates):
         print(f"Edited {page['title']}")
 
 
-def main():
+def main(api: API):
     pages: list = []
-    api = API(api_url, index_url, session)
     gentmps = get_templates(api)
     tmps: list = []
     print(end=" Getting pages...\r", flush=True)
@@ -102,4 +92,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import ws.config
+
+    api = ws.config.object_from_argparser(API, description="Replace unlocalised templates in localised pages with the localised templates")
+    main(api)
