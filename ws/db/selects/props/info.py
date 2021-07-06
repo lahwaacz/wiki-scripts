@@ -80,10 +80,14 @@ class Info(SelectBase):
         page["lastrevid"] = row["page_latest"]
         page["contentmodel"] = row["page_content_model"]
         page["pagelanguage"] = row["page_lang"]
-        # TODO: this will break as soon as there is a non-English page
-        assert page["pagelanguage"] == "en"
-        page["pagelanguagehtmlcode"] = page["pagelanguage"]
-        page["pagelanguagedir"] = "ltr"
+        # TODO: refactor and complete language properties
+        htmlcodes = {
+            "zh-hans": "zh-Hans",
+            "zh-hant": "zh-Hant",
+        }
+        page["pagelanguagehtmlcode"] = htmlcodes.get(page["pagelanguage"]) or page["pagelanguage"]
+        rtl = {"ar", "he"}
+        page["pagelanguagedir"] = "rtl" if page["pagelanguage"] in rtl else "ltr"
 
         if "pr_type" in row:
             # info about possible restriction types is always present in MediaWiki results
