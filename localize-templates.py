@@ -3,6 +3,7 @@
 from ws.interactive import edit_interactive
 from ws.client import API
 from ws.utils import dmerge
+from ws.parser_helpers.title import canonicalize
 from ws.ArchWiki import lang
 import mwparserfromhell
 
@@ -16,26 +17,42 @@ def edit(api: API, page, templates):
     text = page["revisions"][0]["slots"]["main"]["*"]
     timestamp = page["revisions"][0]["timestamp"]
     code = mwparserfromhell.parse(text)
+
     for curTemplate in code.filter_templates():
-        for template in templates:
-            if curTemplate.name.matches(template[9:]):
-                curTemplate.name = f"{template[9:]} ({page_language(page)})"
-    if __name__ == "__main__":
-        edit_interactive(api, page["title"], page["pageid"], text, str(code), timestamp, "localize templates")
-    else:
-        api.edit(page['title'], page['pageid'], str(code), timestamp, "localize templates", bot="")
+        # skip localized templates
+        if lang.detect_language(str(curTemplate.name))[1] != "English":
+            continue
+
+        # check if curTemplate matches a feasible template
+        curName = canonicalize(curTemplate.name)
+        if f"Template:{curName}" not in templates:
+            continue
+
+        # check if curTemplate has a localized variant
+        localized = lang.format_title(curName, page_language(page))
+        if f"Template:{localized}" not in templates:
+            continue
+
+        # localize the template
+        curTemplate.name = localized
+
+    if str(code) != text:
+        if __name__ == "__main__":
+            edit_interactive(api, page["title"], page["pageid"], text, str(code), timestamp, "localize templates")
+        else:
+            api.edit(page['title'], page['pageid'], str(code), timestamp, "localize templates", bot="")
 
 
 def main(api: API):
     print("Getting page IDs...")
     pageids = set()
-    templates = []
+    templates = set()
     for template in api.list(list="allpages",
                              apnamespace="10",
                              apfilterlanglinks="withlanglinks",
                              aplimit="max"):
+        templates.add(template["title"])
         if page_language(template) == "English":
-            templates.append(template["title"])
             # get IDs of the pages using this template
             for page in api.generator(generator="embeddedin",
                                       geifilterredir="nonredirects",
