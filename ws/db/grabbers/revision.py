@@ -5,7 +5,7 @@ import time
 
 import sqlalchemy as sa
 
-from ws.utils import value_or_none
+from ws.utils import value_or_none, parse_date
 import ws.db.mw_constants as mwconst
 
 from .GrabberBase import GrabberBase
@@ -471,10 +471,12 @@ class GrabberRevisions(GrabberBase):
         for pageid, params in merged_pages.items():
             if pageid in moved_pages:
                 raise NotImplementedError("Cannot merge revisions from [[{}]] to [[{}]]: target page has been moved.")
+            # mergepoint comes from logevent params in the database, which is not parsed automatically to datetime.datetime
+            mergepoint = parse_date(params["mergepoint"])
             yield self.sql["merge", "revision"], {"b_src_page_id": pageid,
                                                   "b_dest_ns": params["dest_ns"],
                                                   "b_dest_title": params["dest_title"],
-                                                  "b_mergepoint": params["mergepoint"]}
+                                                  "b_mergepoint": mergepoint}
 
         # update rev_deleted and ar_deleted
         # Note that the log events do not tell if it applies to normal or archived revision,
