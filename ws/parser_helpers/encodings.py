@@ -120,10 +120,16 @@ def anchorencode(str_, format="html5"):
     """
     Function corresponding to the ``{{anchorencode:}}`` `magic word`_.
 
+    .. note::
+        The rules for handling special characters in section anchors are not
+        well defined even upstream, see `T20431`_ and `T30212`_.
+
     :param str_: the string to be encoded
     :param format: either ``"html5"`` or ``"legacy"`` (see `$wgFragmentMode`_)
 
     .. _`magic word`: https://www.mediawiki.org/wiki/Help:Magic_words
+    .. _`T20431`: https://phabricator.wikimedia.org/T20431
+    .. _`T30212`: https://phabricator.wikimedia.org/T30212
     .. _`$wgFragmentMode`: https://www.mediawiki.org/wiki/Manual:$wgFragmentMode
     """
     if format not in {"html5", "legacy"}:
@@ -131,17 +137,29 @@ def anchorencode(str_, format="html5"):
     if format == "legacy":
         return dotencode(str_)
     str_ = _anchor_preprocess(str_)
-    special_map = {" ": "_"}
-    escape_char = "."
+    # encode "%" from percent-encoded octets
+    str_ = re.sub(r"%([a-fA-F0-9]{2})", r"%25\g<1>", str_)
+    # html5 spec says ids must not contain spaces (although only
+    # some of them are possible in wikitext using either Lua or
+    # HTML entities)
+    special_map = dict((c, "_") for c in string.whitespace)
+    escape_char = "%"
     charset = "utf-8"
     errors = "strict"
-    # below is the code from the encode function, but without the encode_chars
-    # and skip_chars parameters, and adjusted for unicode categories
+    # encode sensitive characters - the output of this function should be usable
+    # in MediaWiki links
+    # MW incompatibility: MediaWiki's safeEncodeAttribute sanitizer function
+    # replaces even more tokens with HTML entities, but they do not appear in
+    # the output of the {{anchorencode:}} magic word (substituted back into the
+    # original characters in a next parse stage?)
+    encode_chars = "[]|"
+    # below is the code from the encode function, but without the skip_chars
+    # parameter and adjusted for unicode categories
     output = ""
     for char in str_:
         # encode only characters from the Separator and Other categories
         # https://en.wikipedia.org/wiki/Unicode#General_Category_property
-        if unicodedata.category(char)[0] in {"Z", "C"}:
+        if char in encode_chars or unicodedata.category(char)[0] in {"Z", "C"}:
             if special_map is not None and char in special_map:
                 output += special_map[char]
             else:

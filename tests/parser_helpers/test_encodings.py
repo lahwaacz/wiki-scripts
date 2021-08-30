@@ -115,13 +115,32 @@ class test_encodings:
 
     def test_anchorencode_html5(self):
         for s in [string.ascii_letters, string.digits, string.punctuation, self.unicode_sample]:
-            assert anchorencode(s, format="html5") == s
+            # MW incompatibility: "[]|" get encoded
+            e = s.replace("[", "%5B").replace("]", "%5D").replace("|", "%7C")
+            assert anchorencode(s, format="html5") == e
 
     def test_anchorencode_html5_separator(self):
         # soft hyphen - character with the "Other" general category property
         # https://en.wikipedia.org/wiki/Unicode#General_Category_property
         s = "\u00AD"
-        assert anchorencode(s, format="html5") == dotencode(s)
+        assert anchorencode(s, format="html5") == dotencode(s).replace(".", "%")
+
+    def test_anchorencode_html5_whitespace(self):
+        s = "A\tB\nC\fD\rE F"
+        e = "A_B_C_D_E_F"
+        assert anchorencode(s, format="html5") == e
+
+    def test_anchorencode_html5_percent(self):
+        # only "%" from percent-encoded octets get encoded
+        s = "A%G%20%aB"
+        e = "A%G%2520%25aB"
+        assert anchorencode(s, format="html5") == e
+
+    def test_anchorencode_html5_brackets(self):
+        # MW incompatibility: output should be usable in MediaWiki links
+        s = "[MATCH] SECTION OPTIONS"
+        e = "%5BMATCH%5D_SECTION_OPTIONS"
+        assert anchorencode(s, format="html5") == e
 
     def test_anchorencode_invalid_format(self):
         with pytest.raises(ValueError):
