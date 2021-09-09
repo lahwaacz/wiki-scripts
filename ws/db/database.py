@@ -16,6 +16,7 @@ import logging
 
 import sqlalchemy as sa
 import alembic.config
+import alembic.migration
 
 from . import schema, selects, grabbers, parser_cache
 from ..parser_helpers.title import Context, Title
