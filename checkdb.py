@@ -175,11 +175,18 @@ def check_recentchanges(api, db):
         if "unpatrolled" in api_entry:
             del api_entry["unpatrolled"]
 
-    # FIXME: rolled-back edits are automatically patrolled, but there does not seem to be any way to detect this
-    # skipping all patrol checks for now...
     for entry in chain(db_list, api_list):
+        # FIXME: rolled-back edits are automatically patrolled, but there does not seem to be any way to detect this
+        # skipping all patrol checks for now...
         if "patrolled" in entry:
             del entry["patrolled"]
+        # MediaWiki does not sort tags alphabetically
+        entry["tags"].sort()
+        # since MW 1.36.1, the "mw-reverted" tag is applied to past revisions
+        # that were reverted/undone and wiki-scripts cannot sync that on past
+        # revisions
+        if "mw-reverted" in entry["tags"]:
+            entry["tags"].remove("mw-reverted")
 
     _check_lists(db_list, api_list, key="rcid")
 
@@ -388,10 +395,17 @@ def check_revisions(api, db):
     api_revisions.sort(key=lambda item: item["revid"])
     api_list = api_revisions
 
-    # FIXME: WTF, MediaWiki does not restore rev_parent_id when undeleting...
-    # https://phabricator.wikimedia.org/T183375
     for rev in chain(db_list, api_list):
+        # FIXME: WTF, MediaWiki does not restore rev_parent_id when undeleting...
+        # https://phabricator.wikimedia.org/T183375
         del rev["parentid"]
+        # MediaWiki does not sort tags alphabetically
+        rev["tags"].sort()
+        # since MW 1.36.1, the "mw-reverted" tag is applied to past revisions
+        # that were reverted/undone and wiki-scripts cannot sync that on past
+        # revisions
+        if "mw-reverted" in rev["tags"]:
+            rev["tags"].remove("mw-reverted")
 
     _check_lists(db_list, api_list, key="revid")
 
