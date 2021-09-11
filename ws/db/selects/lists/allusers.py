@@ -68,6 +68,7 @@ class AllUsers(ListBase):
             s.append_column(ipb.c.ipb_expiry)
             s.append_column(ipb.c.ipb_id)
             s.append_column(ipb.c.ipb_reason)
+            s.append_column(ipb.c.ipb_create_account)
             s.append_column(ipb.c.ipb_deleted)
         if "groups" in prop or "group" in params or "excludegroup" in params:
             tail = tail.outerjoin(groups, user.c.user_id == groups.c.ug_user)
@@ -121,7 +122,10 @@ class AllUsers(ListBase):
             "ipb_expiry": "blockexpiry",
             "ipb_reason": "blockreason",
         }
-        bool_flags = {"ipb_deleted": "hidden"}
+        bool_flags = {
+            "ipb_create_account": "blocknocreate",
+            "ipb_deleted": "hidden",
+        }
         # subset of flags for which 0 should be used instead of None
         zeroable_flags = {"user_editcount"}
 
