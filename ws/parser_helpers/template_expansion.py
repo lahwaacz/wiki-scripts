@@ -239,6 +239,10 @@ class MagicWords:
             prefix = name.split(":")[0]
             if prefix in klass.VARIABLES_COLON or prefix.lower() in klass.PARSER_FUNCTIONS:
                 return True
+        if name.startswith("#"):
+            # anything starting with '#' is either a parser function or invalid
+            # (parsed as plain text) since '#' cannot appear in page titles
+            return True
         return False
 
     def get_replacement(self, magic):
