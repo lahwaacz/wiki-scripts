@@ -523,7 +523,7 @@ class Title:
         :param int expected_ns: expected namespace number
         """
         if self.iwprefix or self.sectionname:
-            raise DatabaseTitleError("Titles containing an interwiki prefix or a section name cannot be serialized into database titles. Strip the prefixes explicitly if they should be intentionally removed.")
+            raise DatabaseTitleError("Titles containing an interwiki prefix or a section name cannot be serialized into database titles. Strip the prefixes explicitly if they should be intentionally removed. The title is: " + str(self))
 
         if expected_ns is None or self.namespacenumber == expected_ns:
             return self.pagename
