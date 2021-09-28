@@ -68,16 +68,15 @@ class Redirects:
         """
         if source_namespaces == "all":
             source_namespaces = [ns for ns in self._api.site.namespaces if int(ns) >= 0]
+            source_namespaces_str = "*"
+        else:
+            source_namespaces_str = "|".join(str(ns) for ns in source_namespaces)
         if target_namespaces == "all":
             target_namespaces = [ns for ns in self._api.site.namespaces if int(ns) >= 0]
 
         redirects = {}
         for ns in target_namespaces:
-            # FIXME: adding the rdnamespace parameter causes an internal API error,
-            # see https://wiki.archlinux.org/index.php/User:Lahwaacz/Notes#API:_resolving_redirects
-            # removing it for now, all namespaces are included by default anyway...
-#            allpages = self._api.generator(generator="allpages", gapnamespace=ns, gaplimit="max", prop="redirects", rdprop="title|fragment", rdnamespace="|".join(source_namespaces), rdlimit="max")
-            allpages = self._api.generator(generator="allpages", gapnamespace=ns, gaplimit="max", prop="redirects", rdprop="title|fragment", rdlimit="max")
+            allpages = self._api.generator(generator="allpages", gapnamespace=ns, gaplimit="max", prop="redirects", rdprop="title|fragment", rdnamespace=source_namespaces_str, rdlimit="max")
             for page in allpages:
                 # construct the mapping, the query result is somewhat reversed...
                 target_title = page["title"]
