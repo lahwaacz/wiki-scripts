@@ -93,6 +93,18 @@ def list_redirects_wrong_capitalization(api):
 
     return report
 
+def list_redirects_different_namespace(api):
+    # limit to redirects from content namespaces
+    redirects = api.redirects.fetch(source_namespaces=[0, 4, 12, 14, 3000])
+
+    report = ""
+    for source, target in redirects.items():
+        title = api.Title(target)
+        if title.namespacenumber not in {0, 4, 12, 14, 3000}:
+            report += f"* [[{source}]] → [[{target}]]\n"
+
+    return report
+
 def list_talkpages_of_deleted_pages(api):
     # get titles of all pages in 'Main', 'ArchWiki' and 'Help' namespaces
     allpages = []
@@ -166,7 +178,9 @@ def list_mismatched_talkpage_redirects(api):
                 continue
 
         if article_target is None:
-            report += f"* [[{source}]] ([[:{article}]] is not a redirect)\n"
+            # do not report archived talk pages
+            if target != "ArchWiki:Archive":
+                report += f"* [[{source}]] ([[:{article}]] is not a redirect)\n"
         # use .fullpagename to drop the section name from the article target
         elif api.Title(article_target).fullpagename != target_article:
             report += f"* [[{source}]] → [[{target}]] (article redirects to [[:{article_target}]], but the target's article is [[:{target_article}]])\n"
@@ -182,6 +196,7 @@ def make_report(api, db):
 
     result_redirects_broken_fragments = sortlines(list_redirects_broken_fragments(api, db))
     result_redirects_wrong_capitalization = sortlines(list_redirects_wrong_capitalization(api))
+    result_redirects_different_namespace = sortlines(list_redirects_different_namespace(api))
     result_talkpages_of_deleted_pages = sortlines(list_talkpages_of_deleted_pages(api))
     result_talkpages_of_redirects = sortlines(list_talkpages_of_redirects(api))
     result_mismatched_talkpage_redirects = sortlines(list_mismatched_talkpage_redirects(api))
@@ -198,6 +213,14 @@ an acronym). We will print the wrong capitalized redirects, i.e. when
 sentence-case title redirects to title-case.
 
 {result_redirects_wrong_capitalization}
+
+== Redirects to a different namespace ==
+
+These pages from the main, ''ArchWiki:'', ''Help:'', ''Category:'' and
+''DeveloperWiki:'' namespaces redirect to a namespace different than these 5
+namespaces.
+
+{result_redirects_different_namespace}
 
 == Talk pages of deleted pages ==
 
