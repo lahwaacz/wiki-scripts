@@ -74,7 +74,7 @@ class GrabberPages(GrabberBase):
             ("delete", "deleted_recentchanges"):
                 db.recentchanges.delete().where(
                     sa.and_(db.recentchanges.c.rc_logid == None,
-                            db.recentchanges.c.rc_cur_id.notin_(sa.select([db.page.c.page_id]))
+                            db.recentchanges.c.rc_cur_id.notin_(sa.select([db.page.c.page_id]).scalar_subquery())
                     )),
             ("update", "page_name"):
                 db.page.update().where(

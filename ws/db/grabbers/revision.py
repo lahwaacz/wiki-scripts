@@ -56,37 +56,37 @@ class GrabberRevisions(GrabberBase):
             ("insert", "tagged_revision"):
                 ins_tgrev.values(
                     tgrev_rev_id=sa.bindparam("b_rev_id"),
-                    tgrev_tag_id=sa.select([db.tag.c.tag_id])
+                    tgrev_tag_id=sa.select([db.tag.c.tag_id]).scalar_subquery()
                                         .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))
                     .on_conflict_do_nothing(),
             ("insert", "tagged_archived_revision"):
                 ins_tgar.values(
                     tgar_rev_id=sa.bindparam("b_rev_id"),
-                    tgar_tag_id=sa.select([db.tag.c.tag_id])
+                    tgar_tag_id=sa.select([db.tag.c.tag_id]).scalar_subquery()
                                         .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))
                     .on_conflict_do_nothing(),
             ("insert", "tagged_recentchange"):
                 ins_tgrc.values(
-                    tgrc_rc_id=sa.select([db.recentchanges.c.rc_id])
+                    tgrc_rc_id=sa.select([db.recentchanges.c.rc_id]).scalar_subquery()
                                     .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
-                    tgrc_tag_id=sa.select([db.tag.c.tag_id])
+                    tgrc_tag_id=sa.select([db.tag.c.tag_id]).scalar_subquery()
                                     .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))
                     .on_conflict_do_nothing(),
             ("delete", "tagged_revision"):
                 db.tagged_revision.delete()
                     .where(sa.and_(db.tagged_revision.c.tgrev_rev_id == sa.bindparam("b_rev_id"),
-                                   db.tagged_revision.c.tgrev_tag_id == sa.select([db.tag.c.tag_id])
+                                   db.tagged_revision.c.tgrev_tag_id == sa.select([db.tag.c.tag_id]).scalar_subquery()
                                             .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             ("delete", "tagged_archived_revision"):
                 db.tagged_archived_revision.delete()
                     .where(sa.and_(db.tagged_archived_revision.c.tgar_rev_id == sa.bindparam("b_rev_id"),
-                                   db.tagged_archived_revision.c.tgar_tag_id == sa.select([db.tag.c.tag_id])
+                                   db.tagged_archived_revision.c.tgar_tag_id == sa.select([db.tag.c.tag_id]).scalar_subquery()
                                             .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             ("delete", "tagged_recentchange"):
                 db.tagged_recentchange.delete()
-                    .where(sa.and_(db.tagged_recentchange.c.tgrc_rc_id == sa.select([db.recentchanges.c.rc_id])
+                    .where(sa.and_(db.tagged_recentchange.c.tgrc_rc_id == sa.select([db.recentchanges.c.rc_id]).scalar_subquery()
                                             .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
-                                   db.tagged_recentchange.c.tgrc_tag_id == sa.select([db.tag.c.tag_id])
+                                   db.tagged_recentchange.c.tgrc_tag_id == sa.select([db.tag.c.tag_id]).scalar_subquery()
                                             .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             # query for updating archive.ar_page_id
             ("update", "archive.ar_page_id"):
@@ -99,7 +99,7 @@ class GrabberRevisions(GrabberBase):
                                    # MW defect: timestamp-based merge points are not sufficient,
                                    # see https://phabricator.wikimedia.org/T183501
                                    db.revision.c.rev_timestamp <= sa.bindparam("b_mergepoint")))
-                    .values(rev_page=sa.select([db.page.c.page_id])
+                    .values(rev_page=sa.select([db.page.c.page_id]).scalar_subquery()
                                 .where(sa.and_(db.page.c.page_namespace == sa.bindparam("b_dest_ns"),
                                                db.page.c.page_title == sa.bindparam("b_dest_title"))
                                 )

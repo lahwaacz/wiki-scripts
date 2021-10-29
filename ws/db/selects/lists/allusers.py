@@ -72,7 +72,13 @@ class AllUsers(ListBase):
             s.append_column(ipb.c.ipb_deleted)
         if "groups" in prop or "group" in params or "excludegroup" in params:
             tail = tail.outerjoin(groups, user.c.user_id == groups.c.ug_user)
-            s = s.group_by(*s.columns.values())
+            # NOTE: since sqlalchemy 1.4, s.columns references anon_1 rather than
+            # the original table. Maybe as a consequence of this change:
+            # https://docs.sqlalchemy.org/en/14/changelog/migration_14.html#a-select-statement-is-no-longer-implicitly-considered-to-be-a-from-clause
+            #s = s.group_by(*s.columns.values())
+            # fortunately the column names are unique and can be used in GROUP BY
+            # even without the reference to the table
+            s = s.group_by(*s.columns.keys())
             user_groups = sa.func.array_agg(groups.c.ug_group).label("user_groups")
             s.append_column(user_groups)
 

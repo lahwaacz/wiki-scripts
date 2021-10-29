@@ -52,6 +52,8 @@ class MWTimestamp(types.TypeDecorator):
     # of TIMESTAMP.
     impl = types.DateTime(timezone=False)
 
+    cache_ok = True
+
     def process_bind_param(self, value, dialect):
         """
         Python -> database
@@ -99,6 +101,8 @@ class SHA1(types.TypeDecorator):
 
     impl = types.LargeBinary(length=31)
 
+    cache_ok = True
+
     def process_bind_param(self, value, dialect):
         """
         python -> db
@@ -126,9 +130,11 @@ class JSONEncodedDict(types.TypeDecorator):
 
     impl = types.UnicodeText
 
+    cache_ok = True
+
     def process_bind_param(self, value, dialect):
         if value is not None:
-            value = json.dumps(value, cls=DatetimeEncoder)
+            value = json.dumps(value, sort_keys=True, cls=DatetimeEncoder)
         return value
 
     def process_result_value(self, value, dialect):
