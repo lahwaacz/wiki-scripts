@@ -14,7 +14,7 @@ from .CheckerBase import get_edit_summary_tracker, CheckerBase
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.encodings import dotencode
 from ws.parser_helpers.title import canonicalize, TitleError, InvalidTitleCharError
-from ws.parser_helpers.wikicode import get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template
+from ws.parser_helpers.wikicode import get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template, is_flagged_by_template
 from ws.db.selects.interwiki_redirects import get_interwiki_redirects
 
 __all__ = ["WikilinkChecker"]
@@ -431,12 +431,14 @@ class WikilinkChecker(CheckerBase):
         with summary("fixed section fragments"):
             anchor_result = self.check_anchor(src_title, wikilink, title)
         if anchor_result is False:
-            with summary("flagged broken section links"):
-                # first unflag to remove any translated version of the flag
-                ensure_unflagged_by_template(wikicode, wikilink, "Broken section link", match_only_prefix=True)
-                # flag with the correct translated template
-                flag = self.get_localized_template("Broken section link", src_lang)
-                ensure_flagged_by_template(wikicode, wikilink, flag)
+            # links to archive should not be flagged by "Broken section link" ("Archived page" has higher priority)
+            if not is_flagged_by_template(wikicode, wikilink, "Archived page", match_only_prefix=True):
+                with summary("flagged broken section links"):
+                    # first unflag to remove any translated version of the flag
+                    ensure_unflagged_by_template(wikicode, wikilink, "Broken section link", match_only_prefix=True)
+                    # flag with the correct translated template
+                    flag = self.get_localized_template("Broken section link", src_lang)
+                    ensure_flagged_by_template(wikicode, wikilink, flag)
         else:
             with summary("unflagged working section links"):
                 ensure_unflagged_by_template(wikicode, wikilink, "Broken section link", match_only_prefix=True)

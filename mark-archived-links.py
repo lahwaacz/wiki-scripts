@@ -8,7 +8,7 @@ from ws.checkers import get_edit_summary_tracker, CheckerBase
 from ws.pageupdater import PageUpdater
 import ws.ArchWiki.lang as lang
 from ws.parser_helpers.title import InvalidTitleCharError
-from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template
+from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template, is_flagged_by_template
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +32,12 @@ class ArchivedLinkChecker(CheckerBase):
             if target_title.fullpagename == ARCHIVE_TITLE:
                 summary = get_edit_summary_tracker(wikicode, summary_parts)
                 with summary("mark links to archived pages"):
-                    # first unflag to remove any translated version of the flag
-                    ensure_unflagged_by_template(wikicode, wikilink, "Archived page", match_only_prefix=True)
+                    while is_flagged_by_template(wikicode, wikilink, "Archived page", match_only_prefix=True) \
+                            or is_flagged_by_template(wikicode, wikilink, "Broken section link", match_only_prefix=True):
+                        # first unflag to remove any translated version of the flag
+                        ensure_unflagged_by_template(wikicode, wikilink, "Archived page", match_only_prefix=True)
+                        # links to archive should not be flagged by "Broken section link" ("Archived page" has higher priority)
+                        ensure_unflagged_by_template(wikicode, wikilink, "Broken section link", match_only_prefix=True)
                     # flag with the correct translated template
                     src_lang = lang.detect_language(src_title)[1]
                     flag = self.get_localized_template("Archived page", src_lang)
