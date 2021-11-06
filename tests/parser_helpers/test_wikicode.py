@@ -416,6 +416,37 @@ class test_ensure_unflagged:
         flag = ensure_unflagged_by_template(wikicode, link, "bar", match_only_prefix=True)
         assert str(wikicode) == "[[foo]] {{baz (Language)}}"
 
+class test_is_flagged:
+    def test_noop(self):
+        wikicode = mwparserfromhell.parse("[[foo]]")
+        link = wikicode.nodes[0]
+        assert is_flagged_by_template(wikicode, link, "bar") is False
+
+    def test_false(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{baz}}")
+        link = wikicode.nodes[0]
+        assert is_flagged_by_template(wikicode, link, "bar") is False
+
+    def test_true(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{bar}}")
+        link = wikicode.nodes[0]
+        assert is_flagged_by_template(wikicode, link, "bar") is True
+
+    def test_false_exact_match(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{bar (Language)}}")
+        link = wikicode.nodes[0]
+        assert is_flagged_by_template(wikicode, link, "bar") is False
+
+    def test_match_only_prefix(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{bar (Language)}}")
+        link = wikicode.nodes[0]
+        assert is_flagged_by_template(wikicode, link, "bar", match_only_prefix=True) is True
+
+    def test_match_only_prefix_false(self):
+        wikicode = mwparserfromhell.parse("[[foo]] {{baz (Language)}}")
+        link = wikicode.nodes[0]
+        assert is_flagged_by_template(wikicode, link, "bar", match_only_prefix=True) is False
+
 class test_is_redirect:
     redirects = [
         # any number of spaces
