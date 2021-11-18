@@ -135,6 +135,13 @@ class ExtlinkStatusChecker(CheckerBase):
         if "." not in url.host:
             logger.debug("skipped URL with only top-level domain host: {}".format(url))
             return
+        # skip links to invalid/blacklisted domains
+        if (url.host == "pi.hole"   # pi-hole configuration involves setting pi.hole in /etc/hosts
+            or url.host == "ui.reclaim"  # GNUnet - the domains works only with a browser extension
+            or url.host.endswith(".onion")  # Tor
+            ):
+            logger.debug("skipped URL with invalid/blacklisted domain host: {}".format(url))
+            return
         # skip links to localhost
         if url.host == "localhost" or url.host.endswith(".localhost"):
             logger.debug("skipped URL to localhost: {}".format(url))
