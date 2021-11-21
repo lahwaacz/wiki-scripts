@@ -213,6 +213,12 @@ class ExtlinkStatusChecker(CheckerBase):
                 logger.warning("CloudFlare CAPTCHA detected for URL {}".format(url))
                 self.cache_indeterminate_urls.add(url)
                 return None
+            # CloudFlare sites may have custom firewall rules that block non-browser requests
+            # with error 1020 https://github.com/codemanki/cloudscraper/issues/222
+            if response.status_code == 403 and response.headers["Server"].lower() == "cloudflare":
+                logger.warning("status code 403 for URL {} backed up by CloudFlare does not mean anything".format(url))
+                self.cache_indeterminate_urls.add(url)
+                return None
             logger.error("status code {} for URL {}".format(response.status_code, url))
             self.cache_invalid_urls[url] = response.status_code
             return False
