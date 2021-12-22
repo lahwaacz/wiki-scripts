@@ -32,7 +32,8 @@ class GrabberTags(GrabberBase):
         for tag in self.api.site.tags:
             db_entry = {
                 "tag_name": tag["name"],
-                "tag_displayname": tag["displayname"],
+                # as of MW 1.37, only mw-add-media and mw-remove-media have empty displayname
+                "tag_displayname": tag.get("displayname", "(hidden)"),
                 "tag_description": value_or_none(tag["description"]),
                 "tag_defined": "defined" in tag,
                 "tag_active": "active" in tag,
