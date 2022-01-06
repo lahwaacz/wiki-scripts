@@ -35,6 +35,12 @@ class Decategorization:
         for page in pages:
             if "categories" in page:
                 for cat in page["categories"]:
+                    # WTF MW 1.37 https://phabricator.wikimedia.org/T298724
+                    # category exists, but does not appear on the pages and is not even considered "hidden" by the API
+                    # https://wiki.archlinux.org/title/Category:Pages_where_expansion_depth_is_exceeded
+                    if cat["title"] == "Category:Pages where expansion depth is exceeded":
+                        continue
+
                     categorized.append(page["pageid"])
 
         return categorized
