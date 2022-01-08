@@ -42,12 +42,6 @@ class Categorization:
                     if page["title"] == "Category:{}".format(langname) and cat["title"] == "Category:Languages":
                         continue
 
-                    # WTF MW 1.37 https://phabricator.wikimedia.org/T298724
-                    # category exists, but does not appear on the pages and is not even considered "hidden" by the API
-                    # https://wiki.archlinux.org/title/Category:Pages_where_expansion_depth_is_exceeded
-                    if cat["title"] == "Category:Pages where expansion depth is exceeded":
-                        continue
-
                     # check language
                     if lang.detect_language(cat["title"])[1] != langname:
                         needs_fixing.append(page["pageid"])
