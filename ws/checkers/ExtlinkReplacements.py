@@ -121,6 +121,11 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             r"https?\:\/\/www\.archlinux\.org(?P<path>\/.*)?",
             "https://archlinux.org{% if path is not none %}{{path}}{% endif %}"),
 
+        # aurweb
+        ("remove .php from aurweb URLs",
+            r"https?\:\/\/aur\.archlinux\.org\/(?P<path>packages|rpc|index)\.php\/?(?P<params>.*)?",
+            "https://aur.archlinux.org/{% if path != 'index' %}{{path}}{% endif %}{% if params is not none %}{{params}}{% endif %}"),
+
         # migration of Arch's git URLs
 
         # svntogit commits
