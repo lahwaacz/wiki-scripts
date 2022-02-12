@@ -148,8 +148,13 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         ("update old (projects|git).archlinux.org links",
             r"https?\:\/\/(?:projects|git)\.archlinux\.org\/(?P<project>arch-install-scripts|archweb|dbscripts|devtools|linux|mkinitcpio|vhosts\/wiki\.archlinux\.org).git(?:\/(?P<type>commit|tree|plain|log))?(?P<path>[^?]+?)?(?:\?h=(?P<branch>[^&#?]+?))?(?:[&?]id=(?P<commit>[0-9A-Ha-f]+))?(?:#n(?P<linenum>\d+))?",
             "https://github.com/archlinux/{{project | replace ('vhosts/wiki.archlinux.org', 'archwiki')}}{% if type is not none %}/{{type | replace('plain', 'raw') | replace('log', 'commits')}}{% if commit is not none %}/{{commit}}{% elif branch is not none %}/{{branch}}{% elif path is not none %}/master{% endif %}{% if (path is not none) and (path != '/') %}{{path}}{% endif %}{% if linenum is not none %}#L{{linenum}}{% endif %}{% endif %}"),
-        # TODO: github.com/archlinux/ to gitlab.archlinux.org
-        # the only difference should be line selection. GitHub uses #L10-L15 while GitLab uses #L10-15
+
+        # projects that moved from github.com/archlinux/ or are mirrored there
+        ("change Arch project URLs from github.com to gitlab.archlinux.org",
+             r"https?\:\/\/github\.com\/archlinux\/(?P<repo>arch-boxes|arch-historical-archive|arch-rebuild-order|arch-repo-management|arch-signoff|archbbs|archiso|archivetools|asknot-ng|conf\.archlinux\.org|rebuilder|sandcrawler|signstar)(?:\.git)?\/commit\/(?P<commit>[0-9A-Fa-f]+)",
+             "https://gitlab.archlinux.org/archlinux/{{repo | replace ('conf.archlinux.org', 'conf') | replace ('rebuilder' , 'arch-rebuild-order')}}/commit/{{commit}}"),
+        # TODO: blobs, history (/commits/), raw (including raw.githubusercontent.com)
+        # NOTE: for line selection GitHub uses #L10-L15 while GitLab uses #L10-15
 
         # update addons.mozilla.org and addons.thunderbird.net
         ("remove language codes from addons.mozilla.org and addons.thunderbird.net links",
