@@ -7,6 +7,7 @@ from ws.client import API
 from ws.interactive import require_login
 from ws.db.database import Database
 from ws.autopage import AutoPage
+from ws.parser_helpers.title import canonicalize
 
 logger = logging.getLogger(__name__)
 
@@ -105,8 +106,7 @@ class SortMaintainers:
             title = str(wikilink.title).strip()
             if title.lower().startswith("user:"):
                 _, username = title.split(":", maxsplit=1)
-                username = username[:1].upper() + username[1:]
-                return username
+                return canonicalize(username)
         raise Exception("Unexpected data in the table - could not find a user name in row '{}'.".format(row))
 
     def _get_editcount(self, row):
