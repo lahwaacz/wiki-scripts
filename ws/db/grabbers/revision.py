@@ -470,7 +470,9 @@ class GrabberRevisions(GrabberBase):
         # sync as often as possible to avoid this.
         for pageid, params in merged_pages.items():
             if pageid in moved_pages:
-                raise NotImplementedError("Cannot merge revisions from [[{}]] to [[{}]]: target page has been moved.")
+                dest_title = params["dest_title"]
+                dest_ns = params["dest_ns"]
+                raise NotImplementedError(f"Cannot merge revisions from pageid {pageid} to ns={dest_ns}: '{dest_title}': target page has been moved.")
             # mergepoint comes from logevent params in the database, which is not parsed automatically to datetime.datetime
             mergepoint = parse_date(params["mergepoint"])
             yield self.sql["merge", "revision"], {"b_src_page_id": pageid,
