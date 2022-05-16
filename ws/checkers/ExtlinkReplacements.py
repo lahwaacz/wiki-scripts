@@ -105,11 +105,11 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
         # mailman
         ("update old mailman URLs from (lists|mailman).archlinux.org/listinfo/ to lists.archlinux.org/mailman3/lists/",
-            r"https?\:\/\/(?:lists\.|mailman\.|www\.)?archlinux\.org(\/mailman)?\/\/?listinfo\/(?P<mailinglist>[\w-]+)\/?",
-            "https://lists.archlinux.org/mailman3/lists/{% if mailinglist is not none %}{{mailinglist}}.lists.archlinux.org/{% endif %}"),
+            r"https?\:\/\/(?:lists\.|mailman\.|www\.)?archlinux\.org(\/mailman)?\/\/?listinfo(?P<mailinglist>\/[\w-]+)?\/?",
+            "https://lists.archlinux.org/mailman3/lists{% if mailinglist is not none %}{{mailinglist}}.lists.archlinux.org{% endif %}/"),
         ("update old mailman URLs from (lists|mailman).archlinux.org/pipermail/ to lists.archlinux.org/archives/",
-            r"https?\:\/\/(?:lists\.|mailman\.|www\.)?archlinux\.org\/pipermail\/(?P<mailinglist>[\w-]+)\/?",
-            "https://lists.archlinux.org/archives/{% if mailinglist is not none %}list/{{mailinglist}}@lists.archlinux.org/{% endif %}"),
+            r"https?\:\/\/(?:lists\.|mailman\.|www\.)?archlinux\.org\/pipermail(?P<mailinglist>\/[\w-]+)?\/?",
+            "https://lists.archlinux.org/archives/{% if mailinglist is not none %}list{{mailinglist}}@lists.archlinux.org/{% endif %}"),
 
         # ancient php pages
         ("update ancient archweb URLs from archlinux.org/*.php to archlinux.org/*/",
