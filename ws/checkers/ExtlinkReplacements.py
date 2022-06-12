@@ -168,6 +168,9 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
         ("link to HTML version of kernel documentation",
             r"https?\:\/\/(?:www\.)?kernel.org/doc/Documentation(?P<path>\/.+?)(?P<extension>\.txt|\.rst)?",
             "https://docs.kernel.org{{path}}{% if extension is not none %}.html{% endif %}"),
+        ("link to the kernel documentation on docs.kernel.org",
+            r"https?\:\/\/(?:www\.)?kernel\.org\/doc\/html\/[^\/]+(?P<path>\/.*)?",
+            "https://docs.kernel.org{% if path is not none %}{{path}}{% endif %}"),
 
         # wireless.wiki.kernel.org
         ("update linuxwireless.org/wireless.kernel.org links",
