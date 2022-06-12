@@ -164,11 +164,6 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             r"https?\:\/\/addons\.mozilla\.org/(?P<application>thunderbird|seamonkey)(?P<path>.+)?",
             "https://addons.thunderbird.net/{{application}}{% if path is not none %}{{path}}{% endif %}"),
 
-        # exclude the replacement of specific links
-        (None,
-            "https://www.kernel.org/doc/Documentation/filesystems/",
-            "https://www.kernel.org/doc/Documentation/filesystems/"),
-
         # kernel.org documentation links
         ("link to HTML version of kernel documentation",
             r"https?\:\/\/(?:www\.)?kernel.org/doc/Documentation(?P<path>\/.+?)(?P<extension>\.txt|\.rst)?",
