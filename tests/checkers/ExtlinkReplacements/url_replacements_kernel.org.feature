@@ -14,24 +14,24 @@ Feature: ExtlinkReplacements: kernel.org links
         | foo [{} baz] bar |
 
     Scenario Outline: kernel.org fbcon.txt
-        Given the URL https://www.kernel.org/doc/html/latest/fb/fbcon.html gives status 200
+        Given the URL https://docs.kernel.org/fb/fbcon.html gives status 200
         When a page contains <pattern> formatted with https://www.kernel.org/doc/Documentation/fb/fbcon.txt
         And I run ExtlinkReplacements
-        Then the page content should be "<pattern>" formatted with "https://www.kernel.org/doc/html/latest/fb/fbcon.html"
+        Then the page content should be "<pattern>" formatted with "https://docs.kernel.org/fb/fbcon.html"
         And the last edit summary should be "link to HTML version of kernel documentation"
 
     Scenario Outline: kernel.org fbcon.rst
-        Given the URL https://www.kernel.org/doc/html/latest/fb/fbcon.html gives status 200
+        Given the URL https://docs.kernel.org/fb/fbcon.html gives status 200
         When a page contains <pattern> formatted with https://www.kernel.org/doc/Documentation/fb/fbcon.rst
         And I run ExtlinkReplacements
-        Then the page content should be "<pattern>" formatted with "https://www.kernel.org/doc/html/latest/fb/fbcon.html"
+        Then the page content should be "<pattern>" formatted with "https://docs.kernel.org/fb/fbcon.html"
         And the last edit summary should be "link to HTML version of kernel documentation"
 
     Scenario Outline: kernel.org fb directory
-        Given the URL https://www.kernel.org/doc/html/latest/fb/ gives status 200
+        Given the URL https://docs.kernel.org/fb/ gives status 200
         When a page contains <pattern> formatted with https://www.kernel.org/doc/Documentation/fb/
         And I run ExtlinkReplacements
-        Then the page content should be "<pattern>" formatted with "https://www.kernel.org/doc/html/latest/fb/"
+        Then the page content should be "<pattern>" formatted with "https://docs.kernel.org/fb/"
         And the last edit summary should be "link to HTML version of kernel documentation"
 
     Scenario Outline: not replacing excluded kernel.org link
