@@ -186,22 +186,21 @@ class WikilinkChecker(CheckerBase):
             return
 
         # might be only a section, e.g. [[#foo]]
-        if title.fullpagename:
-            target = self.api.redirects.map.get(title.fullpagename)
-            if target is not None and target.lower() == title.fullpagename.lower():
-                if title.sectionname:
-                    target += "#" + title.sectionname
-                wikilink.title = target
-                title.parse(wikilink.title)
+        if not title.fullpagename:
+            return
+
+        target = self.api.redirects.map.get(title.fullpagename)
+        if target is not None and target.lower() == title.fullpagename.lower():
+            if title.sectionname:
+                target += "#" + title.sectionname
+            wikilink.title = target
+            title.parse(wikilink.title)
 
     def check_displaytitle(self, wikilink, title):
         # Replacing underscores and capitalization as per DISPLAYTITLE attribute
         # is not safe (e.g. 'wpa_supplicant' and 'WPA supplicant' are equivalent
         # without deeper context), so do it only in interactive mode.
         if self.interactive is False:
-            return
-        # Avoid largescale edits if there is an alternative text.
-        if wikilink.text is not None:
             return
         # we can't check interwiki links
         if title.iwprefix:
@@ -296,7 +295,6 @@ class WikilinkChecker(CheckerBase):
             return False
 
         anchor = dotencode(title.sectionname)
-        needs_fix = True
 
         # handle double-anchor redirects first
         if anchor_on_redirect_to_section is True:
@@ -307,7 +305,7 @@ class WikilinkChecker(CheckerBase):
 
         # try exact match first
         if anchor in anchors:
-            needs_fix = False
+            pass
         # otherwise try case-insensitive match to detect differences in capitalization
         elif self.interactive is True:
             # FIXME: first detect section renaming properly, fuzzy search should be only the last resort to deal with typos and such
@@ -338,14 +336,11 @@ class WikilinkChecker(CheckerBase):
         # get_anchors makes sure to strip markup and handle duplicate section names
         new_fragment = get_anchors(headings, pretty=True, suffix_sep=suffix_sep)[anchors.index(anchor)]
 
-        # Avoid beautification if there is alternative text and the link
-        # actually works.
-        if wikilink.text is None or needs_fix is True:
-            # preserve title set in check_displaytitle()
-            # TODO: simplify (see #25)
-            t, _ = wikilink.title.split("#", maxsplit=1)
-            wikilink.title = t + "#" + new_fragment
-            title.parse(wikilink.title)
+        # preserve title set in check_displaytitle()
+        # TODO: simplify (see #25)
+        t, _ = wikilink.title.split("#", maxsplit=1)
+        wikilink.title = t + "#" + new_fragment
+        title.parse(wikilink.title)
 
         return True
 
