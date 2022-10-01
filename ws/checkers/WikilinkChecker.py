@@ -12,7 +12,7 @@ import mwparserfromhell
 
 from .CheckerBase import get_edit_summary_tracker, CheckerBase
 import ws.ArchWiki.lang as lang
-from ws.parser_helpers.encodings import dotencode
+from ws.parser_helpers.encodings import dotencode, urldecode
 from ws.parser_helpers.title import canonicalize, TitleError, InvalidTitleCharError
 from ws.parser_helpers.wikicode import get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template, is_flagged_by_template
 from ws.db.selects.interwiki_redirects import get_interwiki_redirects
@@ -294,7 +294,11 @@ class WikilinkChecker(CheckerBase):
             logger.warning("wikilink with broken section fragment: {}".format(wikilink))
             return False
 
-        anchor = dotencode(title.sectionname)
+        # first try to urldecode anchors with encoded characters like '[' or ']'
+        # (e.g. [[systemd-networkd#%5BNetDev%5D section|systemd-networkd]] - linked from [[systemd-timesyncd]])
+        anchor = urldecode(title.sectionname)
+
+        anchor = dotencode(anchor)
 
         # handle double-anchor redirects first
         if anchor_on_redirect_to_section is True:
@@ -321,8 +325,6 @@ class WikilinkChecker(CheckerBase):
                 logger.warning("wikilink with broken section fragment: {}".format(wikilink))
                 return False
         else:
-            # FIXME: anchors with encoded characters like '[' or ']' are not handled properly in non-interactive mode - links get flagged as broken, although they work
-            # (e.g. [[Systemd-networkd#%5BNetDev%5D section|systemd-networkd]] - linked from [[systemd-timesyncd]])
             logger.warning("wikilink with broken section fragment: {}".format(wikilink))
             return False
 
