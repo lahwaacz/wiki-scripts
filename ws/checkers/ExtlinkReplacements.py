@@ -151,6 +151,9 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
         # projects that moved from github.com/archlinux/ or are mirrored there
         ("change Arch project URLs from github.com to gitlab.archlinux.org",
+             r"https?\:\/\/github\.com\/archlinux\/(?P<repo>arch-boxes|arch-historical-archive|arch-rebuild-order|arch-repo-management|arch-signoff|archbbs|archiso|archivetools|asknot-ng|conf\.archlinux\.org|mkinitcpio|rebuilder|sandcrawler|signstar)(?P<git>\.git)?",
+             "https://gitlab.archlinux.org/archlinux/{% if repo == 'mkinitcpio' %}mkinitcpio/{% endif %}{{repo | replace ('conf.archlinux.org', 'conf') | replace ('rebuilder' , 'arch-rebuild-order')}}{% if git is not none %}{{git}}{% endif %}"),
+        ("change Arch project URLs from github.com to gitlab.archlinux.org",
              r"https?\:\/\/github\.com\/archlinux\/(?P<repo>arch-boxes|arch-historical-archive|arch-rebuild-order|arch-repo-management|arch-signoff|archbbs|archiso|archivetools|asknot-ng|conf\.archlinux\.org|mkinitcpio|rebuilder|sandcrawler|signstar)(?:\.git)?\/commit\/(?P<commit>[0-9A-Fa-f]+)",
              "https://gitlab.archlinux.org/archlinux/{% if repo == 'mkinitcpio' %}mkinitcpio/{% endif %}{{repo | replace ('conf.archlinux.org', 'conf') | replace ('rebuilder' , 'arch-rebuild-order')}}/commit/{{commit}}"),
         # TODO: blobs, history (/commits/), raw (including raw.githubusercontent.com)
