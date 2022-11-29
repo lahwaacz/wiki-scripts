@@ -57,10 +57,10 @@ __languages = [
 ]
 # languages with right-to-left script
 __rtl = ["ar", "he"]
-__interlanguage_external = ["de", "fa", "ja", "sv"]
+__interlanguage_external = ["de", "fa", "ja", "sv", "zh-hans"]
 __interlanguage_internal = ["ar", "bs", "bg", "cs", "da", "el", "en", "es", "fi", "fr",
                             "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt",
-                            "ru", "sk", "sr", "th", "tr", "uk", "zh-hans", "zh-hant"]
+                            "ru", "sk", "sr", "th", "tr", "uk", "zh-hant"]
 
 
 # basic accessors and checkers
