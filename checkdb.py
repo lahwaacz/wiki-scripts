@@ -251,11 +251,14 @@ def check_users(api, db):
     for user in chain(db_list, api_list):
         user["groups"].sort()
 
-    # drop autoconfirmed - not reliably refreshed in the SQL database
-    # TODO: try to fix that...
     for user in chain(db_list, api_list):
+        # drop autoconfirmed - not reliably refreshed in the SQL database
+        # TODO: try to fix that...
         if "autoconfirmed" in user["groups"]:
             user["groups"].remove("autoconfirmed")
+        # drop blockedtimestampformatted - unimportant, only in API entries since some MW version
+        if "blockedtimestampformatted" in user:
+            del user["blockedtimestampformatted"]
 
     _check_lists(db_list, api_list, key="userid")
 
@@ -364,6 +367,10 @@ def check_archive(api, db):
 
     # WTF, the API list is not sorted by timestamp, but revid!
     api_list.sort(key=lambda rev: rev["timestamp"])
+
+    # MediaWiki does not sort tags alphabetically
+    for rev in api_list:
+        rev["tags"].sort()
 
     _check_lists(db_list, api_list, key="revid")
 
