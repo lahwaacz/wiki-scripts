@@ -79,6 +79,10 @@ class ExtlinkStatusChecker(CheckerBase):
         if url.filter_arguments(recursive=True):
             return
 
+        # replace the {{=}} magic word
+        if "{{=}}" in url:
+            url.replace("{{=}}", "=")
+
         # mwparserfromhell parses free URLs immediately followed by a template
         # (e.g. http://domain.tld/{{Dead link|2020|02|20}}) completely as one URL,
         # so we need to split it manually
