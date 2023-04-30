@@ -158,7 +158,7 @@ class PageUpdater:
             # - The default executor is also ThreadPoolExecutor, but with
             #   unspecified number of threads.
             # - The maximum number of threads does not matter much, fine-grained
-            #   resoource limits are enforced by managers (e.g. urllib3's
+            #   resource limits are enforced by managers (e.g. urllib3's
             #   PoolManager and ConnectionPool for TCP connections)
             with ThreadPoolExecutor(max_workers=self.threads_update_page) as executor:
                 loop = asyncio.get_event_loop()
