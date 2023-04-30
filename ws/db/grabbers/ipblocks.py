@@ -70,8 +70,7 @@ class GrabberIPBlocks(GrabberBase):
                 # ipb_range_start == ipb_range_end == "0.0.0.0" -> should be NULL instead
                 "ipb_range_start": block["rangestart"],
                 "ipb_range_end": block["rangeend"],
-                # TODO: this does not seem to be available from the API nor webui
-                "ipb_deleted": 0,
+                "ipb_deleted": "hidden" in block,
                 "ipb_block_email": "noemail" in block,
                 "ipb_allow_usertalk": "allowusertalk" in block,
                 # not available via the API (and set only by autoblocks anyway)
