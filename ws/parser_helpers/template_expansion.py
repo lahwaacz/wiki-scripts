@@ -116,6 +116,7 @@ class MagicWords:
         "TALKSPACEE",
         # other
         "!",
+        "=",
     }
 
     # variables taking a parameter after ":" (all must be uppercase)
@@ -262,6 +263,8 @@ class MagicWords:
             return self.src_title.talkpagename
         elif name == "ROOTPAGENAME":
             return self.src_title.rootpagename
+        elif name in {"!", "="}:
+            return name
 
         elif ":" in name:
             prefix, arg = name.split(":", maxsplit=1)
