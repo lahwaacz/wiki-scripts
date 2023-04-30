@@ -24,7 +24,7 @@ schema.create_tables(target_metadata)
 # get database connection URL from the wiki-scripts config
 import ws.config
 def get_url():
-    ws_config_path = config.get_main_option("ws_config_path")
+    ws_config_path = os.path.expanduser(config.get_main_option("ws_config_path"))
     parser = ws.config.ConfigParser(ws_config_path)
     conf = parser.fetch_section("alembic", to_list=False)
 

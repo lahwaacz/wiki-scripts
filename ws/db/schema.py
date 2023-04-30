@@ -279,8 +279,7 @@ def create_users_tables(metadata):
         # (but that's a bug, even reported somewhere)
         Column("ipb_range_start", UnicodeText),
         Column("ipb_range_end", UnicodeText),
-        # TODO: analogous to log_deleted, should be Bitfield
-        Column("ipb_deleted", SmallInteger, nullable=False, server_default="0"),
+        Column("ipb_deleted", Boolean, nullable=False, server_default="0"),
         Column("ipb_block_email", Boolean, nullable=False, server_default="0"),
         Column("ipb_allow_usertalk", Boolean, nullable=False, server_default="0"),
         Column("ipb_parent_block_id", Integer, ForeignKey("ipblocks.ipb_id", ondelete="SET NULL", deferrable=True, initially="DEFERRED")),
