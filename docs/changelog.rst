@@ -15,6 +15,24 @@ Unreleased
 - The default value of the ``--cookie-file`` option was removed, so it has to be
   set explicitly in the configuration file for persistent authenticated session.
 - The ``--site`` and ``--cache-dir`` options were removed.
+- :py:mod:`~ws.checkers.ExtlinkReplacements`: fixed tests, fixed replacement of
+  Arch bug tracker links, added more replacements for Arch projects and other
+  cases
+- :py:mod:`~ws.checkers.ExtlinkStatusChecker`: skip links to invalid or
+  blacklisted domains, detect sites behind CloudFlare protection
+- :py:mod:`~ws.checkers.WikilinkChecker`: fixed urldecoding of section anchors,
+  fixed race condition between the "Archive page" and "Broken section link"
+  flags, removed some old and unnecessary workarounds
+- Many bug fixes for the :py:mod:`ws.db` module and the ``checkdb.py`` script.
+
+- New scripts:
+
+  - ``delete-unused-categories.py``
+  - ``localize-templates.py``
+  - ``mark-archived-links.py``
+  - ``report-problems.py`` (previously ``list-problematic-pages.py``, now it
+    also has an automatic report page)
+  - ``update-page-language.py``
 
 Version 1.3
 -----------

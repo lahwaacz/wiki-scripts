@@ -80,7 +80,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'wiki-scripts'
-copyright = '2014-2021, Jakub Klinkovský'
+copyright = '2014-2023, Jakub Klinkovský'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
