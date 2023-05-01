@@ -16,7 +16,7 @@ class AllDeletedRevisions(DeletedRevisions, GeneratorBase):
     def sanitize_params(klass, params):
         # MW incompatibility: parameters related to content parsing are not supported (they are deprecated anyway)
         assert set(params) <= {"start", "end", "dir", "namespace", "user", "excludeuser", "prop", "limit", "continue",
-                               "section", "generatetitles",
+                               "section", "generatetitles", "slots",
                                "from", "to", "prefix", "tag"}  # these four are in addition to list=allrevisions
         klass.sanitize_common_params(params)
 

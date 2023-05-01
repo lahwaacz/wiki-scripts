@@ -38,11 +38,13 @@ class DeletedRevisions(SelectBase):
         # MW incompatibility: "parsedcomment" and "parsetree" props are not supported
         assert params["prop"] <= {"user", "userid", "comment", "flags", "timestamp", "ids", "size", "sha1", "tags", "content", "contentmodel"}
 
+        assert "slots" in params and params["slots"] == "main"
+
     @classmethod
     def sanitize_params(klass, params):
         # MW incompatibility: parameters related to content parsing are not supported (they are deprecated anyway)
         assert set(params) <= {"start", "end", "dir", "user", "excludeuser", "prop", "limit", "continue",
-                               "section", "generatetitles", "tag"}
+                               "section", "generatetitles", "slots", "tag"}
         klass.sanitize_common_params(params)
 
     # prop-specific methods
@@ -141,13 +143,15 @@ class DeletedRevisions(SelectBase):
             "ar_comment": "comment",
             "ar_sha1": "sha1",
             "ar_len": "size",
-            "ar_content_model": "contentmodel",
-            "ar_content_format": "contentformat",
-            "old_text": "*",
             # pageid is not taken from ar_page_id, but from the existing page which might have
             # been created without undeleting previous revisions
             "page_id": "pageid",
             "ar_namespace": "ns",
+        }
+        slot_flags = {
+            "ar_content_model": "contentmodel",
+            "ar_content_format": "contentformat",
+            "old_text": "*",
         }
         bool_flags = {
             "ar_minor_edit": "minor",
@@ -165,6 +169,11 @@ class DeletedRevisions(SelectBase):
                 # some keys produce 0 instead of None
                 elif key in zeroable_flags:
                     api_entry[api_key] = 0
+            elif key in slot_flags:
+                slot = api_entry.setdefault("slots", {"main": {}})["main"]
+                api_key = slot_flags[key]
+                if value is not None:
+                    slot[api_key] = value
             elif key in bool_flags:
                 if value:
                     api_key = bool_flags[key]

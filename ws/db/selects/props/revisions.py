@@ -38,12 +38,14 @@ class Revisions(SelectBase):
         # MW incompatibility: "parsedcomment" and "parsetree" props are not supported
         assert params["prop"] <= {"user", "userid", "comment", "flags", "timestamp", "ids", "size", "sha1", "tags", "content", "contentmodel"}
 
+        assert "slots" in params and params["slots"] == "main"
+
     @classmethod
     def sanitize_params(klass, params):
         # MW incompatibility: parameters related to content parsing are not supported (they are deprecated anyway)
         # TODO: rvtag
         assert set(params) <= {"start", "end", "dir", "user", "excludeuser", "prop", "limit", "continue",
-                               "section"}
+                               "section", "slots"}
         klass.sanitize_common_params(params)
 
 
@@ -136,11 +138,13 @@ class Revisions(SelectBase):
             "rev_comment": "comment",
             "rev_sha1": "sha1",
             "rev_len": "size",
+            "page_id": "pageid",
+            "page_namespace": "ns",
+        }
+        slot_flags = {
             "rev_content_model": "contentmodel",
             "rev_content_format": "contentformat",
             "old_text": "*",
-            "page_id": "pageid",
-            "page_namespace": "ns",
         }
         bool_flags = {
             "rev_minor_edit": "minor",
@@ -158,6 +162,11 @@ class Revisions(SelectBase):
                 # some keys produce 0 instead of None
                 elif key in zeroable_flags:
                     api_entry[api_key] = 0
+            elif key in slot_flags:
+                slot = api_entry.setdefault("slots", {"main": {}})["main"]
+                api_key = slot_flags[key]
+                if value is not None:
+                    slot[api_key] = value
             elif key in bool_flags:
                 if value:
                     api_key = bool_flags[key]
