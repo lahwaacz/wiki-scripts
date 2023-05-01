@@ -24,6 +24,8 @@ Unreleased
   fixed race condition between the "Archive page" and "Broken section link"
   flags, removed some old and unnecessary workarounds
 - Many bug fixes for the :py:mod:`ws.db` module and the ``checkdb.py`` script.
+- Simplified :py:class:`ws.utils.TLSAdapter` using ``ssl_version`` instead of
+  ``ssl_options``.
 
 - New scripts:
 

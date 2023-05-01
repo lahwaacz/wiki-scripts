@@ -8,7 +8,6 @@
 import logging
 import datetime
 import ipaddress
-import ssl
 
 import mwparserfromhell
 import requests
@@ -56,9 +55,6 @@ class ExtlinkStatusChecker(CheckerBase):
         self.session = requests.Session()
         adapter_params = {
             "max_retries": max_retries,
-            # disallow TLS1.0 and TLS1.1, allow only TLS1.2 (and newer if suported
-            # by the used openssl version)
-            "ssl_options": ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1,
             # configure the connection pool
             # https://docs.python-requests.org/en/latest/api/#requests.adapters.HTTPAdapter
             # https://urllib3.readthedocs.io/en/latest/advanced-usage.html#customizing-pool-behavior

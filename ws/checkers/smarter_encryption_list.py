@@ -5,7 +5,6 @@ from functools import lru_cache
 import hashlib
 
 import requests
-import ssl
 from ws.utils import TLSAdapter
 
 __all__ = ["SmarterEncryptionList"]
@@ -23,10 +22,7 @@ class SmarterEncryptionList:
         self.timeout = timeout
 
         self.session = requests.Session()
-        # disallow TLS1.0 and TLS1.1, allow only TLS1.2 (and newer if suported
-        # by the used openssl version)
-        ssl_options = ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
-        adapter = TLSAdapter(ssl_options=ssl_options, max_retries=max_retries)
+        adapter = TLSAdapter(max_retries=max_retries)
         self.session.mount("https://", adapter)
 
     @lru_cache(maxsize=1024)
