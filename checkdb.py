@@ -6,6 +6,7 @@ import traceback
 import copy
 from collections import OrderedDict
 from itertools import chain
+import html
 
 import sqlalchemy as sa
 import requests.packages.urllib3 as urllib3
@@ -298,6 +299,9 @@ def check_info(api, db):
     # FIXME: we can't assert page_touched because we track only page edits, not cache invalidations...
     for entry in chain(db_list, api_list):
         del entry["touched"]
+        # MW 1.39 does not decode HTML entities
+        if "displaytitle" in entry:
+            entry["displaytitle"] = html.unescape(entry["displaytitle"])
 
     _check_lists_of_unordered_pages(db_list, api_list)
 
@@ -345,6 +349,7 @@ def check_archive(api, db):
         "list": "alldeletedrevisions",
         "adrlimit": "max",
         "adrdir": "newer",
+        "adrslots": "main",
     }
     adrprop = {"ids", "flags", "timestamp", "user", "userid", "size", "sha1", "contentmodel", "comment", "tags"}
 
@@ -362,11 +367,8 @@ def check_archive(api, db):
             rev["ns"] = page["ns"]
             rev["title"] = page["title"]
             api_revisions.append(rev)
-    api_revisions.sort(key=lambda item: item["revid"])
+    api_revisions.sort(key=lambda item: (item["timestamp"], item["revid"]))
     api_list = api_revisions
-
-    # WTF, the API list is not sorted by timestamp, but revid!
-    api_list.sort(key=lambda rev: rev["timestamp"])
 
     # MediaWiki does not sort tags alphabetically
     for rev in api_list:
@@ -385,6 +387,7 @@ def check_revisions(api, db):
         "arvlimit": "max",
         "arvdir": "newer",
         "arvstart": since,
+        "arvslots": "main",
     }
     arvprop = {"ids", "flags", "timestamp", "user", "userid", "size", "sha1", "contentmodel", "comment", "tags"}
 
@@ -399,7 +402,7 @@ def check_revisions(api, db):
             rev["ns"] = page["ns"]
             rev["title"] = page["title"]
             api_revisions.append(rev)
-    api_revisions.sort(key=lambda item: item["revid"])
+    api_revisions.sort(key=lambda item: (item["timestamp"], item["revid"]))
     api_list = api_revisions
 
     for rev in chain(db_list, api_list):
@@ -444,6 +447,7 @@ def check_revisions_of_main_page(api, db):
     api_params = {
         "prop": "revisions",
         "rvlimit": "max",
+        "rvslots": "main",
     }
 
     db_list = list(db.query(**api_params, titles=titles, rvprop=rvprop))
