@@ -84,9 +84,10 @@ class ExtlinkStatusChecker(CheckerBase):
 
         now = datetime.datetime.utcnow()
         self.deadlink_params = [now.year, now.month, now.day]
-        self.deadlink_params = ["{:02d}".format(i) for i in self.deadlink_params]
+        self.deadlink_params = [f"{i:02d}" for i in self.deadlink_params]
 
-    def prepare_url(self, wikicode, extlink, *, allow_schemes=None):
+    @staticmethod
+    def prepare_url(wikicode, extlink, *, allow_schemes=None):
         if allow_schemes is None:
             allow_schemes = ["http", "https"]
 
@@ -131,7 +132,7 @@ class ExtlinkStatusChecker(CheckerBase):
             # make sure that this was a no-op
             text_new = str(wikicode)
             diff = diff_highlighted(text_old, text_new, "old", "new", "<utcnow>", "<utcnow>")
-            assert text_old == text_new, "failed to fix parsing of templates after URL. The diff is:\n{}".format(diff)
+            assert text_old == text_new, f"failed to fix parsing of templates after URL. The diff is:\n{diff}"
 
         # replace HTML entities like "&#61" or "&Sigma;" with their unicode equivalents
         for entity in url.ifilter_html_entities(recursive=True):
@@ -142,34 +143,34 @@ class ExtlinkStatusChecker(CheckerBase):
             # reference: https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#urllib3.util.parse_url
             url = urllib3.util.url.parse_url(str(url))
         except urllib3.exceptions.LocationParseError:
-            logger.debug("skipped invalid URL: {}".format(url))
+            logger.debug(f"skipped invalid URL: {url}")
             return
 
         # skip unsupported schemes
         if url.scheme not in allow_schemes:
-            logger.debug("skipped URL with unsupported scheme: {}".format(url))
+            logger.debug(f"skipped URL with unsupported scheme: {url}")
             return
         # skip URLs with empty host, e.g. "http://" or "http://git@" or "http:///var/run"
         # (partial workaround for https://github.com/earwig/mwparserfromhell/issues/196 )
         if not url.host:
-            logger.debug("skipped URL with empty host: {}".format(url))
+            logger.debug(f"skipped URL with empty host: {url}")
             return
         # skip links with top-level domains only
         # (in practice they would be resolved relative to the local domain, on the wiki they are used
         # mostly as a pseudo-variable like http://server/path or http://mydomain/path)
         if "." not in url.host:
-            logger.debug("skipped URL with only top-level domain host: {}".format(url))
+            logger.debug(f"skipped URL with only top-level domain host: {url}")
             return
         # skip links to invalid/blacklisted domains
         if (url.host == "pi.hole"   # pi-hole configuration involves setting pi.hole in /etc/hosts
             or url.host == "ui.reclaim"  # GNUnet - the domains works only with a browser extension
             or url.host.endswith(".onion")  # Tor
             ):
-            logger.debug("skipped URL with invalid/blacklisted domain host: {}".format(url))
+            logger.debug(f"skipped URL with invalid/blacklisted domain host: {url}")
             return
         # skip links to localhost
         if url.host == "localhost" or url.host.endswith(".localhost"):
-            logger.debug("skipped URL to localhost: {}".format(url))
+            logger.debug(f"skipped URL to localhost: {url}")
             return
         # skip links to reserved IP addresses
         try:
@@ -209,24 +210,24 @@ class ExtlinkStatusChecker(CheckerBase):
             response.close()
         # SSLError inherits from ConnectionError so it has to be checked first
         except requests.exceptions.SSLError as e:
-            logger.error("SSLError ({}) for URL {}".format(e, url))
+            logger.error(f"SSLError ({e}) for URL {url}")
             self.cache_invalid_urls[url] = "SSL error"
             return False
         except requests.exceptions.ConnectionError as e:
             # TODO: how to handle DNS errors properly?
             if "name or service not known" in str(e).lower():
-                logger.error("domain name could not be resolved for URL {}".format(url))
+                logger.error(f"domain name could not be resolved for URL {url}")
                 self.cache_invalid_urls[url] = "domain name not resolved"
                 return False
             # other connection error - indeterminate, do not cache
             return None
         except requests.exceptions.TooManyRedirects as e:
-            logger.error("TooManyRedirects error ({}) for URL {}".format(e, url))
+            logger.error(f"TooManyRedirects error ({e}) for URL {url}")
             self.cache_invalid_urls[url] = "too many redirects"
             return False
         except requests.exceptions.RequestException as e:
             # base class exception - indeterminate error, do not cache
-            logger.exception("URL {} could not be checked due to {}".format(url, e))
+            logger.error(f"URL {url} could not be checked due to {r}")
             return None
 
         if response.status_code >= 200 and response.status_code < 300:
@@ -235,20 +236,20 @@ class ExtlinkStatusChecker(CheckerBase):
         elif response.status_code >= 400 and response.status_code < 500:
             # detect cloudflare captcha https://github.com/pielco11/fav-up/issues/13
             if "CF-Chl-Bypass" in response.headers:
-                logger.warning("CloudFlare CAPTCHA detected for URL {}".format(url))
+                logger.warning(f"CloudFlare CAPTCHA detected for URL {url}")
                 self.cache_indeterminate_urls.add(url)
                 return None
             # CloudFlare sites may have custom firewall rules that block non-browser requests
             # with error 1020 https://github.com/codemanki/cloudscraper/issues/222
             if response.status_code == 403 and response.headers.get("Server", "").lower() == "cloudflare":
-                logger.warning("status code 403 for URL {} backed up by CloudFlare does not mean anything".format(url))
+                logger.warning(f"status code 403 for URL {url} backed up by CloudFlare does not mean anything")
                 self.cache_indeterminate_urls.add(url)
                 return None
-            logger.error("status code {} for URL {}".format(response.status_code, url))
+            logger.error(f"status code {response.status_code} for URL {url}")
             self.cache_invalid_urls[url] = response.status_code
             return False
         else:
-            logger.warning("status code {} for URL {}".format(response.status_code, url))
+            logger.warning(f"status code {response.status_code} for URL {url}")
             self.cache_indeterminate_urls.add(url)
             return None
 
@@ -258,7 +259,7 @@ class ExtlinkStatusChecker(CheckerBase):
         if url is None:
             return
 
-        logger.info("Checking link {} ...".format(extlink))
+        logger.info(f"Checking link {extlink} ...")
         status = self.check_url(url)
 
         with self.lock_wikicode:
@@ -290,7 +291,7 @@ class ExtlinkStatusChecker(CheckerBase):
                     flag.add("3", self.deadlink_params[2], showkey=False)
             else:
                 # TODO: ask the user for manual check (good/bad/skip) and move the URL from self.cache_indeterminate_urls to self.cache_valid_urls or self.cache_invalid_urls
-                logger.warning("status check indeterminate for external link {}".format(extlink))
+                logger.warning(f"status check indeterminate for external link {extlink}")
 
     def handle_node(self, src_title, wikicode, node, summary_parts):
         if isinstance(node, mwparserfromhell.nodes.ExternalLink):
