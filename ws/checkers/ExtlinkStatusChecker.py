@@ -25,6 +25,27 @@ __all__ = ["ExtlinkStatusChecker"]
 logger = logging.getLogger(__name__)
 
 
+# list of reserved IPv4 blocks: https://en.wikipedia.org/wiki/Reserved_IP_addresses
+ipv4_reserved_networks = [
+    ipaddress.ip_network("0.0.0.0/8"),
+    ipaddress.ip_network("10.0.0.0/8"),
+    ipaddress.ip_network("100.64.0.0/10"),
+    ipaddress.ip_network("127.0.0.0/8"),
+    ipaddress.ip_network("169.254.0.0/16"),
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.0.0.0/24"),
+    ipaddress.ip_network("192.0.2.0/24"),
+    ipaddress.ip_network("192.88.99.0/24"),
+    ipaddress.ip_network("192.168.0.0/16"),
+    ipaddress.ip_network("198.18.0.0/15"),
+    ipaddress.ip_network("198.51.100.0/24"),
+    ipaddress.ip_network("203.0.113.0/24"),
+    ipaddress.ip_network("224.0.0.0/4"),
+    ipaddress.ip_network("233.252.0.0/24"),
+    ipaddress.ip_network("240.0.0.0/4"),
+    ipaddress.ip_network("255.255.255.255/32"),
+]
+
 class ExtlinkStatusChecker(CheckerBase):
     def __init__(self, api, db, *, timeout=60, max_retries=3,
                  num_pools=100, max_connections_per_host=10,
@@ -150,13 +171,13 @@ class ExtlinkStatusChecker(CheckerBase):
         if url.host == "localhost" or url.host.endswith(".localhost"):
             logger.debug("skipped URL to localhost: {}".format(url))
             return
-        # skip links to 127.*.*.* and ::1
+        # skip links to reserved IP addresses
         try:
             addr = ipaddress.ip_address(url.host)
-            local_network = ipaddress.ip_network("127.0.0.0/8")
-            if addr in local_network:
-                logger.debug("skipped URL to local IP address: {}".format(url))
-                return
+            for network in ipv4_reserved_networks:
+                if addr in network:
+                    logger.debug(f"skipped URL to IP address from reserved network: {url}")
+                    return
         except ValueError:
             pass
 
