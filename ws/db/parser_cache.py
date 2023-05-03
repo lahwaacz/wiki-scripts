@@ -320,12 +320,12 @@ class ParserCache:
     # cacheable part of the content getter, using common cache across all SQL transactions
     @lru_cache(maxsize=128)
     def _cached_content_getter(self, title):
-        pages_gen = self.db.query(titles=title, prop="latestrevisions", rvprop="content")
+        pages_gen = self.db.query(titles=title, prop="latestrevisions", rvprop="content", rvslots="main")
         page = next(pages_gen)
 
         if "revisions" in page:
-            if "*" in page["revisions"][0]:
-                return page["revisions"][0]["*"]
+            if "*" in page["revisions"][0]["slots"]["main"]:
+                return page["revisions"][0]["slots"]["main"]["*"]
             else:
                 logger.error("ParserCache: no latest revision found for page [[{}]]".format(page["title"]))
                 raise ValueError
@@ -467,12 +467,12 @@ class ParserCache:
         logger.info("ParserCache: Parsing new content...")
 
         def parse_namespace(ns):
-            for page in self.db.query(generator="allpages", gapnamespace=ns, prop="latestrevisions", rvprop={"content", "ids"}):
+            for page in self.db.query(generator="allpages", gapnamespace=ns, prop="latestrevisions", rvprop={"content", "ids"}, rvslots="main"):
                 # one transaction per page
                 with self.db.engine.begin() as conn:
-                    if "*" in page["revisions"][0]:
+                    if "*" in page["revisions"][0]["slots"]["main"]:
                         if page["pageid"] in self.invalidated_pageids:
-                            self._parse_page(conn, page["pageid"], page["title"], page["revisions"][0]["*"])
+                            self._parse_page(conn, page["pageid"], page["title"], page["revisions"][0]["slots"]["main"]["*"])
                             self._set_sync_revid(conn, page["pageid"], page["revisions"][0]["revid"])
                     else:
                         logger.error("ParserCache: no latest revision found for page [[{}]]".format(page["title"]))
