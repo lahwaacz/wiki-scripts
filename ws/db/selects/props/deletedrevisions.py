@@ -38,7 +38,8 @@ class DeletedRevisions(SelectBase):
         # MW incompatibility: "parsedcomment" and "parsetree" props are not supported
         assert params["prop"] <= {"user", "userid", "comment", "flags", "timestamp", "ids", "size", "sha1", "tags", "content", "contentmodel"}
 
-        assert "slots" in params and params["slots"] == "main"
+        if "content" in params["prop"] or "contentmodel" in params["prop"]:
+            assert "slots" in params and params["slots"] == "main"
 
     @classmethod
     def sanitize_params(klass, params):
