@@ -633,7 +633,10 @@ def check_external_links(api, db):
         if "extlinks" in page:
             # MediaWiki has some characters URL-encoded and others decoded
             for el in page["extlinks"]:
-                el["*"] = urldecode(el["*"])
+                try:
+                    el["*"] = urldecode(el["*"])
+                except UnicodeDecodeError:
+                    pass
 
     # make sure that extlinks are sorted the same way
     # (MediaWiki does not order the URLs, PostgreSQL ordering does not match Python due to locale)
@@ -658,6 +661,12 @@ def check_redirects(api, db):
     db_list = list(db.query(**params, prop=prop, rdprop=rdprop))
     api_list = list(api.generator(**params, prop="|".join(prop), rdprop="|".join(rdprop)))
     api_list = _squash_list_of_dicts(api_list)
+
+    for page in db_list:
+        for redirect in page.get("redirects", []):
+            if "fragment" in redirect:
+                # MediaWiki stores URL-decoded fragments
+                redirect["fragment"] = urldecode(redirect["fragment"])
 
     _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
