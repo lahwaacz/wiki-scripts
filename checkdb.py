@@ -19,24 +19,30 @@ import ws.diff
 from ws.parser_helpers.encodings import urldecode
 
 
-def _pprint_diff(i, db_entry, api_entry):
+def _pprint_diff(i, db_entry, api_entry, *, key=None):
+    if key is not None:
+        print(f"\n\nDiff for entry no. {i}: {key}={db_entry[key]}")
+        if key == "pageid" and "title" in db_entry:
+            print(f"Page title: [[{db_entry['title']}]]")
+
     # diff shows just the difference
     db_f = pformat(db_entry)
     api_f = pformat(api_entry)
     print(ws.diff.diff_highlighted(db_f, api_f, "db_entry", "api_entry"))
 
-    # full entries are needed for context
-    print("db_entry no. {}:".format(i))
-    pprint(db_entry)
-    print("api_entry no. {}:".format(i))
-    pprint(api_entry)
-    print()
+    if key is None:
+        # full entries are needed for context
+        print("db_entry no. {}:".format(i))
+        pprint(db_entry)
+        print("api_entry no. {}:".format(i))
+        pprint(api_entry)
+        print()
 
-def _check_entries(i, db_entry, api_entry):
+def _check_entries(i, db_entry, api_entry, *, key=None):
     try:
         assert db_entry == api_entry
     except AssertionError:
-        _pprint_diff(i, db_entry, api_entry)
+        _pprint_diff(i, db_entry, api_entry, key=key)
         raise
 
 def _check_lists(db_list, api_list, *, key=None, db=None):
@@ -71,7 +77,7 @@ def _check_lists(db_list, api_list, *, key=None, db=None):
             for i, entries in enumerate(zip(db_list, api_list)):
                 db_entry, api_entry = entries
                 try:
-                    _check_entries(i, db_entry, api_entry)
+                    _check_entries(i, db_entry, api_entry, key=key)
                 except AssertionError as e:
                     if key:
                         invalid_keys.add(db_entry[key])
