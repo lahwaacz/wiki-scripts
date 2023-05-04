@@ -568,6 +568,8 @@ def check_categorylinks(api, db):
             # remove empty list
             if not page["categories"]:
                 del page["categories"]
+            # fix sorting due to different locale
+            page["categories"].sort(key=lambda d: d["title"])
 
     _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
