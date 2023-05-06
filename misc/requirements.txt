@@ -1,4 +1,5 @@
 requests
+httpx
 jinja2
 mwparserfromhell
 

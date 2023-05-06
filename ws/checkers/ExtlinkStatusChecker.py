@@ -1,27 +1,35 @@
 #! /usr/bin/env python3
 
 # TODO:
-# - cache the status results in the database, limit the number of checks per URL per day (and week/month too)
 # - GRRR: When you get 404, unless you have Javascript enabled, in which case the code loaded on the 404 page might execute a redirection to a different address. Example: https://nzbget.net/Performance_tips
-# - handle 429 (Too Many Requests), often returned by archive.is
 
+import asyncio
 import logging
 import datetime
 import ipaddress
+import ssl
 
-import mwparserfromhell
-import requests
-import requests.packages.urllib3 as urllib3
-from ws.utils import TLSAdapter
+import httpx
+import sqlalchemy as sa
+import sqlalchemy.orm
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-from .CheckerBase import get_edit_summary_tracker, localize_flag, CheckerBase
-import ws.ArchWiki.lang as lang
-from ws.parser_helpers.wikicode import get_parent_wikicode, ensure_flagged_by_template, ensure_unflagged_by_template
-from ws.diff import diff_highlighted
-
-__all__ = ["ExtlinkStatusChecker"]
+__all__ = ["ExtlinkStatusChecker", "Domain", "LinkCheck"]
 
 logger = logging.getLogger(__name__)
+logging.getLogger("httpcore").setLevel(logging.INFO)
+logging.getLogger("httpx").setLevel(logging.INFO)
+
+
+# SQLAlchemy ORM with imperative mapping
+# https://docs.sqlalchemy.org/en/20/orm/mapping_styles.html#imperative-mapping
+class Domain:
+    def __repr__(self):
+        return f'Domain("{self.name},{self.last_check},{self.resolved},{self.server},{self.ssl_error}")'
+
+class LinkCheck:
+    def __repr__(self):
+        return f"LinkCheck({self.url},{self.last_check},{self.check_duration},{self.http_status},{self.text_status},{self.result})"
 
 
 # list of reserved IPv4 blocks: https://en.wikipedia.org/wiki/Reserved_IP_addresses
@@ -45,252 +53,315 @@ ipv4_reserved_networks = [
     ipaddress.ip_network("255.255.255.255/32"),
 ]
 
-class ExtlinkStatusChecker(CheckerBase):
-    def __init__(self, api, db, *, timeout=60, max_retries=3,
-                 num_pools=100, max_connections_per_host=10,
-                 **kwargs):
-        super().__init__(api, db, **kwargs)
+class ExtlinkStatusChecker:
+    def __init__(self, db, *, timeout=60, max_retries=3,
+                 max_connections=100, keepalive_expiry=60):
+        self.db = db
 
-        self.timeout = timeout
-        self.session = requests.Session()
-        adapter_params = {
-            "max_retries": max_retries,
-            # configure the connection pool
-            # https://docs.python-requests.org/en/latest/api/#requests.adapters.HTTPAdapter
-            # https://urllib3.readthedocs.io/en/latest/advanced-usage.html#customizing-pool-behavior
-            "pool_connections": num_pools,
-            "pool_maxsize": max_connections_per_host,
-            "pool_block": True,
-        }
-        adapter = TLSAdapter(**adapter_params)
-        self.session.mount("https://", adapter)
-        self.session.mount("http://", adapter)
+        # initialize SQLAlchemy ORM
+        mapper_registry = sqlalchemy.orm.registry()
+        mapper_registry.map_imperatively(
+                Domain,
+                db.ws_domain,
+            )
+        mapper_registry.map_imperatively(
+                LinkCheck,
+                db.ws_url_check,
+                properties={
+                    "domain": sqlalchemy.orm.relationship(Domain, backref="url_checks", lazy="joined")
+                }
+            )
+        self.session = sqlalchemy.orm.sessionmaker(self.db.engine)
+        self.async_session = async_sessionmaker(self.db.async_engine, expire_on_commit=False)
 
-        self.headers = {
+        # httpx client parameters
+        limits = httpx.Limits(
+            max_connections=max_connections,
+            max_keepalive_connections=None,  # always allow keep-alive
+            keepalive_expiry=keepalive_expiry,
+        )
+        timeout = httpx.Timeout(timeout, pool=None)  # disable timeout for waiting for a connection from the pool
+        headers = {
             # fake user agent to bypass servers responding differently or not at all to non-browser user agents
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36",
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
         }
 
-        # valid URLs - 2xx, 3xx (when allow_redirects=True)
-        self.cache_valid_urls = set()
-        # invalid URLs - 4xx, domain resolution errors, etc. - mapping of the URL to status text
-        self.cache_invalid_urls = {}
-        # indeterminate - 5xx, 3xx (when allow_redirects=False)
-        self.cache_indeterminate_urls = set()
+        # create an SSL context to disallow TLS1.0 and TLS1.1, allow only TLS1.2
+        # (and newer if supported by the used openssl version)
+        ssl_context = httpx.create_ssl_context(ssl.PROTOCOL_TLS)
+        ssl_context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
 
-        now = datetime.datetime.utcnow()
-        self.deadlink_params = [now.year, now.month, now.day]
-        self.deadlink_params = [f"{i:02d}" for i in self.deadlink_params]
+        # initialize the HTTPX client
+        transport = httpx.AsyncHTTPTransport(retries=max_retries)
+        self.client = httpx.AsyncClient(transport=transport, verify=ssl_context, headers=headers, timeout=timeout, limits=limits)
+
+    def transfer_urls_from_parser_cache(self):
+        """ Transfers URLs from the MediaWiki-like ``externallinks`` table
+            to the wiki-scripts' ``ws_url_check`` and ``ws_domain`` tables.
+        """
+        el = self.db.externallinks
+        ws_dom = self.db.ws_domain
+        ws_url = self.db.ws_url_check
+
+        with self.db.engine.begin() as conn:
+            urls = {}
+            sel = sa.select(el.c.el_to).select_from(el).distinct().order_by(el.c.el_to.asc())
+            for row in conn.execute(sel):
+                # note that URLs are stored as URL-decoded strings so they may seem weird/invalid at first
+                url = row[0]
+                if self.is_checkable_url(url) is True:
+                    url = self.normalize_url(url)
+                    # httpx decodes punycodes for IDNs in .host, .raw_host is the original as bytes
+                    urls[str(url)] = url.raw_host.decode("utf-8")
+
+            # insert all domains first
+            logger.info("Inserting new domains to the ws_domain table...")
+            ins = sa.dialects.postgresql.insert(ws_dom).on_conflict_do_nothing()
+            conn.execute(ins, [{"name": domain} for domain in urls.values()])
+
+            # insert all URLs
+            logger.info("Inserting new URLs to the ws_url_check table...")
+            ins = sa.dialects.postgresql.insert(ws_url).on_conflict_do_nothing()
+            conn.execute(ins, [{"domain_name": domain, "url": url} for url, domain in urls.items()])
 
     @staticmethod
-    def prepare_url(wikicode, extlink, *, allow_schemes=None):
+    def is_checkable_url(url: str, *, allow_schemes=None):
+        """ Returns ``True`` if the URL can be checked or ``False``.
+        """
         if allow_schemes is None:
             allow_schemes = ["http", "https"]
 
-        # make a copy of the URL object (the skip_style_flags parameter is False,
-        # so we will also properly parse URLs terminated by a wiki markup)
-        url = mwparserfromhell.parse(str(extlink.url))
-
-        # mwparserfromhell parses free URLs immediately followed by a template argument
-        # (e.g. http://domain.tld/{{{1}}}) completely as one URL, so we can use this
-        # to skip partial URLs inside templates
-        if url.filter_arguments(recursive=True):
-            return
-
-        # replace the {{=}} magic word
-        if "{{=}}" in url:
-            url.replace("{{=}}", "=")
-
-        # mwparserfromhell parses free URLs immediately followed by a template
-        # (e.g. http://domain.tld/{{Dead link|2020|02|20}}) completely as one URL,
-        # so we need to split it manually
-        if "{{" in str(url):
-            # back up original wikicode
-            text_old = str(wikicode)
-
-            url, rest = str(url).split("{{", maxsplit=1)
-            rest = "{{" + rest
-            url = mwparserfromhell.parse(url)
-            # find the index of the template in extlink.url.nodes
-            # (note that it may be greater than 1, e.g. when there are HTML entities)
-            for idx in range(len(extlink.url.nodes)):
-                if "".join(str(n) for n in extlink.url.nodes[idx:]) == rest:
-                    break
-            assert "".join(str(n) for n in extlink.url.nodes[idx:]) == str(rest)
-            # remove the template and everything after it from the extlink...
-            # GOTCHA: the list shrinks during iteration, so we need to create a copy
-            for node in list(extlink.url.nodes[idx:]):
-                extlink.url.remove(node)
-            # ...and insert it into the parent wikicode after the link
-            parent = get_parent_wikicode(wikicode, extlink)
-            parent.insert_after(extlink, rest)
-
-            # make sure that this was a no-op
-            text_new = str(wikicode)
-            diff = diff_highlighted(text_old, text_new, "old", "new", "<utcnow>", "<utcnow>")
-            assert text_old == text_new, f"failed to fix parsing of templates after URL. The diff is:\n{diff}"
-
-        # replace HTML entities like "&#61" or "&Sigma;" with their unicode equivalents
-        for entity in url.ifilter_html_entities(recursive=True):
-            url.replace(entity, entity.normalize())
-
         try:
             # try to parse the URL - fails e.g. if port is not a number
-            # reference: https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#urllib3.util.parse_url
-            url = urllib3.util.url.parse_url(str(url))
-        except urllib3.exceptions.LocationParseError:
+            # reference: https://www.python-httpx.org/api/#url
+            url = httpx.URL(url)
+        except httpx.InvalidURL:
             logger.debug(f"skipped invalid URL: {url}")
-            return
+            return False
 
         # skip unsupported schemes
         if url.scheme not in allow_schemes:
             logger.debug(f"skipped URL with unsupported scheme: {url}")
-            return
+            return False
         # skip URLs with empty host, e.g. "http://" or "http://git@" or "http:///var/run"
         # (partial workaround for https://github.com/earwig/mwparserfromhell/issues/196 )
         if not url.host:
             logger.debug(f"skipped URL with empty host: {url}")
-            return
+            return False
+        # skip URLs with auth info (e.g. http://login.worker:PWD@api.bitcoin.cz:8332)
+        if url.userinfo:
+            logger.debug(f"skipped URL with authentication credentials: {url}")
+            return False
         # skip links with top-level domains only
         # (in practice they would be resolved relative to the local domain, on the wiki they are used
         # mostly as a pseudo-variable like http://server/path or http://mydomain/path)
         if "." not in url.host:
             logger.debug(f"skipped URL with only top-level domain host: {url}")
-            return
+            return False
         # skip links to invalid/blacklisted domains
         if (url.host == "pi.hole"   # pi-hole configuration involves setting pi.hole in /etc/hosts
             or url.host == "ui.reclaim"  # GNUnet - the domains works only with a browser extension
             or url.host.endswith(".onion")  # Tor
             ):
             logger.debug(f"skipped URL with invalid/blacklisted domain host: {url}")
-            return
+            return False
         # skip links to localhost
         if url.host == "localhost" or url.host.endswith(".localhost"):
             logger.debug(f"skipped URL to localhost: {url}")
-            return
+            return False
         # skip links to reserved IP addresses
         try:
             addr = ipaddress.ip_address(url.host)
             for network in ipv4_reserved_networks:
                 if addr in network:
                     logger.debug(f"skipped URL to IP address from reserved network: {url}")
-                    return
+                    return False
         except ValueError:
             pass
 
-        return url
+        return True
 
-    def check_url(self, url, *, allow_redirects=True):
-        if not isinstance(url, urllib3.util.url.Url):
-            url = urllib3.util.url.parse_url(url)
+    @staticmethod
+    def normalize_url(url: str):
+        url = httpx.URL(url)
 
         # drop the fragment from the URL (to optimize caching)
         if url.fragment:
-            url = urllib3.util.url.parse_url(url.url.rsplit("#", maxsplit=1)[0])
+            url = httpx.URL(str(url).rsplit("#", maxsplit=1)[0])
 
-        # check the caches
-        if url in self.cache_valid_urls:
-            return True
-        elif url in self.cache_invalid_urls:
-            return False
-        elif url in self.cache_indeterminate_urls:
-            return None
+        return url
+
+    async def check_url(self, domain: Domain, link: LinkCheck, url: httpx.URL, *, follow_redirects=True):
+        # reset domain attributes
+        domain.last_check = link.last_check
+        domain.resolved = None
+        domain.ssl_error = None
 
         try:
             # We need to use GET requests instead of HEAD, because many servers just return 404
             # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
-            # response body content using the ``stream=True`` parameter.
-            response = self.session.get(url, headers=self.headers, timeout=self.timeout, stream=True, allow_redirects=allow_redirects)
-            # explicitly close the responses to release the connection back to the pool
-            # (this is important, especially when we use pool_block=True)
-            response.close()
-        # SSLError inherits from ConnectionError so it has to be checked first
-        except requests.exceptions.SSLError as e:
-            logger.error(f"SSLError ({e}) for URL {url}")
-            self.cache_invalid_urls[url] = "SSL error"
-            return False
-        except requests.exceptions.ConnectionError as e:
-            # TODO: how to handle DNS errors properly?
-            if "name or service not known" in str(e).lower():
+            # response body content by using ``stream`` interface.
+            async with self.client.stream("GET", url, follow_redirects=follow_redirects) as response:
+                # nothing to do here, but using the context manager ensures that the response is
+                # always properly closed
+                pass
+        # FIXME: workaround for https://github.com/encode/httpx/discussions/2682#discussioncomment-5746317
+        except ssl.SSLError as e:
+            logger.error(f"SSL error ({e}) for URL {url}")
+            domain.ssl_error = str(e)
+            link.result = "bad"
+            return
+        except httpx.ConnectError as e:
+            if str(e).startswith("[SSL:"):
+                logger.error(f"SSL error ({e}) for URL {url}")
+                domain.ssl_error = str(e)
+                link.result = "bad"
+                return
+            if "no address associated with hostname" in str(e).lower():
                 logger.error(f"domain name could not be resolved for URL {url}")
-                self.cache_invalid_urls[url] = "domain name not resolved"
-                return False
-            # other connection error - indeterminate, do not cache
-            return None
-        except requests.exceptions.TooManyRedirects as e:
+                domain.resolved = False
+                link.result = "bad"
+                return
+            # other connection error - indeterminate
+            link.text_status = "connection error"
+            link.result = "needs user check"
+            return
+        except httpx.TooManyRedirects as e:
             logger.error(f"TooManyRedirects error ({e}) for URL {url}")
-            self.cache_invalid_urls[url] = "too many redirects"
-            return False
-        except requests.exceptions.RequestException as e:
-            # base class exception - indeterminate error, do not cache
-            logger.error(f"URL {url} could not be checked due to {r}")
-            return None
+            link.text_status = "too many redirects"
+            link.result = "bad"
+            return
+        # it seems that httpx does not capture all exceptions, e.g. anyio.EndOfStream
+        #except httpx.RequestError as e:
+        except Exception as e:
+            # e.g. ReadTimeout has no message in the async version,
+            # see https://github.com/encode/httpx/discussions/2681
+            msg = str(e)
+            if not msg:
+                msg = type(e)
+            # base class exception - indeterminate
+            logger.error(f"URL {url} could not be checked due to {msg}")
+            link.text_status = f"could not be checked due to {msg}"
+            link.result = "needs user check"
+            return
 
+        # set common attributes from the response
+        link.http_status = response.status_code
+        link.check_duration = response.elapsed
+        if "Server" in response.headers:
+            link.domain.server = response.headers["Server"]
+
+        # set the result
         if response.status_code >= 200 and response.status_code < 300:
-            self.cache_valid_urls.add(url)
-            return True
+            logger.debug(f"status code {response.status_code} for URL {url}")
+            link.result = "OK"
         elif response.status_code >= 400 and response.status_code < 500:
             # detect cloudflare captcha https://github.com/pielco11/fav-up/issues/13
             if "CF-Chl-Bypass" in response.headers:
                 logger.warning(f"CloudFlare CAPTCHA detected for URL {url}")
-                self.cache_indeterminate_urls.add(url)
-                return None
+                link.text_status = "CloudFlare CAPTCHA"
+                link.result = "needs user check"
             # CloudFlare sites may have custom firewall rules that block non-browser requests
             # with error 1020 https://github.com/codemanki/cloudscraper/issues/222
-            if response.status_code == 403 and response.headers.get("Server", "").lower() == "cloudflare":
+            elif response.status_code == 403 and response.headers.get("Server", "").lower() == "cloudflare":
                 logger.warning(f"status code 403 for URL {url} backed up by CloudFlare does not mean anything")
-                self.cache_indeterminate_urls.add(url)
-                return None
-            logger.error(f"status code {response.status_code} for URL {url}")
-            self.cache_invalid_urls[url] = response.status_code
-            return False
+                link.text_status = "CloudFlare shit"
+                link.result = "needs user check"
+            elif response.status_code == 429:
+                # HTTP 429 (Too Many Requests) is not "bad"
+                logger.warning(f"status code {response.status_code} for URL {url}")
+                link.result = "needs user check"
+            else:
+                logger.error(f"status code {response.status_code} for URL {url}")
+                link.result = "bad"
         else:
             logger.warning(f"status code {response.status_code} for URL {url}")
-            self.cache_indeterminate_urls.add(url)
-            return None
+            link.result = "needs user check"
 
-    def check_extlink_status(self, wikicode, extlink, src_title):
-        with self.lock_wikicode:
-            url = self.prepare_url(wikicode, extlink)
-        if url is None:
+    async def check_link(self, link: LinkCheck):
+        # preprocessing - check if the URL is valid
+        url = link.url
+        if not self.is_checkable_url(url):
+            return
+        url = self.normalize_url(url)
+
+        # reset attributes
+        link.last_check = datetime.datetime.utcnow()
+        link.check_duration = None
+        link.http_status = None
+        link.server = None
+        link.text_status = None
+        link.result = None
+
+        # skip the check if the domain is known to be invalid
+        domain = link.domain
+        if domain.resolved is False or domain.ssl_error is not None:
+            link.result = "bad"
             return
 
-        logger.info(f"Checking link {extlink} ...")
-        status = self.check_url(url)
+        # proceed with the actual check
+        await self.check_url(domain, link, url)
 
-        with self.lock_wikicode:
-            if status is True:
-                # TODO: the link might still be flagged for a reason (e.g. when the server redirects to some dummy page without giving a proper status code)
-                ensure_unflagged_by_template(wikicode, extlink, "Dead link", match_only_prefix=True)
-            elif status is False:
-                # TODO: handle bbs.archlinux.org (some links may require login)
-                # TODO: handle links inside {{man|url=...}} properly
-                # first replace the existing template (if any) with a translated version
-                flag = self.get_localized_template("Dead link", lang.detect_language(src_title)[1])
-                localize_flag(wikicode, extlink, flag)
-                # flag the link, but don't overwrite date and don't set status yet
-                flag = ensure_flagged_by_template(wikicode, extlink, flag, *self.deadlink_params, overwrite_parameters=False)
-                # drop the fragment from the URL before looking into the cache
-                if url.fragment:
-                    url = urllib3.util.url.parse_url(url.url.rsplit("#", maxsplit=1)[0])
-                # overwrite by default, but skip overwriting date when the status matches
-                overwrite = True
-                if flag.has("status"):
-                    status = flag.get("status").value
-                    if str(status) == str(self.cache_invalid_urls[url]):
-                        overwrite = False
-                if overwrite is True:
-                    # overwrite status as well as date
-                    flag.add("status", self.cache_invalid_urls[url], showkey=True)
-                    flag.add("1", self.deadlink_params[0], showkey=False)
-                    flag.add("2", self.deadlink_params[1], showkey=False)
-                    flag.add("3", self.deadlink_params[2], showkey=False)
-            else:
-                # TODO: ask the user for manual check (good/bad/skip) and move the URL from self.cache_indeterminate_urls to self.cache_valid_urls or self.cache_invalid_urls
-                logger.warning(f"status check indeterminate for external link {extlink}")
+    async def lock_domain_and_check_link(self, domain_locks, link: LinkCheck):
+        lock = domain_locks[link.domain_name]
+        async with lock:
+            # work with each link in a separate async session
+            async with self.async_session() as session:
+                session.add(link)
+                await self.check_link(link)
+                await session.commit()
 
-    def handle_node(self, src_title, wikicode, node, summary_parts):
-        if isinstance(node, mwparserfromhell.nodes.ExternalLink):
-            summary = get_edit_summary_tracker(wikicode, summary_parts)
-            with summary("update status of external links"):
-                self.check_extlink_status(wikicode, node, src_title)
+    @staticmethod
+    def _get_domain_locks(domains):
+        locks = {}
+        # create separate lock for each domain
+        for domain in domains:
+            locks[domain.name] = asyncio.Lock()
+
+        # merge locks for all *.sourceforge.net subdomains
+        # (otherwise we often get HTTP status 429 Too Many Requests)
+        common_lock = locks.setdefault("sourceforge.net", asyncio.Lock())
+        for domain in locks.keys():
+            if domain.endswith(".sourceforge.net"):
+                locks[domain] = common_lock
+
+        # merge locks for all domains in the StackExchange network
+        # (otherwise we often get HTTP status 429 Too Many Requests)
+        # the domains list is from https://meta.stackexchange.com/a/81383
+        se_domains = {
+            "askubuntu.com",
+            "mathoverflow.net",
+            "serverfault.com",
+            "stackoverflow.com",
+            "stackexchange.com",
+            "stackapps.com",
+            "superuser.com",
+        }
+        common_lock = asyncio.Lock()
+        for domain in locks.keys():
+            for se_domain in se_domains:
+                if domain == se_domain or domain.endswith("." + se_domain):
+                    locks[domain] = common_lock
+
+        return locks
+
+    def check(self, select_stmt):
+        with self.session.begin() as session:
+            # create domain locks
+            domains = session.scalars(sa.select(Domain))
+            locks = self._get_domain_locks(domains)
+
+            # obtain the link objects
+            links = list(session.scalars(select_stmt))
+
+            # detach all objects from the global ORM session
+            session.expunge_all()
+
+        logger.info(f"Checking the status of {len(links)} URLs (success is logged with DEBUG level)...")
+
+        async def async_exec():
+            async with asyncio.TaskGroup() as tg:
+                for link in links:
+                    tg.create_task(self.lock_domain_and_check_link(locks, link))
+
+        asyncio.run(async_exec())
