@@ -17,12 +17,17 @@ Unreleased
 - The ``--site`` and ``--cache-dir`` options were removed.
 - :py:mod:`~ws.checkers.ExtlinkReplacements`: fixed tests, fixed replacement of
   Arch bug tracker links, added more replacements for Arch projects and other
-  cases
-- :py:mod:`~ws.checkers.ExtlinkStatusChecker`: skip links to invalid or
-  blacklisted domains, detect sites behind CloudFlare protection
+  cases.
+- :py:mod:`~ws.checkers.ExtlinkStatusChecker`:
+  - refactored to take the URLs from the database and save the results there
+  - skip links to invalid or blacklisted domains, detect sites behind
+    CloudFlare protection
+- :py:mod:`~ws.checkers.ExtlinkStatusUpdater`: new module which was split from
+  :py:mod:`~ws.checkers.ExtlinkStatusChecker` and contains the (updated) code
+  for updating the status of extlinks on wiki pages.
 - :py:mod:`~ws.checkers.WikilinkChecker`: fixed urldecoding of section anchors,
   fixed race condition between the "Archive page" and "Broken section link"
-  flags, removed some old and unnecessary workarounds
+  flags, removed some old and unnecessary workarounds.
 - Simplified :py:class:`ws.utils.TLSAdapter` using ``ssl_version`` instead of
   ``ssl_options``.
 - Many bug fixes for the :py:mod:`ws.db` module and the ``checkdb.py`` script.
@@ -31,6 +36,8 @@ Unreleased
 - The :py:mod:`ws.db` module now requires SQLAlchemy with ``asyncio`` support
   and the ``asyncpg`` driver for PostgreSQL. The synchronous interface with the
   ``psycopg2`` driver is still used as well.
+- :py:mod:`ws.db.schema`: added new tables ``ws_domain`` and ``ws_url_check``
+  for tracking the results of status checks for domains and URLs.
 
 - New scripts:
 
@@ -40,6 +47,16 @@ Unreleased
   - ``report-problems.py`` (previously ``list-problematic-pages.py``, now it
     also has an automatic report page)
   - ``update-page-language.py``
+
+- Refactored scripts:
+
+  - ``extlink-checker.py`` has a new required parameter ``--mode`` with two
+    choices:
+
+    1. ``check`` uses :py:mod:`~ws.checkers.ExtlinkStatusChecker` which takes
+       URLs from the database and checks their status, and
+    2. ``update`` uses :py:mod:`~ws.checkers.ExtlinkStatusUpdater` which takes
+       the check results from the database and applies them on the wiki.
 
 Version 1.3
 -----------

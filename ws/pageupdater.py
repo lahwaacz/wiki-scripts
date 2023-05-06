@@ -77,7 +77,7 @@ class PageUpdater:
         if "Database parameters" not in present_groups:
             Database.set_argparser(argparser)
 
-        group = argparser.add_argument_group(title="script parameters")
+        group = argparser.add_argument_group(title="Page updater parameters")
         if klass.force_interactive is False:
             group.add_argument("-i", "--interactive", action="store_true",
                     help="enables interactive mode")
