@@ -3,9 +3,10 @@ jinja2
 mwparserfromhell
 
 # database
-sqlalchemy >= 2.0
+sqlalchemy[asyncio] >= 2.0
 alembic
 psycopg2
+asyncpg
 
 # script-specific dependencies
 hstspreload

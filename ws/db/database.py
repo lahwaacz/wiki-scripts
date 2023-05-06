@@ -15,6 +15,7 @@ import os.path
 import logging
 
 import sqlalchemy as sa
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 import alembic.config
 import alembic.migration
 
@@ -26,17 +27,20 @@ __all__ = ["Database"]
 logger = logging.getLogger(__name__)
 
 class Database:
-    """
-    :param engine_or_url:
-        either an existing :py:class:`sqlalchemy.engine.Engine` instance or a
-        :py:class:`str` representing the URL created by :py:meth:`make_url`
-    """
-
     # it doesn't make sense to even test anything else
     charset = "utf8"
 
     # TODO: take parameters
-    def __init__(self, engine_or_url):
+    def __init__(self, engine_or_url, async_engine_or_url):
+        """
+        :param engine_or_url:
+            either an existing :py:class:`sqlalchemy.engine.Engine` instance
+            or a :py:class:`sqlalchemy.engine.url.URL`
+        :param async_engine_or_url:
+            either an existing :py:class:`sqlalchemy.ext.asyncio.AsyncEngine`
+            instance or a :py:class:`sqlalchemy.engine.url.URL`
+        """
+
         # limit for continuation
         self.chunk_size = 5000
 
@@ -44,8 +48,13 @@ class Database:
             self.engine = engine_or_url
         else:
             self.engine = sa.create_engine(engine_or_url, echo=False)
-
         assert self.engine.name == "postgresql"
+
+        if isinstance(async_engine_or_url, AsyncEngine):
+            self.async_engine = async_engine_or_url
+        else:
+            self.async_engine = create_async_engine(async_engine_or_url, echo=False)
+        assert self.async_engine.name == "postgresql"
 
         self.metadata = sa.MetaData()
         schema.create_tables(self.metadata)
@@ -89,6 +98,8 @@ class Database:
                 help="an SQL dialect (default: %(default)s)")
         group.add_argument("--db-driver", metavar="DRIVER", default="psycopg2",
                 help="a driver for given SQL dialect supported by sqlalchemy (default: %(default)s)")
+        group.add_argument("--db-async-driver", metavar="DRIVER", default="asyncpg",
+                help="an async driver for given SQL dialect supported by sqlalchemy (default: %(default)s)")
         group.add_argument("--db-user", metavar="USER",
                 help="username for database connection (default: %(default)s)")
         group.add_argument("--db-password", metavar="PASSWORD",
@@ -123,7 +134,13 @@ class Database:
                                        host=args.db_host,
                                        port=args.db_port,
                                        database=args.db_name)
-        return klass(url)
+        async_url = sa.engine.url.URL.create(f"{args.db_dialect}+{args.db_async_driver}",
+                                             username=args.db_user,
+                                             password=args.db_password,
+                                             host=args.db_host,
+                                             port=args.db_port,
+                                             database=args.db_name)
+        return klass(url, async_url)
 
     def __getattr__(self, table_name):
         """
