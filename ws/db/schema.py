@@ -51,7 +51,7 @@ from sqlalchemy import \
         Table, Column, ForeignKey, Index, PrimaryKeyConstraint, ForeignKeyConstraint, CheckConstraint
 from sqlalchemy.types import \
         Boolean, SmallInteger, Integer, Float, \
-        UnicodeText, Enum, DateTime, ARRAY
+        UnicodeText, Enum, DateTime, Interval, ARRAY
 
 from .sql_types import \
         MWTimestamp, SHA1, JSONEncodedDict
@@ -563,6 +563,38 @@ def create_recomputable_tables(metadata):
         # the revision ID currently in the parser cache
         Column("wspc_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False)
     )
+
+    # custom table for tracking the status of external domains
+    ws_domain = Table("ws_domain", metadata,
+        # domain name
+        Column("name", UnicodeText, nullable=False, primary_key=True),
+        # timestamp of the last check
+        Column("last_check", DateTime),
+        # flag indicating if the domain has been resolved at the time of the check
+        Column("resolved", Boolean),
+        # value of the "Server" response header
+        Column("server", UnicodeText),
+        # record of the SSLError exception if it occurred during the check
+        Column("ssl_error", UnicodeText),
+        CheckConstraint("resolved or ssl_error is null", name="check_ssl_error_implies_resolved"),
+    )
+    Index("ws_dom_last_check", ws_domain.c.last_check)
+    Index("ws_dom_resolved_ssl_error", ws_domain.c.resolved, ws_domain.c.ssl_error)
+
+    # custom table for tracking the status of URL checks
+    ws_url_check = Table("ws_url_check", metadata,
+        Column("domain_name", UnicodeText, ForeignKey("ws_domain.name"), nullable=False),
+        Column("url", UnicodeText, nullable=False, primary_key=True),
+        Column("last_check", DateTime),
+        Column("check_duration", Interval),
+        Column("http_status", Integer),        # can be null if text_status is not null
+        Column("text_status", UnicodeText),    # for "connection error", "too many redirects", "CloudFlare CAPTCHA", etc.
+        Column("result", UnicodeText),         # result of the check: "ok", "bad", or "needs user check"
+        CheckConstraint("position('://' || domain_name in url) > 0", name="check_wsuc_domain_in_url"),
+    )
+    Index("wsuc_domain_name", ws_url_check.c.domain_name)
+    Index("wsuc_last_check", ws_url_check.c.last_check)
+    Index("wsuc_status", ws_url_check.c.http_status, ws_url_check.c.text_status)
 
 
 def create_multimedia_tables(metadata):
