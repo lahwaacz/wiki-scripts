@@ -21,6 +21,8 @@ import alembic.migration
 from . import schema, selects, grabbers, parser_cache
 from ..parser_helpers.title import Context, Title
 
+__all__ = ["Database"]
+
 logger = logging.getLogger(__name__)
 
 class Database:
@@ -45,7 +47,7 @@ class Database:
 
         assert self.engine.name == "postgresql"
 
-        self.metadata = sa.MetaData(bind=self.engine)
+        self.metadata = sa.MetaData()
         schema.create_tables(self.metadata)
 
         alembic_cfg_path = os.path.join(os.path.dirname(__file__), "../..", "alembic.ini")
@@ -57,7 +59,7 @@ class Database:
             # most recent alembic revision as "head". From now on the database
             # will have to be migrated by alembic. From the cookbook:
             # http://alembic.zzzcomputing.com/en/latest/cookbook.html#building-an-up-to-date-database-from-scratch
-            self.metadata.create_all()
+            self.metadata.create_all(self.engine)
             alembic.command.stamp(alembic_cfg, "head")
         else:
             # Check if there are pending database migrations
@@ -115,12 +117,12 @@ class Database:
 
         # The format is basically "{dialect}+{driver}://{username}:{password}@{host}:{port}/{database}?{params}",
         # but the URL class is suitable for omitting empty defaults.
-        url = sa.engine.url.URL("{}+{}".format(args.db_dialect, args.db_driver),
-                                username=args.db_user,
-                                password=args.db_password,
-                                host=args.db_host,
-                                port=args.db_port,
-                                database=args.db_name)
+        url = sa.engine.url.URL.create(f"{args.db_dialect}+{args.db_driver}",
+                                       username=args.db_user,
+                                       password=args.db_password,
+                                       host=args.db_host,
+                                       port=args.db_port,
+                                       database=args.db_name)
         return klass(url)
 
     def __getattr__(self, table_name):
@@ -206,8 +208,9 @@ https://www.postgresql.org/docs/current/static/using-explain.html
 Usage:
 
 >>> from ws.db.database import explain
->>> for row in db.engine.execute(explain(s)):
->>>     print(row[0])
+>>> with db.engine.connect() as conn:
+>>>     for row in conn.execute(explain(s)):
+>>>         print(row[0])
 """
 
 # FIXME: _literal_as_text was removed from sqlalchemy 1.4

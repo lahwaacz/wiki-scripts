@@ -42,7 +42,7 @@ class GrabberRecentChanges(GrabberBase):
             ("insert", "tagged_recentchange"):
                 ins_tgrc.values(
                     tgrc_rc_id=sa.bindparam("b_rc_id"),
-                    tgrc_tag_id=sa.select([db.tag.c.tag_id]).scalar_subquery() \
+                    tgrc_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery() \
                                     .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
                     .on_conflict_do_nothing(),
         }

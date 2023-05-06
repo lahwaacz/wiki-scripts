@@ -96,8 +96,8 @@ class Revisions(SelectBase):
             # aggregate all tag names corresponding to the same revision into an array
             # (basically 'SELECT tgrev_rev_id, array_agg(tag_name) FROM tag JOIN tagged_recentchange GROUP BY tgrev_rev_id')
             # TODO: make a materialized view for this
-            tag_names = sa.select([tgrev.c.tgrev_rev_id,
-                                   sa.func.array_agg(tag.c.tag_name).label("tag_names")]) \
+            tag_names = sa.select(tgrev.c.tgrev_rev_id,
+                                   sa.func.array_agg(tag.c.tag_name).label("tag_names")) \
                             .select_from(tag.join(tgrev, tag.c.tag_id == tgrev.c.tgrev_tag_id)) \
                             .group_by(tgrev.c.tgrev_rev_id) \
                             .cte("tag_names")

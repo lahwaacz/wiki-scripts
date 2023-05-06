@@ -68,12 +68,12 @@ class AllPages(GeneratorBase):
             raise NotImplementedError
 
         page = self.db.page
-        s = sa.select([page.c.page_id, page.c.page_namespace, page.c.page_title])
+        s = sa.select(page.c.page_id, page.c.page_namespace, page.c.page_title)
 
         # join to get the namespace prefix
         nss = self.db.namespace_starname
         tail = page.outerjoin(nss, page.c.page_namespace == nss.c.nss_id)
-        s.append_column(nss.c.nss_name)
+        s = s.add_columns(nss.c.nss_name)
 
         # page protection filtering
         if "prtype" in params or params["prexpiry"] != "all":

@@ -27,26 +27,26 @@ class GrabberLogging(GrabberBase):
             ("insert", "tagged_logevent"):
                 ins_tgle.values(
                     tgle_log_id=sa.bindparam("b_log_id"),
-                    tgle_tag_id=sa.select([db.tag.c.tag_id]).scalar_subquery() \
+                    tgle_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery() \
                                     .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
                     .on_conflict_do_nothing(),
             ("insert", "tagged_recentchange"):
                 ins_tgrc.values(
-                    tgrc_rc_id=sa.select([db.recentchanges.c.rc_id]).scalar_subquery() \
+                    tgrc_rc_id=sa.select(db.recentchanges.c.rc_id).scalar_subquery() \
                                     .where(db.recentchanges.c.rc_logid == sa.bindparam("b_log_id")),
-                    tgrc_tag_id=sa.select([db.tag.c.tag_id]).scalar_subquery() \
+                    tgrc_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery() \
                                     .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
                     .on_conflict_do_nothing(),
             ("delete", "tagged_logevent"):
                 db.tagged_logevent.delete() \
                     .where(sa.and_(db.tagged_logevent.c.tgle_log_id == sa.bindparam("b_log_id"),
-                                   db.tagged_logevent.c.tgle_tag_id == sa.select([db.tag.c.tag_id]).scalar_subquery() \
+                                   db.tagged_logevent.c.tgle_tag_id == sa.select(db.tag.c.tag_id).scalar_subquery() \
                                             .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             ("delete", "tagged_recentchange"):
                 db.tagged_recentchange.delete() \
-                    .where(sa.and_(db.tagged_recentchange.c.tgrc_rc_id == sa.select([db.recentchanges.c.rc_id]).scalar_subquery() \
+                    .where(sa.and_(db.tagged_recentchange.c.tgrc_rc_id == sa.select(db.recentchanges.c.rc_id).scalar_subquery() \
                                             .where(db.recentchanges.c.rc_logid == sa.bindparam("b_log_id")),
-                                   db.tagged_recentchange.c.tgrc_tag_id == sa.select([db.tag.c.tag_id]).scalar_subquery() \
+                                   db.tagged_recentchange.c.tgrc_tag_id == sa.select(db.tag.c.tag_id).scalar_subquery() \
                                             .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             ("update", "log_deleted"):
                 db.logging.update() \
@@ -166,11 +166,12 @@ class GrabberLogging(GrabberBase):
                 }
                 yield self.sql["insert", "tagged_logevent"], db_entry
                 # check if it is a recent change and tag it as well
-                result = self.db.engine.execute(sa.select([
-                            sa.exists().where(self.db.recentchanges.c.rc_logid == logid)
-                        ]))
-                if result.fetchone()[0]:
-                    yield self.sql["insert", "tagged_recentchange"], db_entry
+                with self.db.engine.connect() as conn:
+                    result = conn.execute(sa.select(
+                                sa.exists().where(self.db.recentchanges.c.rc_logid == logid)
+                            ))
+                    if result.fetchone()[0]:
+                        yield self.sql["insert", "tagged_recentchange"], db_entry
         for logid, removed in removed_tags.items():
             for tag in removed:
                 db_entry = {

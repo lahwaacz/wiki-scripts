@@ -88,7 +88,7 @@ def list(db, params):
 
     # TODO: some lists like allrevisions should group the results per page like MediaWiki
     result = s.execute_sql(query)
-    for row in result:
+    for row in result.mappings():
         yield s.db_to_api(row)
     result.close()
 
@@ -105,20 +105,20 @@ def get_pageset(db, titles=None, pageids=None):
     nss = db.namespace_starname
     tail = page.outerjoin(nss, page.c.page_namespace == nss.c.nss_id)
 
-    s = sa.select([page.c.page_id, page.c.page_namespace, page.c.page_title, nss.c.nss_name])
+    s = sa.select(page.c.page_id, page.c.page_namespace, page.c.page_title, nss.c.nss_name)
 
     if titles is not None:
         ns_title_pairs = [(t.namespacenumber, t.dbtitle()) for t in titles]
         s = s.where(sa.tuple_(page.c.page_namespace, page.c.page_title).in_(ns_title_pairs))
         s = s.order_by(page.c.page_namespace.asc(), page.c.page_title.asc())
 
-        ex = sa.select([page.c.page_namespace, page.c.page_title])
+        ex = sa.select(page.c.page_namespace, page.c.page_title)
         ex = ex.where(sa.tuple_(page.c.page_namespace, page.c.page_title).in_(ns_title_pairs))
     elif pageids is not None:
         s = s.where(page.c.page_id.in_(pageids))
         s = s.order_by(page.c.page_id.asc())
 
-        ex = sa.select([page.c.page_id])
+        ex = sa.select(page.c.page_id)
         ex = ex.where(page.c.page_id.in_(pageids))
 
     return tail, s, ex
@@ -177,7 +177,7 @@ def query_pageset(db, params):
     query = pageset.select_from(tail)
     pages = OrderedDict()  # for indexed access, like in MediaWiki
     result = s.execute_sql(query)
-    for row in result:
+    for row in result.mappings():
         entry = s.db_to_api(row)
         pages[entry["pageid"]] = entry
     result.close()
@@ -203,7 +203,7 @@ def query_pageset(db, params):
 
             query = prop_select.select_from(prop_tail)
             result = _s.execute_sql(query)
-            for row in result:
+            for row in result.mappings():
                 page = pages[row["page_id"]]
                 _s.db_to_api_subentry(page, row)
             result.close()

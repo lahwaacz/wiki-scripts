@@ -39,7 +39,7 @@ class AllDeletedRevisions(DeletedRevisions, GeneratorBase):
         tail = ar.outerjoin(page, (ar.c.ar_namespace == page.c.page_namespace) &
                                   (ar.c.ar_title == page.c.page_title))
         tail = tail.join(nss, ar.c.ar_namespace == nss.c.nss_id)
-        s = sa.select([page.c.page_id, ar.c.ar_namespace, ar.c.ar_title, nss.c.nss_name, ar.c.ar_deleted])
+        s = sa.select(page.c.page_id, ar.c.ar_namespace, ar.c.ar_title, nss.c.nss_name, ar.c.ar_deleted)
 
         # handle parameters common with prop=deletedrevisions
         s, tail = self.get_select_prop(s, tail, params)

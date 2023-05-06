@@ -48,8 +48,10 @@ class GrabberBase:
         }
 
         if conn is None:
-            conn = self.db.engine.connect()
-        conn.execute(ins, entry)
+            with self.db.engine.connect() as conn:
+                conn.execute(ins, entry)
+        else:
+            conn.execute(ins, entry)
 
     def _get_sync_timestamp(self):
         """
@@ -57,11 +59,11 @@ class GrabberBase:
         ``ws_sync`` table.
         """
         ws_sync = self.db.ws_sync
-        sel = select([ws_sync.c.wss_timestamp]) \
+        sel = select(ws_sync.c.wss_timestamp) \
               .where(ws_sync.c.wss_key == self.__class__.__name__)
 
-        conn = self.db.engine.connect()
-        row = conn.execute(sel).fetchone()
+        with self.db.engine.connect() as conn:
+            row = conn.execute(sel).fetchone()
         if row:
             return row[0]
         return None

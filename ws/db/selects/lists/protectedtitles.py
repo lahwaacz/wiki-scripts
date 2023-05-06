@@ -57,7 +57,7 @@ class ProtectedTitles(GeneratorBase):
 
         # join with logging to get the timestamp, user ID, user name and comment
         # inner select to get the corresponding log_id for the rows from protected_titles
-        pt_inner = sa.select([*pt.c._all_columns, sa.func.max(log.c.log_id).label("pt_log_id")]) \
+        pt_inner = sa.select(*pt.c._all_columns, sa.func.max(log.c.log_id).label("pt_log_id")) \
                    .select_from(pt.outerjoin(log, sa.and_(pt.c.pt_namespace == log.c.log_namespace,
                                                   pt.c.pt_title == log.c.log_title,
                                                   log.c.log_type == "protect",
@@ -73,22 +73,22 @@ class ProtectedTitles(GeneratorBase):
 
         # select columns from pt_inner instead of protected_titles
         pt = pt_inner
-        s = sa.select([pt.c.pt_namespace, pt.c.pt_title, nss.c.nss_name]) \
+        s = sa.select(pt.c.pt_namespace, pt.c.pt_title, nss.c.nss_name) \
             .select_from(tail)
 
         prop = params["prop"]
         if "timestamp" in prop:
-            s.append_column(log.c.log_timestamp)
+            s = s.add_columns(log.c.log_timestamp)
         if "user" in prop:
-            s.append_column(log.c.log_user_text)
+            s = s.add_columns(log.c.log_user_text)
         if "user" in prop or "userid" in prop:
-            s.append_column(log.c.log_user)
+            s = s.add_columns(log.c.log_user)
         if "comment" in prop:
-            s.append_column(log.c.log_comment)
+            s = s.add_columns(log.c.log_comment)
         if "expiry" in prop:
-            s.append_column(pt.c.pt_expiry)
+            s = s.add_columns(pt.c.pt_expiry)
         if "level" in prop:
-            s.append_column(pt.c.pt_level)
+            s = s.add_columns(pt.c.pt_level)
 
         # restrictions
         if params["dir"] == "older":

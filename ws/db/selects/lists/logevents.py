@@ -46,63 +46,60 @@ class LogEvents(ListBase):
             raise NotImplementedError
 
         log = self.db.logging
-        s = sa.select([log.c.log_deleted])
+        s = sa.select(log.c.log_deleted)
 
         prop = params["prop"]
         if "user" in prop:
-            s.append_column(log.c.log_user_text)
+            s = s.add_columns(log.c.log_user_text)
         if "userid" in prop:
-            s.append_column(log.c.log_user)
+            s = s.add_columns(log.c.log_user)
         if "comment" in prop:
-            s.append_column(log.c.log_comment)
+            s = s.add_columns(log.c.log_comment)
         if "timestamp" in prop:
-            s.append_column(log.c.log_timestamp)
+            s = s.add_columns(log.c.log_timestamp)
         if "title" in prop:
-            s.append_column(log.c.log_namespace)
-            s.append_column(log.c.log_title)
+            s = s.add_columns(log.c.log_namespace, log.c.log_title)
         if "ids" in prop:
-            s.append_column(log.c.log_id)
-            s.append_column(log.c.log_page)
+            s = s.add_columns(log.c.log_id, log.c.log_page)
         if "type" in prop:
-            s.append_column(log.c.log_type)
-            s.append_column(log.c.log_action)
+            s = s.add_columns(log.c.log_type, log.c.log_action)
         if "details" in prop:
-            s.append_column(log.c.log_params)
+            s = s.add_columns(log.c.log_params)
 
         # joins
         tail = log
         if "title" in prop:
             nss = self.db.namespace_starname
             tail = tail.outerjoin(nss, log.c.log_namespace == nss.c.nss_id)
-            s.append_column(nss.c.nss_name)
+            s = s.add_columns(nss.c.nss_name)
             # TODO: MediaWiki says that page should be joined after user, test it
             page = self.db.page
             tail = tail.outerjoin(page, (log.c.log_namespace == page.c.page_namespace) &
                                         (log.c.log_title == page.c.page_title))
-            s.append_column(page.c.page_id)
+            s = s.add_columns(page.c.page_id)
         if "user" in prop:
             user = self.db.user
             tail = tail.outerjoin(user, log.c.log_user == user.c.user_id)
-            s.append_column(user.c.user_name)
+            s = s.add_columns(user.c.user_name)
         if "tags" in prop:
             tag = self.db.tag
             tgle = self.db.tagged_logevent
             # aggregate all tag names corresponding to the same revision into an array
             # (basically 'SELECT tgle_log_id, array_agg(tag_name) FROM tag JOIN tagged_logevent GROUP BY tgle_log_id')
             # TODO: make a materialized view for this
-            tag_names = sa.select([tgle.c.tgle_log_id,
-                                   sa.func.array_agg(tag.c.tag_name).label("tag_names")]) \
+            tag_names = sa.select(tgle.c.tgle_log_id,
+                                  sa.func.array_agg(tag.c.tag_name).label("tag_names")) \
                             .select_from(tag.join(tgle, tag.c.tag_id == tgle.c.tgle_tag_id)) \
                             .group_by(tgle.c.tgle_log_id) \
                             .cte("tag_names")
             tail = tail.outerjoin(tag_names, log.c.log_id == tag_names.c.tgle_log_id)
             if "tags" in prop:
-                s.append_column(tag_names.c.tag_names)
+                s = s.add_columns(tag_names.c.tag_names)
         if "tag" in params:
             tag = self.db.tag
             tgle = self.db.tagged_logevent
             tail = tail.join(tgle, log.c.log_id == tgle.c.tgle_log_id)
-            s = s.where(tgle.c.tgle_tag_id == sa.select([tag.c.tag_id]).where(tag.c.tag_name == params["tag"]))
+            s = s.where(tgle.c.tgle_tag_id == sa.select(tag.c.tag_id).where(tag.c.tag_name == params["tag"]))
         s = s.select_from(tail)
 
         # restrictions

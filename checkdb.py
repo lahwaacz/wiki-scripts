@@ -166,8 +166,9 @@ def check_recentchanges(api, db):
     api_list = list(api.list(**params, rcprop="|".join(rcprop)))
 
     # FIXME: some deleted pages stay in recentchanges, although according to the tests they should be deleted
-    s = sa.select([db.page.c.page_id])
-    current_pageids = {page["page_id"] for page in db.engine.execute(s)}
+    s = sa.select(db.page.c.page_id)
+    with db.engine.connect() as conn:
+        current_pageids = {page.page_id for page in conn.execute(s)}
     new_api_list = []
     for rc in api_list:
         if "logid" in rc or rc["pageid"] in current_pageids:

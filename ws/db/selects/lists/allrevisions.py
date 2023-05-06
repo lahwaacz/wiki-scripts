@@ -35,7 +35,7 @@ class AllRevisions(Revisions, GeneratorBase):
         page = self.db.page
         tail = rev.join(page, rev.c.rev_page == page.c.page_id)
         tail = tail.join(nss, page.c.page_namespace == nss.c.nss_id)
-        s = sa.select([page.c.page_id, page.c.page_namespace, page.c.page_title, nss.c.nss_name, rev.c.rev_deleted])
+        s = sa.select(page.c.page_id, page.c.page_namespace, page.c.page_title, nss.c.nss_name, rev.c.rev_deleted)
 
         # handle parameters common with prop=revisions
         s, tail = self.get_select_prop(s, tail, params)

@@ -56,37 +56,37 @@ class GrabberRevisions(GrabberBase):
             ("insert", "tagged_revision"):
                 ins_tgrev.values(
                     tgrev_rev_id=sa.bindparam("b_rev_id"),
-                    tgrev_tag_id=sa.select([db.tag.c.tag_id]).scalar_subquery()
+                    tgrev_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery()
                                         .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))
                     .on_conflict_do_nothing(),
             ("insert", "tagged_archived_revision"):
                 ins_tgar.values(
                     tgar_rev_id=sa.bindparam("b_rev_id"),
-                    tgar_tag_id=sa.select([db.tag.c.tag_id]).scalar_subquery()
+                    tgar_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery()
                                         .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))
                     .on_conflict_do_nothing(),
             ("insert", "tagged_recentchange"):
                 ins_tgrc.values(
-                    tgrc_rc_id=sa.select([db.recentchanges.c.rc_id]).scalar_subquery()
+                    tgrc_rc_id=sa.select(db.recentchanges.c.rc_id).scalar_subquery()
                                     .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
-                    tgrc_tag_id=sa.select([db.tag.c.tag_id]).scalar_subquery()
+                    tgrc_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery()
                                     .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))
                     .on_conflict_do_nothing(),
             ("delete", "tagged_revision"):
                 db.tagged_revision.delete()
                     .where(sa.and_(db.tagged_revision.c.tgrev_rev_id == sa.bindparam("b_rev_id"),
-                                   db.tagged_revision.c.tgrev_tag_id == sa.select([db.tag.c.tag_id]).scalar_subquery()
+                                   db.tagged_revision.c.tgrev_tag_id == sa.select(db.tag.c.tag_id).scalar_subquery()
                                             .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             ("delete", "tagged_archived_revision"):
                 db.tagged_archived_revision.delete()
                     .where(sa.and_(db.tagged_archived_revision.c.tgar_rev_id == sa.bindparam("b_rev_id"),
-                                   db.tagged_archived_revision.c.tgar_tag_id == sa.select([db.tag.c.tag_id]).scalar_subquery()
+                                   db.tagged_archived_revision.c.tgar_tag_id == sa.select(db.tag.c.tag_id).scalar_subquery()
                                             .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             ("delete", "tagged_recentchange"):
                 db.tagged_recentchange.delete()
-                    .where(sa.and_(db.tagged_recentchange.c.tgrc_rc_id == sa.select([db.recentchanges.c.rc_id]).scalar_subquery()
+                    .where(sa.and_(db.tagged_recentchange.c.tgrc_rc_id == sa.select(db.recentchanges.c.rc_id).scalar_subquery()
                                             .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
-                                   db.tagged_recentchange.c.tgrc_tag_id == sa.select([db.tag.c.tag_id]).scalar_subquery()
+                                   db.tagged_recentchange.c.tgrc_tag_id == sa.select(db.tag.c.tag_id).scalar_subquery()
                                             .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
             # query for updating archive.ar_page_id
             ("update", "archive.ar_page_id"):
@@ -99,7 +99,7 @@ class GrabberRevisions(GrabberBase):
                                    # MW defect: timestamp-based merge points are not sufficient,
                                    # see https://phabricator.wikimedia.org/T183501
                                    db.revision.c.rev_timestamp <= sa.bindparam("b_mergepoint")))
-                    .values(rev_page=sa.select([db.page.c.page_id]).scalar_subquery()
+                    .values(rev_page=sa.select(db.page.c.page_id).scalar_subquery()
                                 .where(sa.and_(db.page.c.page_namespace == sa.bindparam("b_dest_ns"),
                                                db.page.c.page_title == sa.bindparam("b_dest_title"))
                                 )
@@ -145,14 +145,14 @@ class GrabberRevisions(GrabberBase):
         ]
         insert = db.revision.insert().from_select(
             db.revision.c._all_columns,
-            sa.select(columns).select_from(deleted_revision)
+            sa.select(*columns).select_from(deleted_revision)
         )
         self.sql["move", "revision"] = insert
 
         # build query to move data from the tagged_archived_revision table into tagged_revision
         deleted_tagged_archived_revision = db.tagged_archived_revision.delete() \
             .where(db.tagged_archived_revision.c.tgar_rev_id.in_(
-                        sa.select([db.archive.c.ar_rev_id])
+                        sa.select(db.archive.c.ar_rev_id)
                             .select_from(db.archive)
                             .where(db.archive.c.ar_page_id == sa.bindparam("b_page_id"))
                     )
@@ -196,14 +196,14 @@ class GrabberRevisions(GrabberBase):
 
     # TODO: text.old_id is auto-increment, but revision.rev_text_id has to be set accordingly. SQL should be able to do it automatically.
     def _get_text_id_gen(self):
-        conn = self.db.engine.connect()
-        result = conn.execute(sa.select( [sa.sql.func.max(self.db.text.c.old_id)] ))
-        value = result.fetchone()[0]
-        if value is None:
-            value = 0
-        while True:
-            value += 1
-            yield value
+        with self.db.engine.connect() as conn:
+            result = conn.execute(sa.select(sa.sql.func.max(self.db.text.c.old_id)))
+            value = result.fetchone()[0]
+            if value is None:
+                value = 0
+            while True:
+                value += 1
+                yield value
 
     def gen_text(self, rev, text_id):
         db_entry = {
@@ -503,19 +503,20 @@ class GrabberRevisions(GrabberBase):
                     "b_rev_id": revid,
                     "b_tag_name": tag,
                 }
-                result = self.db.engine.execute(sa.select([
-                            sa.exists().where(self.db.revision.c.rev_id == revid)
-                        ]))
-                if result.fetchone()[0]:
-                    yield self.sql["insert", "tagged_revision"], db_entry
-                else:
-                    yield self.sql["insert", "tagged_archived_revision"], db_entry
-                # check if it is a recent change and tag it as well
-                result = self.db.engine.execute(sa.select([
-                            sa.exists().where(self.db.recentchanges.c.rc_this_oldid == revid)
-                        ]))
-                if result.fetchone()[0]:
-                    yield self.sql["insert", "tagged_recentchange"], db_entry
+                with self.db.engine.connect() as conn:
+                    result = conn.execute(sa.select(
+                                sa.exists().where(self.db.revision.c.rev_id == revid)
+                            ))
+                    if result.fetchone()[0]:
+                        yield self.sql["insert", "tagged_revision"], db_entry
+                    else:
+                        yield self.sql["insert", "tagged_archived_revision"], db_entry
+                    # check if it is a recent change and tag it as well
+                    result = conn.execute(sa.select(
+                                sa.exists().where(self.db.recentchanges.c.rc_this_oldid == revid)
+                            ))
+                    if result.fetchone()[0]:
+                        yield self.sql["insert", "tagged_recentchange"], db_entry
 
         for revid, removed in removed_tags.items():
             for tag in removed:
@@ -539,7 +540,7 @@ class GrabberRevisions(GrabberBase):
         def get_latest_revids():
             rev = self.db.revision
             page = self.db.page
-            query = sa.select([rev.c.rev_id]).select_from(
+            query = sa.select(rev.c.rev_id).select_from(
                         rev.join(page, (rev.c.rev_page == page.c.page_id) &
                                        (rev.c.rev_id == page.c.page_latest))
                     ).where(rev.c.rev_text_id == None).order_by(rev.c.rev_id)
@@ -549,7 +550,7 @@ class GrabberRevisions(GrabberBase):
 
         def get_all_revids():
             rev = self.db.revision
-            query = sa.select([rev.c.rev_id]).select_from(
+            query = sa.select(rev.c.rev_id).select_from(
                         rev
                     ).where(rev.c.rev_text_id == None).order_by(rev.c.rev_id)
             conn = self.db.engine.connect()

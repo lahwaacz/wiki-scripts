@@ -42,11 +42,12 @@ class SelectBase:
         return new_params
 
     def execute_sql(self, query, *, explain=False):
-        if explain is True:
-            from ws.db.database import explain
-            result = self.db.engine.execute(explain(query))
-            print(query)
-            for row in result:
-                print(row[0])
+        with self.db.engine.connect() as conn:
+            if explain is True:
+                from ws.db.database import explain
+                result = conn.execute(explain(query))
+                print(query)
+                for row in result:
+                    print(row[0])
 
-        return self.db.engine.execute(query)
+            return conn.execute(query)

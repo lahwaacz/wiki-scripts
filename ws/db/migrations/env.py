@@ -36,12 +36,12 @@ def get_url():
     db_port = conf.get("db-port")
     db_name = conf["db-name"]
 
-    url = sa.engine.url.URL("{}+{}".format(db_dialect, db_driver),
-                            username=db_user,
-                            password=db_password,
-                            host=db_host,
-                            port=db_port,
-                            database=db_name)
+    url = sa.engine.url.URL.create(f"{db_dialect}+{db_driver}",
+                                   username=db_user,
+                                   password=db_password,
+                                   host=db_host,
+                                   port=db_port,
+                                   database=db_name)
     return url
 
 

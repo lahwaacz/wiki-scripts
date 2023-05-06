@@ -92,8 +92,8 @@ class DeletedRevisions(SelectBase):
             # aggregate all tag names corresponding to the same revision into an array
             # (basically 'SELECT tgar_rev_id, array_agg(tag_name) FROM tag JOIN tagged_recentchange GROUP BY tgar_rev_id')
             # TODO: make a materialized view for this
-            tag_names = sa.select([tgar.c.tgar_rev_id,
-                                   sa.func.array_agg(tag.c.tag_name).label("tag_names")]) \
+            tag_names = sa.select(tgar.c.tgar_rev_id,
+                                  sa.func.array_agg(tag.c.tag_name).label("tag_names")) \
                             .select_from(tag.join(tgar, tag.c.tag_id == tgar.c.tgar_tag_id)) \
                             .group_by(tgar.c.tgar_rev_id) \
                             .cte("tag_names")
@@ -103,7 +103,7 @@ class DeletedRevisions(SelectBase):
             tag = self.db.tag
             tgar = self.db.tagged_archived_revision
             tail = tail.join(tgar, ar.c.ar_rev_id == tgar.c.tgar_rev_id)
-            s = s.where(tgar.c.tgar_tag_id == sa.select([tag.c.tag_id]).where(tag.c.tag_name == params["tag"]))
+            s = s.where(tgar.c.tgar_tag_id == sa.select(tag.c.tag_id).where(tag.c.tag_name == params["tag"]))
 
         # restrictions
         if params["dir"] == "older":

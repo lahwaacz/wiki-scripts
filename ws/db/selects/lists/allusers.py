@@ -50,26 +50,22 @@ class AllUsers(ListBase):
         groups = self.db.user_groups
         ipb = self.db.ipblocks
 
-        s = sa.select([user.c.user_id, user.c.user_name])
+        s = sa.select(user.c.user_id, user.c.user_name)
 
         prop = params["prop"]
         if "editcount" in prop:
-            s.append_column(user.c.user_editcount)
+            s = s.add_columns(user.c.user_editcount)
         if "registration" in prop:
-            s.append_column(user.c.user_registration)
+            s = s.add_columns(user.c.user_registration)
 
         # joins
         tail = user
         if "blockinfo" in prop:
             tail = tail.outerjoin(ipb, user.c.user_id == ipb.c.ipb_user)
-            s.append_column(ipb.c.ipb_by)
-            s.append_column(ipb.c.ipb_by_text)
-            s.append_column(ipb.c.ipb_timestamp)
-            s.append_column(ipb.c.ipb_expiry)
-            s.append_column(ipb.c.ipb_id)
-            s.append_column(ipb.c.ipb_reason)
-            s.append_column(ipb.c.ipb_create_account)
-            s.append_column(ipb.c.ipb_deleted)
+            s = s.add_columns(ipb.c.ipb_by, ipb.c.ipb_by_text,
+                              ipb.c.ipb_timestamp, ipb.c.ipb_expiry,
+                              ipb.c.ipb_id, ipb.c.ipb_reason,
+                              ipb.c.ipb_create_account, ipb.c.ipb_deleted)
         if "groups" in prop or "group" in params or "excludegroup" in params:
             tail = tail.outerjoin(groups, user.c.user_id == groups.c.ug_user)
             # NOTE: since sqlalchemy 1.4, s.columns references anon_1 rather than
@@ -80,7 +76,7 @@ class AllUsers(ListBase):
             # even without the reference to the table
             s = s.group_by(*s.columns.keys())
             user_groups = sa.func.array_agg(groups.c.ug_group).label("user_groups")
-            s.append_column(user_groups)
+            s = s.add_columns(user_groups)
 
         s = s.select_from(tail)
 

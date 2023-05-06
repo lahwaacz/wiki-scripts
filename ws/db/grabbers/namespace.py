@@ -47,6 +47,9 @@ class GrabberNamespaces(GrabberBase):
         }
 
     def gen_insert(self):
+        # entries for the namespace_name table must be deduplicated
+        nsn_id_to_name = {}
+
         for ns in self.api.site.namespaces.values():
             # don't store special namespaces in the database
 #            if ns["id"] < 0:
@@ -64,11 +67,8 @@ class GrabberNamespaces(GrabberBase):
             }
             yield self.sql["insert", "namespace"], ns_entry
 
-            nsn_entry = {
-                "nsn_id": ns["id"],
-                "nsn_name": ns["*"],
-            }
-            yield self.sql["insert", "namespace_name"], nsn_entry
+            nsn_id_to_name[ns["id"]] = ns["*"]
+
             nss_entry = {
                 "nss_id": ns["id"],
                 "nss_name": ns["*"],
@@ -76,11 +76,7 @@ class GrabberNamespaces(GrabberBase):
             yield self.sql["insert", "namespace_starname"], nss_entry
 
             if "canonical" in ns:
-                nsn_entry = {
-                    "nsn_id": ns["id"],
-                    "nsn_name": ns["canonical"],
-                }
-                yield self.sql["insert", "namespace_name"], nsn_entry
+                nsn_id_to_name[ns["id"]] = ns["canonical"]
                 nsc_entry = {
                     "nsc_id": ns["id"],
                     "nsc_name": ns["canonical"],
@@ -88,9 +84,13 @@ class GrabberNamespaces(GrabberBase):
                 yield self.sql["insert", "namespace_canonical"], nsc_entry
 
         for alias in self.api.site.namespacealiases.values():
+            nsn_id_to_name[alias["id"]] = alias["*"]
+
+        # insert deduplicated entries for the namespace_name table
+        for nsn_id, nsn_name in nsn_id_to_name.items():
             nsn_entry = {
-                "nsn_id": alias["id"],
-                "nsn_name": alias["*"],
+                "nsn_id": nsn_id,
+                "nsn_name": nsn_name,
             }
             yield self.sql["insert", "namespace_name"], nsn_entry
 

@@ -87,10 +87,11 @@ class ParserCache:
     def _execute(self, conn, query, *, explain=False):
         if explain is True:
             from ws.db.database import explain
-            result = self.db.engine.execute(explain(query))
-            print(query)
-            for row in result:
-                print(row[0])
+            with self.db.engine.connect() as conn:
+                result = conn.execute(explain(query))
+                print(query)
+                for row in result:
+                    print(row[0])
 
         return conn.execute(query)
 
@@ -102,7 +103,7 @@ class ParserCache:
         # pages with older revisions
         # (note that we don't join the templatelinks table here because we want
         # to invalidate also pages which don't have any template links)
-        query = sa.select([page.c.page_id]) \
+        query = sa.select(page.c.page_id) \
                 .select_from(
                     page.outerjoin(wspc, page.c.page_id == wspc.c.wspc_page_id)
                 ).where(
@@ -110,12 +111,12 @@ class ParserCache:
                     ( wspc.c.wspc_rev_id != page.c.page_latest )
                 )
         for row in self._execute(conn, query):
-            self.invalidated_pageids.add(row["page_id"])
+            self.invalidated_pageids.add(row.page_id)
 
         # pages transcluding older pages
         src_page = page.alias()
         target_page = page.alias()
-        query = sa.select([src_page.c.page_id]) \
+        query = sa.select(src_page.c.page_id) \
                 .select_from(
                     src_page.join(tl, tl.c.tl_from == src_page.c.page_id)
                     .join(target_page, ( tl.c.tl_namespace == target_page.c.page_namespace ) &
@@ -127,7 +128,7 @@ class ParserCache:
                     ( wspc.c.wspc_rev_id != target_page.c.page_latest )
                 )
         for row in self._execute(conn, query):
-            self.invalidated_pageids.add(row["page_id"])
+            self.invalidated_pageids.add(row.page_id)
 
     def _invalidate(self, conn):
         conn.execute(self.db.pagelinks.delete().where(self.db.pagelinks.c.pl_from.in_(self.invalidated_pageids)))

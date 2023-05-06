@@ -69,73 +69,63 @@ class RecentChanges(GeneratorBase):
             raise NotImplementedError
 
         rc = self.db.recentchanges
-        s = sa.select([rc.c.rc_type, rc.c.rc_deleted])
+        s = sa.select(rc.c.rc_type, rc.c.rc_deleted)
 
         prop = params["prop"]
         if "user" in prop:
-            s.append_column(rc.c.rc_user_text)
+            s = s.add_columns(rc.c.rc_user_text)
         if "userid" in prop:
-            s.append_column(rc.c.rc_user)
+            s = s.add_columns(rc.c.rc_user)
         if "comment" in prop:
-            s.append_column(rc.c.rc_comment)
+            s = s.add_columns(rc.c.rc_comment)
         if "flags" in prop:
-            s.append_column(rc.c.rc_minor)
-            s.append_column(rc.c.rc_bot)
-            s.append_column(rc.c.rc_new)
+            s = s.add_columns(rc.c.rc_minor, rc.c.rc_bot, rc.c.rc_new)
         if "timestamp" in prop:
-            s.append_column(rc.c.rc_timestamp)
+            s = s.add_columns(rc.c.rc_timestamp)
         if "title" in prop:
-            s.append_column(rc.c.rc_namespace)
-            s.append_column(rc.c.rc_title)
+            s = s.add_columns(rc.c.rc_namespace, rc.c.rc_title)
         if "ids" in prop:
-            s.append_column(rc.c.rc_id)
-            s.append_column(rc.c.rc_cur_id)
-            s.append_column(rc.c.rc_this_oldid)
-            s.append_column(rc.c.rc_last_oldid)
+            s = s.add_columns(rc.c.rc_id, rc.c.rc_cur_id, rc.c.rc_this_oldid, rc.c.rc_last_oldid)
         if "sizes" in prop:
-            s.append_column(rc.c.rc_old_len)
-            s.append_column(rc.c.rc_new_len)
+            s = s.add_columns(rc.c.rc_old_len, rc.c.rc_new_len)
         if "patrolled" in prop:
-            s.append_column(rc.c.rc_patrolled)
+            s = s.add_columns(rc.c.rc_patrolled)
         if "loginfo" in prop:
-            s.append_column(rc.c.rc_logid)
-            s.append_column(rc.c.rc_log_type)
-            s.append_column(rc.c.rc_log_action)
-            s.append_column(rc.c.rc_params)
+            s = s.add_columns(rc.c.rc_logid, rc.c.rc_log_type, rc.c.rc_log_action, rc.c.rc_params)
 
         # joins
         tail = rc
         if "title" in prop:
             nss = self.db.namespace_starname
             tail = tail.outerjoin(nss, rc.c.rc_namespace == nss.c.nss_id)
-            s.append_column(nss.c.nss_name)
+            s = s.add_columns(nss.c.nss_name)
         if "sha1" in prop:
             rev = self.db.revision
             tail = tail.outerjoin(rev, rc.c.rc_this_oldid == rev.c.rev_id)
-            s.append_column(rev.c.rev_sha1)
+            s = s.add_columns(rev.c.rev_sha1)
         if "toponly" in params or "redirect" in prop or {"redirect", "!redirect"} & params.get("show", set()):
             page = self.db.page
             tail = tail.outerjoin(page, (rc.c.rc_namespace == page.c.page_namespace) &
                                         (rc.c.rc_title == page.c.page_title))
-            s.append_column(page.c.page_is_redirect)
+            s = s.add_columns(page.c.page_is_redirect)
         if "tags" in prop:
             tag = self.db.tag
             tgrc = self.db.tagged_recentchange
             # aggregate all tag names corresponding to the same revision into an array
             # (basically 'SELECT tgrc_rc_id, array_agg(tag_name) FROM tag JOIN tagged_recentchange GROUP BY tgrc_rc_id')
             # TODO: make a materialized view for this
-            tag_names = sa.select([tgrc.c.tgrc_rc_id,
-                                   sa.func.array_agg(tag.c.tag_name).label("tag_names")]) \
+            tag_names = sa.select(tgrc.c.tgrc_rc_id,
+                                  sa.func.array_agg(tag.c.tag_name).label("tag_names")) \
                             .select_from(tag.join(tgrc, tag.c.tag_id == tgrc.c.tgrc_tag_id)) \
                             .group_by(tgrc.c.tgrc_rc_id) \
                             .cte("tag_names")
             tail = tail.outerjoin(tag_names, rc.c.rc_id == tag_names.c.tgrc_rc_id)
-            s.append_column(tag_names.c.tag_names)
+            s = s.add_columns(tag_names.c.tag_names)
         if "tag" in params:
             tag = self.db.tag
             tgrc = self.db.tagged_recentchange
             tail = tail.join(tgrc, rc.c.rc_id == tgrc.c.tgrc_rc_id)
-            s = s.where(tgrc.c.tgrc_tag_id == sa.select([tag.c.tag_id]).where(tag.c.tag_name == params["tag"]))
+            s = s.where(tgrc.c.tgrc_tag_id == sa.select(tag.c.tag_id).where(tag.c.tag_name == params["tag"]))
         s = s.select_from(tail)
 
         # restrictions
@@ -271,12 +261,14 @@ def oldest_rc_timestamp(db):
     """
     Get timestamp of the oldest change stored in the recentchanges table.
     """
-    result = db.engine.execute(sa.select( [sa.func.min(db.recentchanges.c.rc_timestamp)] ))
-    return result.fetchone()[0]
+    with db.engine.connect() as conn:
+        result = conn.execute(sa.select(sa.func.min(db.recentchanges.c.rc_timestamp)))
+        return result.fetchone()[0]
 
 def newest_rc_timestamp(db):
     """
     Get timestamp of the newest change stored in the recentchanges table.
     """
-    result = db.engine.execute(sa.select( [sa.func.max(db.recentchanges.c.rc_timestamp)] ))
-    return result.fetchone()[0]
+    with db.engine.connect() as conn:
+        result = conn.execute(sa.select(sa.func.max(db.recentchanges.c.rc_timestamp)))
+        return result.fetchone()[0]

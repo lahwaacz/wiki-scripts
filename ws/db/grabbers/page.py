@@ -74,7 +74,7 @@ class GrabberPages(GrabberBase):
             ("delete", "deleted_recentchanges"):
                 db.recentchanges.delete().where(
                     sa.and_(db.recentchanges.c.rc_logid == None,
-                            db.recentchanges.c.rc_cur_id.notin_(sa.select([db.page.c.page_id]).scalar_subquery())
+                            db.recentchanges.c.rc_cur_id.notin_(sa.select(db.page.c.page_id).scalar_subquery())
                     )),
             ("update", "page_name"):
                 db.page.update().where(
@@ -108,7 +108,7 @@ class GrabberPages(GrabberBase):
             deleted_revision.c.rev_content_model,
             deleted_revision.c.rev_content_format,
         ]
-        select = sa.select(columns).select_from(
+        select = sa.select(*columns).select_from(
             deleted_revision.join(db.page, deleted_revision.c.rev_page == db.page.c.page_id)
         )
         insert = db.archive.insert().from_select(
@@ -121,7 +121,7 @@ class GrabberPages(GrabberBase):
         # build query to move data from the tagged_revision table into tagged_archived_revision
         deleted_tagged_revision = db.tagged_revision.delete() \
             .where(db.tagged_revision.c.tgrev_rev_id.in_(
-                        sa.select([db.revision.c.rev_id])
+                        sa.select(db.revision.c.rev_id)
                             .select_from(db.revision)
                             .where(db.revision.c.rev_page == sa.bindparam("b_rev_page"))
                     )
