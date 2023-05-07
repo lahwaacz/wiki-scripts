@@ -53,6 +53,12 @@ ipv4_reserved_networks = [
     ipaddress.ip_network("255.255.255.255/32"),
 ]
 
+domains_with_ignored_status = {
+    "aur.archlinux.org": {401},  # for private user account profiles
+    "bbs.archlinux.org": {403, 404},  # 403 for user profiles and 404 for pages that require login
+    "crates.io": {404},  # returns 404 to the script but 200 in web browser
+}
+
 class ExtlinkStatusChecker:
     def __init__(self, db, *, timeout=60, max_retries=3,
                  max_connections=100, keepalive_expiry=60):
@@ -250,6 +256,12 @@ class ExtlinkStatusChecker:
         link.check_duration = response.elapsed
         if "Server" in response.headers:
             link.domain.server = response.headers["Server"]
+
+        # check special domains
+        if link.http_status in domains_with_ignored_status.get(url.host, []):
+            logger.warning(f"status code {response.status_code} for URL {url}")
+            link.result = "needs user check"
+            return
 
         # set the result
         if response.status_code >= 200 and response.status_code < 300:
