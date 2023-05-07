@@ -235,12 +235,14 @@ class ExtlinkStatusChecker:
                     logger.error(f"SSL error ({e}) for URL {url}")
                     link.result = "bad"
                     return
-            if "no address associated with hostname" in str(e).lower():
+            if "no address associated with hostname" in str(e).lower() \
+                    or "name or service not known" in str(e).lower():
                 logger.error(f"domain name could not be resolved for URL {url}")
                 domain.resolved = False
                 link.result = "bad"
                 return
             # other connection error - indeterminate
+            logger.warning(f"connection error for URL {url}")
             link.text_status = "connection error"
             link.result = "needs user check"
             return
