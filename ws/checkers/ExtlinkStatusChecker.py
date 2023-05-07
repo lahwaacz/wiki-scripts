@@ -213,16 +213,28 @@ class ExtlinkStatusChecker:
                 pass
         # FIXME: workaround for https://github.com/encode/httpx/discussions/2682#discussioncomment-5746317
         except ssl.SSLError as e:
-            logger.error(f"SSL error ({e}) for URL {url}")
             domain.ssl_error = str(e)
-            link.result = "bad"
-            return
-        except httpx.ConnectError as e:
-            if str(e).startswith("[SSL:"):
+            if "unable to get local issuer certificate" in str(e):
+                # FIXME: this is a problem of the SSL library used by Python
+                logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
+                link.result = "needs user check"
+                return
+            else:
                 logger.error(f"SSL error ({e}) for URL {url}")
-                domain.ssl_error = str(e)
                 link.result = "bad"
                 return
+        except httpx.ConnectError as e:
+            if str(e).startswith("[SSL:"):
+                domain.ssl_error = str(e)
+                if "unable to get local issuer certificate" in str(e):
+                    # FIXME: this is a problem of the SSL library used by Python
+                    logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
+                    link.result = "needs user check"
+                    return
+                else:
+                    logger.error(f"SSL error ({e}) for URL {url}")
+                    link.result = "bad"
+                    return
             if "no address associated with hostname" in str(e).lower():
                 logger.error(f"domain name could not be resolved for URL {url}")
                 domain.resolved = False
