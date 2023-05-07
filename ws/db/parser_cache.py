@@ -34,12 +34,6 @@ def get_normalized_extlinks(wikicode):
     for el in extlinks:
         # strip whitespace like "\t"
         el.url = str(el.url).strip()
-        # decode percent-encoding
-        # MW incompatibility: MediaWiki decodes only some characters, spaces and some unicode characters with accents are encoded
-        try:
-            el.url = urldecode(str(el.url))
-        except UnicodeDecodeError:
-            pass
 
     # Pass 3: skip invalid URLs
     filtered_extlinks = []

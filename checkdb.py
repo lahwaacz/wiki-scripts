@@ -638,19 +638,21 @@ def check_external_links(api, db):
             # delete empty list
             if len(page["extlinks"]) == 0:
                 del page["extlinks"]
-    for page in api_list:
+
+    for page in chain(db_list, api_list):
         if "extlinks" in page:
-            # MediaWiki has some characters URL-encoded and others decoded
+            # decode percent-encoding
+            # ws.db stores the exact URL used in wikicode, but MediaWiki has
+            # some characters decoded (e.g. "@") and some encoded (e.g. spaces,
+            # some unicode characters with accents and other special characters
+            # like "|")
             for el in page["extlinks"]:
                 try:
                     el["*"] = urldecode(el["*"])
                 except UnicodeDecodeError:
                     pass
-
-    # make sure that extlinks are sorted the same way
-    # (MediaWiki does not order the URLs, PostgreSQL ordering does not match Python due to locale)
-    for page in chain(db_list, api_list):
-        if "extlinks" in page:
+            # make sure that extlinks are sorted the same way
+            # (MediaWiki does not order the URLs, PostgreSQL ordering does not match Python due to locale)
             page["extlinks"].sort(key=lambda d: d["*"])
 
     _check_lists_of_unordered_pages(db_list, api_list, db=db)

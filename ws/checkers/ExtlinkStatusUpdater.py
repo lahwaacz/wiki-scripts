@@ -85,18 +85,10 @@ class ExtlinkStatusUpdater(CheckerBase):
         return str(url)
 
     def check_extlink_status(self, wikicode, extlink, src_title):
-        # preprocess the extlink
+        # preprocess the extlink and check if the URL is valid and checkable
         with self.lock_wikicode:
             url = self.prepare_url(wikicode, extlink)
-        if url is None:
-            return
-        # ws.db.parser_cache applies percent-decoding so we must too
-        try:
-            url = urldecode(url)
-        except UnicodeDecodeError:
-            pass
-        # check if the URL is valid and checkable
-        if ExtlinkStatusChecker.is_checkable_url(url) is False:
+        if url is None or ExtlinkStatusChecker.is_checkable_url(url) is False:
             return
         # apply additional normalization from ExtlinkStatusChecker
         url = str(ExtlinkStatusChecker.normalize_url(url))
