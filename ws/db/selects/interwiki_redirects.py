@@ -18,13 +18,13 @@ def get_interwiki_redirects(db):
     with db.engine.connect() as conn:
         for row in conn.execute(query):
             source = db.Title("")
-            source._set_namespace(row["nss_name"])
-            source._set_pagename(row["page_title"])
+            source._set_namespace(row.nss_name)
+            source._set_pagename(row.page_title)
 
             target = db.Title("")
-            target._set_iwprefix(row["rd_interwiki"])
-            target._set_pagename(row["rd_title"])
-            target._set_sectionname(row["rd_fragment"] or "")
+            target._set_iwprefix(row.rd_interwiki)
+            target._set_pagename(row.rd_title)
+            target._set_sectionname(row.rd_fragment or "")
 
             interwiki_redirects[str(source)] = str(target)
 
