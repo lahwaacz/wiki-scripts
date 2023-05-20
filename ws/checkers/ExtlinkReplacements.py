@@ -9,9 +9,11 @@ import enum
 import mwparserfromhell
 import jinja2
 from hstspreload import in_hsts_preload
+import httpx
 
-from .CheckerBase import get_edit_summary_tracker
+from .CheckerBase import CheckerBase, get_edit_summary_tracker
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
+from .ExtlinkStatusUpdater import ExtlinkStatusUpdater
 from .https_everywhere.rules import Ruleset
 from .https_everywhere.rule_trie import RuleTrie
 from .smarter_encryption_list import SmarterEncryptionList
@@ -23,7 +25,7 @@ __all__ = ["ExtlinkReplacements"]
 
 logger = logging.getLogger(__name__)
 
-class ExtlinkReplacements(ExtlinkStatusChecker):
+class ExtlinkReplacements(CheckerBase):
 
     class ExtlinkBehaviour(enum.Enum):
         # the extlink must not have any alternative text (but brackets are not checked)
@@ -202,7 +204,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
     https_everywhere_rules_path = os.path.join(os.path.dirname(__file__), "https_everywhere/default.rulesets.json")
     https_everywhere_rules = None
 
-    def __init__(self, api, db, **kwargs):
+    def __init__(self, api, db=None, **kwargs):
         super().__init__(api, db, **kwargs)
 
         _extlink_replacements = []
@@ -267,8 +269,8 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             prev.value = prev.value[:-1]
             next_.value = next_.value[1:]
 
-    def check_extlink_to_wikilink(self, wikicode, extlink, url):
-        match = self.wikisite_extlink_regex.fullmatch(url.url)
+    def check_extlink_to_wikilink(self, wikicode, extlink, url: str):
+        match = self.wikisite_extlink_regex.fullmatch(url)
         if match:
             pagename = match.group("pagename")
             title = self.api.Title(pagename)
@@ -285,7 +287,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             return True
         return False
 
-    def check_extlink_replacements(self, wikicode, extlink, url):
+    def check_extlink_replacements(self, wikicode, extlink, url: str):
         repl = None
 
         for url_regex, text_cond, text_cond_flags, replacement in self.extlink_replacements:
@@ -300,7 +302,11 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             if text_cond == self.ExtlinkBehaviour.NO_BRACKETS and extlink.brackets:
                 continue
             # decode unicode characters in the URL before matching
-            match = url_regex.fullmatch(querydecode(url.url))
+            try:
+                decoded_url = querydecode(url)
+            except UnicodeDecodeError:
+                continue
+            match = url_regex.fullmatch(decoded_url)
             if match:
                 if extlink.title is None:
                     repl = replacement.format(*match.groups())
@@ -326,9 +332,9 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
             # TODO: make sure that the link is unflagged after replacement
             return True
 
-    def check_url_replacements(self, wikicode, extlink, url):
+    def check_url_replacements(self, wikicode, extlink, url: str):
         for edit_summary, url_regex, url_replacement in self.url_replacements:
-            match = url_regex.fullmatch(url.url)
+            match = url_regex.fullmatch(url)
             if match:
                 env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
                 template = env.from_string(url_replacement)
@@ -336,7 +342,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
                 # check if the resulting URL is valid
                 # (irc:// and ircs:// cannot be validated - requests throws requests.exceptions.InvalidSchema)
-                if not new_url.startswith("irc://") and not new_url.startswith("ircs://") and not self.check_url(new_url, allow_redirects=True):
+                if not new_url.startswith("irc://") and not new_url.startswith("ircs://") and not ExtlinkStatusChecker.check_url_sync(new_url):
                     logger.warning("URL not replaced: {}".format(url))
                     return False
 
@@ -362,7 +368,7 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
 
                 # some patterns match even the target
                 # (e.g. links on addons.mozilla.org which already do not have a language code)
-                if url.url == new_url:
+                if url == new_url:
                     return False
 
                 extlink.url = new_url
@@ -370,34 +376,39 @@ class ExtlinkReplacements(ExtlinkStatusChecker):
                 return edit_summary
         return False
 
-    def check_http_to_https(self, wikicode, extlink, url):
+    def check_http_to_https(self, wikicode, extlink, url: str):
+        url = httpx.URL(url)
+
         if url.scheme != "http":
             return
 
         # check HSTS preload list first
         # (Chromium's static list of sites supporting HTTP Strict Transport Security)
-        if in_hsts_preload(url.netloc.lower()):
+        if in_hsts_preload(url.netloc.decode("utf-8").lower()):
             new_url = str(extlink.url).replace("http://", "https://", 1)
         # check HTTPS Everywhere rules next
-        elif self.https_everywhere_rules.matchingRulesets(url.netloc.lower()):
+        elif self.https_everywhere_rules.matchingRulesets(url.netloc.decode("utf-8").lower()):
             match = self.https_everywhere_rules.transformUrl(url)
             new_url = match.url
         # check the Smarter Encryption list
-        elif url.netloc.lower() in self.selist:
+        elif url.netloc.decode("utf-8").lower() in self.selist:
             new_url = str(extlink.url).replace("http://", "https://", 1)
         else:
             return
 
         # there is no reason to update broken links
-        if self.check_url(new_url):
+        if ExtlinkStatusChecker.check_url_sync(new_url):
             extlink.url = new_url
         else:
             logger.warning("broken URL not updated to https: {}".format(url))
 
     def update_extlink(self, wikicode, extlink, summary_parts):
         # prepare URL - fix parsing of adjacent templates, replace HTML entities, parse with urllib3
-        url = self.prepare_url(wikicode, extlink, allow_schemes=["http", "https", "irc", "ircs"])
+        url = ExtlinkStatusUpdater.prepare_url(wikicode, extlink)
         if url is None:
+            return
+        # check if the URL is checkable
+        if not ExtlinkStatusChecker.is_checkable_url(url, allow_schemes=["http", "https", "irc", "ircs"]):
             return
 
         summary = get_edit_summary_tracker(wikicode, summary_parts)

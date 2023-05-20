@@ -1,13 +1,14 @@
 #! /usr/bin/env python3
 
 # TODO:
-# - GRRR: When you get 404, unless you have Javascript enabled, in which case the code loaded on the 404 page might execute a redirection to a different address. Example: https://nzbget.net/Performance_tips
+# - intel.com and its subdomains are returning false 404
 
 import asyncio
 import logging
 import datetime
 import ipaddress
 import ssl
+from functools import lru_cache
 
 import httpx
 import sqlalchemy as sa
@@ -196,6 +197,70 @@ class ExtlinkStatusChecker:
             url = httpx.URL(str(url).rsplit("#", maxsplit=1)[0])
 
         return url
+
+    @staticmethod
+    @lru_cache(maxsize=1024)
+    def check_url_sync(url: httpx.URL | str, *, follow_redirects=True):
+        """ Simplified and synchronous variant of ``check_url`` intended for other checksers like ExtlinkReplacements
+        """
+        if not isinstance(url, httpx.URL):
+            url = httpx.URL(url)
+
+        try:
+            # We need to use GET requests instead of HEAD, because many servers just return 404
+            # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
+            # response body content by using ``stream`` interface.
+            with httpx.stream("GET", url, follow_redirects=follow_redirects) as response:
+                # nothing to do here, but using the context manager ensures that the response is
+                # always properly closed
+                pass
+        # FIXME: workaround for https://github.com/encode/httpx/discussions/2682#discussioncomment-5746317
+        except ssl.SSLError as e:
+            if "unable to get local issuer certificate" in str(e):
+                # FIXME: this is a problem of the SSL library used by Python
+                logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
+                return
+            else:
+                logger.error(f"SSL error ({e}) for URL {url}")
+                return False
+        except httpx.ConnectError as e:
+            if str(e).startswith("[SSL:"):
+                if "unable to get local issuer certificate" in str(e):
+                    # FIXME: this is a problem of the SSL library used by Python
+                    logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
+                    return
+                else:
+                    logger.error(f"SSL error ({e}) for URL {url}")
+                    return False
+            if "no address associated with hostname" in str(e).lower() \
+                    or "name or service not known" in str(e).lower():
+                logger.error(f"domain name could not be resolved for URL {url}")
+                return False
+            # other connection error - indeterminate
+            logger.warning(f"connection error for URL {url}")
+            return
+        except httpx.TooManyRedirects as e:
+            logger.error(f"TooManyRedirects error ({e}) for URL {url}")
+            return False
+        # it seems that httpx does not capture all exceptions, e.g. anyio.EndOfStream
+        #except httpx.RequestError as e:
+        except Exception as e:
+            # e.g. ReadTimeout has no message in the async version,
+            # see https://github.com/encode/httpx/discussions/2681
+            msg = str(e)
+            if not msg:
+                msg = type(e)
+            # base class exception - indeterminate
+            logger.error(f"URL {url} could not be checked due to {msg}")
+            return
+
+        # check special domains
+        if response.status_code in domains_with_ignored_status.get(url.host, []):
+            logger.warning(f"status code {response.status_code} for URL {url}")
+            return
+
+        logger.debug(f"status code {response.status_code} for URL {url}")
+        return response.status_code >= 200 and response.status_code < 300
 
     async def check_url(self, domain: Domain, link: LinkCheck, url: httpx.URL, *, follow_redirects=True):
         # reset domain attributes

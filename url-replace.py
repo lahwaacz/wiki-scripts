@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     # create updater and add checkers
     updater = Updater.from_argparser(args)
-    checker = ExtlinkReplacements(updater.api, None, timeout=args.connection_timeout, max_retries=args.connection_max_retries)
+    checker = ExtlinkReplacements(updater.api, timeout=args.connection_timeout, max_retries=args.connection_max_retries)
     updater.add_checker(mwparserfromhell.nodes.ExternalLink, checker)
 
     try:

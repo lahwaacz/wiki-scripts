@@ -1,5 +1,9 @@
 #! /usr/bin/env python3
 
+# TODO:
+# - show the status details when adding flags - otherwise it is hard to check if it is a false positive
+# - handle flagging Template:man links with url= parameter properly ({{Dead link}} should not go inside Template:man)
+
 import logging
 import datetime
 

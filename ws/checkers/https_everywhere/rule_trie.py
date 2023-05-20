@@ -199,6 +199,8 @@ class RuleTrie(object):
             raise RuleTransformError("Unknown scheme '{}' in '{}'".format(url.scheme, url))
 
         fqdn = url.netloc.lower()
+        if isinstance(fqdn, bytes):
+            fqdn = fqdn.decode("utf-8")
         matching = self.matchingRulesets(fqdn)
 
         for ruleset in matching:
