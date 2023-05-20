@@ -10,6 +10,7 @@ psycopg2
 asyncpg
 
 # script-specific dependencies
+pyalpm
 hstspreload
 
 # optional dependencies
