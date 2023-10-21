@@ -14,19 +14,17 @@ class GrabberInterwiki(GrabberBase):
         ins_iw = sa.dialects.postgresql.insert(db.interwiki)
 
         self.sql = {
-            ("insert", "interwiki"):
-                db.interwiki.insert(),
-            ("delete", "interwiki"):
-                db.interwiki.delete().where(db.interwiki.c.iw_prefix == sa.bindparam("b_iw_prefix")),
-            # iw_api is not visible in the logs so it is not updated
             ("update", "interwiki"):
                 ins_iw.on_conflict_do_update(
                     index_elements=[db.interwiki.c.iw_prefix],
                     set_={
                         "iw_url":   ins_iw.excluded.iw_url,
+                        "iw_api":   ins_iw.excluded.iw_api,
                         "iw_local": ins_iw.excluded.iw_local,
                         "iw_trans": ins_iw.excluded.iw_trans,
                     }),
+            ("delete", "interwiki"):
+                db.interwiki.delete().where(db.interwiki.c.iw_prefix == sa.bindparam("b_iw_prefix")),
         }
 
     def gen_insert(self):
@@ -38,7 +36,7 @@ class GrabberInterwiki(GrabberBase):
                 "iw_local": "local" in iw,
                 "iw_trans": "trans" in iw,
             }
-            yield self.sql["insert", "interwiki"], db_entry
+            yield self.sql["update", "interwiki"], db_entry
 
     def _transform_logevent_params(self, params):
         # see extensions/Interwiki/Interwiki_body.php line with "$log->addEntry" for the format of the data
@@ -54,6 +52,8 @@ class GrabberInterwiki(GrabberBase):
         # The interwiki can change also by direct manipulation with the database,
         # in which case there won't be any logevents. We don't care much about that...
 
+        updated_prefixes = set()
+
         le_params = {
             "list": "logevents",
             "leprop": {"type", "details"},
@@ -64,6 +64,12 @@ class GrabberInterwiki(GrabberBase):
             if le["type"] == "interwiki":
                 db_entry = self._transform_logevent_params(le["params"])
                 if le["action"] in {"iw_add", "iw_edit"}:
-                    yield self.sql["update", "interwiki"], db_entry
+                    # the logevent params do not contain iw_api https://phabricator.wikimedia.org/T349427
+                    #yield self.sql["update", "interwiki"], db_entry
+                    updated_prefixes.add(db_entry["iw_prefix"])
                 elif le["action"] == "iw_delete":
                     yield self.sql["delete", "interwiki"], {"b_iw_prefix": db_entry["iw_prefix"]}
+
+        # update all prefixes via gen_insert
+        if updated_prefixes:
+            yield from self.gen_insert()
