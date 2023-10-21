@@ -424,6 +424,11 @@ class GrabberRevisions(GrabberBase):
             # TODO: handle 'drvcontinue'
             if "drvcontinue" in result:
                 raise NotImplementedError("Handling of the 'drvcontinue' parameter is not implemented.")
+            # this can happen when a page was deleted before adding an interwiki prefix, which makes
+            # the deleted revisions completely unavailable
+            if "pages" not in result["query"]:
+                logger.warning(f"No results found for deleted pages {deleted_pages}.")
+                continue
             for page in result["query"]["pages"].values():
                 if "deletedrevisions" in page:
                     # update the dict for gen_deletedrevisions to understand
