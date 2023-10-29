@@ -62,7 +62,7 @@ class GrabberUserMerge(GrabberBase):
         for oldid, new in merged_users.items():
             newid, newname = new
             yield self.sql["update", "logging"], {"b_oldid": oldid, "log_user": newid, "log_user_text": newname}
-            yield self.sql["update", "ipb"], {"b_oldid": oldid, "ipb_by": newid}
+            yield self.sql["update", "ipb"], {"b_oldid": oldid, "ipb_by": newid, "ipb_by_text": newname}
             yield self.sql["update", "archive"], {"b_oldid": oldid, "ar_user": newid, "ar_user_text": newname}
             yield self.sql["update", "revision"], {"b_oldid": oldid, "rev_user": newid, "rev_user_text": newname}
 

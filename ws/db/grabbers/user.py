@@ -44,6 +44,18 @@ class GrabberUsers(GrabberBase):
             ("delete", "user_groups"):
                 db.user_groups.delete().where(
                     db.user_groups.c.ug_user == sa.bindparam("b_ug_user")),
+            ("update", "logging"):
+                db.logging.update()
+                    .where(db.logging.c.log_user_text == sa.bindparam("b_olduser")),
+            ("update", "ipb"):
+                db.ipblocks.update()
+                    .where(db.ipblocks.c.ipb_by_text == sa.bindparam("b_olduser")),
+            ("update", "archive"):
+                db.archive.update()
+                    .where(db.archive.c.ar_user_text == sa.bindparam("b_olduser")),
+            ("update", "revision"):
+                db.revision.update()
+                    .where(db.revision.c.rev_user_text == sa.bindparam("b_olduser")),
         }
 
 
@@ -173,6 +185,13 @@ class GrabberUsers(GrabberBase):
             if olduser in rcusers:
                 rcusers.remove(olduser)
             rcusers.add(newuser)
+
+            # rename user in other tables
+            # TODO: check if matching by user name rather than ID is robust enough
+            yield self.sql["update", "logging"], {"b_olduser": olduser, "log_user_text": newuser}
+            yield self.sql["update", "ipb"], {"b_olduser": olduser, "ipb_by_text": newuser}
+            yield self.sql["update", "archive"], {"b_olduser": olduser, "ar_user_text": newuser}
+            yield self.sql["update", "revision"], {"b_olduser": olduser, "rev_user_text": newuser}
 
         if rcusers:
             for chunk in ws.utils.iter_chunks(rcusers, self.api.max_ids_per_query):
