@@ -209,7 +209,7 @@ divided by the number of days between the user's first and last edits.
         "maintainer": lambda groups: 'sysop' in groups and "[[ArchWiki:Administrators|Administrator]]" or "[[ArchWiki:Maintainers|Maintainer]]",
         "administrator_fellow": lambda groups: "[[ArchWiki:Administrators|Administrator Fellow]]",
         "archdev": lambda groups: "[[Roles|Developer]]",
-        "archpackager": lambda groups: "[[Trusted User|Package Maintainer]]",
+        "archpackager": lambda groups: "[[Package Maintainer]]",
         "archstaff": lambda groups: "[[Roles|Staff]]",
         "translator": lambda groups: "[[ArchWiki:Translators|Translator]]",
     }
