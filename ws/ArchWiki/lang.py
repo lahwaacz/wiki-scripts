@@ -27,7 +27,6 @@ __languages = [
     {"name": "English", "subtag": "en", "english": "English"},
     {"name": "Esperanto", "subtag": "eo", "english": "Esperanto"},
     {"name": "Español", "subtag": "es", "english": "Spanish"},
-    {"name": "فارسی", "subtag": "fa", "english": "Persian"},
     {"name": "Suomi", "subtag": "fi", "english": "Finnish"},
     {"name": "Français", "subtag": "fr", "english": "French"},
     {"name": "עברית", "subtag": "he", "english": "Hebrew"},
@@ -57,7 +56,7 @@ __languages = [
 ]
 # languages with right-to-left script
 __rtl = ["ar", "he"]
-__interlanguage_external = ["de", "fa", "ja", "sv", "zh-hans"]
+__interlanguage_external = ["de", "ja", "sv", "zh-hans"]
 __interlanguage_internal = ["ar", "bs", "bg", "ca", "cs", "da", "el", "en", "es", "fi",
                             "fr", "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl",
                             "pt", "ru", "sk", "sr", "th", "tr", "uk", "zh-hant"]
