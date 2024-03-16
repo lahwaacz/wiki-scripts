@@ -353,11 +353,11 @@ class ExtlinkReplacements(CheckerBase):
                 #   - the "/-/" disambiguator (which is added by gitlab's redirects) is ugly and should be removed thereafter
                 #   - gitlab gives 302 to the master branch instead of 404 for non-existent files/directories
                 if new_url.startswith("https://gitlab.archlinux.org"):
-                    # use same query as ExtlinkStatusChecker.check_url
-                    response = self.session.get(new_url, headers=self.headers, timeout=self.timeout, stream=True, allow_redirects=True)
-                    # explicitly close the responses to release the connection back to the pool
-                    # (this is important, especially when we use pool_block=True)
-                    response.close()
+                    # use same query as ExtlinkStatusChecker.check_url_sync
+                    with httpx.stream("GET", new_url, follow_redirects=True) as response:
+                        # nothing to do here, but using the context manager ensures that the response is
+                        # always properly closed
+                        pass
                     if len(response.history) > 0:
                         if response.url.endswith("/master"):
                             # this is gitlab's "404" in most cases
