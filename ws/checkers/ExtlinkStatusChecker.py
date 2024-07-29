@@ -394,14 +394,15 @@ class ExtlinkStatusChecker:
         # proceed with the actual check
         await self.check_url(domain, link, url)
 
-    async def lock_domain_and_check_link(self, domain_locks, link: LinkCheck):
+    async def lock_domain_and_check_link(self, semaphore, domain_locks, link: LinkCheck):
         lock = domain_locks[link.domain_name]
         async with lock:
-            # work with each link in a separate async session
-            async with self.async_session() as session:
-                session.add(link)
-                await self.check_link(link)
-                await session.commit()
+            async with semaphore:
+                # work with each link in a separate async session
+                async with self.async_session() as session:
+                    session.add(link)
+                    await self.check_link(link)
+                    await session.commit()
 
     @staticmethod
     def _get_domain_locks(domains):
@@ -451,9 +452,12 @@ class ExtlinkStatusChecker:
 
         logger.info(f"Checking the status of {len(links)} URLs (success is logged with DEBUG level)...")
 
+        # use a semaphore to limit the number of "active workers" in the task group
+        semaphore = asyncio.Semaphore(100)
+
         async def async_exec():
             async with asyncio.TaskGroup() as tg:
                 for link in links:
-                    tg.create_task(self.lock_domain_and_check_link(locks, link))
+                    tg.create_task(self.lock_domain_and_check_link(semaphore, locks, link))
 
         asyncio.run(async_exec())
