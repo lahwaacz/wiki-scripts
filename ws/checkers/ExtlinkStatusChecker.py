@@ -15,6 +15,12 @@ import sqlalchemy as sa
 import sqlalchemy.orm
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
+try:
+    import tqdm
+    import tqdm.contrib.logging
+except ImportError:
+    tqdm = None
+
 __all__ = ["ExtlinkStatusChecker", "Domain", "LinkCheck"]
 
 logger = logging.getLogger(__name__)
@@ -101,6 +107,9 @@ class ExtlinkStatusChecker:
         # initialize the HTTPX client
         transport = httpx.AsyncHTTPTransport(retries=max_retries)
         self.client = httpx.AsyncClient(transport=transport, verify=ssl_context, headers=headers, timeout=timeout, limits=limits)
+
+        # optional tqdm progressbar
+        self.progress = None
 
     def transfer_urls_from_parser_cache(self):
         """ Transfers URLs from the MediaWiki-like ``externallinks`` table
@@ -403,6 +412,8 @@ class ExtlinkStatusChecker:
                     session.add(link)
                     await self.check_link(link)
                     await session.commit()
+                    if self.progress is not None:
+                        self.progress.update(1)
 
     @staticmethod
     def _get_domain_locks(domains):
@@ -460,4 +471,11 @@ class ExtlinkStatusChecker:
                 for link in links:
                     tg.create_task(self.lock_domain_and_check_link(semaphore, locks, link))
 
-        asyncio.run(async_exec())
+        if tqdm is not None:
+            # initialize tqdm progressbar
+            self.progress = tqdm.tqdm(total=len(links))
+            with tqdm.contrib.logging.logging_redirect_tqdm():
+                asyncio.run(async_exec())
+            self.progress.close()
+        else:
+            asyncio.run(async_exec())
