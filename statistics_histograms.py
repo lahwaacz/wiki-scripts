@@ -77,20 +77,20 @@ def create_histograms(revisions):
 
 
     # histogram for all edits
-    logger.info("Plotting hist_alledits.png")
+    logger.info("Plotting hist_alledits.svg")
     # since it is calculated by counting revisions in each bin, it is enough to count
     # the indexes
     hist_alledits, _ = np.histogram(bin_indexes, bins=range(len(bin_edges)))
 
     plot_date_bars(hist_alledits, bin_edges, title="ArchWiki edits per month",
-            ylabel="edit count", fname="stub/hist_alledits.png")
+            ylabel="edit count", fname="stub/hist_alledits.svg")
 #    plot_date_bars(hist_alledits, bin_edges,
 #            title="ArchWiki edits per month (without bots)", ylabel="edit count",
-#            fname="stub/hist_alledits_nobots.png")
+#            fname="stub/hist_alledits_nobots.svg")
 
 
     # histogram for active users
-    logger.info("Plotting hist_active_users.png")
+    logger.info("Plotting hist_active_users.svg")
     hist_active_users = []
     num_bins = len(bin_edges) - 1
     for i in range(num_bins):
@@ -101,7 +101,7 @@ def create_histograms(revisions):
 
     plot_date_bars(hist_active_users, bin_edges,
             title="ArchWiki active users per month", ylabel="active users",
-            fname="stub/hist_active_users.png")
+            fname="stub/hist_active_users.svg")
 
 
 if __name__ == "__main__":
