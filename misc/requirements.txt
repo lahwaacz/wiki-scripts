@@ -14,4 +14,6 @@ pyalpm
 hstspreload
 
 # optional dependencies
+colorlog
+tqdm
 git+https://github.com/lahwaacz/python-wikeddiff.git
