@@ -96,7 +96,7 @@ class ExtlinkStatusChecker:
         timeout = httpx.Timeout(timeout, pool=None)  # disable timeout for waiting for a connection from the pool
         headers = {
             # fake user agent to bypass servers responding differently or not at all to non-browser user agents
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0",
         }
 
         # create an SSL context to disallow TLS1.0 and TLS1.1, allow only TLS1.2
