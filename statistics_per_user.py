@@ -61,9 +61,11 @@ def plot_logs(ax, line, logs):
         ax.plot(x, y, "o", color=color)
         labels = []
         for group in log["params"]["newgroups"]:
-            labels.append("+{}".format(group))
+            if group not in log["params"]["oldgroups"]:
+                labels.append("+{}".format(group))
         for group in log["params"]["oldgroups"]:
-            labels.append("-{}".format(group))
+            if group not in log["params"]["newgroups"]:
+                labels.append("-{}".format(group))
         ax.annotate("\n".join(labels), xy=(x, y), xytext=(5, 0), textcoords="offset points", ha="left", va="top")
 
 def plot_save(fname):
@@ -82,7 +84,7 @@ if __name__ == "__main__":
     require_login(api)
     db = Database.from_argparser(args)
 
-    users = ["Alad", "Fengchao", "Indigo", "Kynikos", "Lahwaacz", "Lonaowna", "Nl6720"]
+    users = ["Alad", "Fengchao", "Indigo", "Kynikos", "Lahwaacz", "Lonaowna", "Nl6720", "Erus Iluvatar"]
 
     all_logs = list(db.query(list="logevents", letype="rights", ledir="newer"))
 
