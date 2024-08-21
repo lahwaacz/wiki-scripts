@@ -2,6 +2,7 @@
 
 import datetime
 import logging
+import matplotlib
 import numpy as np
 import pandas as pd
 
@@ -128,4 +129,8 @@ if __name__ == "__main__":
 
     db = Database.from_argparser(args)
 
-    race(db, "arch-wiki-race.mp4")
+    # output to webm with AV1 codec
+    output_filename = "arch-wiki-race.webm"
+    matplotlib.rcParams["animation.codec"] = "libvpx-vp9"
+
+    race(db, output_filename)
