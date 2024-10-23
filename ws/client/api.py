@@ -452,12 +452,8 @@ class API(Connection):
         h.update(text)
         md5 = h.hexdigest()
 
-        # if bot= is passed, also pass an assertion
-        if "bot" in kwargs:
-            kwargs["assert"] = "bot"
-        else:
-            # require being logged in, either as regular user or bot
-            kwargs["assert"] = "user"
+        # require being logged in, either as regular user or bot
+        kwargs.setdefault("assert", "user")
 
         # check and apply tags
         if "applychangetags" in self.user.rights and "wiki-scripts" in self.tags.applicable:
