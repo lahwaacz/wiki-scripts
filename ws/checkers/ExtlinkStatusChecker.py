@@ -127,8 +127,7 @@ class ExtlinkStatusChecker:
                 url = row[0]
                 if self.is_checkable_url(url) is True:
                     url = self.normalize_url(url)
-                    # httpx decodes punycodes for IDNs in .host, .raw_host is the original as bytes
-                    urls[str(url)] = url.raw_host.decode("utf-8")
+                    urls[str(url)] = self.get_domain(url)
 
             # insert all domains first
             logger.info("Inserting new domains to the ws_domain table...")
@@ -208,6 +207,14 @@ class ExtlinkStatusChecker:
         return url
 
     @staticmethod
+    def get_domain(url: httpx.URL | str):
+        if not isinstance(url, httpx.URL):
+            url = httpx.URL(url)
+
+        # httpx decodes punycodes for IDNs in .host, .raw_host is the original as bytes
+        return url.raw_host.decode("utf-8")
+
+    @staticmethod
     @lru_cache(maxsize=1024)
     def check_url_sync(url: httpx.URL | str, *, follow_redirects=True):
         """ Simplified and synchronous variant of ``check_url`` intended for other checksers like ExtlinkReplacements
@@ -277,43 +284,74 @@ class ExtlinkStatusChecker:
         domain.resolved = None
         domain.ssl_error = None
 
+        history = []
+
         try:
-            # We need to use GET requests instead of HEAD, because many servers just return 404
-            # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
-            # response body content by using ``stream`` interface.
-            async with self.client.stream("GET", url, follow_redirects=follow_redirects) as response:
-                # nothing to do here, but using the context manager ensures that the response is
-                # always properly closed
-                pass
+            # We need to follow redirects with a manual loop, because they may lead to other
+            # domains and we need to handle their status separately. httpx does not allow to
+            # get response.history after an exception.
+            next_url = url
+            while next_url is not None and len(history) <= self.client.max_redirects:
+                history.append(next_url)
+                # We need to use GET requests instead of HEAD, because many servers just return 404
+                # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
+                # response body content by using ``stream`` interface.
+                async with self.client.stream("GET", next_url, follow_redirects=False) as response:
+                    if follow_redirects is True and response.next_request is not None:
+                        next_url = response.next_request.url
+                    else:
+                        next_url = None
+                    # nothing else to do here, but using the context manager ensures that the
+                    # response is always properly closed
+
         # FIXME: workaround for https://github.com/encode/httpx/discussions/2682#discussioncomment-5746317
         except ssl.SSLError as e:
-            domain.ssl_error = str(e)
-            if "unable to get local issuer certificate" in str(e):
+            # do not domain.ssl_error if there was a redirect to a different domain
+            last_domain = self.get_domain(history[-1])
+            if domain.name != last_domain:
+                logger.warning(f"URL {url} redirects to a different domain: {last_domain}")
+                link.result = "needs user check"
+                return
+            elif "unable to get local issuer certificate" in str(e):
                 # FIXME: this is a problem of the SSL library used by Python
                 logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
+                domain.ssl_error = str(e)
                 link.result = "needs user check"
                 return
             else:
                 logger.error(f"SSL error ({e}) for URL {url}")
+                domain.ssl_error = str(e)
                 link.result = "bad"
                 return
         except httpx.ConnectError as e:
+            last_domain = self.get_domain(history[-1])
             if str(e).startswith("[SSL:"):
-                domain.ssl_error = str(e)
-                if "unable to get local issuer certificate" in str(e):
+                # do not record an error if there was a redirect to a different domain
+                if domain.name != last_domain:
+                    logger.warning(f"URL {url} redirects to a different domain: {last_domain}")
+                    link.result = "needs user check"
+                    return
+                elif "unable to get local issuer certificate" in str(e):
                     # FIXME: this is a problem of the SSL library used by Python
                     logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
+                    domain.ssl_error = str(e)
                     link.result = "needs user check"
                     return
                 else:
                     logger.error(f"SSL error ({e}) for URL {url}")
+                    domain.ssl_error = str(e)
                     link.result = "bad"
                     return
             if "no address associated with hostname" in str(e).lower() \
                     or "name or service not known" in str(e).lower():
-                logger.error(f"domain name could not be resolved for URL {url}")
-                domain.resolved = False
-                link.result = "bad"
+                # do not record an error if there was a redirect to a different domain
+                if domain.name == last_domain:
+                    logger.error(f"domain name could not be resolved for URL {url}")
+                    domain.resolved = False
+                    link.result = "bad"
+                else:
+                    logger.error(f"URL {url} redirects to a domain that could not be resolved: {last_domain}")
+                    link.result = "needs user check"
                 return
             # other connection error - indeterminate
             logger.warning(f"connection error for URL {url}")

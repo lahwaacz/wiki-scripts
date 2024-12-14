@@ -8,7 +8,7 @@ import sqlalchemy as sa
 from ws.client import API
 from ws.interactive import require_login
 from ws.db.database import Database
-from ws.checkers import ExtlinkStatusUpdater, ExtlinkStatusChecker, LinkCheck
+from ws.checkers import ExtlinkStatusUpdater, ExtlinkStatusChecker, LinkCheck, Domain
 from ws.pageupdater import PageUpdater
 
 class Updater(PageUpdater):
@@ -28,10 +28,11 @@ def check(args, api, db):
     checker.transfer_urls_from_parser_cache()
 
     # select links to update
-    s = sa.select(LinkCheck).where(
+    s = sa.select(LinkCheck).join(Domain).where(
         LinkCheck.last_check.is_(None)
         | (LinkCheck.last_check < datetime.datetime.utcnow() - datetime.timedelta(days=7))
         | LinkCheck.http_status.in_({406, 429})
+#        | Domain.resolved.is_(False)
     )
     checker.check(s)
 
