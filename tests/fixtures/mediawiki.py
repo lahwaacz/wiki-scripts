@@ -72,7 +72,7 @@ mw_nginx_proc = factories.nginx_php_proc("mw_server_root",
                                          php_fpm_params="--php-ini {}".format(_php_ini))
 
 # direct connection to MediaWiki's database
-mwpg_conn = postgresql("postgresql_proc", db_name=_mw_db_name)
+mwpg_conn = postgresql("postgresql_proc", dbname=_mw_db_name)
 
 class MediaWikiFixtureInstance:
     def __init__(self, mw_nginx_proc, postgresql_proc):
@@ -116,7 +116,7 @@ class MediaWikiFixtureInstance:
 
     def _init_mw_database(self):
         # create database and mediawiki user
-        master_url = sa.engine.url.URL("postgresql+psycopg2",
+        master_url = sa.engine.url.URL("postgresql+psycopg",
                                        username=self._postgresql_proc.user,
                                        host=self._postgresql_proc.host,
                                        port=self._postgresql_proc.port)
@@ -129,7 +129,7 @@ class MediaWikiFixtureInstance:
         conn.close()
 
         # execute MediaWiki's tables.sql
-        mw_url = sa.engine.url.URL("postgresql+psycopg2",
+        mw_url = sa.engine.url.URL("postgresql+psycopg",
                                    database=_mw_db_name,
                                    username=_mw_db_user,
                                    password=_mw_db_password,

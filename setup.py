@@ -13,7 +13,7 @@ setup(
         "mwparserfromhell",
         "configfile",
         "sqlalchemy",
-        "psycopg2",
+        "psycopg",
         "wikeddiff",
     ],
 )

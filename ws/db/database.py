@@ -7,7 +7,7 @@ Prerequisites:
    account. The database should be created with the "C" collation, e.g. create
    the database with
    `createdb -E UNICODE -l C -T template0 -O username dbname`
-2. One of the many drivers supported by sqlalchemy, e.g. psycopg2.
+2. One of the many drivers supported by sqlalchemy, e.g. psycopg.
 """
 
 import sys
@@ -96,7 +96,7 @@ class Database:
         group = argparser.add_argument_group(title="Database parameters")
         group.add_argument("--db-dialect", metavar="DIALECT", choices=["postgresql"], default="postgresql",
                 help="an SQL dialect (default: %(default)s)")
-        group.add_argument("--db-driver", metavar="DRIVER", default="psycopg2",
+        group.add_argument("--db-driver", metavar="DRIVER", default="psycopg",
                 help="a driver for given SQL dialect supported by sqlalchemy (default: %(default)s)")
         group.add_argument("--db-async-driver", metavar="DRIVER", default="asyncpg",
                 help="an async driver for given SQL dialect supported by sqlalchemy (default: %(default)s)")

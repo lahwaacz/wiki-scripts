@@ -29,7 +29,7 @@ def get_url():
     conf = parser.fetch_section("alembic", to_list=False)
 
     db_dialect = conf.get("db-dialect", "postgresql")
-    db_driver = conf.get("db-driver", "psycopg2")
+    db_driver = conf.get("db-driver", "psycopg")
     db_user = conf["db-user"]
     db_password = conf["db-password"]
     db_host = conf.get("db-host", "localhost")

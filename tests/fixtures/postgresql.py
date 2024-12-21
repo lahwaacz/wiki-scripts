@@ -9,11 +9,11 @@ db_name = "wiki_scripts"
 
 # postgresql process fixture
 postgresql_proc = factories.postgresql_proc(logs_prefix="pytest-", executable=pg_executable)
-# fixture holding an instance of a psycopg2 connection
-postgresql = factories.postgresql("postgresql_proc", db_name=db_name)
+# fixture holding an instance of a psycopg connection
+postgresql = factories.postgresql("postgresql_proc", dbname=db_name)
 
 @pytest.fixture(scope="function")
 def pg_engine(postgresql):
-    return sqlalchemy.create_engine("postgresql+psycopg2://", poolclass=sqlalchemy.pool.StaticPool, creator=lambda: postgresql)
+    return sqlalchemy.create_engine("postgresql+psycopg://", poolclass=sqlalchemy.pool.StaticPool, creator=lambda: postgresql)
 
 __all__ = ("postgresql_proc", "postgresql", "pg_engine")

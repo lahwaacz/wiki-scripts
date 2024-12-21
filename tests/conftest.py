@@ -28,8 +28,7 @@ def api_archwiki():
     # NOTE: anonymous, will be very slow for big data!
     api_url = "https://wiki.archlinux.org/api.php"
     index_url = "https://wiki.archlinux.org/index.php"
-    ssl_verify = True
-    session = API.make_session(ssl_verify=ssl_verify)
+    session = API.make_session()
     return API(api_url, index_url, session)
 
 class TestingDatabase(Database):

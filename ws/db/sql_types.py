@@ -22,7 +22,7 @@ On the other hand, binary types (``*BLOB``, ``*BINARY``) are treated as
 In PostgreSQL, the binary type (bytea) does not represent "strings", i.e. there
 are much less operations and functions defined on bytea then in MySQL for
 binary strings. By using the textual types, we also benefit from native
-conversion functions in the sqlalchemy driver (e.g. psycopg2).
+conversion functions in the sqlalchemy driver (e.g. psycopg).
 
 MediaWiki's PostgreSQL schema uses ``TEXT`` for just about everyting, i.e. no
 ``VARCHAR``. `PostgreSQL manual`_ says that there is no performance difference

@@ -6,7 +6,7 @@ mwparserfromhell
 # database
 sqlalchemy[asyncio] >= 2.0
 alembic
-psycopg2
+psycopg
 asyncpg
 
 # script-specific dependencies
