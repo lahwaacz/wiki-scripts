@@ -39,6 +39,10 @@ import json
 import datetime
 
 import sqlalchemy.types as types
+try:
+    import psycopg
+except ImportError:
+    psycopg = None
 
 from ws.utils import base_enc, base_dec, DatetimeEncoder, datetime_parser, round_to_seconds
 
@@ -86,6 +90,32 @@ class MWTimestamp(types.TypeDecorator):
             return datetime.datetime.min
         else:
             return value
+
+
+if psycopg is not None:
+    # unlike psycopg2, psycopg does not understand "infinity" timestamps by default
+    # https://www.psycopg.org/psycopg3/docs/advanced/adapt.html#example-handling-infinity-date
+
+    class InfDateDumper(psycopg.types.datetime.DatetimeDumper):
+        def dump(self, obj):
+            if obj == datetime.datetime.max:
+                return b"infinity"
+            elif obj == datetime.datetime.min:
+                return b"-infinity"
+            else:
+                return super().dump(obj)
+
+    class InfDateLoader(psycopg.types.datetime.TimestampLoader):
+        def load(self, data):
+            if data == b"infinity":
+                return datetime.datetime.max
+            elif data == b"-infinity":
+                return datetime.datetime.min
+            else:
+                return super().load(data)
+
+    psycopg.adapters.register_dumper(datetime.datetime, InfDateDumper)
+    psycopg.adapters.register_loader("timestamp", InfDateLoader)
 
 
 class SHA1(types.TypeDecorator):

@@ -98,7 +98,7 @@ class Database:
                 help="an SQL dialect (default: %(default)s)")
         group.add_argument("--db-driver", metavar="DRIVER", default="psycopg",
                 help="a driver for given SQL dialect supported by sqlalchemy (default: %(default)s)")
-        group.add_argument("--db-async-driver", metavar="DRIVER", default="asyncpg",
+        group.add_argument("--db-async-driver", metavar="DRIVER", default="psycopg",
                 help="an async driver for given SQL dialect supported by sqlalchemy (default: %(default)s)")
         group.add_argument("--db-user", metavar="USER",
                 help="username for database connection (default: %(default)s)")
