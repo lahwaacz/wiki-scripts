@@ -136,7 +136,8 @@ class GrabberLogging(GrabberBase):
             elif le["type"] == "tag" and le["action"] == "update":
                 # skip tags for revisions
                 if "logid" in le["params"]:
-                    _logid = le["params"]["logid"]
+                    # Note: the type of logid is inconsistent, MW 1.42 started to return string instead of int
+                    _logid = int(le["params"]["logid"])
                     _added = set(le["params"]["tagsAdded"])
                     _removed = set(le["params"]["tagsRemoved"])
                     assert _added & _removed == set()
