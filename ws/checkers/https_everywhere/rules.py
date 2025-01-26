@@ -270,14 +270,14 @@ class Ruleset(object):
             try:
                 socket.inet_aton(target)
                 continue
-            except:
+            except OSError:
                 pass
 
             # Ignore if target is an ipv6 address
             try:
                 socket.inet_pton(socket.AF_INET6, target)
                 continue
-            except:
+            except OSError:
                 pass
 
             # Extract TLD from target if possible
@@ -323,7 +323,7 @@ class Ruleset(object):
                 needed_count = 10
 
             # non-wildcard target always have an implicit test url, if is it not excluded
-            if not "*" in target and not self.excludes(("http://{}/".format(target))):
+            if "*" not in target and not self.excludes(("http://{}/".format(target))):
                 continue
 
             # According to the logic in rules.js available at
@@ -394,10 +394,9 @@ class Ruleset(object):
         self._determineTestApplication()
         problems = []
         for rule in self.rules:
-            test_urls = [test.url for test in rule.tests]
             for test in rule.tests:
                 try:
-                    replacement_url = rule.apply(test.url)
+                    rule.apply(test.url)
                 except Exception as e:
                     if ~e.message.index("invalid group reference"):
                         problems.append("{}: Rules include non-matched groups in replacement for url: {}".format(
