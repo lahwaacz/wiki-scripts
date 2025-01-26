@@ -2,11 +2,12 @@
 
 import sqlalchemy as sa
 
+import ws.db.selects as selects
 import ws.utils
 from ws.client.api import ShortRecentChangesError
-import ws.db.selects as selects
 
 from .GrabberBase import GrabberBase
+
 
 class GrabberProtectedTitles(GrabberBase):
 

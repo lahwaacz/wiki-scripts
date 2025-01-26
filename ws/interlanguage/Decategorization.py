@@ -5,10 +5,10 @@ import logging
 
 import mwparserfromhell
 
-from ws.client import APIError
 import ws.utils
+from ws.ArchWiki.header import build_header, get_header_parts
+from ws.client import APIError
 from ws.interactive import edit_interactive
-from ws.ArchWiki.header import get_header_parts, build_header
 
 logger = logging.getLogger(__name__)
 

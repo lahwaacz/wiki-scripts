@@ -1,22 +1,22 @@
 #! /usr/bin/env python3
 
-import os.path
 import datetime
 import json
 import logging
+import os.path
 
-import requests
 import mwparserfromhell
-import pycman
 import pyalpm
+import pycman
+import requests
 
-from ws.client import API, APIError
-from ws.utils import LazyProperty
-from ws.interactive import edit_interactive, require_login, InteractiveQuit
-from ws.autopage import AutoPage
 from ws.ArchWiki.lang import detect_language, format_title
-from ws.parser_helpers.wikicode import get_parent_wikicode, ensure_flagged_by_template, ensure_unflagged_by_template
+from ws.autopage import AutoPage
+from ws.client import API, APIError
+from ws.interactive import InteractiveQuit, edit_interactive, require_login
 from ws.parser_helpers.title import canonicalize
+from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template, get_parent_wikicode
+from ws.utils import LazyProperty
 
 logger = logging.getLogger(__name__)
 

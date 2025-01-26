@@ -1,13 +1,14 @@
 #! /usr/bin/env python3
 
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
 
 from ws.client import API
-from ws.interactive import require_login
 from ws.db.database import Database
+from ws.interactive import require_login
 from ws.utils import range_by_days
+
 
 def plot_setup(title="", ylabel="edits"):
     fig = plt.figure(figsize=(12, 9))

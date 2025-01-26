@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
 
+import itertools
 import os.path
 from collections import namedtuple
-import itertools
 
-from ws.client import API
 import ws.ArchWiki.lang as lang
+from ws.client import API
 
 api_url = "https://wiki.archlinux.org/api.php"
 index_url = "https://wiki.arclinux.org/index.php"

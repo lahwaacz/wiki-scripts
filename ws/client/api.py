@@ -3,13 +3,12 @@
 import hashlib
 import logging
 
-from ..utils import RateLimited, LazyProperty
-
-from .connection import Connection, APIError
-from .site import Site
-from .user import User
-from .tags import Tags
+from ..utils import LazyProperty, RateLimited
+from .connection import APIError, Connection
 from .redirects import Redirects
+from .site import Site
+from .tags import Tags
+from .user import User
 
 logger = logging.getLogger(__name__)
 

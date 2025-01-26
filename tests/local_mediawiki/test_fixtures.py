@@ -3,8 +3,9 @@
 import os.path
 import warnings
 
-import sqlalchemy as sa
 import pytest
+import sqlalchemy as sa
+
 
 def test_server_root(mw_server_root):
 #    print("MediaWiki server root is {}".format(mw_server_root))

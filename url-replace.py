@@ -5,6 +5,7 @@ import mwparserfromhell
 from ws.checkers import ExtlinkReplacements
 from ws.pageupdater import PageUpdater
 
+
 class Updater(PageUpdater):
     force_interactive = True
     skip_pages = []

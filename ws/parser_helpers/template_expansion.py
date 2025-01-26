@@ -6,7 +6,7 @@ import mwparserfromhell
 
 from . import encodings
 from .title import Title, TitleError
-from .wikicode import parented_ifilter, is_redirect
+from .wikicode import is_redirect, parented_ifilter
 
 logger = logging.getLogger(__name__)
 

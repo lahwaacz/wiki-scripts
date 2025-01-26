@@ -3,17 +3,17 @@
 import logging
 import time
 
-from ws.db.grabbers.namespace import GrabberNamespaces
-from ws.db.grabbers.tags import GrabberTags
 from ws.db.grabbers.interwiki import GrabberInterwiki
-from ws.db.grabbers.recentchanges import GrabberRecentChanges
-from ws.db.grabbers.user import GrabberUsers
-from ws.db.grabbers.usermerge import GrabberUserMerge
 from ws.db.grabbers.ipblocks import GrabberIPBlocks
+from ws.db.grabbers.logging_ import GrabberLogging
+from ws.db.grabbers.namespace import GrabberNamespaces
 from ws.db.grabbers.page import GrabberPages
 from ws.db.grabbers.protected_titles import GrabberProtectedTitles
+from ws.db.grabbers.recentchanges import GrabberRecentChanges
 from ws.db.grabbers.revision import GrabberRevisions
-from ws.db.grabbers.logging_ import GrabberLogging
+from ws.db.grabbers.tags import GrabberTags
+from ws.db.grabbers.user import GrabberUsers
+from ws.db.grabbers.usermerge import GrabberUserMerge
 
 logger = logging.getLogger(__name__)
 

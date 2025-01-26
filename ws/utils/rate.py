@@ -26,9 +26,9 @@ Or at runtime by wrapping the function call:
     wrapped = RateLimited(10, 2)(PrintNumber)
 """
 
-from functools import wraps
-import time
 import logging
+import time
+from functools import wraps
 
 import ws
 

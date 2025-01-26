@@ -2,6 +2,7 @@
 
 import datetime
 
+
 class Meta:
     """
     Meta-class for ``siteinfo`` and ``userinfo`` functionality.

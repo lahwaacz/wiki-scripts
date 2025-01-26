@@ -1,14 +1,14 @@
 #! /usr/bin/env python3
 
+import os.path
 import re
 from copy import copy, deepcopy
-import os.path
 
 # only for explicit type check in Title.parse
 import mwparserfromhell
 
-from .encodings import _anchor_preprocess, urldecode
 from ..utils import find_caseless
+from .encodings import _anchor_preprocess, urldecode
 
 __all__ = ["canonicalize", "Context", "Title", "TitleError", "InvalidTitleCharError", "InvalidColonError", "DatabaseTitleError"]
 

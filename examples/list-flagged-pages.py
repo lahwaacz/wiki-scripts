@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
-from ws.client import API
 import ws.ArchWiki.lang as lang
+from ws.client import API
+
 
 # return set of page titles transcluding 'title'
 def get_transclusions(api, title):

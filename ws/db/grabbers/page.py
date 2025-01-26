@@ -2,10 +2,11 @@
 
 import sqlalchemy as sa
 
-import ws.utils
 import ws.db.selects as selects
+import ws.utils
 
 from .GrabberBase import GrabberBase
+
 
 class GrabberPages(GrabberBase):
 

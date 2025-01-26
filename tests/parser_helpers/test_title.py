@@ -4,6 +4,7 @@ import pytest
 
 from ws.parser_helpers.title import *
 
+
 class test_canonicalize:
     # keys: input, values: expected result
     titles = {

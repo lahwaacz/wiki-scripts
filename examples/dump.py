@@ -2,6 +2,7 @@
 
 from ws.client import API
 
+
 def dump(api, outfile, timestamp_start):
     # check that the index.php URL is configured
     assert api.index_url is not None, "The index.php URL must be configured."

@@ -8,8 +8,8 @@
 import logging
 
 from ws.client import API
-from ws.interactive import require_login
 from ws.db.database import Database
+from ws.interactive import require_login
 from ws.utils import range_by_months
 
 logger = logging.getLogger(__name__)
@@ -30,8 +30,8 @@ def plot_date_bars(bin_data, bin_edges, title, ylabel, fname):
     :param fname: output file name
     """
     import matplotlib.pyplot as plt
-    from matplotlib.dates import date2num, num2date
     from matplotlib import ticker
+    from matplotlib.dates import date2num, num2date
 
     plt.figure()  # clear previous figure
     plt.title(title)

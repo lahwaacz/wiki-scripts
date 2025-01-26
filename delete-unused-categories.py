@@ -1,8 +1,9 @@
 #! /usr/bin/env python3
 
 from ws.client import API
-from ws.utils import dmerge, RateLimited
-from ws.interactive import require_login, ask_yesno
+from ws.interactive import ask_yesno, require_login
+from ws.utils import RateLimited, dmerge
+
 
 @RateLimited(1, 1)
 def delete_page(api, title, pageid):

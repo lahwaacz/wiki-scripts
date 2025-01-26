@@ -10,14 +10,15 @@ and making requests.
 # FIXME: query string should be normalized, see https://www.mediawiki.org/wiki/API:Main_page#API_etiquette
 #        + 'token' parameter should be specified last, see https://www.mediawiki.org/wiki/API:Edit
 
-import requests
-from requests.packages.urllib3.util.retry import Retry
+import copy
 import http.cookiejar as cookielib
 import logging
-import copy
 
-from ws import __version__, __url__
-from ws.utils import TLSAdapter, RateLimited, parse_timestamps_in_struct, serialize_timestamps_in_struct
+import requests
+from requests.packages.urllib3.util.retry import Retry
+
+from ws import __url__, __version__
+from ws.utils import RateLimited, TLSAdapter, parse_timestamps_in_struct, serialize_timestamps_in_struct
 
 logger = logging.getLogger(__name__)
 

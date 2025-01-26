@@ -4,6 +4,7 @@ import sqlalchemy as sa
 
 from .GrabberBase import GrabberBase
 
+
 class GrabberUserMerge(GrabberBase):
 
     def __init__(self, api, db):

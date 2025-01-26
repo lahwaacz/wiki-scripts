@@ -8,6 +8,7 @@ import ws.utils
 
 from .GrabberBase import GrabberBase
 
+
 class GrabberIPBlocks(GrabberBase):
 
     INSERT_PREDELETE_TABLES = ["ipblocks"]

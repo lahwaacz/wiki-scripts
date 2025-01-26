@@ -4,6 +4,7 @@ from ws.client import API
 from ws.db.database import Database
 from ws.utils.OrderedSet import OrderedSet
 
+
 def main(api, db):
     db.sync_with_api(api)
     db.sync_revisions_content(api, mode="latest")

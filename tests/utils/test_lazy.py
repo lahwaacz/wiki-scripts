@@ -2,6 +2,7 @@
 
 from ws.utils import LazyProperty
 
+
 class test_lazy:
     def setup(self):
         self._values = list(range(10))

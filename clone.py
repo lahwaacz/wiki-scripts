@@ -3,13 +3,14 @@
 # TODO:
 # - use the SQL database, it is enough to export the data as files to the directory tree
 
-import os
 import datetime
 import hashlib
+import os
 
-from ws.client import API
 import ws.ArchWiki.lang
+from ws.client import API
 from ws.utils import is_ascii, list_chunks
+
 
 class Downloader:
     extension = "mediawiki"

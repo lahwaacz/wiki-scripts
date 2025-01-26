@@ -2,10 +2,11 @@
 
 import sqlalchemy as sa
 
-from ws.utils import value_or_none
 import ws.db.mw_constants as mwconst
+from ws.utils import value_or_none
 
 from .GrabberBase import GrabberBase
+
 
 class GrabberLogging(GrabberBase):
 

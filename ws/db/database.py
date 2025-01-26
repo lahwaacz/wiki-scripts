@@ -10,17 +10,17 @@ Prerequisites:
 2. One of the many drivers supported by sqlalchemy, e.g. psycopg.
 """
 
-import sys
-import os.path
 import logging
+import os.path
+import sys
 
-import sqlalchemy as sa
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 import alembic.config
 import alembic.migration
+import sqlalchemy as sa
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from . import schema, selects, grabbers, parser_cache
 from ..parser_helpers.title import Context, Title
+from . import grabbers, parser_cache, schema, selects
 
 __all__ = ["Database"]
 

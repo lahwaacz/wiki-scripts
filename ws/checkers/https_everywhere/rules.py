@@ -1,9 +1,8 @@
 #from tldextract import tldextract
-from urllib.parse import urlparse
-
 #import regex
 import re as regex  # TODO: check that we don't use any additional functionality of `regex`
 import socket
+from urllib.parse import urlparse
 
 
 class Rule(object):

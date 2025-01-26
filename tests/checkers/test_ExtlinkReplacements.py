@@ -2,8 +2,8 @@
 
 import re
 
-from pytest_bdd import scenarios, given, when, then, parsers
 import mwparserfromhell
+from pytest_bdd import given, parsers, scenarios, then, when
 
 from ws.pageupdater import PageUpdater
 

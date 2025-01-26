@@ -4,16 +4,16 @@
 #   take the final title from "displaytitle" property (available from API) (would be necessary to check if it is valid)
 
 import itertools
-import re
 import logging
+import re
 
 import mwparserfromhell
 
+import ws.ArchWiki.header as header
+import ws.ArchWiki.lang as lang
+import ws.utils
 from ws.client import APIError
 from ws.interactive import ask_yesno
-import ws.ArchWiki.lang as lang
-import ws.ArchWiki.header as header
-import ws.utils
 from ws.parser_helpers.title import canonicalize
 
 logger = logging.getLogger(__name__)

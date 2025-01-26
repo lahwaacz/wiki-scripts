@@ -1,10 +1,11 @@
 #! /usr/bin/env python3
 
+import hashlib
 import logging
 from functools import lru_cache
-import hashlib
 
 import requests
+
 from ws.utils import TLSAdapter
 
 __all__ = ["SmarterEncryptionList"]

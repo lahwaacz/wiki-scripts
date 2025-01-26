@@ -1,8 +1,9 @@
 #! /usr/bin/env python3
 
-from ws.client import API
 import ws.ArchWiki.lang as lang
+from ws.client import API
 from ws.interactive import require_login
+
 
 def update_page_language(api):
     # ensure that we are authenticated

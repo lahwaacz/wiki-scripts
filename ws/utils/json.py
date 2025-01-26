@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
-import json
 import datetime
+import json
+
 
 class DatetimeEncoder(json.JSONEncoder):
     def default(self, obj):
