@@ -12,7 +12,7 @@ def get_interwiki_redirects(db):
                     page.outerjoin(nss, page.c.page_namespace == nss.c.nss_id)
                         .join(rd, page.c.page_id == rd.c.rd_from)
                 ) \
-            .where(db.redirect.c.rd_interwiki != None)
+            .where(db.redirect.c.rd_interwiki.is_not(None))
 
     interwiki_redirects = {}
 

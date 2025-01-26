@@ -153,27 +153,27 @@ class RecentChanges(GeneratorBase):
         if "show" in params:
             show = params["show"]
             if "minor" in show:
-                s = s.where(rc.c.rc_minor == True)
+                s = s.where(rc.c.rc_minor.is_(True))
             elif "!minor" in show:
-                s = s.where(rc.c.rc_minor == False)
+                s = s.where(rc.c.rc_minor.is_(False))
             if "bot" in show:
-                s = s.where(rc.c.rc_bot == True)
+                s = s.where(rc.c.rc_bot.is_(True))
             elif "!bot" in show:
-                s = s.where(rc.c.rc_bot == False)
+                s = s.where(rc.c.rc_bot.is_(False))
             if "patrolled" in show:
-                s = s.where(rc.c.rc_patrolled == True)
+                s = s.where(rc.c.rc_patrolled.is_(True))
             elif "!patrolled" in show:
-                s = s.where(rc.c.rc_patrolled == False)
+                s = s.where(rc.c.rc_patrolled.is_(False))
             if "anon" in show:
-                s = s.where(rc.c.rc_user == None)
+                s = s.where(rc.c.rc_user.is_(None))
             elif "!anon" in show:
-                s = s.where(rc.c.rc_user != None)
+                s = s.where(rc.c.rc_user.is_not(None))
             if "redirect" in show:
-                s = s.where(page.c.page_is_redirect == True)
+                s = s.where(page.c.page_is_redirect.is_(True))
             elif "!redirect":
                 # Don't throw log entries out the window here
-                s = s.where( (page.c.page_is_redirect == False) |
-                             (page.c.page_is_redirect == None) )
+                s = s.where( (page.c.page_is_redirect.is_(False)) |
+                             (page.c.page_is_redirect.is_(None)) )
 
         # order by
         if params["dir"] == "older":

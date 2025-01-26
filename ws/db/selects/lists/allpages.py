@@ -80,7 +80,7 @@ class AllPages(GeneratorBase):
             pr = self.db.page_restrictions
             tail = tail.outerjoin(pr, page.c.page_id == pr.c.pr_page)
             # skip expired protections
-            s = s.where(sa.or_(pr.c.pr_expiry > datetime.datetime.utcnow(), pr.c.pr_expiry == None))
+            s = s.where(sa.or_(pr.c.pr_expiry > datetime.datetime.utcnow(), pr.c.pr_expiry.is_(None)))
             if "prtype" in params:
                 s = s.where(pr.c.pr_type.in_(params["prtype"]))
                 if "prlevel" in params:
@@ -90,7 +90,7 @@ class AllPages(GeneratorBase):
                 elif params["prfiltercascade"] == "noncascading":
                     s = s.where(pr.c.pr_cascade == 0)
             if params["prexpiry"] == "indefinite":
-                s = s.where(sa.or_(pr.c.pr_expiry == "infinity", pr.c.pr_expiry == None))
+                s = s.where(sa.or_(pr.c.pr_expiry == "infinity", pr.c.pr_expiry.is_(None)))
             elif params['prexpiry'] == "definite":
                 s = s.where(pr.c.pr_expiry != "infinity")
             # TODO: check that adding DISTINCT like in MediaWiki is useless for our database
@@ -110,9 +110,9 @@ class AllPages(GeneratorBase):
             s = s.where(page.c.page_title <= end)
         s = s.where(page.c.page_namespace == params["namespace"])
         if params["filterredir"] == "redirects":
-            s = s.where(page.c.page_is_redirect == True)
+            s = s.where(page.c.page_is_redirect.is_(True))
         if params["filterredir"] == "nonredirects":
-            s = s.where(page.c.page_is_redirect == False)
+            s = s.where(page.c.page_is_redirect.is_(False))
 
         # order by
         if params["dir"] == "ascending":

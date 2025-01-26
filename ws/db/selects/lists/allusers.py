@@ -97,7 +97,7 @@ class AllUsers(ListBase):
         if "excludegroup" in params:
             s = s.where(sa.not_(params["group"] == sa.any_(user_groups)))
         if "witheditsonly" in params:
-            s = s.where( (user.c.user_editcount != None) & (user.c.user_editcount > 0) )
+            s = s.where( (user.c.user_editcount.is_not(None)) & (user.c.user_editcount > 0) )
         # TODO
 #        if "activeusers" in params:
 
