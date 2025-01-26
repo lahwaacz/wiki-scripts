@@ -6,7 +6,7 @@ import re
 import mwparserfromhell
 
 from ws.client import API
-from ws.interactive import ask_yesno, edit_interactive
+from ws.interactive import ask_yesno
 
 logger = logging.getLogger(__name__)
 
