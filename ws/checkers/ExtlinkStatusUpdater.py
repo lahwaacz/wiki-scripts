@@ -4,18 +4,19 @@
 # - show the status details when adding flags - otherwise it is hard to check if it is a false positive
 # - handle flagging Template:man links with url= parameter properly ({{Dead link}} should not go inside Template:man)
 
-import logging
 import datetime
+import logging
 
 import mwparserfromhell
 import sqlalchemy as sa
 
-from .CheckerBase import get_edit_summary_tracker, localize_flag, CheckerBase
-from .ExtlinkStatusChecker import ExtlinkStatusChecker
 import ws.ArchWiki.lang as lang
-from ws.parser_helpers.wikicode import get_parent_wikicode, ensure_flagged_by_template, ensure_unflagged_by_template
 from ws.diff import diff_highlighted
 from ws.parser_helpers.encodings import urldecode
+from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template, get_parent_wikicode
+
+from .CheckerBase import CheckerBase, get_edit_summary_tracker, localize_flag
+from .ExtlinkStatusChecker import ExtlinkStatusChecker
 
 __all__ = ["ExtlinkStatusUpdater"]
 

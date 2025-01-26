@@ -4,16 +4,16 @@
 # - intel.com and its subdomains are returning false 404
 
 import asyncio
-import logging
 import datetime
 import ipaddress
+import logging
 import ssl
 from functools import lru_cache
 
 import httpx
 import sqlalchemy as sa
 import sqlalchemy.orm
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 try:
     import tqdm

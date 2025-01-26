@@ -1,23 +1,22 @@
 #! /usr/bin/env python3
 
-import os.path
 import hashlib
-import tarfile
-import subprocess
-import re
 import json
+import os.path
+import re
+import subprocess
+import tarfile
 from pprint import pprint
 
+import pytest
 import requests
 import sqlalchemy as sa
-
-import pytest
 from pytest_nginx import factories
 from pytest_postgresql.factories import postgresql
 
-from .postgresql import postgresql_proc
-
 from ws.client.api import API
+
+from .postgresql import postgresql_proc
 
 _mw_ver = "1.33"
 _mw_rel = _mw_ver + ".1"
