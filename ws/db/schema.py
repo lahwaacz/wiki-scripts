@@ -56,7 +56,7 @@ from .sql_types import SHA1, JSONEncodedDict, MWTimestamp
 def create_custom_tables(metadata):
     # Even special namespaces (with negative IDs) are included, because the recentchanges and logging tables reference them.
     # But most foreign keys should be restricted to non-negative values using a CHECK constraint.
-    namespace = Table("namespace", metadata,
+    Table("namespace", metadata,
         # can't be auto-incremented because we need to start from 0
         Column("ns_id", Integer, nullable=False, primary_key=True, autoincrement=False),
         Column("ns_case", Enum("first-letter", "case-sensitive", name="ns_case"),  nullable=False),
@@ -96,7 +96,7 @@ def create_custom_tables(metadata):
     )
     Index("ns_canonical_id", namespace_canonical.c.nsc_id, unique=True)
 
-    ws_sync = Table("ws_sync", metadata,
+    Table("ws_sync", metadata,
         Column("wss_key", UnicodeText, nullable=False, primary_key=True),
         # timestamp of the last successful sync of the table
         Column("wss_timestamp", DateTime, nullable=False)
@@ -105,7 +105,7 @@ def create_custom_tables(metadata):
 
 def create_site_tables(metadata):
     # MW incompatibility: dropped the iw_wikiid column
-    interwiki = Table("interwiki", metadata,
+    Table("interwiki", metadata,
         Column("iw_prefix", UnicodeText, primary_key=True, nullable=False),
         Column("iw_url", UnicodeText, nullable=False),
         Column("iw_api", UnicodeText),
@@ -208,13 +208,13 @@ def create_recentchanges_tables(metadata):
     Index("log_user_text_type_time", logging.c.log_user_text, logging.c.log_type, logging.c.log_timestamp)
     Index("log_user_text_time", logging.c.log_user_text, logging.c.log_timestamp)
 
-    tagged_recentchange = Table("tagged_recentchange", metadata,
+    Table("tagged_recentchange", metadata,
         Column("tgrc_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("tgrc_rc_id", Integer, ForeignKey("recentchanges.rc_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
         PrimaryKeyConstraint("tgrc_tag_id", "tgrc_rc_id")
     )
 
-    tagged_logevent = Table("tagged_logevent", metadata,
+    Table("tagged_logevent", metadata,
         Column("tgle_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("tgle_log_id", Integer, ForeignKey("logging.log_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
         PrimaryKeyConstraint("tgle_tag_id", "tgle_log_id")
@@ -365,7 +365,7 @@ def create_revisions_tables(metadata):
     Index("rev_usertext_timestamp", revision.c.rev_user_text, revision.c.rev_timestamp)
     Index("rev_page_user_timestamp", revision.c.rev_page, revision.c.rev_user, revision.c.rev_timestamp)
 
-    text = Table("text", metadata,
+    Table("text", metadata,
         Column("old_id", Integer, primary_key=True, nullable=False),
         Column("old_text", UnicodeText, nullable=False),
         # MW incompatibility: there is no old_flags column because it is useless for us
@@ -373,13 +373,13 @@ def create_revisions_tables(metadata):
         # objects are not supported and we will never support external storage)
     )
 
-    tagged_revision = Table("tagged_revision", metadata,
+    Table("tagged_revision", metadata,
         Column("tgrev_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("tgrev_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
         PrimaryKeyConstraint("tgrev_tag_id", "tgrev_rev_id")
     )
 
-    tagged_archived_revision = Table("tagged_archived_revision", metadata,
+    Table("tagged_archived_revision", metadata,
         Column("tgar_tag_id", Integer, ForeignKey("tag.tag_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("tgar_rev_id", Integer, ForeignKey("archive.ar_rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED")),
         PrimaryKeyConstraint("tgar_tag_id", "tgar_rev_id")
@@ -452,7 +452,7 @@ def create_pages_tables(metadata):
 
 def create_recomputable_tables(metadata):
     # tracks page-to-page links within the wiki (e.g. [[Page name]])
-    pagelinks = Table("pagelinks", metadata,
+    Table("pagelinks", metadata,
         Column("pl_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         # MW incompatibility: removed useless pl_from_namespace column
         Column("pl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
@@ -462,7 +462,7 @@ def create_recomputable_tables(metadata):
     )
 
     # tracks page transclusions (e.g. {{Page name}})
-    templatelinks = Table("templatelinks", metadata,
+    Table("templatelinks", metadata,
         Column("tl_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         # MW incompatibility: removed useless tl_from_namespace column
         Column("tl_namespace", Integer, ForeignKey("namespace.ns_id"), nullable=False),
@@ -472,7 +472,7 @@ def create_recomputable_tables(metadata):
     )
 
     # tracks links to images/files used inline (e.g. [[File:Name]])
-    imagelinks = Table("imagelinks", metadata,
+    Table("imagelinks", metadata,
         Column("il_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         # MW incompatibility: removed useless il_from_namespace column
         # il_to is the target file name (and also a page title in the "File:" namespace, i.e. the namespace ID is 6)
@@ -481,7 +481,7 @@ def create_recomputable_tables(metadata):
     )
 
     # tracks category membership (e.g. [[Category:Name]])
-    categorylinks = Table("categorylinks", metadata,
+    Table("categorylinks", metadata,
         # cl_from is the page ID of the member page
         Column("cl_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         # cl_to is the category name (and also a page title in the "Category:" namespace, i.e. the namespace ID is 14)
@@ -518,7 +518,7 @@ def create_recomputable_tables(metadata):
     Index("iwl_prefix_from_title", iwlinks.c.iwl_prefix, iwlinks.c.iwl_from, iwlinks.c.iwl_title)
 
     # tracks links to external URLs
-    externallinks = Table("externallinks", metadata,
+    Table("externallinks", metadata,
         Column("el_from", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False),
         Column("el_to", UnicodeText, nullable=False),
         PrimaryKeyConstraint("el_from", "el_to"),
@@ -554,7 +554,7 @@ def create_recomputable_tables(metadata):
 
     # custom table tracking which page revision is currently in the parser cache
     # (used for invalidation of entries in the parser cache)
-    ws_parser_cache_sync = Table("ws_parser_cache_sync", metadata,
+    Table("ws_parser_cache_sync", metadata,
         Column("wspc_page_id", Integer, ForeignKey("page.page_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), primary_key=True, nullable=False),
         # the revision ID currently in the parser cache
         Column("wspc_rev_id", Integer, ForeignKey("revision.rev_id", ondelete="CASCADE", deferrable=True, initially="DEFERRED"), nullable=False)
