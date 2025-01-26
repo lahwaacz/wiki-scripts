@@ -2,7 +2,7 @@
 
 import logging
 
-from ws.ArchWiki.lang import detect_language, format_title
+from ws.ArchWiki.lang import detect_language
 from ws.client import API, APIError
 from ws.interactive import require_login
 
