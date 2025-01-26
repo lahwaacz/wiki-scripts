@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import os.path
 
 from ws.client import API
 from ws.diff import diff_revisions

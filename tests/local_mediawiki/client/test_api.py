@@ -5,8 +5,6 @@ import warnings
 import pytest
 import sqlalchemy as sa
 
-from ws.client.api import LoginFailed
-
 
 class test_simple_queries:
 # TODO: figure out how to restore the fixture state after the test

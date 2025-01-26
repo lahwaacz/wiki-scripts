@@ -11,7 +11,6 @@ from sqlalchemy.dialects.postgresql import insert
 # TODO: generalize or make the language tags configurable
 from ws.ArchWiki.lang import get_language_tags
 
-from ..parser_helpers.encodings import urldecode
 from ..parser_helpers.template_expansion import expand_templates
 from ..parser_helpers.title import TitleError
 from ..parser_helpers.wikicode import get_anchors, is_redirect, parented_ifilter

@@ -11,7 +11,7 @@ import requests.exceptions as rexc
 
 from ws.client import API
 from ws.interactive import ask_yesno, require_login
-from ws.utils import RateLimited, list_chunks
+from ws.utils import RateLimited
 
 
 def is_blocked(api, user):

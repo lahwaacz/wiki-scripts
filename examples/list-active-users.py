@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import datetime
-import os.path
 
 from ws.client import API
 

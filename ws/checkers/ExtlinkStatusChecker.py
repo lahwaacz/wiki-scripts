@@ -13,7 +13,7 @@ from functools import lru_cache
 import httpx
 import sqlalchemy as sa
 import sqlalchemy.orm
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 try:
     import tqdm

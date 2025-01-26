@@ -3,7 +3,6 @@
 import os.path
 import warnings
 
-import pytest
 import sqlalchemy as sa
 
 

@@ -188,7 +188,6 @@ class TableOfContents:
 
     @staticmethod
     def set_argparser(argparser):
-        import ws.config
 
         # first try to set options for objects we depend on
         present_groups = [group.title for group in argparser._action_groups]

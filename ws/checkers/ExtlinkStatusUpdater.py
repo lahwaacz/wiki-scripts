@@ -12,7 +12,6 @@ import sqlalchemy as sa
 
 import ws.ArchWiki.lang as lang
 from ws.diff import diff_highlighted
-from ws.parser_helpers.encodings import urldecode
 from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template, get_parent_wikicode
 
 from .CheckerBase import CheckerBase, get_edit_summary_tracker, localize_flag
