@@ -47,14 +47,10 @@ Known incompatibilities from MediaWiki schema:
 # TODO:
 # - try to normalize revision + archive
 
-from sqlalchemy import \
-        Table, Column, ForeignKey, Index, PrimaryKeyConstraint, ForeignKeyConstraint, CheckConstraint
-from sqlalchemy.types import \
-        Boolean, SmallInteger, Integer, Float, \
-        UnicodeText, Enum, DateTime, Interval, ARRAY
+from sqlalchemy import CheckConstraint, Column, ForeignKey, ForeignKeyConstraint, Index, PrimaryKeyConstraint, Table
+from sqlalchemy.types import ARRAY, Boolean, DateTime, Enum, Float, Integer, Interval, SmallInteger, UnicodeText
 
-from .sql_types import \
-        MWTimestamp, SHA1, JSONEncodedDict
+from .sql_types import SHA1, JSONEncodedDict, MWTimestamp
 
 
 def create_custom_tables(metadata):
