@@ -548,7 +548,7 @@ class GrabberRevisions(GrabberBase):
             query = sa.select(rev.c.rev_id).select_from(
                         rev.join(page, (rev.c.rev_page == page.c.page_id) &
                                        (rev.c.rev_id == page.c.page_latest))
-                    ).where(rev.c.rev_text_id == None).order_by(rev.c.rev_id)
+                    ).where(rev.c.rev_text_id.is_(None)).order_by(rev.c.rev_id)
             conn = self.db.engine.connect()
             result = conn.execute(query)
             return [r[0] for r in result]
@@ -557,7 +557,7 @@ class GrabberRevisions(GrabberBase):
             rev = self.db.revision
             query = sa.select(rev.c.rev_id).select_from(
                         rev
-                    ).where(rev.c.rev_text_id == None).order_by(rev.c.rev_id)
+                    ).where(rev.c.rev_text_id.is_(None)).order_by(rev.c.rev_id)
             conn = self.db.engine.connect()
             result = conn.execute(query)
             return [r[0] for r in result]

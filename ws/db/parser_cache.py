@@ -100,7 +100,7 @@ class ParserCache:
                 .select_from(
                     page.outerjoin(wspc, page.c.page_id == wspc.c.wspc_page_id)
                 ).where(
-                    ( wspc.c.wspc_rev_id == None ) |
+                    ( wspc.c.wspc_rev_id.is_(None) ) |
                     ( wspc.c.wspc_rev_id != page.c.page_latest )
                 )
         for row in self._execute(conn, query):
@@ -117,7 +117,7 @@ class ParserCache:
                     )
                     .outerjoin(wspc, target_page.c.page_id == wspc.c.wspc_page_id)
                 ).where(
-                    ( wspc.c.wspc_rev_id == None ) |
+                    ( wspc.c.wspc_rev_id.is_(None) ) |
                     ( wspc.c.wspc_rev_id != target_page.c.page_latest )
                 )
         for row in self._execute(conn, query):
