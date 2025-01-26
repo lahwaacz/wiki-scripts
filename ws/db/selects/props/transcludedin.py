@@ -62,9 +62,9 @@ class TranscludedIn(SelectBase):
             s = s.where(src_page.c.page_namespace.in_(namespace))
         if "show" in params:
             if params["show"] == "redirect":
-                s = s.where(src_page.c.page_is_redirect == True)
+                s = s.where(src_page.c.page_is_redirect.is_(True))
             else:
-                s = s.where(src_page.c.page_is_redirect == False)
+                s = s.where(src_page.c.page_is_redirect.is_(False))
 
         # order by
         s = s.order_by(tl.c.tl_from.asc())
