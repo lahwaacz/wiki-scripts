@@ -5,13 +5,14 @@ import json
 
 
 class DatetimeEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if (isinstance(obj, datetime.datetime) or
-            isinstance(obj, datetime.date) or
-            isinstance(obj, datetime.timedelta)):
-            return repr(obj)
+    def default(self, o):
+        if (isinstance(o, datetime.datetime) or
+            isinstance(o, datetime.date) or
+            isinstance(o, datetime.timedelta)):
+            return repr(o)
         else:
-            return super(DateTimeEncoder, self).default(obj)
+            return super().default(o)
+
 
 def datetime_parser(dct):
     for k, v in dct.items():
