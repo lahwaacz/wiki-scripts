@@ -3,10 +3,10 @@
 import datetime
 import logging
 
-from ws.client import API
-from ws.interactive import require_login
-from ws.db.database import Database
 from ws.autopage import AutoPage
+from ws.client import API
+from ws.db.database import Database
+from ws.interactive import require_login
 from ws.parser_helpers.title import canonicalize
 
 logger = logging.getLogger(__name__)

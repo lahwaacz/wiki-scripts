@@ -2,7 +2,7 @@
 
 import pytest
 
-from ws.utils.base_enc import base_enc, base_dec
+from ws.utils.base_enc import base_dec, base_enc
 
 
 @pytest.mark.parametrize("encoded, base, decoded",

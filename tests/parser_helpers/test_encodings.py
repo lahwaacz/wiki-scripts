@@ -1,11 +1,12 @@
 #! /usr/bin/env python3
 
+import string
+import urllib.parse
+
 import pytest
 
-import urllib.parse
-import string
-
 from ws.parser_helpers.encodings import *
+
 
 class test_encodings:
     ascii_all = "".join(chr(i) for i in range(128))

@@ -1,11 +1,12 @@
 #! /usr/bin/env python3
 
-from ws.interactive import edit_interactive
-from ws.client import API
-from ws.utils import dmerge
-from ws.parser_helpers.title import canonicalize
-from ws.ArchWiki import lang
 import mwparserfromhell
+
+from ws.ArchWiki import lang
+from ws.client import API
+from ws.interactive import edit_interactive
+from ws.parser_helpers.title import canonicalize
+from ws.utils import dmerge
 
 
 def page_language(page):

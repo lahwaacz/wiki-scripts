@@ -2,6 +2,7 @@
 
 import pytest
 
+
 @pytest.mark.skip(reason="The api fixture was removed.")
 class test_redirects:
 

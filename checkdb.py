@@ -1,22 +1,22 @@
 #! /usr/bin/env python3
 
-from pprint import pprint, pformat
-import datetime
-import traceback
 import copy
+import datetime
+import html
+import traceback
 from collections import OrderedDict
 from itertools import chain
-import html
+from pprint import pformat, pprint
 
-import sqlalchemy as sa
 import requests.packages.urllib3 as urllib3
+import sqlalchemy as sa
 
-from ws.client import API
-from ws.interactive import require_login
-from ws.db.database import Database, parser_cache
-from ws.utils.containers import dmerge
 import ws.diff
+from ws.client import API
+from ws.db.database import Database, parser_cache
+from ws.interactive import require_login
 from ws.parser_helpers.encodings import urldecode
+from ws.utils.containers import dmerge
 
 
 def _pprint_diff(i, db_entry, api_entry, *, key=None):

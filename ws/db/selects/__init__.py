@@ -4,32 +4,30 @@ from collections import OrderedDict
 
 import sqlalchemy as sa
 
-from .namespaces import *
 from .interwiki import *
-
-from .lists.recentchanges import *
-from .lists.logevents import *
-from .lists.allpages import *
-from .lists.protectedtitles import *
-from .lists.allrevisions import *
 from .lists.alldeletedrevisions import *
+from .lists.allpages import *
+from .lists.allrevisions import *
 from .lists.allusers import *
-
-from .props.info import *
-from .props.pageprops import *
-from .props.revisions import *
+from .lists.logevents import *
+from .lists.protectedtitles import *
+from .lists.recentchanges import *
+from .namespaces import *
+from .props.categories import *
 from .props.deletedrevisions import *
-from .props.templates import *
-from .props.transcludedin import *
+from .props.extlinks import *
+from .props.images import *
+from .props.info import *
+from .props.iwlinks import *
+from .props.langlinks import *
 from .props.links import *
 from .props.linkshere import *
-from .props.images import *
-from .props.categories import *
-from .props.langlinks import *
-from .props.iwlinks import *
-from .props.extlinks import *
+from .props.pageprops import *
 from .props.redirects import *
+from .props.revisions import *
 from .props.sections import *
+from .props.templates import *
+from .props.transcludedin import *
 
 __classes_lists = {
     "recentchanges": RecentChanges,

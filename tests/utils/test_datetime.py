@@ -4,6 +4,7 @@ import datetime
 
 from ws.utils import *
 
+
 def test_parse_date():
     timestamp = "2014-08-25T14:26:59Z"
     expected = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")

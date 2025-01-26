@@ -6,6 +6,7 @@ from ws.utils import value_or_none
 
 from .GrabberBase import GrabberBase
 
+
 class GrabberTags(GrabberBase):
 
     def __init__(self, api, db):

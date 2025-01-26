@@ -2,6 +2,7 @@
 
 import sqlalchemy as sa
 
+
 def get_interwiki_redirects(db):
     nss = db.namespace_starname
     page = db.page

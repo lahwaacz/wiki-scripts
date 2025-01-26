@@ -3,16 +3,16 @@
 # FIXME: space-initialized code blocks should be skipped, but mwparserfromhell does not support that
 # TODO: changes rejected interactively should be logged
 
-import logging
 import asyncio
+import logging
 from concurrent.futures import ThreadPoolExecutor
 
 import mwparserfromhell
 
-from ws.client import API, APIError
-from ws.interactive import require_login, edit_interactive
-from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
+from ws.client import API, APIError
+from ws.diff import diff_highlighted
+from ws.interactive import edit_interactive, require_login
 from ws.parser_helpers.title import canonicalize
 
 logger = logging.getLogger(__name__)

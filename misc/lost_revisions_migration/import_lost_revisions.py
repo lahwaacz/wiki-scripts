@@ -1,13 +1,12 @@
 #! /usr/bin/env python3
 
-import json
 import datetime
-import re
+import json
 import logging
+import re
 
-from ws.db.database import Database
 import ws.db.mw_constants as mwconst
-
+from ws.db.database import Database
 
 logger = logging.getLogger(__name__)
 

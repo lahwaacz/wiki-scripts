@@ -3,7 +3,8 @@
 import pytest
 
 import ws.client.connection
-from ws.client.connection import APIWrongAction, APIError, APIExpandResultFailed
+from ws.client.connection import APIError, APIExpandResultFailed, APIWrongAction
+
 
 class test_connection:
     """

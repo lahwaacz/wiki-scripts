@@ -2,6 +2,7 @@
 
 import re
 
+
 class Wikitable:
     @staticmethod
     def assemble(header_fields, rows, single_line_rows=False):

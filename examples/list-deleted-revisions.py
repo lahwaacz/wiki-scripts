@@ -6,6 +6,7 @@ from pprint import pprint
 from ws.client import API
 from ws.interactive import require_login
 
+
 def main(api):
     require_login(api)
 

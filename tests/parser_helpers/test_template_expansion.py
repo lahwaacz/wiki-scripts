@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
 
-import pytest
-
 import mwparserfromhell
+import pytest
 
 from ws.parser_helpers.template_expansion import *
 from ws.parser_helpers.title import Title, TitleError
+
 
 class common_base:
     @staticmethod

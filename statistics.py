@@ -9,14 +9,12 @@ try:
 except ImportError:
     Tk = None
 
-from ws.client import API, APIError
-from ws.interactive import require_login
-from ws.db.database import Database
 from ws.autopage import AutoPage
-from ws.wikitable import Wikitable
-
+from ws.client import API, APIError
+from ws.db.database import Database
+from ws.interactive import require_login
 from ws.statistics.UserStatsModules import UserStatsModules
-
+from ws.wikitable import Wikitable
 
 logger = logging.getLogger(__name__)
 
@@ -310,6 +308,7 @@ divided by the number of days between the user's first and last edits.
 
 if __name__ == "__main__":
     import sys
+
     import ws.config
     statistics = ws.config.object_from_argparser(Statistics, description="Update the statistics page on ArchWiki")
     sys.exit(statistics.run())

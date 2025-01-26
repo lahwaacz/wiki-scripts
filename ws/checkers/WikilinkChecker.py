@@ -10,12 +10,13 @@ import re
 
 import mwparserfromhell
 
-from .CheckerBase import get_edit_summary_tracker, CheckerBase
 import ws.ArchWiki.lang as lang
-from ws.parser_helpers.encodings import dotencode, urldecode
-from ws.parser_helpers.title import canonicalize, TitleError, InvalidTitleCharError
-from ws.parser_helpers.wikicode import get_anchors, ensure_flagged_by_template, ensure_unflagged_by_template, is_flagged_by_template
 from ws.db.selects.interwiki_redirects import get_interwiki_redirects
+from ws.parser_helpers.encodings import dotencode, urldecode
+from ws.parser_helpers.title import InvalidTitleCharError, TitleError, canonicalize
+from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template, get_anchors, is_flagged_by_template
+
+from .CheckerBase import CheckerBase, get_edit_summary_tracker
 
 __all__ = ["WikilinkChecker"]
 

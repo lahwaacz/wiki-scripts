@@ -3,7 +3,8 @@
 import bisect
 import datetime
 
-from .datetime_ import parse_date, format_date
+from .datetime_ import format_date, parse_date
+
 
 class ListOfDictsAttrWrapper(object):
     """ A list-like wrapper around list of dicts, operating on a given attribute.

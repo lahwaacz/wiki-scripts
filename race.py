@@ -2,11 +2,11 @@
 
 import datetime
 import logging
+
+import bar_chart_race as bcr
 import matplotlib
 import numpy as np
 import pandas as pd
-
-import bar_chart_race as bcr
 
 from ws.db.database import Database
 

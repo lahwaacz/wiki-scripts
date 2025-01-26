@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 
 import pytest
-from pytest_postgresql import factories
 import sqlalchemy
+from pytest_postgresql import factories
 
 pg_executable = "/usr/bin/pg_ctl"
 db_name = "wiki_scripts"

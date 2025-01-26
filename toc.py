@@ -1,18 +1,17 @@
 #! /usr/bin/env python3
 
-from collections.abc import Iterable
 import datetime
 import logging
+from collections.abc import Iterable
 
+import ws.ArchWiki.lang as lang
+from ws.autopage import AutoPage
 from ws.client import API, APIError
 from ws.interactive import require_login
-from ws.autopage import AutoPage
-from ws.parser_helpers.title import canonicalize
-import ws.ArchWiki.lang as lang
-from ws.interlanguage.CategoryGraph import CategoryGraph
 from ws.interlanguage.Categorization import Categorization
+from ws.interlanguage.CategoryGraph import CategoryGraph
 from ws.interlanguage.Decategorization import Decategorization
-
+from ws.parser_helpers.title import canonicalize
 
 logger = logging.getLogger(__name__)
 

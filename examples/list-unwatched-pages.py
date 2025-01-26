@@ -2,9 +2,10 @@
 
 import sys
 
+from ws.ArchWiki.lang import detect_language
 from ws.client import API
 from ws.interactive import require_login
-from ws.ArchWiki.lang import detect_language
+
 
 def main(api):
     require_login(api)

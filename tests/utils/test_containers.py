@@ -4,6 +4,7 @@ import pytest
 
 from ws.utils import *
 
+
 def test_wrapper():
     l = [
         {"name": "Betty", "id": 0},

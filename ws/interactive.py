@@ -5,11 +5,11 @@ Collection of functions extending :py:class:`ws.client.api.API` with various
 interactive tasks.
 """
 
+import getpass
+import logging
 import os
 import shlex
-import getpass
 import subprocess
-import logging
 
 from .diff import diff_highlighted
 

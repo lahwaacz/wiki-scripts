@@ -4,6 +4,7 @@ import sqlalchemy as sa
 
 from .GrabberBase import GrabberBase
 
+
 class GrabberNamespaces(GrabberBase):
 
     def __init__(self, api, db):

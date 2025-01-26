@@ -4,9 +4,9 @@ import logging
 
 import sqlalchemy as sa
 
-from ws.utils import value_or_none
 import ws.db.mw_constants as mwconst
 import ws.db.selects as selects
+from ws.utils import value_or_none
 
 from .GrabberBase import GrabberBase
 

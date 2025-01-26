@@ -2,6 +2,7 @@
 
 from .meta import Meta
 
+
 class Site(Meta):
     """
     The :py:class:`Site` class holds information about the wiki site.

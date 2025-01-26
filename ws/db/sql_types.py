@@ -35,16 +35,17 @@ measured in `characters`. Therefore we follow the PostgreSQL schema and use
 .. _PostgreSQL manual: https://www.postgresql.org/docs/current/static/datatype-character.html
 """
 
-import json
 import datetime
+import json
 
 import sqlalchemy.types as types
+
 try:
     import psycopg
 except ImportError:
     psycopg = None
 
-from ws.utils import base_enc, base_dec, DatetimeEncoder, datetime_parser, round_to_seconds
+from ws.utils import DatetimeEncoder, base_dec, base_enc, datetime_parser, round_to_seconds
 
 
 class MWTimestamp(types.TypeDecorator):

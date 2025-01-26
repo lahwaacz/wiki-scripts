@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 
+import ws.config
 from ws.client import API
 from ws.interactive import require_login
-import ws.config
 
 api = ws.config.object_from_argparser(API, description="Migration of the DeveloperWiki pages")
 require_login(api)
