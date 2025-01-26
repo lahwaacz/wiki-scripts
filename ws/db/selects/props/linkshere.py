@@ -64,9 +64,9 @@ class LinksHere(SelectBase):
             s = s.where(src_page.c.page_namespace.in_(namespace))
         if "show" in params:
             if "redirect" in params["show"]:
-                s = s.where(src_page.c.page_is_redirect == True)
+                s = s.where(src_page.c.page_is_redirect.is_(True))
             elif "!redirect" in params["show"]:
-                s = s.where(src_page.c.page_is_redirect == False)
+                s = s.where(src_page.c.page_is_redirect.is_(False))
 
         # order by
         s = s.order_by(pl.c.pl_from.asc())

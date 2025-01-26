@@ -65,9 +65,9 @@ class Redirects(SelectBase):
             s = s.where(src_page.c.page_namespace.in_(namespace))
         if "show" in params:
             if "fragment" in params["show"]:
-                s = s.where(rd.c.rd_fragment != None)
+                s = s.where(rd.c.rd_fragment.is_not(None))
             elif "!fragment" in params["show"]:
-                s = s.where(rd.c.rd_fragment == None)
+                s = s.where(rd.c.rd_fragment.is_(None))
 
         # order by
         s = s.order_by(rd.c.rd_from.asc())
