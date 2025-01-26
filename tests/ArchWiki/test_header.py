@@ -1,10 +1,10 @@
 #! /usr/bin/env python3
 
+import mwparserfromhell
 import pytest
 
-import mwparserfromhell
-
 from ws.ArchWiki.header import *
+
 
 class test_fix_header:
     @staticmethod

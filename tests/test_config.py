@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentTypeError
 import os
 import sys
+from argparse import ArgumentTypeError
+
 import pytest
 
 import ws.config

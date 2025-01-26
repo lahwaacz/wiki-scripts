@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
-import os.path
 import datetime
+import os.path
 
 from ws.client import API
 

@@ -207,12 +207,11 @@ class UserStatsModules:
 
 if __name__ == "__main__":
     # this is only for testing...
-    from ws.client import API
-    from ws.interactive import require_login
-    from ws.db.database import Database
-    from ws.wikitable import Wikitable
-
     import ws.config
+    from ws.client import API
+    from ws.db.database import Database
+    from ws.interactive import require_login
+    from ws.wikitable import Wikitable
 
     argparser = ws.config.getArgParser()
     API.set_argparser(argparser)

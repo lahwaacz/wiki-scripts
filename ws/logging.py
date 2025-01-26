@@ -6,8 +6,8 @@
 #       document how scripts should use the ws.logging submodule
 #   check if stdout is actually attached to terminal
 
-import logging
 import collections
+import logging
 
 __all__ = ["setTerminalLogging", "set_argparser", "init"]
 

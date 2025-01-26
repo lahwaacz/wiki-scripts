@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
 
 from ws.client import API
-from ws.interlanguage.Categorization import Categorization
-from ws.interlanguage.Decategorization import Decategorization
-from ws.interlanguage.CategoryGraph import CategoryGraph
-from ws.interlanguage.InterlanguageLinks import InterlanguageLinks
 from ws.interactive import require_login
+from ws.interlanguage.Categorization import Categorization
+from ws.interlanguage.CategoryGraph import CategoryGraph
+from ws.interlanguage.Decategorization import Decategorization
+from ws.interlanguage.InterlanguageLinks import InterlanguageLinks
 
 modes = ["update", "orphans", "rename"]
 _modes_desc = {

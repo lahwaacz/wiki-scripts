@@ -1,15 +1,15 @@
 #! /usr/bin/env python3
 
-import sqlalchemy as sa
 import pytest
+import sqlalchemy as sa
+from fixtures.mediawiki import *
+from fixtures.postgresql import *
+from fixtures.title_context import *
 
+import ws.db.schema as schema
 from ws.client.api import API
 from ws.db.database import Database
-import ws.db.schema as schema
 
-from fixtures.postgresql import *
-from fixtures.mediawiki import *
-from fixtures.title_context import *
 
 # disable rate-limiting for tests
 def pytest_configure(config):
