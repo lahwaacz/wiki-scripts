@@ -11,7 +11,7 @@ class test_tags:
         {"name": "a", "source": ["manual"], "active": ""},
         {"name": "b", "source": ["extension", "manual"], "active": ""},
         {"name": "c", "source": ["extension"], "active": ""},
-        {"name": "d", "source": ["manual"]}, 
+        {"name": "d", "source": ["manual"]},
     ]
 
     tag_names = {
