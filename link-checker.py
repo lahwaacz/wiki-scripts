@@ -32,22 +32,28 @@ if __name__ == "__main__":
     from ws.interactive import InteractiveQuit
 
     argparser = ws.config.getArgParser(description="Parse all pages on the wiki and try to fix/simplify/beautify links")
+    API.set_argparser(argparser)
+    Database.set_argparser(argparser)
     Updater.set_argparser(argparser)
     # checkers don't have their own set_argparser method at the moment,
     # they just reuse API's and PageUpdater's options
 
     args = ws.config.parse_args(argparser)
 
+    # create API and Database objects
+    api = API.from_argparser(args)
+    db = Database.from_argparser(args)
+
     # create updater and add checkers
-    updater = Updater.from_argparser(args)
-    checker = LinkChecker(updater.api, updater.db, timeout=args.connection_timeout, max_retries=args.connection_max_retries)
+    updater = Updater.from_argparser(args, api)
+    checker = LinkChecker(api, db, timeout=args.connection_timeout, max_retries=args.connection_max_retries)
     updater.add_checker(mwparserfromhell.nodes.ExternalLink, checker)
     updater.add_checker(mwparserfromhell.nodes.Wikilink, checker)
     updater.add_checker(mwparserfromhell.nodes.Template, checker)
 
-    updater.db.sync_with_api(updater.api)
-    updater.db.sync_revisions_content(updater.api, mode="latest")
-    updater.db.update_parser_cache()
+    db.sync_with_api(api)
+    db.sync_revisions_content(api, mode="latest")
+    db.update_parser_cache()
 
     try:
         updater.run()

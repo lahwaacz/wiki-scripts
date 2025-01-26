@@ -38,7 +38,7 @@ def check(args, api, db):
 
 def update(args, api, db):
     # create updater and add checkers
-    updater = Updater.from_argparser(args, api, db)
+    updater = Updater.from_argparser(args, api)
     checker = ExtlinkStatusUpdater(api, db, timeout=args.connection_timeout, max_retries=args.connection_max_retries)
     updater.add_checker(mwparserfromhell.nodes.ExternalLink, checker)
 
