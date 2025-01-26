@@ -1,9 +1,12 @@
-from __future__ import with_statement
-
 import logging.config
+import os
+import sys
 
 import sqlalchemy as sa
 from alembic import context
+
+import ws.config
+from ws.db import schema
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -14,21 +17,13 @@ config = context.config
 logging.config.fileConfig(config.config_file_name)
 
 # add our project root into the path so that we can import the "ws" module
-import os
-import sys
-
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../.."))
 
 # wiki-scripts' MetaData object for 'autogenerate' support
-from ws.db import schema
-
 target_metadata = sa.MetaData()
 schema.create_tables(target_metadata)
 
 # get database connection URL from the wiki-scripts config
-import ws.config
-
-
 def get_url():
     ws_config_path = os.path.expanduser(config.get_main_option("ws_config_path"))
     parser = ws.config.ConfigParser(ws_config_path)
