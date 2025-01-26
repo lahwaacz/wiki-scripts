@@ -1,12 +1,12 @@
 #! /usr/bin/env python3
 
-import re
 import logging
+import re
 
 import mwparserfromhell
 
 from ws.client import API
-from ws.interactive import edit_interactive, ask_yesno
+from ws.interactive import ask_yesno, edit_interactive
 
 logger = logging.getLogger(__name__)
 

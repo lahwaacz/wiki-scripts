@@ -5,8 +5,8 @@ import logging
 import pytest
 import requests_mock
 
-from ws.client import API
 from ws.checkers import ExtlinkReplacements
+from ws.client import API
 
 # set up the global logger
 logging.basicConfig()

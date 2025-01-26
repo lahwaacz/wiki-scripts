@@ -5,7 +5,6 @@ import logging
 
 import ws.ArchWiki.lang as lang
 
-
 logger = logging.getLogger(__name__)
 
 __all__ = ["CategoryGraph"]

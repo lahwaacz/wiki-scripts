@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
-from .meta import Meta
 from ..utils import LazyProperty
+from .meta import Meta
+
 
 class User(Meta):
     """
