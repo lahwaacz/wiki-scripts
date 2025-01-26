@@ -8,8 +8,8 @@ except ImportError:
     import difflib
     try:
         import pygments
-        import pygments.lexers.text
         import pygments.formatters
+        import pygments.lexers.text
         _has_pygments = True
     except ImportError:
         _has_pygments = False

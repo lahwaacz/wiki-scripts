@@ -2,6 +2,7 @@
 
 from ws.utils import *
 
+
 class test_is_ascii:
     """ test for utils.is_ascii() function
     """

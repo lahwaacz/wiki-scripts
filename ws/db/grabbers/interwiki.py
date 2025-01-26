@@ -4,6 +4,7 @@ import sqlalchemy as sa
 
 from .GrabberBase import GrabberBase
 
+
 class GrabberInterwiki(GrabberBase):
 
     INSERT_PREDELETE_TABLES = ["interwiki"]

@@ -6,9 +6,9 @@ import threading
 import mwparserfromhell
 
 import ws.ArchWiki.lang as lang
-from ws.utils import LazyProperty
 from ws.parser_helpers.title import canonicalize
-from ws.parser_helpers.wikicode import get_parent_wikicode, get_adjacent_node
+from ws.parser_helpers.wikicode import get_adjacent_node, get_parent_wikicode
+from ws.utils import LazyProperty
 
 __all__ = ["get_edit_summary_tracker", "localize_flag", "CheckerBase"]
 

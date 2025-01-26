@@ -4,6 +4,7 @@ import mwparserfromhell
 
 from ws.parser_helpers.wikicode import *
 
+
 class test_get_adjacent_node:
     def test_basic(self):
         snippet = "[[Arch Linux]] is the best!"
