@@ -4,9 +4,9 @@ import logging
 
 import mwparserfromhell
 
-from ws.checkers import get_edit_summary_tracker, CheckerBase
-from ws.pageupdater import PageUpdater
 import ws.ArchWiki.lang as lang
+from ws.checkers import CheckerBase, get_edit_summary_tracker
+from ws.pageupdater import PageUpdater
 from ws.parser_helpers.title import InvalidTitleCharError
 from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template, is_flagged_by_template
 

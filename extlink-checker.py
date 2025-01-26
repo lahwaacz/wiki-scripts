@@ -5,11 +5,12 @@ import datetime
 import mwparserfromhell
 import sqlalchemy as sa
 
+from ws.checkers import Domain, ExtlinkStatusChecker, ExtlinkStatusUpdater, LinkCheck
 from ws.client import API
-from ws.interactive import require_login
 from ws.db.database import Database
-from ws.checkers import ExtlinkStatusUpdater, ExtlinkStatusChecker, LinkCheck, Domain
+from ws.interactive import require_login
 from ws.pageupdater import PageUpdater
+
 
 class Updater(PageUpdater):
     force_interactive = True

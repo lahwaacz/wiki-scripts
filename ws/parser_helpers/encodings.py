@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
-import string
 import re
+import string
 import unicodedata
 
 __all__ = ["encode", "decode", "dotencode", "anchorencode", "urlencode", "urldecode", "queryencode", "querydecode"]

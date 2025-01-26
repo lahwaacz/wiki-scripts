@@ -2,9 +2,9 @@
 
 import mwparserfromhell
 
+from ws.checkers import ExtlinkReplacements, ManTemplateChecker, WikilinkChecker
 from ws.client import API
 from ws.db.database import Database
-from ws.checkers import ExtlinkReplacements, ManTemplateChecker, WikilinkChecker
 from ws.pageupdater import PageUpdater
 
 
