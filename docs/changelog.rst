@@ -7,6 +7,9 @@ Version 2.0
 Unreleased
 (`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.4...master>`__)
 
+- Project structure refactoring:
+  - Added `pyproject.toml` and modern tooling (ruff)
+
 Version 1.4
 -----------
 

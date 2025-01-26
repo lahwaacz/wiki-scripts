@@ -1,0 +1,74 @@
+[project]
+name = "wiki-scripts"
+version = "1.4"
+description = "Framework for writing bots, maintenance scripts or performing data analysis on wikis powered by MediaWiki"
+readme = "README.rst"
+requires-python = ">=3.9"
+dependencies = [
+    "requests",
+    "httpx",
+    "jinja2",
+    "mwparserfromhell",
+]
+
+[project.urls]
+Homepage = "https://github.com/lahwaacz/wiki-scripts"
+Issues = "https://github.com/lahwaacz/wiki-scripts/issues"
+
+[project.optional-dependencies]
+database = [ #
+    "sqlalchemy[asyncio] >= 2.0",
+    "alembic",
+    "psycopg",
+    "asyncpg",
+]
+
+scripts = [
+    "colorlog",
+    "tqdm",
+    "wikeddiff @ git+https://github.com/lahwaacz/python-wikeddiff.git",
+    # script-specific dependencies
+    "pyalpm",
+    "hstspreload",
+    "numpy",
+    "matplotlib",
+]
+
+doc = [ #
+    "sphinx",
+]
+
+lint = [ #
+    "ruff",
+]
+
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-postgresql",
+    "pytest-nginx",
+    "pytest-bdd",
+    "pytest-mock",
+    "requests-mock",
+]
+
+all = ["wiki-scripts[database,scripts,doc,lint,test]"]
+
+[tool.setuptools]
+# avoid ambiguity (Multiple top-level packages discovered in a flat-layout)
+packages = ["ws"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 160
+extend-exclude = ["ws/db/migrations/versions/"]
+
+[tool.ruff.lint]
+# Pyflakes (F) and a subset of the pycodestyle (E4, E7, E9) are enabled by default.
+# We also enable isort (I) and pycodestyle warnings (W)
+select = ["E4", "E7", "E9", "F", "I", "W"]
+ignore = [
+    # TODO: reconsider this later
+    "F403", # https://docs.astral.sh/ruff/rules/undefined-local-with-import-star/
+    "F405", # https://docs.astral.sh/ruff/rules/undefined-local-with-import-star-usage/
+]
