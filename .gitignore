@@ -1,4 +1,3 @@
-__pycache__
 /stub/
 
 # documentation
@@ -9,6 +8,11 @@ __pycache__
 # line-profiler's files
 *.lprof
 
-# pytest, tox
-/.pytest_cache/
-/.tox/
+# caches
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# temporary files
+*.orig
