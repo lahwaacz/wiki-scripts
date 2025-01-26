@@ -10,7 +10,6 @@ from concurrent.futures import ThreadPoolExecutor
 import mwparserfromhell
 
 from ws.client import API, APIError
-from ws.db.database import Database
 from ws.interactive import require_login, edit_interactive
 from ws.diff import diff_highlighted
 import ws.ArchWiki.lang as lang
@@ -46,12 +45,11 @@ class PageUpdater:
     # one edit summary.
     threads_update_page = 1
 
-    def __init__(self, api, db, interactive=False, dry_run=False, first=None, title=None, langnames=None):
+    def __init__(self, api, interactive=False, dry_run=False, first=None, title=None, langnames=None):
         if not dry_run:
             # ensure that we are authenticated
             require_login(api)
         self.api = api
-        self.db = db
 
         self.interactive = interactive if self.force_interactive is False else True
         self.dry_run = dry_run
@@ -74,8 +72,6 @@ class PageUpdater:
         present_groups = [group.title for group in argparser._action_groups]
         if "Connection parameters" not in present_groups:
             API.set_argparser(argparser)
-        if "Database parameters" not in present_groups:
-            Database.set_argparser(argparser)
 
         group = argparser.add_argument_group(title="Page updater parameters")
         if klass.force_interactive is False:
@@ -92,11 +88,9 @@ class PageUpdater:
                 help="comma-separated list of language tags to process (default: all, choices: {})".format(lang.get_internal_tags()))
 
     @classmethod
-    def from_argparser(klass, args, api=None, db=None):
+    def from_argparser(klass, args, api=None):
         if api is None:
             api = API.from_argparser(args)
-        if db is None:
-            db = Database.from_argparser(args)
         if args.lang:
             tags = args.lang.split(",")
             for tag in tags:
@@ -107,7 +101,7 @@ class PageUpdater:
         else:
             langnames = set()
         interactive = args.interactive if klass.force_interactive is False else True
-        return klass(api, db, interactive=interactive, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames)
+        return klass(api, interactive=interactive, dry_run=args.dry_run, first=args.first, title=args.title, langnames=langnames)
 
     def add_checker(self, node_type, checker):
         """
