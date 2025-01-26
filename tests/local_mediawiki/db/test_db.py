@@ -1,7 +1,7 @@
 import os.path
 
 import sqlalchemy as sa
-from pytest_bdd import scenarios, given, when, then, parsers
+from pytest_bdd import given, parsers, scenarios, then, when
 
 scenarios(".")
 

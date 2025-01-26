@@ -2,14 +2,15 @@
 
 import datetime
 
-import mwparserfromhell
 import httpx
+import mwparserfromhell
+
+import ws.ArchWiki.lang as lang
+from ws.parser_helpers.encodings import anchorencode, urlencode
+from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template
 
 from .CheckerBase import get_edit_summary_tracker, localize_flag
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
-import ws.ArchWiki.lang as lang
-from ws.parser_helpers.encodings import urlencode, anchorencode
-from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template
 
 __all__ = ["ManTemplateChecker"]
 

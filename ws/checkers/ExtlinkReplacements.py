@@ -1,25 +1,26 @@
 #! /usr/bin/env python3
 
-import re
+import enum
+import json
 import logging
 import os.path
-import json
-import enum
+import re
 
-import mwparserfromhell
-import jinja2
-from hstspreload import in_hsts_preload
 import httpx
+import jinja2
+import mwparserfromhell
+from hstspreload import in_hsts_preload
+
+from ws.parser_helpers.encodings import querydecode
+from ws.parser_helpers.wikicode import ensure_unflagged_by_template
+from ws.utils import LazyProperty
 
 from .CheckerBase import CheckerBase, get_edit_summary_tracker
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
 from .ExtlinkStatusUpdater import ExtlinkStatusUpdater
-from .https_everywhere.rules import Ruleset
 from .https_everywhere.rule_trie import RuleTrie
+from .https_everywhere.rules import Ruleset
 from .smarter_encryption_list import SmarterEncryptionList
-from ws.utils import LazyProperty
-from ws.parser_helpers.wikicode import ensure_unflagged_by_template
-from ws.parser_helpers.encodings import querydecode
 
 __all__ = ["ExtlinkReplacements"]
 

@@ -1,17 +1,17 @@
 #! /usr/bin/env python3
 
-from pprint import pprint
 import datetime
-import time
 import random
-import string
 import re
+import string
+import time
+from pprint import pprint
+
 import requests.exceptions as rexc
 
 from ws.client import API
-from ws.utils import RateLimited
-from ws.interactive import require_login, ask_yesno
-from ws.utils import list_chunks
+from ws.interactive import ask_yesno, require_login
+from ws.utils import RateLimited, list_chunks
 
 
 def is_blocked(api, user):
@@ -161,6 +161,7 @@ class Blockbot:
 
 if __name__ == "__main__":
     import sys
+
     import ws.config
 
     blockbot = ws.config.object_from_argparser(Blockbot, description="blockbot")

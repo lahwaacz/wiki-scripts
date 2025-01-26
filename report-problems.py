@@ -3,12 +3,12 @@
 import datetime
 import logging
 
-from ws.client import API
-from ws.db.database import Database
-from ws.parser_helpers.encodings import dotencode
 import ws.ArchWiki.lang as lang
 from ws.autopage import AutoPage
+from ws.client import API
+from ws.db.database import Database
 from ws.interactive import require_login
+from ws.parser_helpers.encodings import dotencode
 
 logger = logging.getLogger(__name__)
 
