@@ -2,8 +2,6 @@
 
 import pytest
 
-from ws.client.api import LoginFailed
-
 
 # TODO: pytest attribute
 #@attr(speed="slow")

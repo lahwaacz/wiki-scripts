@@ -4,7 +4,7 @@ import mwparserfromhell
 import pytest
 
 from ws.parser_helpers.template_expansion import *
-from ws.parser_helpers.title import Title, TitleError
+from ws.parser_helpers.title import Title
 
 
 class common_base:

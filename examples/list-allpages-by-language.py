@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import itertools
-import os.path
 from collections import namedtuple
 
 import ws.ArchWiki.lang as lang
