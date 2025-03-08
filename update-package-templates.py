@@ -38,10 +38,13 @@ Include = /etc/pacman.d/mirrorlist
 [kde-unstable]
 Include = /etc/pacman.d/mirrorlist
 
-[testing]
+[core-testing]
 Include = /etc/pacman.d/mirrorlist
 
 [core]
+Include = /etc/pacman.d/mirrorlist
+
+[extra-testing]
 Include = /etc/pacman.d/mirrorlist
 
 [extra]
