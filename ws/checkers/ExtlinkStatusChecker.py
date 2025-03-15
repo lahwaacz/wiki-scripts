@@ -21,6 +21,11 @@ try:
 except ImportError:
     tqdm = None
 
+try:
+    import truststore
+except ImportError:
+    truststore = None
+
 __all__ = ["ExtlinkStatusChecker", "Domain", "LinkCheck"]
 
 logger = logging.getLogger(__name__)
@@ -101,7 +106,11 @@ class ExtlinkStatusChecker:
 
         # create an SSL context to disallow TLS1.0 and TLS1.1, allow only TLS1.2
         # (and newer if supported by the used openssl version)
-        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        if truststore is not None:
+            # use the system certificate store if available via truststore
+            ssl_context: ssl.SSLContext = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        else:
+            ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
 
         # initialize the HTTPX client
