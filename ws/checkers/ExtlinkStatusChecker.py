@@ -434,7 +434,8 @@ class ExtlinkStatusChecker:
         # skip the check if the domain is known to be invalid
         domain = link.domain
         if domain.last_check is not None and domain.last_check > link.last_check - datetime.timedelta(hours=1):
-            if domain.resolved is False or domain.ssl_error is not None:
+            # NOTE: ssl_error is not checked here because it is not always bad (there is a false positive)
+            if domain.resolved is False:  # or domain.ssl_error is not None:
                 link.result = "bad"
                 return
 
