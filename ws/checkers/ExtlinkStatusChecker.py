@@ -101,8 +101,8 @@ class ExtlinkStatusChecker:
 
         # create an SSL context to disallow TLS1.0 and TLS1.1, allow only TLS1.2
         # (and newer if supported by the used openssl version)
-        ssl_context = httpx.create_ssl_context(ssl.PROTOCOL_TLS)
-        ssl_context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
 
         # initialize the HTTPX client
         transport = httpx.AsyncHTTPTransport(retries=max_retries)
