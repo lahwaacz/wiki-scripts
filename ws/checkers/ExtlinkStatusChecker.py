@@ -102,6 +102,8 @@ class ExtlinkStatusChecker:
         headers = {
             # fake user agent to bypass servers responding differently or not at all to non-browser user agents
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0",
+            # github.com always returns 404 without the Accept header
+            "Accept": "text/html",
         }
 
         # create an SSL context to disallow TLS1.0 and TLS1.1, allow only TLS1.2
