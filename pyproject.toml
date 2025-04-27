@@ -72,3 +72,9 @@ ignore = [
     "F403", # https://docs.astral.sh/ruff/rules/undefined-local-with-import-star/
     "F405", # https://docs.astral.sh/ruff/rules/undefined-local-with-import-star-usage/
 ]
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers"
+log_level = "INFO"
+testpaths = ["tests"]
+python_classes = "test_*"
