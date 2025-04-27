@@ -5,7 +5,13 @@ Version 2.0
 -----------
 
 Unreleased
-(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.3...master>`__)
+(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.4...master>`__)
+
+Version 1.4
+-----------
+
+`Released Apr 27, 2025 <https://github.com/lahwaacz/wiki-scripts/tree/1.4>`_
+(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.3...1.4>`__)
 
 - Replaced the third-party modules ``ConfigArgParse`` and ``configfile`` with
   their built-in alternatives. See the merge request for details:
@@ -44,6 +50,7 @@ Unreleased
   - ``delete-unused-categories.py``
   - ``localize-templates.py``
   - ``mark-archived-links.py``
+  - ``race.py``
   - ``report-problems.py`` (previously ``list-problematic-pages.py``, now it
     also has an automatic report page)
   - ``update-page-language.py``
