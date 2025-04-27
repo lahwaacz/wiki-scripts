@@ -9,6 +9,7 @@ Unreleased
 
 - Project structure refactoring:
   - Added `pyproject.toml` and modern tooling (ruff)
+- Fixed issues reported by new linters
 
 Version 1.4
 -----------
