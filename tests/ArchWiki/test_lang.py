@@ -5,11 +5,11 @@ import pytest
 from ws.ArchWiki.lang import *
 
 # data for testing (expected values)
-language_names = ["العربية", "Bosanski", "Български", "Català", "Čeština", "Dansk", "Deutsch", "Ελληνικά", "English", "Esperanto", "Español", "فارسی", "Suomi", "Français", "עברית", "Hrvatski", "Magyar", "Bahasa Indonesia", "Italiano", "日本語", "한국어", "Lietuvių", "Norsk Bokmål", "Nederlands", "Polski", "Português", "Română", "Русский", "Slovenčina", "Српски", "Svenska", "ไทย", "Türkçe", "Українська", "Tiếng Việt", "粵語", "简体中文", "正體中文"]
-english_language_names = ["Arabic", "Bosnian", "Bulgarian", "Catalan", "Czech", "Danish", "German", "Greek", "English", "Esperanto", "Spanish", "Persian", "Finnish", "French", "Hebrew", "Croatian", "Hungarian", "Indonesian", "Italian", "Japanese", "Korean", "Lithuanian", "Norwegian (Bokmål)", "Dutch", "Polish", "Portuguese", "Romanian", "Russian", "Slovak", "Serbian", "Swedish", "Thai", "Turkish", "Ukrainian", "Vietnamese", "Cantonese", "Chinese (Simplified)", "Chinese (Traditional)"]
-language_tags = ["ar", "bs", "bg", "ca", "cs", "da", "de", "el", "en", "eo", "es", "fa", "fi", "fr", "he", "hr", "hu", "id", "it", "ja", "ko", "lt", "nb", "nl", "pl", "pt", "ro", "ru", "sk", "sr", "sv", "th", "tr", "uk", "vi", "yue", "zh-hans", "zh-hant"]
-external_tags = ["de", "fa", "ja", "sv"]
-internal_tags = ["ar", "bs", "bg", "cs", "da", "el", "en", "es", "fi", "fr", "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt", "ru", "sk", "sr", "th", "tr", "uk", "zh-hans", "zh-hant"]
+language_names = ["العربية", "Bosanski", "Български", "Català", "Čeština", "Dansk", "Deutsch", "Ελληνικά", "English", "Esperanto", "Español", "Suomi", "Français", "עברית", "Hrvatski", "Magyar", "Bahasa Indonesia", "Italiano", "日本語", "한국어", "Lietuvių", "Norsk Bokmål", "Nederlands", "Polski", "Português", "Română", "Русский", "Slovenčina", "Српски", "Svenska", "ไทย", "Türkçe", "Українська", "Tiếng Việt", "粵語", "简体中文", "正體中文"]
+english_language_names = ["Arabic", "Bosnian", "Bulgarian", "Catalan", "Czech", "Danish", "German", "Greek", "English", "Esperanto", "Spanish", "Finnish", "French", "Hebrew", "Croatian", "Hungarian", "Indonesian", "Italian", "Japanese", "Korean", "Lithuanian", "Norwegian (Bokmål)", "Dutch", "Polish", "Portuguese", "Romanian", "Russian", "Slovak", "Serbian", "Swedish", "Thai", "Turkish", "Ukrainian", "Vietnamese", "Cantonese", "Chinese (Simplified)", "Chinese (Traditional)"]
+language_tags = ["ar", "bs", "bg", "ca", "cs", "da", "de", "el", "en", "eo", "es", "fi", "fr", "he", "hr", "hu", "id", "it", "ja", "ko", "lt", "nb", "nl", "pl", "pt", "ro", "ru", "sk", "sr", "sv", "th", "tr", "uk", "vi", "yue", "zh-hans", "zh-hant"]
+external_tags = ["de", "ja", "sv", "zh-hans"]
+internal_tags = ["ar", "bs", "bg", "ca", "cs", "da", "el", "en", "es", "fi", "fr", "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl", "pt", "ru", "sk", "sr", "th", "tr", "uk", "zh-hant"]
 rtl_languages = ["עברית", "العربية"]
 rtl_tags = ["ar", "he"]
 
