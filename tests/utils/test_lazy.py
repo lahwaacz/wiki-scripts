@@ -4,7 +4,7 @@ from ws.utils import LazyProperty
 
 
 class test_lazy:
-    def setup(self):
+    def setup_method(self):
         self._values = list(range(10))
 
     @LazyProperty
