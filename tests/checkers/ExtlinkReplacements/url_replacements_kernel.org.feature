@@ -2,9 +2,15 @@
 
 Feature: ExtlinkReplacements: kernel.org links
 
+    Scenario Outline: kernel.org fbcon.txt
+        Given the URL https://docs.kernel.org/fb/fbcon.html gives status 200
+        When a page contains <pattern> formatted with https://www.kernel.org/doc/Documentation/fb/fbcon.txt
+        And I run ExtlinkReplacements
+        Then the page content should be "<pattern>" formatted with "https://docs.kernel.org/fb/fbcon.html"
+        And the last edit summary should be "link to HTML version of kernel documentation"
     Examples:
         # parametrization of the page content - should cover all cases of an extlink
-        # note: {} will be replaced with whatever is specified in each scenario)
+        # note: {} will be replaced with whatever is specified in each scenario
         | pattern |
         | {} |
         | [{}] |
@@ -13,19 +19,22 @@ Feature: ExtlinkReplacements: kernel.org links
         | foo [{}] bar |
         | foo [{} baz] bar |
 
-    Scenario Outline: kernel.org fbcon.txt
-        Given the URL https://docs.kernel.org/fb/fbcon.html gives status 200
-        When a page contains <pattern> formatted with https://www.kernel.org/doc/Documentation/fb/fbcon.txt
-        And I run ExtlinkReplacements
-        Then the page content should be "<pattern>" formatted with "https://docs.kernel.org/fb/fbcon.html"
-        And the last edit summary should be "link to HTML version of kernel documentation"
-
     Scenario Outline: kernel.org fbcon.rst
         Given the URL https://docs.kernel.org/fb/fbcon.html gives status 200
         When a page contains <pattern> formatted with https://www.kernel.org/doc/Documentation/fb/fbcon.rst
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://docs.kernel.org/fb/fbcon.html"
         And the last edit summary should be "link to HTML version of kernel documentation"
+    Examples:
+        # parametrization of the page content - should cover all cases of an extlink
+        # note: {} will be replaced with whatever is specified in each scenario
+        | pattern |
+        | {} |
+        | [{}] |
+        | [{} foo] |
+        | foo {} bar |
+        | foo [{}] bar |
+        | foo [{} baz] bar |
 
     Scenario Outline: kernel.org fb directory
         Given the URL https://docs.kernel.org/fb/ gives status 200
@@ -33,6 +42,16 @@ Feature: ExtlinkReplacements: kernel.org links
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://docs.kernel.org/fb/"
         And the last edit summary should be "link to HTML version of kernel documentation"
+    Examples:
+        # parametrization of the page content - should cover all cases of an extlink
+        # note: {} will be replaced with whatever is specified in each scenario
+        | pattern |
+        | {} |
+        | [{}] |
+        | [{} foo] |
+        | foo {} bar |
+        | foo [{}] bar |
+        | foo [{} baz] bar |
 
     Scenario Outline: not replacing excluded kernel.org link
         Given the URL https://www.kernel.org/doc/Documentation/filesystems/ gives status 200
@@ -40,7 +59,16 @@ Feature: ExtlinkReplacements: kernel.org links
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://www.kernel.org/doc/Documentation/filesystems/"
         And the last edit summary should be empty
-
+    Examples:
+        # parametrization of the page content - should cover all cases of an extlink
+        # note: {} will be replaced with whatever is specified in each scenario
+        | pattern |
+        | {} |
+        | [{}] |
+        | [{} foo] |
+        | foo {} bar |
+        | foo [{}] bar |
+        | foo [{} baz] bar |
 
     Scenario Outline: wireless.kernel.org
         Given the URL https://wireless.wiki.kernel.org/ gives status 200
@@ -48,6 +76,16 @@ Feature: ExtlinkReplacements: kernel.org links
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://wireless.wiki.kernel.org/"
         And the last edit summary should be "update linuxwireless.org/wireless.kernel.org links"
+    Examples:
+        # parametrization of the page content - should cover all cases of an extlink
+        # note: {} will be replaced with whatever is specified in each scenario
+        | pattern |
+        | {} |
+        | [{}] |
+        | [{} foo] |
+        | foo {} bar |
+        | foo [{}] bar |
+        | foo [{} baz] bar |
 
     Scenario Outline: wireless.kernel.org iwlegacy
         Given the URL https://wireless.wiki.kernel.org/en/users/Drivers/iwlegacy gives status 200
@@ -55,6 +93,16 @@ Feature: ExtlinkReplacements: kernel.org links
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://wireless.wiki.kernel.org/en/users/drivers/iwlegacy"
         And the last edit summary should be "update linuxwireless.org/wireless.kernel.org links"
+    Examples:
+        # parametrization of the page content - should cover all cases of an extlink
+        # note: {} will be replaced with whatever is specified in each scenario
+        | pattern |
+        | {} |
+        | [{}] |
+        | [{} foo] |
+        | foo {} bar |
+        | foo [{}] bar |
+        | foo [{} baz] bar |
 
     Scenario Outline: wireless.kernel.org iwlwifi with section
         Given the URL https://wireless.wiki.kernel.org/en/users/Drivers/iwlwifi#supported_devices gives status 200
@@ -62,6 +110,16 @@ Feature: ExtlinkReplacements: kernel.org links
         And I run ExtlinkReplacements
         Then the page content should be "<pattern>" formatted with "https://wireless.wiki.kernel.org/en/users/drivers/iwlwifi#supported_devices"
         And the last edit summary should be "update linuxwireless.org/wireless.kernel.org links"
+    Examples:
+        # parametrization of the page content - should cover all cases of an extlink
+        # note: {} will be replaced with whatever is specified in each scenario
+        | pattern |
+        | {} |
+        | [{}] |
+        | [{} foo] |
+        | foo {} bar |
+        | foo [{}] bar |
+        | foo [{} baz] bar |
 
     Scenario Outline: wireless.kernel.org unflag
         Given the URL https://wireless.wiki.kernel.org/en/users/Drivers/iwlegacy gives status 200
@@ -69,6 +127,16 @@ Feature: ExtlinkReplacements: kernel.org links
         And I run ExtlinkReplacements
         Then the page should contain "[https://wireless.wiki.kernel.org/en/users/drivers/iwlegacy iwlegacy]"
         And the last edit summary should be "update linuxwireless.org/wireless.kernel.org links"
+    Examples:
+        # parametrization of the page content - should cover all cases of an extlink
+        # note: {} will be replaced with whatever is specified in each scenario
+        | pattern |
+        | {} |
+        | [{}] |
+        | [{} foo] |
+        | foo {} bar |
+        | foo [{}] bar |
+        | foo [{} baz] bar |
 
     Scenario Outline: wireless.kernel.org unflag localized
         Given the URL https://wireless.wiki.kernel.org/en/users/Drivers/iwlegacy gives status 200
@@ -76,3 +144,13 @@ Feature: ExtlinkReplacements: kernel.org links
         And I run ExtlinkReplacements
         Then the page should contain "[https://wireless.wiki.kernel.org/en/users/drivers/iwlegacy iwlegacy]"
         And the last edit summary should be "update linuxwireless.org/wireless.kernel.org links"
+    Examples:
+        # parametrization of the page content - should cover all cases of an extlink
+        # note: {} will be replaced with whatever is specified in each scenario
+        | pattern |
+        | {} |
+        | [{}] |
+        | [{} foo] |
+        | foo {} bar |
+        | foo [{}] bar |
+        | foo [{} baz] bar |
