@@ -9,6 +9,7 @@ Unreleased
 
 - Project structure refactoring:
   - Added `pyproject.toml` and modern tooling (ruff)
+  - Added `.editorconfig`
 - Fixed issues reported by new linters
 
 Version 1.4
@@ -191,7 +192,7 @@ Version 1.0
 
 - Added also ``assert=bot`` to all bot editing queries.
 - Fixed bugs:
-  
+
   - formatting of streak timestamps in the ``statistic.py`` script
   - namespace prefix parsing in :py:meth:`ws.core.api.API.detect_namespace`
   - extraction of header elements in case they are nested inside e.g.
@@ -202,7 +203,7 @@ Version 1.0
     multiple values in the ``prop`` query parameter)
   - JSON serialization of non-str keys
   - exception catching for opening cookies
-  
+
 - Improved scripts:
 
   - ``statistics.py`` (minor bug fixes)
