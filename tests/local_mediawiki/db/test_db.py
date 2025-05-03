@@ -11,8 +11,7 @@ def empty_mediawiki(mediawiki):
 
 @given("an empty wiki-scripts database")
 def empty_wsdb(db):
-    # TODO: the db is currently function-scoped, so clearing is useless
-#    db.clear()
+    # the db fixture is function-scoped, so clearing is implicit
     pass
 
 @when("I synchronize the wiki-scripts database")
