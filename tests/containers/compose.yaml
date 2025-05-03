@@ -67,6 +67,32 @@ services:
       # TODO: parametrize the host port?
       - 8080:80
 
+  wiki-scripts-database:
+    image: postgres
+    restart: always
+    # FIXME: host is insecure but for some reason the third container does not work with nomap
+    userns_mode: host
+    env_file:
+      - path: ./.env
+        required: true
+    environment:
+      # set variables for postgres - see https://hub.docker.com/_/postgres for details
+      - POSTGRES_DB=${WIKI_SCRIPTS_DB}
+      - POSTGRES_USER=${WIKI_SCRIPTS_USER}
+      - POSTGRES_PASSWORD=${WIKI_SCRIPTS_PASSWORD}
+    ports:
+      # TODO: parametrize the host port?
+      - 8082:5432
+    # NOTE: we want only anonymous volumes so that each start has a fresh state
+    #volumes:
+    #  - wiki-scripts-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "${WIKI_SCRIPTS_USER}", "-d", "${WIKI_SCRIPTS_DB}"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 15s
+
 # NOTE: starting compose containers in different user namespaces may lead to this error and
 #       no DNS between our containers
 # [ERROR netavark::dns::aardvark] aardvark-dns runs in a different netns, dns will not work for this container. To resolve please stop all containers, kill the aardvark-dns process, remove the /run/user/1000/containers/networks/aardvark-dns directory and then start the containers again
@@ -76,3 +102,4 @@ networks:
 # NOTE: we want only anonymous volumes so that each start has a fresh state
 #volumes:
 #  db:
+#  wiki-scripts-db:
