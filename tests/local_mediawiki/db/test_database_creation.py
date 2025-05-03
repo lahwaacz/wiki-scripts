@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-custom_tables = {"namespace", "namespace_name", "namespace_starname", "namespace_canonical", "ws_sync"}
+custom_tables = {"namespace", "namespace_name", "namespace_starname", "namespace_canonical", "ws_sync", "ws_domain", "ws_url_check"}
 site_tables = {"interwiki", "tag"}
 recentchanges_tables = {"recentchanges", "logging", "tagged_recentchange", "tagged_logevent"}
 users_tables = {"user", "user_groups", "ipblocks"}
