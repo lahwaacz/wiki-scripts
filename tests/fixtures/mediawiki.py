@@ -1,176 +1,203 @@
-#! /usr/bin/env python3
+from typing import Iterator
 
-import hashlib
-import os.path
-import re
-import subprocess
-import tarfile
-
+import httpx
 import pytest
-import requests
+import pytest_docker
 import sqlalchemy as sa
-from pytest_nginx import factories
-from pytest_postgresql.factories import postgresql
 
 from ws.client.api import API
 
-_mw_ver = "1.33"
-_mw_rel = _mw_ver + ".1"
-_mw_url = "https://releases.wikimedia.org/mediawiki/" + _mw_ver + "/mediawiki-" + _mw_rel + ".tar.gz"
-_mw_sha256 = "d29b635dd41aea62bd05229c7c7942d4b0aa38aee457f8dc7302b6e59acb721b"
-_mw_db_name = "mediawiki"
-_mw_db_user = "mediawiki"
-_mw_db_password = "very-secret-password"
-_mw_api_user = "wiki-scripts"
-_mw_api_password = "super-secret-password"
+__all__ = [
+    "mediawiki_service",
+    "mediawiki_database_url",
+    "mediawiki",
+]
 
 
-def get_sha256sum(filename, blocksize=4096):
-    m = hashlib.sha256()
-    with open(filename, "rb") as f:
-        while True:
-            buf = f.read(blocksize)
-            if not buf:
-                break
-            m.update(buf)
-    return m.hexdigest()
+def is_responsive(url: str) -> bool:
+    try:
+        response = httpx.get(url, follow_redirects=True)
+        response.raise_for_status()
+        return True
+    except httpx.HTTPError:
+        return False
+
 
 @pytest.fixture(scope="session")
-def mw_server_root(request):
-    cache_dir = request.config.cache.makedir("wiki-scripts mediawiki")
-    tarball = os.path.join(cache_dir, "mediawiki-" + _mw_rel + ".tar.gz")
-    server_root = os.path.join(cache_dir, "mediawiki-" + _mw_rel)
+def mediawiki_service(docker_ip: str, docker_services: pytest_docker.Services) -> str:
+    """Ensure that MediaWiki service is up and responsive."""
+    # port_for takes a container port and returns the corresponding host port
+    port = docker_services.port_for("mediawiki", 80)
+    url = f"http://{docker_ip}:{port}"
+    docker_services.wait_until_responsive(
+        timeout=30.0, pause=0.1, check=lambda: is_responsive(url)
+    )
+    return url
 
-    if not os.path.isdir(server_root):
-        # check if the tarball was downloaded correctly
-        if os.path.isfile(tarball):
-            _sha256 = get_sha256sum(tarball)
-            if _sha256 != _mw_sha256:
-                os.remove(tarball)
 
-        # (re-)download MediaWiki sources only if the extracted dir does not exist
-        if not os.path.isfile(tarball):
-            r = requests.get(_mw_url, stream=True)
-            with open(tarball, "wb") as f:
-                for chunk in r.iter_content(chunk_size=4096):
-                    f.write(chunk)
-        # extract the tarball
-        t = tarfile.open(tarball, "r")
-        t.extractall(path=cache_dir)
-        # server_root should be created by extraction
-        assert os.path.isdir(server_root)
+@pytest.fixture(scope="session")
+def mediawiki_database_url(
+    containers_dotenv_values: dict[str, str | None],
+    docker_ip: str,
+    docker_services: pytest_docker.Services,
+) -> sa.URL:
+    """Ensure that MediaWiki's database is up and responsive."""
+    # port_for takes a container port and returns the corresponding host port
+    port = docker_services.port_for("database", 5432)
+    user = containers_dotenv_values.get("MW_DB_USER")
+    password = containers_dotenv_values.get("MW_DB_PASSWORD")
+    url = sa.URL.create(
+        drivername="postgresql+psycopg",
+        username=user,
+        password=password,
+        host=docker_ip,
+        port=port,
+    )
+    engine = sa.create_engine(url)
 
-    return server_root
+    def try_connect():
+        try:
+            with engine.connect():
+                return True
+        except sa.exc.OperationalError:
+            return False
 
-_php_ini = os.path.join(os.path.dirname(__file__), "../../misc/php.ini")
-mw_nginx_proc = factories.nginx_php_proc("mw_server_root",
-                                         php_fpm_params="--php-ini {}".format(_php_ini))
+    docker_services.wait_until_responsive(timeout=30.0, pause=0.1, check=try_connect)
+    return url
 
-# direct connection to MediaWiki's database
-mwpg_conn = postgresql("postgresql_proc", dbname=_mw_db_name)
 
 class MediaWikiFixtureInstance:
-    def __init__(self, mw_nginx_proc, postgresql_proc):
-        self._mw_nginx_proc = mw_nginx_proc
-        self._postgresql_proc = postgresql_proc
-
-        # trivial aliases, usable also in tests
-        self.hostname=mw_nginx_proc.host
-        self.port=mw_nginx_proc.port
-
-        # always write the config to reflect its possible updates
-        self._init_local_settings()
-
-        # init the database and users
-        self._init_mw_database()
-
-    def _init_local_settings(self):
-        local_settings_php = os.path.join(os.path.dirname(__file__), "../../misc/LocalSettings.php")
-        assert os.path.isfile(local_settings_php)
-        config = open(local_settings_php).read()
-
-        def replace_php_variable(config, name, value):
-            c = re.sub(r"^(\${} *= *\").*(\";)$".format(name),
-                       r"\g<1>{}\g<2>".format(value),
-                       config,
-                       flags=re.MULTILINE)
-            _expected = "${} = \"{}\";".format(name, value)
-            assert _expected in c, "String '{}' was not found after replacement.".format(_expected)
-            return c
-
-        config = replace_php_variable(config, "wgDBname", _mw_db_name)
-        config = replace_php_variable(config, "wgDBuser", _mw_db_user)
-        config = replace_php_variable(config, "wgDBpassword", _mw_db_password)
-        config = replace_php_variable(config, "wgDBhost", self._postgresql_proc.host)
-        config = replace_php_variable(config, "wgDBport", self._postgresql_proc.port)
-        config = replace_php_variable(config, "wgServer", "http://{}:{}".format(self._mw_nginx_proc.host, self._mw_nginx_proc.port))
-
-        output_settings = open(os.path.join(self._mw_nginx_proc.server_root, "LocalSettings.php"), "w")
-        output_settings.write(config)
-        output_settings.close()
-
-    def _init_mw_database(self):
-        # create database and mediawiki user
-        master_url = sa.engine.url.URL("postgresql+psycopg",
-                                       username=self._postgresql_proc.user,
-                                       host=self._postgresql_proc.host,
-                                       port=self._postgresql_proc.port)
-        self._master_db_engine = sa.create_engine(master_url, isolation_level="AUTOCOMMIT")
-        conn = self._master_db_engine.connect()
-        r = conn.execute("SELECT count(*) FROM pg_user WHERE usename = '{}'".format(_mw_db_user))
-        if r.fetchone()[0] == 0:
-            conn.execute("CREATE USER {} WITH PASSWORD '{}'".format(_mw_db_user, _mw_db_password))
-        conn.execute("CREATE DATABASE {} WITH OWNER {}".format(_mw_db_name, _mw_db_user))
-        conn.close()
-
-        # execute MediaWiki's tables.sql
-        mw_url = sa.engine.url.URL("postgresql+psycopg",
-                                   database=_mw_db_name,
-                                   username=_mw_db_user,
-                                   password=_mw_db_password,
-                                   host=self._postgresql_proc.host,
-                                   port=self._postgresql_proc.port)
-        # use NullPool, so that we don't have to recreate the engine when we drop the database
-        self.db_engine = sa.create_engine(mw_url, poolclass=sa.pool.NullPool)
-        tables = open(os.path.join(self._mw_nginx_proc.server_root, "maintenance/postgres/tables.sql"))
-        with self.db_engine.begin() as conn:
-            conn.execute(tables.read())
-
-        # create a wiki-scripts user in MediaWiki
-        cmd = [
-            "php",
-            "--php-ini",
-            _php_ini,
-            "maintenance/createAndPromote.php",
-            "--sysop",
-            _mw_api_user,
-            _mw_api_password,
-        ]
-        subprocess.run(cmd, cwd=self._mw_nginx_proc.server_root, check=True)
+    def __init__(
+        self,
+        url: str,
+        user: str,
+        password: str,
+        db_url: sa.URL,
+        db_name: str,
+        db_user: str,
+    ):
+        self.url = url
+        self.db_url = db_url
+        self.db_name = db_name
+        self.db_user = db_user
 
         # construct the API object for the new user wiki-scripts in the database
-        api_url = "http://{host}:{port}/api.php".format(host=self.hostname, port=self.port)
-        index_url = "http://{host}:{port}/index.php".format(host=self.hostname, port=self.port)
+        api_url = f"{url}/api.php"
+        index_url = f"{url}/index.php"
         self.api = API(api_url, index_url, API.make_session())
-        self.api.login(_mw_api_user, _mw_api_password)
+        self.api.login(user, password)
 
-        # save the database as a template for self.clear()
-        with self._master_db_engine.begin() as conn:
-            conn.execute("SELECT pg_terminate_backend(pg_stat_activity.pid) "
-                         "FROM pg_stat_activity WHERE pg_stat_activity.datname = '{}'"
-                         .format(_mw_db_name))
-            conn.execute("CREATE DATABASE {} WITH TEMPLATE {} OWNER {}"
-                         .format(_mw_db_name + "_template", _mw_db_name, _mw_db_user))
+        # create a regular database engine
+        self.db_engine = sa.create_engine(
+            db_url,
+            # use NullPool, so that we don't have to recreate the engine when we drop the database
+            poolclass=sa.pool.NullPool,
+        )
 
-    def _drop_mw_database(self):
-        with self._master_db_engine.begin() as conn:
+        # create an engine for management operations
+        postgres_url = sa.engine.url.URL.create(
+            drivername=db_url.drivername,
+            username=db_url.username,
+            password=db_url.password,
+            host=db_url.host,
+            port=db_url.port,
+            # need to specify a database that always exists and allows connections
+            # (the default database does not work because we are dropping and recreating it)
+            database="postgres",
+        )
+        self.db_autocommit_engine = sa.create_engine(
+            postgres_url,
+            # In the autocommit mode, the DBAPI does not use a transaction under any circumstances
+            # (i.e. begin(), commit(), and rollback() are no-ops). This is necessary for operations
+            # that drop and create a database.
+            # https://docs.sqlalchemy.org/en/20/orm/session_transaction.html#setting-transaction-isolation-levels-dbapi-autocommit
+            isolation_level="AUTOCOMMIT",
+            # use NullPool, so that we don't have to recreate the engine when we drop the database
+            poolclass=sa.pool.NullPool,
+        )
+
+        with self.db_autocommit_engine.connect() as conn:
+            databases = list(
+                conn.execute(sa.text("SELECT datname FROM pg_database")).scalars()
+            )
+        assert self.db_name in databases
+
+        if self.db_name + "_template" not in databases:
+            # assert self.db_name in metadata.tables
+            # save the database as a template for self.clear()
+            self._drop_database(self.db_name + "_template")
+            self._create_database(
+                name=self.db_name + "_template", template=self.db_name
+            )
+
+    def _drop_database(self, name=None):
+        if name is None:
+            name = self.db_name
+
+        with self.db_autocommit_engine.connect() as conn:
             # We cannot drop the database while there are connections to it, so we
             # first disallow new connections and terminate all connections to it.
-            conn.execute("UPDATE pg_database SET datallowconn=false WHERE datname = '{}'".format(_mw_db_name))
-            conn.execute("SELECT pg_terminate_backend(pg_stat_activity.pid) "
-                         "FROM pg_stat_activity WHERE pg_stat_activity.datname = '{}'"
-                         .format(_mw_db_name))
-            conn.execute("DROP DATABASE IF EXISTS {}".format(_mw_db_name))
+            conn.execute(
+                sa.text(
+                    f"UPDATE pg_database SET datallowconn=false WHERE datname = '{name}'"
+                )
+            )
+            try:
+                conn.execute(
+                    sa.text(
+                        "SELECT pg_terminate_backend(pg_stat_activity.pid) "
+                        f"FROM pg_stat_activity WHERE pg_stat_activity.datname = '{name}'"
+                    )
+                )
+            except sa.exc.OperationalError:
+                # the psycopg driver raises an exception when the command terminates the current connection
+                pass
+
+        # drop the database in a new transaction
+        with self.db_autocommit_engine.connect() as conn:
+            conn.execute(sa.text(f"DROP DATABASE IF EXISTS {name}"))
+            conn.execute(
+                sa.text(
+                    f"UPDATE pg_database SET datallowconn=true WHERE datname = '{name}'"
+                )
+            )
+
+    def _create_database(self, name=None, template=None):
+        if name is None:
+            name = self.db_name
+        if template is None:
+            template = self.db_name + "_template"
+
+        with self.db_autocommit_engine.connect() as conn:
+            # We cannot create the database while there are connections to the template,
+            # so we first disallow new connections and terminate all connections to it.
+            conn.execute(
+                sa.text(
+                    f"UPDATE pg_database SET datallowconn=false WHERE datname = '{template}'"
+                )
+            )
+            try:
+                conn.execute(
+                    sa.text(
+                        "SELECT pg_terminate_backend(pg_stat_activity.pid) "
+                        f"FROM pg_stat_activity WHERE pg_stat_activity.datname = '{template}'"
+                    )
+                )
+            except sa.exc.OperationalError:
+                # the psycopg driver raises an exception when the command terminates the current connection
+                pass
+
+        with self.db_autocommit_engine.connect() as conn:
+            conn.execute(
+                sa.text(
+                    f"CREATE DATABASE {name} WITH TEMPLATE {template} OWNER {self.db_user}"
+                )
+            )
+            conn.execute(
+                sa.text(
+                    f"UPDATE pg_database SET datallowconn=true WHERE datname = '{template}'"
+                )
+            )
 
     def clear(self):
         """
@@ -180,29 +207,27 @@ class MediaWikiFixtureInstance:
         # DROP DATABASE is much faster than TRUNCATE on all tables in the database.
         # CREATE DATABASE ... WITH TEMPLATE ... is faster than full re-initialization
         # and as a bonus does not mess up the session cache.
-        self._drop_mw_database()
-        with self._master_db_engine.begin() as conn:
-            conn.execute("CREATE DATABASE {} WITH TEMPLATE {} OWNER {}"
-                         .format(_mw_db_name, _mw_db_name + "_template", _mw_db_user))
+        self._drop_database()
+        self._create_database()
 
-    def run_jobs(self):
-        cmd = [
-            "php",
-            "--php-ini",
-            _php_ini,
-            "maintenance/runJobs.php",
-            "--result",
-            "json",
-        ]
-        result = subprocess.run(cmd, cwd=self._mw_nginx_proc.server_root, check=True, capture_output=True)
-#        pprint(json.loads(result.stdout))
-        del self.api.site
-        assert self.api.site.statistics["jobs"] == 0, "failed to execute all queued jobs"
 
-@pytest.fixture(scope="session")
-def mediawiki(mw_nginx_proc, postgresql_proc):
-    instance = MediaWikiFixtureInstance(mw_nginx_proc, postgresql_proc)
+# TODO: optimize fixture scope
+@pytest.fixture(scope="function")
+def mediawiki(
+    containers_dotenv_values: dict[str, str | None],
+    mediawiki_service: str,
+    mediawiki_database_url: sa.URL,
+) -> Iterator[MediaWikiFixtureInstance]:
+    user = containers_dotenv_values.get("MW_USER")
+    password = containers_dotenv_values.get("MW_PASSWORD")
+    db_name = containers_dotenv_values.get("MW_DB_NAME")
+    db_user = containers_dotenv_values.get("MW_DB_USER")
+    assert user
+    assert password
+    assert db_name
+    assert db_user
+    instance = MediaWikiFixtureInstance(
+        mediawiki_service, user, password, mediawiki_database_url, db_name, db_user
+    )
     yield instance
-    instance._drop_mw_database()
-
-__all__ = ("mw_server_root", "mw_nginx_proc", "mediawiki")
+    instance.clear()
