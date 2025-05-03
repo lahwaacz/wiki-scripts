@@ -1,0 +1,42 @@
+## NOTE: based on the official MediaWiki image: https://hub.docker.com/_/mediawiki
+#FROM mediawiki
+
+## install packages needed to connect to PostgreSQL database
+#RUN apt-get update && apt-get install -y libpq-dev && docker-php-ext-install pdo pdo_pgsql
+# NOTE: does not work because
+#    Cannot connect to database mediawiki: Cannot access the database: Postgres functions missing, have you compiled PHP with the --with-pgsql option? (Note: if you recently installed PHP, you may need to restart your webserver and database)
+#
+## copy the startup script
+#COPY --chmod=755 startup.sh /startup.sh
+#CMD ["/startup.sh"]
+
+
+FROM quay.io/archlinux/archlinux:base
+
+# install packages
+RUN --mount=type=cache,sharing=locked,target=/var/cache/pacman \
+    pacman -Suy --noconfirm --needed php php-pgsql php-apache apache mediawiki
+
+# enable PHP extensions
+# https://wiki.archlinux.org/title/MediaWiki#PHP
+RUN sed -i 's|;extension=iconv|extension=iconv|' /etc/php/php.ini
+RUN sed -i 's|;extension=intl|extension=intl|' /etc/php/php.ini
+RUN sed -i 's|;extension=pgsql|extension=pgsql|' /etc/php/php.ini
+
+# configure Apache modules
+# https://wiki.archlinux.org/title/Apache_HTTP_Server#Using_libphp
+RUN sed -i 's|LoadModule mpm_event_module|#LoadModule mpm_event_module|' /etc/httpd/conf/httpd.conf
+RUN sed -i 's|#LoadModule mpm_prefork_module|LoadModule mpm_prefork_module|' /etc/httpd/conf/httpd.conf
+RUN sed -i 's|#LoadModule rewrite_module|LoadModule rewrite_module|' /etc/httpd/conf/httpd.conf
+RUN echo "LoadModule php_module modules/libphp.so" >> /etc/httpd/conf/httpd.conf
+RUN echo "AddHandler php-script .php" >> /etc/httpd/conf/httpd.conf
+RUN echo "Include conf/extra/php_module.conf" >> /etc/httpd/conf/httpd.conf
+RUN echo "Include conf/extra/mediawiki.conf" >> /etc/httpd/conf/httpd.conf
+COPY mediawiki.conf /etc/httpd/conf/extra/mediawiki.conf
+
+# change workdir to the mediawiki installation root
+WORKDIR /usr/share/webapps/mediawiki
+
+# copy the startup script
+COPY --chmod=755 startup.sh /startup.sh
+CMD ["/startup.sh"]
