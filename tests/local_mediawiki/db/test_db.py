@@ -16,7 +16,7 @@ def empty_wsdb(db):
 
 @when("I synchronize the wiki-scripts database")
 def sync_page_tables(mediawiki, db):
-    mediawiki.run_jobs()
+    #mediawiki.run_jobs()
     db.sync_with_api(mediawiki.api, with_content=True, check_needs_update=False)
 
 @when(parsers.parse("I create page \"{title}\""))
@@ -56,11 +56,11 @@ def unprotect_page(mediawiki, title):
     mediawiki.api.call_with_csrftoken(action="protect", title=title, protections="edit=all|move=all")
 
 @when(parsers.parse("I partially protect page \"{title}\""))
-def protect_page(mediawiki, title):
+def protect_page_partial(mediawiki, title):
     mediawiki.api.call_with_csrftoken(action="protect", title=title, protections="edit=sysop")
 
 @when(parsers.parse("I partially unprotect page \"{title}\""))
-def unprotect_page(mediawiki, title):
+def unprotect_page_partial(mediawiki, title):
     mediawiki.api.call_with_csrftoken(action="protect", title=title, protections="edit=all")
 
 @when(parsers.parse("I delete page \"{title}\""))
@@ -107,7 +107,7 @@ def undelete_revision(mediawiki, title):
     mediawiki.api.call_with_csrftoken(params)
 
 @when(parsers.parse("I delete the first logevent"))
-def delete_revision(mediawiki):
+def delete_logevent(mediawiki):
     logid = mediawiki.api.call_api(action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1)["logevents"][0]["logid"]
     params = {
         "action": "revisiondelete",
@@ -118,7 +118,7 @@ def delete_revision(mediawiki):
     mediawiki.api.call_with_csrftoken(params)
 
 @when(parsers.parse("I undelete the first logevent"))
-def delete_revision(mediawiki):
+def undelete_logevent(mediawiki):
     logid = mediawiki.api.call_api(action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1)["logevents"][0]["logid"]
     params = {
         "action": "revisiondelete",
@@ -264,7 +264,7 @@ def check_allpages_match(mediawiki, db):
     assert db_list == api_list
 
 @then(parsers.parse("the {table} table should be empty"))
-def check_table_not_empty(db, table):
+def check_table_empty(db, table):
     t = getattr(db, table)
     s = sa.select([sa.func.count()]).select_from(t)
     result = db.engine.execute(s).fetchone()
