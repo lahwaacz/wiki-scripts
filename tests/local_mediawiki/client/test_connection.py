@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 import pytest
 
 import ws.client.connection
@@ -23,9 +21,9 @@ class test_connection:
         assert actions == ws.client.connection.API_ACTIONS
 
     # check correct server
-    def test_hostname(self, mediawiki):
+    def test_url(self, mediawiki):
         api = mediawiki.api
-        assert api.get_hostname() == mediawiki.hostname
+        assert api.api_url == f"{mediawiki.url}/api.php"
 
     def test_params_is_dict(self, mediawiki):
         api = mediawiki.api
@@ -44,7 +42,8 @@ class test_connection:
 
     def test_empty_query(self, mediawiki):
         api = mediawiki.api
-        assert api.call_api(action="query", expand_result=False) == {"batchcomplete": ""}
+        expected_response = {"batchcomplete": ""}
+        assert api.call_api(action="query", expand_result=False) == expected_response
 
     def test_post_action(self, mediawiki):
         api = mediawiki.api
