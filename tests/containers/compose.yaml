@@ -1,0 +1,78 @@
+name: wiki-scripts-tests
+
+services:
+  #database:
+  #  image: mariadb
+  #  restart: always
+  #  env_file:
+  #    - path: ./.env
+  #      required: true
+  #  networks:
+  #    - mediawiki
+  #  # NOTE: we want only anonymous volumes so that each start has a fresh state
+  #  #volumes:
+  #  #  - db:/var/lib/mysql
+  #  healthcheck:
+  #    test: ["CMD", "mariadb", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}", "-e", "use ${MYSQL_DATABASE}"]
+  #    interval: 5s
+  #    timeout: 30s
+  #    retries: 5
+  #    start_period: 15s
+
+  # NOTE: MediaWiki supports MySQL best, but wiki-scripts tests require PostgreSQL
+  database:
+    image: postgres
+    restart: always
+    env_file:
+      - path: ./.env
+        required: true
+    environment:
+      # set variables for postgres - see https://hub.docker.com/_/postgres for details
+      - POSTGRES_DB=${MW_DB_NAME}
+      - POSTGRES_USER=${MW_DB_USER}
+      - POSTGRES_PASSWORD=${MW_DB_PASSWORD}
+    networks:
+      - mediawiki
+    # NOTE: the database must be accessible from the host so the tests can connect
+    ports:
+      # TODO: parametrize the host port?
+      - 8081:5432
+    # NOTE: we want only anonymous volumes so that each start has a fresh state
+    #volumes:
+    #  - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "${MW_DB_USER}", "-d", "${MW_DB_NAME}"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 15s
+
+  # NOTE: based on the official MediaWiki image: https://hub.docker.com/_/mediawiki
+  mediawiki:
+    build:
+      context: ./mediawiki
+      dockerfile: Containerfile
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: on-failure:5
+    env_file:
+      - path: ./.env
+        required: true
+    environment:
+      MW_DB_HOST: database
+    networks:
+      - mediawiki
+    ports:
+      # TODO: parametrize the host port?
+      - 8080:80
+
+# NOTE: starting compose containers in different user namespaces may lead to this error and
+#       no DNS between our containers
+# [ERROR netavark::dns::aardvark] aardvark-dns runs in a different netns, dns will not work for this container. To resolve please stop all containers, kill the aardvark-dns process, remove the /run/user/1000/containers/networks/aardvark-dns directory and then start the containers again
+networks:
+  mediawiki:
+
+# NOTE: we want only anonymous volumes so that each start has a fresh state
+#volumes:
+#  db:

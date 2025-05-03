@@ -3,6 +3,7 @@
 import logging
 
 import pytest
+import pytest_httpx
 import requests_mock
 
 from ws.checkers import ExtlinkReplacements
