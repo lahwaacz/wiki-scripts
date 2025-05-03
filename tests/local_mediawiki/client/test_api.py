@@ -1,16 +1,15 @@
-#! /usr/bin/env python3
-
-import warnings
-
 import pytest
 import sqlalchemy as sa
 
+from ws.client.api import LoginFailed
+
 
 class test_simple_queries:
-# TODO: figure out how to restore the fixture state after the test
-#    @raises(LoginFailed)
-#    def test_login_failed(self, mediawiki):
-#        mediawiki.api.login("wiki-scripts testing invalid user", "invalid password")
+    def test_login_failed(self, mediawiki):
+        # NOTE: this test requires the mediawiki fixture to be function-scoped,
+        #       otherwise the valid user would not be logged in after the test
+        with pytest.raises(LoginFailed):
+            mediawiki.api.login("wiki-scripts testing invalid user", "invalid password")
 
     def test_max_ids_per_query(self, mediawiki):
         assert mediawiki.api.max_ids_per_query == 500
@@ -23,7 +22,8 @@ class test_simple_queries:
         mediawiki.clear()
         pages = mediawiki.api.list(list="allpages", aplimit="max")
         titles = [p["title"] for p in pages]
-        assert titles == []
+        # the Main Page is always created after MediaWiki installation
+        assert titles == ["Main Page"]
 
     def test_generator_dummy(self, mediawiki):
         with pytest.raises(ValueError):
@@ -33,7 +33,9 @@ class test_simple_queries:
         mediawiki.clear()
         pages = mediawiki.api.generator(generator="allpages", gaplimit="max")
         titles = [p["title"] for p in pages]
-        assert titles == []
+        # the Main Page is always created after MediaWiki installation
+        assert titles == ["Main Page"]
+
 
 class test_actions:
     def _create_page(self, api, title):
@@ -46,36 +48,35 @@ class test_actions:
         assert titles == set(expected_titles)
 
     def _check_titles_db(self, engine, expected_titles):
-        metadata = sa.MetaData(bind=engine)
-        # ignore "SAWarning: Predicate of partial index foo ignored during reflection"
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=sa.exc.SAWarning)
-            metadata.reflect()
-        conn = engine.connect()
+        metadata = sa.MetaData()
+        metadata.reflect(bind=engine)
         t = metadata.tables["page"]
-        # we assume that the tests work only with the main namespace
-        s = sa.select([t.c.page_title])
-        result = conn.execute(s)
-        titles = set(row[0] for row in result)
-        assert titles == set(t.replace(" ", "_") for t in expected_titles)
+        with engine.connect() as conn:
+            # we assume that the tests work only with the main namespace
+            s = sa.select(t.c.page_title)
+            result = conn.execute(s)
+            titles = set(row[0] for row in result)
+            assert titles == set(t.replace(" ", "_") for t in expected_titles)
 
     def test_create(self, mediawiki):
         mediawiki.clear()
         api = mediawiki.api
         engine = mediawiki.db_engine
-        created_titles = set()
-        assert api.last_revision_id is None
-        for i in range(5):
+        created_titles = {"Main Page"}
+        assert api.last_revision_id == 1
+        for i in range(1, 5):
             title = "Test {}".format(i)
             self._create_page(api, title)
-            mediawiki.run_jobs()
+            # mediawiki.run_jobs()
             created_titles.add(title)
             assert api.last_revision_id == i + 1
         self._check_titles_api(api, created_titles)
         self._check_titles_db(engine, created_titles)
 
     def _get_content_api(self, api, title):
-        result = api.call_api(action="query", titles=title, prop="revisions", rvprop="content|timestamp")
+        result = api.call_api(
+            action="query", titles=title, prop="revisions", rvprop="content|timestamp"
+        )
         page = list(result["pages"].values())[0]
         text = page["revisions"][0]["*"]
         timestamp = page["revisions"][0]["timestamp"]
@@ -84,8 +85,8 @@ class test_actions:
     def test_edit(self, mediawiki):
         mediawiki.clear()
         api = mediawiki.api
-        assert api.oldest_rc_timestamp is None
-        assert api.newest_rc_timestamp is None
+        # there is one edit due to the Main Page
+        assert api.oldest_rc_timestamp == api.newest_rc_timestamp
         self._create_page(api, "Test page")
         text, timestamp, pageid = self._get_content_api(api, "Test page")
         text += text
@@ -93,11 +94,13 @@ class test_actions:
         new_text, new_timestamp, new_pageid = self._get_content_api(api, "Test page")
         assert new_pageid == pageid
         assert new_text == text
-        assert api.oldest_rc_timestamp == timestamp
+        assert api.oldest_rc_timestamp < timestamp
         assert api.newest_rc_timestamp == new_timestamp
 
+
 class test_query_continue:
-    titles = ["Test {}".format(i) for i in range(10)]
+    test_titles = ["Test {}".format(i) for i in range(10)]
+    all_titles = ["Main Page"] + test_titles
 
     def test_query_continue_dummy(self, mediawiki):
         with pytest.raises(ValueError):
@@ -107,7 +110,7 @@ class test_query_continue:
         mediawiki.clear()
         api = mediawiki.api
 
-        for title in self.titles:
+        for title in self.test_titles:
             api.create(title, title, title)
 
         q = api.query_continue(action="query", list="allpages", aplimit=1)
@@ -115,13 +118,13 @@ class test_query_continue:
         for chunk in q:
             print(chunk)
             titles += [i["title"] for i in chunk["allpages"]]
-        assert titles == self.titles
+        assert titles == self.all_titles
 
     def test_query_continue_params(self, mediawiki):
         mediawiki.clear()
         api = mediawiki.api
 
-        for title in self.titles:
+        for title in self.test_titles:
             api.create(title, title, title)
 
         data = {
@@ -132,7 +135,7 @@ class test_query_continue:
         titles = []
         for chunk in q:
             titles += [i["title"] for i in chunk["allpages"]]
-        assert titles == self.titles
+        assert titles == self.all_titles
 
     def test_query_continue_params_kwargs(self, mediawiki):
         with pytest.raises(ValueError):
