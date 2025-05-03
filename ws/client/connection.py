@@ -26,6 +26,8 @@ __all__ = ["DEFAULT_UA", "Connection", "APIWrongAction", "APIJsonError", "APIErr
 DEFAULT_UA = "wiki-scripts/{version} ({url})".format(version=__version__, url=__url__)
 
 GET_ACTIONS = {
+    'acquiretempusername',
+    'changecontentmodel',
     'checktoken',
     'clearhasmsg',
     'compare',
@@ -40,7 +42,6 @@ GET_ACTIONS = {
     'parse',
     'query',
     'rsd',
-    'tokens',
 }
 POST_ACTIONS = {
     'block',
