@@ -11,6 +11,9 @@ Unreleased
   - Added `pyproject.toml` and modern tooling (ruff)
   - Added `.editorconfig`
 - Fixed issues reported by new linters
+- Tests:
+  - Reimplemented pytest fixtures for local MediaWiki testing
+  - Added test dependencies: `pytest-docker`, `pytest-dotenv`
 
 Version 1.4
 -----------

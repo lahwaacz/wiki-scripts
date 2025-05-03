@@ -45,10 +45,11 @@ lint = [ #
 test = [
     "pytest",
     "pytest-cov",
-    "pytest-postgresql",
-    "pytest-nginx",
+    "pytest-docker",
+    "python-dotenv",
     "pytest-bdd",
     "pytest-mock",
+    "pytest-httpx",
     "requests-mock",
 ]
 

@@ -2,6 +2,7 @@
 
 import pytest
 import sqlalchemy as sa
+from fixtures.containers import *
 from fixtures.mediawiki import *
 from fixtures.postgresql import *
 from fixtures.title_context import *
