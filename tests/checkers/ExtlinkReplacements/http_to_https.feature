@@ -88,6 +88,7 @@ Feature: ExtlinkReplacements: update http to https
         | foo [{} baz] bar |
 
     Scenario Outline: foo.sourceforge.net
+        Given the URL https://foo.sourceforge.net/some/page/ gives status 404
         When a page contains <pattern> formatted with http://foo.sourceforge.net/some/page/
         And I run ExtlinkReplacements
         Then the page should have the original content
