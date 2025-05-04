@@ -84,11 +84,20 @@ def init(args):
         an instance of :py:class:`argparse.Namespace`. It is expected that
         :py:func:`set_argparser()` was called prior to parsing the arguments.
     """
+    level = LOG_LEVELS[args.log_level]
     logger = logging.getLogger()
-    logger.setLevel(LOG_LEVELS[args.log_level])
+    logger.setLevel(level)
 
     # reset alembic logger to its default level
     alembic_logger = logging.getLogger("alembic")
     alembic_logger.setLevel(logging.WARNING)
+
+    # set sensible httpx logging level
+    if level < logging.INFO:
+        # httpcore is too low-level, DEBUG is not useful
+        logging.getLogger("httpcore").setLevel(logging.INFO)
+    if level >= logging.INFO:
+        # httpx is too verbose (each request is INFO level)
+        logging.getLogger("httpx").setLevel(logging.WARN)
 
     setTerminalLogging()
