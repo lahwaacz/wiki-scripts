@@ -6,12 +6,15 @@ import pytest
 import pytest_httpx
 import requests_mock
 
-from ws.checkers import ExtlinkReplacements
+from ws.checkers import ExtlinkReplacements, ExtlinkStatusChecker
 from ws.client import API
 
 # set up the global logger
 logging.basicConfig()
 logging.getLogger().setLevel(logging.DEBUG)
+httpx_log = logging.getLogger("httpx")
+httpx_log.setLevel(logging.DEBUG)
+httpx_log.propagate = True
 requests_log = logging.getLogger("urllib3")
 requests_log.setLevel(logging.DEBUG)
 requests_log.propagate = True
@@ -104,12 +107,12 @@ def SmarterEncryptionList_mock(req_mock, module_mocker):
 # this should be function-scoped so that ExtlinkStatusChecker's requests session
 # and URL status caches are properly reset between tests
 @pytest.fixture(scope="function")
-def extlink_replacements(api_mock, SmarterEncryptionList_mock):
+def extlink_replacements(api_mock, SmarterEncryptionList_mock, httpx_mock: pytest_httpx.HTTPXMock):
+    # ensure that LRU cache is always empty for each test
+    ExtlinkStatusChecker.check_url_sync.cache_clear()
+
     checker = ExtlinkReplacements(api_mock, None, timeout=1, max_retries=1)
 
-    # mock the checker's requests session
-    # https://requests-mock.readthedocs.io/en/latest/mocker.html#mocking-specific-sessions
-    with requests_mock.Mocker(session=checker.session) as session_mock:
-        # put session_mock into the checker so that tests can register mocked responses
-        checker.session_mock = session_mock
-        yield checker
+    # put session_mock into the checker so that tests can register mocked responses
+    checker.httpx_mock = httpx_mock  # type: ignore [attr-defined]
+    yield checker

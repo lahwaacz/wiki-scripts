@@ -4,26 +4,28 @@ Feature: ExtlinkReplacements: svntogit links migration
 
     Background:
         Given these working URLs:
+            """
             # packages, commit
-            | https://github.com/archlinux/svntogit-packages/commit/c46609a4b0325c363455264844091b71de01eddc |
+            https://github.com/archlinux/svntogit-packages/commit/c46609a4b0325c363455264844091b71de01eddc
             # packages, blob
-            | https://github.com/archlinux/svntogit-packages/blob/packages/sudo/trunk/PKGBUILD |
+            https://github.com/archlinux/svntogit-packages/blob/packages/sudo/trunk/PKGBUILD
             # packages, raw
-            | https://github.com/archlinux/svntogit-packages/raw/packages/sudo/trunk/PKGBUILD |
+            https://github.com/archlinux/svntogit-packages/raw/packages/sudo/trunk/PKGBUILD
             # packages, log
-            | https://github.com/archlinux/svntogit-packages/commits/packages/grub/trunk |
+            https://github.com/archlinux/svntogit-packages/commits/packages/grub/trunk
             # packages, repo
-            | https://github.com/archlinux/svntogit-packages |
+            https://github.com/archlinux/svntogit-packages
             # community, commit
-            | https://github.com/archlinux/svntogit-community/blob/91e4262f91ee883ba9766ee61097027c3bfa88f5/trunk/PKGBUILD#L56 |
+            https://github.com/archlinux/svntogit-community/blob/91e4262f91ee883ba9766ee61097027c3bfa88f5/trunk/PKGBUILD
             # community, blob
-            | https://github.com/archlinux/svntogit-community/blob/packages/mpv/trunk/PKGBUILD#L42 |
+            https://github.com/archlinux/svntogit-community/blob/packages/mpv/trunk/PKGBUILD
             # community, raw
-            | https://github.com/archlinux/svntogit-community/raw/packages/mpv/trunk/PKGBUILD |
+            https://github.com/archlinux/svntogit-community/raw/packages/mpv/trunk/PKGBUILD
             # community, log
-            | https://github.com/archlinux/svntogit-community/commits/packages/mpv/trunk |
+            https://github.com/archlinux/svntogit-community/commits/packages/mpv/trunk
             # community, repo
-            | https://github.com/archlinux/svntogit-community |
+            https://github.com/archlinux/svntogit-community
+            """
 
     Scenario Outline: packages, commit
         When a page contains <pattern> formatted with <url>
@@ -271,9 +273,11 @@ Feature: ExtlinkReplacements: svntogit links migration
 
     Scenario Outline: broken on git.archlinux.org
         Given these broken URLs:
-            | https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-            | https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-            | https://github.com/archlinux/svntogit-packages/commit/c46609a4b0325c363455264844091b71de01eddc |
+            """
+            https://projects.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc
+            https://git.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc
+            https://github.com/archlinux/svntogit-packages/commit/abc609a4b0325c363455264844091b71de01eddc
+            """
         When a page contains <pattern> formatted with <url>
         And I run ExtlinkReplacements
         Then the page should have the original content
@@ -282,22 +286,24 @@ Feature: ExtlinkReplacements: svntogit links migration
         # parametrization of the scenario - should cover all cases of an extlink
         # note: {} will be replaced with the URL
         | pattern          | url                                                                                                      |
-        | {}               | https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-        | {}               | https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc      |
-        | [{}]             | https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-        | [{}]             | https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc      |
-        | [{} foo]         | https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-        | [{} foo]         | https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc      |
-        | foo {} bar       | https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-        | foo {} bar       | https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc      |
-        | foo [{}] bar     | https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-        | foo [{}] bar     | https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc      |
-        | foo [{} baz] bar | https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-        | foo [{} baz] bar | https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc      |
+        | {}               | https://projects.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc |
+        | {}               | https://git.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc      |
+        | [{}]             | https://projects.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc |
+        | [{}]             | https://git.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc      |
+        | [{} foo]         | https://projects.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc |
+        | [{} foo]         | https://git.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc      |
+        | foo {} bar       | https://projects.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc |
+        | foo {} bar       | https://git.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc      |
+        | foo [{}] bar     | https://projects.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc |
+        | foo [{}] bar     | https://git.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc      |
+        | foo [{} baz] bar | https://projects.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc |
+        | foo [{} baz] bar | https://git.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc      |
 
     Scenario Outline: broken on github.com
         Given these broken URLs:
-            | https://github.com/archlinux/svntogit-packages/commit/c46609a4b0325c363455264844091b71de01eddc |
+            """
+            https://github.com/archlinux/svntogit-packages/commit/abc609a4b0325c363455264844091b71de01eddc
+            """
         When a page contains <pattern> formatted with <url>
         And I run ExtlinkReplacements
         Then the page should have the original content
@@ -306,15 +312,15 @@ Feature: ExtlinkReplacements: svntogit links migration
         # parametrization of the scenario - should cover all cases of an extlink
         # note: {} will be replaced with the URL
         | pattern          | url                                                                                                      |
-        | {}               | https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-        | {}               | https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc      |
-        | [{}]             | https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-        | [{}]             | https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc      |
-        | [{} foo]         | https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-        | [{} foo]         | https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc      |
-        | foo {} bar       | https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-        | foo {} bar       | https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc      |
-        | foo [{}] bar     | https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-        | foo [{}] bar     | https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc      |
-        | foo [{} baz] bar | https://projects.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc |
-        | foo [{} baz] bar | https://git.archlinux.org/svntogit/packages.git/commit/?id=c46609a4b0325c363455264844091b71de01eddc      |
+        | {}               | https://projects.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc |
+        | {}               | https://git.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc      |
+        | [{}]             | https://projects.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc |
+        | [{}]             | https://git.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc      |
+        | [{} foo]         | https://projects.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc |
+        | [{} foo]         | https://git.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc      |
+        | foo {} bar       | https://projects.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc |
+        | foo {} bar       | https://git.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc      |
+        | foo [{}] bar     | https://projects.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc |
+        | foo [{}] bar     | https://git.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc      |
+        | foo [{} baz] bar | https://projects.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc |
+        | foo [{} baz] bar | https://git.archlinux.org/svntogit/packages.git/commit/?id=abc609a4b0325c363455264844091b71de01eddc      |
