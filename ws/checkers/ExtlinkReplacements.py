@@ -322,11 +322,12 @@ class ExtlinkReplacements(CheckerBase):
             if match:
                 env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
                 template = env.from_string(url_replacement)
-                new_url = template.render(m=match.groups(), **match.groupdict())
+                new_url = httpx.URL(template.render(m=match.groups(), **match.groupdict()))
 
                 # check if the resulting URL is valid
                 # (irc:// and ircs:// cannot be validated - requests throws requests.exceptions.InvalidSchema)
-                if not new_url.startswith("irc://") and not new_url.startswith("ircs://") and not ExtlinkStatusChecker.check_url_sync(new_url):
+                status = ExtlinkStatusChecker.check_url_sync(new_url)
+                if new_url.scheme not in ["irc", "ircs"] and not status:
                     logger.warning("URL not replaced: {}".format(url))
                     return False
 
@@ -336,26 +337,28 @@ class ExtlinkReplacements(CheckerBase):
                 #     (so we should replace new_url with what gitlab gives us)
                 #   - the "/-/" disambiguator (which is added by gitlab's redirects) is ugly and should be removed thereafter
                 #   - gitlab gives 302 to the master branch instead of 404 for non-existent files/directories
-                if new_url.startswith("https://gitlab.archlinux.org"):
+                if new_url.host == "gitlab.archlinux.org":
                     # use same query as ExtlinkStatusChecker.check_url_sync
-                    with httpx.stream("GET", new_url, follow_redirects=True) as response:
+                    # discard the URL fragment which is irrelevant for the server
+                    with httpx.stream("GET", new_url.copy_with(fragment=None), follow_redirects=True) as response:
                         # nothing to do here, but using the context manager ensures that the response is
                         # always properly closed
                         pass
                     if len(response.history) > 0:
-                        if response.url.endswith("/master"):
+                        if response.url.path.endswith("/master"):
                             # this is gitlab's "404" in most cases
                             logger.warning("URL not replaced (Gitlab redirected to a master branch): {}".format(url))
                             return False
-                        new_url = response.url
-                    new_url = new_url.replace("/-/", "/", 1)
+                        # preserve the URL fragment which was discarded in the response
+                        new_url = response.url.copy_with(fragment=new_url.fragment)
+                    new_url = new_url.copy_with(path=new_url.path.replace("/-/", "/", 1))
 
                 # some patterns match even the target
                 # (e.g. links on addons.mozilla.org which already do not have a language code)
                 if url == new_url:
                     return False
 
-                extlink.url = new_url
+                extlink.url = str(new_url)
                 ensure_unflagged_by_template(wikicode, extlink, "Dead link", match_only_prefix=True)
                 return edit_summary
         return False
