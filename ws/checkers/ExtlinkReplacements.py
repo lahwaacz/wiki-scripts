@@ -18,8 +18,6 @@ from ws.utils import LazyProperty
 from .CheckerBase import CheckerBase, get_edit_summary_tracker
 from .ExtlinkStatusChecker import ExtlinkStatusChecker
 from .ExtlinkStatusUpdater import ExtlinkStatusUpdater
-from .https_everywhere.rule_trie import RuleTrie
-from .https_everywhere.rules import Ruleset
 from .smarter_encryption_list import SmarterEncryptionList
 
 __all__ = ["ExtlinkReplacements"]
@@ -202,9 +200,6 @@ class ExtlinkReplacements(CheckerBase):
         # TODO: use Special:Permalink on ArchWiki: https://wiki.archlinux.org/index.php?title=Pacman/Tips_and_tricks&diff=next&oldid=630006
     ]
 
-    https_everywhere_rules_path = os.path.join(os.path.dirname(__file__), "https_everywhere/default.rulesets.json")
-    https_everywhere_rules = None
-
     def __init__(self, api, db=None, **kwargs):
         super().__init__(api, db, **kwargs)
 
@@ -219,18 +214,6 @@ class ExtlinkReplacements(CheckerBase):
             compiled = re.compile(url_regex)
             _url_replacements.append( (edit_summary, compiled, url_replacement) )
         self.url_replacements = _url_replacements
-
-        # initialize HTTPS Everywhere rules as a klass (static) attribute, because it is rather expensive
-        # (note that the class is initialized many times in tests)
-        if ExtlinkReplacements.https_everywhere_rules is None:
-            ExtlinkReplacements.https_everywhere_rules = RuleTrie()
-            data = json.load(open(self.https_everywhere_rules_path, "r"))
-            for r in data:
-                ruleset = Ruleset(r, "<unknown file>")
-                if ruleset.defaultOff:
-                    logging.debug("Skipping HTTPS Everywhere rule '{}', reason: {}".format(ruleset.name, ruleset.defaultOff))
-                    continue
-                self.https_everywhere_rules.addRuleset(ruleset)
 
         # pass timeout and max_retries
         self.selist = SmarterEncryptionList(**kwargs)
@@ -387,10 +370,6 @@ class ExtlinkReplacements(CheckerBase):
         # (Chromium's static list of sites supporting HTTP Strict Transport Security)
         if in_hsts_preload(url.netloc.decode("utf-8").lower()):
             new_url = str(extlink.url).replace("http://", "https://", 1)
-        # check HTTPS Everywhere rules next
-        elif self.https_everywhere_rules.matchingRulesets(url.netloc.decode("utf-8").lower()):
-            match = self.https_everywhere_rules.transformUrl(url)
-            new_url = match.url
         # check the Smarter Encryption list
         elif url.netloc.decode("utf-8").lower() in self.selist:
             new_url = str(extlink.url).replace("http://", "https://", 1)
