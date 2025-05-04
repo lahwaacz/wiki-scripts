@@ -29,8 +29,6 @@ except ImportError:
 __all__ = ["ExtlinkStatusChecker", "Domain", "LinkCheck"]
 
 logger = logging.getLogger(__name__)
-logging.getLogger("httpcore").setLevel(logging.INFO)
-logging.getLogger("httpx").setLevel(logging.WARN)
 
 
 # SQLAlchemy ORM with imperative mapping
