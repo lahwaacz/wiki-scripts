@@ -233,6 +233,9 @@ class ExtlinkStatusChecker:
         if not isinstance(url, httpx.URL):
             url = httpx.URL(url)
 
+        # discard the URL fragment which is irrelevant for the server
+        url = url.copy_with(fragment=None)
+
         try:
             # We need to use GET requests instead of HEAD, because many servers just return 404
             # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
