@@ -14,6 +14,8 @@ Unreleased
 - Tests:
   - Reimplemented pytest fixtures for local MediaWiki testing
   - Added test dependencies: `pytest-docker`, `pytest-dotenv`
+- :py:mod:`ws.checkers`:
+  - Dropped obsolete "HTTPS Everywhere" list and implementation
 
 Version 1.4
 -----------
