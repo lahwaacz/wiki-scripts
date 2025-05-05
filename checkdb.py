@@ -8,7 +8,7 @@ from collections import OrderedDict
 from itertools import chain
 from pprint import pformat, pprint
 
-import requests.packages.urllib3 as urllib3
+import httpx
 import sqlalchemy as sa
 
 import ws.diff
@@ -624,11 +624,11 @@ def check_external_links(api, db):
     api_list = list(api.generator(**params, prop="|".join(prop)))
     api_list = _squash_list_of_dicts(api_list)
 
-    hostname = urllib3.util.url.parse_url(api.index_url).host
+    hostname = httpx.URL(api.index_url).host
     def get_hostname(url):
         try:
-            return urllib3.util.url.parse_url(url).host
-        except urllib3.exceptions.LocationParseError:
+            return httpx.URL(url).host
+        except httpx.InvalidURL:
             return None
 
     for page in db_list:
