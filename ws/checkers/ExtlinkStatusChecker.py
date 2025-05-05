@@ -21,10 +21,7 @@ try:
 except ImportError:
     tqdm = None
 
-try:
-    import truststore
-except ImportError:
-    truststore = None
+from ws.utils import HTTPXAsyncClient
 
 __all__ = ["ExtlinkStatusChecker", "Domain", "LinkCheck"]
 
@@ -90,13 +87,6 @@ class ExtlinkStatusChecker:
         self.session = sqlalchemy.orm.sessionmaker(self.db.engine)
         self.async_session = async_sessionmaker(self.db.async_engine, expire_on_commit=False)
 
-        # httpx client parameters
-        limits = httpx.Limits(
-            max_connections=max_connections,
-            max_keepalive_connections=None,  # always allow keep-alive
-            keepalive_expiry=keepalive_expiry,
-        )
-        timeout = httpx.Timeout(timeout, pool=None)  # disable timeout for waiting for a connection from the pool
         headers = {
             # fake user agent to bypass servers responding differently or not at all to non-browser user agents
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0",
@@ -104,18 +94,14 @@ class ExtlinkStatusChecker:
             "Accept": "text/html,application/pdf;q=0.9,*/*;q=0.8",
         }
 
-        # create an SSL context to disallow TLS1.0 and TLS1.1, allow only TLS1.2
-        # (and newer if supported by the used openssl version)
-        if truststore is not None:
-            # use the system certificate store if available via truststore
-            ssl_context: ssl.SSLContext = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        else:
-            ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
-
         # initialize the HTTPX client
-        transport = httpx.AsyncHTTPTransport(retries=max_retries)
-        self.client = httpx.AsyncClient(transport=transport, verify=ssl_context, headers=headers, timeout=timeout, limits=limits)
+        self.client = HTTPXAsyncClient(
+            headers=headers,
+            timeout=timeout,
+            retries=max_retries,
+            max_connections=max_connections,
+            keepalive_expiry=keepalive_expiry,
+        )
 
         # optional tqdm progressbar
         self.progress = None

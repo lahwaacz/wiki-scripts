@@ -325,9 +325,7 @@ class ExtlinkReplacements(CheckerBase):
                 new_url = httpx.URL(template.render(m=match.groups(), **match.groupdict()))
 
                 # check if the resulting URL is valid
-                # (irc:// and ircs:// cannot be validated - requests throws requests.exceptions.InvalidSchema)
-                status = ExtlinkStatusChecker.check_url_sync(new_url)
-                if new_url.scheme not in ["irc", "ircs"] and not status:
+                if not ExtlinkStatusChecker.check_url_sync(new_url):
                     logger.warning("URL not replaced: {}".format(url))
                     return False
 
@@ -386,7 +384,7 @@ class ExtlinkReplacements(CheckerBase):
             logger.warning("broken URL not updated to https: {}".format(url))
 
     def update_extlink(self, wikicode, extlink, summary_parts):
-        # prepare URL - fix parsing of adjacent templates, replace HTML entities, parse with urllib3
+        # prepare URL - fix parsing of adjacent templates, replace HTML entities
         url = ExtlinkStatusUpdater.prepare_url(wikicode, extlink)
         if url is None:
             return

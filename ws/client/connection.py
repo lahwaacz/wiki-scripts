@@ -2,9 +2,9 @@
 
 """
 The :py:mod:`ws.client.connection` module provides a low-level interface for
-connections to the wiki. The :py:class:`requests.Session` class from the
-:py:mod:`requests` library is used to manage the cookies, authentication
-and making requests.
+connections to the wiki. The :py:class:`httpx.Client` class from the
+:py:mod:`httpx` library is used to manage the cookies, authentication
+and making HTTP requests.
 """
 
 # FIXME: query string should be normalized, see https://www.mediawiki.org/wiki/API:Main_page#API_etiquette
@@ -14,17 +14,14 @@ import copy
 import http.cookiejar as cookielib
 import logging
 
-import requests
-from requests.packages.urllib3.util.retry import Retry
+import httpx
+from httpx_retries import Retry, RetryTransport
 
-from ws import __url__, __version__
-from ws.utils import RateLimited, TLSAdapter, parse_timestamps_in_struct, serialize_timestamps_in_struct
+from ws.utils import DEFAULT_USER_AGENT, HTTPXClient, RateLimited, parse_timestamps_in_struct, serialize_timestamps_in_struct
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["DEFAULT_UA", "Connection", "APIWrongAction", "APIJsonError", "APIError"]
-
-DEFAULT_UA = "wiki-scripts/{version} ({url})".format(version=__version__, url=__url__)
+__all__ = ["Connection", "APIWrongAction", "APIJsonError", "APIError"]
 
 GET_ACTIONS = {
     'acquiretempusername',
@@ -91,7 +88,7 @@ class Connection:
 
     :param str api_url: URL path to the wiki's ``api.php`` entry point
     :param str index_url: URL path to the wiki's ``index.php`` entry point
-    :param requests.Session session: session created by :py:meth:`make_session`
+    :param httpx.Client session: session created by :py:meth:`make_session`
     :param int timeout: connection timeout in seconds
     """
 
@@ -102,11 +99,16 @@ class Connection:
         self.timeout = timeout
 
     @staticmethod
-    def make_session(user_agent=DEFAULT_UA, max_retries=0,
-                     cookie_file=None, cookiejar=None,
-                     http_user=None, http_password=None):
+    def make_session(
+        user_agent: str = DEFAULT_USER_AGENT,
+        max_retries: int = 0,
+        cookie_file: str | None = None,
+        cookiejar: cookielib.FileCookieJar | None = None,
+        http_user: str | None = None,
+        http_password: str | None = None,
+    ) -> httpx.Client:
         """
-        Creates a :py:class:`requests.Session` object for the connection.
+        Creates a :py:class:`httpx.Client` object for the connection.
 
         It is possible to save the session data by specifying either ``cookiejar``
         or ``cookie_file`` arguments. If ``cookiejar`` is present, ``cookie_file``
@@ -119,34 +121,30 @@ class Connection:
             to requests where data has made it to the server.
         :param str cookie_file: path to a :py:class:`cookielib.FileCookieJar` file
         :param cookiejar: an existing :py:class:`cookielib.CookieJar` object
-        :returns: :py:class:`requests.Session` object
+        :returns: :py:class:`httpx.Client` object
         """
-        session = requests.Session()
-
+        cookies: httpx.Cookies | cookielib.FileCookieJar = httpx.Cookies()
         if cookiejar is not None:
-            session.cookies = cookiejar
+            cookies = cookiejar
         elif cookie_file is not None:
-            session.cookies = cookielib.LWPCookieJar(cookie_file)
+            cookies = cookielib.LWPCookieJar(cookie_file)
             try:
-                session.cookies.load()
+                cookies.load()
             except (cookielib.LoadError, FileNotFoundError):
-                session.cookies.save()
-                session.cookies.load()
+                cookies.save()
+                cookies.load()
 
-        _auth = None
+        auth = None
         if http_user is not None and http_password is not None:
-            _auth = (http_user, http_password)
+            auth = httpx.BasicAuth(username=http_user, password=http_password)
 
-        session.headers.update({"user-agent": user_agent})
-        session.auth = _auth
-        session.params.update({"format": "json"})
+        headers = {"User-Agent": user_agent}
 
-        # granular control over requests' retries: https://stackoverflow.com/a/35504626
+        # granular control over retries: https://will-ockmore.github.io/httpx-retries/
         retries = Retry(total=max_retries, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
-        adapter = TLSAdapter(max_retries=retries)
-        session.mount("https://", adapter)
-        session.mount("http://", adapter)
-        return session
+        transport = RetryTransport(retry=retries)
+
+        return HTTPXClient(auth=auth, cookies=cookies, headers=headers, transport=transport)
 
     @staticmethod
     def set_argparser(argparser):
@@ -189,27 +187,26 @@ class Connection:
     def request(self, method, url, **kwargs):
         """
         Simple HTTP request handler. It is basically a wrapper around
-        :py:func:`requests.request()` using the established session including
+        :py:func:`httpx.request()` using the established session including
         cookies, so it should be used only for connections with ``url`` leading
         to the same site.
 
-        The parameters are the same as for :py:func:`requests.request()`, see
-        `Requests documentation`_ for details.
+        The parameters are the same as for :py:func:`httpx.request()`, see
+        `HTTPX documentation`_ for details.
 
-        There is no translation of exceptions, the :py:mod:`requests` exceptions
-        (notably :py:exc:`requests.exceptions.ConnectionError`,
-        :py:exc:`requests.exceptions.Timeout` and
-        :py:exc:`requests.exceptions.HTTPError`) should be catched by the caller.
+        There is no translation of exceptions, the :py:mod:`httpx` exceptions
+        (notably :py:exc:`httpx.NetworkError`, :py:exc:`httpx.TimeoutException`
+        and :py:exc:`httpx.HTTPStatusError`) should be caught by the caller.
 
-        .. _`Requests documentation`: http://docs.python-requests.org/en/latest/api/
+        .. _`HTTPX documentation`: https://www.python-httpx.org/api/
         """
         response = self.session.request(method, url, timeout=self.timeout, **kwargs)
 
-        # raise HTTPError for bad requests (4XX client errors and 5XX server errors)
+        # raise HTTPStatusError for bad requests (4XX client errors and 5XX server errors)
         response.raise_for_status()
 
-        if isinstance(self.session.cookies, cookielib.FileCookieJar):
-            self.session.cookies.save()
+        if isinstance(self.session.cookies.jar, cookielib.FileCookieJar):
+            self.session.cookies.jar.save()
 
         return response
 
@@ -256,6 +253,9 @@ class Connection:
         # serialize timestamps
         params = copy.deepcopy(params)
         serialize_timestamps_in_struct(params)
+
+        # always request outtput in the JSON format
+        params["format"] = "json"
 
         # select HTTP method and call the API
         if action in MULTIPART_FORM_DATA:
@@ -317,7 +317,7 @@ class Connection:
         """
         :returns: the hostname part of `self.api_url`
         """
-        return requests.packages.urllib3.util.url.parse_url(self.api_url).hostname
+        return httpx.URL(self.api_url).host
 
 class APIWrongAction(Exception):
     """ Raised when a wrong API action is specified.
