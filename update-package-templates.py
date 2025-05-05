@@ -5,10 +5,10 @@ import json
 import logging
 import os.path
 
+import httpx
 import mwparserfromhell
 import pyalpm
 import pycman
-import requests
 
 from ws.ArchWiki.lang import detect_language, format_title
 from ws.autopage import AutoPage
@@ -16,7 +16,7 @@ from ws.client import API, APIError
 from ws.interactive import InteractiveQuit, edit_interactive, require_login
 from ws.parser_helpers.title import canonicalize
 from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template, get_parent_wikicode
-from ws.utils import LazyProperty
+from ws.utils import HTTPXClient, LazyProperty
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,7 @@ class PkgFinder:
 
     # sync database of AUR packages
     def aurpkgs_refresh(self, aurpkgs_url):
-        response = requests.get(aurpkgs_url)
+        response = HTTPXClient().get(aurpkgs_url)
         response.raise_for_status()
         self.aurpkgs = set(line for line in response.text.splitlines() if not line.startswith("#"))
 
@@ -94,7 +94,7 @@ class PkgFinder:
             logger.info("Syncing pacman database...")
             self.pacdb_refresh(self.pacdb)
             return True
-        except requests.exceptions.RequestException:
+        except httpx.RequestError:
             logger.exception("Failed to download %s" % self.aurpkgs_url)
             return False
         except pyalpm.error:

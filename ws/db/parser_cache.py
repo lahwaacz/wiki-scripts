@@ -3,8 +3,8 @@
 import logging
 from functools import lru_cache
 
+import httpx
 import mwparserfromhell
-import requests.packages.urllib3 as urllib3
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import insert
 
@@ -39,15 +39,14 @@ def get_normalized_extlinks(wikicode):
     for el in extlinks:
         try:
             # try to parse the URL - fails e.g. if port is not a number
-            # reference: https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#urllib3.util.parse_url
-            url = urllib3.util.url.parse_url(str(el.url))
+            url = httpx.URL(str(el.url))
             # skip URLs with empty host, e.g. "http://" or "http://git@" or "http:///var/run"
             # (partial workaround for https://github.com/earwig/mwparserfromhell/issues/196 )
             # GOTCHA: mailto:user@host is scheme + path only; auth, host and port are recognized only after //
             if url.scheme != "mailto" and not url.host:
                 continue
             filtered_extlinks.append(el)
-        except urllib3.exceptions.LocationParseError:
+        except httpx.InvalidURL:
             pass
 
     return filtered_extlinks

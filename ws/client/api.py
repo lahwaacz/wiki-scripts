@@ -443,12 +443,9 @@ class API(Connection):
             # TODO: the limit is planned to be increased since MW 1.25
             raise Exception("the edit summary is too long, maximum is 255 chars (got len('{}') == {})".format(summary, len(summary)))
 
-        # send text as utf-8 encoded
-        text = text.encode("utf-8")
-
         # md5 hash is used to prevent data corruption during transfer
         h = hashlib.md5()
-        h.update(text)
+        h.update(text.encode("utf-8"))
         md5 = h.hexdigest()
 
         # require being logged in, either as regular user or bot
@@ -493,12 +490,9 @@ class API(Connection):
             # TODO: the limit is planned to be increased since MW 1.25
             raise Exception("the edit summary is too long, maximum is 255 chars (got len('{}') == {})".format(summary, len(summary)))
 
-        # send text as utf-8 encoded
-        text = text.encode("utf-8")
-
         # md5 hash is used to prevent data corruption during transfer
         h = hashlib.md5()
-        h.update(text)
+        h.update(text.encode("utf-8"))
         md5 = h.hexdigest()
 
         # if bot= is passed, also pass an assertion

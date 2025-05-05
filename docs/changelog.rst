@@ -13,9 +13,11 @@ Unreleased
 - Fixed issues reported by new linters
 - Tests:
   - Reimplemented pytest fixtures for local MediaWiki testing
-  - Added test dependencies: `pytest-docker`, `pytest-dotenv`
+  - Added test dependencies: `pytest-docker`, `pytest-dotenv`, `pytest-httpx`
 - :py:mod:`ws.checkers`:
   - Dropped obsolete "HTTPS Everywhere" list and implementation
+- Switched from the :py:mod:`requests` package to :py:mod:`httpx`
+  - New dependencies: :py:mod:`httpx-retries`, :py:mod:`truststore`
 
 Version 1.4
 -----------

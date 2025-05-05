@@ -7,7 +7,7 @@ import string
 import time
 from pprint import pprint
 
-import requests.exceptions as rexc
+import httpx
 
 from ws.client import API
 from ws.interactive import ask_yesno, require_login
@@ -121,7 +121,7 @@ class Blockbot:
                 start2 = datetime.datetime.utcnow()
                 pages = self.api.generator(generator="recentchanges", grcstart=start, grcdir="newer", grcshow="unpatrolled", grclimit="max", prop="revisions", rvprop="ids|timestamp|user|comment|content")
                 self.filter_pages(pages)
-            except (rexc.ConnectionError, rexc.Timeout) as e:
+            except (httpx.NetworkError, httpx.TimeoutException) as e:
                 # query failed, set short timeout and retry from the previous timestamp
                 timeout = 30
                 # FIXME: better representation of the exception as str()

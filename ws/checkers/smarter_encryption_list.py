@@ -4,9 +4,7 @@ import hashlib
 import logging
 from functools import lru_cache
 
-import requests
-
-from ws.utils import TLSAdapter
+from ws.utils import HTTPXClient
 
 __all__ = ["SmarterEncryptionList"]
 
@@ -20,11 +18,7 @@ class SmarterEncryptionList:
     endpoint = "https://duckduckgo.com/smarter_encryption.js?pv1={hash_prefix}"
 
     def __init__(self, *, timeout, max_retries, **kwargs):
-        self.timeout = timeout
-
-        self.session = requests.Session()
-        adapter = TLSAdapter(max_retries=max_retries)
-        self.session.mount("https://", adapter)
+        self.client = HTTPXClient(timeout=timeout, retries=max_retries)
 
     @lru_cache(maxsize=1024)
     def __contains__(self, value):
@@ -36,7 +30,7 @@ class SmarterEncryptionList:
     @lru_cache(maxsize=128)
     def _query_hash_prefix(self, value):
         url = self.endpoint.format(hash_prefix=value)
-        response = self.session.get(url, timeout=self.timeout)
-        # raise HTTPError for bad requests (4XX client errors and 5XX server errors)
+        response = self.client.get(url)
+        # raise HTTPStatusError for bad requests (4XX client errors and 5XX server errors)
         response.raise_for_status()
         return response.json()
