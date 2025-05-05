@@ -5,8 +5,9 @@ description = "Framework for writing bots, maintenance scripts or performing dat
 readme = "README.rst"
 requires-python = ">=3.9"
 dependencies = [
-    "requests",
     "httpx",
+    "httpx-retries",
+    "truststore",
     "jinja2",
     "mwparserfromhell",
 ]
@@ -50,7 +51,6 @@ test = [
     "pytest-bdd",
     "pytest-mock",
     "pytest-httpx",
-    "requests-mock",
 ]
 
 all = ["wiki-scripts[database,scripts,doc,lint,test]"]
