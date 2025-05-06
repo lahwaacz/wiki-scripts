@@ -1,36 +1,66 @@
+import tempfile
+
 import pytest
 import sqlalchemy as sa
 
-from ws.client.api import LoginFailed
+from tests.fixtures.mediawiki import MediaWikiFixtureInstance
+from ws.client.api import API, LoginFailed
 
 
 class test_simple_queries:
-    def test_login_failed(self, mediawiki):
+    def test_login_failed(self, mediawiki: MediaWikiFixtureInstance):
         # NOTE: this test requires the mediawiki fixture to be function-scoped,
         #       otherwise the valid user would not be logged in after the test
         with pytest.raises(LoginFailed):
             mediawiki.api.login("wiki-scripts testing invalid user", "invalid password")
 
-    def test_max_ids_per_query(self, mediawiki):
+    def test_login_cookies(
+        self,
+        mediawiki: MediaWikiFixtureInstance,
+        containers_dotenv_values: dict[str, str | None],
+    ):
+        assert mediawiki.api.user.is_loggedin
+        api_url = mediawiki.api.api_url
+        index_url = mediawiki.api.index_url
+        username = containers_dotenv_values.get("MW_USER")
+        password = containers_dotenv_values.get("MW_PASSWORD")
+
+        with tempfile.NamedTemporaryFile(delete_on_close=False) as cookie_file:
+            cookie_file.close()
+
+            session_1 = API.make_session(cookie_file=cookie_file.name)
+            api_1 = API(api_url, index_url, session_1)
+            api_1.login(username, password)
+            assert api_1.user.is_loggedin
+
+            with open(cookie_file.name, "r") as f:
+                content = f.read()
+                assert content.startswith("#LWP-Cookies-2.0"), content
+                assert f'UserName="{api_1.user.name}";' in content, content
+                assert f"UserID={api_1.user.id};" in content, content
+
+            session_2 = API.make_session(cookie_file=cookie_file.name)
+            api_2 = API(api_url, index_url, session_2)
+            assert api_2.user.is_loggedin
+
+    def test_max_ids_per_query(self, mediawiki: MediaWikiFixtureInstance):
         assert mediawiki.api.max_ids_per_query == 500
 
-    def test_list_dummy(self, mediawiki):
+    def test_list_dummy(self, mediawiki: MediaWikiFixtureInstance):
         with pytest.raises(ValueError):
             next(mediawiki.api.list())
 
-    def test_list_empty(self, mediawiki):
-        mediawiki.clear()
+    def test_list_empty(self, mediawiki: MediaWikiFixtureInstance):
         pages = mediawiki.api.list(list="allpages", aplimit="max")
         titles = [p["title"] for p in pages]
         # the Main Page is always created after MediaWiki installation
         assert titles == ["Main Page"]
 
-    def test_generator_dummy(self, mediawiki):
+    def test_generator_dummy(self, mediawiki: MediaWikiFixtureInstance):
         with pytest.raises(ValueError):
             next(mediawiki.api.generator())
 
-    def test_generator_empty(self, mediawiki):
-        mediawiki.clear()
+    def test_generator_empty(self, mediawiki: MediaWikiFixtureInstance):
         pages = mediawiki.api.generator(generator="allpages", gaplimit="max")
         titles = [p["title"] for p in pages]
         # the Main Page is always created after MediaWiki installation
@@ -38,16 +68,16 @@ class test_simple_queries:
 
 
 class test_actions:
-    def _create_page(self, api, title):
+    def _create_page(self, api: API, title):
         # title is also the content (2nd arg) and summary (3rd arg)
         api.create(title, title, title)
 
-    def _check_titles_api(self, api, expected_titles):
+    def _check_titles_api(self, api: API, expected_titles):
         pages = api.list(list="allpages", aplimit="max")
         titles = set(p["title"] for p in pages)
         assert titles == set(expected_titles)
 
-    def _check_titles_db(self, engine, expected_titles):
+    def _check_titles_db(self, engine: sa.Engine, expected_titles):
         metadata = sa.MetaData()
         metadata.reflect(bind=engine)
         t = metadata.tables["page"]
@@ -58,8 +88,7 @@ class test_actions:
             titles = set(row[0] for row in result)
             assert titles == set(t.replace(" ", "_") for t in expected_titles)
 
-    def test_create(self, mediawiki):
-        mediawiki.clear()
+    def test_create(self, mediawiki: MediaWikiFixtureInstance):
         api = mediawiki.api
         engine = mediawiki.db_engine
         created_titles = {"Main Page"}
@@ -73,7 +102,7 @@ class test_actions:
         self._check_titles_api(api, created_titles)
         self._check_titles_db(engine, created_titles)
 
-    def _get_content_api(self, api, title):
+    def _get_content_api(self, api: API, title):
         result = api.call_api(
             action="query", titles=title, prop="revisions", rvprop="content|timestamp"
         )
@@ -82,8 +111,7 @@ class test_actions:
         timestamp = page["revisions"][0]["timestamp"]
         return text, timestamp, page["pageid"]
 
-    def test_edit(self, mediawiki):
-        mediawiki.clear()
+    def test_edit(self, mediawiki: MediaWikiFixtureInstance):
         api = mediawiki.api
         # there is one edit due to the Main Page
         assert api.oldest_rc_timestamp == api.newest_rc_timestamp
@@ -102,12 +130,11 @@ class test_query_continue:
     test_titles = ["Test {}".format(i) for i in range(10)]
     all_titles = ["Main Page"] + test_titles
 
-    def test_query_continue_dummy(self, mediawiki):
+    def test_query_continue_dummy(self, mediawiki: MediaWikiFixtureInstance):
         with pytest.raises(ValueError):
             next(mediawiki.api.query_continue(params=0))
 
-    def test_query_continue(self, mediawiki):
-        mediawiki.clear()
+    def test_query_continue(self, mediawiki: MediaWikiFixtureInstance):
         api = mediawiki.api
 
         for title in self.test_titles:
@@ -120,8 +147,7 @@ class test_query_continue:
             titles += [i["title"] for i in chunk["allpages"]]
         assert titles == self.all_titles
 
-    def test_query_continue_params(self, mediawiki):
-        mediawiki.clear()
+    def test_query_continue_params(self, mediawiki: MediaWikiFixtureInstance):
         api = mediawiki.api
 
         for title in self.test_titles:
@@ -137,6 +163,6 @@ class test_query_continue:
             titles += [i["title"] for i in chunk["allpages"]]
         assert titles == self.all_titles
 
-    def test_query_continue_params_kwargs(self, mediawiki):
+    def test_query_continue_params_kwargs(self, mediawiki: MediaWikiFixtureInstance):
         with pytest.raises(ValueError):
             next(mediawiki.api.query_continue(params={"foo": 0}, bar=1))
