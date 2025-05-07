@@ -79,6 +79,9 @@ ignore = [
 
 [tool.pytest.ini_options]
 addopts = "--strict-markers"
+markers = [
+    "containers: marks tests that need services managed by docker compose",
+]
 log_level = "INFO"
 testpaths = ["tests"]
 python_classes = "test_*"
