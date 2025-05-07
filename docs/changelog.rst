@@ -8,9 +8,10 @@ Unreleased
 (`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.4...master>`__)
 
 - Project structure refactoring:
-  - Added `pyproject.toml` and modern tooling (ruff)
+  - Added `pyproject.toml` and modern tooling (ruff, mypy)
   - Added `.editorconfig`
 - Fixed issues reported by new linters
+- Added type hints (PEP 484)
 - Tests:
   - Reimplemented pytest fixtures for local MediaWiki testing
   - Added test dependencies: `pytest-docker`, `pytest-dotenv`, `pytest-httpx`
