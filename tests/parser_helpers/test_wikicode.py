@@ -336,19 +336,20 @@ class test_get_anchors:
         assert result == expected
 
     def test_invalid(self) -> None:
-        snippet = """
-== Section with trailing spaces ==  
-== Invalid 1 ==  foo
-== 
-  Invalid 2 ==
-== Invalid 3
-  ==
-== 
-  Invalid 4
-  ==
-== Invalid 5
- foo ==
-"""
+        snippet_lines = [
+            "== Section with trailing spaces ==  ",
+            "== Invalid 1 ==  foo",
+            "==  ",
+            "  Invalid 2 ==",
+            "== Invalid 3",
+            "  ==",
+            "==   ",
+            "  Invalid 4",
+            "  ==",
+            "== Invalid 5",
+            " foo ==",
+        ]
+        snippet = "\n".join(snippet_lines)
         expected = [
             "Section with trailing spaces",
         ]
