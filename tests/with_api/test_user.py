@@ -1,19 +1,21 @@
-#! /usr/bin/env python3
+from typing import Any
 
 import pytest
 
+from ws.client.api import API
+
 
 # TODO: pytest attribute
-#@attr(speed="slow")
+# @attr(speed="slow")
 @pytest.mark.skip(reason="The api fixture was removed.")
 class test_user:
     """
     Tests intended mostly for detecting changes in the ArchWiki configuration.
     """
 
-    props_data = {
+    props_data: dict[str, Any] = {
         # TODO
-#        "name": "", # IP address for anonymous
+        # "name": "", # IP address for anonymous
         "id": 0,  # 0 for anonymous
         "blockinfo": None,
         "hasmsg": None,
@@ -33,27 +35,27 @@ class test_user:
             "editmyoptions",
             "abusefilter-log-detail",
             "abusefilter-view",
-            "abusefilter-log"
+            "abusefilter-log",
         ],
         "changeablegroups": {
             "add": [],
             "remove": [],
             "add-self": [],
-            "remove-self": []
+            "remove-self": [],
         },
         "editcount": 0,
         "ratelimits": {
             # rate limits for anonymous users
-            'changetag': {'ip': {'hits': 8, 'seconds': 60}},
-            'edit': {'ip': {'hits': 8, 'seconds': 60}},
-            'emailuser': {'ip': {'hits': 5, 'seconds': 86400}},
-            'linkpurge': {'ip': {'hits': 30, 'seconds': 60}},
-            'mailpassword': {'ip': {'hits': 5, 'seconds': 3600}},
-            'purge': {'ip': {'hits': 30, 'seconds': 60}},
-            'renderfile': {'ip': {'hits': 700, 'seconds': 30}},
-            'renderfile-nonstandard': {'ip': {'hits': 70, 'seconds': 30}},
-            'stashedit': {'ip': {'hits': 30, 'seconds': 60}},
-            'upload': {'ip': {'hits': 8, 'seconds': 60}},
+            "changetag": {"ip": {"hits": 8, "seconds": 60}},
+            "edit": {"ip": {"hits": 8, "seconds": 60}},
+            "emailuser": {"ip": {"hits": 5, "seconds": 86400}},
+            "linkpurge": {"ip": {"hits": 30, "seconds": 60}},
+            "mailpassword": {"ip": {"hits": 5, "seconds": 3600}},
+            "purge": {"ip": {"hits": 30, "seconds": 60}},
+            "renderfile": {"ip": {"hits": 700, "seconds": 30}},
+            "renderfile-nonstandard": {"ip": {"hits": 70, "seconds": 30}},
+            "stashedit": {"ip": {"hits": 30, "seconds": 60}},
+            "upload": {"ip": {"hits": 8, "seconds": 60}},
         },
         "email": "",
         "realname": "",
@@ -62,30 +64,40 @@ class test_user:
         "centralids": {"local": 0},
     }
 
-    def test_coverage(self, api):
+    def test_coverage(self, api: API) -> None:
         paraminfo = api.call_api(action="paraminfo", modules="query+userinfo")
         properties = set(paraminfo["modules"][0]["parameters"][0]["type"])
         assert properties - {"preferencestoken"} == api.user.properties - {"name", "id"}
 
     @pytest.fixture(scope="class")
-    def api(self, api):
+    def api(self, api: API) -> API:
         api.user.fetch(list(self.props_data))
         return api
 
     @pytest.mark.parametrize("propname, expected", props_data.items())
-    def test_props(self, api, propname, expected):
+    def test_props(self, api: API, propname: str, expected: dict[str, Any]) -> None:
         assert getattr(api.user, propname) == expected
 
     # this is anonymous test
-    def test_is_loggedin(self, api):
+    def test_is_loggedin(self, api: API) -> None:
         assert api.user.is_loggedin is False
 
     # check user rights for anonymous users
-    def test_user_rights(self, api):
-        expected = ["createaccount", "read", "createpage", "createtalk",
-                    "editmyusercss", "editmyuserjs", "viewmywatchlist",
-                    "editmywatchlist", "viewmyprivateinfo", "editmyprivateinfo",
-                    "editmyoptions", "abusefilter-log-detail", "abusefilter-view",
-                    "abusefilter-log"]
+    def test_user_rights(self, api: API) -> None:
+        expected = [
+            "createaccount",
+            "read",
+            "createpage",
+            "createtalk",
+            "editmyusercss",
+            "editmyuserjs",
+            "viewmywatchlist",
+            "editmywatchlist",
+            "viewmyprivateinfo",
+            "editmyprivateinfo",
+            "editmyoptions",
+            "abusefilter-log-detail",
+            "abusefilter-view",
+            "abusefilter-log",
+        ]
         assert api.user.rights == expected
-

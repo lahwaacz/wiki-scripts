@@ -21,9 +21,7 @@ def mock_url_status_200(extlink_replacements, docstring):
     for line in docstring.splitlines():
         if line.startswith("#"):
             continue
-        extlink_replacements.httpx_mock.add_response(
-            url=line.strip(), status_code=200, is_optional=True, is_reusable=True
-        )
+        extlink_replacements.httpx_mock.add_response(url=line.strip(), status_code=200, is_optional=True, is_reusable=True)
 
 
 @given("these broken URLs:")
@@ -31,16 +29,12 @@ def mock_url_status_404(extlink_replacements, docstring):
     for line in docstring.splitlines():
         if line.startswith("#"):
             continue
-        extlink_replacements.httpx_mock.add_response(
-            url=line.strip(), status_code=404, is_optional=True, is_reusable=True
-        )
+        extlink_replacements.httpx_mock.add_response(url=line.strip(), status_code=404, is_optional=True, is_reusable=True)
 
 
 @given(parsers.parse("the URL {url} gives status {status:d}"))
 def mock_url_status(extlink_replacements, url, status):
-    extlink_replacements.httpx_mock.add_response(
-        url=url, status_code=status, is_optional=True, is_reusable=True
-    )
+    extlink_replacements.httpx_mock.add_response(url=url, status_code=status, is_optional=True, is_reusable=True)
 
 
 @given(parsers.parse("the URL {url} redirects to {target_url}"))

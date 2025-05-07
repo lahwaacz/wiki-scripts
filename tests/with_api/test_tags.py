@@ -1,11 +1,10 @@
-#! /usr/bin/env python3
-
 import pytest
+
+from ws.client.api import API
 
 
 @pytest.mark.skip(reason="The api fixture was removed.")
 class test_tags:
-
     # data for monkeypatching
     tag_data = [
         {"name": "a", "source": ["manual"], "active": ""},
@@ -25,10 +24,10 @@ class test_tags:
     # monkeypatch fixture mocking the API object with custom data to avoid queries
     @classmethod
     @pytest.fixture
-    def api(klass, api, monkeypatch):
+    def api(klass, api: API, monkeypatch: pytest.MonkeyPatch) -> API:
         monkeypatch.setattr(api.tags, "_tags", klass.tag_data)
         return api
 
     @pytest.mark.parametrize("attr, expected", tag_names.items())
-    def test_resolve_redirects(self, api, attr, expected):
+    def test_resolve_redirects(self, api: API, attr: str, expected: set[str]) -> None:
         assert getattr(api.tags, attr) == expected

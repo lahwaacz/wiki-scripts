@@ -70,13 +70,9 @@ def api_mock(
                     json={"batchcomplete": "", "query": {"general": general}},
                 )
         # defaults
-        return httpx.Response(
-            status_code=404, text=f"Missing mock for the query parameters '{query}'"
-        )
+        return httpx.Response(status_code=404, text=f"Missing mock for the query parameters '{query}'")
 
-    httpx_mock.add_callback(
-        api_callback, url=re.compile(f"{api_url}.*"), is_optional=True, is_reusable=True
-    )
+    httpx_mock.add_callback(api_callback, url=re.compile(f"{api_url}.*"), is_optional=True, is_reusable=True)
     httpx_mock.add_response(
         url=index_url,
         status_code=404,
@@ -86,9 +82,7 @@ def api_mock(
     )
 
     # mock the title context class
-    mContext = module_mocker.patch(
-        "ws.parser_helpers.title.Context", module_mocker.create_autospec(title_context)
-    )
+    mContext = module_mocker.patch("ws.parser_helpers.title.Context", module_mocker.create_autospec(title_context))
     # override the from_api method to always return the fixture
     mContext.from_api = lambda api: title_context
 
@@ -129,9 +123,7 @@ def SmarterEncryptionList_mock(httpx_mock: pytest_httpx.HTTPXMock) -> None:
 # this should be function-scoped so that ExtlinkStatusChecker's requests session
 # and URL status caches are properly reset between tests
 @pytest.fixture(scope="function")
-def extlink_replacements(
-    api_mock: API, SmarterEncryptionList_mock: None, httpx_mock: pytest_httpx.HTTPXMock
-) -> Iterator[ExtlinkReplacements]:
+def extlink_replacements(api_mock: API, SmarterEncryptionList_mock: None, httpx_mock: pytest_httpx.HTTPXMock) -> Iterator[ExtlinkReplacements]:
     # ensure that LRU cache is always empty for each test
     ExtlinkStatusChecker.check_url_sync.cache_clear()
 

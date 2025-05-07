@@ -1,13 +1,11 @@
-#! /usr/bin/env python3
-
-#from nose.tools import assert_equals, raises, timed, TimeExpired
+# from nose.tools import assert_equals, raises, timed, TimeExpired
 #
-#from ws.utils import RateLimited
+# from ws.utils import RateLimited
 #
-#def _simple_gen():
+# def _simple_gen():
 #    yield from range(100)
 #
-#class test_rate:
+# class test_rate:
 #    rate = 10
 #    step = 0.01
 #
