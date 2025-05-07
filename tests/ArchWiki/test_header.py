@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 import mwparserfromhell
 import pytest
 
@@ -8,15 +6,15 @@ from ws.ArchWiki.header import *
 
 class test_fix_header:
     @staticmethod
-    def _do_test(snippet, expected):
+    def _do_test(snippet: str, expected: str) -> None:
         wikicode = mwparserfromhell.parse(snippet)
         fix_header(wikicode)
         assert str(wikicode) == expected
 
-    def test_empty(self):
+    def test_empty(self) -> None:
         self._do_test("", "")
 
-    def test_fixed_point(self):
+    def test_fixed_point(self) -> None:
         snippet = """\
 {{DISPLAYTITLE:foo}}
 {{Lowercase title}}
@@ -32,7 +30,7 @@ Text...
 """
         self._do_test(snippet, snippet)
 
-    def test_no_text(self):
+    def test_no_text(self) -> None:
         snippet = """\
 {{out of date}}
 [[Category:ASUS]]
@@ -45,7 +43,7 @@ Text...
 """
         self._do_test(snippet, expected)
 
-    def test_lowercase_title(self):
+    def test_lowercase_title(self) -> None:
         snippet = """\
 {{Lowercase_title}}
 """
@@ -54,7 +52,7 @@ Text...
 """
         self._do_test(snippet, expected)
 
-    def test_lowercase_title_2(self):
+    def test_lowercase_title_2(self) -> None:
         snippet = """\
 {{Lowercase title}}
 [[en:Main page]]
@@ -67,16 +65,16 @@ text
 """
         self._do_test(snippet, expected)
 
-    def test_whitespace_stripping(self):
+    def test_whitespace_stripping(self) -> None:
         snippet = """\
 {{Lowercase title}}
 
-[[Category:foo]]  
+[[Category:foo]]
 
 [[en:foo]]
 
 [[Category:bar]]
-  
+
 Some text...
 """
         expected = """\
@@ -88,14 +86,14 @@ Some text...
 """
         self._do_test(snippet, expected)
 
-    def test_vi(self):
+    def test_vi(self) -> None:
         snippet = """\
 The [[vi]] editor.
 """
         self._do_test(snippet, snippet)
 
     @pytest.mark.xfail(reason="mwparserfromhell can't parse behavior switches")
-    def test_notoc(self):
+    def test_notoc(self) -> None:
         snippet = """\
 __NOTOC__
 [[es:Main page]]
@@ -103,7 +101,7 @@ Text of the first paragraph...
 """
         self._do_test(snippet, snippet)
 
-    def test_toc(self):
+    def test_toc(self) -> None:
         snippet = """\
 __TOC__
 [[es:Main page]]
@@ -116,7 +114,7 @@ Text of the first paragraph...
 """
         self._do_test(snippet, expected)
 
-    def test_full(self):
+    def test_full(self) -> None:
         snippet = """\
 Some text with [[it:langlinks]] inside.
 
@@ -148,7 +146,7 @@ Some other text [[link]]
 """
         self._do_test(snippet, expected)
 
-    def test_duplicate_lowercase_title(self):
+    def test_duplicate_lowercase_title(self) -> None:
         snippet = """\
 {{Lowercase title}}
 {{lowercase title}}
@@ -158,7 +156,7 @@ Some other text [[link]]
 """
         self._do_test(snippet, expected)
 
-    def test_duplicate_langlink(self):
+    def test_duplicate_langlink(self) -> None:
         snippet = """\
 [[en:foo]]
 [[cs:foo]]
@@ -170,7 +168,7 @@ Some other text [[link]]
 """
         self._do_test(snippet, expected)
 
-    def test_nb(self):
+    def test_nb(self) -> None:
         # NOTE: nb is in language tags, but it does not work as an interlanguage link
         snippet = """\
 == section ==
@@ -182,7 +180,7 @@ Some other text [[link]]
 """
         self._do_test(snippet, expected)
 
-    def test_noinclude(self):
+    def test_noinclude(self) -> None:
         snippet = """\
 <noinclude>{{Template}}
 [[en:Template:Foo]]
@@ -198,7 +196,7 @@ Some other text [[link]]
 """
         self._do_test(snippet, expected)
 
-    def test_noinclude_error(self):
+    def test_noinclude_error(self) -> None:
         snippet = """\
 [[cs:Template:Foo]]
 <noinclude>{{Template}}
@@ -210,7 +208,7 @@ Some other text [[link]]
         with pytest.raises(HeaderError):
             fix_header(wikicode)
 
-    def test_includeonly(self):
+    def test_includeonly(self) -> None:
         snippet = """\
 <noinclude>
 [[el:Template:Translateme]]
@@ -241,24 +239,30 @@ Some other text [[link]]
 """
         self._do_test(snippet, expected)
 
+
 class test_get_header_parts:
-    def test_combining_sections(self):
+    def test_combining_sections(self) -> None:
         snippets = ["[[Category:Foo]]", "[[en:Bar]]", "{{DISPLAYTITLE:baz}}"]
 
-        magics = []
-        cats = []
-        langlinks = []
+        magics: list[mwparserfromhell.wikicode.Wikicode] = []
+        cats: list[mwparserfromhell.wikicode.Wikicode] = []
+        langlinks: list[mwparserfromhell.wikicode.Wikicode] = []
         for snippet in snippets:
             wikicode = mwparserfromhell.parse(snippet)
             # get_header_parts takes the input arrays, but creates internal copies so they are not modified via mutable arguments
-            parent, magics, cats, langlinks = get_header_parts(wikicode, magics, cats, langlinks)
+            parent, magics, cats, langlinks = get_header_parts(
+                wikicode, magics, cats, langlinks
+            )
             assert str(wikicode) == snippet
         assert len(magics) == len(cats) == len(langlinks) == 1
 
         wikicode = mwparserfromhell.parse("")
         build_header(wikicode, wikicode, magics, cats, langlinks)
-        assert str(wikicode) == """\
+        assert (
+            str(wikicode)
+            == """\
 {{DISPLAYTITLE:baz}}
 [[Category:Foo]]
 [[en:Bar]]
 """
+        )

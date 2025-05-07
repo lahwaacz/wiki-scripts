@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 #from nose.tools import assert_equals, raises, timed, TimeExpired
 #
 #from ws.utils import RateLimited

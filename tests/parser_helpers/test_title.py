@@ -1,8 +1,13 @@
-#! /usr/bin/env python3
-
 import pytest
 
-from ws.parser_helpers.title import *
+from ws.parser_helpers.title import (
+    Context,
+    DatabaseTitleError,
+    InvalidColonError,
+    InvalidTitleCharError,
+    Title,
+    canonicalize,
+)
 
 
 class test_canonicalize:
@@ -19,12 +24,12 @@ class test_canonicalize:
     }
 
     @pytest.mark.parametrize("src, expected", titles.items())
-    def test(self, src, expected):
+    def test(self, src: str, expected: tuple[str, str]) -> None:
         result = canonicalize(src)
         assert result == expected
 
 
-class test_title():
+class test_title:
     # keys: input, values: dictionary of expected attributes of the Title object
     titles = {
         # test splitting and fullpagename formatting
@@ -60,7 +65,6 @@ class test_title():
             "fullpagename": "en:Help:Style",
             "leading_colon": "",
         },
-
         # test stripping whitespace around colons
         "en : help : style # section": {
             "iwprefix": "en",
@@ -70,7 +74,6 @@ class test_title():
             "fullpagename": "en:Help:Style",
             "leading_colon": "",
         },
-
         # test canonicalization
         "helP_ Talk : foo  _Bar_": {
             "iwprefix": "",
@@ -80,7 +83,6 @@ class test_title():
             "fullpagename": "Help talk:Foo Bar",
             "leading_colon": "",
         },
-
         # test anchor canonicalization
         "Main page #  _foo_  ": {
             "pagename": "Main page",
@@ -90,7 +92,6 @@ class test_title():
             "pagename": "",
             "sectionname": "foo",
         },
-
         # test MediaWiki-like properties
         "foo": {
             "fullpagename": "Foo",
@@ -144,7 +145,6 @@ class test_title():
             "talkspace": "Help talk",
             "pagename": "Style",
         },
-
         # test local/external namespaces
         "en:Foo:Bar": {
             "iwprefix": "en",
@@ -167,7 +167,6 @@ class test_title():
             "fullpagename": "wikipedia:Foo:Bar",
             "leading_colon": "",
         },
-
         # test alternative namespace names
         "Project:Foo": {
             "iwprefix": "",
@@ -183,7 +182,6 @@ class test_title():
             "fullpagename": "Image:Foo",
             "leading_colon": "",
         },
-
         # test colons
         ":Category:Foo": {
             "iwprefix": "",
@@ -222,7 +220,6 @@ class test_title():
             "pagename": "Code::Blocks",
             "fullpagename": "wikipedia:Code::Blocks",
         },
-
         # "double" namespace (important mainly for setters)
         "Help:Help:Style": {
             "iwprefix": "",
@@ -241,8 +238,13 @@ class test_title():
     }
 
     @pytest.mark.parametrize("src, expected", titles.items())
-    def test_constructor(self, title_context, src, expected):
-        if type(expected) == type(Exception):
+    def test_constructor(
+        self,
+        title_context: Context,
+        src: str,
+        expected: dict[str, str] | type[Exception],
+    ) -> None:
+        if isinstance(expected, type):
             with pytest.raises(expected):
                 title = Title(title_context, src)
         else:
@@ -251,8 +253,13 @@ class test_title():
                 assert getattr(title, attr) == value
 
     @pytest.mark.parametrize("src, expected", titles.items())
-    def test_parse(self, title_context, src, expected):
-        if type(expected) == type(Exception):
+    def test_parse(
+        self,
+        title_context: Context,
+        src: str,
+        expected: dict[str, str] | type[Exception],
+    ) -> None:
+        if isinstance(expected, type):
             title = Title(title_context, "")
             with pytest.raises(expected):
                 title.parse(src)
@@ -263,8 +270,13 @@ class test_title():
                 assert getattr(title, attr) == value
 
     @pytest.mark.parametrize("full, attrs", titles.items())
-    def test_setters(self, title_context, full, attrs):
-        if type(attrs) != type(Exception):
+    def test_setters(
+        self,
+        title_context: Context,
+        full: str,
+        attrs: dict[str, str] | type[Exception],
+    ) -> None:
+        if not isinstance(attrs, type):
             expected = Title(title_context, full)
             title = Title(title_context, "")
             title.iwprefix = attrs.get("iwprefix", "")
@@ -274,36 +286,34 @@ class test_title():
             assert title == expected
 
 
-class test_title_setters():
+class test_title_setters:
     attributes = ["iwprefix", "namespace", "pagename", "sectionname"]
 
     @staticmethod
     @pytest.fixture(scope="function")
-    def title(title_context):
+    def title(title_context: Context) -> Title:
         return Title(title_context, "en:Help:Style#section")
 
-
     @pytest.mark.parametrize("attr", attributes)
-    def test_invalid_type(self, title, attr):
+    def test_invalid_type(self, title: Title, attr: str) -> None:
         with pytest.raises(TypeError):
             setattr(title, attr, 42)
 
-    def test_invalid_type_constructor(self, title_context):
+    def test_invalid_type_constructor(self, title_context: Context) -> None:
         with pytest.raises(TypeError):
-            Title(title_context, 42)
+            Title(title_context, 42)  # type: ignore[arg-type]
 
-    def test_invalid_type_parse(self, title):
+    def test_invalid_type_parse(self, title: Title) -> None:
         with pytest.raises(TypeError):
-            title.parse(42)
+            title.parse(42)  # type: ignore[arg-type]
 
     # this one has to be explicit for completeness, because
     # `title.pagename = foo` checks it too
-    def test_invalid_type_set_pagename(self, title):
+    def test_invalid_type_set_pagename(self, title: Title) -> None:
         with pytest.raises(TypeError):
-            title._set_pagename(42)
+            title._set_pagename(42)  # type: ignore[arg-type]
 
-
-    def test_iwprefix(self, title):
+    def test_iwprefix(self, title: Title) -> None:
         assert title.iwprefix == "en"
         assert str(title) == "en:Help:Style#section"
         # test internal tag
@@ -319,7 +329,7 @@ class test_title_setters():
         assert title.iwprefix == ""
         assert str(title) == "Help:Style#section"
 
-    def test_namespace(self, title):
+    def test_namespace(self, title: Title) -> None:
         assert title.namespace == "Help"
         assert str(title) == "en:Help:Style#section"
         # test talkspace
@@ -331,7 +341,7 @@ class test_title_setters():
         assert title.namespace == ""
         assert str(title) == "en:Style#section"
 
-    def test_pagename(self, title):
+    def test_pagename(self, title: Title) -> None:
         assert title.pagename == "Style"
         assert str(title) == "en:Help:Style#section"
         # test simple
@@ -339,13 +349,15 @@ class test_title_setters():
         assert title.pagename == "Main page"
         assert str(title) == "en:Help:Main page#section"
 
-    @pytest.mark.parametrize("pagename", ["en:Main page", "Help:Foo", "Main page#Section"])
-    def test_invalid_pagename(self, title_context, pagename):
+    @pytest.mark.parametrize(
+        "pagename", ["en:Main page", "Help:Foo", "Main page#Section"]
+    )
+    def test_invalid_pagename(self, title_context: Context, pagename: str) -> None:
         title = Title(title_context, "")
         with pytest.raises(ValueError):
             title.pagename = pagename
 
-    def test_sectionname(self, title):
+    def test_sectionname(self, title: Title) -> None:
         assert title.sectionname == "section"
         assert str(title) == "en:Help:Style#section"
         # test simple
@@ -353,8 +365,7 @@ class test_title_setters():
         assert title.sectionname == "another section"
         assert str(title) == "en:Help:Style#another section"
 
-
-    def test_eq(self, title_context, title):
+    def test_eq(self, title_context: Context, title: Title) -> None:
         other_title = Title(title_context, "")
         other_title.iwprefix = "en"
         other_title.namespace = "Help"
@@ -362,7 +373,7 @@ class test_title_setters():
         other_title.sectionname = "section"
         assert other_title == title
 
-    def test_str_repr(self, title):
+    def test_str_repr(self, title: Title) -> None:
         title.iwprefix = ""
         title.namespace = ""
         title.pagename = "Main page"
@@ -370,12 +381,11 @@ class test_title_setters():
         assert str(title) == "Main page"
         assert repr(title) == "<class 'ws.parser_helpers.title.Title'>('Main page')"
 
-
-    def test_invalid_iwprefix(self, title):
+    def test_invalid_iwprefix(self, title: Title) -> None:
         with pytest.raises(ValueError):
             title.iwprefix = "invalid prefix"
 
-    def test_invalid_namespace(self, title):
+    def test_invalid_namespace(self, title: Title) -> None:
         with pytest.raises(ValueError):
             title.namespace = "invalid namespace"
 
@@ -388,58 +398,58 @@ class test_title_valid_chars:
         "foo %23 bar",  # encoded '#'
         "{foo}",
         # whitespace
-        "Foo\0bar",     # null
-        "Foo\bbar",     # backspace
-        "Foo\tbar",     # horizontal tab
-        "Foo\nbar",     # line feed
-        "Foo\vbar",     # vertical tab
-        "Foo\fbar",     # form feed
-        "Foo\rbar",     # carriage return
+        "Foo\0bar",  # null
+        "Foo\bbar",  # backspace
+        "Foo\tbar",  # horizontal tab
+        "Foo\nbar",  # line feed
+        "Foo\vbar",  # vertical tab
+        "Foo\fbar",  # form feed
+        "Foo\rbar",  # carriage return
     ]
 
     valid_titles = [
-        "Foo\u0085bar", # next line
-        "Foo\u00A0bar", # no-break space
-        "Foo\u1680bar", # Ogham space mark
-        "Foo\u2000bar", # en quad
-        "Foo\u2001bar", # em quad
-        "Foo\u2002bar", # en space
-        "Foo\u2003bar", # em space
-        "Foo\u2004bar", # three-per-em space
-        "Foo\u2005bar", # four-per-em space
-        "Foo\u2006bar", # six-per-em space
-        "Foo\u2007bar", # figure space
-        "Foo\u2008bar", # punctuation space
-        "Foo\u2009bar", # thin space
-        "Foo\u200Abar", # hair space
-        "Foo\u2028bar", # line separator
-        "Foo\u2029bar", # paragraph separator
-        "Foo\u202Fbar", # narrow no-break space
-        "Foo\u205Fbar", # medium mathematical space
-        "Foo\u3000bar", # ideographic space
+        "Foo\u0085bar",  # next line
+        "Foo\u00A0bar",  # no-break space
+        "Foo\u1680bar",  # Ogham space mark
+        "Foo\u2000bar",  # en quad
+        "Foo\u2001bar",  # em quad
+        "Foo\u2002bar",  # en space
+        "Foo\u2003bar",  # em space
+        "Foo\u2004bar",  # three-per-em space
+        "Foo\u2005bar",  # four-per-em space
+        "Foo\u2006bar",  # six-per-em space
+        "Foo\u2007bar",  # figure space
+        "Foo\u2008bar",  # punctuation space
+        "Foo\u2009bar",  # thin space
+        "Foo\u200Abar",  # hair space
+        "Foo\u2028bar",  # line separator
+        "Foo\u2029bar",  # paragraph separator
+        "Foo\u202Fbar",  # narrow no-break space
+        "Foo\u205Fbar",  # medium mathematical space
+        "Foo\u3000bar",  # ideographic space
         # detected as problematic
         "Table of contents (العربية)",
-        "Let’s Encrypt", # note that it's not an apostrophe!
+        "Let’s Encrypt",  # note that it's not an apostrophe!
     ]
 
     @pytest.mark.parametrize("pagename", invalid_titles)
-    def test_invalid_chars(self, title_context, pagename):
+    def test_invalid_chars(self, title_context: Context, pagename: str) -> None:
         with pytest.raises(InvalidTitleCharError):
             Title(title_context, pagename)
 
     @pytest.mark.parametrize("pagename", invalid_titles)
-    def test_invalid_chars_setter(self, title_context, pagename):
+    def test_invalid_chars_setter(self, title_context: Context, pagename: str) -> None:
         title = Title(title_context, "")
         with pytest.raises(InvalidTitleCharError):
             title.pagename = pagename
 
     @pytest.mark.parametrize("pagename", valid_titles)
-    def test_valid_chars(self, title_context, pagename):
+    def test_valid_chars(self, title_context: Context, pagename: str) -> None:
         title = Title(title_context, pagename)
         assert title.pagename == pagename
 
     @pytest.mark.parametrize("pagename", valid_titles)
-    def test_valid_chars_setter(self, title_context, pagename):
+    def test_valid_chars_setter(self, title_context: Context, pagename: str) -> None:
         title = Title(title_context, "")
         title.pagename = pagename
         assert title.pagename == pagename
@@ -458,14 +468,14 @@ class test_dbtitle:
     ]
 
     @pytest.mark.parametrize("src", titles)
-    def test_dbtitle(self, title_context, src):
+    def test_dbtitle(self, title_context: Context, src: tuple[str, int, str]) -> None:
         src_title, ns, expected = src
         title = Title(title_context, src_title)
         assert title.dbtitle(ns) == expected
 
-    @pytest.mark.parametrize("title", titles_error)
-    def test_dbtitle_error(self, title_context, title):
-        title = Title(title_context, title)
+    @pytest.mark.parametrize("src", titles_error)
+    def test_dbtitle_error(self, title_context: Context, src: str) -> None:
+        title = Title(title_context, src)
         with pytest.raises(DatabaseTitleError):
             title.dbtitle()
 
@@ -479,27 +489,29 @@ class test_make_absolute:
         ("/Bar", "Foo", "Foo/Bar"),
         ("Foo/Bar", "Baz", "Foo/Bar"),
         (":/Foo", "Bar", "/Foo"),
-        ("../Foo", "Bar", "Foo"),  # MW incompatibility: MediaWiki does not allow "../" links from top-level pages
+        # MW incompatibility: MediaWiki does not allow "../" links from top-level pages
+        ("../Foo", "Bar", "Foo"),
         ("../Foo", "Bar/Baz", "Bar/Foo"),
         ("../../Foo", "A/B/C", "A/Foo"),
-        ("/Foo/./Bar", "Baz", "Baz/Foo/Bar"),  # MW incompatibility: MediaWiki does not allow "/./" in the middle of a link
+        # MW incompatibility: MediaWiki does not allow "/./" in the middle of a link
+        ("/Foo/./Bar", "Baz", "Baz/Foo/Bar"),
     ]
 
     @pytest.mark.parametrize("src", titles)
-    def test_make_absolute(self, title_context, src):
+    def test_make_absolute(self, title_context: Context, src: tuple[str, str, str]) -> None:
         src_title, base_title, expected = src
         title = Title(title_context, src_title)
         result = title.make_absolute(base_title)
         assert str(result) == expected
         assert result is not title
 
-    def test_valueerror(self, title_context):
+    def test_valueerror(self, title_context: Context) -> None:
         title = Title(title_context, "en:Foo")
         with pytest.raises(ValueError):
             title.make_absolute(title)
 
 
-def test_format(title_context):
+def test_format(title_context: Context) -> None:
     title = Title(title_context, ":En:talk:main page#section")
     assert title.format() == "Main page"
     assert title.format(colon=True) == ":Main page"
@@ -508,4 +520,7 @@ def test_format(title_context):
     assert title.format(namespace=True) == "Talk:Main page"
     assert title.format(sectionname=True) == "Main page#section"
     assert title.format(colon=True, iwprefix=True) == ":en:Talk:Main page"
-    assert title.format(colon=True, iwprefix=True, sectionname=True) == ":en:Talk:Main page#section"
+    assert (
+        title.format(colon=True, iwprefix=True, sectionname=True)
+        == ":en:Talk:Main page#section"
+    )

@@ -1,18 +1,24 @@
-#! /usr/bin/env python3
+from typing import Any
 
 import mwparserfromhell
 import pytest
 
 from ws.parser_helpers.template_expansion import *
-from ws.parser_helpers.title import Title
+from ws.parser_helpers.title import Context, Title
 
 
 class common_base:
     @staticmethod
-    def _do_test(title_context, d, title, expected, **kwargs):
-        def content_getter(title):
-#            if "<" in str(title) or ">" in title:
-#                raise TitleError
+    def _do_test(
+        title_context: Context,
+        d: dict[str, str],
+        title: str,
+        expected: str,
+        **kwargs: Any,
+    ) -> None:
+        def content_getter(title: Title) -> str:
+            # if "<" in str(title) or ">" in title:
+            #     raise TitleError
             try:
                 return d[str(title)]
             except KeyError:
@@ -20,17 +26,21 @@ class common_base:
 
         content = d[title]
         wikicode = mwparserfromhell.parse(content)
-        expand_templates(Title(title_context, title), wikicode, content_getter, **kwargs)
+        expand_templates(
+            Title(title_context, title), wikicode, content_getter, **kwargs
+        )
         assert wikicode == expected
 
-class test_expand_templates(common_base):
-    def test_type_of_wikicode(self, title_context):
-        def void_getter(title):
-            raise ValueError
-        with pytest.raises(TypeError):
-            expand_templates("title", "content", void_getter)
 
-    def test_basic(self, title_context):
+class test_expand_templates(common_base):
+    def test_type_of_wikicode(self, title_context: Context) -> None:
+        def void_getter(title: Title) -> str:
+            raise ValueError
+
+        with pytest.raises(TypeError):
+            expand_templates("title", "content", void_getter)  # type: ignore[arg-type]
+
+    def test_basic(self, title_context: Context) -> None:
         d = {
             "Template:Echo": "{{{1}}}",
             "Title": "{{Echo|{{Echo|foo}}}}",
@@ -39,7 +49,7 @@ class test_expand_templates(common_base):
         expected = "foo"
         self._do_test(title_context, d, title, expected)
 
-    def test_explicit_template_prefix(self, title_context):
+    def test_explicit_template_prefix(self, title_context: Context) -> None:
         d = {
             "Template:Echo": "{{{1}}}",
             "Talk:Foo": "foo",
@@ -51,7 +61,7 @@ class test_expand_templates(common_base):
             expected = "foo"
             self._do_test(title_context, d, title, expected)
 
-    def test_default_values(self, title_context):
+    def test_default_values(self, title_context: Context) -> None:
         d = {
             "Template:Note": "{{{1|default}}}",
             "Title": "{{Note|{{Note}}}} {{Note|}} {{Note|non-default}}",
@@ -60,7 +70,7 @@ class test_expand_templates(common_base):
         expected = "default  non-default"
         self._do_test(title_context, d, title, expected)
 
-    def test_invalid_template(self, title_context):
+    def test_invalid_template(self, title_context: Context) -> None:
         d = {
             "Title": "{{invalid}}",
         }
@@ -68,7 +78,7 @@ class test_expand_templates(common_base):
         expected = "[[Template:Invalid]]"
         self._do_test(title_context, d, title, expected)
 
-    def test_invalid_page(self, title_context):
+    def test_invalid_page(self, title_context: Context) -> None:
         d = {
             "Title": "{{:invalid}}",
         }
@@ -76,7 +86,7 @@ class test_expand_templates(common_base):
         expected = "[[Invalid]]"
         self._do_test(title_context, d, title, expected)
 
-    def test_title_error(self, title_context):
+    def test_title_error(self, title_context: Context) -> None:
         # in order to test the TitleError case, we need to get the tags inside the braces using transclusion,
         # because mwparserfromhell does not even parse {{<code>foo</code>}} as a template
         d = {
@@ -87,7 +97,7 @@ class test_expand_templates(common_base):
         expected = "{{ <code>foo</code> }}"
         self._do_test(title_context, d, title, expected)
 
-    def test_infinite_loop_protection(self, title_context):
+    def test_infinite_loop_protection(self, title_context: Context) -> None:
         d = {
             "Template:A": "a: {{b}}",
             "Template:B": "b: {{c}}",
@@ -100,22 +110,24 @@ class test_expand_templates(common_base):
         }
 
         title = "Title 1"
-        expected = "a: b: c: <span class=\"error\">Template loop detected: [[Template:A]]</span>"
+        expected = (
+            'a: b: c: <span class="error">Template loop detected: [[Template:A]]</span>'
+        )
         self._do_test(title_context, d, title, expected)
 
         title = "Template:AAA"
-        expected = "<span class=\"error\">Template loop detected: [[Template:AAA]]</span>"
+        expected = '<span class="error">Template loop detected: [[Template:AAA]]</span>'
         self._do_test(title_context, d, title, expected)
 
         title = "Title 2"
-        expected = "<span class=\"error\">Template loop detected: [[Template:AAA]]</span>"
+        expected = '<span class="error">Template loop detected: [[Template:AAA]]</span>'
         self._do_test(title_context, d, title, expected)
 
         title = "Title 3"
         expected = "foo"
         self._do_test(title_context, d, title, expected)
 
-    def test_relative_transclusion(self, title_context):
+    def test_relative_transclusion(self, title_context: Context) -> None:
         d = {
             "Template:A": "a: {{/B}}",
             "Template:A/B": "b: {{c}}",
@@ -126,7 +138,7 @@ class test_expand_templates(common_base):
         expected = "a: [[Title/B]]"
         self._do_test(title_context, d, title, expected)
 
-    def test_named_parameers(self, title_context):
+    def test_named_parameers(self, title_context: Context) -> None:
         d = {
             "Template:A": "a: {{{a|b: {{{b|c: {{{c|}}} }}} }}}",
             "Title 1": "x{{A}}y",
@@ -151,7 +163,7 @@ class test_expand_templates(common_base):
         expected = "xa: b: c: foo  y"
         self._do_test(title_context, d, title, expected)
 
-    def test_nested_argument_name(self, title_context):
+    def test_nested_argument_name(self, title_context: Context) -> None:
         d = {
             "Template:A": "{{{ {{{1}}} |foo }}}",
             "Title 1": "x{{A}}y",
@@ -176,7 +188,7 @@ class test_expand_templates(common_base):
         expected = "xfoo y"
         self._do_test(title_context, d, title, expected)
 
-    def test_noinclude(self, title_context):
+    def test_noinclude(self, title_context: Context) -> None:
         d = {
             "Template:A": "<noinclude><code>foo</code> {{{1}}}</noinclude>bar",
             "Title 1": "{{a}}",
@@ -195,7 +207,7 @@ class test_expand_templates(common_base):
         expected = "bar"
         self._do_test(title_context, d, title, expected)
 
-    def test_nested_noinclude(self, title_context):
+    def test_nested_noinclude(self, title_context: Context) -> None:
         d = {
             "Template:A": "<noinclude>foo <noinclude>{{{1}}}</noinclude></noinclude>bar",
             "Title 1": "{{a}}",
@@ -214,7 +226,7 @@ class test_expand_templates(common_base):
         expected = "bar"
         self._do_test(title_context, d, title, expected)
 
-    def test_includeonly(self, title_context):
+    def test_includeonly(self, title_context: Context) -> None:
         d = {
             "Template:A": "foo <includeonly>bar {{{1|}}}</includeonly>",
             "Title 1": "{{a}}",
@@ -233,7 +245,7 @@ class test_expand_templates(common_base):
         expected = "foo bar b"
         self._do_test(title_context, d, title, expected)
 
-    def test_nested_includeonly(self, title_context):
+    def test_nested_includeonly(self, title_context: Context) -> None:
         d = {
             "Template:A": "foo <includeonly>bar <includeonly>{{{1|}}}</includeonly></includeonly>",
             "Title 1": "{{a}}",
@@ -252,7 +264,7 @@ class test_expand_templates(common_base):
         expected = "foo bar b"
         self._do_test(title_context, d, title, expected)
 
-    def test_noinclude_and_includeonly(self, title_context):
+    def test_noinclude_and_includeonly(self, title_context: Context) -> None:
         d = {
             "Template:A": "<noinclude>foo</noinclude><includeonly>bar</includeonly>",
             "Title": "{{a}}",
@@ -266,7 +278,7 @@ class test_expand_templates(common_base):
         expected = "bar"
         self._do_test(title_context, d, title, expected)
 
-    def test_nested_noinclude_and_includeonly(self, title_context):
+    def test_nested_noinclude_and_includeonly(self, title_context: Context) -> None:
         d = {
             "Template:A": "<noinclude>foo <includeonly>bar</includeonly></noinclude>",
             "Title": "{{a}}",
@@ -280,7 +292,7 @@ class test_expand_templates(common_base):
         expected = ""
         self._do_test(title_context, d, title, expected)
 
-    def test_onlyinclude(self, title_context):
+    def test_onlyinclude(self, title_context: Context) -> None:
         d = {
             "Template:A": "foo <onlyinclude>bar</onlyinclude>",
             "Title": "{{a}}",
@@ -294,7 +306,9 @@ class test_expand_templates(common_base):
         expected = "bar"
         self._do_test(title_context, d, title, expected)
 
-    def test_noinclude_and_includeonly_and_onlyinclude(self, title_context):
+    def test_noinclude_and_includeonly_and_onlyinclude(
+        self, title_context: Context
+    ) -> None:
         d = {
             "Template:A": "<noinclude>foo</noinclude><includeonly>bar</includeonly><onlyinclude>baz</onlyinclude>",
             "Title": "{{a}}",
@@ -308,7 +322,9 @@ class test_expand_templates(common_base):
         expected = "baz"
         self._do_test(title_context, d, title, expected)
 
-    def test_nested_noinclude_and_includeonly_and_onlyinclude(self, title_context):
+    def test_nested_noinclude_and_includeonly_and_onlyinclude(
+        self, title_context: Context
+    ) -> None:
         d = {
             "Template:A": "<noinclude><includeonly><onlyinclude>{{{1}}}<onlyinclude>{{{2}}}</onlyinclude></onlyinclude></includeonly>discarded text</noinclude>",
             "Title": "{{a|foo|bar}}",
@@ -323,7 +339,7 @@ class test_expand_templates(common_base):
         expected = "foo<onlyinclude>bar</onlyinclude>"
         self._do_test(title_context, d, title, expected)
 
-    def test_recursive_passing_of_arguments(self, title_context):
+    def test_recursive_passing_of_arguments(self, title_context: Context) -> None:
         d = {
             "Template:A": "{{{1}}}",
             "Title": "{{a|{{{1}}}}}",
@@ -332,7 +348,7 @@ class test_expand_templates(common_base):
         expected = "{{{1}}}"
         self._do_test(title_context, d, title, expected)
 
-    def test_transclusion_of_redirect(self, title_context):
+    def test_transclusion_of_redirect(self, title_context: Context) -> None:
         d = {
             "Template:A": "#redirect [[Template:B]]",
             "Template:B": "foo",
@@ -342,7 +358,7 @@ class test_expand_templates(common_base):
         expected = "foo"
         self._do_test(title_context, d, title, expected)
 
-    def test_transclusion_of_invalid_redirect(self, title_context):
+    def test_transclusion_of_invalid_redirect(self, title_context: Context) -> None:
         d = {
             "Template:A": "#redirect [[Template:B]]",
             "Title": "{{a}}",
@@ -351,7 +367,7 @@ class test_expand_templates(common_base):
         expected = "#redirect [[Template:B]]"
         self._do_test(title_context, d, title, expected)
 
-    def test_transclusion_of_double_redirect(self, title_context):
+    def test_transclusion_of_double_redirect(self, title_context: Context) -> None:
         d = {
             "Template:A": "#redirect [[Template:B]]",
             "Template:B": "#redirect [[Template:C]]",
@@ -362,7 +378,7 @@ class test_expand_templates(common_base):
         expected = "foo"
         self._do_test(title_context, d, title, expected)
 
-    def test_transclusion_of_redirect_loop(self, title_context):
+    def test_transclusion_of_redirect_loop(self, title_context: Context) -> None:
         d = {
             "Template:A": "#redirect [[Template:B]]",
             "Template:B": "#redirect [[Template:C]]",
@@ -374,7 +390,7 @@ class test_expand_templates(common_base):
         self._do_test(title_context, d, title, expected)
 
     # simplified test for https://github.com/earwig/mwparserfromhell/issues/241
-    def test_adjacent_templates_in_link(self, title_context):
+    def test_adjacent_templates_in_link(self, title_context: Context) -> None:
         d = {
             "Template:Foo": "",
             "Template:Bar": "",
@@ -392,8 +408,9 @@ class test_expand_templates(common_base):
         expected = "[[]]"
         self._do_test(title_context, d, title, expected)
 
+
 class test_magic_words(common_base):
-    def test_page_names(self, title_context):
+    def test_page_names(self, title_context: Context) -> None:
         d = {
             "Template:Foo/Bar/Baz": "{{FULLPAGENAME}}\n{{PAGENAME}}\n{{BASEPAGENAME}}\n{{SUBPAGENAME}}\n{{SUBJECTPAGENAME}}\n{{TALKPAGENAME}}\n{{ROOTPAGENAME}}",
             "Talk:Foo/Bar/Baz": "{{FULLPAGENAME}}\n{{PAGENAME}}\n{{BASEPAGENAME}}\n{{SUBPAGENAME}}\n{{SUBJECTPAGENAME}}\n{{TALKPAGENAME}}\n{{ROOTPAGENAME}}",
@@ -407,7 +424,7 @@ class test_magic_words(common_base):
         expected = "Talk:Foo/Bar/Baz\nFoo/Bar/Baz\nFoo/Bar\nBaz\nFoo/Bar/Baz\nTalk:Foo/Bar/Baz\nFoo"
         self._do_test(title_context, d, title, expected)
 
-    def test_encoding(self, title_context):
+    def test_encoding(self, title_context: Context) -> None:
         d = {
             "Template:A": "http://example.com/{{urlencode:{{{1}}}}}/",
             "Template:B": "http://example.com/#{{anchorencode:{{{1}}}}}",
@@ -423,7 +440,7 @@ class test_magic_words(common_base):
         expected = "http://example.com/#foo_bar"
         self._do_test(title_context, d, title, expected)
 
-    def test_disabled(self, title_context):
+    def test_disabled(self, title_context: Context) -> None:
         d = {
             "Template:A": "http://example.com/{{urlencode:{{{1}}}}}/",
             "Template:B": "http://example.com/#{{anchorencode:{{{1}}}}}",
@@ -439,7 +456,7 @@ class test_magic_words(common_base):
         expected = "http://example.com/#{{anchorencode:foo bar}}"
         self._do_test(title_context, d, title, expected, substitute_magic_words=False)
 
-    def test_unhandled(self, title_context):
+    def test_unhandled(self, title_context: Context) -> None:
         # this is mostly to complete the code coverage...
         d = {
             "Title": "{{LOCALTIMESTAMP}} {{#special:foo}}",
@@ -448,7 +465,7 @@ class test_magic_words(common_base):
         expected = d[title]
         self._do_test(title_context, d, title, expected)
 
-    def test_if(self, title_context):
+    def test_if(self, title_context: Context) -> None:
         d = {
             "No": "{{ #if: | Yes | No }}",
             "Yes": "{{ #if: string | Yes | No }}",
@@ -460,16 +477,14 @@ class test_magic_words(common_base):
 
     # does not work due to https://github.com/earwig/mwparserfromhell/issues/251
     @pytest.mark.xfail
-    def test_if_with_tags(self, title_context):
-        d = {
-            "Title": "foo{{#if:<nowiki>bar</nowiki>|true|false}}baz"
-        }
+    def test_if_with_tags(self, title_context: Context) -> None:
+        d = {"Title": "foo{{#if:<nowiki>bar</nowiki>|true|false}}baz"}
 
         title = "Title"
         expected = "footruebaz"
         self._do_test(title_context, d, title, expected)
 
-    def test_switch(self, title_context):
+    def test_switch(self, title_context: Context) -> None:
         d = {
             "Baz": "{{#switch: baz | foo = Foo | baz = Baz | Bar }}",
             "Foo": "{{#switch: foo | foo = Foo | baz = Baz | Bar }}",
@@ -479,7 +494,7 @@ class test_magic_words(common_base):
         for title in d.keys():
             self._do_test(title_context, d, title, title)
 
-    def test_nested(self, title_context):
+    def test_nested(self, title_context: Context) -> None:
         d = {
             "Yes": "{{ #if: string | {{PAGENAME}} | No }}",
             "No": "{{ #if: {{urlencode:}} | Yes | No }}",
@@ -487,7 +502,7 @@ class test_magic_words(common_base):
         for title in d.keys():
             self._do_test(title_context, d, title, title)
 
-    def test_cat_main(self, title_context):
+    def test_cat_main(self, title_context: Context) -> None:
         d = {
             "Template:Cat main": """<noinclude>{{Cat main}}</noinclude><includeonly>{{
                         #switch: {{#if:{{{1|}}}|1|0}}{{#if:{{{2|}}}|1|0}}{{#if:{{{3|}}}|1|0}}
@@ -515,16 +530,21 @@ class test_magic_words(common_base):
         self._do_test(title_context, d, title, expected)
 
         title = "Title 4"
-        expected = "The main articles for this category are [[Foo]], [[Bar]] and [[Baz]]."
+        expected = (
+            "The main articles for this category are [[Foo]], [[Bar]] and [[Baz]]."
+        )
         self._do_test(title_context, d, title, expected)
 
         title = "Template:Cat main"
         expected = "The main article for this category is [[Cat main]]."
         self._do_test(title_context, d, title, expected)
 
+
 class test_transclusion_modifiers(common_base):
     @pytest.mark.parametrize("modifier", ["subst", "safesubst"])
-    def test_subst_existing_template(self, title_context, modifier):
+    def test_subst_existing_template(
+        self, title_context: Context, modifier: str
+    ) -> None:
         d = {
             "Template:Echo": "{{{1}}}",
             "Title": "{{$MOD$:Echo|{{Echo|foo}}}}".replace("$MOD$", modifier),
@@ -534,7 +554,9 @@ class test_transclusion_modifiers(common_base):
         self._do_test(title_context, d, title, expected)
 
     @pytest.mark.parametrize("modifier", ["subst", "safesubst"])
-    def test_subst_existing_template(self, title_context, modifier):
+    def test_subst_existing_template_two(
+        self, title_context: Context, modifier: str
+    ) -> None:
         d = {
             "Echo": "{{{1}}}",
             "Title 1": "{{$MOD$::Echo|{{:Echo|foo}}}}".replace("$MOD$", modifier),
@@ -547,12 +569,12 @@ class test_transclusion_modifiers(common_base):
 
         title = "Title 2"
         # FIXME: MediaWiki renders it like this:
-#        expected = "{{$MOD$:Echo|foo}}".replace("$MOD$", modifier)
+        #        expected = "{{$MOD$:Echo|foo}}".replace("$MOD$", modifier)
         expected = d[title]
         self._do_test(title_context, d, title, expected)
 
     @pytest.mark.parametrize("modifier", ["subst", "safesubst"])
-    def test_subst_invalid_page(self, title_context, modifier):
+    def test_subst_invalid_page(self, title_context: Context, modifier: str) -> None:
         d = {
             "Title": "{{$MOD$:Echo|foo}}".replace("$MOD$", modifier),
         }

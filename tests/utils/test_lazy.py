@@ -1,35 +1,33 @@
-#! /usr/bin/env python3
-
 from ws.utils import LazyProperty
 
 
 class test_lazy:
-    def setup_method(self):
+    def setup_method(self) -> None:
         self._values = list(range(10))
 
     @LazyProperty
-    def lazyprop(self):
+    def lazyprop(self) -> int:
         """lazyprop docstring"""
         return self._values.pop(0)
 
     @property
-    def normalprop(self):
+    def normalprop(self) -> int:
         """normalprop docstring"""
         return self._values.pop(0)
 
-    def test_lazyprop(self):
+    def test_lazyprop(self) -> None:
         assert self.lazyprop == 0
         assert self.lazyprop == 0
         del self.lazyprop
         assert self.lazyprop == 1
         assert self.lazyprop == 1
 
-    def test_normalprop(self):
+    def test_normalprop(self) -> None:
         assert self.normalprop == 0
         assert self.normalprop == 1
         assert self.normalprop == 2
         assert self.normalprop == 3
 
-    def test_docstrings(self):
+    def test_docstrings(self) -> None:
         assert test_lazy.lazyprop.__doc__ == "lazyprop docstring"
         assert test_lazy.normalprop.__doc__ == "normalprop docstring"
