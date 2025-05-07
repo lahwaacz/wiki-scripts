@@ -1,6 +1,8 @@
-#! /usr/bin/env python3
+from typing import Iterator
 
 import pytest
+
+from ws.client.api import API
 
 
 @pytest.mark.skip(reason="The api fixture was removed.")
@@ -38,11 +40,13 @@ class test_redirects:
     # queries. After all, we're testing the algorithms, not queries.
     @classmethod
     @pytest.fixture
-    def api(klass, api, monkeypatch):
+    def api(klass, api: API, monkeypatch: pytest.MonkeyPatch) -> Iterator[API]:
         monkeypatch.setattr(api.redirects, "fetch", lambda *args: klass.redirects_data)
         yield api
         del api.redirects.map
 
     @pytest.mark.parametrize("source, expected_target", redirects_resolved.items())
-    def test_resolve_redirects(self, api, source, expected_target):
+    def test_resolve_redirects(
+        self, api: API, source: str, expected_target: str | None
+    ) -> None:
         assert api.redirects.resolve(source) == expected_target
