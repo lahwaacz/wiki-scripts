@@ -61,7 +61,6 @@ def setup(app):
 # see: http://sphinx-doc.org/ext/intersphinx.html#module-sphinx.ext.intersphinx
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
-    'requests': ('http://docs.python-requests.org/en/latest/', None),
     'mwparserfromhell': ('https://mwparserfromhell.readthedocs.io/en/latest/', None),
     'sqlalchemy': ('http://docs.sqlalchemy.org/en/latest/', None),
 }
