@@ -38,9 +38,14 @@ def docker_compose_file(pytestconfig: pytest.Config) -> str:
     return str(path)
 
 
-# Pin the project name to avoid creating multiple stacks
-@pytest.fixture(scope="session")
+@pytest.fixture(
+    scope="session",
+    # this trick adds a marker to all tests using the fixture
+    params=[pytest.param(None, marks=pytest.mark.containers)],
+)
 def docker_compose_project_name() -> str:
+    """Return a project name for using docker compose."""
+    # Pin the project name to avoid creating multiple stacks
     return "wiki-scripts-tests"
 
 
