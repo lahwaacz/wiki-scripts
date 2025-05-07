@@ -41,6 +41,9 @@ doc = [ #
 
 lint = [ #
     "ruff",
+    "mypy",
+    "types-Pygments",
+    "types-tqdm",
 ]
 
 test = [
@@ -79,3 +82,25 @@ addopts = "--strict-markers"
 log_level = "INFO"
 testpaths = ["tests"]
 python_classes = "test_*"
+
+# Configuration for mypy
+# https://mypy.readthedocs.io/en/stable/config_file.html
+# https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml
+[tool.mypy]
+disallow_incomplete_defs = true
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+packages = ["ws", "tests"]
+
+[[tool.mypy.overrides]]
+module = ["hstspreload", "mwparserfromhell.*"]
+follow_untyped_imports = true
+
+[[tool.mypy.overrides]]
+module = ["pyalpm.*", "pycman.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["WikEdDiff.*"]
+ignore_missing_imports = true
