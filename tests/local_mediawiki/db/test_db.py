@@ -1,78 +1,120 @@
+import datetime
 import os.path
 
 import sqlalchemy as sa
 from pytest_bdd import given, parsers, scenarios, then, when
 
+from tests.fixtures.mediawiki import MediaWikiFixtureInstance
+from ws.client.api import API
+from ws.db.database import Database
+
 scenarios(".")
 
+
 @given("an api to an empty MediaWiki")
-def empty_mediawiki(mediawiki):
+def empty_mediawiki(mediawiki: MediaWikiFixtureInstance) -> None:
     mediawiki.clear()
 
+
 @given("an empty wiki-scripts database")
-def empty_wsdb(db):
+def empty_wsdb(db: Database) -> None:
     # the db fixture is function-scoped, so clearing is implicit
     pass
 
+
 @when("I synchronize the wiki-scripts database")
-def sync_page_tables(mediawiki, db):
-    #mediawiki.run_jobs()
+def sync_page_tables(mediawiki: MediaWikiFixtureInstance, db: Database) -> None:
+    # mediawiki.run_jobs()
     db.sync_with_api(mediawiki.api, with_content=True, check_needs_update=False)
 
-@when(parsers.parse("I create page \"{title}\""))
-def create_page(mediawiki, title):
+
+@when(parsers.parse('I create page "{title}"'))
+def create_page(mediawiki: MediaWikiFixtureInstance, title: str) -> None:
     # all pages are created as empty
     mediawiki.api.create(title, "", title)
 
-@when(parsers.re("I move page \"(?P<src_title>.+?)\" to \"(?P<dest_title>.+?)\"(?P<noredirect> without leaving a redirect)?"))
-def move_page(mediawiki, src_title, dest_title, noredirect):
-    noredirect = False if noredirect is None else True
-    mediawiki.api.move(src_title, dest_title, "moved due to BDD tests", noredirect=noredirect)
 
-def _get_content_api(api, title):
-    result = api.call_api(action="query", titles=title, prop="revisions", rvprop="content|timestamp")
+@when(
+    parsers.re(
+        'I move page "(?P<src_title>.+?)" to "(?P<dest_title>.+?)"(?P<noredirect> without leaving a redirect)?'
+    )
+)
+def move_page(
+    mediawiki: MediaWikiFixtureInstance,
+    src_title: str,
+    dest_title: str,
+    noredirect: bool | None,
+) -> None:
+    noredirect = False if noredirect is None else True
+    mediawiki.api.move(
+        src_title, dest_title, "moved due to BDD tests", noredirect=noredirect
+    )
+
+
+def _get_content_api(api: API, title: str) -> tuple[str, datetime.datetime, int]:
+    result = api.call_api(
+        action="query", titles=title, prop="revisions", rvprop="content|timestamp"
+    )
     page = list(result["pages"].values())[0]
     text = page["revisions"][0]["*"]
     timestamp = page["revisions"][0]["timestamp"]
     return text, timestamp, page["pageid"]
 
-@when(parsers.parse("I edit page \"{title}\" to contain \"{content}\""))
-def edit_page(mediawiki, title, content):
+
+@when(parsers.parse('I edit page "{title}" to contain "{content}"'))
+def edit_page(mediawiki: MediaWikiFixtureInstance, title: str, content: str) -> None:
     api = mediawiki.api
     old_text, timestamp, pageid = _get_content_api(api, title)
     assert content != old_text
-    api.edit(title, pageid, content, timestamp, "setting content to '{}'".format(content))
+    api.edit(
+        title, pageid, content, timestamp, "setting content to '{}'".format(content)
+    )
     # Check that the page really contains what we want. It might actually fail
     # due to the object cache persisting across mediawiki database resets...
     new_text, _, _ = _get_content_api(api, title)
     assert new_text == content
 
-@when(parsers.parse("I protect page \"{title}\""))
-def protect_page(mediawiki, title):
-    mediawiki.api.call_with_csrftoken(action="protect", title=title, protections="edit=sysop|move=sysop")
 
-@when(parsers.parse("I unprotect page \"{title}\""))
-def unprotect_page(mediawiki, title):
-    mediawiki.api.call_with_csrftoken(action="protect", title=title, protections="edit=all|move=all")
+@when(parsers.parse('I protect page "{title}"'))
+def protect_page(mediawiki: MediaWikiFixtureInstance, title: str) -> None:
+    mediawiki.api.call_with_csrftoken(
+        action="protect", title=title, protections="edit=sysop|move=sysop"
+    )
 
-@when(parsers.parse("I partially protect page \"{title}\""))
-def protect_page_partial(mediawiki, title):
-    mediawiki.api.call_with_csrftoken(action="protect", title=title, protections="edit=sysop")
 
-@when(parsers.parse("I partially unprotect page \"{title}\""))
-def unprotect_page_partial(mediawiki, title):
-    mediawiki.api.call_with_csrftoken(action="protect", title=title, protections="edit=all")
+@when(parsers.parse('I unprotect page "{title}"'))
+def unprotect_page(mediawiki: MediaWikiFixtureInstance, title: str) -> None:
+    mediawiki.api.call_with_csrftoken(
+        action="protect", title=title, protections="edit=all|move=all"
+    )
 
-@when(parsers.parse("I delete page \"{title}\""))
-def delete_page(mediawiki, title):
+
+@when(parsers.parse('I partially protect page "{title}"'))
+def protect_page_partial(mediawiki: MediaWikiFixtureInstance, title: str) -> None:
+    mediawiki.api.call_with_csrftoken(
+        action="protect", title=title, protections="edit=sysop"
+    )
+
+
+@when(parsers.parse('I partially unprotect page "{title}"'))
+def unprotect_page_partial(mediawiki: MediaWikiFixtureInstance, title: str) -> None:
+    mediawiki.api.call_with_csrftoken(
+        action="protect", title=title, protections="edit=all"
+    )
+
+
+@when(parsers.parse('I delete page "{title}"'))
+def delete_page(mediawiki: MediaWikiFixtureInstance, title: str) -> None:
     mediawiki.api.call_with_csrftoken(action="delete", title=title)
 
-@when(parsers.parse("I undelete page \"{title}\""))
-def undelete_page(mediawiki, title):
+
+@when(parsers.parse('I undelete page "{title}"'))
+def undelete_page(mediawiki: MediaWikiFixtureInstance, title: str) -> None:
     mediawiki.api.call_with_csrftoken(action="undelete", title=title)
 
-@when(parsers.parse("I merge page \"{source}\" into \"{target}\""))
-def merge_page(mediawiki, source, target):
+
+@when(parsers.parse('I merge page "{source}" into "{target}"'))
+def merge_page(mediawiki: MediaWikiFixtureInstance, source: str, target: str) -> None:
     params = {
         "action": "mergehistory",
         "from": source,
@@ -80,9 +122,17 @@ def merge_page(mediawiki, source, target):
     }
     mediawiki.api.call_with_csrftoken(params)
 
-@when(parsers.parse("I delete the oldest revision of page \"{title}\""))
-def delete_revision(mediawiki, title):
-    pages = mediawiki.api.call_api(action="query", titles=title, prop="revisions", rvprop="ids", rvdir="newer", rvlimit=1)["pages"]
+
+@when(parsers.parse('I delete the oldest revision of page "{title}"'))
+def delete_revision(mediawiki: MediaWikiFixtureInstance, title: str) -> None:
+    pages = mediawiki.api.call_api(
+        action="query",
+        titles=title,
+        prop="revisions",
+        rvprop="ids",
+        rvdir="newer",
+        rvlimit=1,
+    )["pages"]
     revid = list(pages.values())[0]["revisions"][0]["revid"]
     params = {
         "action": "revisiondelete",
@@ -93,9 +143,17 @@ def delete_revision(mediawiki, title):
     }
     mediawiki.api.call_with_csrftoken(params)
 
-@when(parsers.parse("I undelete the oldest revision of page \"{title}\""))
-def undelete_revision(mediawiki, title):
-    pages = mediawiki.api.call_api(action="query", titles=title, prop="revisions", rvprop="ids", rvdir="newer", rvlimit=1)["pages"]
+
+@when(parsers.parse('I undelete the oldest revision of page "{title}"'))
+def undelete_revision(mediawiki: MediaWikiFixtureInstance, title: str) -> None:
+    pages = mediawiki.api.call_api(
+        action="query",
+        titles=title,
+        prop="revisions",
+        rvprop="ids",
+        rvdir="newer",
+        rvlimit=1,
+    )["pages"]
     revid = list(pages.values())[0]["revisions"][0]["revid"]
     params = {
         "action": "revisiondelete",
@@ -105,10 +163,13 @@ def undelete_revision(mediawiki, title):
         "show": "content|comment|user",
     }
     mediawiki.api.call_with_csrftoken(params)
+
 
 @when(parsers.parse("I delete the first logevent"))
-def delete_logevent(mediawiki):
-    logid = mediawiki.api.call_api(action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1)["logevents"][0]["logid"]
+def delete_logevent(mediawiki: MediaWikiFixtureInstance) -> None:
+    logid = mediawiki.api.call_api(
+        action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1
+    )["logevents"][0]["logid"]
     params = {
         "action": "revisiondelete",
         "type": "logging",
@@ -117,9 +178,12 @@ def delete_logevent(mediawiki):
     }
     mediawiki.api.call_with_csrftoken(params)
 
+
 @when(parsers.parse("I undelete the first logevent"))
-def undelete_logevent(mediawiki):
-    logid = mediawiki.api.call_api(action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1)["logevents"][0]["logid"]
+def undelete_logevent(mediawiki: MediaWikiFixtureInstance) -> None:
+    logid = mediawiki.api.call_api(
+        action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1
+    )["logevents"][0]["logid"]
     params = {
         "action": "revisiondelete",
         "type": "logging",
@@ -128,8 +192,9 @@ def undelete_logevent(mediawiki):
     }
     mediawiki.api.call_with_csrftoken(params)
 
-@when(parsers.parse("I create tag \"{tag}\""))
-def create_tag(mediawiki, tag):
+
+@when(parsers.parse('I create tag "{tag}"'))
+def create_tag(mediawiki: MediaWikiFixtureInstance, tag: str) -> None:
     params = {
         "action": "managetags",
         "operation": "create",
@@ -137,24 +202,36 @@ def create_tag(mediawiki, tag):
     }
     mediawiki.api.call_with_csrftoken(params)
 
-def _api_get_revisions_of_page(api, title):
-    pages = api.call_api(action="query", titles=title, prop="revisions", rvprop="ids", rvlimit="max")["pages"]
+
+def _api_get_revisions_of_page(api: API, title: str) -> list[str]:
+    pages = api.call_api(
+        action="query", titles=title, prop="revisions", rvprop="ids", rvlimit="max"
+    )["pages"]
     page = list(pages.values())[0]
     if "revisions" in page:
         return [str(r["revid"]) for r in page["revisions"]]
     return []
 
-def _api_get_deleted_revisions_of_page(api, title):
-    pages = api.call_api(action="query", titles=title, prop="deletedrevisions", drvprop="ids", drvlimit="max")["pages"]
+
+def _api_get_deleted_revisions_of_page(api: API, title: str) -> list[str]:
+    pages = api.call_api(
+        action="query",
+        titles=title,
+        prop="deletedrevisions",
+        drvprop="ids",
+        drvlimit="max",
+    )["pages"]
     page = list(pages.values())[0]
     if "deletedrevisions" in page:
         return [str(r["revid"]) for r in page["deletedrevisions"]]
     return []
 
-@when(parsers.parse("I add tag \"{tag}\" to all revisions of page \"{title}\""))
-def tag_revisions(mediawiki, tag, title):
-    revids = _api_get_revisions_of_page(mediawiki.api, title) + \
-             _api_get_deleted_revisions_of_page(mediawiki.api, title)
+
+@when(parsers.parse('I add tag "{tag}" to all revisions of page "{title}"'))
+def tag_revisions(mediawiki: MediaWikiFixtureInstance, tag: str, title: str) -> None:
+    revids = _api_get_revisions_of_page(
+        mediawiki.api, title
+    ) + _api_get_deleted_revisions_of_page(mediawiki.api, title)
     assert revids
     params = {
         "action": "tag",
@@ -163,10 +240,12 @@ def tag_revisions(mediawiki, tag, title):
     }
     mediawiki.api.call_with_csrftoken(params)
 
-@when(parsers.parse("I remove tag \"{tag}\" from all revisions of page \"{title}\""))
-def untag_revisions(mediawiki, tag, title):
-    revids = _api_get_revisions_of_page(mediawiki.api, title) + \
-             _api_get_deleted_revisions_of_page(mediawiki.api, title)
+
+@when(parsers.parse('I remove tag "{tag}" from all revisions of page "{title}"'))
+def untag_revisions(mediawiki: MediaWikiFixtureInstance, tag: str, title: str) -> None:
+    revids = _api_get_revisions_of_page(
+        mediawiki.api, title
+    ) + _api_get_deleted_revisions_of_page(mediawiki.api, title)
     assert revids
     params = {
         "action": "tag",
@@ -175,9 +254,12 @@ def untag_revisions(mediawiki, tag, title):
     }
     mediawiki.api.call_with_csrftoken(params)
 
-@when(parsers.parse("I add tag \"{tag}\" to the first logevent"))
-def tag_logevent(mediawiki, tag):
-    logid = mediawiki.api.call_api(action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1)["logevents"][0]["logid"]
+
+@when(parsers.parse('I add tag "{tag}" to the first logevent'))
+def tag_logevent(mediawiki: MediaWikiFixtureInstance, tag: str) -> None:
+    logid = mediawiki.api.call_api(
+        action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1
+    )["logevents"][0]["logid"]
     params = {
         "action": "tag",
         "logid": logid,
@@ -185,19 +267,25 @@ def tag_logevent(mediawiki, tag):
     }
     mediawiki.api.call_with_csrftoken(params)
 
-@when(parsers.parse("I remove tag \"{tag}\" from the first logevent"))
-def untag_logevent(mediawiki, tag):
-    logid = mediawiki.api.call_api(action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1)["logevents"][0]["logid"]
+
+@when(parsers.parse('I remove tag "{tag}" from the first logevent'))
+def untag_logevent(mediawiki: MediaWikiFixtureInstance, tag: str) -> None:
+    logid = mediawiki.api.call_api(
+        action="query", list="logevents", ledir="newer", leprop="ids", lelimit=1
+    )["logevents"][0]["logid"]
     params = {
         "action": "tag",
         "logid": logid,
         "remove": tag,
     }
     mediawiki.api.call_with_csrftoken(params)
+
 
 @when(parsers.parse("I import the testing dataset"))
-def import_dataset(mediawiki):
-    xml_file = os.path.join(os.path.dirname(__file__), "../../../misc/MediaWiki-import-data.xml")
+def import_dataset(mediawiki: MediaWikiFixtureInstance) -> None:
+    xml_file = os.path.join(
+        os.path.dirname(__file__), "../../../misc/MediaWiki-import-data.xml"
+    )
     xml = open(xml_file, "r").read()
     params = {
         "action": "import",
@@ -206,22 +294,40 @@ def import_dataset(mediawiki):
     }
     mediawiki.api.call_with_csrftoken(params)
 
+
 # debugging step
 @when(parsers.parse("I wait {num:d} seconds"))
-def wait(num):
+def wait(num: int) -> None:
     import time
+
     time.sleep(num)
 
-@when(parsers.parse("I make a null edit to page \"{title}\""))
-def null_edit(mediawiki, title):
+
+@when(parsers.parse('I make a null edit to page "{title}"'))
+def null_edit(mediawiki: MediaWikiFixtureInstance, title: str) -> None:
     mediawiki.api.call_with_csrftoken(action="edit", title=title, appendtext="")
 
-@then("the recent changes should match")
-def check_recentchanges(mediawiki, db):
-    # FIXME: Checking the recentchanges table is highly unexplored and unstable. The test is disabled for now...
-    return True
 
-    prop = {"title", "ids", "user", "userid", "flags", "timestamp", "comment", "sizes", "loginfo", "patrolled", "sha1", "redirect", "tags"}
+@then("the recent changes should match")
+def check_recentchanges(mediawiki: MediaWikiFixtureInstance, db: Database) -> None:
+    # FIXME: Checking the recentchanges table is highly unexplored and unstable. The test is disabled for now...
+    return None
+
+    prop = {
+        "title",
+        "ids",
+        "user",
+        "userid",
+        "flags",
+        "timestamp",
+        "comment",
+        "sizes",
+        "loginfo",
+        "patrolled",
+        "sha1",
+        "redirect",
+        "tags",
+    }
     api_params = {
         "list": "recentchanges",
         "rcprop": "|".join(prop),
@@ -233,9 +339,20 @@ def check_recentchanges(mediawiki, db):
 
     assert db_list == api_list
 
+
 @then("the logevents should match")
-def check_logging(mediawiki, db):
-    prop = {"user", "userid", "comment", "timestamp", "title", "ids", "type", "details", "tags"}
+def check_logging(mediawiki: MediaWikiFixtureInstance, db: Database) -> None:
+    prop = {
+        "user",
+        "userid",
+        "comment",
+        "timestamp",
+        "title",
+        "ids",
+        "type",
+        "details",
+        "tags",
+    }
     api_params = {
         "list": "logevents",
         "leprop": "|".join(prop),
@@ -247,8 +364,9 @@ def check_logging(mediawiki, db):
 
     assert db_list == api_list
 
+
 @then("the allpages lists should match")
-def check_allpages_match(mediawiki, db):
+def check_allpages_match(mediawiki: MediaWikiFixtureInstance, db: Database) -> None:
     api_params = {
         "list": "allpages",
         "aplimit": "max",
@@ -263,22 +381,37 @@ def check_allpages_match(mediawiki, db):
 
     assert db_list == api_list
 
+
 @then(parsers.parse("the {table} table should be empty"))
-def check_table_empty(db, table):
+def check_table_empty(db: Database, table: str) -> None:
     t = getattr(db, table)
-    s = sa.select([sa.func.count()]).select_from(t)
+    s = sa.select(sa.func.count()).select_from(t)
     result = db.engine.execute(s).fetchone()
     assert result[0] == 0, "The {} table is not empty.".format(table)
 
+
 @then(parsers.parse("the {table} table should not be empty"))
-def check_table_not_empty(db, table):
+def check_table_not_empty(db: Database, table: str) -> None:
     t = getattr(db, table)
-    s = sa.select([sa.func.count()]).select_from(t)
+    s = sa.select(sa.func.count()).select_from(t)
     result = db.engine.execute(s).fetchone()
     assert result[0] > 0, "The {} table is empty.".format(table)
 
-def _check_allrevisions(mediawiki, db):
-    prop = {"ids", "flags", "timestamp", "user", "userid", "size", "sha1", "contentmodel", "comment", "content", "tags"}
+
+def _check_allrevisions(mediawiki: MediaWikiFixtureInstance, db: Database) -> None:
+    prop = {
+        "ids",
+        "flags",
+        "timestamp",
+        "user",
+        "userid",
+        "size",
+        "sha1",
+        "contentmodel",
+        "comment",
+        "content",
+        "tags",
+    }
     api_params = {
         "list": "allrevisions",
         "arvprop": "|".join(prop),
@@ -308,8 +441,23 @@ def _check_allrevisions(mediawiki, db):
 
     assert db_list == api_list
 
-def _check_alldeletedrevisions(mediawiki, db):
-    prop = {"ids", "flags", "timestamp", "user", "userid", "size", "sha1", "contentmodel", "comment", "content", "tags"}
+
+def _check_alldeletedrevisions(
+    mediawiki: MediaWikiFixtureInstance, db: Database
+) -> None:
+    prop = {
+        "ids",
+        "flags",
+        "timestamp",
+        "user",
+        "userid",
+        "size",
+        "sha1",
+        "contentmodel",
+        "comment",
+        "content",
+        "tags",
+    }
     api_params = {
         "list": "alldeletedrevisions",
         "adrprop": "|".join(prop),
@@ -343,7 +491,8 @@ def _check_alldeletedrevisions(mediawiki, db):
 
     assert db_list == api_list
 
+
 @then("the revisions should match")
-def check_revisions_match(mediawiki, db):
+def check_revisions_match(mediawiki: MediaWikiFixtureInstance, db: Database) -> None:
     _check_allrevisions(mediawiki, db)
     _check_alldeletedrevisions(mediawiki, db)
