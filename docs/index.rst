@@ -97,11 +97,17 @@ Requirements
 ............
 
 - `Python`_ version 3
-- `Requests`_
+- `httpx`_
+- `httpx-retries`_
+- `truststore`_
+- `jinja2`_
 - `mwparserfromhell`_
 
 .. _Python: https://www.python.org/
-.. _Requests: http://python-requests.org
+.. _httpx: https://www.python-httpx.org/
+.. _httpx-retries: https://will-ockmore.github.io/httpx-retries/
+.. _truststore: https://truststore.readthedocs.io/
+.. _jinja2: https://jinja.palletsprojects.com/
 .. _mwparserfromhell: https://github.com/earwig/mwparserfromhell
 
 The following are required only by some scripts:
@@ -134,17 +140,9 @@ Optional dependencies:
 .. _Tk/Tcl: https://docs.python.org/3.4/library/tk.html
 .. _colorlog: https://github.com/borntyping/python-colorlog
 
-Dependencies for running the tests:
+Dependencies for running the tests: see `pyproject.toml`_.
 
-- `tox`_
-- `Nginx`_, `PHP`_, `PHP-FPM`_, `PostgreSQL`_
-- Necessary Python packages are installed automatically in the virtual
-  environments.
-
-.. _tox: https://testrun.org/tox/latest/
-.. _Nginx: http://nginx.org/
-.. _PHP: http://php.net/
-.. _PHP-FPM: https://php-fpm.org/
+.. _pyproject.toml: https://github.com/lahwaacz/wiki-scripts/blob/master/pyproject.toml
 
 Other tools used for development:
 
