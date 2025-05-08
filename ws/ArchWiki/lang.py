@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 """
 The :py:mod:`ArchWiki.lang` submodule contains multiple functions related to
 ArchWiki specific way of setting localized page titles, handling of categories
@@ -62,94 +60,146 @@ __languages = [
 # languages with right-to-left script
 __rtl = ["ar", "he"]
 __interlanguage_external = ["de", "ja", "sv", "zh-hans"]
-__interlanguage_internal = ["ar", "bs", "bg", "ca", "cs", "da", "el", "en", "es", "fi",
-                            "fr", "he", "hr", "hu", "id", "it", "ko", "lt", "nl", "pl",
-                            "pt", "ru", "sk", "sr", "th", "tr", "uk", "zh-hant"]
+__interlanguage_internal = [
+    "ar",
+    "bs",
+    "bg",
+    "ca",
+    "cs",
+    "da",
+    "el",
+    "en",
+    "es",
+    "fi",
+    "fr",
+    "he",
+    "hr",
+    "hu",
+    "id",
+    "it",
+    "ko",
+    "lt",
+    "nl",
+    "pl",
+    "pt",
+    "ru",
+    "sk",
+    "sr",
+    "th",
+    "tr",
+    "uk",
+    "zh-hant",
+]
 
 
 # basic accessors and checkers
-def get_local_language():
+def get_local_language() -> str:
     return __local_language
 
-def get_language_names():
+
+def get_language_names() -> list[str]:
     return [lang["name"] for lang in __languages]
 
-def is_language_name(lang):
+
+def is_language_name(lang: str) -> bool:
     return lang in get_language_names()
 
-def get_english_language_names():
+
+def get_english_language_names() -> list[str]:
     return [lang["english"] for lang in __languages]
 
-def is_english_language_name(lang):
+
+def is_english_language_name(lang: str) -> bool:
     return lang in get_english_language_names()
 
-def get_language_tags():
+
+def get_language_tags() -> list[str]:
     return [lang["subtag"] for lang in __languages]
 
-def is_language_tag(tag):
+
+def is_language_tag(tag: str) -> bool:
     return tag.lower() in get_language_tags()
 
 
-def is_rtl_tag(tag):
+def is_rtl_tag(tag: str) -> bool:
     return tag in __rtl
 
-def is_rtl_language(lang):
+
+def is_rtl_language(lang: str) -> bool:
     return is_rtl_tag(tag_for_langname(lang))
 
 
-def get_interlanguage_tags():
+def get_interlanguage_tags() -> list[str]:
     return __interlanguage_external + __interlanguage_internal
 
-def is_interlanguage_tag(tag):
+
+def is_interlanguage_tag(tag: str) -> bool:
     return tag.lower() in get_interlanguage_tags()
 
-def get_external_tags():
+
+def get_external_tags() -> list[str]:
     return __interlanguage_external
 
-def is_external_tag(tag):
+
+def is_external_tag(tag: str) -> bool:
     return tag.lower() in get_external_tags()
 
-def get_internal_tags():
+
+def get_internal_tags() -> list[str]:
     return __interlanguage_internal
 
-def is_internal_tag(tag):
+
+def is_internal_tag(tag: str) -> bool:
     return tag.lower() in get_internal_tags()
 
 
 # conversion between (local) language names, English language names and subtags
-def langname_for_english(lang):
+def langname_for_english(lang: str) -> str:
     language = [language for language in __languages if language["english"] == lang][0]
     return language["name"]
 
-def langname_for_tag(tag):
-    language = [language for language in __languages if language["subtag"] == tag.lower()][0]
+
+def langname_for_tag(tag: str) -> str:
+    language = [
+        language for language in __languages if language["subtag"] == tag.lower()
+    ][0]
     return language["name"]
 
-def english_for_langname(lang):
+
+def english_for_langname(lang: str) -> str:
     language = [language for language in __languages if language["name"] == lang][0]
     return language["english"]
 
-def english_for_tag(tag):
-    language = [language for language in __languages if language["subtag"] == tag.lower()][0]
+
+def english_for_tag(tag: str) -> str:
+    language = [
+        language for language in __languages if language["subtag"] == tag.lower()
+    ][0]
     return language["english"]
 
-def tag_for_langname(lang):
+
+def tag_for_langname(lang: str) -> str:
     language = [language for language in __languages if language["name"] == lang][0]
     return language["subtag"]
 
-def tag_for_english(lang):
+
+def tag_for_english(lang: str) -> str:
     language = [language for language in __languages if language["english"] == lang][0]
     return language["subtag"]
 
 
-def detect_language(title, *, strip_all_subpage_parts=True):
+def detect_language(
+    title: str, *, strip_all_subpage_parts: bool = True
+) -> tuple[str, str]:
     """
-    Detect language of a given title. The matching is case-sensitive and spaces are
-    treated the same way as underscores.
+    Detect language of a given title. The matching is case-sensitive and spaces
+    are treated the same way as underscores.
 
     :param title: page title to work with
-    :returns: a ``(pure, lang)`` tuple, where ``pure`` is the pure page title without
-        the language suffix and ``lang`` is the detected language in long, localized form
+    :returns:
+        a ``(pure, lang)`` tuple, where ``pure`` is the pure page title without
+        the language suffix and ``lang`` is the detected language in long,
+        localized form
     """
     title_regex = r"(?P<pure>.*?)[ _]\((?P<lang>[^\(\)]+)\)"
     pure_suffix = ""
@@ -162,7 +212,9 @@ def detect_language(title, *, strip_all_subpage_parts=True):
         match = re.fullmatch(title_regex, base)
     # matches "Category:Language"
     if not match:
-        match = re.fullmatch(r"(?P<pure>[Cc]ategory[ _]?\:[ _]?(?P<lang>[^\(\)]+))", title)
+        match = re.fullmatch(
+            r"(?P<pure>[Cc]ategory[ _]?\:[ _]?(?P<lang>[^\(\)]+))", title
+        )
     if match:
         pure = match.group("pure")
         lang = match.group("lang")
@@ -186,7 +238,10 @@ def detect_language(title, *, strip_all_subpage_parts=True):
             return pure + pure_suffix, lang
     return title, get_local_language()
 
-def format_title(title, langname, *, augment_all_subpage_parts=True):
+
+def format_title(
+    title: str, langname: str, *, augment_all_subpage_parts: bool = True
+) -> str:
     """
     Formats a local title for given base title and language. It is basically
     an inverse operation for :py:func:`detect_language`.
@@ -203,8 +258,13 @@ def format_title(title, langname, *, augment_all_subpage_parts=True):
     # master category for language
     if title.lower() == "category:" + langname.lower():
         return title
-    # add "(Language)" suffix to all subpage parts, see https://wiki.archlinux.org/index.php/Help:I18n#Page_titles
-    if augment_all_subpage_parts is True and is_internal_tag(tag_for_langname(langname)) and "/" in title:
+    # add "(Language)" suffix to all subpage parts,
+    # see https://wiki.archlinux.org/index.php/Help:I18n#Page_titles
+    if (
+        augment_all_subpage_parts is True
+        and is_internal_tag(tag_for_langname(langname))
+        and "/" in title
+    ):
         title = "/".join("{} ({})".format(p, langname) for p in title.split("/"))
         return title
     return "{} ({})".format(title, langname)
