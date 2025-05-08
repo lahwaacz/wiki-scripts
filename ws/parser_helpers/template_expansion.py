@@ -1,8 +1,9 @@
-#! /usr/bin/env python3
-
 import logging
+from typing import Callable, cast
 
 import mwparserfromhell
+from mwparserfromhell.nodes import Node, Template
+from mwparserfromhell.wikicode import Wikicode
 
 from . import encodings
 from .title import Title, TitleError
@@ -11,9 +12,12 @@ from .wikicode import is_redirect, parented_ifilter
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    "MagicWords", "prepare_content_for_rendering", "prepare_template_for_transclusion",
+    "MagicWords",
+    "prepare_content_for_rendering",
+    "prepare_template_for_transclusion",
     "expand_templates",
 ]
+
 
 class MagicWords:
     """
@@ -21,6 +25,7 @@ class MagicWords:
 
     .. _`MediaWiki magic words`: https://www.mediawiki.org/wiki/Help:Magic_words
     """
+
     # variables (all must be uppercase)
     # reference: https://www.mediawiki.org/wiki/Help:Magic_words#Variables
     VARIABLES = {
@@ -229,16 +234,16 @@ class MagicWords:
         "#titleparts",
     }
 
-    def __init__(self, src_title):
+    def __init__(self, src_title: Title):
         self.src_title = src_title
 
     @classmethod
-    def is_magic_word(klass, name):
-        if name in klass.VARIABLES:
+    def is_magic_word(cls, name: str) -> bool:
+        if name in cls.VARIABLES:
             return True
         if ":" in name:
             prefix = name.split(":")[0]
-            if prefix in klass.VARIABLES_COLON or prefix.lower() in klass.PARSER_FUNCTIONS:
+            if prefix in cls.VARIABLES_COLON or prefix.lower() in cls.PARSER_FUNCTIONS:
                 return True
         if name.startswith("#"):
             # anything starting with '#' is either a parser function or invalid
@@ -246,7 +251,7 @@ class MagicWords:
             return True
         return False
 
-    def get_replacement(self, magic):
+    def get_replacement(self, magic: Node) -> str:
         name = str(magic.name).strip()
 
         if name == "FULLPAGENAME":
@@ -277,9 +282,9 @@ class MagicWords:
             elif prefix == "#if":
                 try:
                     if arg.strip():
-                        return magic.get(1).value.strip()
+                        return cast(str, magic.get(1).value.strip())
                     else:
-                        return magic.get(2).value.strip()
+                        return cast(str, magic.get(2).value.strip())
                 except ValueError:
                     return ""
             elif prefix == "#switch":
@@ -294,9 +299,12 @@ class MagicWords:
                             replacement = magic.get(1).value
                         except ValueError:
                             replacement = ""
-                return replacement.strip()
+                return cast(str, replacement.strip())
 
-def prepare_content_for_rendering(wikicode):
+        raise ValueError(f"no replacement for {magic}: is it really a magic word?")
+
+
+def prepare_content_for_rendering(wikicode: Wikicode) -> None:
     """
     Prepare the wikicode of a page for `rendering`.
 
@@ -328,7 +336,8 @@ def prepare_content_for_rendering(wikicode):
                 # this may happen for nested tags which were previously removed/replaced
                 pass
 
-def prepare_template_for_transclusion(wikicode, template):
+
+def prepare_template_for_transclusion(wikicode: Wikicode, template: Template) -> None:
     """
     Prepares the wikicode of a template for transclusion:
 
@@ -369,7 +378,9 @@ def prepare_template_for_transclusion(wikicode, template):
                 pass
 
     # wrapper function with protection against infinite recursion
-    def substitute(wikicode, template, substituted_args):
+    def substitute(
+        wikicode: Wikicode, template: Template, substituted_args: set[str]
+    ) -> None:
         for arg in wikicode.ifilter_arguments(recursive=wikicode.RECURSE_OTHERS):
             # handle nested substitution like {{{ {{{1}}} |foo }}}
             substitute(arg.name, template, substituted_args)
@@ -392,8 +403,14 @@ def prepare_template_for_transclusion(wikicode, template):
     # substitute template arguments
     substitute(wikicode, template, set())
 
-def expand_templates(title, wikicode, content_getter_func, *,
-                     substitute_magic_words=True):
+
+def expand_templates(
+    title: Title,
+    wikicode: Wikicode,
+    content_getter_func: Callable[[Title], str],
+    *,
+    substitute_magic_words: bool = True,
+) -> None:
     """
     Recursively expands all templates on a MediaWiki page.
 
@@ -418,9 +435,13 @@ def expand_templates(title, wikicode, content_getter_func, *,
     .. _`magic words`: https://www.mediawiki.org/wiki/Help:Magic_words
     """
     if not isinstance(wikicode, mwparserfromhell.wikicode.Wikicode):
-        raise TypeError("wikicode is of type {} instead of mwparserfromhell.wikicode.Wikicode".format(type(wikicode)))
+        raise TypeError(
+            "wikicode is of type {} instead of mwparserfromhell.wikicode.Wikicode".format(
+                type(wikicode)
+            )
+        )
 
-    def get_target_title(src_title, title):
+    def get_target_title(src_title: Title, title: str) -> Title:
         target = Title(src_title.context, title)
         if target.iwprefix:
             raise TitleError("cannot expand templates from interwiki")
@@ -430,16 +451,25 @@ def expand_templates(title, wikicode, content_getter_func, *,
             return target
         elif target.namespacenumber == 0:
             # set the default transclusion namespace
-            target.namespace = target.context.namespaces[10]["*"]
+            target.namespace = str(target.context.namespaces[10]["*"])
         return target
 
-    def expand(title, wikicode, content_getter_func, visited_templates):
+    def expand(
+        title: Title,
+        content2: Wikicode,
+        content_getter_func: Callable[[Title], str],
+        visited_templates: set[str],
+    ) -> None:
         """
         Adds infinite loop protection to the functionality declared by :py:func:`expand_templates`.
         """
-#        for template in wikicode.ifilter_templates(recursive=wikicode.RECURSE_OTHERS):
+        # for template in wikicode.ifilter_templates(recursive=wikicode.RECURSE_OTHERS):
         # performance optimization, see https://github.com/earwig/mwparserfromhell/issues/195
-        for parent, template in parented_ifilter(wikicode, forcetype=mwparserfromhell.nodes.template.Template, recursive=wikicode.RECURSE_OTHERS):
+        for parent, template in parented_ifilter(
+            content2, forcetype=Template, recursive=cast(bool, content2.RECURSE_OTHERS)
+        ):
+            template = cast(Template, template)
+
             # handle cases like {{ {{foo}} | bar }} --> {{foo}} has to be substituted first
             expand(title, template.name, content_getter_func, visited_templates)
 
@@ -452,7 +482,9 @@ def expand_templates(title, wikicode, content_getter_func, *,
                 modifier, name = name.split(":", maxsplit=1)
                 # strip modifiers which don't make a difference for template expansion
                 if modifier.lower() in {"msgnw", "subst", "safesubst"}:
-                    template.name = name
+                    # (mwparserfromhell does not have getters and setters next to each other,
+                    # so mypy thinks the property is read-only)
+                    template.name = name  # type: ignore
                 # TODO: handle msg: and raw: (prefer a template, but fall back to magic word)
                 else:
                     # unhandled modifier - restore the name
@@ -467,18 +499,27 @@ def expand_templates(title, wikicode, content_getter_func, *,
                     # MW incompatibility: in some cases, MediaWiki tries to transclude a template
                     # if the parser function failed (e.g. "{{ns:Foo}}" -> "{{Template:Ns:Foo}}")
                     mw = MagicWords(title)
-                    replacement = mw.get_replacement(template)
-                    if replacement is not None:
-                        # expand the replacement to handle nested magic words in parser functions like {{#if:}})
-                        replacement = mwparserfromhell.parse(replacement)
-                        expand(title, replacement, content_getter_func, visited_templates)
-#                        wikicode.replace(template, replacement)
-                        parent.replace(template, replacement, recursive=False)
+                    try:
+                        replacement: Wikicode | str = mw.get_replacement(template)
+                    except ValueError:
+                        logger.debug(f"replacement for magic word {template} is not implemented")
+                        continue
+                    # expand the replacement to handle nested magic words in parser functions like {{#if:}})
+                    replacement = mwparserfromhell.parse(replacement)
+                    expand(
+                        title, replacement, content_getter_func, visited_templates
+                    )
+                    # wikicode.replace(template, replacement)
+                    parent.replace(template, replacement, recursive=False)
             else:
                 try:
                     target_title = get_target_title(title, name)
                 except TitleError:
-                    logger.error("Invalid transclusion on page [[{}]]: {}".format(title, template))
+                    logger.error(
+                        "Invalid transclusion on page [[{}]]: {}".format(
+                            title, template
+                        )
+                    )
                     continue
 
                 try:
@@ -487,11 +528,15 @@ def expand_templates(title, wikicode, content_getter_func, *,
                     if not modifier:
                         # If the target page does not exist, MediaWiki just skips the expansion,
                         # but it renders a wikilink to the non-existing page.
-#                        wikicode.replace(template, "[[{}]]".format(target_title))
-                        parent.replace(template, "[[{}]]".format(target_title), recursive=False)
+                        # wikicode.replace(template, "[[{}]]".format(target_title))
+                        parent.replace(
+                            template, "[[{}]]".format(target_title), recursive=False
+                        )
                     else:
                         # Restore the modifier, but don't render a wikilink.
-                        template.name = original_name
+                        # (mwparserfromhell does not have getters and setters next to each other,
+                        # so mypy thinks the property is read-only)
+                        template.name = original_name  # type: ignore
                     continue
 
                 # handle transclusion of redirects, protecting against infinite loops
@@ -504,7 +549,9 @@ def expand_templates(title, wikicode, content_getter_func, *,
                     _redirect_target = _wikicode.filter_wikilinks()[0]
                     _redirect_target = str(_redirect_target.title)
                     try:
-                        content = content_getter_func(Title(title.context, _redirect_target))
+                        content = content_getter_func(
+                            Title(title.context, _redirect_target)
+                        )
                     except ValueError:
                         # if the redirect does not point to a valid page, MediaWiki just renders
                         # "#redirect [[Foo]]" as a normal wikicode
@@ -518,27 +565,27 @@ def expand_templates(title, wikicode, content_getter_func, *,
                 # MW has a special case when the first character produced by the template is one of ":;*#", MediaWiki inserts a linebreak
                 # reference: https://en.wikipedia.org/wiki/Help:Template#Problems_and_workarounds
                 # TODO: check what happens in our case
-                content = mwparserfromhell.parse(content)
-                prepare_template_for_transclusion(content, template)
+                content2 = mwparserfromhell.parse(content)
+                prepare_template_for_transclusion(content2, template)
 
                 # expand only if the infinite loop checker does not kick in
                 _key = str(template)
                 if _key not in visited_templates:
                     visited_templates.add(_key)
-                    expand(title, content, content_getter_func, visited_templates)
+                    expand(title, content2, content_getter_func, visited_templates)
                     visited_templates.remove(_key)
                 else:
                     # MediaWiki fallback message
-                    content = "<span class=\"error\">Template loop detected: [[{}]]</span>".format(target_title)
+                    content2 = f'<span class="error">Template loop detected: [[{target_title}]]</span>'  # type: ignore[assignment]
 
                 # make sure that the node is not removed from the AST, otherwise
                 # recursive iteration would be messed up
                 # https://github.com/earwig/mwparserfromhell/issues/241
-                if str(content) == "":
-                    content = mwparserfromhell.nodes.text.Text("")
+                if str(content2) == "":
+                    content2 = mwparserfromhell.nodes.text.Text("")  # type: ignore[assignment]
 
-#                wikicode.replace(template, content)
-                parent.replace(template, content, recursive=False)
+                # parent.replace(template, content2)
+                parent.replace(template, content2, recursive=False)
 
     prepare_content_for_rendering(wikicode)
     expand(title, wikicode, content_getter_func, set())
