@@ -6,7 +6,7 @@ import time
 import sqlalchemy as sa
 
 import ws.db.mw_constants as mwconst
-from ws.utils import parse_date, value_or_none
+from ws.utils import parse_date
 
 from .GrabberBase import GrabberBase
 
@@ -218,7 +218,7 @@ class GrabberRevisions(GrabberBase):
         for rev in page["revisions"]:
             db_entry = {
                 "rev_id": rev["revid"],
-                "rev_page": value_or_none(page.get("pageid")),
+                "rev_page": page.get("pageid") or None,
                 "rev_comment": rev["comment"],
                 "rev_user": rev["userid"],
                 "rev_user_text": rev["user"],

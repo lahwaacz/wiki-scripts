@@ -3,7 +3,6 @@
 import sqlalchemy as sa
 
 import ws.db.mw_constants as mwconst
-from ws.utils import value_or_none
 
 from .GrabberBase import GrabberBase
 
@@ -92,13 +91,13 @@ class GrabberLogging(GrabberBase):
             "log_action": logevent["action"],
             "log_timestamp": logevent["timestamp"],
             # This assumes that anonymous users can't create log events, so all "0" from the API are from deleted users
-            "log_user": value_or_none(logevent["userid"]),
+            "log_user": logevent["userid"] or None,
             "log_user_text": logevent["user"],
             "log_namespace": logevent["ns"],
             "log_title": log_title,
             # 'logpage' can be different from 'pageid', e.g. if the page was deleted
             # in an old MediaWiki that did not preserve pageid and then restored
-            "log_page": value_or_none(logevent["logpage"]),
+            "log_page": logevent["logpage"] or None,
             "log_comment": logevent["comment"],
             "log_params": logevent["params"],
             "log_deleted": log_deleted,
