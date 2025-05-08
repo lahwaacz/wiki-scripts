@@ -2,7 +2,6 @@
 
 from ws.client import API
 from ws.db.database import Database
-from ws.utils.OrderedSet import OrderedSet
 
 
 def main(api, db):
@@ -11,14 +10,14 @@ def main(api, db):
     db.update_parser_cache()
 
     namespaces = ["1", "5", "11", "13", "15"]
-    talks = OrderedSet()
+    talks = set()
     for ns in namespaces:
         for page in db.query(generator="allpages", gapnamespace=ns, prop="sections", secprop={"title"}):
             for section in page.get("sections", []):
                 if section["title"].startswith("<s>") and section["title"].endswith("</s>"):
                     talks.add(page["title"])
 
-    for talk in talks:
+    for talk in sorted(talks):
         print("* [[{}]]".format(talk))
 
 if __name__ == "__main__":
