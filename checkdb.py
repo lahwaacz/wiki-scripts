@@ -149,6 +149,10 @@ def check_specific_titles(api, db):
     for title in titles:
         api_title = api.Title(title)
         db_title = db.Title(title)
+        # MW incompatibility: the API includes the BCP 47 language tags
+        for data in api_title.context.interwikimap.values():
+            if "bcp47" in data:
+                del data["bcp47"]
         assert api_title.context == db_title.context
         assert api_title == db_title
 
