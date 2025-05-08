@@ -1,25 +1,26 @@
-#! /usr/bin/env python3
-
 import datetime
 import json
+from typing import Any
 
 
 class DatetimeEncoder(json.JSONEncoder):
-    def default(self, o):
-        if (isinstance(o, datetime.datetime) or
-            isinstance(o, datetime.date) or
-            isinstance(o, datetime.timedelta)):
+    def default(self, o: Any) -> Any:
+        if (
+            isinstance(o, datetime.datetime)
+            or isinstance(o, datetime.date)
+            or isinstance(o, datetime.timedelta)
+        ):
             return repr(o)
         else:
             return super().default(o)
 
 
-def datetime_parser(dct):
+def datetime_parser(dct: dict) -> dict:
     for k, v in dct.items():
         if isinstance(v, str) and v.startswith("datetime.") and v.endswith(")"):
             v = v[:-1]
             items = v.split("(", maxsplit=1)[1]
-            args = []
+            args: list[int] = []
             for i in items.split(","):
                 try:
                     args.append(int(i.strip()))
