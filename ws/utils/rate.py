@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 """
 :py:func:`RateLimited` is a rate limiting algorithm implemented as Python decorator.
 
@@ -29,6 +27,7 @@ Or at runtime by wrapping the function call:
 import logging
 import time
 from functools import wraps
+from typing import Callable
 
 import ws
 
@@ -36,15 +35,18 @@ logger = logging.getLogger(__name__)
 
 __all__ = ["RateLimited"]
 
-def RateLimited(rate, per):
-    def decorator(func):
+
+def RateLimited[
+    T, **P
+](rate: int | float, per: int | float) -> Callable[[Callable[P, T]], Callable[P, T]]:
+    def decorator(func: Callable[P, T]) -> Callable[P, T]:
         # globals for the decorator
         # defined as lists to avoid problems with the 'global' keyword
         allowance = [rate]
         last_check = [time.time()]
 
         @wraps(func)
-        def rate_limit_func(*args, **kargs):
+        def rate_limit_func(*args: P.args, **kargs: P.kwargs) -> T:
             # no rate-limiting inside tests
             if hasattr(ws, "_tests_are_running"):
                 return func(*args, **kargs)
@@ -54,12 +56,14 @@ def RateLimited(rate, per):
             last_check[0] = current
             allowance[0] += time_passed * (rate / per)
             if allowance[0] > rate:
-                allowance[0] = rate    # throttle
+                allowance[0] = rate  # throttle
             if allowance[0] < 1.0:
                 # the original used    to_sleep = (1 - allowance[0]) * (per / rate)
                 # but we want longer timeout after burst limit is exceeded
                 to_sleep = (1 - allowance[0]) * per
-                logger.info("rate limit for function {} exceeded, sleeping for {:0.3f} seconds".format(func.__qualname__, to_sleep))
+                logger.info(
+                    f"rate limit for function {func.__qualname__} exceeded, sleeping for {to_sleep:0.3f} seconds"
+                )
                 time.sleep(to_sleep)
                 ret = func(*args, **kargs)
                 allowance[0] = rate

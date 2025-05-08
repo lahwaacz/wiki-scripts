@@ -1,4 +1,5 @@
-#! /usr/bin/env python3
+from typing import Any, Callable
+
 
 class LazyProperty(property):
     """
@@ -14,16 +15,16 @@ class LazyProperty(property):
     .. _`descriptor`: https://docs.python.org/3/howto/descriptor.html
     """
 
-    def __init__(self, func):
+    def __init__(self, func: Callable[[Any], Any]) -> None:
         self.func = func
         # descriptors must be set on class, so we manage a mapping
         # of the memoized values per instance
-        self._cache = {}
+        self._cache: dict[Any, Any] = {}
 
         # pass along the decorated function's docstring
         self.__doc__ = func.__doc__
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance: Any, owner: type | None = None, /) -> Any:
         if instance is None:
             # static access, e.g. introspection
             return self
@@ -33,14 +34,16 @@ class LazyProperty(property):
         return self._cache[instance]
 
     # allow overriding the cached value (useful e.g. for mocking in tests)
-    def __set__(self, instance, value):
+    def __set__(self, instance: Any, value: Any) -> None:
         self._cache[instance] = value
 
-    def __delete__(self, instance):
+    def __delete__(self, instance: Any) -> None:
         if instance in self._cache:  # pragma: no branch
             del self._cache[instance]
 
+
 if __name__ == "__main__":
+
     class Foo:
         @LazyProperty
         def foo(self):
