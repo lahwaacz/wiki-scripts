@@ -1,6 +1,7 @@
-#! /usr/bin/env python3
+from typing import Any
 
 import mwparserfromhell
+from mwparserfromhell.wikicode import Wikicode
 
 from ws.parser_helpers.title import canonicalize
 from ws.parser_helpers.wikicode import get_parent_wikicode, remove_and_squash
@@ -9,10 +10,18 @@ from . import lang
 
 __all__ = ["HeaderError", "get_header_parts", "build_header", "fix_header"]
 
+
 class HeaderError(Exception):
     pass
 
-def get_header_parts(wikicode, magics=None, cats=None, langlinks=None, remove_from_parent=False):
+
+def get_header_parts(
+    wikicode: Wikicode,
+    magics: list[Any] | None = None,
+    cats: list[Any] | None = None,
+    langlinks: list[Any] | None = None,
+    remove_from_parent: bool = False,
+) -> tuple[Wikicode, list[Wikicode], list[Wikicode], list[Wikicode]]:
     """
     According to Help:Style, the layout of the page should be as follows:
 
@@ -100,13 +109,18 @@ def get_header_parts(wikicode, magics=None, cats=None, langlinks=None, remove_fr
         # always remove langlinks to handle renaming of pages
         # (typos such as [[en:Main page]] in text are quite rare)
         _remove(langlink)
-        if not any(_prefix(link.get(0).title).lower() == _prefix(langlink.title).lower() for link in langlinks):
+        if not any(
+            _prefix(link.get(0).title).lower() == _prefix(langlink.title).lower()
+            for link in langlinks
+        ):
             langlinks.append(mwparserfromhell.utils.parse_anything(langlink))
 
     def _is_in_includeonly(node):
         ancestors = wikicode.get_ancestors(node)
         for a in ancestors:
-            if isinstance(a, mwparserfromhell.nodes.tag.Tag) and a.tag.matches("includeonly"):
+            if isinstance(a, mwparserfromhell.nodes.tag.Tag) and a.tag.matches(
+                "includeonly"
+            ):
                 return True
         return False
 
@@ -117,7 +131,11 @@ def get_header_parts(wikicode, magics=None, cats=None, langlinks=None, remove_fr
         if _is_in_includeonly(template):
             continue
         _pure, _ = lang.detect_language(str(template.name))
-        if canonicalize(template.name) == "Lowercase title" or _prefix(template.name) == "DISPLAYTITLE" or _pure in ["Template", "Template:Template"]:
+        if (
+            canonicalize(template.name) == "Lowercase title"
+            or _prefix(template.name) == "DISPLAYTITLE"
+            or _pure in ["Template", "Template:Template"]
+        ):
             _add_to_magics(template)
             _extracted_count += 1
 
@@ -146,7 +164,14 @@ def get_header_parts(wikicode, magics=None, cats=None, langlinks=None, remove_fr
 
     return parent, magics, cats, langlinks
 
-def build_header(wikicode, parent, magics, cats, langlinks):
+
+def build_header(
+    wikicode: Wikicode,
+    parent: Wikicode,
+    magics: list[Any],
+    cats: list[Any],
+    langlinks: list[Any],
+) -> None:
     # first strip blank lines if there is some text
     if len(wikicode.nodes) > 0:
         node = parent.get(0)
@@ -172,6 +197,9 @@ def build_header(wikicode, parent, magics, cats, langlinks):
         parent.insert(count + 1, "\n")
         count += 2
 
-def fix_header(wikicode):
-    parent, magics, cats, langlinks = get_header_parts(wikicode, remove_from_parent=True)
+
+def fix_header(wikicode: Wikicode) -> None:
+    parent, magics, cats, langlinks = get_header_parts(
+        wikicode, remove_from_parent=True
+    )
     build_header(wikicode, parent, magics, cats, langlinks)
