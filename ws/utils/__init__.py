@@ -7,7 +7,6 @@ from .datetime_ import *
 from .httpx import *
 from .json import *
 from .lazy import *
-from .OrderedSet import *
 from .rate import *
 
 
