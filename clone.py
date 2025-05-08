@@ -9,7 +9,7 @@ import os
 
 import ws.ArchWiki.lang
 from ws.client import API
-from ws.utils import is_ascii, list_chunks
+from ws.utils import list_chunks
 
 
 class Downloader:
@@ -40,7 +40,7 @@ class Downloader:
         namespace = _title.namespace.replace(" ", "_")
 
         # force ASCII filename
-        if self.safe_filenames and not is_ascii(title):
+        if self.safe_filenames and not title.isascii():
             h = hashlib.md5()
             h.update(title.encode("utf-8"))
             title = h.hexdigest()
