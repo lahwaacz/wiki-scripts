@@ -246,10 +246,10 @@ class GrabberPages(GrabberBase):
         # By default the max age is 90 days: if a larger timespan is requested
         # here, we need to look into the logging table instead of recentchanges.
         rc_oldest = selects.oldest_rc_timestamp(self.db)
-#        if rc_oldest is None or rc_oldest > since:
-#            delete_early, moved, pages = self.get_logpages(since)
-#        else:
-#            delete_early, moved, pages = self.get_rcpages(since)
+        # if rc_oldest is None or rc_oldest > since:
+        #     delete_early, moved, pages = self.get_logpages(since)
+        # else:
+        #     delete_early, moved, pages = self.get_rcpages(since)
 
         # some log events such as suppress/delete are not recorded in the
         # recentchanges table, fetching from logging is bulletproof
@@ -312,8 +312,10 @@ class GrabberPages(GrabberBase):
     def get_rcpages(self, since):
         deleted_pageids = set()
         moved = []
-        rcpages = ws.utils.OrderedSet()
-        rctitles = ws.utils.OrderedSet()
+        # Using a dict rather than set to maintain insertion order (all values are None)
+        rcpages = {}
+        # Using a dict rather than set to maintain insertion order (all values are None)
+        rctitles = {}
 
         rc_params = {
             "list": "recentchanges",
@@ -326,13 +328,13 @@ class GrabberPages(GrabberBase):
             # add pageid for edits, new pages and target pages of log events
             # (this implicitly handles all protect, delete, import actions)
             if change["pageid"] > 0:
-                rcpages.add(change["pageid"])
+                rcpages[change["pageid"]] = None
 
             if change["type"] == "log":
                 # Moving a page creates a "move" log event, but not a "new" log event for the
                 # redirect, so we have to extract the new page ID manually.
                 if change["logtype"] == "move":
-                    rctitles.add(change["title"])
+                    rctitles[change["title"]] = None
                     moved.append((change["pageid"], change["logparams"]))
                 elif change["logaction"] in {"delete_redir", "delete"}:
                     # note that pageid in recentchanges corresponds to log_page
@@ -340,7 +342,7 @@ class GrabberPages(GrabberBase):
 
         # resolve titles to IDs (we actually need to call the API, see above)
         if rctitles:
-            for chunk in ws.utils.iter_chunks(rctitles, self.api.max_ids_per_query):
+            for chunk in ws.utils.iter_chunks(rctitles.keys(), self.api.max_ids_per_query):
                 params = {
                     "action": "query",
                     "titles": "|".join(chunk),
@@ -362,14 +364,15 @@ class GrabberPages(GrabberBase):
                 for page in pages:
                     # skip missing pages (we don't detect "move without leaving a redirect" until here)
                     if "pageid" in page:
-                        rcpages.add(page["pageid"])
+                        rcpages[page["pageid"]] = None
 
         return deleted_pageids, moved, rcpages
 
     def get_logpages(self, since):
         deleted_pageids = set()
         moved = []
-        modified = ws.utils.OrderedSet()
+        # Using a dict rather than set to maintain insertion order (all values are None)
+        modified = {}
 
         le_params = {
             "list": "logevents",
@@ -382,7 +385,7 @@ class GrabberPages(GrabberBase):
                 if le["action"] in {"delete_redir", "delete"}:
                     deleted_pageids.add(le["logpage"])
                 else:
-                    modified.add(le["logpage"])
+                    modified[le["logpage"]] = None
                     if le["action"] in {"move", "move_redir"}:
                         moved.append((le["logpage"], le["params"]))
             elif le["type"] == "suppress" and le["action"] == "delete":
