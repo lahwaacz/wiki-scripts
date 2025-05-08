@@ -1,12 +1,28 @@
-#! /usr/bin/env python3
-
 import re
 import string
 import unicodedata
 
-__all__ = ["encode", "decode", "dotencode", "anchorencode", "urlencode", "urldecode", "queryencode", "querydecode"]
+__all__ = [
+    "encode",
+    "decode",
+    "dotencode",
+    "anchorencode",
+    "urlencode",
+    "urldecode",
+    "queryencode",
+    "querydecode",
+]
 
-def encode(str_, escape_char="%", encode_chars="", skip_chars="", special_map=None, charset="utf-8", errors="strict"):
+
+def encode(
+    str_: str,
+    escape_char: str = "%",
+    encode_chars: str = "",
+    skip_chars: str = "",
+    special_map: dict[str, str] | None = None,
+    charset: str = "utf-8",
+    errors: str = "strict",
+) -> str:
     """
     Generalized implementation of a `percent encoding`_ algorithm.
 
@@ -39,7 +55,14 @@ def encode(str_, escape_char="%", encode_chars="", skip_chars="", special_map=No
             output += char
     return output
 
-def decode(str_, escape_char="%", special_map=None, charset="utf-8", errors="strict"):
+
+def decode(
+    str_: str,
+    escape_char: str = "%",
+    special_map: dict[str, str] | None = None,
+    charset: str = "utf-8",
+    errors: str = "strict",
+) -> str:
     """
     An inverse function to :py:func:`encode`.
 
@@ -78,6 +101,7 @@ def decode(str_, escape_char="%", special_map=None, charset="utf-8", errors="str
         output += barr.decode(charset, errors)
     return output
 
+
 def _anchor_preprocess(str_):
     """
     Context-sensitive pre-processing for anchor-encoding. See `MediaWiki`_ for
@@ -97,7 +121,8 @@ def _anchor_preprocess(str_):
     str_ = str_.lstrip(":")
     return str_
 
-def dotencode(str_):
+
+def dotencode(str_: str) -> str:
     """
     Return an anchor-encoded string as shown in this `encoding table`_. It uses
     the ``legacy`` format for `$wgFragmentMode`_.
@@ -114,9 +139,15 @@ def dotencode(str_):
     """
     skipped = string.ascii_letters + string.digits + "-_.:"
     special = {" ": "_"}
-    return encode(_anchor_preprocess(str_), escape_char=".", skip_chars=skipped, special_map=special)
+    return encode(
+        _anchor_preprocess(str_),
+        escape_char=".",
+        skip_chars=skipped,
+        special_map=special,
+    )
 
-def anchorencode(str_, format="html5"):
+
+def anchorencode(str_: str, format: str = "html5") -> str:
     """
     Function corresponding to the ``{{anchorencode:}}`` `magic word`_.
 
@@ -169,7 +200,8 @@ def anchorencode(str_, format="html5"):
             output += char
     return output
 
-def urlencode(str_):
+
+def urlencode(str_: str) -> str:
     """
     Standard URL encoding as described on `Wikipedia`_, which should correspond
     to the ``PATH`` style in the MediaWiki's `comparison table`_.
@@ -180,13 +212,15 @@ def urlencode(str_):
     skipped = string.ascii_letters + string.digits + "-_.~"
     return encode(str_, skip_chars=skipped)
 
-def urldecode(str_):
+
+def urldecode(str_: str) -> str:
     """
     An inverse function to :py:func:`urlencode`.
     """
     return decode(str_)
 
-def queryencode(str_):
+
+def queryencode(str_: str) -> str:
     """
     The ``QUERY`` style encoding as described on `MediaWiki`_. This is the
     default URL encoding in MediaWiki since 1.17.
@@ -197,7 +231,8 @@ def queryencode(str_):
     special = {" ": "+"}
     return encode(str_, skip_chars=skipped, special_map=special)
 
-def querydecode(str_):
+
+def querydecode(str_: str) -> str:
     """
     An inverse function to :py:func:`queryencode`.
     """
