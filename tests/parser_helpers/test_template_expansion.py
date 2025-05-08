@@ -463,7 +463,8 @@ class test_magic_words(common_base):
         }
         title = "Title"
         expected = d[title]
-        self._do_test(title_context, d, title, expected)
+        with pytest.raises(ValueError):
+            self._do_test(title_context, d, title, expected)
 
     def test_if(self, title_context: Context) -> None:
         d = {
