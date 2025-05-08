@@ -1,25 +1,39 @@
-#! /usr/bin/env python3
-
 import bisect
 import datetime
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Generator, Iterable, MutableSequence, overload
 
 from .datetime_ import format_date, parse_date
 
+if TYPE_CHECKING:
+    from _typeshed import SupportsDunderLT
 
-class ListOfDictsAttrWrapper(object):
-    """ A list-like wrapper around list of dicts, operating on a given attribute.
-    """
-    def __init__(self, dict_list, attr):
+
+class ListOfDictsAttrWrapper(Sequence):
+    """A list-like wrapper around list of dicts, operating on a given attribute."""
+
+    def __init__(self, dict_list: list[dict], attr: Any):
         self.dict_list = dict_list
         self.attr = attr
 
-    def __getitem__(self, index):
+    @overload
+    def __getitem__(self, index: int) -> Any: ...
+
+    @overload
+    def __getitem__(self, index: slice) -> "ListOfDictsAttrWrapper": ...
+
+    def __getitem__(self, index, /):
+        if isinstance(index, slice):
+            return ListOfDictsAttrWrapper(self.dict_list[index], self.attr)
         return self.dict_list[index][self.attr]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.dict_list.__len__()
 
-def bisect_find(data_list, key, index_list=None):
+
+def bisect_find[
+    T: "SupportsDunderLT"
+](data_list: Sequence[T], key: T, index_list: Sequence[T] | None = None) -> T:
     """
     Find an element in a sorted list using the bisect method.
 
@@ -36,7 +50,15 @@ def bisect_find(data_list, key, index_list=None):
         return data_list[i]
     raise IndexError(repr(key))
 
-def bisect_insert_or_replace(data_list, key, data_element=None, index_list=None):
+
+def bisect_insert_or_replace[
+    T: "SupportsDunderLT"
+](
+    data_list: MutableSequence[T],
+    key: T,
+    data_element: T | None = None,
+    index_list: Sequence[T] | None = None,
+) -> None:
     """
     Insert an element into a sorted list using the bisect method. If an element
     is found in the list, it is replaced.
@@ -55,7 +77,8 @@ def bisect_insert_or_replace(data_list, key, data_element=None, index_list=None)
     else:
         data_list.insert(i, data_element)
 
-def dmerge(source, destination):
+
+def dmerge(source: dict, destination: dict) -> dict:
     """
     Deep merging of dictionaries.
     """
@@ -73,7 +96,8 @@ def dmerge(source, destination):
 
     return destination
 
-def find_caseless(what, where, from_target=False):
+
+def find_caseless(what: str, where: Iterable[str], from_target: bool = False) -> str:
     """
     Do a case-insensitive search in a list/iterable.
 
@@ -90,7 +114,10 @@ def find_caseless(what, where, from_target=False):
             return what
     raise ValueError
 
-def gen_nested_values(indict, keys=None):
+
+def gen_nested_values(
+    indict: dict | list | tuple, keys: list | None = None
+) -> Generator[tuple[list, Any]]:
     """
     Generator yielding all values stored in a nested structure of dicts, lists
     and tuples.
@@ -105,11 +132,13 @@ def gen_nested_values(indict, keys=None):
     else:
         yield keys, indict
 
-def parse_timestamps_in_struct(struct):
+
+def parse_timestamps_in_struct(struct: dict | list) -> None:
     """
-    Convert all timestamps in a nested structure from str to
-    datetime.datetime.
+    Convert all timestamps in a nested structure from ``str`` to
+    ``datetime.datetime``.
     """
+
     def set_ts(struct, keys, value):
         for k in keys[:-1]:
             struct = struct[k]
@@ -119,7 +148,12 @@ def parse_timestamps_in_struct(struct):
         if isinstance(value, str):
             # skip fields which are not timestamps (e.g. user=infinity)
             _strkeys = "".join(str(k) for k in keys)
-            if "timestamp" not in _strkeys and "registration" not in _strkeys and "expiry" not in _strkeys and "touched" not in _strkeys:
+            if (
+                "timestamp" not in _strkeys
+                and "registration" not in _strkeys
+                and "expiry" not in _strkeys
+                and "touched" not in _strkeys
+            ):
                 continue
 
             if value.lower() == "infinity" or value.lower() == "infinite":
@@ -128,20 +162,28 @@ def parse_timestamps_in_struct(struct):
                 set_ts(struct, keys, datetime.datetime.min)
             elif value.lower() == "indefinite":
                 set_ts(struct, keys, None)
-            elif (len(value) == 20 and value[4] == "-" and value[7] == "-" and
-                    value[10] == "T" and value[13] == ":" and value[16] == ":"
-                    and value[19] == "Z"):
+            elif (
+                len(value) == 20
+                and value[4] == "-"
+                and value[7] == "-"
+                and value[10] == "T"
+                and value[13] == ":"
+                and value[16] == ":"
+                and value[19] == "Z"
+            ):
                 try:
                     ts = parse_date(value)
                 except ValueError:
                     continue
                 set_ts(struct, keys, ts)
 
-def serialize_timestamps_in_struct(struct):
+
+def serialize_timestamps_in_struct(struct: dict | list) -> None:
     """
-    Convert all timestamps in a nested structure from str to
-    datetime.datetime.
+    Convert all timestamps in a nested structure from ``datetime.datetime`` to
+    ``str``.
     """
+
     def set_ts(struct, keys, value):
         for k in keys[:-1]:
             struct = struct[k]
