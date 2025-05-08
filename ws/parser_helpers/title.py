@@ -1,18 +1,26 @@
-#! /usr/bin/env python3
-
 import os.path
 import re
 from copy import copy, deepcopy
+from typing import Union, cast
 
-# only for explicit type check in Title.parse
 import mwparserfromhell
+from mwparserfromhell.wikicode import Wikicode
 
 from ..utils import find_caseless
 from .encodings import _anchor_preprocess, urldecode
 
-__all__ = ["canonicalize", "Context", "Title", "TitleError", "InvalidTitleCharError", "InvalidColonError", "DatabaseTitleError"]
+__all__ = [
+    "canonicalize",
+    "Context",
+    "Title",
+    "TitleError",
+    "InvalidTitleCharError",
+    "InvalidColonError",
+    "DatabaseTitleError",
+]
 
-def canonicalize(title):
+
+def canonicalize(title: str | Wikicode) -> str:
     """
     Return a canonical form of the title, that is:
 
@@ -37,6 +45,7 @@ def canonicalize(title):
         return ""
     title = title[0].upper() + title[1:]
     return title
+
 
 class Context:
     """
@@ -63,7 +72,14 @@ class Context:
     which construct the necessary context and pass it to the
     :py:class:`Title` class.
     """
-    def __init__(self, interwikimap, namespacenames, namespaces, legaltitlechars):
+
+    def __init__(
+        self,
+        interwikimap: dict[str, dict[str, str]],
+        namespacenames: dict[str, int],
+        namespaces: dict[int, dict[str, str | int]],
+        legaltitlechars: str,
+    ):
         self.interwikimap = interwikimap
         self.namespacenames = namespacenames
         self.namespaces = namespaces
@@ -91,15 +107,19 @@ class Context:
             api.site.general["legaltitlechars"],
         )
 
-    def __eq__(self, other):  # pragma: no cover
+    def __eq__(self, other: object) -> bool:  # pragma: no cover
         """
         Standard equality comparison operator. Comparing API-based and
         Database-based contexts is possible.
         """
-        return self.interwikimap == other.interwikimap and \
-               self.namespacenames == other.namespacenames and \
-               self.namespaces == other.namespaces and \
-               self.legaltitlechars == other.legaltitlechars
+        assert isinstance(other, Context)
+        return (
+            self.interwikimap == other.interwikimap
+            and self.namespacenames == other.namespacenames
+            and self.namespaces == other.namespaces
+            and self.legaltitlechars == other.legaltitlechars
+        )
+
 
 class Title:
     """
@@ -116,7 +136,7 @@ class Title:
     .. _`magic words`: https://www.mediawiki.org/wiki/Help:Magic_words#Page_names
     """
 
-    def __init__(self, context, title):
+    def __init__(self, context: Context, title: str | Wikicode):
         """
         :param Context context:
             a context object for the parser
@@ -128,14 +148,14 @@ class Title:
         self.context = context
 
         # Interwiki prefix (e.g. ``wikipedia``), lowercase
-        self.iw = None
+        self.iw = ""
         # Namespace, in the canonical form (e.g. ``ArchWiki talk``)
-        self.ns = None
+        self.ns = ""
         # Pure title (i.e. without interwiki and namespace prefixes), in the
         # canonical form (see :py:func:`canonicalize`)
-        self.pure = None
+        self.pure = ""
         # Section anchor
-        self.anchor = None
+        self.anchor = ""
 
         # leading colon (":") or empty string ("")
         self._leading_colon = ""
@@ -144,7 +164,7 @@ class Title:
 
     # explicit setters are necessary, because methods decorated with
     # @foo.setter are not callable from self.__init__
-    def _set_iwprefix(self, iw):
+    def _set_iwprefix(self, iw: str) -> None:
         """
         Auxiliary setter for ``iwprefix``.
         """
@@ -159,14 +179,18 @@ class Title:
             # with spaces, but [[foo bar:Some page]] is valid as an interwiki link.)
             iw = iw.replace(" ", "_")
             # check if it is valid interwiki prefix
-            self.iw = find_caseless(iw, self.context.interwikimap.keys(), from_target=True)
+            self.iw = find_caseless(
+                iw, self.context.interwikimap.keys(), from_target=True
+            )
         except ValueError:
             if iw == "":
                 self.iw = iw
             else:
-                raise ValueError("tried to assign invalid interwiki prefix: {}".format(iw))
+                raise ValueError(
+                    "tried to assign invalid interwiki prefix: {}".format(iw)
+                )
 
-    def _set_namespace(self, ns):
+    def _set_namespace(self, ns: str) -> None:
         """
         Auxiliary setter for ``namespace``.
         """
@@ -177,15 +201,21 @@ class Title:
             ns = canonicalize(ns)
             if self.iw == "" or "local" in self.context.interwikimap[self.iw]:
                 # check if it is valid namespace
-                self.ns = find_caseless(ns, self.context.namespacenames, from_target=True)
+                self.ns = find_caseless(
+                    ns, self.context.namespacenames, from_target=True
+                )
             elif ns:
-                raise ValueError("tried to assign non-empty namespace '{}' to an interwiki link".format(ns))
+                raise ValueError(
+                    "tried to assign non-empty namespace '{}' to an interwiki link".format(
+                        ns
+                    )
+                )
             else:
                 self.ns = ns
         except ValueError:
             raise ValueError("tried to assign invalid namespace: {}".format(ns))
 
-    def _set_pagename(self, pagename):
+    def _set_pagename(self, pagename: str) -> None:
         """
         Auxiliary setter for ``pagename``.
         """
@@ -193,7 +223,9 @@ class Title:
             raise TypeError("pagename must be of type 'str'")
 
         if pagename.startswith(":"):
-            raise InvalidColonError("The ``pagename`` part cannot start with a colon: '{}'".format(pagename))
+            raise InvalidColonError(
+                "The ``pagename`` part cannot start with a colon: '{}'".format(pagename)
+            )
 
         # MediaWiki does not treat encoded underscores as spaces (e.g.
         # [[Main%5Fpage]] is rendered as <a href="...">Main_page</a>),
@@ -203,12 +235,16 @@ class Title:
         # as a workaround, any UTF-8 character, which is not an ASCII character, is allowed
         # Note: \uFFFF is not the last UTF-8 character, it is \U0010FFFF (can be checked with hex(sys.maxunicode))
         # see https://en.wikipedia.org/wiki/UTF-8#Description
-        if re.search("[^{}\\u0100-\\U0010FFFF]".format(self.context.legaltitlechars), pagename):
-            raise InvalidTitleCharError("Given title contains illegal character(s): '{}'".format(pagename))
+        if re.search(
+            "[^{}\\u0100-\\U0010FFFF]".format(self.context.legaltitlechars), pagename
+        ):
+            raise InvalidTitleCharError(
+                "Given title contains illegal character(s): '{}'".format(pagename)
+            )
         # canonicalize title
         self.pure = canonicalize(pagename)
 
-    def _set_sectionname(self, sectionname):
+    def _set_sectionname(self, sectionname: str) -> None:
         """
         Auxiliary setter for ``sectionname``.
         """
@@ -218,7 +254,7 @@ class Title:
         # canonicalize anchor
         self.anchor = _anchor_preprocess(sectionname)
 
-    def parse(self, full_title):
+    def parse(self, full_title: str | Wikicode) -> None:
         """
         Splits the title into ``(iwprefix, namespace, pagename, sectionname)``
         parts and canonicalizes them. Can be used to set these attributes from
@@ -232,7 +268,9 @@ class Title:
         """
         # Wikicode has to be converted to str, but we don't want to convert
         # numbers or any arbitrary objects.
-        if not isinstance(full_title, str) and not isinstance(full_title, mwparserfromhell.wikicode.Wikicode):
+        if not isinstance(full_title, str) and not isinstance(
+            full_title, mwparserfromhell.wikicode.Wikicode
+        ):
             raise TypeError("full_title must be either 'str' or 'Wikicode'")
         full_title = str(full_title)
 
@@ -258,7 +296,9 @@ class Title:
             # reset _rest if the interwiki prefix is empty
             _rest = lstrip_one(full_title, ":")
             if _rest.startswith(":"):
-                raise InvalidColonError("The ``pagename`` part cannot start with a colon: '{}'".format(_rest))
+                raise InvalidColonError(
+                    f"The ``pagename`` part cannot start with a colon: '{_rest}'"
+                )
 
         # parse namespace
         try:
@@ -277,7 +317,14 @@ class Title:
         self._set_pagename(_pure)
         self._set_sectionname(anchor)
 
-    def format(self, *, iwprefix=False, namespace=False, sectionname=False, colon=False):
+    def format(
+        self,
+        *,
+        iwprefix: bool = False,
+        namespace: bool = False,
+        sectionname: bool = False,
+        colon: bool = False,
+    ) -> str:
         """
         General formatting method.
 
@@ -303,10 +350,12 @@ class Title:
         title += self.pagename
         if sectionname is True and self.sectionname:
             title += "#" + self.sectionname
-        return title
+        # mypy does not like properties with setters and thinks that title is
+        # Any rather than str
+        return cast(str, title)
 
     @property
-    def iwprefix(self):
+    def iwprefix(self) -> str:
         """
         The interwiki prefix of the title.
 
@@ -319,12 +368,11 @@ class Title:
         return self.iw
 
     @iwprefix.setter
-    def iwprefix(self, value):
+    def iwprefix(self, value: str) -> None:
         return self._set_iwprefix(value)
 
-
     @property
-    def namespace(self):
+    def namespace(self) -> str:
         """
         Same as ``{{NAMESPACE}}`` in MediaWiki.
 
@@ -334,39 +382,38 @@ class Title:
         return self.ns
 
     @namespace.setter
-    def namespace(self, value):
+    def namespace(self, value: str) -> None:
         return self._set_namespace(value)
 
     @property
-    def namespacenumber(self):
+    def namespacenumber(self) -> int:
         """
         Same as ``{{NAMESPACENUMBER}}`` in MediaWiki.
         """
         return self.context.namespacenames[self.ns]
 
     @property
-    def articlespace(self):
+    def articlespace(self) -> str:
         """
         Same as ``{{ARTICLESPACE}}`` in MediaWiki.
         """
         ns_id = self.namespacenumber
         if ns_id % 2 == 0:
             return self.ns
-        return self.context.namespaces[ns_id - 1]["*"]
+        return str(self.context.namespaces[ns_id - 1]["*"])
 
     @property
-    def talkspace(self):
+    def talkspace(self) -> str:
         """
         Same as ``{{TALKSPACE}}`` in MediaWiki.
         """
         ns_id = self.namespacenumber
         if ns_id % 2 == 1:
             return self.ns
-        return self.context.namespaces[ns_id + 1]["*"]
-
+        return str(self.context.namespaces[ns_id + 1]["*"])
 
     @property
-    def pagename(self):
+    def pagename(self) -> str:
         """
         Same as ``{{PAGENAME}}`` in MediaWiki, drops the interwiki and namespace
         prefixes. The section anchor is not included. Other ``*pagename``
@@ -378,12 +425,12 @@ class Title:
         return self.pure
 
     @pagename.setter
-    def pagename(self, value):
+    def pagename(self, value: str) -> None:
         if not isinstance(value, str):
             raise TypeError("pagename must be of type 'str'")
 
         iw, ns, pure, anchor = self.iw, self.ns, self.pure, self.anchor
-        self.iw, self.ns, self.pure, self.anchor = None, None, None, None
+        self.iw, self.ns, self.pure, self.anchor = "", "", "", ""
         try:
             self.parse(value)
         except InvalidTitleCharError:
@@ -401,7 +448,7 @@ class Title:
         self._set_pagename(value)
 
     @property
-    def fullpagename(self):
+    def fullpagename(self) -> str:
         """
         Same as ``{{FULLPAGENAME}}`` in MediaWiki, but also includes interwiki
         prefix (if any).
@@ -409,7 +456,7 @@ class Title:
         return self.format(iwprefix=True, namespace=True)
 
     @property
-    def basepagename(self):
+    def basepagename(self) -> str:
         """
         Same as ``{{BASEPAGENAME}}`` in MediaWiki, drops the interwiki and
         namespace prefixes and the rightmost subpage level.
@@ -423,7 +470,7 @@ class Title:
         return base
 
     @property
-    def subpagename(self):
+    def subpagename(self) -> str:
         """
         Same as ``{{SUBPAGENAME}}`` in MediaWiki, returns the rightmost subpage
         level.
@@ -437,7 +484,7 @@ class Title:
         return subpage
 
     @property
-    def rootpagename(self):
+    def rootpagename(self) -> str:
         """
         Same as ``{{ROOTPAGENAME}}`` in MediaWiki, drops the interwiki and
         namespace prefixes and all subpages.
@@ -450,30 +497,29 @@ class Title:
         base = self.pagename.split("/", maxsplit=1)[0]
         return base
 
-    def _format(self, pre, mid, title):
+    def _format(self, pre: str, mid: str, title: str) -> str:
         """
         Auxiliary method for formatting :py:meth:`articlepagename` and
         :py:meth:`talkpagename`.
         """
-        return "{}:{}:{}".format(pre, mid, title).lstrip(":")
+        return f"{pre}:{mid}:{title}".lstrip(":")
 
     @property
-    def articlepagename(self):
+    def articlepagename(self) -> str:
         """
         Same as ``{{ARTICLEPAGENAME}}`` in MediaWiki.
         """
         return self._format(self.iwprefix, self.articlespace, self.pagename)
 
     @property
-    def talkpagename(self):
+    def talkpagename(self) -> str:
         """
         Same as ``{{TALKPAGENAME}}`` in MediaWiki.
         """
         return self._format(self.iwprefix, self.talkspace, self.pagename)
 
-
     @property
-    def sectionname(self):
+    def sectionname(self) -> str:
         """
         The section anchor, usable in wiki links. It is passed through the
         :py:func:`ws.parser_helpers.encodings._anchor_preprocess` function,
@@ -493,7 +539,7 @@ class Title:
         return self.anchor
 
     @sectionname.setter
-    def sectionname(self, value):
+    def sectionname(self, value: str) -> None:
         return self._set_sectionname(value)
 
     @property
@@ -504,8 +550,7 @@ class Title:
         """
         return self._leading_colon
 
-
-    def dbtitle(self, expected_ns=None):
+    def dbtitle(self, expected_ns: int | None = None) -> str:
         """
         Returns the title formatted for use in the database.
 
@@ -523,15 +568,21 @@ class Title:
         :param int expected_ns: expected namespace number
         """
         if self.iwprefix or self.sectionname:
-            raise DatabaseTitleError("Titles containing an interwiki prefix or a section name cannot be serialized into database titles. Strip the prefixes explicitly if they should be intentionally removed. The title is: " + str(self))
+            raise DatabaseTitleError(
+                "Titles containing an interwiki prefix or a section name cannot "
+                "be serialized into database titles. Strip the prefixes "
+                "explicitly if they should be intentionally removed. "
+                "The title is: " + str(self)
+            )
 
         if expected_ns is None or self.namespacenumber == expected_ns:
             return self.pagename
         else:
             return self.fullpagename
 
-
-    def make_absolute(self, basetitle):
+    # Note on type hints: forward references should just work in Python 3.14+
+    # https://stackoverflow.com/a/33533514
+    def make_absolute(self, basetitle: Union[str, "Title"]) -> "Title":
         """
         Changes a relative link to an absolute link. Has no effect if called on
         an absolute link.
@@ -581,22 +632,26 @@ class Title:
         # handle subpages
         if self.pagename.startswith("/") or self.pagename.startswith("../"):
             self.namespace = basetitle.namespace
-            self.pagename = os.path.normpath(os.path.join(basetitle.pagename, "./" + self.pagename))
+            self.pagename = os.path.normpath(
+                os.path.join(basetitle.pagename, "./" + self.pagename)
+            )
 
         return self
 
+    def __eq__(self, other: object) -> bool:
+        assert isinstance(other, Title)
+        return (
+            self.context == other.context
+            and self.iw == other.iw
+            and self.ns == other.ns
+            and self.pure == other.pure
+            and self.anchor == other.anchor
+        )
 
-    def __eq__(self, other):
-        return self.context == other.context and \
-               self.iw == other.iw and \
-               self.ns == other.ns and \
-               self.pure == other.pure and \
-               self.anchor == other.anchor
-
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{}('{}')".format(self.__class__, self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns the full representation of the title in the canonical form.
 
@@ -611,6 +666,7 @@ class TitleError(Exception):
     """
     Base class for all title errors.
     """
+
     pass
 
 
@@ -618,6 +674,7 @@ class InvalidTitleCharError(TitleError):
     """
     Raised when the requested title contains an invalid character.
     """
+
     pass
 
 
@@ -625,6 +682,7 @@ class InvalidColonError(TitleError):
     """
     Raised when the requested title contains an invalid colon at the beginning.
     """
+
     pass
 
 
@@ -632,4 +690,5 @@ class DatabaseTitleError(TitleError):
     """
     Raised when calling :py:meth:`Title.dbtitle` would cause a data loss.
     """
+
     pass
