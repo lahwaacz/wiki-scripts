@@ -2,8 +2,6 @@
 
 import sqlalchemy as sa
 
-from ws.utils import value_or_none
-
 from .GrabberBase import GrabberBase
 
 
@@ -35,7 +33,7 @@ class GrabberTags(GrabberBase):
                 "tag_name": tag["name"],
                 # as of MW 1.37, only mw-add-media and mw-remove-media have empty displayname
                 "tag_displayname": tag.get("displayname", "(hidden)"),
-                "tag_description": value_or_none(tag["description"]),
+                "tag_description": tag["description"] or None,
                 "tag_defined": "defined" in tag,
                 "tag_active": "active" in tag,
                 "tag_source": tag["source"],
