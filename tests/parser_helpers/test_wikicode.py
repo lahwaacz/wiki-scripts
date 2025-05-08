@@ -14,7 +14,8 @@ class test_get_adjacent_node:
     def test_last_node(self) -> None:
         snippet = "[[Arch Linux]] is the best!"
         wikicode = mwparserfromhell.parse(snippet)
-        last = get_adjacent_node(wikicode, " is the best!")
+        second = wikicode.get(1)  # " is the best"
+        last = get_adjacent_node(wikicode, second)
         assert last is None
 
     def test_whitespace_preserved(self) -> None:

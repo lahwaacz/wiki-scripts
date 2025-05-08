@@ -1,21 +1,30 @@
-#! /usr/bin/env python3
-
 import re
 from itertools import chain
+from typing import Any, Callable, Generator, Iterable, cast
 
 import mwparserfromhell
+from mwparserfromhell.nodes import Node
+from mwparserfromhell.wikicode import Wikicode
 
 from .encodings import dotencode
 from .title import canonicalize
 
 __all__ = [
-    "strip_markup", "get_adjacent_node", "get_parent_wikicode", "remove_and_squash",
-    "get_section_headings", "get_anchors", "ensure_flagged_by_template",
-    "ensure_unflagged_by_template", "is_flagged_by_template", "is_redirect",
+    "strip_markup",
+    "get_adjacent_node",
+    "get_parent_wikicode",
+    "remove_and_squash",
+    "get_section_headings",
+    "get_anchors",
+    "ensure_flagged_by_template",
+    "ensure_unflagged_by_template",
+    "is_flagged_by_template",
+    "is_redirect",
     "parented_ifilter",
 ]
 
-def strip_markup(text, normalize=True, collapse=True):
+
+def strip_markup(text: Any, normalize: bool = True, collapse: bool = True) -> str:
     """
     Parses the given text and returns the text after stripping all MediaWiki
     markup, leaving only the plain text.
@@ -25,9 +34,14 @@ def strip_markup(text, normalize=True, collapse=True):
     :returns: :py:obj:`str`
     """
     wikicode = mwparserfromhell.parse(text)
-    return wikicode.strip_code(normalize, collapse)
+    result = wikicode.strip_code(normalize, collapse)
+    # wikicode.strip_code is untyped
+    return cast(str, result)
 
-def get_adjacent_node(wikicode, node, ignore_whitespace=False):
+
+def get_adjacent_node(
+    wikicode: Wikicode, node: Node, ignore_whitespace: bool = False
+) -> Node | None:
     """
     Get the node immediately following `node` in `wikicode`.
 
@@ -42,23 +56,25 @@ def get_adjacent_node(wikicode, node, ignore_whitespace=False):
     """
     i = wikicode.index(node) + 1
     try:
-        n = wikicode.get(i)
+        n = cast(Node, wikicode.get(i))
         while ignore_whitespace and n.isspace():
             i += 1
-            n = wikicode.get(i)
+            n = cast(Node, wikicode.get(i))
         return n
     except IndexError:
         return None
 
-def get_parent_wikicode(wikicode, node):
+
+def get_parent_wikicode(wikicode: Wikicode, node: str | Node | Wikicode) -> Wikicode:
     """
     Returns the parent of `node` as a `wikicode` object.
     Raises :exc:`ValueError` if `node` is not a descendant of `wikicode`.
     """
     context, index = wikicode._do_strong_search(node, True)
-    return context
+    return cast(Wikicode, context)
 
-def remove_and_squash(wikicode, obj):
+
+def remove_and_squash(wikicode: Wikicode, obj: str | Node | Wikicode) -> None:
     """
     Remove `obj` from `wikicode` and fix whitespace in the place it was removed from.
     """
@@ -66,7 +82,7 @@ def remove_and_squash(wikicode, obj):
     index = parent.index(obj)
     parent.remove(obj)
 
-    def _get_text(index):
+    def _get_text(index: int) -> tuple[None | mwparserfromhell.nodes.Text, None | type]:
         # the first node has no previous node, especially not the last node
         if index < 0:
             return None, None
@@ -110,13 +126,14 @@ def remove_and_squash(wikicode, obj):
                 next_.value = next_.lstrip("\n")
         elif prev.endswith("\n"):
             next_.value = next_.lstrip()
-        elif next_.startswith("\n"):    # pragma: no branch
+        elif next_.startswith("\n"):  # pragma: no branch
             prev.value = prev.rstrip()
         # merge successive Text nodes
         prev.value += next_.value
         parent.remove(next_)
 
-def get_section_headings(text):
+
+def get_section_headings(text: str) -> list[str]:
     """
     Extracts section headings from given text. Custom regular expression is used
     instead of :py:mod:`mwparserfromhell` for performance reasons.
@@ -133,10 +150,17 @@ def get_section_headings(text):
     """
     # re.findall returns a list of tuples of the matched groups
     # gotcha: the line must start with '=', but does not have to end with '=' (trailing whitespace is ignored)
-    matches = re.findall(r"^((\={1,6})[^\S\n]*)([^\n]+?)([^\S\n]*(\2))[^\S\n]*$", text, flags=re.MULTILINE | re.DOTALL)
+    matches = re.findall(
+        r"^((\={1,6})[^\S\n]*)([^\n]+?)([^\S\n]*(\2))[^\S\n]*$",
+        text,
+        flags=re.MULTILINE | re.DOTALL,
+    )
     return [match[2] for match in matches]
 
-def get_anchors(headings, pretty=False, suffix_sep="_"):
+
+def get_anchors(
+    headings: list[str], pretty: bool = False, suffix_sep: str = "_"
+) -> list[str]:
     """
     Converts section headings to anchors.
 
@@ -169,7 +193,10 @@ def get_anchors(headings, pretty=False, suffix_sep="_"):
         anchors = [dotencode(a) for a in anchors]
     else:
         # anchors can't contain '[', '|', ']' and tags encode them manually
-        anchors = [a.replace("[", "%5B").replace("|", "%7C").replace("]", "%5D") for a in anchors]
+        anchors = [
+            a.replace("[", "%5B").replace("|", "%7C").replace("]", "%5D")
+            for a in anchors
+        ]
 
     # handle equivalent headings duplicated on the page
     for i, anchor in enumerate(anchors):
@@ -182,7 +209,14 @@ def get_anchors(headings, pretty=False, suffix_sep="_"):
         anchors[i] = anchor
     return anchors
 
-def ensure_flagged_by_template(wikicode, node, template_name, *template_parameters, overwrite_parameters=True):
+
+def ensure_flagged_by_template(
+    wikicode: Wikicode,
+    node: Node,
+    template_name: str,
+    *template_parameters: str,
+    overwrite_parameters: bool = True,
+) -> mwparserfromhell.nodes.Template:
     """
     Makes sure that ``node`` in ``wikicode`` is immediately (except for
     whitespace) followed by a template with ``template_name`` and optional
@@ -193,19 +227,21 @@ def ensure_flagged_by_template(wikicode, node, template_name, *template_paramete
     :param str template_name: the name of the template flag
     :param template_parameters: optional template parameters
     :returns: the template flag, as a
-        :py:class:`mwparserfromhell.nodes.template.Template` objet
+        :py:class:`mwparserfromhell.nodes.template.Template` object
     """
     parent = get_parent_wikicode(wikicode, node)
     adjacent = get_adjacent_node(parent, node, ignore_whitespace=True)
 
     if template_parameters:
-        flag = "{{%s}}" % "|".join([template_name, *template_parameters])
+        flag_str = "{{%s}}" % "|".join([template_name, *template_parameters])
     else:
-        flag = "{{%s}}" % template_name
-    flag = mwparserfromhell.parse(flag).nodes[0]
-    assert(isinstance(flag, mwparserfromhell.nodes.Template))
+        flag_str = "{{%s}}" % template_name
+    flag = mwparserfromhell.parse(flag_str).nodes[0]
+    assert isinstance(flag, mwparserfromhell.nodes.Template)
 
-    if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches(template_name):
+    if isinstance(adjacent, mwparserfromhell.nodes.Template) and adjacent.name.matches(
+        template_name
+    ):
         # in case of {{Dead link}} we want to preserve the original parameters
         if overwrite_parameters is True:
             wikicode.replace(adjacent, flag)
@@ -214,10 +250,17 @@ def ensure_flagged_by_template(wikicode, node, template_name, *template_paramete
     else:
         wikicode.insert_after(node, flag)
 
-    assert(get_parent_wikicode(wikicode, flag) is parent)
+    assert get_parent_wikicode(wikicode, flag) is parent
     return flag
 
-def ensure_unflagged_by_template(wikicode, node, template_name, *, match_only_prefix=False):
+
+def ensure_unflagged_by_template(
+    wikicode: Wikicode,
+    node: Node,
+    template_name: str,
+    *,
+    match_only_prefix: bool = False,
+) -> None:
     """
     Makes sure that ``node`` in ``wikicode`` is not immediately (except for
     whitespace) followed by a template with ``template_name``.
@@ -239,7 +282,14 @@ def ensure_unflagged_by_template(wikicode, node, template_name, *, match_only_pr
             if adjacent.name.matches(template_name):
                 remove_and_squash(wikicode, adjacent)
 
-def is_flagged_by_template(wikicode, node, template_name, *, match_only_prefix=False):
+
+def is_flagged_by_template(
+    wikicode: Wikicode,
+    node: Node,
+    template_name: str,
+    *,
+    match_only_prefix: bool = False,
+) -> bool:
     """
     Checks if ``node`` in ``wikicode`` is immediately (except for whitespace)
     followed by a template with ``template_name``.
@@ -262,7 +312,8 @@ def is_flagged_by_template(wikicode, node, template_name, *, match_only_prefix=F
                 return True
     return False
 
-def is_redirect(text, *, full_match=False):
+
+def is_redirect(text: str, *, full_match: bool = False) -> bool:
     """
     Checks if the text represents a MediaWiki `redirect page`_.
 
@@ -276,13 +327,25 @@ def is_redirect(text, *, full_match=False):
         f = re.fullmatch
     else:
         f = re.match
-    match = f(r"#redirect\s*:?\s*\[\[[^[\]{}]+\]\]", text.strip(), flags=re.MULTILINE | re.IGNORECASE)
+    match = f(
+        r"#redirect\s*:?\s*\[\[[^[\]{}]+\]\]",
+        text.strip(),
+        flags=re.MULTILINE | re.IGNORECASE,
+    )
     return bool(match)
+
 
 # default flags copied from mwparserfromhell
 FLAGS = re.IGNORECASE | re.DOTALL | re.UNICODE
-def parented_ifilter(wikicode, recursive=True, matches=None, flags=FLAGS,
-                     forcetype=None):
+
+
+def parented_ifilter(
+    wikicode: Wikicode,
+    recursive: bool = True,
+    matches: Callable | re.Pattern | None = None,
+    flags: re.RegexFlag = FLAGS,
+    forcetype: type | None = None,
+) -> Generator[tuple[Wikicode, Node]]:
     """Iterate over nodes and their corresponding parents.
 
     The arguments are interpreted as for :meth:`ifilter`. For each tuple
@@ -294,14 +357,19 @@ def parented_ifilter(wikicode, recursive=True, matches=None, flags=FLAGS,
     issue for details: https://github.com/earwig/mwparserfromhell/issues/195
     """
     match = wikicode._build_matcher(matches, flags)
+    inodes: Iterable[tuple[Wikicode, Node]]
     if recursive:
         restrict = forcetype if recursive == wikicode.RECURSE_OTHERS else None
-        def getter(node):
-            for parent, ch in wikicode._get_children(node, restrict=restrict, contexts=True, parent=wikicode):
-                yield (parent, ch)
+
+        def getter(node: Node) -> Generator[tuple[Wikicode, Node]]:
+            for parent, ch in wikicode._get_children(
+                node, restrict=restrict, contexts=True, parent=wikicode
+            ):
+                yield (parent, cast(Node, ch))
+
         inodes = chain(*(getter(n) for n in wikicode.nodes))
     else:
-        inodes = ((wikicode, node) for node in wikicode.nodes)
+        inodes = ((wikicode, cast(Node, node)) for node in wikicode.nodes)
     for parent, node in inodes:
         if (not forcetype or isinstance(node, forcetype)) and match(node):
-            yield (parent, node)
+            yield (parent, cast(Node, node))
