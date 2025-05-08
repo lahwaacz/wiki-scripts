@@ -1,12 +1,11 @@
-#! /usr/bin/env python3
-
-def base_dec(string, base):
+def base_dec(string: str | bytes | bytearray, base: int) -> int:
     """
     Return a decimal form of a number in given base.
     """
     return int(string, base)
 
-def base_enc(number, base):
+
+def base_enc(number: int, base: int) -> bytearray:
     """
     Encode a number in given base.
     """
