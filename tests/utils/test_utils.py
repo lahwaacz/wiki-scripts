@@ -1,20 +1,6 @@
 from ws.utils import *
 
 
-class test_is_ascii:
-    """test for utils.is_ascii() function"""
-
-    def test_with_ascii(self) -> None:
-        text = "abcdefghijklmnopqrstuvwxyz"
-        assert is_ascii(text) is True
-
-    def test_with_nonascii(self) -> None:
-        text = "ěščřžýáíéúů"
-        for l in text:
-            assert is_ascii(l) is False
-        assert is_ascii(text) is False
-
-
 def test_list_chunks() -> None:
     l = list(range(10))
     chunks = list(list_chunks(l, bs=3))

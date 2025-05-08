@@ -6,7 +6,6 @@ import sqlalchemy as sa
 
 import ws.db.mw_constants as mwconst
 import ws.db.selects as selects
-from ws.utils import value_or_none
 
 from .GrabberBase import GrabberBase
 
@@ -95,9 +94,9 @@ class GrabberRecentChanges(GrabberBase):
             "rc_minor": "minor" in rc,
             "rc_bot": "bot" in rc,
             "rc_new": "new" in rc,
-            "rc_cur_id": value_or_none(rc["pageid"]),
-            "rc_this_oldid": value_or_none(rc["revid"]),
-            "rc_last_oldid": value_or_none(rc["old_revid"]),
+            "rc_cur_id": rc["pageid"] or None,
+            "rc_this_oldid": rc["revid"] or None,
+            "rc_last_oldid": rc["old_revid"] or None,
             "rc_type": rc["type"],
             "rc_patrolled": "patrolled" in rc,
             "rc_old_len": rc["oldlen"],
