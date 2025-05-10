@@ -165,10 +165,10 @@ if __name__ == "__main__":
 
     # TODO: simplify for Downloader.from_argparser()
     if args.force:
-        epoch = datetime.datetime.utcnow()
+        epoch = datetime.datetime.now(datetime.UTC)
     else:
         # this should be the date of the latest incompatible change
-        epoch = datetime.datetime(2015, 5, 1)
+        epoch = datetime.datetime(2015, 5, 1, tzinfo=datetime.UTC)
 
     downloader = Downloader(api, args.output_directory, epoch, args.safe_filenames)
 

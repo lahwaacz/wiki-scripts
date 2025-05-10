@@ -263,7 +263,7 @@ divided by the number of days between the user's first and last edits.
                 continue
             # Do not skip temporarily blocked users, see
             # https://wiki.archlinux.org/index.php?title=ArchWiki_talk:Statistics&oldid=794884#Blocked_users
-            if "blockid" in user and user["blockexpiry"] == datetime.datetime.max:
+            if "blockid" in user and user["blockexpiry"] == datetime.datetime.max.replace(tzinfo=datetime.UTC):
                 continue
             name = user["name"]
             if user["editcount"] >= self.MINTOTEDITS or self.modules.recent_edit_count(name) >= self.MINRECEDITS:

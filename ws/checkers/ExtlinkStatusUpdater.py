@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 class ExtlinkStatusUpdater(CheckerBase):
     @property
     def deadlink_params(self):
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
         params = [now.year, now.month, now.day]
         params = [f"{i:02d}" for i in params]
         return params

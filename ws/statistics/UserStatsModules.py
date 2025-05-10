@@ -21,10 +21,10 @@ class UserStatsModules:
         self.active_days = active_days
 
         # current UTC date
-        self.today = datetime.datetime.utcnow()
+        self.today = datetime.datetime.now(datetime.UTC)
         if self.round_to_midnight:
             # round to midnight, keep the datetime.datetime type
-            self.today = datetime.datetime(*(self.today.timetuple()[:3]))
+            self.today = datetime.datetime(*(self.today.timetuple()[:3]), tzinfo=datetime.UTC)
 
         revisions = list(db.query(list="allrevisions", arvlimit="max", arvdir="newer", arvend=self.today, arvprop={"ids", "timestamp", "user", "userid"}))
         revisions += list(db.query(list="alldeletedrevisions", adrlimit="max", adrdir="newer", adrend=self.today, adrprop={"ids", "timestamp", "user", "userid"}))

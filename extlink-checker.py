@@ -31,7 +31,7 @@ def check(args, api, db):
     # select links to update
     s = sa.select(LinkCheck).join(Domain).where(
         LinkCheck.last_check.is_(None)
-        | (LinkCheck.last_check < datetime.datetime.utcnow() - datetime.timedelta(days=7))
+        | (LinkCheck.last_check < datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=7))
         | LinkCheck.http_status.in_({406, 429})
 #        | Domain.resolved.is_(False)
     )

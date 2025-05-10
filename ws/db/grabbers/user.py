@@ -82,7 +82,7 @@ class GrabberUsers(GrabberBase):
                 expirations = dict()
             for group in extra_groups:
                 expiry = expirations.get(group)
-                if expiry == datetime.datetime.max:
+                if expiry == datetime.datetime.max.replace(tzinfo=datetime.UTC):
                     expiry = None
                 db_entry = {
                     "ug_user": user["userid"],
@@ -207,5 +207,5 @@ class GrabberUsers(GrabberBase):
 
         # delete expired group memberships
         yield self.db.user_groups.delete().where(
-                        self.db.user_groups.c.ug_expiry < datetime.datetime.utcnow()
+                        self.db.user_groups.c.ug_expiry < datetime.datetime.now(datetime.UTC)
                     )

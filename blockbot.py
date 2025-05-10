@@ -114,11 +114,11 @@ class Blockbot:
             print("Your account does not have the 'delete' right.")
             return False
 
-        start = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        start = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
 
         while True:
             try:
-                start2 = datetime.datetime.utcnow()
+                start2 = datetime.datetime.now(datetime.UTC)
                 pages = self.api.generator(generator="recentchanges", grcstart=start, grcdir="newer", grcshow="unpatrolled", grclimit="max", prop="revisions", rvprop="ids|timestamp|user|comment|content")
                 self.filter_pages(pages)
             except (httpx.NetworkError, httpx.TimeoutException) as e:

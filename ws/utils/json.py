@@ -29,7 +29,7 @@ def datetime_parser(dct: dict) -> dict:
             if not args:
                 continue
             if v.startswith("datetime.datetime("):
-                dct[k] = datetime.datetime(*args)
+                dct[k] = datetime.datetime(*args, tzinfo=datetime.UTC)
             elif v.startswith("datetime.date("):
                 dct[k] = datetime.date(*args)
             elif v.startswith("datetime.timedelta("):
