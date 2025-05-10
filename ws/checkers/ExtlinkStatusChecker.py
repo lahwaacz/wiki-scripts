@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 # TODO:
 # - intel.com and its subdomains are returning false 404
 
@@ -9,6 +7,8 @@ import ipaddress
 import logging
 import ssl
 from functools import lru_cache
+from types import ModuleType
+from typing import Iterable
 
 import httpx
 import sqlalchemy as sa
@@ -16,6 +16,7 @@ import sqlalchemy.orm
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 try:
+    tqdm: ModuleType | None
     import tqdm
     import tqdm.contrib.logging
 except ImportError:
@@ -33,6 +34,7 @@ logger = logging.getLogger(__name__)
 class Domain:
     def __repr__(self):
         return f'Domain("{self.name},{self.last_check},{self.resolved},{self.server},{self.ssl_error}")'
+
 
 class LinkCheck:
     def __repr__(self):
@@ -62,30 +64,39 @@ ipv4_reserved_networks = [
 
 domains_with_ignored_status = {
     "aur.archlinux.org": {401},  # for private user account profiles
-    "bbs.archlinux.org": {403, 404},  # 403 for user profiles and 404 for pages that require login
+    "bbs.archlinux.org": {
+        403,
+        404,
+    },  # 403 for user profiles and 404 for pages that require login
     "crates.io": {404},  # returns 404 to the script but 200 in web browser
 }
 
+
 class ExtlinkStatusChecker:
-    def __init__(self, db, *, timeout=60, max_retries=3,
-                 max_connections=100, keepalive_expiry=60):
+    def __init__(
+        self, db, *, timeout=60, max_retries=3, max_connections=100, keepalive_expiry=60
+    ):
         self.db = db
 
         # initialize SQLAlchemy ORM
         mapper_registry = sqlalchemy.orm.registry()
         mapper_registry.map_imperatively(
-                Domain,
-                db.ws_domain,
-            )
+            Domain,
+            db.ws_domain,
+        )
         mapper_registry.map_imperatively(
-                LinkCheck,
-                db.ws_url_check,
-                properties={
-                    "domain": sqlalchemy.orm.relationship(Domain, backref="url_checks", lazy="joined")
-                }
-            )
+            LinkCheck,
+            db.ws_url_check,
+            properties={
+                "domain": sqlalchemy.orm.relationship(
+                    Domain, backref="url_checks", lazy="joined"
+                )
+            },
+        )
         self.session = sqlalchemy.orm.sessionmaker(self.db.engine)
-        self.async_session = async_sessionmaker(self.db.async_engine, expire_on_commit=False)
+        self.async_session = async_sessionmaker(
+            self.db.async_engine, expire_on_commit=False
+        )
 
         headers = {
             # fake user agent to bypass servers responding differently or not at all to non-browser user agents
@@ -107,8 +118,8 @@ class ExtlinkStatusChecker:
         self.progress = None
 
     def transfer_urls_from_parser_cache(self):
-        """ Transfers URLs from the MediaWiki-like ``externallinks`` table
-            to the wiki-scripts' ``ws_url_check`` and ``ws_domain`` tables.
+        """Transfers URLs from the MediaWiki-like ``externallinks`` table
+        to the wiki-scripts' ``ws_url_check`` and ``ws_domain`` tables.
         """
         el = self.db.externallinks
         ws_dom = self.db.ws_domain
@@ -116,7 +127,12 @@ class ExtlinkStatusChecker:
 
         with self.db.engine.begin() as conn:
             urls = {}
-            sel = sa.select(el.c.el_to).select_from(el).distinct().order_by(el.c.el_to.asc())
+            sel = (
+                sa.select(el.c.el_to)
+                .select_from(el)
+                .distinct()
+                .order_by(el.c.el_to.asc())
+            )
             for row in conn.execute(sel):
                 # note that URLs are stored as URL-decoded strings so they may seem weird/invalid at first
                 url = row[0]
@@ -132,59 +148,68 @@ class ExtlinkStatusChecker:
             # insert all URLs
             logger.info("Inserting new URLs to the ws_url_check table...")
             ins = sa.dialects.postgresql.insert(ws_url).on_conflict_do_nothing()
-            conn.execute(ins, [{"domain_name": domain, "url": url} for url, domain in urls.items()])
+            conn.execute(
+                ins,
+                [{"domain_name": domain, "url": url} for url, domain in urls.items()],
+            )
 
     @staticmethod
-    def is_checkable_url(url: str, *, allow_schemes=None):
-        """ Returns ``True`` if the URL can be checked or ``False``.
-        """
+    def is_checkable_url(url: str, *, allow_schemes: list[str] | None = None) -> bool:
+        """Returns ``True`` if the URL can be checked or ``False``."""
         if allow_schemes is None:
             allow_schemes = ["http", "https"]
 
         try:
             # try to parse the URL - fails e.g. if port is not a number
             # reference: https://www.python-httpx.org/api/#url
-            url = httpx.URL(url)
+            parsed_url = httpx.URL(url)
         except httpx.InvalidURL:
             logger.debug(f"skipped invalid URL: {url}")
             return False
 
         # skip unsupported schemes
-        if url.scheme not in allow_schemes:
-            logger.debug(f"skipped URL with unsupported scheme: {url}")
+        if parsed_url.scheme not in allow_schemes:
+            logger.debug(f"skipped URL with unsupported scheme: {parsed_url}")
             return False
         # skip URLs with empty host, e.g. "http://" or "http://git@" or "http:///var/run"
         # (partial workaround for https://github.com/earwig/mwparserfromhell/issues/196 )
-        if not url.host:
-            logger.debug(f"skipped URL with empty host: {url}")
+        if not parsed_url.host:
+            logger.debug(f"skipped URL with empty host: {parsed_url}")
             return False
         # skip URLs with auth info (e.g. http://login.worker:PWD@api.bitcoin.cz:8332)
-        if url.userinfo:
-            logger.debug(f"skipped URL with authentication credentials: {url}")
+        if parsed_url.userinfo:
+            logger.debug(f"skipped URL with authentication credentials: {parsed_url}")
             return False
         # skip links with top-level domains only
         # (in practice they would be resolved relative to the local domain, on the wiki they are used
         # mostly as a pseudo-variable like http://server/path or http://mydomain/path)
-        if "." not in url.host:
-            logger.debug(f"skipped URL with only top-level domain host: {url}")
+        if "." not in parsed_url.host:
+            logger.debug(f"skipped URL with only top-level domain host: {parsed_url}")
             return False
         # skip links to invalid/blacklisted domains
-        if (url.host == "pi.hole"   # pi-hole configuration involves setting pi.hole in /etc/hosts
-            or url.host == "ui.reclaim"  # GNUnet - the domains works only with a browser extension
-            or url.host.endswith(".onion")  # Tor
-            ):
-            logger.debug(f"skipped URL with invalid/blacklisted domain host: {url}")
+        if (
+            parsed_url.host
+            == "pi.hole"  # pi-hole configuration involves setting pi.hole in /etc/hosts
+            or parsed_url.host
+            == "ui.reclaim"  # GNUnet - the domains works only with a browser extension
+            or parsed_url.host.endswith(".onion")  # Tor
+        ):
+            logger.debug(
+                f"skipped URL with invalid/blacklisted domain host: {parsed_url}"
+            )
             return False
         # skip links to localhost
-        if url.host == "localhost" or url.host.endswith(".localhost"):
-            logger.debug(f"skipped URL to localhost: {url}")
+        if parsed_url.host == "localhost" or parsed_url.host.endswith(".localhost"):
+            logger.debug(f"skipped URL to localhost: {parsed_url}")
             return False
         # skip links to reserved IP addresses
         try:
-            addr = ipaddress.ip_address(url.host)
+            addr = ipaddress.ip_address(parsed_url.host)
             for network in ipv4_reserved_networks:
                 if addr in network:
-                    logger.debug(f"skipped URL to IP address from reserved network: {url}")
+                    logger.debug(
+                        f"skipped URL to IP address from reserved network: {parsed_url}"
+                    )
                     return False
         except ValueError:
             pass
@@ -192,7 +217,7 @@ class ExtlinkStatusChecker:
         return True
 
     @staticmethod
-    def normalize_url(url: str):
+    def normalize_url(url: httpx.URL | str) -> httpx.URL:
         url = httpx.URL(url)
 
         # drop the fragment from the URL (to optimize caching)
@@ -202,18 +227,18 @@ class ExtlinkStatusChecker:
         return url
 
     @staticmethod
-    def get_domain(url: httpx.URL | str):
-        if not isinstance(url, httpx.URL):
-            url = httpx.URL(url)
+    def get_domain(url: httpx.URL | str) -> str:
+        url = httpx.URL(url)
 
         # httpx decodes punycodes for IDNs in .host, .raw_host is the original as bytes
         return url.raw_host.decode("utf-8")
 
     @staticmethod
     @lru_cache(maxsize=1024)
-    def check_url_sync(url: httpx.URL | str, *, follow_redirects=True):
-        """ Simplified and synchronous variant of ``check_url`` intended for other checksers like ExtlinkReplacements
-        """
+    def check_url_sync(
+        url: httpx.URL | str, *, follow_redirects: bool = True
+    ) -> bool | None:
+        """Simplified and synchronous variant of ``check_url`` intended for other checksers like ExtlinkReplacements"""
         if not isinstance(url, httpx.URL):
             url = httpx.URL(url)
 
@@ -224,7 +249,9 @@ class ExtlinkStatusChecker:
             # We need to use GET requests instead of HEAD, because many servers just return 404
             # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
             # response body content by using ``stream`` interface.
-            with httpx.stream("GET", url, follow_redirects=follow_redirects) as response:
+            with httpx.stream(
+                "GET", url, follow_redirects=follow_redirects
+            ) as response:
                 # nothing to do here, but using the context manager ensures that the response is
                 # always properly closed
                 pass
@@ -232,8 +259,10 @@ class ExtlinkStatusChecker:
         except ssl.SSLError as e:
             if "unable to get local issuer certificate" in str(e):
                 # FIXME: this is a problem of the SSL library used by Python
-                logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
-                return
+                logger.warning(
+                    f"possible SSL error (unable to get local issuer certificate) for URL {url}"
+                )
+                return None
             else:
                 logger.error(f"SSL error ({e}) for URL {url}")
                 return False
@@ -241,60 +270,73 @@ class ExtlinkStatusChecker:
             if str(e).startswith("[SSL:"):
                 if "unable to get local issuer certificate" in str(e):
                     # FIXME: this is a problem of the SSL library used by Python
-                    logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
-                    return
+                    logger.warning(
+                        f"possible SSL error (unable to get local issuer certificate) for URL {url}"
+                    )
+                    return None
                 else:
                     logger.error(f"SSL error ({e}) for URL {url}")
                     return False
-            if "no address associated with hostname" in str(e).lower() \
-                    or "name or service not known" in str(e).lower():
+            if (
+                "no address associated with hostname" in str(e).lower()
+                or "name or service not known" in str(e).lower()
+            ):
                 logger.error(f"domain name could not be resolved for URL {url}")
                 return False
             # other connection error - indeterminate
             logger.warning(f"connection error for URL {url}")
-            return
+            return None
         except httpx.TooManyRedirects as e:
             logger.error(f"TooManyRedirects error ({e}) for URL {url}")
             return False
         # it seems that httpx does not capture all exceptions, e.g. anyio.EndOfStream
-        #except httpx.RequestError as e:
+        # except httpx.RequestError as e:
         except Exception as e:
             # e.g. ReadTimeout has no message in the async version,
             # see https://github.com/encode/httpx/discussions/2681
             msg = str(e)
             if not msg:
-                msg = type(e)
+                msg = str(type(e))
             # base class exception - indeterminate
             logger.error(f"URL {url} could not be checked due to {msg}")
-            return
+            return None
 
         # check special domains
         if response.status_code in domains_with_ignored_status.get(url.host, []):
             logger.warning(f"status code {response.status_code} for URL {url}")
-            return
+            return None
 
         logger.debug(f"status code {response.status_code} for URL {url}")
         return response.status_code >= 200 and response.status_code < 300
 
-    async def check_url(self, domain: Domain, link: LinkCheck, url: httpx.URL, *, follow_redirects=True):
+    async def check_url(
+        self,
+        domain: Domain,
+        link: LinkCheck,
+        url: httpx.URL,
+        *,
+        follow_redirects: bool = True,
+    ) -> None:
         # reset domain attributes
         domain.last_check = link.last_check
         domain.resolved = None
         domain.ssl_error = None
 
-        history = []
+        history: list[httpx.URL] = []
 
         try:
             # We need to follow redirects with a manual loop, because they may lead to other
             # domains and we need to handle their status separately. httpx does not allow to
             # get response.history after an exception.
-            next_url = url
+            next_url: httpx.URL | None = url
             while next_url is not None and len(history) <= self.client.max_redirects:
                 history.append(next_url)
                 # We need to use GET requests instead of HEAD, because many servers just return 404
                 # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
                 # response body content by using ``stream`` interface.
-                async with self.client.stream("GET", next_url, follow_redirects=False) as response:
+                async with self.client.stream(
+                    "GET", next_url, follow_redirects=False
+                ) as response:
                     if follow_redirects is True and response.next_request is not None:
                         next_url = response.next_request.url
                     else:
@@ -307,12 +349,16 @@ class ExtlinkStatusChecker:
             # do not domain.ssl_error if there was a redirect to a different domain
             last_domain = self.get_domain(history[-1])
             if domain.name != last_domain:
-                logger.warning(f"URL {url} redirects to a different domain: {last_domain}")
+                logger.warning(
+                    f"URL {url} redirects to a different domain: {last_domain}"
+                )
                 link.result = "needs user check"
                 return
             elif "unable to get local issuer certificate" in str(e):
                 # FIXME: this is a problem of the SSL library used by Python
-                logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
+                logger.warning(
+                    f"possible SSL error (unable to get local issuer certificate) for URL {url}"
+                )
                 domain.ssl_error = str(e)
                 link.result = "needs user check"
                 return
@@ -326,12 +372,16 @@ class ExtlinkStatusChecker:
             if str(e).startswith("[SSL:"):
                 # do not record an error if there was a redirect to a different domain
                 if domain.name != last_domain:
-                    logger.warning(f"URL {url} redirects to a different domain: {last_domain}")
+                    logger.warning(
+                        f"URL {url} redirects to a different domain: {last_domain}"
+                    )
                     link.result = "needs user check"
                     return
                 elif "unable to get local issuer certificate" in str(e):
                     # FIXME: this is a problem of the SSL library used by Python
-                    logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
+                    logger.warning(
+                        f"possible SSL error (unable to get local issuer certificate) for URL {url}"
+                    )
                     domain.ssl_error = str(e)
                     link.result = "needs user check"
                     return
@@ -340,15 +390,19 @@ class ExtlinkStatusChecker:
                     domain.ssl_error = str(e)
                     link.result = "bad"
                     return
-            if "no address associated with hostname" in str(e).lower() \
-                    or "name or service not known" in str(e).lower():
+            if (
+                "no address associated with hostname" in str(e).lower()
+                or "name or service not known" in str(e).lower()
+            ):
                 # do not record an error if there was a redirect to a different domain
                 if domain.name == last_domain:
                     logger.error(f"domain name could not be resolved for URL {url}")
                     domain.resolved = False
                     link.result = "bad"
                 else:
-                    logger.error(f"URL {url} redirects to a domain that could not be resolved: {last_domain}")
+                    logger.error(
+                        f"URL {url} redirects to a domain that could not be resolved: {last_domain}"
+                    )
                     link.result = "needs user check"
                 return
             # other connection error - indeterminate
@@ -362,13 +416,13 @@ class ExtlinkStatusChecker:
             link.result = "bad"
             return
         # it seems that httpx does not capture all exceptions, e.g. anyio.EndOfStream
-        #except httpx.RequestError as e:
+        # except httpx.RequestError as e:
         except Exception as e:
             # e.g. ReadTimeout has no message in the async version,
             # see https://github.com/encode/httpx/discussions/2681
             msg = str(e)
             if not msg:
-                msg = type(e)
+                msg = str(type(e))
             # base class exception - indeterminate
             logger.error(f"URL {url} could not be checked due to {msg}")
             link.text_status = f"could not be checked due to {msg}"
@@ -399,8 +453,13 @@ class ExtlinkStatusChecker:
                 link.result = "needs user check"
             # CloudFlare sites may have custom firewall rules that block non-browser requests
             # with error 1020 https://github.com/codemanki/cloudscraper/issues/222
-            elif response.status_code == 403 and response.headers.get("Server", "").lower() == "cloudflare":
-                logger.warning(f"status code 403 for URL {url} backed up by CloudFlare does not mean anything")
+            elif (
+                response.status_code == 403
+                and response.headers.get("Server", "").lower() == "cloudflare"
+            ):
+                logger.warning(
+                    f"status code 403 for URL {url} backed up by CloudFlare does not mean anything"
+                )
                 link.text_status = "CloudFlare shit"
                 link.result = "needs user check"
             elif response.status_code == 429:
@@ -414,12 +473,11 @@ class ExtlinkStatusChecker:
             logger.warning(f"status code {response.status_code} for URL {url}")
             link.result = "needs user check"
 
-    async def check_link(self, link: LinkCheck):
+    async def check_link(self, link: LinkCheck) -> None:
         # preprocessing - check if the URL is valid
-        url = link.url
-        if not self.is_checkable_url(url):
+        if not self.is_checkable_url(link.url):
             return
-        url = self.normalize_url(url)
+        url = self.normalize_url(link.url)
 
         # reset attributes
         link.last_check = datetime.datetime.now(datetime.UTC)
@@ -431,7 +489,10 @@ class ExtlinkStatusChecker:
 
         # skip the check if the domain is known to be invalid
         domain = link.domain
-        if domain.last_check is not None and domain.last_check > link.last_check - datetime.timedelta(hours=1):
+        if (
+            domain.last_check is not None
+            and domain.last_check > link.last_check - datetime.timedelta(hours=1)
+        ):
             # NOTE: ssl_error is not checked here because it is not always bad (there is a false positive)
             if domain.resolved is False:  # or domain.ssl_error is not None:
                 link.result = "bad"
@@ -440,7 +501,12 @@ class ExtlinkStatusChecker:
         # proceed with the actual check
         await self.check_url(domain, link, url)
 
-    async def lock_domain_and_check_link(self, semaphore, domain_locks, link: LinkCheck):
+    async def lock_domain_and_check_link(
+        self,
+        semaphore: asyncio.Semaphore,
+        domain_locks: dict[str, asyncio.Lock],
+        link: LinkCheck,
+    ) -> None:
         lock = domain_locks[link.domain_name]
         async with lock:
             async with semaphore:
@@ -453,7 +519,7 @@ class ExtlinkStatusChecker:
                         self.progress.update(1)
 
     @staticmethod
-    def _get_domain_locks(domains):
+    def _get_domain_locks(domains: Iterable[Domain]) -> dict[str, asyncio.Lock]:
         locks = {}
         # create separate lock for each domain
         for domain in domains:
@@ -462,9 +528,9 @@ class ExtlinkStatusChecker:
         # merge locks for all *.sourceforge.net subdomains
         # (otherwise we often get HTTP status 429 Too Many Requests)
         common_lock = locks.setdefault("sourceforge.net", asyncio.Lock())
-        for domain in locks.keys():
-            if domain.endswith(".sourceforge.net"):
-                locks[domain] = common_lock
+        for domain_name in locks.keys():
+            if domain_name.endswith(".sourceforge.net"):
+                locks[domain_name] = common_lock
 
         # merge locks for all domains in the StackExchange network
         # (otherwise we often get HTTP status 429 Too Many Requests)
@@ -479,10 +545,10 @@ class ExtlinkStatusChecker:
             "superuser.com",
         }
         common_lock = asyncio.Lock()
-        for domain in locks.keys():
+        for domain_name in locks.keys():
             for se_domain in se_domains:
-                if domain == se_domain or domain.endswith("." + se_domain):
-                    locks[domain] = common_lock
+                if domain_name == se_domain or domain_name.endswith("." + se_domain):
+                    locks[domain_name] = common_lock
 
         return locks
 
@@ -498,7 +564,9 @@ class ExtlinkStatusChecker:
             # detach all objects from the global ORM session
             session.expunge_all()
 
-        logger.info(f"Checking the status of {len(links)} URLs (success is logged with DEBUG level)...")
+        logger.info(
+            f"Checking the status of {len(links)} URLs (success is logged with DEBUG level)..."
+        )
 
         # use a semaphore to limit the number of "active workers" in the task group
         semaphore = asyncio.Semaphore(100)
@@ -506,7 +574,9 @@ class ExtlinkStatusChecker:
         async def async_exec():
             async with asyncio.TaskGroup() as tg:
                 for link in links:
-                    tg.create_task(self.lock_domain_and_check_link(semaphore, locks, link))
+                    tg.create_task(
+                        self.lock_domain_and_check_link(semaphore, locks, link)
+                    )
 
         if tqdm is not None:
             # initialize tqdm progressbar
