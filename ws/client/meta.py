@@ -41,7 +41,7 @@ class Meta:
         """
         Auxiliary method for querying properties.
         """
-        utcnow = datetime.datetime.utcnow()
+        timestamp = datetime.datetime.now(datetime.UTC)
 
         data = {
             "action": "query",
@@ -60,7 +60,7 @@ class Meta:
 
         self._values.update(result)
         for p in result:
-            self._timestamps[p] = utcnow
+            self._timestamps[p] = timestamp
 
         if isinstance(prop, str):
             # use .get(), some props may never be returned by the API (e.g. uiprop=blockinfo)
@@ -75,7 +75,7 @@ class Meta:
                 )
             )
 
-        utcnow = datetime.datetime.utcnow()
+        timestamp = datetime.datetime.now(datetime.UTC)
         if attr in self.volatile_properties:
             delta = datetime.timedelta(seconds=self.volatile_timeout)
         else:
@@ -83,7 +83,7 @@ class Meta:
 
         # don't fetch if delta is 0
         if attr not in self._values or (
-            delta and self._timestamps.get(attr, utcnow) < utcnow - delta
+            delta and self._timestamps.get(attr, timestamp) < timestamp - delta
         ):
             self.fetch(attr)
         # use .get(), some props may never be returned by the API (e.g. uiprop=blockinfo)

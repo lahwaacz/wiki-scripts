@@ -55,6 +55,7 @@ class MWTimestamp(types.TypeDecorator):
 
     # MW incompatibility: MediaWiki's PostgreSQL schema uses TIMESTAMPTZ instead
     # of TIMESTAMP.
+    # wiki-scripts strips timezone in SQL and sets it to UTC on the Python side
     impl = types.DateTime(timezone=False)
 
     cache_ok = True
@@ -68,6 +69,8 @@ class MWTimestamp(types.TypeDecorator):
         if not value:
             return None
         assert isinstance(value, datetime.datetime), value
+        assert value.tzinfo == datetime.UTC
+        value = value.replace(tzinfo=None)
         if value == datetime.datetime.max:
             return "infinity"
         elif value == datetime.datetime.min:
@@ -86,19 +89,24 @@ class MWTimestamp(types.TypeDecorator):
         if value is None:
             return value
         if value == "infinity":
-            return datetime.datetime.max
+            return datetime.datetime.max.replace(tzinfo=datetime.UTC)
         elif value == "-infinity":
-            return datetime.datetime.min
+            return datetime.datetime.min.replace(tzinfo=datetime.UTC)
         else:
-            return value
+            assert isinstance(value, datetime.datetime)
+            return value.replace(tzinfo=datetime.UTC)
 
 
 if psycopg is not None:
     # unlike psycopg2, psycopg does not understand "infinity" timestamps by default
     # https://www.psycopg.org/psycopg3/docs/advanced/adapt.html#example-handling-infinity-date
 
+    # NOTE: timezone is stripped in SQL and set to UTC on the Python side
+
     class InfDateDumper(psycopg.types.datetime.DatetimeDumper):
         def dump(self, obj):
+            assert obj.tzinfo == datetime.UTC
+            obj = obj.replace(tzinfo=None)
             if obj == datetime.datetime.max:
                 return b"infinity"
             elif obj == datetime.datetime.min:
@@ -109,11 +117,13 @@ if psycopg is not None:
     class InfDateLoader(psycopg.types.datetime.TimestampLoader):
         def load(self, data):
             if data == b"infinity":
-                return datetime.datetime.max
+                return datetime.datetime.max.replace(tzinfo=datetime.UTC)
             elif data == b"-infinity":
-                return datetime.datetime.min
+                return datetime.datetime.min.replace(tzinfo=datetime.UTC)
             else:
-                return super().load(data)
+                obj = super().load(data)
+                assert obj.tzinfo is None
+                return obj.replace(tzinfo=datetime.UTC)
 
     psycopg.adapters.register_dumper(datetime.datetime, InfDateDumper)
     psycopg.adapters.register_loader("timestamp", InfDateLoader)

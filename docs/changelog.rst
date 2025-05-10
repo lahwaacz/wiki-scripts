@@ -19,6 +19,8 @@ Unreleased
   - Dropped obsolete "HTTPS Everywhere" list and implementation
 - Switched from the :py:mod:`requests` package to :py:mod:`httpx`
   - New dependencies: :py:mod:`httpx-retries`, :py:mod:`truststore`
+- Switched from naive to timezone-aware :py:class:`datetime.datetime` objects
+  in the entire code base
 
 Version 1.4
 -----------
