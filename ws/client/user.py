@@ -1,7 +1,10 @@
-#! /usr/bin/env python3
+from typing import TYPE_CHECKING, Any
 
 from ..utils import LazyProperty
 from .meta import Meta
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .api import API
 
 
 class User(Meta):
@@ -21,19 +24,35 @@ class User(Meta):
     """
 
     module = "userinfo"
-    properties = {"name", "id", "blockinfo", "hasmsg", "groups", "implicitgroups",
-            "rights", "changeablegroups", "options", "editcount", "ratelimits",
-            "email", "realname", "acceptlang", "registrationdate", "unreadcount",
-            "centralids", "groupmemberships"}
+    properties = {
+        "name",
+        "id",
+        "blockinfo",
+        "hasmsg",
+        "groups",
+        "implicitgroups",
+        "rights",
+        "changeablegroups",
+        "options",
+        "editcount",
+        "ratelimits",
+        "email",
+        "realname",
+        "acceptlang",
+        "registrationdate",
+        "unreadcount",
+        "centralids",
+        "groupmemberships",
+    }
     volatile_properties = {"hasmsg", "editcount", "unreadcount"}
     timeout = 3600
     volatile_timeout = 300
 
-    def __init__(self, api):
+    def __init__(self, api: "API"):
         super().__init__(api)
 
     @LazyProperty
-    def is_loggedin(self):
+    def is_loggedin(self) -> bool:
         """
         Indicates whether the current session is authenticated (``True``) or
         not (``False``).
@@ -43,7 +62,7 @@ class User(Meta):
         """
         return "anon" not in self.fetch()
 
-    def set_option(self, option, value):
+    def set_option(self, option: str, value: str) -> dict[str, Any]:
         """
         Change preferences of the current user.
 
@@ -56,5 +75,7 @@ class User(Meta):
             the value to be set (if empty, it will be reset to the default value)
         """
         if value:
-            return self._api.call_with_csrftoken(action="options", optionname=option, optionvalue=value)
+            return self._api.call_with_csrftoken(
+                action="options", optionname=option, optionvalue=value
+            )
         return self._api.call_with_csrftoken(action="options", change=option)
