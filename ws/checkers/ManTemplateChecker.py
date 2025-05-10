@@ -26,7 +26,7 @@ class ManTemplateChecker(ExtlinkStatusChecker):
             return
         src_lang = lang.detect_language(src_title)[1]
 
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
         deadlink_params = [now.year, now.month, now.day]
         deadlink_params = ["{:02d}".format(i) for i in deadlink_params]
 
