@@ -1,7 +1,9 @@
-#! /usr/bin/env python3
-
+import datetime
 import hashlib
 import logging
+from typing import TYPE_CHECKING, Any, Generator, cast
+
+from mwparserfromhell.wikicode import Wikicode
 
 from ..utils import LazyProperty, RateLimited
 from .connection import APIError, Connection
@@ -10,21 +12,20 @@ from .site import Site
 from .tags import Tags
 from .user import User
 
+if TYPE_CHECKING:
+    from ..parser_helpers.title import Title
+
 logger = logging.getLogger(__name__)
 
 __all__ = ["API", "LoginFailed"]
 
+
 class API(Connection):
     """
     Simple interface to MediaWiki's API.
-
-    :param kwargs: any keyword arguments of the Connection object
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def login(self, username, password):
+    def login(self, username: str, password: str) -> bool:
         """
         Logs into the wiki with username and password. See `MediaWiki#API:Login`_
         for reference.
@@ -41,8 +42,12 @@ class API(Connection):
         del self._csrftoken
 
         # get token and log in
-        token = self.call_api(action="query", meta="tokens", type="login")["tokens"]["logintoken"]
-        result = self.call_api(action="login", lgname=username, lgpassword=password, lgtoken=token)
+        token = self.call_api(action="query", meta="tokens", type="login")["tokens"][
+            "logintoken"
+        ]
+        result = self.call_api(
+            action="login", lgname=username, lgpassword=password, lgtoken=token
+        )
         status = result["result"] == "Success"
 
         if status is True and self.user.is_loggedin:
@@ -50,7 +55,7 @@ class API(Connection):
         logger.warn("Failed login attempt for user '{}'".format(username))
         raise LoginFailed
 
-    def logout(self):
+    def logout(self) -> bool:
         """
         Logs out of the wiki.
         See `MediaWiki#API:Logout`_ for reference.
@@ -63,35 +68,35 @@ class API(Connection):
         return True
 
     @LazyProperty
-    def site(self):
+    def site(self) -> Site:
         """
         A :py:class:`ws.client.site.Site` instance for the current wiki.
         """
         return Site(self)
 
     @LazyProperty
-    def user(self):
+    def user(self) -> User:
         """
         A :py:class:`ws.client.user.User` instance for the current wiki.
         """
         return User(self)
 
     @LazyProperty
-    def tags(self):
+    def tags(self) -> Tags:
         """
         A :py:class:`ws.client.tags.Tags` instance for the current wiki.
         """
         return Tags(self)
 
     @LazyProperty
-    def redirects(self):
+    def redirects(self) -> Redirects:
         """
         A :py:class:`ws.client.redirects.Redirects` instance for the current wiki.
         """
         return Redirects(self)
 
     @LazyProperty
-    def max_ids_per_query(self):
+    def max_ids_per_query(self) -> int:
         """
         A maximum number of values that can be passed to the ``titles``,
         ``pageids`` and ``revids`` parameters of the API. It is 500 for users
@@ -103,7 +108,7 @@ class API(Connection):
         return 500 if "apihighlimits" in self.user.rights else 50
 
     @property
-    def last_revision_id(self):
+    def last_revision_id(self) -> int | None:
         """
         ID of the last revision on the wiki.
 
@@ -125,10 +130,10 @@ class API(Connection):
         recentchanges = self.call_api(params)["recentchanges"]
         if len(recentchanges) == 0:
             return None
-        return recentchanges[0]["revid"]
+        return int(recentchanges[0]["revid"])
 
     @property
-    def oldest_rc_timestamp(self):
+    def oldest_rc_timestamp(self) -> datetime.datetime | None:
         """
         A timestamp of the oldest entry stored in the ``recentchanges`` table.
 
@@ -150,10 +155,10 @@ class API(Connection):
         recentchanges = self.call_api(params)["recentchanges"]
         if len(recentchanges) == 0:
             return None
-        return recentchanges[0]["timestamp"]
+        return cast(datetime.datetime, recentchanges[0]["timestamp"])
 
     @property
-    def newest_rc_timestamp(self):
+    def newest_rc_timestamp(self) -> datetime.datetime | None:
         """
         Returns a timestamp of the newest entry stored in the ``recentchanges`` table.
         """
@@ -167,9 +172,9 @@ class API(Connection):
         recentchanges = self.call_api(params)["recentchanges"]
         if len(recentchanges) == 0:
             return None
-        return recentchanges[0]["timestamp"]
+        return cast(datetime.datetime, recentchanges[0]["timestamp"])
 
-    def Title(self, title):
+    def Title(self, title: str) -> "Title":
         """
         Parse a MediaWiki title.
 
@@ -179,10 +184,16 @@ class API(Connection):
         # lazy import - ws.parser_helpers.title imports mwparserfromhell which is
         # an optional dependency
         from ..parser_helpers.title import Context, Title
+
         return Title(Context.from_api(self), title)
 
-
-    def call_api_autoiter_ids(self, params=None, *, expand_result=True, **kwargs):
+    def call_api_autoiter_ids(
+        self,
+        params: dict[str, Any] | None = None,
+        *,
+        expand_result: bool = True,
+        **kwargs: Any,
+    ) -> Generator[dict[str, Any]]:
         """
         A wrapper method around :py:meth:`Connection.call_api` which
         automatically splits the call into multiple queries due to
@@ -207,7 +218,9 @@ class API(Connection):
             # To let kwargs override params, we would have to create deep copy
             # of params to avoid modifying the caller's data and then call
             # utils.dmerge. Too complicated, not supported.
-            raise ValueError("specifying 'params' and 'kwargs' at the same time is not supported")
+            raise ValueError(
+                "specifying 'params' and 'kwargs' at the same time is not supported"
+            )
 
         if "titles" in params:
             iter_key = "titles"
@@ -216,23 +229,33 @@ class API(Connection):
         elif "revids" in params:
             iter_key = "revids"
         else:
-            raise ValueError("neither of the parameters titles, pageids or revids is present")
+            raise ValueError(
+                "neither of the parameters titles, pageids or revids is present"
+            )
 
         iter_values = params[iter_key]
         if not isinstance(iter_values, list) and not isinstance(iter_values, set):
-            raise TypeError("the value of the parameter '{}' must be either a list or a set".format(iter_key))
+            raise TypeError(
+                "the value of the parameter '{}' must be either a list or a set".format(
+                    iter_key
+                )
+            )
         # code below expects a list
         iter_values = sorted(iter_values)
 
         chunk_size = self.max_ids_per_query
         while iter_values:
-            logger.debug("call_api_autoiter_ids: current chunk size is {}".format(chunk_size))
+            logger.debug(
+                "call_api_autoiter_ids: current chunk size is {}".format(chunk_size)
+            )
             # take the next chunk
             chunk = iter_values[:chunk_size]
             # update params
             params[iter_key] = "|".join(str(v) for v in chunk)
             # call
-            chunk_result = self.call_api(params, expand_result=False, check_warnings=False)
+            chunk_result = self.call_api(
+                params, expand_result=False, check_warnings=False
+            )
             # check for truncation warning
             if "warnings" in chunk_result:
                 msg = "API warning(s) for query {}:".format(params)
@@ -260,7 +283,9 @@ class API(Connection):
             # remove the processed values
             iter_values = iter_values[chunk_size:]
 
-    def query_continue(self, params=None, **kwargs):
+    def query_continue(
+        self, params: dict[str, Any] | None = None, **kwargs: Any
+    ) -> Generator[Any]:
         """
         Generator for MediaWiki's `query-continue feature`_.
 
@@ -278,7 +303,9 @@ class API(Connection):
         elif not isinstance(params, dict):
             raise ValueError("params must be dict or None")
         elif kwargs and params:
-            raise ValueError("specifying 'params' and 'kwargs' at the same time is not supported")
+            raise ValueError(
+                "specifying 'params' and 'kwargs' at the same time is not supported"
+            )
         else:
             # create copy before adding action=query
             params = params.copy()
@@ -300,7 +327,9 @@ class API(Connection):
                 break
             last_continue = result["continue"]
 
-    def generator(self, params=None, **kwargs):
+    def generator(
+        self, params: dict[str, Any] | None = None, **kwargs: Any
+    ) -> Generator[dict[str, Any]]:
         """
         Interface to API:Generators, conveniently implemented as Python
         generator.
@@ -325,7 +354,9 @@ class API(Connection):
         :py:meth:`ws.interlanguage.InterlanguageLinks.InterlanguageLinks._get_allpages`
         for an example of proper handling of this case.
         """
-        generator_ = kwargs.get("generator") if params is None else params.get("generator")
+        generator_ = (
+            kwargs.get("generator") if params is None else params.get("generator")
+        )
         if generator_ is None:
             raise ValueError("param 'generator' must be supplied")
 
@@ -337,7 +368,9 @@ class API(Connection):
             snippet = sorted(snippet["pages"].values(), key=lambda d: d["title"])
             yield from snippet
 
-    def list(self, params=None, **kwargs):
+    def list(
+        self, params: dict[str, Any] | None = None, **kwargs: Any
+    ) -> Generator[dict[str, Any]]:
         """
         Interface to API:Lists, implemented as Python generator.
 
@@ -368,11 +401,15 @@ class API(Connection):
                 yield from snippet[list_]
 
     @LazyProperty
-    def _csrftoken(self):
+    def _csrftoken(self) -> str:
         logger.debug("Requesting new csrftoken...")
-        return self.call_api(action="query", meta="tokens")["tokens"]["csrftoken"]
+        return cast(
+            str, self.call_api(action="query", meta="tokens")["tokens"]["csrftoken"]
+        )
 
-    def call_with_csrftoken(self, params=None, **kwargs):
+    def call_with_csrftoken(
+        self, params: dict[str, Any] | None = None, **kwargs: Any
+    ) -> dict[str, Any]:
         """
         A wrapper around :py:meth:`ws.client.connection.Connection.call_api` with
         automatic management of the `CSRF token`_.
@@ -388,7 +425,9 @@ class API(Connection):
         elif not isinstance(params, dict):
             raise ValueError("params must be dict or None")
         elif kwargs and params:
-            raise ValueError("specifying 'params' and 'kwargs' at the same time is not supported")
+            raise ValueError(
+                "specifying 'params' and 'kwargs' at the same time is not supported"
+            )
         else:
             # create copy before adding token
             params = params.copy()
@@ -407,8 +446,11 @@ class API(Connection):
                 # csrftoken can be used multiple times, but expires after some time,
                 # so try to get a new one *once*
                 if e.server_response["code"] == "badtoken":
-                    logger.debug("Got 'badtoken' error, trying to reset csrftoken [{}/{}]"
-                            .format(max_retries - retries, max_retries))
+                    logger.debug(
+                        "Got 'badtoken' error, trying to reset csrftoken [{}/{}]".format(
+                            max_retries - retries, max_retries
+                        )
+                    )
                     # reset the cached csrftoken and try again
                     del self._csrftoken
                 else:
@@ -418,7 +460,15 @@ class API(Connection):
         return self.call_api(params)
 
     @RateLimited(1, 3)
-    def edit(self, title, pageid, text, basetimestamp, summary, **kwargs):
+    def edit(
+        self,
+        title: str,
+        pageid: str | int,
+        text: str | Wikicode,
+        basetimestamp: str | datetime.datetime,
+        summary: str,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """
         Interface to `API:Edit`_. MD5 hash of the new text is computed
         automatically and added to the query. This method is rate-limited with
@@ -427,9 +477,8 @@ class API(Connection):
 
         :param str title: the title of the page (used only for logging)
         :param pageid: page ID of the page to be edited
-        :type pageid: `str` or `int`
-        :param str text: new page content
-        :param str basetimestamp:
+        :param text: new page content
+        :param basetimestamp:
             Timestamp of the base revision (obtained through
             `prop=revisions&rvprop=timestamp`). Used to detect edit conflicts.
         :param str summary: edit summary
@@ -441,7 +490,11 @@ class API(Connection):
             raise Exception("edit summary is mandatory")
         if len(summary) > 255:
             # TODO: the limit is planned to be increased since MW 1.25
-            raise Exception("the edit summary is too long, maximum is 255 chars (got len('{}') == {})".format(summary, len(summary)))
+            raise Exception(
+                "the edit summary is too long, maximum is 255 chars (got len('{}') == {})".format(
+                    summary, len(summary)
+                )
+            )
 
         # md5 hash is used to prevent data corruption during transfer
         h = hashlib.md5()
@@ -452,25 +505,45 @@ class API(Connection):
         kwargs.setdefault("assert", "user")
 
         # check and apply tags
-        if "applychangetags" in self.user.rights and "wiki-scripts" in self.tags.applicable:
+        if (
+            "applychangetags" in self.user.rights
+            and "wiki-scripts" in self.tags.applicable
+        ):
             kwargs.setdefault("tags", [])
             kwargs["tags"].append("wiki-scripts")
         elif "applychangetags" not in self.user.rights and "tags" in kwargs:
-            logger.warning("Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(kwargs["tags"]))
+            logger.warning(
+                "Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(
+                    kwargs["tags"]
+                )
+            )
             del kwargs["tags"]
 
         logger.info("Editing page [[{}]] ...".format(title))
 
         try:
-            return self.call_with_csrftoken(action="edit", md5=md5, basetimestamp=basetimestamp, pageid=pageid, text=text, summary=summary, nocreate="1", **kwargs)
+            return self.call_with_csrftoken(
+                action="edit",
+                md5=md5,
+                basetimestamp=basetimestamp,
+                pageid=pageid,
+                text=text,
+                summary=summary,
+                nocreate="1",
+                **kwargs,
+            )
         except APIError as e:
             ecode = e.server_response["code"]
             einfo = e.server_response["info"]
-            logger.error(f"Failed to edit page [[{title}]] due to APIError (code '{ecode}': {einfo})")
+            logger.error(
+                f"Failed to edit page [[{title}]] due to APIError (code '{ecode}': {einfo})"
+            )
             raise
 
     @RateLimited(1, 3)
-    def create(self, title, text, summary, **kwargs):
+    def create(
+        self, title: str, text: str, summary: str, **kwargs: Any
+    ) -> dict[str, Any]:
         """
         Specialization of :py:meth:`edit` for creating pages. The ``createonly``
         parameter is always added to the query. This method is rate-limited with
@@ -488,7 +561,11 @@ class API(Connection):
             raise Exception("edit summary is mandatory")
         if len(summary) > 255:
             # TODO: the limit is planned to be increased since MW 1.25
-            raise Exception("the edit summary is too long, maximum is 255 chars (got len('{}') == {})".format(summary, len(summary)))
+            raise Exception(
+                "the edit summary is too long, maximum is 255 chars (got len('{}') == {})".format(
+                    summary, len(summary)
+                )
+            )
 
         # md5 hash is used to prevent data corruption during transfer
         h = hashlib.md5()
@@ -503,25 +580,52 @@ class API(Connection):
             kwargs["assert"] = "user"
 
         # check and apply tags
-        if "applychangetags" in self.user.rights and "wiki-scripts" in self.tags.applicable:
+        if (
+            "applychangetags" in self.user.rights
+            and "wiki-scripts" in self.tags.applicable
+        ):
             kwargs.setdefault("tags", [])
             kwargs["tags"].append("wiki-scripts")
         elif "applychangetags" not in self.user.rights and "tags" in kwargs:
-            logger.warning("Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(kwargs["tags"]))
+            logger.warning(
+                "Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(
+                    kwargs["tags"]
+                )
+            )
             del kwargs["tags"]
 
         logger.info("Creating page [[{}]] ...".format(title))
 
         try:
-            return self.call_with_csrftoken(action="edit", title=title, md5=md5, text=text, summary=summary, createonly="1", **kwargs)
+            return self.call_with_csrftoken(
+                action="edit",
+                title=title,
+                md5=md5,
+                text=text,
+                summary=summary,
+                createonly="1",
+                **kwargs,
+            )
         except APIError as e:
             ecode = e.server_response["code"]
             einfo = e.server_response["info"]
-            logger.error(f"Failed to create page [[{title}]] due to APIError (code '{ecode}': {einfo})")
+            logger.error(
+                f"Failed to create page [[{title}]] due to APIError (code '{ecode}': {einfo})"
+            )
             raise
 
     @RateLimited(1, 3)
-    def move(self, from_title, to_title, reason, *, movetalk=True, movesubpages=True, noredirect=False, **kwargs):
+    def move(
+        self,
+        from_title: str,
+        to_title: str,
+        reason: str,
+        *,
+        movetalk: bool = True,
+        movesubpages: bool = True,
+        noredirect: bool = False,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """
         Interface to `API:Move`_. This method is rate-limited with the
         :py:class:`@RateLimited <ws.utils.rate.RateLimited>` decorator to allow
@@ -549,11 +653,18 @@ class API(Connection):
             kwargs["noredirect"] = "true"
 
         # check and apply tags
-        if "applychangetags" in self.user.rights and "wiki-scripts" in self.tags.applicable:
+        if (
+            "applychangetags" in self.user.rights
+            and "wiki-scripts" in self.tags.applicable
+        ):
             kwargs.setdefault("tags", [])
             kwargs["tags"].append("wiki-scripts")
         elif "applychangetags" not in self.user.rights and "tags" in kwargs:
-            logger.warning("Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(kwargs["tags"]))
+            logger.warning(
+                "Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(
+                    kwargs["tags"]
+                )
+            )
             del kwargs["tags"]
 
         logger.info("Moving page [[{}]] to [[{}]] ...".format(from_title, to_title))
@@ -563,11 +674,15 @@ class API(Connection):
         except APIError as e:
             ecode = e.server_response["code"]
             einfo = e.server_response["info"]
-            logger.error(f"Failed to move page [[{from_title}]] to [[{to_title}]] due to APIError (code '{ecode}': {einfo})")
+            logger.error(
+                f"Failed to move page [[{from_title}]] to [[{to_title}]] due to APIError (code '{ecode}': {einfo})"
+            )
             raise
 
     @RateLimited(1, 3)
-    def set_page_language(self, title, lang, reason, **kwargs):
+    def set_page_language(
+        self, title: str, lang: str, reason: str, **kwargs: Any
+    ) -> dict[str, Any]:
         """
         Interface to `API:SetPageLanguage`_. This method is rate-limited with the
         :py:class:`@RateLimited <ws.utils.rate.RateLimited>` decorator to allow
@@ -586,11 +701,18 @@ class API(Connection):
         kwargs["reason"] = reason
 
         # check and apply tags
-        if "applychangetags" in self.user.rights and "wiki-scripts" in self.tags.applicable:
+        if (
+            "applychangetags" in self.user.rights
+            and "wiki-scripts" in self.tags.applicable
+        ):
             kwargs.setdefault("tags", [])
             kwargs["tags"].append("wiki-scripts")
         elif "applychangetags" not in self.user.rights and "tags" in kwargs:
-            logger.warning("Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(kwargs["tags"]))
+            logger.warning(
+                "Your account does not have the 'applychangetags' right, removing tags from the parameter list: {}".format(
+                    kwargs["tags"]
+                )
+            )
             del kwargs["tags"]
 
         logger.info(f"Setting the page language of [[{title}]] to {lang} ...")
@@ -600,25 +722,33 @@ class API(Connection):
         except APIError as e:
             ecode = e.server_response["code"]
             einfo = e.server_response["info"]
-            logger.error(f"Failed to set page language of [[{title}]] to {lang} due to APIError (code '{ecode}': {einfo})")
+            logger.error(
+                f"Failed to set page language of [[{title}]] to {lang} due to APIError (code '{ecode}': {einfo})"
+            )
             raise
+
 
 class LoginFailed(Exception):
     """
     Raised when the :py:meth:`API.login` call failed.
     """
+
     pass
+
 
 class APIExpandResultFailed(APIError):
     """
     Raised when the :py:meth:`API.call_api_autoiter_ids` fails to expand an API
     response while iterating over the split ID set.
     """
+
     pass
+
 
 class ShortRecentChangesError(Exception):
     """
     Should be raised by clients to indicate that changes from the requested
     timespan are not available in the ``recentchanges`` table.
     """
+
     pass
