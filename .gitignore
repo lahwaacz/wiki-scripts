@@ -16,3 +16,8 @@ __pycache__/
 
 # temporary files
 *.orig
+
+# build
+/build/
+/dist/
+*.egg-info/
