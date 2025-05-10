@@ -25,7 +25,7 @@ users = list(api.list(list="allusers", aulimit="max", auprop="blockinfo|editcoun
 users = [user for user in users if user.get("blockid") is None]
 
 # prepare sorting by avgeditsperday
-now = datetime.datetime.utcnow()
+now = datetime.datetime.now(datetime.UTC)
 for user in users:
     # exclude users with no registration date (some weird anomaly)  TODO: investigate
     if user["registration"] == "":
