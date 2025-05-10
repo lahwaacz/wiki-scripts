@@ -48,7 +48,7 @@ class API(Connection):
 
         if status is True and self.user.is_loggedin:
             return True
-        logger.warn("Failed login attempt for user '{}'".format(username))
+        logger.warning(f"Failed login attempt for user '{username}'")
         raise LoginFailed
 
     def logout(self) -> bool:
