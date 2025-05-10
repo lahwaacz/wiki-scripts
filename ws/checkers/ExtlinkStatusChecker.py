@@ -6,6 +6,7 @@ import datetime
 import ipaddress
 import logging
 import ssl
+from dataclasses import dataclass, field
 from functools import lru_cache
 from types import ModuleType
 from typing import Iterable
@@ -29,14 +30,48 @@ __all__ = ["ExtlinkStatusChecker", "Domain", "LinkCheck"]
 logger = logging.getLogger(__name__)
 
 
-# SQLAlchemy ORM with imperative mapping
-# https://docs.sqlalchemy.org/en/20/orm/mapping_styles.html#imperative-mapping
+# dataclass mapped imperatively with SQLAlchemy ORM
+# https://docs.sqlalchemy.org/en/20/orm/dataclasses.html#mapping-pre-existing-dataclasses-using-imperative-mapping
+# NOTE: must be kept in sync with the imperative table defined in ws.db.schema
+@dataclass
 class Domain:
+    # domain name
+    name: str
+    # timestamp of the last check
+    last_check: datetime.datetime | None
+    # flag indicating if the domain has been resolved at the time of the check
+    resolved: bool | None
+    # value of the "Server" response header
+    server: str | None
+    # record of the SSLError exception if it occurred during the check
+    ssl_error: str | None
+
+    # for backref relationship mapping
+    url_checks: list["LinkCheck"] = field(default_factory=list)
+
     def __repr__(self):
         return f'Domain("{self.name},{self.last_check},{self.resolved},{self.server},{self.ssl_error}")'
 
 
+# dataclass mapped imperatively with SQLAlchemy ORM
+# https://docs.sqlalchemy.org/en/20/orm/dataclasses.html#mapping-pre-existing-dataclasses-using-imperative-mapping
+# NOTE: must be kept in sync with the imperative table defined in ws.db.schema
+@dataclass
 class LinkCheck:
+    domain_name: str
+    url: str
+    last_check: datetime.datetime | None
+    check_duration: datetime.timedelta | None
+    # can be null if text_status is not null
+    http_status: int | None
+    # for "connection error", "too many redirects", "CloudFlare CAPTCHA", etc.
+    text_status: str | None
+    # result of the check: "ok", "bad", or "needs user check"
+    result: str | None
+
+    # for relationship mapping
+    domain: Domain
+
     def __repr__(self):
         return f"LinkCheck({self.url},{self.last_check},{self.check_duration},{self.http_status},{self.text_status},{self.result})"
 
