@@ -1,6 +1,8 @@
-#! /usr/bin/env python3
-
 import datetime
+from typing import TYPE_CHECKING, Any, cast
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .api import API
 
 
 class Meta:
@@ -12,15 +14,15 @@ class Meta:
     """
 
     module = ""
-    properties = set()
-    volatile_properties = set()
+    properties: set[str] = set()
+    volatile_properties: set[str] = set()
     timeout = 0
     volatile_timeout = 0
 
-    def __init__(self, api):
+    def __init__(self, api: "API"):
         self._api = api
-        self._values = {}
-        self._timestamps = {}
+        self._values: dict[str, Any] = {}
+        self._timestamps: dict[str, datetime.datetime] = {}
 
     # TODO: expand, move somewhere more suitable
     @classmethod
@@ -33,7 +35,7 @@ class Meta:
             raise NotImplementedError("The abbreviation of '{}' module is not known.".format(klass.module))
         return abbreviations[klass.module]
 
-    def fetch(self, prop=None):
+    def fetch(self, prop: str | list[str] | None = None) -> dict[str, Any]:
         """
         Auxiliary method for querying properties.
         """
@@ -60,10 +62,10 @@ class Meta:
 
         if isinstance(prop, str):
             # use .get(), some props may never be returned by the API (e.g. uiprop=blockinfo)
-            return result.get(prop)
+            return cast(dict[str, Any], result.get(prop))
         return result
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Any:
         if attr not in self.properties:
             raise AttributeError("Invalid attribute: '{}'. Valid attributes are: {}".format(attr, sorted(self.properties)))
 
