@@ -1,10 +1,13 @@
-#! /usr/bin/env python3
-
 import logging
+from typing import TYPE_CHECKING
 
 from ..utils import LazyProperty
 
+if TYPE_CHECKING:  # pragma: no cover
+    from .api import API
+
 logger = logging.getLogger(__name__)
+
 
 class Redirects:
     """
@@ -38,10 +41,14 @@ class Redirects:
     .. _`list=allredirects`: https://www.mediawiki.org/wiki/API:Allredirects
     """
 
-    def __init__(self, api):
+    def __init__(self, api: "API"):
         self._api = api
 
-    def fetch(self, source_namespaces="all", target_namespaces="all"):
+    def fetch(
+        self,
+        source_namespaces: list[int] | str = "all",
+        target_namespaces: list[int] | str = "all",
+    ) -> dict[str, str]:
         """
         Build a mapping of redirects in given namespaces.
 
@@ -76,7 +83,15 @@ class Redirects:
 
         redirects = {}
         for ns in target_namespaces:
-            allpages = self._api.generator(generator="allpages", gapnamespace=ns, gaplimit="max", prop="redirects", rdprop="title|fragment", rdnamespace=source_namespaces_str, rdlimit="max")
+            allpages = self._api.generator(
+                generator="allpages",
+                gapnamespace=ns,
+                gaplimit="max",
+                prop="redirects",
+                rdprop="title|fragment",
+                rdnamespace=source_namespaces_str,
+                rdlimit="max",
+            )
             for page in allpages:
                 # construct the mapping, the query result is somewhat reversed...
                 target_title = page["title"]
@@ -84,19 +99,21 @@ class Redirects:
                     source_title = redirect["title"]
                     target_fragment = redirect.get("fragment")
                     if target_fragment:
-                        redirects[source_title] = "{}#{}".format(target_title, target_fragment)
+                        redirects[source_title] = "{}#{}".format(
+                            target_title, target_fragment
+                        )
                     else:
                         redirects[source_title] = target_title
         return redirects
 
     @LazyProperty
-    def map(self):
+    def map(self) -> dict[str, str]:
         """
         A lazily evaluated mapping for all namespaces on the wiki.
         """
         return self.fetch()
 
-    def resolve(self, source):
+    def resolve(self, source: str) -> str | None:
         """
         Looks into the :py:attr:`map` property and checks if given title is a
         redirect page. Double redirects are resolved repeatedly, if an infinite
@@ -108,7 +125,10 @@ class Redirects:
             A string of the last non-redirect target page if ``source`` is a
             redirect page, otherwise ``None``.
         """
-        def _get(source, anchor):
+
+        def _get(
+            source: str | None, anchor: str | None
+        ) -> tuple[str | None, str | None]:
             target = self.map.get(source)
             if not target:
                 return None, None
@@ -120,14 +140,14 @@ class Redirects:
 
         intermediates = set()
         target, anchor = _get(source, None)
-        source = target
-        while source in self.map and target not in intermediates:
-            target, anchor = _get(source, anchor)
+        while target in self.map and target not in intermediates:
+            target, anchor = _get(target, anchor)
             intermediates.add(target)
-            source = target
         if target in self.map:
-            logger.error("Failed to resolve last redirect target of '{}': detected infinite loop.".format(source))
+            logger.error(
+                f"Failed to resolve last redirect target of '{source}': detected infinite loop."
+            )
             return None
-        if anchor:
+        if target and anchor:
             target += "#" + anchor
         return target
