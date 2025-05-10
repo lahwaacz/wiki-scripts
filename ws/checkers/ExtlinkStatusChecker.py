@@ -355,6 +355,7 @@ class ExtlinkStatusChecker:
         # reset domain attributes
         domain.last_check = link.last_check
         domain.resolved = None
+        domain.server = None
         domain.ssl_error = None
 
         history: list[httpx.URL] = []
@@ -518,7 +519,6 @@ class ExtlinkStatusChecker:
         link.last_check = datetime.datetime.now(datetime.UTC)
         link.check_duration = None
         link.http_status = None
-        link.server = None
         link.text_status = None
         link.result = None
 
