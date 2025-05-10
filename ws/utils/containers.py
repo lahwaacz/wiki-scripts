@@ -146,9 +146,9 @@ def parse_timestamps_in_struct(struct: dict | list) -> None:
                 continue
 
             if value.lower() == "infinity" or value.lower() == "infinite":
-                set_ts(struct, keys, datetime.datetime.max)
+                set_ts(struct, keys, datetime.datetime.max.replace(tzinfo=datetime.UTC))
             elif value.lower() == "-infinity":
-                set_ts(struct, keys, datetime.datetime.min)
+                set_ts(struct, keys, datetime.datetime.min.replace(tzinfo=datetime.UTC))
             elif value.lower() == "indefinite":
                 set_ts(struct, keys, None)
             elif len(value) == 20 and value[4] == "-" and value[7] == "-" and value[10] == "T" and value[13] == ":" and value[16] == ":" and value[19] == "Z":

@@ -206,7 +206,7 @@ def check_recentchanges(api, db):
 def check_logging(api, db):
     print("Checking the logging table...")
 
-    since = datetime.datetime.utcnow() - datetime.timedelta(days=30)
+    since = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=30)
 
     params = {
         "list": "logevents",
@@ -225,7 +225,7 @@ def check_logging(api, db):
             details = entry["params"]["details"]
             for item in details:
                 if item["expiry"] == "infinite":
-                    item["expiry"] = datetime.datetime.max
+                    item["expiry"] = datetime.datetime.max.replace(tzinfo=datetime.UTC)
         # hack for the comparison of moved DeveloperWiki pages
         elif entry["type"] == "move":
             if entry["params"]["target_title"].startswith("DeveloperWiki:"):
@@ -391,7 +391,7 @@ def check_archive(api, db):
 def check_revisions(api, db):
     print("Checking the revision table...")
 
-    since = datetime.datetime.utcnow() - datetime.timedelta(days=30)
+    since = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=30)
 
     params = {
         "list": "allrevisions",

@@ -111,11 +111,11 @@ class AutoPage:
             dates are compared.
         :returns: ``True`` if the wiki page is older than ``min_interval``.
         """
-        utcnow = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
         if strip_time is False:
-            delta = utcnow - self.timestamps[self.title]
+            delta = now - self.timestamps[self.title]
         else:
-            delta = utcnow.date() - self.timestamps[self.title].date()
+            delta = now.date() - self.timestamps[self.title].date()
         return delta >= min_interval
 
     def save(self, edit_summary, interactive=False, **kwargs):

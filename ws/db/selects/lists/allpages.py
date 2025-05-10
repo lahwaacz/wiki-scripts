@@ -80,7 +80,7 @@ class AllPages(GeneratorBase):
             pr = self.db.page_restrictions
             tail = tail.outerjoin(pr, page.c.page_id == pr.c.pr_page)
             # skip expired protections
-            s = s.where(sa.or_(pr.c.pr_expiry > datetime.datetime.utcnow(), pr.c.pr_expiry.is_(None)))
+            s = s.where(sa.or_(pr.c.pr_expiry > datetime.datetime.now(datetime.UTC), pr.c.pr_expiry.is_(None)))
             if "prtype" in params:
                 s = s.where(pr.c.pr_type.in_(params["prtype"]))
                 if "prlevel" in params:

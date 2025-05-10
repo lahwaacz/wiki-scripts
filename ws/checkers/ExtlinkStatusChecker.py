@@ -422,7 +422,7 @@ class ExtlinkStatusChecker:
         url = self.normalize_url(url)
 
         # reset attributes
-        link.last_check = datetime.datetime.utcnow()
+        link.last_check = datetime.datetime.now(datetime.UTC)
         link.check_duration = None
         link.http_status = None
         link.server = None

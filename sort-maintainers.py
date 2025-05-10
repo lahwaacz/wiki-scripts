@@ -24,7 +24,7 @@ class SortMaintainers:
         # fetch recent changes from the recentchanges table
         # (does not include all revisions - "diffable" log events such as
         # page protection changes or page moves are omitted)
-        lastday = datetime.datetime.utcnow()
+        lastday = datetime.datetime.now(datetime.UTC)
         firstday = lastday - datetime.timedelta(days=days)
         self.recent_changes = list(self.db.query(list="recentchanges", rctype={"edit", "new"}, rcprop={"user", "timestamp"}, rclimit="max", rcstart=lastday, rcend=firstday))
 
@@ -120,7 +120,7 @@ class SortMaintainers:
             if contrib:
                 contrib = contrib[0]
                 return contrib["timestamp"]
-        return datetime.datetime(year=1, month=1, day=1)
+        return datetime.datetime(year=1, month=1, day=1, tzinfo=datetime.UTC)
 
 if __name__ == "__main__":
     import ws.config

@@ -91,7 +91,7 @@ class GrabberIPBlocks(GrabberBase):
 
     def gen_update(self, since):
         # remove expired blocks
-        yield self.db.ipblocks.delete().where(self.db.ipblocks.c.ipb_expiry < datetime.datetime.utcnow())
+        yield self.db.ipblocks.delete().where(self.db.ipblocks.c.ipb_expiry < datetime.datetime.now(datetime.UTC))
 
         # new blocks since the last sync
         list_params = {

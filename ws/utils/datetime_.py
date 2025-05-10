@@ -35,6 +35,7 @@ def parse_date(date: str) -> datetime.datetime:
         int(date[11:13]),
         int(date[14:16]),
         int(date[17:19]),
+        tzinfo=datetime.UTC,
     )
 
 
@@ -45,6 +46,7 @@ def format_date(date: datetime.datetime) -> str:
     :param datetime.datetime date: timestamp to format
     :returns: :py:class:`str` representation of the timestamp
     """
+    assert date.tzinfo == datetime.UTC
     return date.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 

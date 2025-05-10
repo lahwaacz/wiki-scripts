@@ -112,13 +112,13 @@ class GrabberBase:
             for table in self.INSERT_PREDELETE_TABLES:
                 conn.execute(self.db.metadata.tables[table].delete())
 
-        sync_timestamp = datetime.datetime.utcnow()
+        sync_timestamp = datetime.datetime.now(datetime.UTC)
 
         gen = self.gen_insert()
         self._execute(gen, sync_timestamp)
 
     def update(self, *, since=None):
-        sync_timestamp = datetime.datetime.utcnow()
+        sync_timestamp = datetime.datetime.now(datetime.UTC)
 
         if since is None:
             since = self._get_sync_timestamp()

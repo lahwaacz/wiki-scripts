@@ -70,7 +70,7 @@ class Downloader:
         """
         if not os.path.exists(fname):
             return True
-        local = datetime.datetime.utcfromtimestamp(os.path.getmtime(fname))
+        local = datetime.datetime.fromtimestamp(os.path.getmtime(fname), tz=datetime.UTC)
         if local < timestamp or local < self.epoch:
             return True
         return False
@@ -165,10 +165,10 @@ if __name__ == "__main__":
 
     # TODO: simplify for Downloader.from_argparser()
     if args.force:
-        epoch = datetime.datetime.utcnow()
+        epoch = datetime.datetime.now(datetime.UTC)
     else:
         # this should be the date of the latest incompatible change
-        epoch = datetime.datetime(2015, 5, 1)
+        epoch = datetime.datetime(2015, 5, 1, tzinfo=datetime.UTC)
 
     downloader = Downloader(api, args.output_directory, epoch, args.safe_filenames)
 
