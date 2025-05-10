@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 """
 The :py:mod:`ws.client.connection` module provides a low-level interface for
 connections to the wiki. The :py:class:`httpx.Client` class from the
@@ -10,77 +8,86 @@ and making HTTP requests.
 # FIXME: query string should be normalized, see https://www.mediawiki.org/wiki/API:Main_page#API_etiquette
 #        + 'token' parameter should be specified last, see https://www.mediawiki.org/wiki/API:Edit
 
+import argparse
 import copy
 import http.cookiejar as cookielib
 import logging
+from typing import Any, Self, cast
 
 import httpx
 from httpx_retries import Retry, RetryTransport
 
-from ws.utils import DEFAULT_USER_AGENT, HTTPXClient, RateLimited, parse_timestamps_in_struct, serialize_timestamps_in_struct
+from ws.utils import (
+    DEFAULT_USER_AGENT,
+    HTTPXClient,
+    RateLimited,
+    parse_timestamps_in_struct,
+    serialize_timestamps_in_struct,
+)
 
 logger = logging.getLogger(__name__)
 
 __all__ = ["Connection", "APIWrongAction", "APIJsonError", "APIError"]
 
 GET_ACTIONS = {
-    'acquiretempusername',
-    'changecontentmodel',
-    'checktoken',
-    'clearhasmsg',
-    'compare',
-    'expandtemplates',
-    'feedcontributions',
-    'feedrecentchanges',
-    'feedwatchlist',
-    'help',
-    'logout',
-    'opensearch',
-    'paraminfo',
-    'parse',
-    'query',
-    'rsd',
+    "acquiretempusername",
+    "changecontentmodel",
+    "checktoken",
+    "clearhasmsg",
+    "compare",
+    "expandtemplates",
+    "feedcontributions",
+    "feedrecentchanges",
+    "feedwatchlist",
+    "help",
+    "logout",
+    "opensearch",
+    "paraminfo",
+    "parse",
+    "query",
+    "rsd",
 }
 POST_ACTIONS = {
-    'block',
-    'changeauthenticationdata',
-    'clientlogin',
-    'createaccount',
-    'cspreport',
-    'delete',
-    'edit',
-    'emailuser',
-    'filerevert',
-    'imagerotate',
-    'linkaccount',
-    'login',
-    'managetags',
-    'mergehistory',
-    'move',
-    'options',
-    'patrol',
-    'protect',
-    'purge',
-    'removeauthenticationdata',
-    'resetpassword',
-    'revisiondelete',
-    'rollback',
-    'setnotificationtimestamp',
-    'setpagelanguage',  # MW 1.29
-    'stashedit',
-    'tag',
-    'unblock',
-    'undelete',
-    'unlinkaccount',
-    'userrights',
-    'validatepassword',  # MW 1.29
-    'watch',
+    "block",
+    "changeauthenticationdata",
+    "clientlogin",
+    "createaccount",
+    "cspreport",
+    "delete",
+    "edit",
+    "emailuser",
+    "filerevert",
+    "imagerotate",
+    "linkaccount",
+    "login",
+    "managetags",
+    "mergehistory",
+    "move",
+    "options",
+    "patrol",
+    "protect",
+    "purge",
+    "removeauthenticationdata",
+    "resetpassword",
+    "revisiondelete",
+    "rollback",
+    "setnotificationtimestamp",
+    "setpagelanguage",  # MW 1.29
+    "stashedit",
+    "tag",
+    "unblock",
+    "undelete",
+    "unlinkaccount",
+    "userrights",
+    "validatepassword",  # MW 1.29
+    "watch",
 }
 MULTIPART_FORM_DATA = {
-    'import': {'xml'},
-    'upload': {'file', 'chunk'},
+    "import": {"xml"},
+    "upload": {"file", "chunk"},
 }
 API_ACTIONS = GET_ACTIONS | POST_ACTIONS | set(MULTIPART_FORM_DATA.keys())
+
 
 class Connection:
     """
@@ -92,7 +99,9 @@ class Connection:
     :param int timeout: connection timeout in seconds
     """
 
-    def __init__(self, api_url, index_url, session, timeout=60):
+    def __init__(
+        self, api_url: str, index_url: str, session: httpx.Client, timeout: int = 60
+    ):
         self.api_url = api_url
         self.index_url = index_url
         self.session = session
@@ -141,13 +150,19 @@ class Connection:
         headers = {"User-Agent": user_agent}
 
         # granular control over retries: https://will-ockmore.github.io/httpx-retries/
-        retries = Retry(total=max_retries, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
+        retries = Retry(
+            total=max_retries,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504],
+        )
         transport = RetryTransport(retry=retries)
 
-        return HTTPXClient(auth=auth, cookies=cookies, headers=headers, transport=transport)
+        return HTTPXClient(
+            auth=auth, cookies=cookies, headers=headers, transport=transport
+        )
 
     @staticmethod
-    def set_argparser(argparser):
+    def set_argparser(argparser: argparse.ArgumentParser) -> None:
         """
         Add arguments for constructing a :py:class:`Connection` object to an
         instance of :py:class:`argparse.ArgumentParser`.
@@ -157,21 +172,42 @@ class Connection:
         :param argparser: an instance of :py:class:`argparse.ArgumentParser`
         """
         import ws.config
+
         group = argparser.add_argument_group(title="Connection parameters")
-        group.add_argument("--api-url", metavar="URL", required=True,
-                help="the URL to the wiki's api.php")
-        group.add_argument("--index-url", metavar="URL", required=True,
-                help="the URL to the wiki's index.php")
-        group.add_argument("--connection-max-retries", default=3, type=int,
-                help="maximum number of retries for each connection (default: %(default)s)")
-        group.add_argument("--connection-timeout", default=60, type=float,
-                help="connection timeout in seconds (default: %(default)s)")
-        group.add_argument("--cookie-file", type=ws.config.argtype_dirname_must_exist, metavar="PATH",
-                help="path to cookie file (default: %(default)s)")
+        group.add_argument(
+            "--api-url",
+            metavar="URL",
+            required=True,
+            help="the URL to the wiki's api.php",
+        )
+        group.add_argument(
+            "--index-url",
+            metavar="URL",
+            required=True,
+            help="the URL to the wiki's index.php",
+        )
+        group.add_argument(
+            "--connection-max-retries",
+            default=3,
+            type=int,
+            help="maximum number of retries for each connection (default: %(default)s)",
+        )
+        group.add_argument(
+            "--connection-timeout",
+            default=60,
+            type=float,
+            help="connection timeout in seconds (default: %(default)s)",
+        )
+        group.add_argument(
+            "--cookie-file",
+            type=ws.config.argtype_dirname_must_exist,
+            metavar="PATH",
+            help="path to cookie file (default: %(default)s)",
+        )
         # TODO: expose also user_agent, http_user, http_password?
 
     @classmethod
-    def from_argparser(klass, args):
+    def from_argparser(cls, args: argparse.Namespace) -> Self:
         """
         Construct a :py:class:`Connection` object from arguments parsed by
         :py:class:`argparse.ArgumentParser`.
@@ -179,12 +215,20 @@ class Connection:
         :param args: an instance of :py:class:`argparse.Namespace`.
         :returns: an instance of :py:class:`Connection`
         """
-        session = Connection.make_session(max_retries=args.connection_max_retries,
-                                          cookie_file=args.cookie_file)
-        return klass(args.api_url, args.index_url, session=session, timeout=args.connection_timeout)
+        session = Connection.make_session(
+            max_retries=args.connection_max_retries, cookie_file=args.cookie_file
+        )
+        return cls(
+            args.api_url,
+            args.index_url,
+            session=session,
+            timeout=args.connection_timeout,
+        )
 
     @RateLimited(10, 3)
-    def request(self, method, url, **kwargs):
+    def request(
+        self, method: str, url: str | httpx.URL, **kwargs: Any
+    ) -> httpx.Response:
         """
         Simple HTTP request handler. It is basically a wrapper around
         :py:func:`httpx.request()` using the established session including
@@ -210,7 +254,14 @@ class Connection:
 
         return response
 
-    def call_api(self, params=None, *, expand_result=True, check_warnings=True, **kwargs):
+    def call_api(
+        self,
+        params: dict[str, Any] | None = None,
+        *,
+        expand_result: bool = True,
+        check_warnings: bool = True,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """
         Convenient method to call the ``api.php`` entry point.
 
@@ -239,7 +290,9 @@ class Connection:
             # To let kwargs override params, we would have to create deep copy
             # of params to avoid modifying the caller's data and then call
             # utils.dmerge. Too complicated, not supported.
-            raise ValueError("specifying 'params' and 'kwargs' at the same time is not supported")
+            raise ValueError(
+                "specifying 'params' and 'kwargs' at the same time is not supported"
+            )
 
         # check if action is valid
         action = params.setdefault("action", "help")
@@ -260,25 +313,32 @@ class Connection:
         # select HTTP method and call the API
         if action in MULTIPART_FORM_DATA:
             # parameters specified in MULTIPART_FORM_DATA have to be uploaded as "files"
-            files = dict((k, v) for k, v in params.items() if k in MULTIPART_FORM_DATA[action])
+            files = dict(
+                (k, v) for k, v in params.items() if k in MULTIPART_FORM_DATA[action]
+            )
             for k in files:
                 del params[k]
-            result = self.request("POST", self.api_url, data=params, files=files)
+            response = self.request("POST", self.api_url, data=params, files=files)
         # we also form-encode queries with titles, revids and pageids because the
         # URL might be too long for GET, especially in case of titles
-        elif action in POST_ACTIONS or (action == "query" and {"titles", "revids", "pageids"} & set(params.keys())):
+        elif action in POST_ACTIONS or (
+            action == "query" and {"titles", "revids", "pageids"} & set(params.keys())
+        ):
             # passing `params` to `data` will cause form-encoding to take place,
             # which is necessary when editing pages longer than 8000 characters
-            result = self.request("POST", self.api_url, data=params)
+            response = self.request("POST", self.api_url, data=params)
         else:
-            result = self.request("GET", self.api_url, params=params)
+            response = self.request("GET", self.api_url, params=params)
 
         try:
-            result = result.json()
-        except ValueError:
-            raise APIJsonError("Failed to decode server response. Please make "
-                               "sure that the API is enabled on the wiki and "
-                               "that the API URL is correct.")
+            result = response.json()
+            assert isinstance(result, dict)
+        except (AssertionError, ValueError):
+            raise APIJsonError(
+                "Failed to decode server response. Please make "
+                "sure that the API is enabled on the wiki and "
+                "that the API URL is correct."
+            )
 
         # see if there are errors/warnings
         if "error" in result:
@@ -294,12 +354,12 @@ class Connection:
 
         if expand_result is True:
             if action in result:
-                return result[action]
+                return cast(dict[str, Any], result[action])
             else:
                 raise APIExpandResultFailed
         return result
 
-    def call_index(self, method="GET", **kwargs):
+    def call_index(self, method: str = "GET", **kwargs: Any) -> httpx.Response:
         """
         Convenient method to call the ``index.php`` entry point.
 
@@ -313,39 +373,44 @@ class Connection:
         """
         return self.request(method, self.index_url, **kwargs)
 
-    def get_hostname(self):
+    def get_hostname(self) -> str:
         """
         :returns: the hostname part of `self.api_url`
         """
         return httpx.URL(self.api_url).host
 
+
 class APIWrongAction(Exception):
-    """ Raised when a wrong API action is specified.
+    """Raised when a wrong API action is specified.
 
     This is a programming error, it should be fixed in the client code.
     """
-    def __init__(self, action, available):
-        self.message = "%s (available actions are: %s)" % (action, available)
+
+    def __init__(self, action: str, available: set[str]):
+        self.message = f"{action} (available actions are: {available})"
 
     def __str__(self):
         return self.message
 
+
 class APIJsonError(Exception):
-    """ Raised when json-decoding of server response failed.
-    """
+    """Raised when json-decoding of server response failed."""
+
     pass
 
+
 class APIError(Exception):
-    """ Raised when API response contains ``error`` attribute.
-    """
-    def __init__(self, params, server_response):
+    """Raised when API response contains ``error`` attribute."""
+
+    def __init__(self, params: dict[str, Any], server_response: dict[str, Any]):
         self.params = params
         self.server_response = server_response
 
-    def __str__(self):
-        return "\nquery parameters: {}\nserver response: {}".format(self.params, self.server_response)
+    def __str__(self) -> str:
+        return f"\nquery parameters: {self.params}\nserver response: {self.server_response}"
+
 
 class APIExpandResultFailed(Exception):
-    """ Raised when expansion of API query result failed.
-    """
+    """Raised when expansion of API query result failed."""
+
     pass
