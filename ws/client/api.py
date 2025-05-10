@@ -278,7 +278,7 @@ class API(Connection):
                 if action in chunk_result:
                     yield chunk_result[action]
                 else:
-                    raise APIExpandResultFailed
+                    raise APIExpandResultFailed(params)
             yield chunk_result
             # remove the processed values
             iter_values = iter_values[chunk_size:]
@@ -742,7 +742,8 @@ class APIExpandResultFailed(APIError):
     response while iterating over the split ID set.
     """
 
-    pass
+    def __init__(self, params: dict[str, Any]):
+        super().__init__(params, {})
 
 
 class ShortRecentChangesError(Exception):
