@@ -8,7 +8,7 @@ import pytest
 import pytest_httpx
 import pytest_mock
 
-from ws.checkers import ExtlinkReplacements, ExtlinkStatusChecker
+from ws.checkers import ExtlinkReplacements, URLStatusChecker
 from ws.client import API
 from ws.parser_helpers.title import Context
 
@@ -133,9 +133,9 @@ def extlink_replacements(
     api_mock: API, SmarterEncryptionList_mock: None, httpx_mock: pytest_httpx.HTTPXMock
 ) -> Iterator[ExtlinkReplacements]:
     # ensure that LRU cache is always empty for each test
-    ExtlinkStatusChecker.check_url_sync.cache_clear()
+    URLStatusChecker.check_url_sync.cache_clear()
 
-    checker = ExtlinkReplacements(api_mock, None, timeout=1, max_retries=1)
+    checker = ExtlinkReplacements(api_mock, timeout=1, max_retries=1)
 
     # put session_mock into the checker so that tests can register mocked responses
     checker.httpx_mock = httpx_mock  # type: ignore [attr-defined]
