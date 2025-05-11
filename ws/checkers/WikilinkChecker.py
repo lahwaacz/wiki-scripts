@@ -329,6 +329,7 @@ class WikilinkChecker(CheckerBase):
                 anchor_on_redirect_to_section = True
 
         # get lists of section headings and anchors
+        assert self.db is not None
         _result = self.db.query(
             titles=_target_title.fullpagename,
             prop="sections",

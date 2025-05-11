@@ -1,8 +1,17 @@
 #! /usr/bin/env python3
 
-import mwparserfromhell
+from typing import Any
 
-from ws.checkers import ExtlinkReplacements, ManTemplateChecker, WikilinkChecker
+import mwparserfromhell
+from mwparserfromhell.nodes import Node
+from mwparserfromhell.wikicode import Wikicode
+
+from ws.checkers import (
+    CheckerBase,
+    ExtlinkReplacements,
+    ManTemplateChecker,
+    WikilinkChecker,
+)
 from ws.client import API
 from ws.db.database import Database
 from ws.pageupdater import PageUpdater
@@ -11,27 +20,42 @@ from ws.pageupdater import PageUpdater
 # joining all checkers into a single object makes ExtlinkReplacements and ManTemplateChecker
 # share their ExtlinkStatusChecker parent
 class LinkChecker(ExtlinkReplacements, WikilinkChecker, ManTemplateChecker):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-    def handle_node(self, src_title, wikicode, node, summary_parts):
+    def handle_node(
+        self, src_title: str, wikicode: Wikicode, node: Node, summary_parts: list[str]
+    ) -> None:
         # dispatch calls to all parents, but return as soon as the node is handled
         # (this can be determined by the added edit summary)
         initial_length = len(summary_parts)
-        for klass in [ExtlinkReplacements, WikilinkChecker, ManTemplateChecker]:
-            klass.handle_node(self, src_title, wikicode, node, summary_parts)
+        checkers: list[type[CheckerBase]] = [
+            ExtlinkReplacements,
+            WikilinkChecker,
+            ManTemplateChecker,
+        ]
+        for cls in checkers:
+            cls.handle_node(self, src_title, wikicode, node, summary_parts)
             if len(summary_parts) != initial_length:
                 return
 
 
 class Updater(PageUpdater):
-    skip_pages = ["Table of contents", "Help:Editing", "ArchWiki talk:Requests", "ArchWiki:Statistics"]
+    skip_pages = [
+        "Table of contents",
+        "Help:Editing",
+        "ArchWiki talk:Requests",
+        "ArchWiki:Statistics",
+    ]
+
 
 if __name__ == "__main__":
     import ws.config
     from ws.interactive import InteractiveQuit
 
-    argparser = ws.config.getArgParser(description="Parse all pages on the wiki and try to fix/simplify/beautify links")
+    argparser = ws.config.getArgParser(
+        description="Parse all pages on the wiki and try to fix/simplify/beautify links"
+    )
     API.set_argparser(argparser)
     Database.set_argparser(argparser)
     Updater.set_argparser(argparser)
@@ -46,7 +70,12 @@ if __name__ == "__main__":
 
     # create updater and add checkers
     updater = Updater.from_argparser(args, api)
-    checker = LinkChecker(api, db, timeout=args.connection_timeout, max_retries=args.connection_max_retries)
+    checker = LinkChecker(
+        api,
+        db,
+        timeout=args.connection_timeout,
+        max_retries=args.connection_max_retries,
+    )
     updater.add_checker(mwparserfromhell.nodes.ExternalLink, checker)
     updater.add_checker(mwparserfromhell.nodes.Wikilink, checker)
     updater.add_checker(mwparserfromhell.nodes.Template, checker)

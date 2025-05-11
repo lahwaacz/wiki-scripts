@@ -4,6 +4,7 @@
 
 import datetime
 import logging
+from typing import Any
 
 import mwparserfromhell
 import sqlalchemy as sa
@@ -11,6 +12,8 @@ from mwparserfromhell.nodes import ExternalLink, Node
 from mwparserfromhell.wikicode import Wikicode
 
 import ws.ArchWiki.lang as lang
+from ws.client.api import API
+from ws.db.database import Database
 from ws.diff import diff_highlighted
 from ws.parser_helpers.wikicode import (
     ensure_flagged_by_template,
@@ -19,7 +22,7 @@ from ws.parser_helpers.wikicode import (
 )
 
 from .CheckerBase import CheckerBase, get_edit_summary_tracker, localize_flag
-from .ExtlinkStatusChecker import ExtlinkStatusChecker
+from .URLStatusChecker import URLStatusChecker
 
 __all__ = ["ExtlinkStatusUpdater"]
 
@@ -27,6 +30,9 @@ logger = logging.getLogger(__name__)
 
 
 class ExtlinkStatusUpdater(CheckerBase):
+    def __init__(self, api: API, db: Database, **kwargs: Any):
+        super().__init__(api, db, **kwargs)
+
     @property
     def deadlink_params(self) -> list[str]:
         now = datetime.datetime.now(datetime.UTC)
@@ -101,12 +107,13 @@ class ExtlinkStatusUpdater(CheckerBase):
         # preprocess the extlink and check if the URL is valid and checkable
         with self.lock_wikicode:
             url = self.prepare_url(wikicode, extlink)
-        if url is None or ExtlinkStatusChecker.is_checkable_url(url) is False:
+        if url is None or URLStatusChecker.is_checkable_url(url) is False:
             return
-        # apply additional normalization from ExtlinkStatusChecker
-        url = str(ExtlinkStatusChecker.normalize_url(url))
+        # apply additional normalization from URLStatusChecker
+        url = str(URLStatusChecker.normalize_url(url))
 
         # get the result from the database
+        assert self.db is not None
         with self.db.engine.connect() as conn:
             s = (
                 sa.select(self.db.ws_domain, self.db.ws_url_check)
