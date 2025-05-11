@@ -1,4 +1,5 @@
 import datetime
+from typing import Any
 
 import httpx
 from mwparserfromhell.nodes import Node, Template
@@ -11,17 +12,17 @@ from ws.parser_helpers.wikicode import (
     ensure_unflagged_by_template,
 )
 
-from .CheckerBase import get_edit_summary_tracker, localize_flag
-from .ExtlinkStatusChecker import ExtlinkStatusChecker
+from .CheckerBase import CheckerBase, get_edit_summary_tracker, localize_flag
+from .URLStatusChecker import URLStatusChecker
 
 __all__ = ["ManTemplateChecker"]
 
 
-class ManTemplateChecker(ExtlinkStatusChecker):
+class ManTemplateChecker(CheckerBase, URLStatusChecker):
     man_url_prefix = "https://man.archlinux.org/man/"
 
-    def __init__(self, api, db, **kwargs):
-        super().__init__(api, db, **kwargs)
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
 
     def update_man_template(
         self, wikicode: Wikicode, template: Template, src_title: str
