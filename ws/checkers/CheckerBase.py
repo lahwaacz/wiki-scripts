@@ -1,5 +1,6 @@
 import contextlib
 import threading
+from abc import ABC, abstractmethod
 from typing import Any, Callable, ContextManager, Generator
 
 from mwparserfromhell.nodes import Node, Template
@@ -50,8 +51,8 @@ def localize_flag(wikicode: Wikicode, node: Node, template_name: str) -> None:
             adjacent.name = template_name
 
 
-class CheckerBase:
-    def __init__(self, api: API, db: Database, *, interactive: bool = False, **kwargs: Any):
+class CheckerBase(ABC):
+    def __init__(self, api: API, db: Database | None = None, *, interactive: bool = False, **kwargs: Any):
         self.api = api
         self.db = db
         self.interactive = interactive
@@ -61,6 +62,12 @@ class CheckerBase:
         # maybe we can create a wrapper class (e.g. ThreadSafeWikicode) which would transparently synchronize all method calls: https://stackoverflow.com/a/17494777
         # (we would still have to manually lock for wrapper functions and longer parts in the checkers)
         self.lock_wikicode = threading.RLock()
+
+        # forward all unused arguments to the next parent of the instance
+        # (note that although CheckerBase does not have any real parent, it is
+        # designed for multiple inheritance and super() selects the next class
+        # in the method-resolution-order of the *instance*)
+        super().__init__(**kwargs)
 
     @LazyProperty
     def _alltemplates(self) -> set[str]:
@@ -80,5 +87,6 @@ class CheckerBase:
         # fall back to English
         return template
 
+    @abstractmethod
     def handle_node(self, src_title: str, wikicode: Wikicode, node: Node, summary_parts: list[str]) -> None:
         raise NotImplementedError("the handle_node method was not implemented in the derived class")

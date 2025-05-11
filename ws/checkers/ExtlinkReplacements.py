@@ -10,16 +10,14 @@ from hstspreload import in_hsts_preload
 from mwparserfromhell.nodes import ExternalLink, Node
 from mwparserfromhell.wikicode import Wikicode
 
-from ws.client.api import API
-from ws.db.database import Database
 from ws.parser_helpers.encodings import querydecode
 from ws.parser_helpers.wikicode import ensure_unflagged_by_template
 from ws.utils import LazyProperty
 
 from .CheckerBase import CheckerBase, get_edit_summary_tracker
-from .ExtlinkStatusChecker import ExtlinkStatusChecker
 from .ExtlinkStatusUpdater import ExtlinkStatusUpdater
 from .smarter_encryption_list import SmarterEncryptionList
+from .URLStatusChecker import URLStatusChecker
 
 __all__ = ["ExtlinkReplacements"]
 
@@ -285,8 +283,8 @@ class ExtlinkReplacements(CheckerBase):
         # TODO: use Special:Permalink on ArchWiki: https://wiki.archlinux.org/index.php?title=Pacman/Tips_and_tricks&diff=next&oldid=630006
     ]
 
-    def __init__(self, api: API, db: Database | None = None, **kwargs: Any):
-        super().__init__(api, db, **kwargs)
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
 
         # pass timeout and max_retries
         self.selist = SmarterEncryptionList(**kwargs)
@@ -403,7 +401,7 @@ class ExtlinkReplacements(CheckerBase):
                 new_url = httpx.URL(template.render(m=match.groups(), **match.groupdict()))
 
                 # check if the resulting URL is valid
-                if not ExtlinkStatusChecker.check_url_sync(new_url):
+                if not URLStatusChecker.check_url_sync(new_url):
                     logger.warning(f"URL not replaced: {url}")
                     return False
 
@@ -414,7 +412,7 @@ class ExtlinkReplacements(CheckerBase):
                 #   - the "/-/" disambiguator (which is added by gitlab's redirects) is ugly and should be removed thereafter
                 #   - gitlab gives 302 to the master branch instead of 404 for non-existent files/directories
                 if new_url.host == "gitlab.archlinux.org":
-                    # use same query as ExtlinkStatusChecker.check_url_sync
+                    # use same query as URLStatusChecker.check_url_sync
                     # discard the URL fragment which is irrelevant for the server
                     with httpx.stream("GET", new_url.copy_with(fragment=None), follow_redirects=True) as response:
                         # nothing to do here, but using the context manager ensures that the response is
@@ -456,7 +454,7 @@ class ExtlinkReplacements(CheckerBase):
             return
 
         # there is no reason to update broken links
-        if ExtlinkStatusChecker.check_url_sync(new_url):
+        if URLStatusChecker.check_url_sync(new_url):
             extlink.url = new_url
         else:
             logger.warning(f"broken URL not updated to https: {url}")
@@ -467,7 +465,7 @@ class ExtlinkReplacements(CheckerBase):
         if url is None:
             return
         # check if the URL is checkable
-        if not ExtlinkStatusChecker.is_checkable_url(url, allow_schemes=["http", "https", "irc", "ircs"]):
+        if not URLStatusChecker.is_checkable_url(url, allow_schemes=["http", "https", "irc", "ircs"]):
             return
 
         summary = get_edit_summary_tracker(wikicode, summary_parts)
