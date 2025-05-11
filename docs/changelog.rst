@@ -21,6 +21,7 @@ Unreleased
   - New dependencies: :py:mod:`httpx-retries`, :py:mod:`truststore`
 - Switched from naive to timezone-aware :py:class:`datetime.datetime` objects
   in the entire code base
+- Improved hierarchy of classes in the :py:mod:`ws.checkers` module
 
 Version 1.4
 -----------
