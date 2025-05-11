@@ -108,9 +108,7 @@ domains_with_ignored_status = {
 
 
 class ExtlinkStatusChecker:
-    def __init__(
-        self, db, *, timeout=60, max_retries=3, max_connections=100, keepalive_expiry=60
-    ):
+    def __init__(self, db, *, timeout=60, max_retries=3, max_connections=100, keepalive_expiry=60):
         self.db = db
 
         # initialize SQLAlchemy ORM
@@ -122,16 +120,10 @@ class ExtlinkStatusChecker:
         mapper_registry.map_imperatively(
             LinkCheck,
             db.ws_url_check,
-            properties={
-                "domain": sqlalchemy.orm.relationship(
-                    Domain, backref="url_checks", lazy="joined"
-                )
-            },
+            properties={"domain": sqlalchemy.orm.relationship(Domain, backref="url_checks", lazy="joined")},
         )
         self.session = sqlalchemy.orm.sessionmaker(self.db.engine)
-        self.async_session = async_sessionmaker(
-            self.db.async_engine, expire_on_commit=False
-        )
+        self.async_session = async_sessionmaker(self.db.async_engine, expire_on_commit=False)
 
         headers = {
             # fake user agent to bypass servers responding differently or not at all to non-browser user agents
@@ -162,12 +154,7 @@ class ExtlinkStatusChecker:
 
         with self.db.engine.begin() as conn:
             urls = {}
-            sel = (
-                sa.select(el.c.el_to)
-                .select_from(el)
-                .distinct()
-                .order_by(el.c.el_to.asc())
-            )
+            sel = sa.select(el.c.el_to).select_from(el).distinct().order_by(el.c.el_to.asc())
             for row in conn.execute(sel):
                 # note that URLs are stored as URL-decoded strings so they may seem weird/invalid at first
                 url = row[0]
@@ -223,15 +210,11 @@ class ExtlinkStatusChecker:
             return False
         # skip links to invalid/blacklisted domains
         if (
-            parsed_url.host
-            == "pi.hole"  # pi-hole configuration involves setting pi.hole in /etc/hosts
-            or parsed_url.host
-            == "ui.reclaim"  # GNUnet - the domains works only with a browser extension
+            parsed_url.host == "pi.hole"  # pi-hole configuration involves setting pi.hole in /etc/hosts
+            or parsed_url.host == "ui.reclaim"  # GNUnet - the domains works only with a browser extension
             or parsed_url.host.endswith(".onion")  # Tor
         ):
-            logger.debug(
-                f"skipped URL with invalid/blacklisted domain host: {parsed_url}"
-            )
+            logger.debug(f"skipped URL with invalid/blacklisted domain host: {parsed_url}")
             return False
         # skip links to localhost
         if parsed_url.host == "localhost" or parsed_url.host.endswith(".localhost"):
@@ -242,9 +225,7 @@ class ExtlinkStatusChecker:
             addr = ipaddress.ip_address(parsed_url.host)
             for network in ipv4_reserved_networks:
                 if addr in network:
-                    logger.debug(
-                        f"skipped URL to IP address from reserved network: {parsed_url}"
-                    )
+                    logger.debug(f"skipped URL to IP address from reserved network: {parsed_url}")
                     return False
         except ValueError:
             pass
@@ -270,9 +251,7 @@ class ExtlinkStatusChecker:
 
     @staticmethod
     @lru_cache(maxsize=1024)
-    def check_url_sync(
-        url: httpx.URL | str, *, follow_redirects: bool = True
-    ) -> bool | None:
+    def check_url_sync(url: httpx.URL | str, *, follow_redirects: bool = True) -> bool | None:
         """Simplified and synchronous variant of ``check_url`` intended for other checksers like ExtlinkReplacements"""
         if not isinstance(url, httpx.URL):
             url = httpx.URL(url)
@@ -284,9 +263,7 @@ class ExtlinkStatusChecker:
             # We need to use GET requests instead of HEAD, because many servers just return 404
             # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
             # response body content by using ``stream`` interface.
-            with httpx.stream(
-                "GET", url, follow_redirects=follow_redirects
-            ) as response:
+            with httpx.stream("GET", url, follow_redirects=follow_redirects) as response:
                 # nothing to do here, but using the context manager ensures that the response is
                 # always properly closed
                 pass
@@ -294,9 +271,7 @@ class ExtlinkStatusChecker:
         except ssl.SSLError as e:
             if "unable to get local issuer certificate" in str(e):
                 # FIXME: this is a problem of the SSL library used by Python
-                logger.warning(
-                    f"possible SSL error (unable to get local issuer certificate) for URL {url}"
-                )
+                logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
                 return None
             else:
                 logger.error(f"SSL error ({e}) for URL {url}")
@@ -305,17 +280,12 @@ class ExtlinkStatusChecker:
             if str(e).startswith("[SSL:"):
                 if "unable to get local issuer certificate" in str(e):
                     # FIXME: this is a problem of the SSL library used by Python
-                    logger.warning(
-                        f"possible SSL error (unable to get local issuer certificate) for URL {url}"
-                    )
+                    logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
                     return None
                 else:
                     logger.error(f"SSL error ({e}) for URL {url}")
                     return False
-            if (
-                "no address associated with hostname" in str(e).lower()
-                or "name or service not known" in str(e).lower()
-            ):
+            if "no address associated with hostname" in str(e).lower() or "name or service not known" in str(e).lower():
                 logger.error(f"domain name could not be resolved for URL {url}")
                 return False
             # other connection error - indeterminate
@@ -370,9 +340,7 @@ class ExtlinkStatusChecker:
                 # We need to use GET requests instead of HEAD, because many servers just return 404
                 # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
                 # response body content by using ``stream`` interface.
-                async with self.client.stream(
-                    "GET", next_url, follow_redirects=False
-                ) as response:
+                async with self.client.stream("GET", next_url, follow_redirects=False) as response:
                     if follow_redirects is True and response.next_request is not None:
                         next_url = response.next_request.url
                     else:
@@ -385,16 +353,12 @@ class ExtlinkStatusChecker:
             # do not domain.ssl_error if there was a redirect to a different domain
             last_domain = self.get_domain(history[-1])
             if domain.name != last_domain:
-                logger.warning(
-                    f"URL {url} redirects to a different domain: {last_domain}"
-                )
+                logger.warning(f"URL {url} redirects to a different domain: {last_domain}")
                 link.result = "needs user check"
                 return
             elif "unable to get local issuer certificate" in str(e):
                 # FIXME: this is a problem of the SSL library used by Python
-                logger.warning(
-                    f"possible SSL error (unable to get local issuer certificate) for URL {url}"
-                )
+                logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
                 domain.ssl_error = str(e)
                 link.result = "needs user check"
                 return
@@ -408,16 +372,12 @@ class ExtlinkStatusChecker:
             if str(e).startswith("[SSL:"):
                 # do not record an error if there was a redirect to a different domain
                 if domain.name != last_domain:
-                    logger.warning(
-                        f"URL {url} redirects to a different domain: {last_domain}"
-                    )
+                    logger.warning(f"URL {url} redirects to a different domain: {last_domain}")
                     link.result = "needs user check"
                     return
                 elif "unable to get local issuer certificate" in str(e):
                     # FIXME: this is a problem of the SSL library used by Python
-                    logger.warning(
-                        f"possible SSL error (unable to get local issuer certificate) for URL {url}"
-                    )
+                    logger.warning(f"possible SSL error (unable to get local issuer certificate) for URL {url}")
                     domain.ssl_error = str(e)
                     link.result = "needs user check"
                     return
@@ -426,19 +386,14 @@ class ExtlinkStatusChecker:
                     domain.ssl_error = str(e)
                     link.result = "bad"
                     return
-            if (
-                "no address associated with hostname" in str(e).lower()
-                or "name or service not known" in str(e).lower()
-            ):
+            if "no address associated with hostname" in str(e).lower() or "name or service not known" in str(e).lower():
                 # do not record an error if there was a redirect to a different domain
                 if domain.name == last_domain:
                     logger.error(f"domain name could not be resolved for URL {url}")
                     domain.resolved = False
                     link.result = "bad"
                 else:
-                    logger.error(
-                        f"URL {url} redirects to a domain that could not be resolved: {last_domain}"
-                    )
+                    logger.error(f"URL {url} redirects to a domain that could not be resolved: {last_domain}")
                     link.result = "needs user check"
                 return
             # other connection error - indeterminate
@@ -489,13 +444,8 @@ class ExtlinkStatusChecker:
                 link.result = "needs user check"
             # CloudFlare sites may have custom firewall rules that block non-browser requests
             # with error 1020 https://github.com/codemanki/cloudscraper/issues/222
-            elif (
-                response.status_code == 403
-                and response.headers.get("Server", "").lower() == "cloudflare"
-            ):
-                logger.warning(
-                    f"status code 403 for URL {url} backed up by CloudFlare does not mean anything"
-                )
+            elif response.status_code == 403 and response.headers.get("Server", "").lower() == "cloudflare":
+                logger.warning(f"status code 403 for URL {url} backed up by CloudFlare does not mean anything")
                 link.text_status = "CloudFlare shit"
                 link.result = "needs user check"
             elif response.status_code == 429:
@@ -524,10 +474,7 @@ class ExtlinkStatusChecker:
 
         # skip the check if the domain is known to be invalid
         domain = link.domain
-        if (
-            domain.last_check is not None
-            and domain.last_check > link.last_check - datetime.timedelta(hours=1)
-        ):
+        if domain.last_check is not None and domain.last_check > link.last_check - datetime.timedelta(hours=1):
             # NOTE: ssl_error is not checked here because it is not always bad (there is a false positive)
             if domain.resolved is False:  # or domain.ssl_error is not None:
                 link.result = "bad"
@@ -599,9 +546,7 @@ class ExtlinkStatusChecker:
             # detach all objects from the global ORM session
             session.expunge_all()
 
-        logger.info(
-            f"Checking the status of {len(links)} URLs (success is logged with DEBUG level)..."
-        )
+        logger.info(f"Checking the status of {len(links)} URLs (success is logged with DEBUG level)...")
 
         # use a semaphore to limit the number of "active workers" in the task group
         semaphore = asyncio.Semaphore(100)
@@ -609,9 +554,7 @@ class ExtlinkStatusChecker:
         async def async_exec():
             async with asyncio.TaskGroup() as tg:
                 for link in links:
-                    tg.create_task(
-                        self.lock_domain_and_check_link(semaphore, locks, link)
-                    )
+                    tg.create_task(self.lock_domain_and_check_link(semaphore, locks, link))
 
         if tqdm is not None:
             # initialize tqdm progressbar
