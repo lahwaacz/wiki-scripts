@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 from .CheckerBase import *
 from .ExtlinkReplacements import *
 from .ExtlinkStatusChecker import *

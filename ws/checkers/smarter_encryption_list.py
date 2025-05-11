@@ -1,14 +1,14 @@
-#! /usr/bin/env python3
-
 import hashlib
 import logging
 from functools import lru_cache
+from typing import Any
 
 from ws.utils import HTTPXClient
 
 __all__ = ["SmarterEncryptionList"]
 
 logger = logging.getLogger(__name__)
+
 
 class SmarterEncryptionList:
     """
@@ -17,20 +17,20 @@ class SmarterEncryptionList:
 
     endpoint = "https://duckduckgo.com/smarter_encryption.js?pv1={hash_prefix}"
 
-    def __init__(self, *, timeout, max_retries, **kwargs):
+    def __init__(self, *, timeout: int, max_retries: int, **kwargs: Any):
         self.client = HTTPXClient(timeout=timeout, retries=max_retries)
 
     @lru_cache(maxsize=1024)
-    def __contains__(self, value):
+    def __contains__(self, value: str) -> bool:
         logger.debug("checking domain {} in the SmarterEncryptionList".format(value))
         h = hashlib.sha1(bytes(value, encoding="utf-8"))
         data = self._query_hash_prefix(h.hexdigest()[:4])
         return h.hexdigest() in data
 
     @lru_cache(maxsize=128)
-    def _query_hash_prefix(self, value):
+    def _query_hash_prefix(self, value: str) -> list[str]:
         url = self.endpoint.format(hash_prefix=value)
         response = self.client.get(url)
         # raise HTTPStatusError for bad requests (4XX client errors and 5XX server errors)
         response.raise_for_status()
-        return response.json()
+        return list(response.json())
