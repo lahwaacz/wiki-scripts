@@ -1,7 +1,6 @@
 import datetime
 from typing import Any
 
-import httpx
 from mwparserfromhell.nodes import Node, Template
 from mwparserfromhell.wikicode import Wikicode
 
@@ -51,7 +50,7 @@ class ManTemplateChecker(CheckerBase, URLStatusChecker):
         url += urlencode(template.get(2).value.strip())
         # template parameter 1= should be empty
         if not template.has(1, ignore_empty=True):
-            response = httpx.head(url, follow_redirects=True)
+            response = self.client.head(url, follow_redirects=True)
             # heuristics to get the missing section (redirect from some_page to some_page.1)
             # WARNING: if the manual exists in multiple sections, the first one might not be the best
             if (
