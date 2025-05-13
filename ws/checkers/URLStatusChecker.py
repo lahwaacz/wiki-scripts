@@ -11,7 +11,7 @@ from functools import lru_cache
 
 import httpx
 
-from ws.utils import HTTPXAsyncClient
+from ws.utils import HTTPXAsyncClient, HTTPXClient
 
 __all__ = ["URLStatusChecker", "Domain", "LinkCheck"]
 
@@ -112,8 +112,14 @@ class URLStatusChecker:
         }
 
         # initialize the HTTPX clients
-        # TODO: rename to async_client and add normal client
-        self.client = HTTPXAsyncClient(
+        self.async_client = HTTPXAsyncClient(
+            headers=headers,
+            timeout=timeout,
+            retries=max_retries,
+            max_connections=max_connections,
+            keepalive_expiry=keepalive_expiry,
+        )
+        self.client = HTTPXClient(
             headers=headers,
             timeout=timeout,
             retries=max_retries,
@@ -215,12 +221,12 @@ class URLStatusChecker:
             # domains and we need to handle their status separately. httpx does not allow to
             # get response.history after an exception.
             next_url: httpx.URL | None = url
-            while next_url is not None and len(history) <= self.client.max_redirects:
+            while next_url is not None and len(history) <= self.async_client.max_redirects:
                 history.append(next_url)
                 # We need to use GET requests instead of HEAD, because many servers just return 404
                 # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
                 # response body content by using ``stream`` interface.
-                async with self.client.stream(
+                async with self.async_client.stream(
                     "GET", next_url, follow_redirects=False
                 ) as response:
                     if follow_redirects is True and response.next_request is not None:

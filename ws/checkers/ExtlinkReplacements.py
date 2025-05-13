@@ -472,7 +472,7 @@ class ExtlinkReplacements(CheckerBase, URLStatusChecker):
                 if new_url.host == "gitlab.archlinux.org":
                     # use same query as URLStatusChecker.check_url
                     # discard the URL fragment which is irrelevant for the server
-                    with httpx.stream(
+                    with self.client.stream(
                         "GET", new_url.copy_with(fragment=None), follow_redirects=True
                     ) as response:
                         # nothing to do here, but using the context manager ensures that the response is
