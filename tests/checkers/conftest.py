@@ -133,7 +133,7 @@ def extlink_replacements(
     api_mock: API, SmarterEncryptionList_mock: None, httpx_mock: pytest_httpx.HTTPXMock
 ) -> Iterator[ExtlinkReplacements]:
     # ensure that LRU cache is always empty for each test
-    URLStatusChecker.check_url_sync.cache_clear()
+    URLStatusChecker.get_url_check.cache_clear()
 
     checker = ExtlinkReplacements(api_mock, timeout=1, max_retries=1)
 
