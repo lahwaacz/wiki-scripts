@@ -27,9 +27,6 @@ if __name__ == "__main__":
 
     args = ws.config.parse_args(argparser)
 
-    # set up logging
-    ws.logging.init(args)
-
     # create updater and add checkers
     updater = Updater.from_argparser(args)
     checker = ExtlinkReplacements(updater.api, timeout=args.connection_timeout, max_retries=args.connection_max_retries)
