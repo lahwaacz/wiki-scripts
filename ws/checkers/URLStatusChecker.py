@@ -1,6 +1,7 @@
 # TODO:
 # - intel.com and its subdomains are returning false 404
 
+import asyncio
 import datetime
 import ipaddress
 import logging
@@ -25,13 +26,13 @@ class Domain:
     # domain name
     name: str
     # timestamp of the last check
-    last_check: datetime.datetime | None
+    last_check: datetime.datetime | None = None
     # flag indicating if the domain has been resolved at the time of the check
-    resolved: bool | None
+    resolved: bool | None = None
     # value of the "Server" response header
-    server: str | None
+    server: str | None = None
     # record of the SSLError exception if it occurred during the check
-    ssl_error: str | None
+    ssl_error: str | None = None
 
     # for backref relationship mapping
     url_checks: list["LinkCheck"] = field(default_factory=list)
@@ -46,18 +47,18 @@ class Domain:
 @dataclass
 class LinkCheck:
     domain_name: str
-    url: str
-    last_check: datetime.datetime | None
-    check_duration: datetime.timedelta | None
-    # can be null if text_status is not null
-    http_status: int | None
-    # for "connection error", "too many redirects", "CloudFlare CAPTCHA", etc.
-    text_status: str | None
-    # result of the check: "ok", "bad", or "needs user check"
-    result: str | None
-
     # for relationship mapping
     domain: Domain
+    url: str
+
+    last_check: datetime.datetime | None = None
+    check_duration: datetime.timedelta | None = None
+    # can be null if text_status is not null
+    http_status: int | None = None
+    # for "connection error", "too many redirects", "CloudFlare CAPTCHA", etc.
+    text_status: str | None = None
+    # result of the check: "ok", "bad", or "needs user check"
+    result: str | None = None
 
     def __repr__(self):
         return f"LinkCheck({self.url},{self.last_check},{self.check_duration},{self.http_status},{self.text_status},{self.result})"
@@ -188,8 +189,7 @@ class URLStatusChecker:
         url = httpx.URL(url)
 
         # drop the fragment from the URL (to optimize caching)
-        if url.fragment:
-            url = httpx.URL(str(url).rsplit("#", maxsplit=1)[0])
+        url = url.copy_with(fragment=None)
 
         return url
 
@@ -200,82 +200,6 @@ class URLStatusChecker:
         # httpx decodes punycodes for IDNs in .host, .raw_host is the original as bytes
         return url.raw_host.decode("utf-8")
 
-    @staticmethod
-    @lru_cache(maxsize=1024)
-    def check_url_sync(
-        url: httpx.URL | str, *, follow_redirects: bool = True
-    ) -> bool | None:
-        """Simplified and synchronous variant of ``check_url`` intended for other checksers like ExtlinkReplacements"""
-        if not isinstance(url, httpx.URL):
-            url = httpx.URL(url)
-
-        # discard the URL fragment which is irrelevant for the server
-        url = url.copy_with(fragment=None)
-
-        try:
-            # We need to use GET requests instead of HEAD, because many servers just return 404
-            # (or do not reply at all) to HEAD requests. Instead, we skip the downloading of the
-            # response body content by using ``stream`` interface.
-            with httpx.stream(
-                "GET", url, follow_redirects=follow_redirects
-            ) as response:
-                # nothing to do here, but using the context manager ensures that the response is
-                # always properly closed
-                pass
-        # FIXME: workaround for https://github.com/encode/httpx/discussions/2682#discussioncomment-5746317
-        except ssl.SSLError as e:
-            if "unable to get local issuer certificate" in str(e):
-                # FIXME: this is a problem of the SSL library used by Python
-                logger.warning(
-                    f"possible SSL error (unable to get local issuer certificate) for URL {url}"
-                )
-                return None
-            else:
-                logger.error(f"SSL error ({e}) for URL {url}")
-                return False
-        except httpx.ConnectError as e:
-            if str(e).startswith("[SSL:"):
-                if "unable to get local issuer certificate" in str(e):
-                    # FIXME: this is a problem of the SSL library used by Python
-                    logger.warning(
-                        f"possible SSL error (unable to get local issuer certificate) for URL {url}"
-                    )
-                    return None
-                else:
-                    logger.error(f"SSL error ({e}) for URL {url}")
-                    return False
-            if (
-                "no address associated with hostname" in str(e).lower()
-                or "name or service not known" in str(e).lower()
-            ):
-                logger.error(f"domain name could not be resolved for URL {url}")
-                return False
-            # other connection error - indeterminate
-            logger.warning(f"connection error for URL {url}")
-            return None
-        except httpx.TooManyRedirects as e:
-            logger.error(f"TooManyRedirects error ({e}) for URL {url}")
-            return False
-        # it seems that httpx does not capture all exceptions, e.g. anyio.EndOfStream
-        # except httpx.RequestError as e:
-        except Exception as e:
-            # e.g. ReadTimeout has no message in the async version,
-            # see https://github.com/encode/httpx/discussions/2681
-            msg = str(e)
-            if not msg:
-                msg = str(type(e))
-            # base class exception - indeterminate
-            logger.error(f"URL {url} could not be checked due to {msg}")
-            return None
-
-        # check special domains
-        if response.status_code in domains_with_ignored_status.get(url.host, []):
-            logger.warning(f"status code {response.status_code} for URL {url}")
-            return None
-
-        logger.debug(f"status code {response.status_code} for URL {url}")
-        return response.status_code >= 200 and response.status_code < 300
-
     async def check_url(
         self,
         domain: Domain,
@@ -284,12 +208,6 @@ class URLStatusChecker:
         *,
         follow_redirects: bool = True,
     ) -> None:
-        # reset domain attributes
-        domain.last_check = link.last_check
-        domain.resolved = None
-        domain.server = None
-        domain.ssl_error = None
-
         history: list[httpx.URL] = []
 
         try:
@@ -465,5 +383,30 @@ class URLStatusChecker:
                 link.result = "bad"
                 return
 
+        # reset domain attributes
+        domain.last_check = link.last_check
+        domain.resolved = None
+        domain.server = None
+        domain.ssl_error = None
+
         # proceed with the actual check
         await self.check_url(domain, link, url)
+
+    def check_link_sync(self, link: LinkCheck) -> None:
+        """Synchronous variant of ``check_link``"""
+        return asyncio.run(self.check_link(link))
+
+    @lru_cache(maxsize=1024)
+    def get_url_check(self, url: str) -> LinkCheck:
+        """
+        Get the status of given URL as a ``LinkCheck`` object.
+
+        Note that this function is synchronous and cached only in memory (i.e.
+        not in the SQL database). There is also no domain locking to avoid
+        concurrent connections to the same domain.
+        """
+        domain_name = self.get_domain(url)
+        domain = Domain(name=domain_name)  # TODO: cache this separately?
+        link = LinkCheck(domain_name=domain_name, url=url, domain=domain)
+        self.check_link_sync(link)
+        return link

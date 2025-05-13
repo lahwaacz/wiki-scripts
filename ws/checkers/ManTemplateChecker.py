@@ -71,7 +71,8 @@ class ManTemplateChecker(CheckerBase, URLStatusChecker):
             explicit_url = None
 
         # check if the template parameters form a valid URL
-        if self.check_url_sync(url):
+        link_check = self.get_url_check(url)
+        if link_check.result == "OK":
             ensure_unflagged_by_template(
                 wikicode, template, "Dead link", match_only_prefix=True
             )
@@ -87,7 +88,8 @@ class ManTemplateChecker(CheckerBase, URLStatusChecker):
                 wikicode, template, flag, *deadlink_params, overwrite_parameters=False
             )
         elif explicit_url != "":
-            if self.check_url_sync(explicit_url):
+            link_check = self.get_url_check(explicit_url)
+            if link_check.result == "OK":
                 ensure_unflagged_by_template(
                     wikicode, template, "Dead link", match_only_prefix=True
                 )
