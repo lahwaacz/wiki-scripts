@@ -63,7 +63,8 @@ class ManTemplateChecker(CheckerBase, URLStatusChecker):
             explicit_url = None
 
         # check if the template parameters form a valid URL
-        if self.check_url_sync(url):
+        link_check = self.get_url_check(url)
+        if link_check.result == "OK":
             ensure_unflagged_by_template(wikicode, template, "Dead link", match_only_prefix=True)
             # remove explicit url= parameter - not necessary
             if explicit_url is not None:
@@ -75,7 +76,8 @@ class ManTemplateChecker(CheckerBase, URLStatusChecker):
             # flag with the correct translated template
             ensure_flagged_by_template(wikicode, template, flag, *deadlink_params, overwrite_parameters=False)
         elif explicit_url != "":
-            if self.check_url_sync(explicit_url):
+            link_check = self.get_url_check(explicit_url)
+            if link_check.result == "OK":
                 ensure_unflagged_by_template(wikicode, template, "Dead link", match_only_prefix=True)
             else:
                 # first replace the existing template (if any) with a translated version

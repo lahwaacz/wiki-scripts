@@ -24,7 +24,7 @@ __all__ = ["ExtlinkReplacements"]
 logger = logging.getLogger(__name__)
 
 
-class ExtlinkReplacements(CheckerBase):
+class ExtlinkReplacements(CheckerBase, URLStatusChecker):
     class ExtlinkBehaviour(enum.Enum):
         # the extlink must not have any alternative text (but brackets are not checked)
         NO_TEXT = 1
@@ -401,7 +401,8 @@ class ExtlinkReplacements(CheckerBase):
                 new_url = httpx.URL(template.render(m=match.groups(), **match.groupdict()))
 
                 # check if the resulting URL is valid
-                if not URLStatusChecker.check_url_sync(new_url):
+                link_check = self.get_url_check(new_url)
+                if link_check.result != "OK":
                     logger.warning(f"URL not replaced: {url}")
                     return False
 
@@ -412,7 +413,7 @@ class ExtlinkReplacements(CheckerBase):
                 #   - the "/-/" disambiguator (which is added by gitlab's redirects) is ugly and should be removed thereafter
                 #   - gitlab gives 302 to the master branch instead of 404 for non-existent files/directories
                 if new_url.host == "gitlab.archlinux.org":
-                    # use same query as URLStatusChecker.check_url_sync
+                    # use same query as URLStatusChecker.check_url
                     # discard the URL fragment which is irrelevant for the server
                     with httpx.stream("GET", new_url.copy_with(fragment=None), follow_redirects=True) as response:
                         # nothing to do here, but using the context manager ensures that the response is
@@ -454,7 +455,8 @@ class ExtlinkReplacements(CheckerBase):
             return
 
         # there is no reason to update broken links
-        if URLStatusChecker.check_url_sync(new_url):
+        link_check = self.get_url_check(new_url)
+        if link_check.result == "OK":
             extlink.url = new_url
         else:
             logger.warning(f"broken URL not updated to https: {url}")
