@@ -15,7 +15,7 @@ from ws.utils import list_chunks
 class Downloader:
     extension = "mediawiki"
 
-    def __init__(self, api, output_directory, epoch, safe_filenames):
+    def __init__(self, api: API, output_directory: str, epoch: datetime.datetime, safe_filenames: bool):
         self.api = api
         self.output_directory = output_directory
         self.epoch = epoch
@@ -26,9 +26,9 @@ class Downloader:
             os.mkdir(self.output_directory)
 
         # list of valid files
-        self.files = []
+        self.files: list[str] = []
 
-    def get_local_filename(self, title, basepath):
+    def get_local_filename(self, title: str, basepath: str) -> str:
         """
         Return file name where the given page should be stored, relative to `basepath`.
         """
@@ -60,11 +60,11 @@ class Downloader:
             langsubtag=ws.ArchWiki.lang.tag_for_langname(lang),
             namespace=namespace,
             title=title,
-            ext=self.extension
+            ext=self.extension,
         )
         return os.path.normpath(path)
 
-    def needs_update(self, fname, timestamp):
+    def needs_update(self, fname: str, timestamp: datetime.datetime) -> bool:
         """
         Determine if it is necessary to download a page.
         """
@@ -75,11 +75,11 @@ class Downloader:
             return True
         return False
 
-    def process_namespace(self, namespace):
+    def process_namespace(self, namespace: str) -> None:
         """
         Enumerate all pages in given namespace, download if necessary
         """
-        print("Processing namespace %s..." % namespace)
+        print(f"Processing namespace {namespace}...")
         allpages = api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=namespace, prop="info")
 
         to_be_updated = []
@@ -89,10 +89,10 @@ class Downloader:
             self.files.append(fname)
             timestamp = page["touched"]
             if self.needs_update(fname, timestamp):
-                print("  [new rev found] %s" % title)
-                to_be_updated.append( (title, page["pageid"], fname) )
+                print(f"  [new rev found] {title}")
+                to_be_updated.append((title, page["pageid"], fname))
             else:
-                print("  [up to date]    %s" % title)
+                print(f"  [up to date]    {title}")
 
         # sort by title (first item in tuple)
         to_be_updated.sort()
@@ -118,7 +118,7 @@ class Downloader:
                 f.write(text)
                 f.close()
 
-    def clean_output_directory(self):
+    def clean_output_directory(self) -> None:
         """
         Walk output_directory and delete all files not found on the wiki.
         Should be run _after_ downloading, otherwise all files will be deleted!
@@ -131,12 +131,12 @@ class Downloader:
             for f in files:
                 fpath = os.path.join(path, f)
                 if fpath not in valid_files:
-                    print("  [deleting]    %s" % fpath)
+                    print(f"  [deleting]    {fpath}")
                     os.unlink(fpath)
 
             # remove empty directories
             if len(os.listdir(path)) == 0:
-                print("  [deleting]    %s/" % path)
+                print(f"  [deleting]    {path}/")
                 os.rmdir(path)
 
 
@@ -148,16 +148,33 @@ if __name__ == "__main__":
 
     # TODO: move to Dowloader.set_argparser()
     _script = argparser.add_argument_group(title="script parameters")
-    _script.add_argument("--output-directory", metavar="PATH", required=True, type=ws.config.argtype_existing_dir,
-            help="Output directory path, will be created if needed.")
-    _script.add_argument("--force", action="store_true",
-            help="Ignore timestamp, always download the latest revision from the wiki.")
-    _script.add_argument("--clone-talks", action="store_true",
-            help="Also clone talk namespaces.")
-    _script.add_argument("--clean", action="store_true",
-            help="Clean the output directory after cloning, useful for removing pages deleted/moved on the wiki. Warning: any unknown files found in the output directory will be deleted!")
-    _script.add_argument("--safe-filenames", action="store_true",
-            help="Force using ASCII file names instead of the default Unicode.")
+    _script.add_argument(
+        "--output-directory",
+        metavar="PATH",
+        required=True,
+        type=ws.config.argtype_existing_dir,
+        help="Output directory path, will be created if needed.",
+    )
+    _script.add_argument(
+        "--force",
+        action="store_true",
+        help="Ignore timestamp, always download the latest revision from the wiki.",
+    )
+    _script.add_argument(
+        "--clone-talks",
+        action="store_true",
+        help="Also clone talk namespaces.",
+    )
+    _script.add_argument(
+        "--clean",
+        action="store_true",
+        help="Clean the output directory after cloning, useful for removing pages deleted/moved on the wiki. Warning: any unknown files found in the output directory will be deleted!",
+    )
+    _script.add_argument(
+        "--safe-filenames",
+        action="store_true",
+        help="Force using ASCII file names instead of the default Unicode.",
+    )
 
     args = ws.config.parse_args(argparser)
 

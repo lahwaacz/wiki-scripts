@@ -25,9 +25,7 @@ def check(args: argparse.Namespace, api: API, db: Database) -> None:
     db.update_parser_cache()
 
     # create the checker
-    checker = ExtlinkStatusChecker(
-        db, timeout=args.connection_timeout, max_retries=args.connection_max_retries
-    )
+    checker = ExtlinkStatusChecker(db, timeout=args.connection_timeout, max_retries=args.connection_max_retries)
 
     # copy URLs from the externallinks table to the ws_link_check table
     checker.transfer_urls_from_parser_cache()
@@ -38,10 +36,7 @@ def check(args: argparse.Namespace, api: API, db: Database) -> None:
         .join(Domain)
         .where(
             LinkCheck.last_check.is_(None)
-            | (
-                LinkCheck.last_check
-                < datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=7)
-            )
+            | (LinkCheck.last_check < datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=7))
             | LinkCheck.http_status.in_({406, 429})
             # | Domain.resolved.is_(False)
         )
@@ -65,9 +60,7 @@ if __name__ == "__main__":
     import ws.config
     from ws.interactive import InteractiveQuit
 
-    argparser = ws.config.getArgParser(
-        description="Check the status of external links on the wiki"
-    )
+    argparser = ws.config.getArgParser(description="Check the status of external links on the wiki")
     API.set_argparser(argparser)
     Database.set_argparser(argparser)
     Updater.set_argparser(argparser)

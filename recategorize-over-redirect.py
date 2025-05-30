@@ -2,6 +2,7 @@
 
 import logging
 import re
+from typing import Any
 
 import mwparserfromhell
 
@@ -10,36 +11,37 @@ from ws.interactive import ask_yesno
 
 logger = logging.getLogger(__name__)
 
+
 class Recategorize:
     edit_summary = "recategorize to avoid redirect after the old category has been renamed"
     flag_for_deletion_summary = "unused category, flagging for deletion"
 
-    def __init__(self, api):
+    def __init__(self, api: API):
         self.api = api
 
-    def recategorize_page(self, page, source, target):
+    def recategorize_page(self, page: dict[str, Any], source: str, target: str) -> None:
         title = page["title"]
         text_old = page["revisions"][0]["slots"]["main"]["*"]
         timestamp = page["revisions"][0]["timestamp"]
 
-        source = self.api.Title(source)
-        assert(source.namespace == "Category")
+        source_title = self.api.Title(source)
+        assert source_title.namespace == "Category"
 
-        logger.info("Parsing page [[{}]] ...".format(title))
+        logger.info(f"Parsing page [[{title}]] ...")
         wikicode = mwparserfromhell.parse(text_old)
         for wikilink in wikicode.ifilter_wikilinks(recursive=True):
-            wl_title = self.api.Title(wikilink.title)
-            if wl_title.namespace == "Category" and wl_title.pagename == source.pagename:
+            wl_title = self.api.Title(str(wikilink.title))
+            if wl_title.namespace == "Category" and wl_title.pagename == source_title.pagename:
                 wikilink.title = target
         text_new = str(wikicode)
 
         if text_old != text_new:
-#            edit_interactive(self.api, title, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+            # edit_interactive(self.api, title, page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
             self.api.edit(title, page["pageid"], text_new, timestamp, self.edit_summary, bot="")
 
-    def flag_for_deletion(self, title):
+    def flag_for_deletion(self, title: str) -> None:
         _title = self.api.Title(title)
-        assert(_title.namespace == "Category")
+        assert _title.namespace == "Category"
 
         result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", rvslots="main", titles=title)
         page = list(result["pages"].values())[0]
@@ -53,7 +55,7 @@ class Recategorize:
             logger.info("Flagging page [[{}]] for deletion.".format(title))
             self.api.edit(title, page["pageid"], text_new, timestamp, self.flag_for_deletion_summary, bot="")
 
-    def recategorize_over_redirect(self, category_namespace=14):
+    def recategorize_over_redirect(self, category_namespace: int = 14) -> None:
         # FIXME: the source_namespace parameter of redirects.fetch does not work, so we need to do manual filtering
         redirects = self.api.redirects.fetch()
         catredirs = dict((key, value) for key, value in redirects.items() if self.api.Title(key).namespace == "Category")
@@ -62,14 +64,16 @@ class Recategorize:
             if ans is False:
                 continue
 
-            catmembers = self.api.generator(generator="categorymembers", gcmtitle=source, gcmlimit="max", prop="revisions", rvprop="content|timestamp", rvslots="main")
+            catmembers = self.api.generator(
+                generator="categorymembers", gcmtitle=source, gcmlimit="max", prop="revisions", rvprop="content|timestamp", rvslots="main"
+            )
             for page in catmembers:
                 # the same page might be yielded multiple times
                 if "revisions" in page:
                     self.recategorize_page(page, source, target)
             # check again to see if the category is empty
-            catmembers = list(self.api.list(list="categorymembers", cmtitle=source, cmlimit="max"))
-            if len(catmembers) == 0:
+            catmembers = self.api.list(list="categorymembers", cmtitle=source, cmlimit="max")
+            if len(list(catmembers)) == 0:
                 self.flag_for_deletion(source)
             else:
                 logger.warning("Page [[{}]] is still not empty: {}".format(source, sorted(page["title"] for page in catmembers)))
@@ -81,8 +85,10 @@ not listed under Special:UnusedCategories, but they can be found in \
 Special:WhatLinksHere/Template:Deletion.
 """)
 
+
 if __name__ == "__main__":
     import ws.config
+
     api = ws.config.object_from_argparser(API, description="Recategorize pages to avoid redirect after the old category has been renamed")
     r = Recategorize(api)
     r.recategorize_over_redirect()

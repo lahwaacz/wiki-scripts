@@ -43,20 +43,24 @@ if stage == 1:
         # (skip pages which were already undeleted - testing only...)
         if page in pages:
             continue
-        api.call_with_csrftoken(action="undelete",
-                                title=page,
-                                reason="temporarily undeleting due to The Big Migration of DeveloperWiki Pages; see [[ArchWiki talk:Maintenance Team#Namespace for developers' pages]] for details",
-                                tags="wiki-scripts")
+        api.call_with_csrftoken(
+            action="undelete",
+            title=page,
+            reason="temporarily undeleting due to The Big Migration of DeveloperWiki Pages; see [[ArchWiki talk:Maintenance Team#Namespace for developers' pages]] for details",
+            tags="wiki-scripts",
+        )
         pages.append(page)
 
     # move (without redirect) all selected pages to a temporary prefix
     for page in pages:
-        api.move(page,
-                 tmp_prefix + page,
-                 reason="temporarily moving to a temporary prefix due to The Big Migration of DeveloperWiki Pages; see [[ArchWiki talk:Maintenance Team#Namespace for developers' pages]] for details",
-                 movetalk=False,
-                 movesubpages=False,
-                 noredirect=True)
+        api.move(
+            page,
+            tmp_prefix + page,
+            reason="temporarily moving to a temporary prefix due to The Big Migration of DeveloperWiki Pages; see [[ArchWiki talk:Maintenance Team#Namespace for developers' pages]] for details",
+            movetalk=False,
+            movesubpages=False,
+            noredirect=True,
+        )
 
 elif stage == 2:
     # collect all DeveloperWiki pages and talk pages
@@ -71,25 +75,31 @@ elif stage == 2:
 
     for page in pages:
         # unprotect the page (the whole "DeveloperWiki:" namespace will be protected)
-        api.call_with_csrftoken(action="protect",
-                                title=page,
-                                protections="edit=all|move=all",
-                                reason="dropping page-level protections before moving into the DeveloperWiki: namespace which will be protected by default; see [[ArchWiki talk:Maintenance Team#Namespace for developers' pages]] for details",
-                                tags="wiki-scripts")
+        api.call_with_csrftoken(
+            action="protect",
+            title=page,
+            protections="edit=all|move=all",
+            reason="dropping page-level protections before moving into the DeveloperWiki: namespace which will be protected by default; see [[ArchWiki talk:Maintenance Team#Namespace for developers' pages]] for details",
+            tags="wiki-scripts",
+        )
         # move (without redirect) the DeveloperWiki pages into the "DeveloperWiki:" or "DeveloperWiki talk:" namespace
         newtitle = page.replace(tmp_prefix, "", 1)
         if newtitle.startswith("Talk:DeveloperWiki:"):
             newtitle = newtitle.replace("Talk:DeveloperWiki:", "DeveloperWiki talk:", 1)
-        api.move(page,
-                 newtitle,
-                 reason="The Big Migration of DeveloperWiki Pages is finished, moving into the DeveloperWiki namespace; see [[ArchWiki talk:Maintenance Team#Namespace for developers' pages]] for details",
-                 movetalk=False,
-                 movesubpages=False,
-                 noredirect=True)
+        api.move(
+            page,
+            newtitle,
+            reason="The Big Migration of DeveloperWiki Pages is finished, moving into the DeveloperWiki namespace; see [[ArchWiki talk:Maintenance Team#Namespace for developers' pages]] for details",
+            movetalk=False,
+            movesubpages=False,
+            noredirect=True,
+        )
 
     # redelete the previously deleted pages
     for page in deleted_pages:
-        api.call_with_csrftoken(action="delete",
-                                title=page,
-                                reason="delete previously deleted page after the migration of DeveloperWiki pages; see [[ArchWiki talk:Maintenance Team#Namespace for developers' pages]] for details",
-                                tags="wiki-scripts")
+        api.call_with_csrftoken(
+            action="delete",
+            title=page,
+            reason="delete previously deleted page after the migration of DeveloperWiki pages; see [[ArchWiki talk:Maintenance Team#Namespace for developers' pages]] for details",
+            tags="wiki-scripts",
+        )

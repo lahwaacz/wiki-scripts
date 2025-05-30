@@ -13,10 +13,10 @@ from ws.db.database import Database
 logger = logging.getLogger(__name__)
 
 
-def fetch_revisions(db):
+def fetch_revisions(db: Database) -> pd.DataFrame:
     revs = list(db.query(list="allrevisions", arvlimit="max", arvprop={"ids", "timestamp", "user"}))
     # TODO: this should be reconsidered, the "MediaWiki default" user is included here and some deleted revisions were pruned from the server...
-    #revs += list(db.query(list="alldeletedrevisions", adrlimit="max", adrprop={"ids", "timestamp", "user"}))
+    # revs += list(db.query(list="alldeletedrevisions", adrlimit="max", adrprop={"ids", "timestamp", "user"}))
 
     revs = pd.DataFrame(revs)
     # select only relevant columns (timestamp for rolling, user for grouping, revid for counting)
@@ -28,7 +28,7 @@ def fetch_revisions(db):
     return revs
 
 
-def get_rolling_revisions(revs, *, period_days=30):
+def get_rolling_revisions(revs: pd.DataFrame, *, period_days: int = 30) -> pd.DataFrame:
     # group by user and resaple to daily periods (used later for rolling counts and visualization)
     daily_revs = revs.groupby("user").resample("1d", on="timestamp", include_groups=False).count()
     # change back to previous format
@@ -42,7 +42,7 @@ def get_rolling_revisions(revs, *, period_days=30):
     return rolling_revs
 
 
-def prune_rolling_data(df, *, nlargest, start_date=None):
+def prune_rolling_data(df: pd.DataFrame, *, nlargest: int, start_date: datetime.datetime | None = None) -> pd.DataFrame:
     # select only n largest entries per timestamp
     pruned = df.sort_values("timestamp").groupby("timestamp").revisions.nlargest(nlargest)
     # get the original index values
@@ -54,18 +54,19 @@ def prune_rolling_data(df, *, nlargest, start_date=None):
     return df[df["timestamp"] >= start_date]
 
 
-def fill_timestamps(df, *, period_days=30):
+def fill_timestamps(df: pd.DataFrame, *, period_days: int = 30) -> pd.DataFrame:
     # fill all missing timestamps for all users
     # https://stackoverflow.com/a/44979696/4180822
     # NOTE: it is important to do this only after pruning the dataframe,
     #       otherwise this takes too much memory with ArchWiki data
-    df = df.set_index(
-        ["timestamp", "user"]
-    ).unstack(
-        fill_value=np.nan
-    ).asfreq(
-        freq="1D", fill_value=np.nan
-    ).stack(future_stack=True).sort_index(level=1).reset_index()
+    df = (
+        df.set_index(["timestamp", "user"])
+        .unstack(fill_value=np.nan)
+        .asfreq(freq="1D", fill_value=np.nan)
+        .stack(future_stack=True)
+        .sort_index(level=1)
+        .reset_index()
+    )
 
     # forward fill monthly revision counts after the user's last active day
     df["revisions"] = df.groupby("user")["revisions"].ffill(limit=period_days).fillna(0).reset_index(drop=True).astype(int)
@@ -73,7 +74,7 @@ def fill_timestamps(df, *, period_days=30):
     return df
 
 
-def race(db, output_filename):
+def race(db: Database, output_filename: str) -> None:
     logger.info("Fetching data from the SQL database")
     all_revs = fetch_revisions(db)
 
@@ -96,12 +97,13 @@ def race(db, output_filename):
     # (We take the maximum revid instead of counting because some revisions
     # are lost forever.)
     total_edits = all_revs.resample("1d", on="timestamp").max()["revisions"].ffill().astype(int)
+
     def summary(values, ranks):
         date = values.name
         value = total_edits[date]
         s = f"Total edits: {value}"
         # the dict is passed into matplotlib.pyplot.text
-        return {"x": .95, "y": .05, "s": s, "horizontalalignment": "right", "fontsize": "small"}
+        return {"x": 0.95, "y": 0.05, "s": s, "horizontalalignment": "right", "fontsize": "small"}
 
     # render the animation
     logger.info(f"The race is now {df.shape[0]} days long and there are {df.shape[1]} racers remaining")

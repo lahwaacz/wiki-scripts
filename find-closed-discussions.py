@@ -4,7 +4,7 @@ from ws.client import API
 from ws.db.database import Database
 
 
-def main(api, db):
+def main(api: API, db: Database) -> None:
     db.sync_with_api(api)
     db.sync_revisions_content(api, mode="latest")
     db.update_parser_cache()
@@ -18,7 +18,8 @@ def main(api, db):
                     talks.add(page["title"])
 
     for talk in sorted(talks):
-        print("* [[{}]]".format(talk))
+        print(f"* [[{talk}]]")
+
 
 if __name__ == "__main__":
     import ws.config

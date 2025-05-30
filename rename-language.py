@@ -8,6 +8,7 @@ from ws.interactive import require_login
 
 logger = logging.getLogger(__name__)
 
+
 class Renamer:
     edit_summary = "update language name ({old_lang} → {new_lang})"
 
@@ -18,13 +19,13 @@ class Renamer:
         "Slovenský": "Slovenčina",
     }
 
-    def __init__(self, api):
+    def __init__(self, api: API):
         self.api = api
 
         # ensure that we are authenticated
         require_login(self.api)
 
-    def check_page(self, title):
+    def check_page(self, title: str) -> None:
         # check the language
         base, lang = detect_language(title)
         new_lang = self.lang_map.get(lang)
@@ -33,7 +34,7 @@ class Renamer:
 
         # format_title does not work when the script is run before updating the
         # interwiki table and the ws.ArchWiki.lang module
-        #new_title = format_title(base, new_lang)
+        # new_title = format_title(base, new_lang)
         if title == f"Category:{lang}":
             new_title = f"Category:{new_lang}"
         else:
@@ -47,14 +48,16 @@ class Renamer:
             # skip errors
             pass
 
-    def check_allpages(self):
+    def check_allpages(self) -> None:
         namespaces = [0, 4, 10, 12, 14]
         for ns in namespaces:
             for page in self.api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns):
                 self.check_page(page["title"])
 
+
 if __name__ == "__main__":
     import ws.config
+
     api = ws.config.object_from_argparser(API, description="Rename all pages to new language names")
     r = Renamer(api)
     r.check_allpages()

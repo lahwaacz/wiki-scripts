@@ -38,12 +38,14 @@ def _pprint_diff(i, db_entry, api_entry, *, key=None):
         pprint(api_entry)
         print()
 
+
 def _check_entries(i, db_entry, api_entry, *, key=None):
     try:
         assert db_entry == api_entry
     except AssertionError:
         _pprint_diff(i, db_entry, api_entry, key=key)
         raise
+
 
 def _check_lists(db_list, api_list, *, key=None, db=None):
     if key is not None and len(db_list) != len(api_list):
@@ -92,6 +94,7 @@ def _check_lists(db_list, api_list, *, key=None, db=None):
         except AssertionError:
             traceback.print_exc()
 
+
 def _check_lists_of_unordered_pages(db_list, api_list, *, db=None):
     # FIXME: apparently the ArchWiki's MySQL backend does not use the C locale...
     # difference between C and MySQL's binary collation: "2bwm (简体中文)" should come before "2bwm(简体中文)"
@@ -100,6 +103,7 @@ def _check_lists_of_unordered_pages(db_list, api_list, *, db=None):
     db_list = sorted(db_list, key=lambda item: item["pageid"])
 
     _check_lists(db_list, api_list, key="pageid", db=db)
+
 
 # pages may be yielded multiple times, so we need to merge them manually
 def _squash_list_of_dicts(api_list, *, key="pageid"):
@@ -112,11 +116,12 @@ def _squash_list_of_dicts(api_list, *, key="pageid"):
             dmerge(item, api_dict[key_value])
     return list(api_dict.values())
 
+
 def _deduplicate_list_of_dicts(iterable):
     return [dict(t) for t in {tuple(d.items()) for d in iterable}]
 
 
-def check_titles(api, db):
+def check_titles(api: API, db: Database) -> None:
     print("Checking individual titles...")
 
     titles = {"Main page", "Nonexistent"}
@@ -135,7 +140,7 @@ def check_titles(api, db):
     _check_lists(db_list, api_list)
 
 
-def check_specific_titles(api, db):
+def check_specific_titles(api: API, db: Database) -> None:
     titles = [
         "Main page",
         "en:Main page",
@@ -157,7 +162,7 @@ def check_specific_titles(api, db):
         assert api_title == db_title
 
 
-def check_recentchanges(api, db):
+def check_recentchanges(api: API, db: Database) -> None:
     print("Checking the recentchanges table...")
 
     params = {
@@ -203,7 +208,7 @@ def check_recentchanges(api, db):
     _check_lists(db_list, api_list, key="rcid")
 
 
-def check_logging(api, db):
+def check_logging(api: API, db: Database) -> None:
     print("Checking the logging table...")
 
     since = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=30)
@@ -240,7 +245,7 @@ def check_logging(api, db):
     _check_lists(db_list, api_list, key="logid")
 
 
-def check_users(api, db):
+def check_users(api: API, db: Database) -> None:
     print("Checking the user table...")
 
     params = {
@@ -275,7 +280,7 @@ def check_users(api, db):
     _check_lists(db_list, api_list, key="userid")
 
 
-def check_allpages(api, db):
+def check_allpages(api: API, db: Database) -> None:
     print("Checking the page table...")
 
     params = {
@@ -289,7 +294,7 @@ def check_allpages(api, db):
     _check_lists_of_unordered_pages(db_list, api_list)
 
 
-def check_info(api, db):
+def check_info(api: API, db: Database) -> None:
     print("Checking prop=info...")
 
     params = {
@@ -317,7 +322,7 @@ def check_info(api, db):
     _check_lists_of_unordered_pages(db_list, api_list)
 
 
-def check_pageprops(api, db):
+def check_pageprops(api: API, db: Database) -> None:
     print("Checking prop=pageprops...")
 
     params = {
@@ -332,7 +337,7 @@ def check_pageprops(api, db):
     _check_lists_of_unordered_pages(db_list, api_list)
 
 
-def check_protected_titles(api, db):
+def check_protected_titles(api: API, db: Database) -> None:
     print("Checking the protected_titles table...")
 
     params = {
@@ -353,7 +358,7 @@ def check_protected_titles(api, db):
     _check_lists(db_list, api_list, key="pageid")
 
 
-def check_archive(api, db):
+def check_archive(api: API, db: Database) -> None:
     print("Checking the archive table...")
 
     params = {
@@ -388,7 +393,7 @@ def check_archive(api, db):
     _check_lists(db_list, api_list, key="revid")
 
 
-def check_revisions(api, db):
+def check_revisions(api: API, db: Database) -> None:
     print("Checking the revision table...")
 
     since = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=30)
@@ -431,7 +436,7 @@ def check_revisions(api, db):
     _check_lists(db_list, api_list, key="revid")
 
 
-def check_latest_revisions(api, db):
+def check_latest_revisions(api: API, db: Database) -> None:
     print("Checking latest revisions...")
 
     db_params = {
@@ -450,7 +455,7 @@ def check_latest_revisions(api, db):
     _check_lists_of_unordered_pages(db_list, api_list)
 
 
-def check_revisions_of_main_page(api, db):
+def check_revisions_of_main_page(api: API, db: Database) -> None:
     print("Checking revisions of the Main page...")
 
     titles = {"Main page"}
@@ -475,7 +480,7 @@ def check_revisions_of_main_page(api, db):
         _check_lists(db_page["revisions"], api_page["revisions"], key="revid")
 
 
-def check_templatelinks(api, db):
+def check_templatelinks(api: API, db: Database) -> None:
     print("Checking the templatelinks table...")
 
     params = {
@@ -497,7 +502,7 @@ def check_templatelinks(api, db):
     _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
 
-def check_pagelinks(api, db):
+def check_pagelinks(api: API, db: Database) -> None:
     print("Checking the pagelinks table...")
 
     params = {
@@ -520,7 +525,7 @@ def check_pagelinks(api, db):
     _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
 
-def check_imagelinks(api, db):
+def check_imagelinks(api: API, db: Database) -> None:
     print("Checking the imagelinks table...")
 
     params = {
@@ -537,7 +542,7 @@ def check_imagelinks(api, db):
     _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
 
-def check_categorylinks(api, db):
+def check_categorylinks(api: API, db: Database) -> None:
     print("Checking the categorylinks table...")
 
     params = {
@@ -579,7 +584,7 @@ def check_categorylinks(api, db):
     _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
 
-def check_interwiki_links(api, db):
+def check_interwiki_links(api: API, db: Database) -> None:
     print("Checking the langlinks and iwlinks tables...")
 
     params = {
@@ -599,6 +604,7 @@ def check_interwiki_links(api, db):
         if s:
             return s[0].upper() + s[1:]
         return s
+
     for page in api_list:
         for link in chain(page.get("langlinks", []), page.get("iwlinks", [])):
             link["*"] = ucfirst(link["*"].replace("_", " "))
@@ -614,7 +620,7 @@ def check_interwiki_links(api, db):
     _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
 
-def check_external_links(api, db):
+def check_external_links(api: API, db: Database) -> None:
     print("Checking the externallinks table...")
 
     params = {
@@ -629,6 +635,7 @@ def check_external_links(api, db):
     api_list = _squash_list_of_dicts(api_list)
 
     hostname = httpx.URL(api.index_url).host
+
     def get_hostname(url):
         try:
             return httpx.URL(url).host
@@ -662,7 +669,7 @@ def check_external_links(api, db):
     _check_lists_of_unordered_pages(db_list, api_list, db=db)
 
 
-def check_redirects(api, db):
+def check_redirects(api: API, db: Database) -> None:
     print("Checking the redirects table...")
 
     params = {
@@ -693,16 +700,38 @@ if __name__ == "__main__":
     API.set_argparser(argparser)
     Database.set_argparser(argparser)
 
-    argparser.add_argument("--sync", dest="sync", action="store_true", default=True,
-            help="synchronize the SQL database with the remote wiki API (default: %(default)s)")
-    argparser.add_argument("--no-sync", dest="sync", action="store_false",
-            help="opposite of --sync")
-    argparser.add_argument("--content-sync-mode", choices=["latest", "all"], default="latest",
-            help="mode of revisions content synchronization")
-    argparser.add_argument("--parser-cache", dest="parser_cache", action="store_true", default=False,
-            help="update parser cache (default: %(default)s)")
-    argparser.add_argument("--no-parser-cache", dest="parser_cache", action="store_false",
-            help="opposite of --parser-cache")
+    argparser.add_argument(
+        "--sync",
+        dest="sync",
+        action="store_true",
+        default=True,
+        help="synchronize the SQL database with the remote wiki API (default: %(default)s)",
+    )
+    argparser.add_argument(
+        "--no-sync",
+        dest="sync",
+        action="store_false",
+        help="opposite of --sync",
+    )
+    argparser.add_argument(
+        "--content-sync-mode",
+        choices=["latest", "all"],
+        default="latest",
+        help="mode of revisions content synchronization",
+    )
+    argparser.add_argument(
+        "--parser-cache",
+        dest="parser_cache",
+        action="store_true",
+        default=False,
+        help="update parser cache (default: %(default)s)",
+    )
+    argparser.add_argument(
+        "--no-parser-cache",
+        dest="parser_cache",
+        action="store_false",
+        help="opposite of --parser-cache",
+    )
 
     args = ws.config.parse_args(argparser)
 

@@ -18,10 +18,12 @@ from ws.wikitable import Wikitable
 
 logger = logging.getLogger(__name__)
 
+
 class Statistics:
     """
     The whole statistics page.
     """
+
     def __init__(self, api, db, cliargs):
         self.api = api
         self.db = db
@@ -38,47 +40,77 @@ class Statistics:
 
         output = argparser.add_argument_group(title="output")
         # TODO: maybe leave only the short option to forbid configurability in config file
-        output.add_argument('-s', '--save', action='store_true',
-                        help='try to save the page (requires being logged in)')
+        output.add_argument(
+            "-s",
+            "--save",
+            action="store_true",
+            help="try to save the page (requires being logged in)",
+        )
         # FIXME: -c conflicts with -c/--config
-#        output.add_argument('-c', '--clipboard', action='store_true',
-        output.add_argument('--clipboard', action='store_true',
-                        help='try to store the updated text in the clipboard')
-        output.add_argument('-p', '--print', action='store_true',
-                        help='print the updated text in the standard output '
-                        '(this is the default output method)')
+        # output.add_argument('-c', '--clipboard', action='store_true',
+        output.add_argument(
+            "--clipboard",
+            action="store_true",
+            help="try to store the updated text in the clipboard",
+        )
+        output.add_argument(
+            "-p",
+            "--print",
+            action="store_true",
+            help="print the updated text in the standard output (this is the default output method)",
+        )
 
         usstats = argparser.add_argument_group(title="user statistics")
-        usstats.add_argument('--us-days-span', action='store', default=30,
-                    type=int, dest='us_days', metavar='N',
-                    help='the time span in days (default: %(default)s)')
-        usstats.add_argument('--us-min-tot-edits', action='store',
-                    default=1000, type=int, dest='us_mintotedits', metavar='N',
-                    help='minimum total edits for users with not enough '
-                    'recent changes (default: %(default)s)')
-        usstats.add_argument('--us-min-rec-edits', action='store',
-                    default=1, type=int, dest='us_minrecedits', metavar='N',
-                    help='minimum recent changes for users with not enough '
-                    'total edits (default: %(default)s)')
+        usstats.add_argument(
+            "--us-days-span", action="store", default=30, type=int, dest="us_days", metavar="N", help="the time span in days (default: %(default)s)"
+        )
+        usstats.add_argument(
+            "--us-min-tot-edits",
+            action="store",
+            default=1000,
+            type=int,
+            dest="us_mintotedits",
+            metavar="N",
+            help="minimum total edits for users with not enough recent changes (default: %(default)s)",
+        )
+        usstats.add_argument(
+            "--us-min-rec-edits",
+            action="store",
+            default=1,
+            type=int,
+            dest="us_minrecedits",
+            metavar="N",
+            help="minimum recent changes for users with not enough total edits (default: %(default)s)",
+        )
 
         # TODO: main group for "script parameters" would be most logical, but
         #       but argparse does not display nested groups in the help page
         group = argparser.add_argument_group(title="other parameters")
 
-        group.add_argument('-a', '--anonymous', action='store_true',
-                    help='do not require logging in: queries may be limited to '
-                    'a lower rate')
+        group.add_argument(
+            "-a",
+            "--anonymous",
+            action="store_true",
+            help="do not require logging in: queries may be limited to a lower rate",
+        )
         # TODO: maybe leave only the short option to forbid configurability in config file
-        group.add_argument('-f', '--force', action='store_true',
-                    help='try to update the page even if it was last saved in '
-                    'the same UTC day')
-        group.add_argument('--statistics-page', default='ArchWiki:Statistics',
-                    help='the page name on the wiki to fetch and update '
-                    '(default: %(default)s)')
+        group.add_argument(
+            "-f",
+            "--force",
+            action="store_true",
+            help="try to update the page even if it was last saved in the same UTC day",
+        )
+        group.add_argument(
+            "--statistics-page",
+            default="ArchWiki:Statistics",
+            help="the page name on the wiki to fetch and update (default: %(default)s)",
+        )
         # TODO: no idea how to forbid setting this globally in the config...
-        group.add_argument('--summary', default='automatic update',
-                    help='the edit summary to use when saving the page '
-                    '(default: %(default)s)')
+        group.add_argument(
+            "--summary",
+            default="automatic update",
+            help="the edit summary to use when saving the page (default: %(default)s)",
+        )
 
     @classmethod
     def from_argparser(klass, args, api=None, db=None):
@@ -98,9 +130,7 @@ class Statistics:
         try:
             self.page = AutoPage(self.api, self.cliargs.statistics_page)
         except ValueError:
-            logger.error("The page [[{}]] currently does not exist. It must be "
-                  "created manually before the script can update it."
-                  .format(self.cliargs.statistics_page))
+            logger.error(f"The page [[{self.cliargs.statistics_page}]] currently does not exist. It must be created manually before the script can update it.")
             return 1
 
         if self.cliargs.force or self.page.is_old_enough(min_interval=datetime.timedelta(days=1), strip_time=True):
@@ -111,9 +141,7 @@ class Statistics:
             return 1
 
     def _compose_page(self):
-        userstats = _UserStats(self.api, self.db, self.page,
-                    self.cliargs.us_days, self.cliargs.us_mintotedits,
-                    self.cliargs.us_minrecedits)
+        userstats = _UserStats(self.api, self.db, self.page, self.cliargs.us_days, self.cliargs.us_mintotedits, self.cliargs.us_minrecedits)
         userstats.update()
 
     def _output_page(self):
@@ -124,8 +152,7 @@ class Statistics:
 
             try:
                 self.page.save(self.cliargs.summary, minor="1")
-                logger.info("The page has been saved: do not forget to "
-                            "double-check the diff")
+                logger.info("The page has been saved: do not forget to double-check the diff")
                 ret |= 2
             except APIError:
                 ret |= 1
@@ -137,14 +164,12 @@ class Statistics:
                 w.clipboard_clear()
                 w.clipboard_append(self.page.wikicode)
                 # The copied text is lost once the script terminates
-                input("The updated page text has been copied to the clipboard: "
-                      "paste it in the browser, then press Enter to continue")
+                input("The updated page text has been copied to the clipboard: paste it in the browser, then press Enter to continue")
                 w.destroy()
 
                 ret |= 2
             else:
-                logger.error("It has not been possible to copy the updated "
-                             "text to the clipboard")
+                logger.error("It has not been possible to copy the updated text to the clipboard")
                 ret |= 1
 
         # If no other action was chosen, always print the output, so that all
@@ -159,6 +184,7 @@ class _UserStats:
     """
     User statistics.
     """
+
     INTRO = """\n
 This table shows the {} users with at least {} edits in total, combined with \
 the {} users who made at least {} {} in the {} days between {} and {} (00:00 \
@@ -185,12 +211,8 @@ the user's first and last edits, calculated as the total number of edits \
 divided by the number of days between the user's first and last edits.
 
 """
-    FIELDS = ("user", "registration", "groups", "recenteditcount", "editcount",
-              "longest streak", "current streak", "totaleditsperday",
-              "activeeditsperday")
-    FIELDS_FORMAT = ("User", "Registration", "Roles", "Recent", "Total",
-                     "Longest<br>streak", "Current<br>streak",
-                     "Avg.<br>(total)", "Avg.<br>(active)")
+    FIELDS = ("user", "registration", "groups", "recenteditcount", "editcount", "longest streak", "current streak", "totaleditsperday", "activeeditsperday")
+    FIELDS_FORMAT = ("User", "Registration", "Roles", "Recent", "Total", "Longest<br>streak", "Current<br>streak", "Avg.<br>(total)", "Avg.<br>(active)")
     GRPTRANSL = {
         # Access levels
         "*": lambda groups: "",
@@ -202,9 +224,8 @@ divided by the number of days between the user's first and last edits.
         "cosysop": lambda groups: "",
         "privileged": lambda groups: "",
         "bot": lambda groups: "[[ArchWiki:Bots|Bot]]",
-
         # User roles
-        "maintainer": lambda groups: 'sysop' in groups and "[[ArchWiki:Administrators|Administrator]]" or "[[ArchWiki:Maintainers|Maintainer]]",
+        "maintainer": lambda groups: "sysop" in groups and "[[ArchWiki:Administrators|Administrator]]" or "[[ArchWiki:Maintainers|Maintainer]]",
         "administrator_fellow": lambda groups: "[[ArchWiki:Administrators|Administrator Fellow]]",
         "archdev": lambda groups: "[[Roles|Developer]]",
         "archpackager": lambda groups: "[[Package Maintainer]]",
@@ -217,8 +238,7 @@ divided by the number of days between the user's first and last edits.
     def __init__(self, api, db, autopage, days, mintotedits, minrecedits):
         self.api = api
         self.db = db
-        self.text = autopage.wikicode.get_sections(matches="User statistics",
-                    flat=True, include_lead=False, include_headings=False)[0]
+        self.text = autopage.wikicode.get_sections(matches="User statistics", flat=True, include_lead=False, include_headings=False)[0]
 
         self.DAYS = days
         self.CELLSN = len(self.FIELDS)
@@ -276,11 +296,11 @@ divided by the number of days between the user's first and last edits.
                 # compose row with cells ordered based on self.FIELDS
                 # TODO: perhaps it would be best if Wikitable.assemble could handle list of dicts
                 cells = [None] * len(self.FIELDS)
-                cells[self.FIELDS.index("user")]           = self._format_name(name)
+                cells[self.FIELDS.index("user")] = self._format_name(name)
                 cells[self.FIELDS.index("recenteditcount")] = self.modules.recent_edit_count(name)
-                cells[self.FIELDS.index("editcount")]      = self.modules.total_edit_count(name)
-                cells[self.FIELDS.index("registration")]   = self._format_registration(registration)
-                cells[self.FIELDS.index("groups")]         = self._format_groups(user["groups"])
+                cells[self.FIELDS.index("editcount")] = self.modules.total_edit_count(name)
+                cells[self.FIELDS.index("registration")] = self._format_registration(registration)
+                cells[self.FIELDS.index("groups")] = self._format_groups(user["groups"])
                 cells[self.FIELDS.index("longest streak")] = "0" if longest_streak is None else self.STREAK_FORMAT.format(**longest_streak)
                 cells[self.FIELDS.index("current streak")] = "0" if current_streak is None else self.STREAK_FORMAT.format(**current_streak)
                 cells[self.FIELDS.index("totaleditsperday")] = "{:.2f}".format(self.modules.edits_per_day(name, registration))
@@ -297,11 +317,17 @@ divided by the number of days between the user's first and last edits.
         return rows
 
     def _compose_table(self, rows, majorusersN, activeusersN, totalusersN):
-        newtext = (self.INTRO).format(majorusersN, self.MINTOTEDITS,
-                                activeusersN, self.MINRECEDITS,
-                                "edits" if self.MINRECEDITS > 1 else "edit",
-                                self.DAYS, self.modules.format_first_date(),
-                                self.modules.format_last_date(), totalusersN)
+        newtext = (self.INTRO).format(
+            majorusersN,
+            self.MINTOTEDITS,
+            activeusersN,
+            self.MINRECEDITS,
+            "edits" if self.MINRECEDITS > 1 else "edit",
+            self.DAYS,
+            self.modules.format_first_date(),
+            self.modules.format_last_date(),
+            totalusersN,
+        )
         newtext += Wikitable.assemble(self.FIELDS_FORMAT, rows)
         self.text.replace(self.text, newtext, recursive=False)
 
@@ -310,5 +336,6 @@ if __name__ == "__main__":
     import sys
 
     import ws.config
+
     statistics = ws.config.object_from_argparser(Statistics, description="Update the statistics page on ArchWiki")
     sys.exit(statistics.run())

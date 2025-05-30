@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+from typing import Any
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,7 +12,7 @@ from ws.interactive import require_login
 from ws.utils import range_by_days
 
 
-def plot_setup(title="", ylabel="edits"):
+def plot_setup(title: str = "", ylabel: str = "edits") -> mpl.axes.Axes:
     fig = plt.figure(figsize=(12, 9))
     ax = fig.add_subplot(111)
     plt.title(title)
@@ -18,7 +20,7 @@ def plot_setup(title="", ylabel="edits"):
     plt.ylabel(ylabel)
 
     # x-ticks formatting
-    plt.gca().xaxis.set_major_formatter(mpl.dates.DateFormatter('%Y-%m-%d'))
+    plt.gca().xaxis.set_major_formatter(mpl.dates.DateFormatter("%Y-%m-%d"))
     plt.gca().xaxis.set_major_locator(mpl.dates.MonthLocator(interval=12))
     plt.tick_params(axis="x", which="both", direction="out")
 
@@ -30,7 +32,8 @@ def plot_setup(title="", ylabel="edits"):
 
     return ax
 
-def plot_revisions(ax, revisions, label):
+
+def plot_revisions(ax: mpl.axes.Axes, revisions: list[dict[str, Any]], label: str) -> mpl.lines.Line2D:
     timestamps = sorted(revision["timestamp"] for revision in revisions)
 
     # construct an array of bin edges, one bin per day
@@ -51,10 +54,11 @@ def plot_revisions(ax, revisions, label):
 
     # xticks have to be rotated right before the plt.plot() call (wtf..)
     plt.xticks(rotation="vertical")
-    line, = ax.plot(mpl.dates.date2num(bin_edges[:-1]), bin_data, label=label, linewidth=1.5)
+    (line,) = ax.plot(mpl.dates.date2num(bin_edges[:-1]), bin_data, label=label, linewidth=1.5)
     return line
 
-def plot_logs(ax, line, logs):
+
+def plot_logs(ax: mpl.axes.Axes, line: mpl.lines.Line2D, logs: list[dict[str, Any]]) -> None:
     color = line.get_color()
     for log in logs:
         x = mpl.dates.date2num(log["timestamp"])
@@ -69,8 +73,10 @@ def plot_logs(ax, line, logs):
                 labels.append("-{}".format(group))
         ax.annotate("\n".join(labels), xy=(x, y), xytext=(5, 0), textcoords="offset points", ha="left", va="top")
 
-def plot_save(fname):
+
+def plot_save(fname: str) -> None:
     plt.savefig(fname, dpi=192)
+
 
 if __name__ == "__main__":
     import ws.config
@@ -99,5 +105,5 @@ if __name__ == "__main__":
         logs = [log for log in all_logs if log["title"] == "User:{}".format(user)]
         plot_logs(ax, line, logs)
     plt.legend(handles=lines, loc="upper left")
-#    plot_save("admins.png")
+    # plot_save("admins.png")
     plt.show()

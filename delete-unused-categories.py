@@ -1,19 +1,23 @@
 #! /usr/bin/env python3
 
+import argparse
+from typing import Any
+
 from ws.client import API
 from ws.interactive import ask_yesno, require_login
 from ws.utils import RateLimited, dmerge
 
 
 @RateLimited(1, 1)
-def delete_page(api, title, pageid):
-    print("Deleting page '{}' (pageid={})".format(title, pageid))
+def delete_page(api: API, title: str, pageid: int) -> None:
+    print(f"Deleting page '{title}' (pageid={pageid})")
     api.call_with_csrftoken(action="delete", pageid=pageid, reason="Unused category", tags="wiki-scripts")
 
-def main(args, api):
+
+def main(args: argparse.Namespace, api: API) -> None:
     unused_categories = [p["title"] for p in api.list(list="querypage", qppage="Unusedcategories", qplimit="max")]
 
-    result = {}
+    result: dict[str, Any] = {}
     query = api.call_api_autoiter_ids(action="query", prop="revisions", rvprop="content|timestamp", rvslots="main", titles=unused_categories)
 
     for chunk in query:
@@ -31,6 +35,7 @@ def main(args, api):
         delete = ask_yesno("Delete the page?")
         if delete is True:
             delete_page(api, title, pageid)
+
 
 if __name__ == "__main__":
     import ws.config

@@ -9,10 +9,12 @@ from ws.client import API
 from ws.db.database import Database
 from ws.interactive import require_login
 from ws.parser_helpers.encodings import dotencode
+from ws.parser_helpers.title import Title
 
 logger = logging.getLogger(__name__)
 
-def valid_sectionname(db, title):
+
+def valid_sectionname(db: Database, title: Title) -> bool:
     """
     Checks if the ``sectionname`` property of given title is valid, i.e. if a
     corresponding section exists on a page with given title.
@@ -23,7 +25,6 @@ def valid_sectionname(db, title):
 
     :param ws.db.database.Database db: database object
     :param title: parsed title of the wikilink to be checked
-    :type title: ws.parser_helpers.title.Title
     :returns: ``True`` if the anchor corresponds to an existing section
     """
     # we can't check interwiki links
@@ -42,7 +43,8 @@ def valid_sectionname(db, title):
     # encode the given anchor and validate
     return dotencode(title.sectionname) in anchors
 
-def list_redirects_broken_fragments(api, db):
+
+def list_redirects_broken_fragments(api: API, db: Database) -> str:
     db.sync_with_api(api)
     db.sync_revisions_content(api, mode="latest")
     db.update_parser_cache()
@@ -62,12 +64,13 @@ def list_redirects_broken_fragments(api, db):
 
     return report
 
-def list_redirects_wrong_capitalization(api):
+
+def list_redirects_wrong_capitalization(api: API) -> str:
     # limit to redirects pointing to the main namespace, others deserve special treatment
     redirects = api.redirects.fetch(source_namespaces=[0, 4, 12], target_namespaces=[0])
 
     # we will count the number of uppercase letters starting each word
-    def count_uppercase(text):
+    def count_uppercase(text: str) -> int:
         words = text.split()
         firstletters = [word[0] for word in words]
         return sum(1 for c in firstletters if c.isupper())
@@ -93,7 +96,8 @@ def list_redirects_wrong_capitalization(api):
 
     return report
 
-def list_redirects_different_namespace(api):
+
+def list_redirects_different_namespace(api: API) -> str:
     # limit to redirects from content namespaces
     redirects = api.redirects.fetch(source_namespaces=[0, 4, 12, 14, 3000])
 
@@ -105,7 +109,8 @@ def list_redirects_different_namespace(api):
 
     return report
 
-def list_talkpages_of_deleted_pages(api):
+
+def list_talkpages_of_deleted_pages(api: API) -> str:
     # get titles of all pages in 'Main', 'ArchWiki' and 'Help' namespaces
     allpages = []
     for ns in ["0", "4", "12"]:
@@ -127,7 +132,8 @@ def list_talkpages_of_deleted_pages(api):
 
     return report
 
-def list_talkpages_of_redirects(api):
+
+def list_talkpages_of_redirects(api: API) -> str:
     # get titles of all redirect pages in 'Main', 'ArchWiki' and 'Help' namespaces
     redirect_titles = []
     for ns in ["0", "4", "12"]:
@@ -138,7 +144,7 @@ def list_talkpages_of_redirects(api):
     talks = []
     for ns in ["1", "5", "13"]:
         # limiting to talk pages that are not redirects is also useful
-    #    pages = api.generator(generator="allpages", gaplimit="max", gapnamespace=ns)
+        # pages = api.generator(generator="allpages", gaplimit="max", gapnamespace=ns)
         pages = api.generator(generator="allpages", gaplimit="max", gapfilterredir="nonredirects", gapnamespace=ns)
         talks.extend([page["title"] for page in pages])
 
@@ -151,7 +157,8 @@ def list_talkpages_of_redirects(api):
 
     return report
 
-def list_mismatched_talkpage_redirects(api):
+
+def list_mismatched_talkpage_redirects(api: API) -> str:
     report = ""
     redirects = api.redirects.map
     for source, target in redirects.items():
@@ -187,13 +194,14 @@ def list_mismatched_talkpage_redirects(api):
 
     return report
 
-def sortlines(text):
+
+def sortlines(text: str) -> str:
     lines = text.strip("\n").splitlines()
     lines.sort()
     return "\n".join(lines)
 
-def make_report(api, db):
 
+def make_report(api: API, db: Database) -> str:
     result_redirects_broken_fragments = sortlines(list_redirects_broken_fragments(api, db))
     result_redirects_wrong_capitalization = sortlines(list_redirects_wrong_capitalization(api))
     result_redirects_different_namespace = sortlines(list_redirects_different_namespace(api))
@@ -243,6 +251,7 @@ I.e, pages such that if A redirects to B, Talk:A redirects to Talk:C rather than
 """
     return report
 
+
 def save_report(api, report_page, contents):
     page = AutoPage(api, report_page)
     if not page.is_old_enough(datetime.timedelta(days=0), strip_time=True):
@@ -257,6 +266,7 @@ def save_report(api, report_page, contents):
     page.save("automatic update", False)
     logger.info("Saved report to the [[{}]] page on the wiki.".format(report_page))
 
+
 if __name__ == "__main__":
     import ws.config
 
@@ -265,8 +275,13 @@ if __name__ == "__main__":
     Database.set_argparser(argparser)
 
     group = argparser.add_argument_group(title="script parameters")
-    group.add_argument("--report-page", type=str, default=None, metavar="PAGENAME",
-            help="existing report page on the wiki (default: %(default)s)")
+    group.add_argument(
+        "--report-page",
+        type=str,
+        default=None,
+        metavar="PAGENAME",
+        help="existing report page on the wiki (default: %(default)s)",
+    )
 
     args = ws.config.parse_args(argparser)
 

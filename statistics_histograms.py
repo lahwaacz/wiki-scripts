@@ -5,7 +5,14 @@
 # * bots vs nobots
 # * different notion of active user ("calendar month" vs "30 days")
 
+import datetime
 import logging
+from typing import Any
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import ticker
+from matplotlib.dates import date2num, num2date
 
 from ws.client import API
 from ws.db.database import Database
@@ -14,7 +21,8 @@ from ws.utils import range_by_months
 
 logger = logging.getLogger(__name__)
 
-def plot_date_bars(bin_data, bin_edges, title, ylabel, fname):
+
+def plot_date_bars(bin_data: list[int] | np.ndarray, bin_edges: list[datetime.date], title: str, ylabel: str, fname: str) -> None:
     """
     Semi-generic function to plot a bar graph, x-label is fixed to "date" and the
     x-ticks are formatted accordingly.
@@ -29,10 +37,6 @@ def plot_date_bars(bin_data, bin_edges, title, ylabel, fname):
     :param ylabel: label of y-axis
     :param fname: output file name
     """
-    import matplotlib.pyplot as plt
-    from matplotlib import ticker
-    from matplotlib.dates import date2num, num2date
-
     plt.figure()  # clear previous figure
     plt.title(title)
     plt.xlabel("date")
@@ -42,14 +46,15 @@ def plot_date_bars(bin_data, bin_edges, title, ylabel, fname):
     plt.bar(date2num(bin_edges[:-1]), bin_data, width=date2num(bin_edges[1]) - date2num(bin_edges[0]))
 
     # x-ticks formatting
-    plt.gca().xaxis.set_major_formatter(ticker.FuncFormatter(lambda numdate, _: num2date(numdate).strftime('%Y-%m-%d')))
+    plt.gca().xaxis.set_major_formatter(ticker.FuncFormatter(lambda numdate, _: num2date(numdate).strftime("%Y-%m-%d")))
     plt.gcf().autofmt_xdate()
     plt.tick_params(axis="x", which="both", direction="out")
     plt.xticks([date2num(ts) for ts in bin_edges if ts.month % 12 == 1])
 
     plt.savefig(fname)
 
-def create_histograms(revisions):
+
+def create_histograms(revisions: list[dict[str, Any]]) -> None:
     """
     Build some histograms from the revisions data:
       - count of total edits per month since the wiki has been created
@@ -57,13 +62,10 @@ def create_histograms(revisions):
 
     Reference: http://stackoverflow.com/a/3035824 (highly adjusted)
     """
-    import numpy as np
-    from matplotlib.dates import date2num
-
     # list of timestamps for each revision
     timestamps = [revision["timestamp"] for revision in revisions]
     # alternatively exclude bots
-#    timestamps = [revision["timestamp"] for revision in revisions if revision["user"] not in ["Kynikos.bot", "Lahwaacz.bot", "Strcat"]]
+    # timestamps = [revision["timestamp"] for revision in revisions if revision["user"] not in ["Kynikos.bot", "Lahwaacz.bot", "Strcat"]]
 
     # construct an array of bin edges, one bin per calendar month
     bin_edges = range_by_months(timestamps[0], timestamps[-1])
@@ -75,19 +77,16 @@ def create_histograms(revisions):
     # the returned indexes are 1-based indices!!! so let's turn them into 0-based
     bin_indexes = np.subtract(bin_indexes, 1)
 
-
     # histogram for all edits
     logger.info("Plotting hist_alledits.svg")
     # since it is calculated by counting revisions in each bin, it is enough to count
     # the indexes
     hist_alledits, _ = np.histogram(bin_indexes, bins=range(len(bin_edges)))
 
-    plot_date_bars(hist_alledits, bin_edges, title="ArchWiki edits per month",
-            ylabel="edit count", fname="stub/hist_alledits.svg")
-#    plot_date_bars(hist_alledits, bin_edges,
-#            title="ArchWiki edits per month (without bots)", ylabel="edit count",
-#            fname="stub/hist_alledits_nobots.svg")
-
+    plot_date_bars(hist_alledits, bin_edges, title="ArchWiki edits per month", ylabel="edit count", fname="stub/hist_alledits.svg")
+    # plot_date_bars(hist_alledits, bin_edges,
+    #                title="ArchWiki edits per month (without bots)", ylabel="edit count",
+    #                fname="stub/hist_alledits_nobots.svg")
 
     # histogram for active users
     logger.info("Plotting hist_active_users.svg")
@@ -95,13 +94,11 @@ def create_histograms(revisions):
     num_bins = len(bin_edges) - 1
     for i in range(num_bins):
         # array of indexes for revisions in current bin
-        current_bin, = np.where(bin_indexes == i)
+        (current_bin,) = np.where(bin_indexes == i)
         active_users = list(set([revisions[ii]["user"] for ii in current_bin]))
         hist_active_users.append(len(active_users))
 
-    plot_date_bars(hist_active_users, bin_edges,
-            title="ArchWiki active users per month", ylabel="active users",
-            fname="stub/hist_active_users.svg")
+    plot_date_bars(hist_active_users, bin_edges, title="ArchWiki active users per month", ylabel="active users", fname="stub/hist_active_users.svg")
 
 
 if __name__ == "__main__":

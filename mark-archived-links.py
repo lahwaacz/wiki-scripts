@@ -1,11 +1,16 @@
 #! /usr/bin/env python3
 
 import logging
+from typing import Any
 
 import mwparserfromhell
+from mwparserfromhell.nodes import Node, Wikilink
+from mwparserfromhell.wikicode import Wikicode
 
 import ws.ArchWiki.lang as lang
 from ws.checkers import CheckerBase, get_edit_summary_tracker
+from ws.client import API
+from ws.db.database import Database
 from ws.pageupdater import PageUpdater
 from ws.parser_helpers.title import InvalidTitleCharError
 from ws.parser_helpers.wikicode import ensure_flagged_by_template, ensure_unflagged_by_template, is_flagged_by_template
@@ -16,24 +21,26 @@ ARCHIVE_TITLE = "ArchWiki:Archive"
 
 
 class ArchivedLinkChecker(CheckerBase):
-
-    def __init__(self, api, db, **kwargs):
+    def __init__(self, api: API, db: Database | None, **kwargs: Any):
         super().__init__(api, db, **kwargs)
 
-    def update_wikilink(self, wikicode, wikilink, src_title, summary_parts):
-        title = self.api.Title(wikilink.title)
+    def update_wikilink(self, wikicode: Wikicode, wikilink: Wikilink, src_title: str, summary_parts: list[str]) -> None:
+        title = self.api.Title(str(wikilink.title))
 
         # interwiki links are never archived
         if title.iwprefix:
             return
 
         if title.fullpagename in self.api.redirects.map:
-            target_title = self.api.Title(self.api.redirects.resolve(title.fullpagename))
+            _target = self.api.redirects.resolve(title.fullpagename)
+            assert _target is not None
+            target_title = self.api.Title(_target)
             if target_title.fullpagename == ARCHIVE_TITLE:
                 summary = get_edit_summary_tracker(wikicode, summary_parts)
                 with summary("mark links to archived pages"):
-                    while is_flagged_by_template(wikicode, wikilink, "Archived page", match_only_prefix=True) \
-                            or is_flagged_by_template(wikicode, wikilink, "Broken section link", match_only_prefix=True):
+                    while is_flagged_by_template(wikicode, wikilink, "Archived page", match_only_prefix=True) or is_flagged_by_template(
+                        wikicode, wikilink, "Broken section link", match_only_prefix=True
+                    ):
                         # first unflag to remove any translated version of the flag
                         ensure_unflagged_by_template(wikicode, wikilink, "Archived page", match_only_prefix=True)
                         # links to archive should not be flagged by "Broken section link" ("Archived page" has higher priority)
@@ -43,8 +50,8 @@ class ArchivedLinkChecker(CheckerBase):
                     flag = self.get_localized_template("Archived page", src_lang)
                     ensure_flagged_by_template(wikicode, wikilink, flag)
 
-    def handle_node(self, src_title, wikicode, node, summary_parts):
-        if isinstance(node, mwparserfromhell.nodes.Wikilink):
+    def handle_node(self, src_title: str, wikicode: Wikicode, node: Node, summary_parts: list[str]) -> None:
+        if isinstance(node, Wikilink):
             try:
                 self.update_wikilink(wikicode, node, src_title, summary_parts)
             # this can happen, e.g. due to [[{{TALKPAGENAME}}]]
@@ -64,8 +71,17 @@ class Updater(PageUpdater):
 
         namespaces = "|".join(str(ns) for ns in self.namespaces)
 
-        for page in self.api.generator(generator="backlinks", gbltitle=ARCHIVE_TITLE, gbllimit="200", gblnamespace=namespaces, gblfilterredir="nonredirects", gblredirect="1",
-                                       prop="revisions", rvprop="content|timestamp", rvslots="main"):
+        for page in self.api.generator(
+            generator="backlinks",
+            gbltitle=ARCHIVE_TITLE,
+            gbllimit="200",
+            gblnamespace=namespaces,
+            gblfilterredir="nonredirects",
+            gblredirect="1",
+            prop="revisions",
+            rvprop="content|timestamp",
+            rvslots="main",
+        ):
             # if the user is not logged in, the limit for revisions may be lower than gaplimit,
             # in which case the generator will yield some pages multiple times without revisions
             # before the query-continuation kicks in

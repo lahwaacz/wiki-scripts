@@ -23,9 +23,7 @@ class LinkChecker(ExtlinkReplacements, WikilinkChecker, ManTemplateChecker):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-    def handle_node(
-        self, src_title: str, wikicode: Wikicode, node: Node, summary_parts: list[str]
-    ) -> None:
+    def handle_node(self, src_title: str, wikicode: Wikicode, node: Node, summary_parts: list[str]) -> None:
         # dispatch calls to all parents, but return as soon as the node is handled
         # (this can be determined by the added edit summary)
         initial_length = len(summary_parts)
@@ -53,9 +51,7 @@ if __name__ == "__main__":
     import ws.config
     from ws.interactive import InteractiveQuit
 
-    argparser = ws.config.getArgParser(
-        description="Parse all pages on the wiki and try to fix/simplify/beautify links"
-    )
+    argparser = ws.config.getArgParser(description="Parse all pages on the wiki and try to fix/simplify/beautify links")
     API.set_argparser(argparser)
     Database.set_argparser(argparser)
     Updater.set_argparser(argparser)
