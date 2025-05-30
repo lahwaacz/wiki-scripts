@@ -215,7 +215,7 @@ class test_fetch_section:
         assert msg == str(excinfo.value)
 
 
-class obj_simple:
+class obj_simple(ws.config.ConfigurableObject):
     def __init__(self, foo: Any, bar: Any):
         self.foo = foo
         self.bar = bar
