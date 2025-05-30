@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+from typing import Any
+
 import mwparserfromhell
 
 from ws.ArchWiki import lang
@@ -9,11 +11,11 @@ from ws.parser_helpers.title import canonicalize
 from ws.utils import dmerge
 
 
-def page_language(page):
+def page_language(page: dict[str, Any]) -> str:
     return lang.detect_language(page["title"])[1]
 
 
-def edit(api: API, page, templates):
+def edit(api: API, page: dict[str, Any], templates: set[str]) -> None:
     print(f"Parsing '{page['title']}'...")
     text = page["revisions"][0]["slots"]["main"]["*"]
     timestamp = page["revisions"][0]["timestamp"]
@@ -40,39 +42,69 @@ def edit(api: API, page, templates):
     if str(code) != text:
         if __name__ == "__main__":
             if "bot" in api.user.rights:
-                edit_interactive(api, page["title"], page["pageid"], text, str(code), timestamp, "localize templates", bot="")
+                edit_interactive(
+                    api,
+                    page["title"],
+                    page["pageid"],
+                    text,
+                    str(code),
+                    timestamp,
+                    "localize templates",
+                    bot="",
+                )
             else:
-                edit_interactive(api, page["title"], page["pageid"], text, str(code), timestamp, "localize templates")
+                edit_interactive(
+                    api,
+                    page["title"],
+                    page["pageid"],
+                    text,
+                    str(code),
+                    timestamp,
+                    "localize templates",
+                )
         else:
-            api.edit(page['title'], page['pageid'], str(code), timestamp, "localize templates", bot="")
+            api.edit(
+                page["title"],
+                page["pageid"],
+                str(code),
+                timestamp,
+                "localize templates",
+                bot="",
+            )
 
 
-def main(api: API):
+def main(api: API) -> None:
     print("Getting page IDs...")
     pageids = set()
     templates = set()
-    for template in api.list(list="allpages",
-                             apnamespace="10",
-                             apfilterlanglinks="withlanglinks",
-                             aplimit="max"):
+    for template in api.list(
+        list="allpages",
+        apnamespace="10",
+        apfilterlanglinks="withlanglinks",
+        aplimit="max",
+    ):
         templates.add(template["title"])
         if page_language(template) == "English":
             # get IDs of the pages using this template
-            for page in api.generator(generator="embeddedin",
-                                      geifilterredir="nonredirects",
-                                      geilimit="max",
-                                      geititle=template["title"]):
+            for page in api.generator(
+                generator="embeddedin",
+                geifilterredir="nonredirects",
+                geilimit="max",
+                geititle=template["title"],
+            ):
                 if page_language(page) != "English":
                     pageids.add(page["pageid"])
     print(f"Fetched {len(pageids)} pages.")
 
     print("Getting page contents...")
-    result = {}
-    for chunk in api.call_api_autoiter_ids(action="query",
-                                           pageids=pageids,
-                                           prop="revisions",
-                                           rvprop="content|timestamp",
-                                           rvslots="main"):
+    result: dict[str, Any] = {}
+    for chunk in api.call_api_autoiter_ids(
+        action="query",
+        pageids=pageids,
+        prop="revisions",
+        rvprop="content|timestamp",
+        rvslots="main",
+    ):
         dmerge(chunk, result)
 
     pages = result["pages"]
@@ -83,5 +115,8 @@ def main(api: API):
 if __name__ == "__main__":
     import ws.config
 
-    api = ws.config.object_from_argparser(API, description="Replace unlocalised templates in localised pages with the localised templates")
+    api = ws.config.object_from_argparser(
+        API,
+        description="Replace unlocalised templates in localised pages with the localised templates",
+    )
     main(api)
