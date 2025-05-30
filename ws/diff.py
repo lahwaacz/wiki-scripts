@@ -1,20 +1,35 @@
-#! /usr/bin/env python3
+from types import ModuleType
+from typing import cast
+
+from mwparserfromhell.wikicode import Wikicode
 
 try:
-    import WikEdDiff
-    _has_wikeddiff = True
+    WikEdDiff: ModuleType | None
+    import WikEdDiff  # type: ignore[no-redef]
 except ImportError:
-    _has_wikeddiff = False
+    WikEdDiff = None
+
     import difflib
+
     try:
+        pygments: ModuleType | None
         import pygments
         import pygments.formatters
         import pygments.lexers.text
-        _has_pygments = True
     except ImportError:
-        _has_pygments = False
+        pygments = None
 
-def diff_highlighted(old, new, fromfile="", tofile="", fromfiledate="", tofiledate=""):
+from .client.api import API
+
+
+def diff_highlighted(
+    old: str,
+    new: str | Wikicode,
+    fromfile: str = "",
+    tofile: str = "",
+    fromfiledate: str = "",
+    tofiledate: str = "",
+) -> str:
     """
     Returns a diff between two texts formatted with ANSI color sequences
     suitable for output in 256-color terminal.
@@ -41,7 +56,7 @@ def diff_highlighted(old, new, fromfile="", tofile="", fromfiledate="", tofileda
     if not new.endswith("\n"):
         new += "\n"
 
-    if _has_wikeddiff is True:
+    if WikEdDiff is not None:
         # get diff fragments
         config = WikEdDiff.WikEdDiffConfig()
         wd = WikEdDiff.WikEdDiff(config)
@@ -49,34 +64,50 @@ def diff_highlighted(old, new, fromfile="", tofile="", fromfiledate="", tofileda
 
         # format with ANSI colors
         formatter = WikEdDiff.AnsiFormatter()
-        diff_ansi = formatter.format( fragments, coloredBlocks=True )
+        diff_ansi = cast(str, formatter.format(fragments, coloredBlocks=True))
 
         # prepend metadata
-        header = formatter.pushColor(formatter.color_delete) + \
-                 "--- {}\t{}".format(fromfile, fromfiledate) + \
-                 formatter.popColor() + "\n" + \
-                 formatter.pushColor(formatter.color_insert) + \
-                 "+++ {}\t{}".format(tofile, tofiledate) + \
-                 formatter.popColor() + "\n"
-        sep = formatter.pushColor(formatter.color_separator) + \
-              formatter.separator_symbol + \
-              formatter.popColor()
+        header = cast(
+            str,
+            formatter.pushColor(formatter.color_delete)
+            + "--- {}\t{}".format(fromfile, fromfiledate)
+            + formatter.popColor()
+            + "\n"
+            + formatter.pushColor(formatter.color_insert)
+            + "+++ {}\t{}".format(tofile, tofiledate)
+            + formatter.popColor()
+            + "\n",
+        )
+        sep = cast(
+            str,
+            formatter.pushColor(formatter.color_separator)
+            + formatter.separator_symbol
+            + formatter.popColor(),
+        )
         return header + sep + "\n" + diff_ansi + "\n" + sep
 
     else:
         # splitlines() omits the '\n' char from each line, so we need to
         # explicitly set lineterm="", otherwise spacing would be inconsistent
-        diff = difflib.unified_diff(old.splitlines(), new.splitlines(), fromfile, tofile,
-                                    str(fromfiledate), str(tofiledate), lineterm="")
+        diff = difflib.unified_diff(
+            old.splitlines(),
+            new.splitlines(),
+            fromfile,
+            tofile,
+            str(fromfiledate),
+            str(tofiledate),
+            lineterm="",
+        )
 
         text = "\n".join(diff)
-        if _has_pygments is True:
+        if pygments is not None:
             lexer = pygments.lexers.text.DiffLexer()
             formatter = pygments.formatters.Terminal256Formatter()
             text = pygments.highlight(text, lexer, formatter)
         return text
 
-def diff_revisions(api, oldrevid, newrevid):
+
+def diff_revisions(api: API, oldrevid: int, newrevid: int) -> str:
     """
     Get a visual diff of two revisions obtained via a MediaWiki API.
 
@@ -88,12 +119,20 @@ def diff_revisions(api, oldrevid, newrevid):
     :param newrevid: revision ID for new revision
     """
     # query content + meta data for each revision
-    result = api.call_api(action="query", prop="revisions", rvprop="content|timestamp|user|comment", revids="%s|%s" % (oldrevid, newrevid))
-    page = list(result["pages"].values())[0]    # returned structure is the same as for generators
+    result = api.call_api(
+        action="query",
+        prop="revisions",
+        rvprop="content|timestamp|user|comment",
+        revids="%s|%s" % (oldrevid, newrevid),
+    )
+    # returned structure is the same as for generators
+    page = list(result["pages"].values())[0]
 
     title = page["title"]
     if len(page["revisions"]) != 2:
-        raise Exception("API returned wrong number of revisions, are the revision IDs valid?")
+        raise Exception(
+            "API returned wrong number of revisions, are the revision IDs valid?"
+        )
     rev_old = page["revisions"][0]
     rev_new = page["revisions"][1]
     # fields to show in header (extended, abusing original field titles)
