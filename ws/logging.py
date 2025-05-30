@@ -1,50 +1,54 @@
-#! /usr/bin/env python3
-
 # TODO:
 #   global docstring
 #       document how the ws module uses logging - Logger names, verbosity levels etc.
 #       document how scripts should use the ws.logging submodule
 #   check if stdout is actually attached to terminal
 
+import argparse
 import collections
 import logging
 
 __all__ = ["setTerminalLogging", "set_argparser", "init"]
 
-LOG_LEVELS = collections.OrderedDict((
-    ("debug", logging.DEBUG),
-    ("info", logging.INFO),
-    ("warning", logging.WARNING),
-    ("error", logging.ERROR),
-    ("critical", logging.CRITICAL),
-))
+LOG_LEVELS = collections.OrderedDict(
+    (
+        ("debug", logging.DEBUG),
+        ("info", logging.INFO),
+        ("warning", logging.WARNING),
+        ("error", logging.ERROR),
+        ("critical", logging.CRITICAL),
+    )
+)
 
-def setTerminalLogging():
+
+def setTerminalLogging() -> logging.Logger:
     # create console handler and set level
     handler = logging.StreamHandler()
 
     # create formatter
+    formatter: logging.Formatter
     try:
         import colorlog
+
         # TODO: make this configurable
         formatter = colorlog.ColoredFormatter(
             "{log_color}{levelname:8}{reset} {message_log_color}{message}",
             datefmt=None,
             reset=True,
             log_colors={
-                "DEBUG":    "cyan",
-                "INFO":     "green",
-                "WARNING":  "yellow",
-                "ERROR":    "bold_red",
+                "DEBUG": "cyan",
+                "INFO": "green",
+                "WARNING": "yellow",
+                "ERROR": "bold_red",
                 "CRITICAL": "bold_red",
             },
             secondary_log_colors={
                 "message": {
-                    "ERROR":    "bold_white",
+                    "ERROR": "bold_white",
                     "CRITICAL": "bold_white",
                 },
             },
-            style='{'
+            style="{",
         )
     except ImportError:
         formatter = logging.Formatter("{levelname:8} {message}", style="{")
@@ -56,7 +60,8 @@ def setTerminalLogging():
 
     return logger
 
-def set_argparser(argparser):
+
+def set_argparser(argparser: argparse.ArgumentParser) -> None:
     """
     Add arguments for configuring global logging values to an instance of
     :py:class:`argparse.ArgumentParser`.
@@ -65,15 +70,33 @@ def set_argparser(argparser):
 
     :param argparser: an instance of :py:class:`argparse.ArgumentParser`
     """
-    argparser.add_argument("--log-level", action="store", choices=LOG_LEVELS.keys(), default="info",
-            help="the verbosity level for terminal logging (default: %(default)s)")
-    argparser.add_argument("-d", "--debug", action="store_const", const="debug", dest="log_level",
-            help="shortcut for '--log-level debug'")
-    argparser.add_argument("-q", "--quiet", action="store_const", const="warning", dest="log_level",
-            help="shortcut for '--log-level warning'")
+    argparser.add_argument(
+        "--log-level",
+        action="store",
+        choices=LOG_LEVELS.keys(),
+        default="info",
+        help="the verbosity level for terminal logging (default: %(default)s)",
+    )
+    argparser.add_argument(
+        "-d",
+        "--debug",
+        action="store_const",
+        const="debug",
+        dest="log_level",
+        help="shortcut for '--log-level debug'",
+    )
+    argparser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_const",
+        const="warning",
+        dest="log_level",
+        help="shortcut for '--log-level warning'",
+    )
     # TODO: --log-file
 
-def init(args):
+
+def init(args: argparse.Namespace) -> None:
     """
     Initialize the :py:mod:`logging` module with the arguments parsed by
     :py:class:`argparse.ArgumentParser`.
