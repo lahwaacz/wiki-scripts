@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+from typing import Any
+
 import mwparserfromhell
 
 from ws.checkers import ExtlinkReplacements
@@ -10,7 +12,7 @@ class Updater(PageUpdater):
     force_interactive = True
     skip_pages = []
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
         # temporarily enable all namespaces (Arch's git URLs migration)

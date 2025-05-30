@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+import argparse
+
 from ws.client import API
 from ws.interactive import require_login
 from ws.interlanguage.Categorization import Categorization
@@ -17,7 +19,8 @@ modes_description = "The available modes are:"
 for m in modes:
     modes_description += "\n- '{}': {}".format(m, _modes_desc[m])
 
-def main(args, api):
+
+def main(args: argparse.Namespace, api: API) -> None:
     if args.mode == "update":
         # first fix categorization
         cat = Categorization(api)
@@ -33,20 +36,25 @@ def main(args, api):
     elif args.mode == "orphans":
         il = InterlanguageLinks(api)
         for title in il.find_orphans():
-            print("* [[{}]]".format(title))
+            print(f"* [[{title}]]")
     elif args.mode == "rename":
         il = InterlanguageLinks(api)
         il.rename_non_english()
     else:
-        raise Exception("Unknown mode: {}".format(args.mode))
+        raise Exception(f"Unknown mode: {args.mode}")
+
 
 if __name__ == "__main__":
     import ws.config
 
-    argparser = ws.config.getArgParser(description="Update interlanguage links", epilog=modes_description)
+    argparser = ws.config.getArgParser(
+        description="Update interlanguage links", epilog=modes_description
+    )
     API.set_argparser(argparser)
     _group = argparser.add_argument_group("interlanguage")
-    _group.add_argument("--mode", choices=modes, default="update", help="operation mode of the script")
+    _group.add_argument(
+        "--mode", choices=modes, default="update", help="operation mode of the script"
+    )
 
     args = ws.config.parse_args(argparser)
 
