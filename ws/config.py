@@ -1,17 +1,19 @@
-#! /usr/bin/env python3
-
 import argparse
 import configparser
 import json
 import logging
 import os
 import sys
+from abc import ABC, abstractmethod
+from pathlib import Path
+from typing import Any, Self
 
 import ws.logging
 
 logger = logging.getLogger(__name__)
 
 __all__ = [
+    "ConfigurableObject",
     "ConfigParser",
     "argtype_bool",
     "argtype_config",
@@ -27,17 +29,40 @@ CONFIG_DIR = os.path.join(CONFIG_DIR, PROJECT_NAME)
 DEFAULT_CONF = "default"
 
 
+class ConfigurableObject(ABC):
+    @classmethod
+    @abstractmethod
+    def set_argparser(cls: type[Self], argparser: argparse.ArgumentParser) -> None:
+        """
+        Abstract method to add arguments for constructing an instance to an
+        :py:class:`argparse.ArgumentParser`.
+        """
+        ...
+
+    @classmethod
+    @abstractmethod
+    def from_argparser(cls: type[Self], args: argparse.Namespace) -> Self:
+        """
+        Abstract factory method to create an instance from
+        :py:class:`argparse.Namespace`.
+        """
+        ...
+
+
 class ConfigParser(configparser.ConfigParser):
     """
     Drop-in replacement for :py:class:`configparser.Configparser`.
     """
-    def __init__(self, configfile, **kwargs):
+
+    def __init__(self, configfile: str | Path, **kwargs: Any):
         kwargs.setdefault("interpolation", configparser.ExtendedInterpolation())
         super().__init__(**kwargs)
         assert configfile is not None
         self.configfile = configfile
 
-    def fetch_section(self, section=None, to_list=True):
+    def fetch_section(
+        self, section: str | None = None, to_list: bool = True
+    ) -> dict[str, str | list[str]] | list[str]:
         """
         Fetches a specific section from a config file.
 
@@ -56,14 +81,17 @@ class ConfigParser(configparser.ConfigParser):
         if not self.has_section(section):
             section = configparser.DEFAULTSECT
 
-        option_dict = dict(self.items(section))
-        for key, value in option_dict.items():
+        option_dict: dict[str, str | list[str]] = {}
+        for key, value_str in self.items(section):
             if len(key) == 1:
-                msg = "short options are not allowed in a config file: '{}'".format(key)
+                msg = f"short options are not allowed in a config file: '{key}'"
                 raise argparse.ArgumentTypeError(msg)
-            value = value.strip()
-            if value.startswith("["):
-                option_dict[key] = [str(item) for item in json.loads(value)]
+            value_str = value_str.strip()
+            if value_str.startswith("["):
+                option_dict[key] = [str(item) for item in json.loads(value_str)]
+            else:
+                option_dict[key] = value_str
+
         if to_list is True:
             option_list = []
             for key, value in option_dict.items():
@@ -76,16 +104,27 @@ class ConfigParser(configparser.ConfigParser):
         return option_dict
 
     @staticmethod
-    def set_argparser(argparser):
+    def set_argparser(argparser: argparse.ArgumentParser) -> None:
         group = argparser.add_mutually_exclusive_group()
-        group.add_argument("-c", "--config", type=argtype_config, metavar="PATH_OR_NAME", default=DEFAULT_CONF,
-                help="path to the config file, or a base file name for config files looked up as {0}/<name>.conf (default: %(default)s)".format(CONFIG_DIR))
-        group.add_argument("--no-config", dest="config", const=None, action="store_const",
-                help="do not read any config file")
+        group.add_argument(
+            "-c",
+            "--config",
+            type=argtype_config,
+            metavar="PATH_OR_NAME",
+            default=DEFAULT_CONF,
+            help=f"path to the config file, or a base file name for config files looked up as {CONFIG_DIR}/<name>.conf (default: %(default)s)",
+        )
+        group.add_argument(
+            "--no-config",
+            dest="config",
+            const=None,
+            action="store_const",
+            help="do not read any config file",
+        )
 
 
 # strict string to bool conversion
-def argtype_bool(string):
+def argtype_bool(string: str) -> bool:
     string = string.lower()
     true_values = {"yes", "true", "on", "1"}
     false_values = {"no", "false", "off", "0"}
@@ -94,9 +133,12 @@ def argtype_bool(string):
     elif string in false_values:
         return False
     else:
-        raise argparse.ArgumentTypeError("value '{}' cannot be converted to boolean".format(string))
+        raise argparse.ArgumentTypeError(
+            f"value '{string}' cannot be converted to boolean"
+        )
 
-def argtype_config(string):
+
+def argtype_config(string: str | Path) -> str | None:
     """
     Compute config filepath and check its existence.
     """
@@ -105,39 +147,43 @@ def argtype_config(string):
 
     # configuration name was specified
     if not dirname and ext != ".conf":
-        path = os.path.join(CONFIG_DIR, string + ".conf")
+        path = os.path.join(CONFIG_DIR, str(string) + ".conf")
     # relative or absolute path was specified
     else:
         if ext != ".conf":
-            raise argparse.ArgumentTypeError("config filename must end with '.conf' suffix: '{}'".format(string))
+            raise argparse.ArgumentTypeError(
+                f"config filename must end with '.conf' suffix: '{string}'"
+            )
         path = os.path.abspath(os.path.expanduser(string))
 
     if not os.path.exists(path):
         if os.path.islink(path):
-            raise argparse.ArgumentTypeError("symbolic link is broken: '{}'".format(path))
+            raise argparse.ArgumentTypeError(f"symbolic link is broken: '{path}'")
         elif string == DEFAULT_CONF:
             return None
         else:
-            raise argparse.ArgumentTypeError("file does not exist: '{}'".format(path))
+            raise argparse.ArgumentTypeError(f"file does not exist: '{path}'")
     return path
 
+
 # path to existing directory
-def argtype_existing_dir(string):
+def argtype_existing_dir(string: str | Path) -> str:
     string = os.path.abspath(os.path.expanduser(string))
     if not os.path.isdir(string):
-        raise argparse.ArgumentTypeError("directory '{}' does not exist".format(string))
+        raise argparse.ArgumentTypeError(f"directory '{string}' does not exist")
     return string
 
+
 # any path, the dirname part must exist (e.g. path to a file that will be created in the future)
-def argtype_dirname_must_exist(string):
+def argtype_dirname_must_exist(string: str | Path) -> str:
     string = os.path.abspath(os.path.expanduser(string))
     dirname, _ = os.path.split(string)
     if not os.path.isdir(dirname):
-        raise argparse.ArgumentTypeError("directory '{}' does not exist".format(dirname))
+        raise argparse.ArgumentTypeError(f"directory '{dirname}' does not exist")
     return string
 
 
-def getArgParser(**kwargs):
+def getArgParser(**kwargs: Any) -> argparse.ArgumentParser:
     """
     Create an instance of :py:class:`argparse.ArgumentParser` and set the global
     arguments (e.g. for logging).
@@ -148,9 +194,11 @@ def getArgParser(**kwargs):
     kwargs.setdefault("usage", "%(prog)s [options]")
     kwargs.setdefault("formatter_class", argparse.RawDescriptionHelpFormatter)
     kwargs.setdefault("allow_abbrev", False)
-    msg = ("\n\nArgs that start with '--' (e.g., --log-level) can also be set in a config file (specified via -c)."
-           " If an arg is specified in more than one place, then commandline values override config file values"
-           " which override defaults.")
+    msg = (
+        "\n\nArgs that start with '--' (e.g., --log-level) can also be set in a config file (specified via -c)."
+        " If an arg is specified in more than one place, then commandline values override config file values"
+        " which override defaults."
+    )
     kwargs["description"] = kwargs.get("description", "") + msg
 
     # create the main parser and add global arguments
@@ -160,7 +208,10 @@ def getArgParser(**kwargs):
 
     return ap
 
-def parse_args(argparser, section=None):
+
+def parse_args(
+    argparser: argparse.ArgumentParser, section: str | None = None
+) -> argparse.Namespace:
     """
     Parses arguments given on the command line as well as in the config file.
 
@@ -182,7 +233,7 @@ def parse_args(argparser, section=None):
     ConfigParser.set_argparser(conf_ap)
 
     cli_args = sys.argv[1:]
-    config_args = []
+    config_args: list[str] = []
     args = argparse.Namespace()
 
     conf_ap.parse_known_args(cli_args, namespace=args)
@@ -199,25 +250,28 @@ def parse_args(argparser, section=None):
         if item.startswith("-") and item in cli_args:
             unrecogn_cli_args.append(item)
     if unrecogn_cli_args:
-        argparser.error("unrecognized arguments: {}".format(" ".join(unrecogn_cli_args)))
+        argparser.error(f"unrecognized arguments: {' '.join(unrecogn_cli_args)}")
 
     # set up logging
     ws.logging.init(args)
-    logger.debug("Parsed arguments:\n{}".format(args))
+    logger.debug(f"Parsed arguments:\n{args}")
 
     return args
 
-def object_from_argparser(klass, section=None, **kwargs):
+
+def object_from_argparser[
+    T: ConfigurableObject
+](cls: type[T], section: str | None = None, **kwargs: Any) -> T:
     """
-    Create an instance of ``klass`` using its :py:meth:`klass.from_argparser()`
+    Create an instance of ``cls`` using its :py:meth:`cls.from_argparser()`
     factory and an instance of :py:class:`argparse.ArgumentParser`.
 
-    :param klass: the class to instantiate
+    :param cls: the class to instantiate
     :param str section: passed to :py:func:`parse_args`
     :param kwargs: passed to :py:func:`getArgParser`
-    :returns: an instance of :py:class:`klass`
+    :returns: an instance of :py:class:`cls`
     """
     ap = getArgParser(**kwargs)
-    klass.set_argparser(ap)
+    cls.set_argparser(ap)
     args = parse_args(ap, section)
-    return klass.from_argparser(args)
+    return cls.from_argparser(args)
