@@ -13,6 +13,7 @@ config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
+assert config.config_file_name
 logging.config.fileConfig(config.config_file_name)
 
 # wiki-scripts' MetaData object for 'autogenerate' support
