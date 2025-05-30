@@ -17,6 +17,7 @@ from typing import Any, Self, cast
 import httpx
 from httpx_retries import Retry, RetryTransport
 
+from ws.config import ConfigurableObject
 from ws.utils import (
     DEFAULT_USER_AGENT,
     HTTPXClient,
@@ -89,7 +90,7 @@ MULTIPART_FORM_DATA = {
 API_ACTIONS = GET_ACTIONS | POST_ACTIONS | set(MULTIPART_FORM_DATA.keys())
 
 
-class Connection:
+class Connection(ConfigurableObject):
     """
     The base object handling connection between a wiki and scripts.
 
@@ -161,8 +162,8 @@ class Connection:
             auth=auth, cookies=cookies, headers=headers, transport=transport
         )
 
-    @staticmethod
-    def set_argparser(argparser: argparse.ArgumentParser) -> None:
+    @classmethod
+    def set_argparser(cls: type[Self], argparser: argparse.ArgumentParser) -> None:
         """
         Add arguments for constructing a :py:class:`Connection` object to an
         instance of :py:class:`argparse.ArgumentParser`.
