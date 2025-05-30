@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import logging
 
 import sqlalchemy as sa
@@ -11,8 +9,8 @@ from .GrabberBase import GrabberBase
 
 logger = logging.getLogger(__name__)
 
-class GrabberRecentChanges(GrabberBase):
 
+class GrabberRecentChanges(GrabberBase):
     INSERT_PREDELETE_TABLES = ["recentchanges"]
 
     def __init__(self, api, db):
@@ -23,27 +21,16 @@ class GrabberRecentChanges(GrabberBase):
 
         self.sql = {
             ("insert", "recentchanges"):
-                # updates are handled separately
-                ins_rc.on_conflict_do_nothing(),
-            ("update", "rc_patrolled"):
-                db.recentchanges.update() \
-                        .values(rc_patrolled=True) \
-                        .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
-            ("update", "rc_deleted-b_revid"):
-                db.recentchanges.update() \
-                    .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
-            ("update", "rc_deleted-b_logid"):
-                db.recentchanges.update() \
-                    .where(db.recentchanges.c.rc_logid == sa.bindparam("b_log_id")),
-            ("delete", "recentchanges"):
-                db.recentchanges.delete().where(
-                    db.recentchanges.c.rc_timestamp < sa.bindparam("rc_cutoff_timestamp")),
-            ("insert", "tagged_recentchange"):
-                ins_tgrc.values(
-                    tgrc_rc_id=sa.bindparam("b_rc_id"),
-                    tgrc_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery() \
-                                    .where(db.tag.c.tag_name == sa.bindparam("b_tag_name"))) \
-                    .on_conflict_do_nothing(),
+            # updates are handled separately
+            ins_rc.on_conflict_do_nothing(),
+            ("update", "rc_patrolled"): db.recentchanges.update().values(rc_patrolled=True).where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
+            ("update", "rc_deleted-b_revid"): db.recentchanges.update().where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
+            ("update", "rc_deleted-b_logid"): db.recentchanges.update().where(db.recentchanges.c.rc_logid == sa.bindparam("b_log_id")),
+            ("delete", "recentchanges"): db.recentchanges.delete().where(db.recentchanges.c.rc_timestamp < sa.bindparam("rc_cutoff_timestamp")),
+            ("insert", "tagged_recentchange"): ins_tgrc.values(
+                tgrc_rc_id=sa.bindparam("b_rc_id"),
+                tgrc_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery().where(db.tag.c.tag_name == sa.bindparam("b_tag_name")),
+            ).on_conflict_do_nothing(),
         }
 
         self.rc_params = {
@@ -55,8 +42,7 @@ class GrabberRecentChanges(GrabberBase):
         if "patrol" in self.api.user.rights:
             self.rc_params["rcprop"] += "|patrolled"
         else:
-            logger.warning("You need the 'patrol' right to request the patrolled flag. "
-                           "Skipping it, but the sync will be incomplete.")
+            logger.warning("You need the 'patrol' right to request the patrolled flag. Skipping it, but the sync will be incomplete.")
 
     def gen_inserts_from_rc(self, rc):
         title = self.db.Title(rc["title"])

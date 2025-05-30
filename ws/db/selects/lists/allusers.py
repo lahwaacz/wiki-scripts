@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 from .ListBase import ListBase
 
 __all__ = ["AllUsers"]
 
-class AllUsers(ListBase):
 
+class AllUsers(ListBase):
     API_PREFIX = "au"
     DB_PREFIX = "user_"
 
@@ -62,16 +60,22 @@ class AllUsers(ListBase):
         tail = user
         if "blockinfo" in prop:
             tail = tail.outerjoin(ipb, user.c.user_id == ipb.c.ipb_user)
-            s = s.add_columns(ipb.c.ipb_by, ipb.c.ipb_by_text,
-                              ipb.c.ipb_timestamp, ipb.c.ipb_expiry,
-                              ipb.c.ipb_id, ipb.c.ipb_reason,
-                              ipb.c.ipb_create_account, ipb.c.ipb_deleted)
+            s = s.add_columns(
+                ipb.c.ipb_by,
+                ipb.c.ipb_by_text,
+                ipb.c.ipb_timestamp,
+                ipb.c.ipb_expiry,
+                ipb.c.ipb_id,
+                ipb.c.ipb_reason,
+                ipb.c.ipb_create_account,
+                ipb.c.ipb_deleted,
+            )
         if "groups" in prop or "group" in params or "excludegroup" in params:
             tail = tail.outerjoin(groups, user.c.user_id == groups.c.ug_user)
             # NOTE: since sqlalchemy 1.4, s.columns references anon_1 rather than
             # the original table. Maybe as a consequence of this change:
             # https://docs.sqlalchemy.org/en/14/changelog/migration_14.html#a-select-statement-is-no-longer-implicitly-considered-to-be-a-from-clause
-            #s = s.group_by(*s.columns.values())
+            # s = s.group_by(*s.columns.values())
             # fortunately the column names are unique and can be used in GROUP BY
             # even without the reference to the table
             s = s.group_by(*s.columns.keys())
@@ -97,9 +101,9 @@ class AllUsers(ListBase):
         if "excludegroup" in params:
             s = s.where(sa.not_(params["group"] == sa.any_(user_groups)))
         if "witheditsonly" in params:
-            s = s.where( (user.c.user_editcount.is_not(None)) & (user.c.user_editcount > 0) )
+            s = s.where((user.c.user_editcount.is_not(None)) & (user.c.user_editcount > 0))
         # TODO
-#        if "activeusers" in params:
+        # if "activeusers" in params:
 
         # order by
         if params["dir"] == "ascending":

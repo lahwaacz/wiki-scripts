@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import logging
 import time
 
@@ -12,9 +10,9 @@ from .GrabberBase import GrabberBase
 
 logger = logging.getLogger(__name__)
 
+
 # TODO: are truncated results due to PHP cache reflected by changing the query-continuation parameter accordingly or do we actually lose some revisions?
 class GrabberRevisions(GrabberBase):
-
     def __init__(self, api, db, *, with_content=False):
         super().__init__(api, db)
         self.with_content = with_content
@@ -27,106 +25,118 @@ class GrabberRevisions(GrabberBase):
         ins_tgrc = sa.dialects.postgresql.insert(db.tagged_recentchange)
 
         self.sql = {
-            ("insert", "text"):
-                ins_text.on_conflict_do_update(
-                    constraint=db.text.primary_key,
-                    set_={
-                        "old_text":  ins_text.excluded.old_text,
-                    }),
-            ("insert", "revision"):
-                ins_revision.on_conflict_do_update(
-                    constraint=db.revision.primary_key,
-                    set_={
-                        # this should be the only column that may change with an insert query
-                        "rev_text_id": ins_revision.excluded.rev_text_id,
-                    }),
-            ("insert", "archive"):
-                ins_archive.on_conflict_do_update(
-                    index_elements=[db.archive.c.ar_rev_id],
-                    set_={
-                        # ar_text_id can change when the revision content is synchronized later
-                        "ar_text_id": ins_archive.excluded.ar_text_id,
-                        # ar_namespace and ar_title can change when a new namespace is added and deleted pages migrated
-                        "ar_namespace": ins_archive.excluded.ar_namespace,
-                        "ar_title": ins_archive.excluded.ar_title,
-                        # ar_parent_id was not visible via the API until about MW 1.33 (https://phabricator.wikimedia.org/T183376)
-                        # so we may need to update old data
-                        "ar_parent_id": ins_archive.excluded.ar_parent_id,
-                    }),
-            ("insert", "tagged_revision"):
-                ins_tgrev.values(
-                    tgrev_rev_id=sa.bindparam("b_rev_id"),
-                    tgrev_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery()
-                                        .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))
-                    .on_conflict_do_nothing(),
-            ("insert", "tagged_archived_revision"):
-                ins_tgar.values(
-                    tgar_rev_id=sa.bindparam("b_rev_id"),
-                    tgar_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery()
-                                        .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))
-                    .on_conflict_do_nothing(),
-            ("insert", "tagged_recentchange"):
-                ins_tgrc.values(
-                    tgrc_rc_id=sa.select(db.recentchanges.c.rc_id).scalar_subquery()
-                                    .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
-                    tgrc_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery()
-                                    .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))
-                    .on_conflict_do_nothing(),
-            ("delete", "tagged_revision"):
-                db.tagged_revision.delete()
-                    .where(sa.and_(db.tagged_revision.c.tgrev_rev_id == sa.bindparam("b_rev_id"),
-                                   db.tagged_revision.c.tgrev_tag_id == sa.select(db.tag.c.tag_id).scalar_subquery()
-                                            .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
-            ("delete", "tagged_archived_revision"):
-                db.tagged_archived_revision.delete()
-                    .where(sa.and_(db.tagged_archived_revision.c.tgar_rev_id == sa.bindparam("b_rev_id"),
-                                   db.tagged_archived_revision.c.tgar_tag_id == sa.select(db.tag.c.tag_id).scalar_subquery()
-                                            .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
-            ("delete", "tagged_recentchange"):
-                db.tagged_recentchange.delete()
-                    .where(sa.and_(db.tagged_recentchange.c.tgrc_rc_id == sa.select(db.recentchanges.c.rc_id).scalar_subquery()
-                                            .where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
-                                   db.tagged_recentchange.c.tgrc_tag_id == sa.select(db.tag.c.tag_id).scalar_subquery()
-                                            .where(db.tag.c.tag_name == sa.bindparam("b_tag_name")))),
+            ("insert", "text"): ins_text.on_conflict_do_update(
+                constraint=db.text.primary_key,
+                set_={
+                    "old_text": ins_text.excluded.old_text,
+                },
+            ),
+            ("insert", "revision"): ins_revision.on_conflict_do_update(
+                constraint=db.revision.primary_key,
+                set_={
+                    # this should be the only column that may change with an insert query
+                    "rev_text_id": ins_revision.excluded.rev_text_id,
+                },
+            ),
+            ("insert", "archive"): ins_archive.on_conflict_do_update(
+                index_elements=[db.archive.c.ar_rev_id],
+                set_={
+                    # ar_text_id can change when the revision content is synchronized later
+                    "ar_text_id": ins_archive.excluded.ar_text_id,
+                    # ar_namespace and ar_title can change when a new namespace is added and deleted pages migrated
+                    "ar_namespace": ins_archive.excluded.ar_namespace,
+                    "ar_title": ins_archive.excluded.ar_title,
+                    # ar_parent_id was not visible via the API until about MW 1.33 (https://phabricator.wikimedia.org/T183376)
+                    # so we may need to update old data
+                    "ar_parent_id": ins_archive.excluded.ar_parent_id,
+                },
+            ),
+            ("insert", "tagged_revision"): ins_tgrev.values(
+                tgrev_rev_id=sa.bindparam("b_rev_id"),
+                tgrev_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery().where(db.tag.c.tag_name == sa.bindparam("b_tag_name")),
+            ).on_conflict_do_nothing(),
+            ("insert", "tagged_archived_revision"): ins_tgar.values(
+                tgar_rev_id=sa.bindparam("b_rev_id"),
+                tgar_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery().where(db.tag.c.tag_name == sa.bindparam("b_tag_name")),
+            ).on_conflict_do_nothing(),
+            ("insert", "tagged_recentchange"): ins_tgrc.values(
+                tgrc_rc_id=sa.select(db.recentchanges.c.rc_id).scalar_subquery().where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
+                tgrc_tag_id=sa.select(db.tag.c.tag_id).scalar_subquery().where(db.tag.c.tag_name == sa.bindparam("b_tag_name")),
+            ).on_conflict_do_nothing(),
+            ("delete", "tagged_revision"): db.tagged_revision.delete().where(
+                sa.and_(
+                    db.tagged_revision.c.tgrev_rev_id == sa.bindparam("b_rev_id"),
+                    db.tagged_revision.c.tgrev_tag_id == sa.select(db.tag.c.tag_id).scalar_subquery().where(db.tag.c.tag_name == sa.bindparam("b_tag_name")),
+                )
+            ),
+            ("delete", "tagged_archived_revision"): db.tagged_archived_revision.delete().where(
+                sa.and_(
+                    db.tagged_archived_revision.c.tgar_rev_id == sa.bindparam("b_rev_id"),
+                    db.tagged_archived_revision.c.tgar_tag_id
+                    == sa.select(db.tag.c.tag_id).scalar_subquery().where(db.tag.c.tag_name == sa.bindparam("b_tag_name")),
+                )
+            ),
+            ("delete", "tagged_recentchange"): db.tagged_recentchange.delete().where(
+                sa.and_(
+                    db.tagged_recentchange.c.tgrc_rc_id
+                    == sa.select(db.recentchanges.c.rc_id).scalar_subquery().where(db.recentchanges.c.rc_this_oldid == sa.bindparam("b_rev_id")),
+                    db.tagged_recentchange.c.tgrc_tag_id == sa.select(db.tag.c.tag_id).scalar_subquery().where(db.tag.c.tag_name == sa.bindparam("b_tag_name")),
+                )
+            ),
             # query for updating archive.ar_page_id
-            ("update", "archive.ar_page_id"):
-                db.archive.update()
-                    .where(sa.and_(db.archive.c.ar_namespace == sa.bindparam("b_namespace"),
-                                   db.archive.c.ar_title == sa.bindparam("b_title"))),
-            ("merge", "revision"):
-                db.revision.update()
-                    .where(sa.and_(db.revision.c.rev_page == sa.bindparam("b_src_page_id"),
-                                   # MW defect: timestamp-based merge points are not sufficient,
-                                   # see https://phabricator.wikimedia.org/T183501
-                                   db.revision.c.rev_timestamp <= sa.bindparam("b_mergepoint")))
-                    .values(rev_page=sa.select(db.page.c.page_id).scalar_subquery()
-                                .where(sa.and_(db.page.c.page_namespace == sa.bindparam("b_dest_ns"),
-                                               db.page.c.page_title == sa.bindparam("b_dest_title"))
-                                )
-                    ),
-            ("update", "rev_deleted"):
-                db.revision.update()
-                    .where(db.revision.c.rev_id == sa.bindparam("b_rev_id")),
-            ("update", "ar_deleted"):
-                db.archive.update()
-                    .where(db.archive.c.ar_rev_id == sa.bindparam("b_rev_id")),
+            ("update", "archive.ar_page_id"): db.archive.update().where(
+                sa.and_(
+                    db.archive.c.ar_namespace == sa.bindparam("b_namespace"),
+                    db.archive.c.ar_title == sa.bindparam("b_title"),
+                )
+            ),
+            ("merge", "revision"): db.revision.update()
+            .where(
+                sa.and_(
+                    db.revision.c.rev_page == sa.bindparam("b_src_page_id"),
+                    # MW defect: timestamp-based merge points are not sufficient,
+                    # see https://phabricator.wikimedia.org/T183501
+                    db.revision.c.rev_timestamp <= sa.bindparam("b_mergepoint"),
+                )
+            )
+            .values(
+                rev_page=sa.select(db.page.c.page_id)
+                .scalar_subquery()
+                .where(
+                    sa.and_(
+                        db.page.c.page_namespace == sa.bindparam("b_dest_ns"),
+                        db.page.c.page_title == sa.bindparam("b_dest_title"),
+                    )
+                )
+            ),
+            ("update", "rev_deleted"): db.revision.update().where(
+                db.revision.c.rev_id == sa.bindparam("b_rev_id"),
+            ),
+            ("update", "ar_deleted"): db.archive.update().where(
+                db.archive.c.ar_rev_id == sa.bindparam("b_rev_id"),
+            ),
             # query for updating revision.rev_text_id
-            ("update", "revision"):
-                db.revision.update()
-                    .where(db.revision.c.rev_id == sa.bindparam("b_rev_id")),
+            ("update", "revision"): db.revision.update().where(
+                db.revision.c.rev_id == sa.bindparam("b_rev_id"),
+            ),
             # query for suppressing deleted pages
-            ("suppress-page", "archive"):
-                db.archive.update()
-                    .where(sa.and_(db.archive.c.ar_namespace == sa.bindparam("b_ns"),
-                                   db.archive.c.ar_title == sa.bindparam("b_title"))
-                    ),
+            ("suppress-page", "archive"): db.archive.update().where(
+                sa.and_(
+                    db.archive.c.ar_namespace == sa.bindparam("b_ns"),
+                    db.archive.c.ar_title == sa.bindparam("b_title"),
+                )
+            ),
         }
 
         # build query to move data from the archive table into revision
-        deleted_revision = db.archive.delete() \
-            .where(db.archive.c.ar_page_id == sa.bindparam("b_page_id")) \
-            .returning(*db.archive.c._all_columns) \
+        deleted_revision = (
+            db.archive.delete()
+            .where(
+                db.archive.c.ar_page_id == sa.bindparam("b_page_id"),
+            )
+            .returning(*db.archive.c._all_columns)
             .cte("deleted_revision")
+        )
         columns = [
             deleted_revision.c.ar_rev_id,
             deleted_revision.c.ar_page_id,
@@ -145,23 +155,28 @@ class GrabberRevisions(GrabberBase):
         ]
         insert = db.revision.insert().from_select(
             db.revision.c._all_columns,
-            sa.select(*columns).select_from(deleted_revision)
+            sa.select(*columns).select_from(deleted_revision),
         )
         self.sql["move", "revision"] = insert
 
         # build query to move data from the tagged_archived_revision table into tagged_revision
-        deleted_tagged_archived_revision = db.tagged_archived_revision.delete() \
-            .where(db.tagged_archived_revision.c.tgar_rev_id.in_(
-                        sa.select(db.archive.c.ar_rev_id)
-                            .select_from(db.archive)
-                            .where(db.archive.c.ar_page_id == sa.bindparam("b_page_id"))
+        deleted_tagged_archived_revision = (
+            db.tagged_archived_revision.delete()
+            .where(
+                db.tagged_archived_revision.c.tgar_rev_id.in_(
+                    sa.select(db.archive.c.ar_rev_id)
+                    .select_from(db.archive)
+                    .where(
+                        db.archive.c.ar_page_id == sa.bindparam("b_page_id"),
                     )
-                ) \
-            .returning(*db.tagged_archived_revision.c._all_columns) \
+                )
+            )
+            .returning(*db.tagged_archived_revision.c._all_columns)
             .cte("deleted_tagged_archived_revision")
+        )
         insert = db.tagged_revision.insert().from_select(
             db.tagged_revision.c._all_columns,
-            deleted_tagged_archived_revision.select()
+            deleted_tagged_archived_revision.select(),
         )
         self.sql["move", "tagged_archived_revision"] = insert
 
@@ -188,11 +203,11 @@ class GrabberRevisions(GrabberBase):
         }
 
         # TODO: check the permission to view deleted revisions
-#        if "patrol" in self.api.user.rights:
-#            self.rc_params["rcprop"] += "|patrolled"
-#        else:
-#            logger.warning("You need the 'patrol' right to request the patrolled flag. "
-#                           "Skipping it, but the sync will be incomplete.")
+        # if "patrol" in self.api.user.rights:
+        #     self.rc_params["rcprop"] += "|patrolled"
+        # else:
+        #     logger.warning("You need the 'patrol' right to request the patrolled flag. "
+        #                    "Skipping it, but the sync will be incomplete.")
 
     # TODO: text.old_id is auto-increment, but revision.rev_text_id has to be set accordingly. SQL should be able to do it automatically.
     def _get_text_id_gen(self):
@@ -230,7 +245,7 @@ class GrabberRevisions(GrabberBase):
                 "rev_sha1": rev["sha1"],
                 # TODO: do multi-content revisions properly when MediaWiki actually
                 # starts using them for more than just the main slot
-                "rev_content_model": rev["slots"]["main"]["contentmodel"],        # always available
+                "rev_content_model": rev["slots"]["main"]["contentmodel"],  # always available
                 "rev_content_format": rev["slots"]["main"].get("contentformat"),  # available iff content is available
             }
 
@@ -269,7 +284,7 @@ class GrabberRevisions(GrabberBase):
                 "ar_sha1": rev["sha1"],
                 # TODO: do multi-content revisions properly when MediaWiki actually
                 # starts using them for more than just the main slot
-                "ar_content_model": rev["slots"]["main"]["contentmodel"],        # always available
+                "ar_content_model": rev["slots"]["main"]["contentmodel"],  # always available
                 "ar_content_format": rev["slots"]["main"].get("contentformat"),  # available iff content is available
             }
 
@@ -352,7 +367,7 @@ class GrabberRevisions(GrabberBase):
                 # keep only the most recent action
                 if le["title"] in undeleted_pages:
                     del undeleted_pages[le["title"]]
-                suppressed_pages.add( (le["ns"], le["title"]) )
+                suppressed_pages.add((le["ns"], le["title"]))
             # check imported pages
             elif le["type"] == "import":
                 imported_pages.add(le["logpage"])
@@ -391,7 +406,7 @@ class GrabberRevisions(GrabberBase):
             # so we have to update it here first
             title = self.db.Title(_title)
             ns = title.namespacenumber
-            dbtitle = title.dbtitle(ns),
+            dbtitle = title.dbtitle(ns)
             yield self.sql["update", "archive.ar_page_id"], {"b_namespace": ns, "b_title": dbtitle, "ar_page_id": pageid}
             # move tags first
             yield self.sql["move", "tagged_archived_revision"], {"b_page_id": pageid}
@@ -416,7 +431,7 @@ class GrabberRevisions(GrabberBase):
             #       it does not work when a page was undeleted and deleted again before
             #       the synchronization (some fields can change even for older revisions,
             #       e.g. when a new namespace is added in the meantime)
-#            "drvstart": since,
+            # "drvstart": since,
             "drvdir": "newer",
             "drvslots": "main",
         }
@@ -480,10 +495,15 @@ class GrabberRevisions(GrabberBase):
                 raise NotImplementedError(f"Cannot merge revisions from pageid {pageid} to ns={dest_ns}: '{dest_title}': target page has been moved.")
             # mergepoint comes from logevent params in the database, which is not parsed automatically to datetime.datetime
             mergepoint = parse_date(params["mergepoint"])
-            yield self.sql["merge", "revision"], {"b_src_page_id": pageid,
-                                                  "b_dest_ns": params["dest_ns"],
-                                                  "b_dest_title": params["dest_title"],
-                                                  "b_mergepoint": mergepoint}
+            yield (
+                self.sql["merge", "revision"],
+                {
+                    "b_src_page_id": pageid,
+                    "b_dest_ns": params["dest_ns"],
+                    "b_dest_title": params["dest_title"],
+                    "b_mergepoint": mergepoint,
+                },
+            )
 
         # update rev_deleted and ar_deleted
         # Note that the log events do not tell if it applies to normal or archived revision,
@@ -494,7 +514,7 @@ class GrabberRevisions(GrabberBase):
             yield self.sql["update", "ar_deleted"], {"b_rev_id": revid, "ar_deleted": bitmask}
         for ns, title in suppressed_pages:
             ar_deleted = mwconst.DELETED_TEXT | mwconst.DELETED_COMMENT | mwconst.DELETED_USER | mwconst.DELETED_RESTRICTED
-            yield self.sql["suppress-page", "archive"], {"b_ns": ns, "b_title": title, "ar_deleted": ar_deleted }
+            yield self.sql["suppress-page", "archive"], {"b_ns": ns, "b_title": title, "ar_deleted": ar_deleted}
 
         # update tags
         for revid, added in added_tags.items():
@@ -509,17 +529,17 @@ class GrabberRevisions(GrabberBase):
                     "b_tag_name": tag,
                 }
                 with self.db.engine.connect() as conn:
-                    result = conn.execute(sa.select(
-                                sa.exists().where(self.db.revision.c.rev_id == revid)
-                            ))
+                    result = conn.execute(
+                        sa.select(sa.exists().where(self.db.revision.c.rev_id == revid)),
+                    )
                     if result.fetchone()[0]:
                         yield self.sql["insert", "tagged_revision"], db_entry
                     else:
                         yield self.sql["insert", "tagged_archived_revision"], db_entry
                     # check if it is a recent change and tag it as well
-                    result = conn.execute(sa.select(
-                                sa.exists().where(self.db.recentchanges.c.rc_this_oldid == revid)
-                            ))
+                    result = conn.execute(
+                        sa.select(sa.exists().where(self.db.recentchanges.c.rc_this_oldid == revid)),
+                    )
                     if result.fetchone()[0]:
                         yield self.sql["insert", "tagged_recentchange"], db_entry
 
@@ -535,7 +555,6 @@ class GrabberRevisions(GrabberBase):
                 yield self.sql["delete", "tagged_archived_revision"], db_entry
                 yield self.sql["delete", "tagged_recentchange"], db_entry
 
-
     def sync_revisions_content(self, *, mode="latest"):
         assert mode in {"latest", "all"}
 
@@ -545,19 +564,26 @@ class GrabberRevisions(GrabberBase):
         def get_latest_revids():
             rev = self.db.revision
             page = self.db.page
-            query = sa.select(rev.c.rev_id).select_from(
-                        rev.join(page, (rev.c.rev_page == page.c.page_id) &
-                                       (rev.c.rev_id == page.c.page_latest))
-                    ).where(rev.c.rev_text_id.is_(None)).order_by(rev.c.rev_id)
+            query = (
+                sa.select(rev.c.rev_id)
+                .select_from(rev.join(page, (rev.c.rev_page == page.c.page_id) & (rev.c.rev_id == page.c.page_latest)))
+                .where(rev.c.rev_text_id.is_(None))
+                .order_by(rev.c.rev_id)
+            )
             conn = self.db.engine.connect()
             result = conn.execute(query)
             return [r[0] for r in result]
 
         def get_all_revids():
             rev = self.db.revision
-            query = sa.select(rev.c.rev_id).select_from(
-                        rev
-                    ).where(rev.c.rev_text_id.is_(None)).order_by(rev.c.rev_id)
+            query = (
+                sa.select(rev.c.rev_id)
+                .select_from(
+                    rev,
+                )
+                .where(rev.c.rev_text_id.is_(None))
+                .order_by(rev.c.rev_id)
+            )
             conn = self.db.engine.connect()
             result = conn.execute(query)
             return [r[0] for r in result]
@@ -588,7 +614,7 @@ class GrabberRevisions(GrabberBase):
                         text_id = next(self.text_id_gen)
                         db_entry = {
                             "b_rev_id": rev["revid"],
-                            "rev_text_id": text_id
+                            "rev_text_id": text_id,
                         }
                         yield from self.gen_text(rev, text_id)
                         yield self.sql["update", "revision"], db_entry
@@ -599,6 +625,7 @@ class GrabberRevisions(GrabberBase):
             # (if there are many chunks, we risk the API connection to be interrupted
             # and losing lots of data)
             from ws.db.execution import DeferrableExecutionQueue
+
             with self.db.engine.begin() as conn:
                 with DeferrableExecutionQueue(conn, self.db.chunk_size) as dfe:
                     for item in gen():

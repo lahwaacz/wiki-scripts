@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
-
 from ..SelectBase import SelectBase
 
 __all__ = ["LinksHere"]
+
 
 class LinksHere(SelectBase):
     """
@@ -38,8 +37,10 @@ class LinksHere(SelectBase):
         src_page = self.db.page.alias()
         nss = self.db.namespace_starname.alias()
 
-        tail = tail.outerjoin(pl, (pl.c.pl_namespace == page.c.page_namespace) &
-                                  (pl.c.pl_title == page.c.page_title))
+        tail = tail.outerjoin(
+            pl,
+            (pl.c.pl_namespace == page.c.page_namespace) & (pl.c.pl_title == page.c.page_title),
+        )
         tail = tail.outerjoin(src_page, src_page.c.page_id == pl.c.pl_from)
         if "title" in params["prop"]:
             tail = tail.outerjoin(nss, src_page.c.page_namespace == nss.c.nss_id)

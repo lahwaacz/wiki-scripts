@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import logging
 
 from ..SelectBase import SelectBase
@@ -7,6 +5,7 @@ from ..SelectBase import SelectBase
 logger = logging.getLogger(__name__)
 
 __all__ = ["Categories"]
+
 
 class Categories(SelectBase):
     """
@@ -41,8 +40,10 @@ class Categories(SelectBase):
         nss = self.db.namespace_starname.alias()
 
         tail = tail.outerjoin(cl, page.c.page_id == cl.c.cl_from)
-        tail = tail.outerjoin(target_page, (target_page.c.page_namespace == 14) &
-                                           (cl.c.cl_to == target_page.c.page_title))
+        tail = tail.outerjoin(
+            target_page,
+            (target_page.c.page_namespace == 14) & (cl.c.cl_to == target_page.c.page_title),
+        )
         tail = tail.outerjoin(nss, nss.c.nss_id == 14)
 
         s = s.column(cl.c.cl_to)

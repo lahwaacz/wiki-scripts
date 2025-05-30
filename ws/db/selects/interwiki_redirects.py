@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 
@@ -7,12 +5,13 @@ def get_interwiki_redirects(db):
     nss = db.namespace_starname
     page = db.page
     rd = db.redirect
-    query = sa.select(nss.c.nss_name, page.c.page_title, rd.c.rd_interwiki, rd.c.rd_title, rd.c.rd_fragment) \
-            .select_from(
-                    page.outerjoin(nss, page.c.page_namespace == nss.c.nss_id)
-                        .join(rd, page.c.page_id == rd.c.rd_from)
-                ) \
-            .where(db.redirect.c.rd_interwiki.is_not(None))
+    query = (
+        sa.select(nss.c.nss_name, page.c.page_title, rd.c.rd_interwiki, rd.c.rd_title, rd.c.rd_fragment)
+        .select_from(
+            page.outerjoin(nss, page.c.page_namespace == nss.c.nss_id).join(rd, page.c.page_id == rd.c.rd_from),
+        )
+        .where(db.redirect.c.rd_interwiki.is_not(None))
+    )
 
     interwiki_redirects = {}
 

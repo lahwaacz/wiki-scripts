@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 import ws.db.mw_constants as mwconst
@@ -8,8 +6,8 @@ from ..SelectBase import SelectBase
 
 __all__ = ["Revisions"]
 
-class Revisions(SelectBase):
 
+class Revisions(SelectBase):
     API_PREFIX = "rv"
     DB_PREFIX = "rev_"
 
@@ -45,10 +43,8 @@ class Revisions(SelectBase):
     def sanitize_params(klass, params):
         # MW incompatibility: parameters related to content parsing are not supported (they are deprecated anyway)
         # TODO: rvtag
-        assert set(params) <= {"start", "end", "dir", "user", "excludeuser", "prop", "limit", "continue",
-                               "section", "slots"}
+        assert set(params) <= {"start", "end", "dir", "user", "excludeuser", "prop", "limit", "continue", "section", "slots"}
         klass.sanitize_common_params(params)
-
 
     # prop-specific methods
     # TODO: create an abstract class which specifies them
@@ -58,8 +54,10 @@ class Revisions(SelectBase):
         page = self.db.page
         if enum_rev_mode is True:
             return rev.outerjoin(pageset, rev.c.rev_page == page.c.page_id)
-        return rev.outerjoin(pageset, (rev.c.rev_page == page.c.page_id) &
-                                      (rev.c.rev_id == page.c.page_latest))
+        return rev.outerjoin(
+            pageset,
+            (rev.c.rev_page == page.c.page_id) & (rev.c.rev_id == page.c.page_latest),
+        )
 
     def get_select_prop(self, s, tail, params):
         rev = self.db.revision
@@ -96,11 +94,12 @@ class Revisions(SelectBase):
             # aggregate all tag names corresponding to the same revision into an array
             # (basically 'SELECT tgrev_rev_id, array_agg(tag_name) FROM tag JOIN tagged_recentchange GROUP BY tgrev_rev_id')
             # TODO: make a materialized view for this
-            tag_names = sa.select(tgrev.c.tgrev_rev_id,
-                                   sa.func.array_agg(tag.c.tag_name).label("tag_names")) \
-                            .select_from(tag.join(tgrev, tag.c.tag_id == tgrev.c.tgrev_tag_id)) \
-                            .group_by(tgrev.c.tgrev_rev_id) \
-                            .cte("tag_names")
+            tag_names = (
+                sa.select(tgrev.c.tgrev_rev_id, sa.func.array_agg(tag.c.tag_name).label("tag_names"))
+                .select_from(tag.join(tgrev, tag.c.tag_id == tgrev.c.tgrev_tag_id))
+                .group_by(tgrev.c.tgrev_rev_id)
+                .cte("tag_names")
+            )
             tail = tail.outerjoin(tag_names, rev.c.rev_id == tag_names.c.tgrev_rev_id)
             s = s.column(tag_names.c.tag_names)
 
@@ -185,7 +184,7 @@ class Revisions(SelectBase):
             if row["rev_deleted"] & mwconst.DELETED_TEXT:
                 api_entry["sha1hidden"] = ""
                 # TODO: when should texthidden be added? only when content is requested?
-#                api_entry["texthidden"] = ""
+                # api_entry["texthidden"] = ""
             if row["rev_deleted"] & mwconst.DELETED_COMMENT:
                 api_entry["commenthidden"] = ""
             if row["rev_deleted"] & mwconst.DELETED_USER:

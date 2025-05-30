@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 from ..SelectBase import SelectBase
 
 __all__ = ["Links"]
+
 
 class Links(SelectBase):
     """
@@ -40,8 +39,10 @@ class Links(SelectBase):
         nss = self.db.namespace_starname.alias()
 
         tail = tail.outerjoin(pl, page.c.page_id == pl.c.pl_from)
-        tail = tail.outerjoin(target_page, (pl.c.pl_namespace == target_page.c.page_namespace) &
-                                           (pl.c.pl_title == target_page.c.page_title))
+        tail = tail.outerjoin(
+            target_page,
+            (pl.c.pl_namespace == target_page.c.page_namespace) & (pl.c.pl_title == target_page.c.page_title),
+        )
         tail = tail.outerjoin(nss, pl.c.pl_namespace == nss.c.nss_id)
 
         s = s.column(pl.c.pl_namespace)
@@ -61,7 +62,7 @@ class Links(SelectBase):
             pairs = set()
             for title in titles:
                 title = self.db.Title(title)
-                pairs.add( (title.namespacenumber, title.pagename) )
+                pairs.add((title.namespacenumber, title.pagename))
             s = s.where(sa.tuple_(pl.c.pl_namespace, pl.c.pl_title).in_(pairs))
 
         # order by

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import datetime
 
 import sqlalchemy as sa
@@ -10,7 +8,6 @@ from .GrabberBase import GrabberBase
 
 
 class GrabberIPBlocks(GrabberBase):
-
     INSERT_PREDELETE_TABLES = ["ipblocks"]
 
     def __init__(self, api, db):
@@ -19,32 +16,32 @@ class GrabberIPBlocks(GrabberBase):
         ins_ipblocks = sa.dialects.postgresql.insert(db.ipblocks)
 
         self.sql = {
-            ("insert", "ipblocks"):
-                ins_ipblocks.on_conflict_do_update(
-                    constraint=db.ipblocks.primary_key,
-                    set_={
-                        "ipb_address":          ins_ipblocks.excluded.ipb_address,
-                        "ipb_user":             ins_ipblocks.excluded.ipb_user,
-                        "ipb_by":               ins_ipblocks.excluded.ipb_by,
-                        "ipb_by_text":          ins_ipblocks.excluded.ipb_by_text,
-                        "ipb_reason":           ins_ipblocks.excluded.ipb_reason,
-                        "ipb_timestamp":        ins_ipblocks.excluded.ipb_timestamp,
-                        "ipb_auto":             ins_ipblocks.excluded.ipb_auto,
-                        "ipb_anon_only":        ins_ipblocks.excluded.ipb_anon_only,
-                        "ipb_create_account":   ins_ipblocks.excluded.ipb_create_account,
-                        "ipb_enable_autoblock": ins_ipblocks.excluded.ipb_enable_autoblock,
-                        "ipb_expiry":           ins_ipblocks.excluded.ipb_expiry,
-                        "ipb_range_start":      ins_ipblocks.excluded.ipb_range_start,
-                        "ipb_range_end":        ins_ipblocks.excluded.ipb_range_end,
-                        "ipb_deleted":          ins_ipblocks.excluded.ipb_deleted,
-                        "ipb_block_email":      ins_ipblocks.excluded.ipb_block_email,
-                        "ipb_allow_usertalk":   ins_ipblocks.excluded.ipb_allow_usertalk,
-                        "ipb_parent_block_id":  ins_ipblocks.excluded.ipb_parent_block_id,
-                    }),
-            ("delete", "ipblocks"):
-                db.ipblocks.delete().where(db.ipblocks.c.ipb_address == sa.bindparam("b_ipb_address")),
+            ("insert", "ipblocks"): ins_ipblocks.on_conflict_do_update(
+                constraint=db.ipblocks.primary_key,
+                set_={
+                    "ipb_address": ins_ipblocks.excluded.ipb_address,
+                    "ipb_user": ins_ipblocks.excluded.ipb_user,
+                    "ipb_by": ins_ipblocks.excluded.ipb_by,
+                    "ipb_by_text": ins_ipblocks.excluded.ipb_by_text,
+                    "ipb_reason": ins_ipblocks.excluded.ipb_reason,
+                    "ipb_timestamp": ins_ipblocks.excluded.ipb_timestamp,
+                    "ipb_auto": ins_ipblocks.excluded.ipb_auto,
+                    "ipb_anon_only": ins_ipblocks.excluded.ipb_anon_only,
+                    "ipb_create_account": ins_ipblocks.excluded.ipb_create_account,
+                    "ipb_enable_autoblock": ins_ipblocks.excluded.ipb_enable_autoblock,
+                    "ipb_expiry": ins_ipblocks.excluded.ipb_expiry,
+                    "ipb_range_start": ins_ipblocks.excluded.ipb_range_start,
+                    "ipb_range_end": ins_ipblocks.excluded.ipb_range_end,
+                    "ipb_deleted": ins_ipblocks.excluded.ipb_deleted,
+                    "ipb_block_email": ins_ipblocks.excluded.ipb_block_email,
+                    "ipb_allow_usertalk": ins_ipblocks.excluded.ipb_allow_usertalk,
+                    "ipb_parent_block_id": ins_ipblocks.excluded.ipb_parent_block_id,
+                },
+            ),
+            ("delete", "ipblocks"): db.ipblocks.delete().where(
+                db.ipblocks.c.ipb_address == sa.bindparam("b_ipb_address"),
+            ),
         }
-
 
     def gen(self, list_params):
         for block in self.api.list(list_params):
@@ -79,7 +76,6 @@ class GrabberIPBlocks(GrabberBase):
             }
             yield self.sql["insert", "ipblocks"], db_entry
 
-
     def gen_insert(self):
         list_params = {
             "list": "blocks",
@@ -87,7 +83,6 @@ class GrabberIPBlocks(GrabberBase):
             "bkprop": "id|user|userid|by|byid|timestamp|expiry|reason|range|flags",
         }
         yield from self.gen(list_params)
-
 
     def gen_update(self, since):
         # remove expired blocks
@@ -143,5 +138,5 @@ class GrabberIPBlocks(GrabberBase):
             # we need to check a tuple of arbitrary length (i.e. the blocks
             # to keep), so the queries can't be grouped
             yield self.db.ipblocks.delete().where(
-                    (self.db.ipblocks.c.ipb_address == user) &
-                    self.db.ipblocks.c.ipb_id.notin_(ipb_ids))
+                (self.db.ipblocks.c.ipb_address == user) & self.db.ipblocks.c.ipb_id.notin_(ipb_ids),
+            )

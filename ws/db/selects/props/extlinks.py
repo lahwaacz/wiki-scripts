@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
-
 from ..SelectBase import SelectBase
 
 __all__ = ["ExternalLinks"]
+
 
 class ExternalLinks(SelectBase):
     """

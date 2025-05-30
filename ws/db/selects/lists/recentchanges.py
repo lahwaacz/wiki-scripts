@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 import ws.db.mw_constants as mwconst
@@ -8,8 +6,8 @@ from .GeneratorBase import GeneratorBase
 
 __all__ = ["RecentChanges", "oldest_rc_timestamp", "newest_rc_timestamp"]
 
-class RecentChanges(GeneratorBase):
 
+class RecentChanges(GeneratorBase):
     API_PREFIX = "rc"
     DB_PREFIX = "rc_"
 
@@ -38,7 +36,21 @@ class RecentChanges(GeneratorBase):
         assert "user" not in params or "excludeuser" not in params
 
         # MW incompatibility: "parsedcomment" prop is not supported
-        assert params["prop"] <= {"user", "userid", "comment", "flags", "timestamp", "title", "ids", "sizes", "patrolled", "loginfo", "sha1", "redirect", "tags"}
+        assert params["prop"] <= {
+            "user",
+            "userid",
+            "comment",
+            "flags",
+            "timestamp",
+            "title",
+            "ids",
+            "sizes",
+            "patrolled",
+            "loginfo",
+            "sha1",
+            "redirect",
+            "tags",
+        }
 
         # boolean flags
         # TODO: MediaWiki API has also "redirect" flag
@@ -105,8 +117,10 @@ class RecentChanges(GeneratorBase):
             s = s.add_columns(rev.c.rev_sha1)
         if "toponly" in params or "redirect" in prop or {"redirect", "!redirect"} & params.get("show", set()):
             page = self.db.page
-            tail = tail.outerjoin(page, (rc.c.rc_namespace == page.c.page_namespace) &
-                                        (rc.c.rc_title == page.c.page_title))
+            tail = tail.outerjoin(
+                page,
+                (rc.c.rc_namespace == page.c.page_namespace) & (rc.c.rc_title == page.c.page_title),
+            )
             s = s.add_columns(page.c.page_is_redirect)
         if "tags" in prop:
             tag = self.db.tag
@@ -114,11 +128,12 @@ class RecentChanges(GeneratorBase):
             # aggregate all tag names corresponding to the same revision into an array
             # (basically 'SELECT tgrc_rc_id, array_agg(tag_name) FROM tag JOIN tagged_recentchange GROUP BY tgrc_rc_id')
             # TODO: make a materialized view for this
-            tag_names = sa.select(tgrc.c.tgrc_rc_id,
-                                  sa.func.array_agg(tag.c.tag_name).label("tag_names")) \
-                            .select_from(tag.join(tgrc, tag.c.tag_id == tgrc.c.tgrc_tag_id)) \
-                            .group_by(tgrc.c.tgrc_rc_id) \
-                            .cte("tag_names")
+            tag_names = (
+                sa.select(tgrc.c.tgrc_rc_id, sa.func.array_agg(tag.c.tag_name).label("tag_names"))
+                .select_from(tag.join(tgrc, tag.c.tag_id == tgrc.c.tgrc_tag_id))
+                .group_by(tgrc.c.tgrc_rc_id)
+                .cte("tag_names")
+            )
             tail = tail.outerjoin(tag_names, rc.c.rc_id == tag_names.c.tgrc_rc_id)
             s = s.add_columns(tag_names.c.tag_names)
         if "tag" in params:
@@ -172,8 +187,7 @@ class RecentChanges(GeneratorBase):
                 s = s.where(page.c.page_is_redirect.is_(True))
             elif "!redirect":
                 # Don't throw log entries out the window here
-                s = s.where( (page.c.page_is_redirect.is_(False)) |
-                             (page.c.page_is_redirect.is_(None)) )
+                s = s.where((page.c.page_is_redirect.is_(False)) | (page.c.page_is_redirect.is_(None)))
 
         # order by
         if params["dir"] == "older":
@@ -264,6 +278,7 @@ def oldest_rc_timestamp(db):
     with db.engine.connect() as conn:
         result = conn.execute(sa.select(sa.func.min(db.recentchanges.c.rc_timestamp)))
         return result.fetchone()[0]
+
 
 def newest_rc_timestamp(db):
     """

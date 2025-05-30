@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import logging
 import time
 
@@ -16,6 +14,7 @@ from ws.db.grabbers.user import GrabberUsers
 from ws.db.grabbers.usermerge import GrabberUserMerge
 
 logger = logging.getLogger(__name__)
+
 
 def synchronize(db, api, *, with_content=False, check_needs_update=True):
     time1 = time.time()

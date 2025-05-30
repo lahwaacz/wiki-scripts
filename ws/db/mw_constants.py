@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # all users are implicitly members of these groups
 implicit_groups = {"*", "user"}
 

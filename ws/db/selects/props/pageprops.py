@@ -1,11 +1,9 @@
-#!/usr/bin/env python3
-
 from ..SelectBase import SelectBase
 
 __all__ = ["PageProps"]
 
-class PageProps(SelectBase):
 
+class PageProps(SelectBase):
     API_PREFIX = "pp"
     DB_PREFIX = "pp_"
 

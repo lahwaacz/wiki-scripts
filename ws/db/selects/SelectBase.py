@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-
 class SelectBase:
-
     API_PREFIX = None
     DB_PREFIX = None
 
@@ -37,7 +34,7 @@ class SelectBase:
             if generator is True:
                 prefix = "g" + prefix
             if key.startswith(prefix):
-                new_key = key[len(prefix):]
+                new_key = key[len(prefix) :]
                 new_params[new_key] = value
         return new_params
 
@@ -45,6 +42,7 @@ class SelectBase:
         with self.db.engine.connect() as conn:
             if explain is True:
                 from ws.db.database import explain
+
                 result = conn.execute(explain(query))
                 print(query)
                 for row in result:

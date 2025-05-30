@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 import ws.db.mw_constants as mwconst
@@ -8,8 +6,8 @@ from ..SelectBase import SelectBase
 
 __all__ = ["DeletedRevisions"]
 
-class DeletedRevisions(SelectBase):
 
+class DeletedRevisions(SelectBase):
     API_PREFIX = "drv"
     DB_PREFIX = "ar_"
 
@@ -44,8 +42,7 @@ class DeletedRevisions(SelectBase):
     @classmethod
     def sanitize_params(klass, params):
         # MW incompatibility: parameters related to content parsing are not supported (they are deprecated anyway)
-        assert set(params) <= {"start", "end", "dir", "user", "excludeuser", "prop", "limit", "continue",
-                               "section", "generatetitles", "slots", "tag"}
+        assert set(params) <= {"start", "end", "dir", "user", "excludeuser", "prop", "limit", "continue", "section", "generatetitles", "slots", "tag"}
         klass.sanitize_common_params(params)
 
     # prop-specific methods
@@ -54,8 +51,10 @@ class DeletedRevisions(SelectBase):
     def join_with_pageset(self, pageset):
         ar = self.db.archive
         page = self.db.page
-        return ar.outerjoin(pageset, (ar.c.ar_namespace == page.c.page_namespace) &
-                                     (ar.c.ar_title == page.c.page_title))
+        return ar.outerjoin(
+            pageset,
+            (ar.c.ar_namespace == page.c.page_namespace) & (ar.c.ar_title == page.c.page_title),
+        )
 
     def get_select_prop(self, s, tail, params):
         ar = self.db.archive
@@ -92,11 +91,12 @@ class DeletedRevisions(SelectBase):
             # aggregate all tag names corresponding to the same revision into an array
             # (basically 'SELECT tgar_rev_id, array_agg(tag_name) FROM tag JOIN tagged_recentchange GROUP BY tgar_rev_id')
             # TODO: make a materialized view for this
-            tag_names = sa.select(tgar.c.tgar_rev_id,
-                                  sa.func.array_agg(tag.c.tag_name).label("tag_names")) \
-                            .select_from(tag.join(tgar, tag.c.tag_id == tgar.c.tgar_tag_id)) \
-                            .group_by(tgar.c.tgar_rev_id) \
-                            .cte("tag_names")
+            tag_names = (
+                sa.select(tgar.c.tgar_rev_id, sa.func.array_agg(tag.c.tag_name).label("tag_names"))
+                .select_from(tag.join(tgar, tag.c.tag_id == tgar.c.tgar_tag_id))
+                .group_by(tgar.c.tgar_rev_id)
+                .cte("tag_names")
+            )
             tail = tail.outerjoin(tag_names, ar.c.ar_rev_id == tag_names.c.tgar_rev_id)
             s = s.column(tag_names.c.tag_names)
         if "tag" in params:

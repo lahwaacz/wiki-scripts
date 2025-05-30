@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import datetime
 
 import sqlalchemy as sa
@@ -8,8 +6,8 @@ from .GeneratorBase import GeneratorBase
 
 __all__ = ["AllPages"]
 
-class AllPages(GeneratorBase):
 
+class AllPages(GeneratorBase):
     API_PREFIX = "ap"
     DB_PREFIX = "page_"
 
@@ -20,11 +18,27 @@ class AllPages(GeneratorBase):
         params.setdefault("filterredir", "all")
         params.setdefault("prexpiry", "all")
         params.setdefault("prfiltercascade", "all")
-#        params.setdefault("filterlanglinks", "all")
+        # params.setdefault("filterlanglinks", "all")
 
     @classmethod
     def sanitize_params(klass, params):
-        assert set(params) <= {"from", "to", "dir", "prefix", "namespace", "filterredir", "minsize", "maxsize", "prtype", "prlevel", "prexpiry", "prfiltercascade", "filterlanglinks", "limit", "continue"}
+        assert set(params) <= {
+            "from",
+            "to",
+            "dir",
+            "prefix",
+            "namespace",
+            "filterredir",
+            "minsize",
+            "maxsize",
+            "prtype",
+            "prlevel",
+            "prexpiry",
+            "prfiltercascade",
+            "filterlanglinks",
+            "limit",
+            "continue",
+        }
 
         # TODO: convert the 'from', 'to' and 'prefix' fields to the database canonical format
 
@@ -54,7 +68,7 @@ class AllPages(GeneratorBase):
             assert params["prlevel"] <= {"autoconfirmed", "sysop"}
         assert params["prexpiry"] in {"all", "definite", "indefinite"}
         assert params["prfiltercascade"] in {"all", "cascading", "noncascading"}
-#        assert params["filterlanglinks"] in {"all", "withlanglinks", "withoutlanglinks"}
+        # assert params["filterlanglinks"] in {"all", "withlanglinks", "withoutlanglinks"}
 
     def get_pageset(self, params):
         """
@@ -91,7 +105,7 @@ class AllPages(GeneratorBase):
                     s = s.where(pr.c.pr_cascade == 0)
             if params["prexpiry"] == "indefinite":
                 s = s.where(sa.or_(pr.c.pr_expiry == "infinity", pr.c.pr_expiry.is_(None)))
-            elif params['prexpiry'] == "definite":
+            elif params["prexpiry"] == "definite":
                 s = s.where(pr.c.pr_expiry != "infinity")
             # TODO: check that adding DISTINCT like in MediaWiki is useless for our database
 
@@ -131,8 +145,7 @@ class AllPages(GeneratorBase):
             "page_id": "pageid",
             "page_namespace": "ns",
         }
-        bool_flags = {
-        }
+        bool_flags = {}
         # subset of flags for which 0 should be used instead of None
         zeroable_flags = {}
 

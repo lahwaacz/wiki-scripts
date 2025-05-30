@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 class DeferrableExecutionQueue:
     """
     An execution wrapper which defers the execution of statements until the
@@ -22,6 +20,7 @@ class DeferrableExecutionQueue:
     :param int chunk_size:
         maximum queue size
     """
+
     def __init__(self, conn, chunk_size):
         if chunk_size <= 0:  # pragma: no cover
             raise ValueError("chunk_size must be positive")

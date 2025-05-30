@@ -1,31 +1,28 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 from .GrabberBase import GrabberBase
 
 
 class GrabberUserMerge(GrabberBase):
-
     def __init__(self, api, db):
         super().__init__(api, db)
 
         self.sql = {
-            ("delete", "user"):
-                db.user.delete()
-                    .where(db.user.c.user_id == sa.bindparam("b_oldid")),
-            ("update", "logging"):
-                db.logging.update()
-                    .where(db.logging.c.log_user == sa.bindparam("b_oldid")),
-            ("update", "ipb"):
-                db.ipblocks.update()
-                    .where(db.ipblocks.c.ipb_by == sa.bindparam("b_oldid")),
-            ("update", "archive"):
-                db.archive.update()
-                    .where(db.archive.c.ar_user == sa.bindparam("b_oldid")),
-            ("update", "revision"):
-                db.revision.update()
-                    .where(db.revision.c.rev_user == sa.bindparam("b_oldid")),
+            ("delete", "user"): db.user.delete().where(
+                db.user.c.user_id == sa.bindparam("b_oldid"),
+            ),
+            ("update", "logging"): db.logging.update().where(
+                db.logging.c.log_user == sa.bindparam("b_oldid"),
+            ),
+            ("update", "ipb"): db.ipblocks.update().where(
+                db.ipblocks.c.ipb_by == sa.bindparam("b_oldid"),
+            ),
+            ("update", "archive"): db.archive.update().where(
+                db.archive.c.ar_user == sa.bindparam("b_oldid"),
+            ),
+            ("update", "revision"): db.revision.update().where(
+                db.revision.c.rev_user == sa.bindparam("b_oldid"),
+            ),
         }
 
     def gen_insert(self):

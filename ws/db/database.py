@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 """
 Prerequisites:
 
@@ -25,6 +23,7 @@ from . import grabbers, parser_cache, schema, selects
 __all__ = ["Database"]
 
 logger = logging.getLogger(__name__)
+
 
 class Database:
     # it doesn't make sense to even test anything else
@@ -78,9 +77,11 @@ class Database:
                 context = alembic.migration.MigrationContext.configure(connection)
                 context_heads = context.get_current_heads()
             if set(context_heads) != set(directory.get_heads()):
-                logger.error("The wiki-scripts database is not up to date. Please "
-                             "run `alembic upgrade head` in the wiki-scripts "
-                             "repository to execute pending migrations.")
+                logger.error(
+                    "The wiki-scripts database is not up to date. Please "
+                    "run `alembic upgrade head` in the wiki-scripts "
+                    "repository to execute pending migrations."
+                )
                 sys.exit(1)
 
     @staticmethod
@@ -94,22 +95,53 @@ class Database:
         :param argparser: an instance of :py:class:`argparse.ArgumentParser`
         """
         group = argparser.add_argument_group(title="Database parameters")
-        group.add_argument("--db-dialect", metavar="DIALECT", choices=["postgresql"], default="postgresql",
-                help="an SQL dialect (default: %(default)s)")
-        group.add_argument("--db-driver", metavar="DRIVER", default="psycopg",
-                help="a driver for given SQL dialect supported by sqlalchemy (default: %(default)s)")
-        group.add_argument("--db-async-driver", metavar="DRIVER", default="psycopg",
-                help="an async driver for given SQL dialect supported by sqlalchemy (default: %(default)s)")
-        group.add_argument("--db-user", metavar="USER",
-                help="username for database connection (default: %(default)s)")
-        group.add_argument("--db-password", metavar="PASSWORD",
-                help="password for database connection (default: %(default)s)")
-        group.add_argument("--db-host", metavar="HOST", default="localhost",
-                help="hostname of the database server (default: %(default)s)")
-        group.add_argument("--db-port", metavar="PORT", default=5432,
-                help="port on which the database server listens (default: %(default)s)")
-        group.add_argument("--db-name", metavar="DATABASE", required=True,
-                help="name of the database (default: %(default)s)")
+        group.add_argument(
+            "--db-dialect",
+            metavar="DIALECT",
+            choices=["postgresql"],
+            default="postgresql",
+            help="an SQL dialect (default: %(default)s)",
+        )
+        group.add_argument(
+            "--db-driver",
+            metavar="DRIVER",
+            default="psycopg",
+            help="a driver for given SQL dialect supported by sqlalchemy (default: %(default)s)",
+        )
+        group.add_argument(
+            "--db-async-driver",
+            metavar="DRIVER",
+            default="psycopg",
+            help="an async driver for given SQL dialect supported by sqlalchemy (default: %(default)s)",
+        )
+        group.add_argument(
+            "--db-user",
+            metavar="USER",
+            help="username for database connection (default: %(default)s)",
+        )
+        group.add_argument(
+            "--db-password",
+            metavar="PASSWORD",
+            help="password for database connection (default: %(default)s)",
+        )
+        group.add_argument(
+            "--db-host",
+            metavar="HOST",
+            default="localhost",
+            help="hostname of the database server (default: %(default)s)",
+        )
+        group.add_argument(
+            "--db-port",
+            metavar="PORT",
+            default=5432,
+            help="port on which the database server listens (default: %(default)s)",
+        )
+        group.add_argument(
+            "--db-name",
+            metavar="DATABASE",
+            required=True,
+            help="name of the database (default: %(default)s)",
+        )
 
     @classmethod
     def from_argparser(klass, args):
@@ -128,18 +160,22 @@ class Database:
 
         # The format is basically "{dialect}+{driver}://{username}:{password}@{host}:{port}/{database}?{params}",
         # but the URL class is suitable for omitting empty defaults.
-        url = sa.engine.url.URL.create(f"{args.db_dialect}+{args.db_driver}",
-                                       username=args.db_user,
-                                       password=args.db_password,
-                                       host=args.db_host,
-                                       port=args.db_port,
-                                       database=args.db_name)
-        async_url = sa.engine.url.URL.create(f"{args.db_dialect}+{args.db_async_driver}",
-                                             username=args.db_user,
-                                             password=args.db_password,
-                                             host=args.db_host,
-                                             port=args.db_port,
-                                             database=args.db_name)
+        url = sa.engine.url.URL.create(
+            f"{args.db_dialect}+{args.db_driver}",
+            username=args.db_user,
+            password=args.db_password,
+            host=args.db_host,
+            port=args.db_port,
+            database=args.db_name,
+        )
+        async_url = sa.engine.url.URL.create(
+            f"{args.db_dialect}+{args.db_async_driver}",
+            username=args.db_user,
+            password=args.db_password,
+            host=args.db_host,
+            port=args.db_port,
+            database=args.db_name,
+        )
         return klass(url, async_url)
 
     def __getattr__(self, table_name):
@@ -231,18 +267,18 @@ Usage:
 """
 
 # FIXME: _literal_as_text was removed from sqlalchemy 1.4
-#from sqlalchemy.ext.compiler import compiles
-#from sqlalchemy.sql.expression import Executable, ClauseElement, _literal_as_text
+# from sqlalchemy.ext.compiler import compiles
+# from sqlalchemy.sql.expression import Executable, ClauseElement, _literal_as_text
 #
-#class explain(Executable, ClauseElement):
+# class explain(Executable, ClauseElement):
 #    def __init__(self, stmt, analyze=False):
 #        self.statement = _literal_as_text(stmt)
 #        self.analyze = analyze
 #        # helps with INSERT statements
 #        self.inline = getattr(stmt, 'inline', None)
 #
-#@compiles(explain)
-#def visit_explain(element, compiler, **kw):
+# @compiles(explain)
+# def visit_explain(element, compiler, **kw):
 #    text = "EXPLAIN ANALYZE "
 #    text += compiler.process(element.statement, **kw)
 #    return text

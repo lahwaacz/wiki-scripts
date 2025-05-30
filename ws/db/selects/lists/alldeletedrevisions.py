@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 from ..props.deletedrevisions import DeletedRevisions
@@ -7,17 +5,33 @@ from .GeneratorBase import GeneratorBase
 
 __all__ = ["AllDeletedRevisions"]
 
-class AllDeletedRevisions(DeletedRevisions, GeneratorBase):
 
+class AllDeletedRevisions(DeletedRevisions, GeneratorBase):
     API_PREFIX = "adr"
     DB_PREFIX = "ar_"
 
     @classmethod
     def sanitize_params(klass, params):
         # MW incompatibility: parameters related to content parsing are not supported (they are deprecated anyway)
-        assert set(params) <= {"start", "end", "dir", "namespace", "user", "excludeuser", "prop", "limit", "continue",
-                               "section", "generatetitles", "slots",
-                               "from", "to", "prefix", "tag"}  # these four are in addition to list=allrevisions
+        assert set(params) <= {
+            "start",
+            "end",
+            "dir",
+            "namespace",
+            "user",
+            "excludeuser",
+            "prop",
+            "limit",
+            "continue",
+            "section",
+            "generatetitles",
+            "slots",
+            # these four are in addition to list=allrevisions
+            "from",
+            "to",
+            "prefix",
+            "tag",
+        }
         klass.sanitize_common_params(params)
 
     def get_select(self, params):
@@ -36,8 +50,10 @@ class AllDeletedRevisions(DeletedRevisions, GeneratorBase):
         page = self.db.page
         # the page table has to be always joined with - the "pageid" field is not taken from ar_page_id,
         # but from the existing page which might have been created without undeleting previous revisions
-        tail = ar.outerjoin(page, (ar.c.ar_namespace == page.c.page_namespace) &
-                                  (ar.c.ar_title == page.c.page_title))
+        tail = ar.outerjoin(
+            page,
+            (ar.c.ar_namespace == page.c.page_namespace) & (ar.c.ar_title == page.c.page_title),
+        )
         tail = tail.join(nss, ar.c.ar_namespace == nss.c.nss_id)
         s = sa.select(page.c.page_id, ar.c.ar_namespace, ar.c.ar_title, nss.c.nss_name, ar.c.ar_deleted)
 

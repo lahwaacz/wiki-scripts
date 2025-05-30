@@ -13,11 +13,13 @@ config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
+assert config.config_file_name
 logging.config.fileConfig(config.config_file_name)
 
 # wiki-scripts' MetaData object for 'autogenerate' support
 target_metadata = sa.MetaData()
 schema.create_tables(target_metadata)
+
 
 # get database connection URL from the wiki-scripts config
 def get_url():
@@ -33,27 +35,28 @@ def get_url():
     db_port = conf.get("db-port")
     db_name = conf["db-name"]
 
-    url = sa.engine.url.URL.create(f"{db_dialect}+{db_driver}",
-                                   username=db_user,
-                                   password=db_password,
-                                   host=db_host,
-                                   port=db_port,
-                                   database=db_name)
+    url = sa.engine.url.URL.create(
+        f"{db_dialect}+{db_driver}",
+        username=db_user,
+        password=db_password,
+        host=db_host,
+        port=db_port,
+        database=db_name,
+    )
     return url
 
 
-def my_compare_type(context, inspected_column,
-            metadata_column, inspected_type, metadata_type):
+def my_compare_type(context, inspected_column, metadata_column, inspected_type, metadata_type):
     # return False if the metadata_type is the same as the inspected_type
     # or None to allow the default implementation to compare these
     # types. a return value of True means the two types do not
     # match and should result in a type change operation.
     return None
     # TODO: the built-in comparison did not detect VARCHAR -> TEXT change, so I did it manually like this:
-#    print(context, inspected_column, metadata_column, repr(inspected_type), repr(metadata_type))
-#    if repr(metadata_type) == "UnicodeText()" and repr(inspected_type) != "TEXT()":
-#        return True
-#    return False
+    # print(context, inspected_column, metadata_column, repr(inspected_type), repr(metadata_type))
+    # if repr(metadata_type) == "UnicodeText()" and repr(inspected_type) != "TEXT()":
+    #     return True
+    # return False
 
 
 def run_migrations_offline():
@@ -99,6 +102,7 @@ def run_migrations_online():
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

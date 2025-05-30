@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 import ws.db.mw_constants as mwconst
@@ -8,8 +6,8 @@ from .ListBase import ListBase
 
 __all__ = ["LogEvents"]
 
-class LogEvents(ListBase):
 
+class LogEvents(ListBase):
     API_PREFIX = "le"
     DB_PREFIX = "log_"
 
@@ -74,8 +72,10 @@ class LogEvents(ListBase):
             s = s.add_columns(nss.c.nss_name)
             # TODO: MediaWiki says that page should be joined after user, test it
             page = self.db.page
-            tail = tail.outerjoin(page, (log.c.log_namespace == page.c.page_namespace) &
-                                        (log.c.log_title == page.c.page_title))
+            tail = tail.outerjoin(
+                page,
+                (log.c.log_namespace == page.c.page_namespace) & (log.c.log_title == page.c.page_title),
+            )
             s = s.add_columns(page.c.page_id)
         if "user" in prop:
             user = self.db.user
@@ -87,11 +87,15 @@ class LogEvents(ListBase):
             # aggregate all tag names corresponding to the same revision into an array
             # (basically 'SELECT tgle_log_id, array_agg(tag_name) FROM tag JOIN tagged_logevent GROUP BY tgle_log_id')
             # TODO: make a materialized view for this
-            tag_names = sa.select(tgle.c.tgle_log_id,
-                                  sa.func.array_agg(tag.c.tag_name).label("tag_names")) \
-                            .select_from(tag.join(tgle, tag.c.tag_id == tgle.c.tgle_tag_id)) \
-                            .group_by(tgle.c.tgle_log_id) \
-                            .cte("tag_names")
+            tag_names = (
+                sa.select(
+                    tgle.c.tgle_log_id,
+                    sa.func.array_agg(tag.c.tag_name).label("tag_names"),
+                )
+                .select_from(tag.join(tgle, tag.c.tag_id == tgle.c.tgle_tag_id))
+                .group_by(tgle.c.tgle_log_id)
+                .cte("tag_names")
+            )
             tail = tail.outerjoin(tag_names, log.c.log_id == tag_names.c.tgle_log_id)
             if "tags" in prop:
                 s = s.add_columns(tag_names.c.tag_names)
@@ -115,13 +119,13 @@ class LogEvents(ListBase):
             s = s.where(log.c.log_timestamp >= oldest)
         if params.get("namespace"):
             s = s.where(log.c.log_namespace == params.get("namespace"))
-        # TODO: something befor the caller and this function should split off the namespace prefix and pass namespace number
+        # TODO: something before the caller and this function should split off the namespace prefix and pass namespace number
         if params.get("title"):
             s = s.where(log.c.log_title == params.get("title"))
         if params.get("user"):
             s = s.where(log.c.log_user_text == params.get("user"))
         # TODO
-#        if params.get("prefix"):
+        # if params.get("prefix"):
         if params.get("type"):
             s = s.where(log.c.log_type == params.get("type"))
         # TODO: something should split action ("protect/modify" is "log_type/log_action")

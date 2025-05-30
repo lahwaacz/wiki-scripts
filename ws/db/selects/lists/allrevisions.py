@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 from ..props.revisions import Revisions
@@ -7,16 +5,15 @@ from .GeneratorBase import GeneratorBase
 
 __all__ = ["AllRevisions"]
 
-class AllRevisions(Revisions, GeneratorBase):
 
+class AllRevisions(Revisions, GeneratorBase):
     API_PREFIX = "arv"
     DB_PREFIX = "rev_"
 
     @classmethod
     def sanitize_params(klass, params):
         # MW incompatibility: parameters related to content parsing are not supported (they are deprecated anyway)
-        assert set(params) <= {"start", "end", "dir", "namespace", "user", "excludeuser", "prop", "limit", "continue",
-                               "section", "generatetitles", "slots"}
+        assert set(params) <= {"start", "end", "dir", "namespace", "user", "excludeuser", "prop", "limit", "continue", "section", "generatetitles", "slots"}
         klass.sanitize_common_params(params)
 
     def get_select(self, params):

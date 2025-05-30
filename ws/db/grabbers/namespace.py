@@ -1,12 +1,9 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 from .GrabberBase import GrabberBase
 
 
 class GrabberNamespaces(GrabberBase):
-
     def __init__(self, api, db):
         super().__init__(api, db)
 
@@ -16,35 +13,35 @@ class GrabberNamespaces(GrabberBase):
         ins_nsc = sa.dialects.postgresql.insert(db.namespace_canonical)
 
         self.sql = {
-            ("insert", "namespace"):
-                ins_ns.on_conflict_do_update(
-                    constraint=db.namespace.primary_key,
-                    set_={
-                        "ns_case":                ins_ns.excluded.ns_case,
-                        "ns_content":             ins_ns.excluded.ns_content,
-                        "ns_subpages":            ins_ns.excluded.ns_subpages,
-                        "ns_nonincludable":       ins_ns.excluded.ns_nonincludable,
-                        "ns_defaultcontentmodel": ins_ns.excluded.ns_defaultcontentmodel,
-                        "ns_protection":          ins_ns.excluded.ns_protection,
-                    }),
-            ("insert", "namespace_name"):
-                ins_nsn.on_conflict_do_update(
-                    index_elements=[db.namespace_name.c.nsn_name],
-                    set_={
-                        "nsn_id": ins_nsn.excluded.nsn_id,
-                    }),
-            ("insert", "namespace_starname"):
-                ins_nss.on_conflict_do_update(
-                    index_elements=[db.namespace_starname.c.nss_id],
-                    set_={
-                        "nss_name": ins_nss.excluded.nss_name,
-                    }),
-            ("insert", "namespace_canonical"):
-                ins_nsc.on_conflict_do_update(
-                    index_elements=[db.namespace_canonical.c.nsc_id],
-                    set_={
-                        "nsc_name": ins_nsc.excluded.nsc_name,
-                    }),
+            ("insert", "namespace"): ins_ns.on_conflict_do_update(
+                constraint=db.namespace.primary_key,
+                set_={
+                    "ns_case": ins_ns.excluded.ns_case,
+                    "ns_content": ins_ns.excluded.ns_content,
+                    "ns_subpages": ins_ns.excluded.ns_subpages,
+                    "ns_nonincludable": ins_ns.excluded.ns_nonincludable,
+                    "ns_defaultcontentmodel": ins_ns.excluded.ns_defaultcontentmodel,
+                    "ns_protection": ins_ns.excluded.ns_protection,
+                },
+            ),
+            ("insert", "namespace_name"): ins_nsn.on_conflict_do_update(
+                index_elements=[db.namespace_name.c.nsn_name],
+                set_={
+                    "nsn_id": ins_nsn.excluded.nsn_id,
+                },
+            ),
+            ("insert", "namespace_starname"): ins_nss.on_conflict_do_update(
+                index_elements=[db.namespace_starname.c.nss_id],
+                set_={
+                    "nss_name": ins_nss.excluded.nss_name,
+                },
+            ),
+            ("insert", "namespace_canonical"): ins_nsc.on_conflict_do_update(
+                index_elements=[db.namespace_canonical.c.nsc_id],
+                set_={
+                    "nsc_name": ins_nsc.excluded.nsc_name,
+                },
+            ),
         }
 
     def gen_insert(self):
@@ -53,8 +50,8 @@ class GrabberNamespaces(GrabberBase):
 
         for ns in self.api.site.namespaces.values():
             # don't store special namespaces in the database
-#            if ns["id"] < 0:
-#                continue
+            # if ns["id"] < 0:
+            #     continue
 
             ns_entry = {
                 "ns_id": ns["id"],

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import datetime
 import logging
 
@@ -13,8 +11,8 @@ __all__ = ["GrabberBase"]
 
 logger = logging.getLogger(__name__)
 
-class GrabberBase:
 
+class GrabberBase:
     # class attributes that should be overridden in subclasses
 
     # Names of tables that should be pre-deleted before inserting into them.
@@ -39,9 +37,9 @@ class GrabberBase:
         ws_sync = self.db.ws_sync
         ins = insert(ws_sync)
         ins = ins.on_conflict_do_update(
-                    constraint=ws_sync.primary_key,
-                    set_={"wss_timestamp": ins.excluded.wss_timestamp}
-                )
+            constraint=ws_sync.primary_key,
+            set_={"wss_timestamp": ins.excluded.wss_timestamp},
+        )
         entry = {
             "wss_key": self.__class__.__name__,
             "wss_timestamp": timestamp,
@@ -59,8 +57,7 @@ class GrabberBase:
         ``ws_sync`` table.
         """
         ws_sync = self.db.ws_sync
-        sel = select(ws_sync.c.wss_timestamp) \
-              .where(ws_sync.c.wss_key == self.__class__.__name__)
+        sel = select(ws_sync.c.wss_timestamp).where(ws_sync.c.wss_key == self.__class__.__name__)
 
         with self.db.engine.connect() as conn:
             row = conn.execute(sel).fetchone()

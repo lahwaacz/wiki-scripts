@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 from ..SelectBase import SelectBase
 
 __all__ = ["Templates"]
+
 
 class Templates(SelectBase):
     """
@@ -40,8 +39,10 @@ class Templates(SelectBase):
         nss = self.db.namespace_starname.alias()
 
         tail = tail.outerjoin(tl, page.c.page_id == tl.c.tl_from)
-        tail = tail.outerjoin(target_page, (tl.c.tl_namespace == target_page.c.page_namespace) &
-                                           (tl.c.tl_title == target_page.c.page_title))
+        tail = tail.outerjoin(
+            target_page,
+            (tl.c.tl_namespace == target_page.c.page_namespace) & (tl.c.tl_title == target_page.c.page_title),
+        )
         tail = tail.outerjoin(nss, tl.c.tl_namespace == nss.c.nss_id)
 
         s = s.column(tl.c.tl_namespace)
@@ -61,7 +62,7 @@ class Templates(SelectBase):
             pairs = set()
             for template in templates:
                 template = self.db.Title(template)
-                pairs.add( (template.namespacenumber, template.pagename) )
+                pairs.add((template.namespacenumber, template.pagename))
             s = s.where(sa.tuple_(tl.c.tl_namespace, tl.c.tl_title).in_(pairs))
 
         # order by

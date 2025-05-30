@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 import ws.db.selects as selects
@@ -9,7 +7,6 @@ from .GrabberBase import GrabberBase
 
 
 class GrabberPages(GrabberBase):
-
     INSERT_PREDELETE_TABLES = ["page", "page_props", "page_restrictions"]
 
     def __init__(self, api, db):
@@ -20,77 +17,75 @@ class GrabberPages(GrabberBase):
         ins_page_restrictions = sa.dialects.postgresql.insert(db.page_restrictions)
 
         self.sql = {
-            ("insert", "page"):
-                ins_page.on_conflict_do_update(
-                    constraint=db.page.primary_key,
-                    set_={
-                        "page_namespace":     ins_page.excluded.page_namespace,
-                        "page_title":         ins_page.excluded.page_title,
-                        "page_is_redirect":   ins_page.excluded.page_is_redirect,
-                        "page_is_new":        ins_page.excluded.page_is_new,
-                        "page_touched":       ins_page.excluded.page_touched,
-                        "page_links_updated": ins_page.excluded.page_links_updated,
-                        "page_latest":        ins_page.excluded.page_latest,
-                        "page_len":           ins_page.excluded.page_len,
-                        "page_content_model": ins_page.excluded.page_content_model,
-                        "page_lang":          ins_page.excluded.page_lang,
-                    }),
-            ("insert", "page_props"):
-                ins_page_props.on_conflict_do_update(
-                    index_elements=[
-                        db.page_props.c.pp_page,
-                        db.page_props.c.pp_propname,
-                    ],
-                    set_={
-                        "pp_value": ins_page_props.excluded.pp_value,
-                    }),
-            ("insert", "page_restrictions"):
-                ins_page_restrictions.on_conflict_do_update(
-                    index_elements=[
-                        db.page_restrictions.c.pr_page,
-                        db.page_restrictions.c.pr_type,
-                    ],
-                    set_={
-                        "pr_level":   ins_page_restrictions.excluded.pr_level,
-                        "pr_cascade": ins_page_restrictions.excluded.pr_cascade,
-                        "pr_user":    ins_page_restrictions.excluded.pr_user,
-                        "pr_expiry":  ins_page_restrictions.excluded.pr_expiry,
-                    }),
-            ("delete", "page"):
-                db.page.delete().where(db.page.c.page_id == sa.bindparam("b_page_id")),
-            ("delete-but-one", "page_props"):
-                db.page_props.delete().where(
-                    (db.page_props.c.pp_page == sa.bindparam("b_pp_page")) &
-                    (db.page_props.c.pp_propname != sa.bindparam("b_pp_propname"))),
-            ("delete-all", "page_props"):
-                db.page_props.delete().where(
-                    db.page_props.c.pp_page == sa.bindparam("b_pp_page")),
-            ("delete-but-one", "page_restrictions"):
-                db.page_restrictions.delete().where(
-                    (db.page_restrictions.c.pr_page == sa.bindparam("b_pr_page")) &
-                    (db.page_restrictions.c.pr_type != sa.bindparam("b_pr_type"))),
-            ("delete-all", "page_restrictions"):
-                db.page_restrictions.delete().where(
-                    db.page_restrictions.c.pr_page == sa.bindparam("b_pr_page")),
-            ("delete", "deleted_recentchanges"):
-                db.recentchanges.delete().where(
-                    sa.and_(db.recentchanges.c.rc_logid.is_(None),
-                            db.recentchanges.c.rc_cur_id.notin_(sa.select(db.page.c.page_id).scalar_subquery())
-                    )),
-            ("update", "page_name"):
-                db.page.update().where(
-                        db.page.c.page_id == sa.bindparam("b_page_id")
-                    ).values(
-                        page_namespace=sa.bindparam("b_new_namespace"),
-                        page_title=sa.bindparam("b_new_title"),
-                    ),
+            ("insert", "page"): ins_page.on_conflict_do_update(
+                constraint=db.page.primary_key,
+                set_={
+                    "page_namespace": ins_page.excluded.page_namespace,
+                    "page_title": ins_page.excluded.page_title,
+                    "page_is_redirect": ins_page.excluded.page_is_redirect,
+                    "page_is_new": ins_page.excluded.page_is_new,
+                    "page_touched": ins_page.excluded.page_touched,
+                    "page_links_updated": ins_page.excluded.page_links_updated,
+                    "page_latest": ins_page.excluded.page_latest,
+                    "page_len": ins_page.excluded.page_len,
+                    "page_content_model": ins_page.excluded.page_content_model,
+                    "page_lang": ins_page.excluded.page_lang,
+                },
+            ),
+            ("insert", "page_props"): ins_page_props.on_conflict_do_update(
+                index_elements=[
+                    db.page_props.c.pp_page,
+                    db.page_props.c.pp_propname,
+                ],
+                set_={
+                    "pp_value": ins_page_props.excluded.pp_value,
+                },
+            ),
+            ("insert", "page_restrictions"): ins_page_restrictions.on_conflict_do_update(
+                index_elements=[
+                    db.page_restrictions.c.pr_page,
+                    db.page_restrictions.c.pr_type,
+                ],
+                set_={
+                    "pr_level": ins_page_restrictions.excluded.pr_level,
+                    "pr_cascade": ins_page_restrictions.excluded.pr_cascade,
+                    "pr_user": ins_page_restrictions.excluded.pr_user,
+                    "pr_expiry": ins_page_restrictions.excluded.pr_expiry,
+                },
+            ),
+            ("delete", "page"): db.page.delete().where(
+                db.page.c.page_id == sa.bindparam("b_page_id"),
+            ),
+            ("delete-but-one", "page_props"): db.page_props.delete().where(
+                (db.page_props.c.pp_page == sa.bindparam("b_pp_page")) & (db.page_props.c.pp_propname != sa.bindparam("b_pp_propname"))
+            ),
+            ("delete-all", "page_props"): db.page_props.delete().where(
+                db.page_props.c.pp_page == sa.bindparam("b_pp_page"),
+            ),
+            ("delete-but-one", "page_restrictions"): db.page_restrictions.delete().where(
+                (db.page_restrictions.c.pr_page == sa.bindparam("b_pr_page")) & (db.page_restrictions.c.pr_type != sa.bindparam("b_pr_type"))
+            ),
+            ("delete-all", "page_restrictions"): db.page_restrictions.delete().where(
+                db.page_restrictions.c.pr_page == sa.bindparam("b_pr_page"),
+            ),
+            ("delete", "deleted_recentchanges"): db.recentchanges.delete().where(
+                sa.and_(
+                    db.recentchanges.c.rc_logid.is_(None),
+                    db.recentchanges.c.rc_cur_id.notin_(sa.select(db.page.c.page_id).scalar_subquery()),
+                )
+            ),
+            ("update", "page_name"): db.page.update()
+            .where(db.page.c.page_id == sa.bindparam("b_page_id"))
+            .values(
+                page_namespace=sa.bindparam("b_new_namespace"),
+                page_title=sa.bindparam("b_new_title"),
+            ),
         }
 
         # build query to move data from the revision table into archive
-        deleted_revision = db.revision.delete() \
-            .where(db.revision.c.rev_page == sa.bindparam("b_rev_page")) \
-            .returning(*db.revision.c._all_columns) \
-            .cte("deleted_revision")
+        deleted_revision = (
+            db.revision.delete().where(db.revision.c.rev_page == sa.bindparam("b_rev_page")).returning(*db.revision.c._all_columns).cte("deleted_revision")
+        )
         columns = [
             db.page.c.page_namespace,
             db.page.c.page_title,
@@ -109,32 +104,30 @@ class GrabberPages(GrabberBase):
             deleted_revision.c.rev_content_model,
             deleted_revision.c.rev_content_format,
         ]
-        select = sa.select(*columns).select_from(
-            deleted_revision.join(db.page, deleted_revision.c.rev_page == db.page.c.page_id)
-        )
+        select = sa.select(*columns).select_from(deleted_revision.join(db.page, deleted_revision.c.rev_page == db.page.c.page_id))
         insert = db.archive.insert().from_select(
             # populate all columns except ar_id
             db.archive.c._all_columns[1:],
-            select
+            select,
         )
         self.sql["move", "revision"] = insert
 
         # build query to move data from the tagged_revision table into tagged_archived_revision
-        deleted_tagged_revision = db.tagged_revision.delete() \
-            .where(db.tagged_revision.c.tgrev_rev_id.in_(
-                        sa.select(db.revision.c.rev_id)
-                            .select_from(db.revision)
-                            .where(db.revision.c.rev_page == sa.bindparam("b_rev_page"))
-                    )
-                ) \
-            .returning(*db.tagged_revision.c._all_columns) \
+        deleted_tagged_revision = (
+            db.tagged_revision.delete()
+            .where(
+                db.tagged_revision.c.tgrev_rev_id.in_(
+                    sa.select(db.revision.c.rev_id).select_from(db.revision).where(db.revision.c.rev_page == sa.bindparam("b_rev_page"))
+                )
+            )
+            .returning(*db.tagged_revision.c._all_columns)
             .cte("deleted_tagged_revision")
+        )
         insert = db.tagged_archived_revision.insert().from_select(
             db.tagged_archived_revision.c._all_columns,
-            deleted_tagged_revision.select()
+            deleted_tagged_revision.select(),
         )
         self.sql["move", "tagged_revision"] = insert
-
 
     def gen_inserts_from_page(self, page):
         if "missing" in page:
@@ -168,7 +161,7 @@ class GrabberPages(GrabberBase):
                 "pp_propname": propname,
                 "pp_value": value,
                 # TODO: how should this be populated?
-#                "pp_sortkey":
+                # "pp_sortkey":
             }
             yield self.sql["insert", "page_props"], db_entry
 
@@ -181,11 +174,10 @@ class GrabberPages(GrabberBase):
                     "pr_type": pr["type"],
                     "pr_level": pr["level"],
                     "pr_cascade": "cascade" in pr,
-                    "pr_user": None,    # unused
+                    "pr_user": None,  # unused
                     "pr_expiry": pr["expiry"],
                 }
                 yield self.sql["insert", "page_restrictions"], db_entry
-
 
     def gen_deletes_from_page(self, page):
         if "missing" in page:
@@ -202,8 +194,8 @@ class GrabberPages(GrabberBase):
                 # we need to check a tuple of arbitrary length (i.e. the props to keep),
                 # so the queries can't be grouped
                 yield self.db.page_props.delete().where(
-                        (self.db.page_props.c.pp_page == page["pageid"]) &
-                        self.db.page_props.c.pp_propname.notin_(props))
+                    (self.db.page_props.c.pp_page == page["pageid"]) & self.db.page_props.c.pp_propname.notin_(props),
+                )
         else:
             # no props present - delete all rows with the pageid
             yield self.sql["delete-all", "page_props"], {"b_pp_page": page["pageid"]}
@@ -218,12 +210,11 @@ class GrabberPages(GrabberBase):
                 # we need to check a tuple of arbitrary length (i.e. the restrictions
                 # to keep), so the queries can't be grouped
                 yield self.db.page_restrictions.delete().where(
-                        (self.db.page_restrictions.c.pr_page == page["pageid"]) &
-                        self.db.page_restrictions.c.pr_type.notin_(applied))
+                    (self.db.page_restrictions.c.pr_page == page["pageid"]) & self.db.page_restrictions.c.pr_type.notin_(applied)
+                )
         else:
             # no restrictions applied - delete all rows with the pageid
             yield self.sql["delete-all", "page_restrictions"], {"b_pr_page": page["pageid"]}
-
 
     def gen_insert(self):
         params = {
@@ -238,7 +229,6 @@ class GrabberPages(GrabberBase):
             params["gapnamespace"] = ns
             for page in self.api.generator(params):
                 yield from self.gen_inserts_from_page(page)
-
 
     def gen_update(self, since):
         # Items in the recentchanges table are periodically purged according to
@@ -277,11 +267,14 @@ class GrabberPages(GrabberBase):
         # been moved multiple times since the last sync).
         for pageid, params in moved:
             title = self.db.Title(params["target_title"])
-            yield self.sql["update", "page_name"], {
+            yield (
+                self.sql["update", "page_name"],
+                {
                     "b_page_id": pageid,
                     "b_new_namespace": params["target_ns"],
                     "b_new_title": title.dbtitle(params["target_ns"]),
-                }
+                },
+            )
 
         if pages:
             for chunk in ws.utils.iter_chunks(pages, self.api.max_ids_per_query):

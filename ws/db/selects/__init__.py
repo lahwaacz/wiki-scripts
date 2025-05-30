@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from collections import OrderedDict
 
 import sqlalchemy as sa
@@ -72,6 +70,7 @@ __classes_props = {
     "sections": Sections,  # custom module
 }
 
+
 def list(db, params):
     assert "list" in params
     list = params.pop("list")
@@ -89,6 +88,7 @@ def list(db, params):
     for row in result.mappings():
         yield s.db_to_api(row)
     result.close()
+
 
 def get_pageset(db, titles=None, pageids=None):
     """
@@ -120,6 +120,7 @@ def get_pageset(db, titles=None, pageids=None):
         ex = ex.where(page.c.page_id.in_(pageids))
 
     return tail, s, ex
+
 
 def query_pageset(db, params):
     params_copy = params.copy()
@@ -207,6 +208,7 @@ def query_pageset(db, params):
             result.close()
 
     yield from pages.values()
+
 
 def query(db, params=None, **kwargs):
     if params is None:

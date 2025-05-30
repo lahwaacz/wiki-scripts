@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 from .GeneratorBase import GeneratorBase
 
 __all__ = ["ProtectedTitles"]
 
-class ProtectedTitles(GeneratorBase):
 
+class ProtectedTitles(GeneratorBase):
     API_PREFIX = "pt"
     DB_PREFIX = "pt_"
 
@@ -57,13 +55,19 @@ class ProtectedTitles(GeneratorBase):
 
         # join with logging to get the timestamp, user ID, user name and comment
         # inner select to get the corresponding log_id for the rows from protected_titles
-        pt_inner = sa.select(*pt.c._all_columns, sa.func.max(log.c.log_id).label("pt_log_id")) \
-                   .select_from(pt.outerjoin(log, sa.and_(pt.c.pt_namespace == log.c.log_namespace,
-                                                  pt.c.pt_title == log.c.log_title,
-                                                  log.c.log_type == "protect",
-                                                  log.c.log_action == "protect"))) \
-                   .group_by(*pt.c._all_columns) \
-                   .cte("pt_inner")
+        pt_inner = (
+            sa.select(*pt.c._all_columns, sa.func.max(log.c.log_id).label("pt_log_id"))
+            .select_from(
+                pt.outerjoin(
+                    log,
+                    sa.and_(
+                        pt.c.pt_namespace == log.c.log_namespace, pt.c.pt_title == log.c.log_title, log.c.log_type == "protect", log.c.log_action == "protect"
+                    ),
+                )
+            )
+            .group_by(*pt.c._all_columns)
+            .cte("pt_inner")
+        )
         # join pt_inner with logging again
         tail = pt_inner.outerjoin(log, pt_inner.c.pt_log_id == log.c.log_id)
 
@@ -73,8 +77,7 @@ class ProtectedTitles(GeneratorBase):
 
         # select columns from pt_inner instead of protected_titles
         pt = pt_inner
-        s = sa.select(pt.c.pt_namespace, pt.c.pt_title, nss.c.nss_name) \
-            .select_from(tail)
+        s = sa.select(pt.c.pt_namespace, pt.c.pt_title, nss.c.nss_name).select_from(tail)
 
         prop = params["prop"]
         if "timestamp" in prop:
@@ -125,8 +128,7 @@ class ProtectedTitles(GeneratorBase):
             "pt_expiry": "expiry",
             "pt_level": "level",
         }
-        bool_flags = {
-        }
+        bool_flags = {}
         # subset of flags for which 0 should be used instead of None
         zeroable_flags = {}
 

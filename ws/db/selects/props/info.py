@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Note that MediaWiki provides protection information in the ``prop=info``
 module, which is not suitable for wiki-scripts because except for protection
@@ -12,8 +10,8 @@ from ..SelectBase import SelectBase
 
 __all__ = ["Info"]
 
-class Info(SelectBase):
 
+class Info(SelectBase):
     API_PREFIX = "in"
     DB_PREFIX = "pr_"
 

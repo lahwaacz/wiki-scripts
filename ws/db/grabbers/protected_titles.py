@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 import ws.db.selects as selects
@@ -10,7 +8,6 @@ from .GrabberBase import GrabberBase
 
 
 class GrabberProtectedTitles(GrabberBase):
-
     INSERT_PREDELETE_TABLES = ["protected_titles"]
 
     def __init__(self, api, db):
@@ -19,20 +16,19 @@ class GrabberProtectedTitles(GrabberBase):
         ins_pt = sa.dialects.postgresql.insert(db.protected_titles)
 
         self.sql = {
-            ("insert", "protected_titles"):
-                ins_pt.on_conflict_do_update(
-                    index_elements=[
-                        db.protected_titles.c.pt_namespace,
-                        db.protected_titles.c.pt_title,
-                    ],
-                    set_={
-                        "pt_level":  ins_pt.excluded.pt_level,
-                        "pt_expiry": ins_pt.excluded.pt_expiry,
-                    }),
-            ("delete", "protected_titles"):
-                db.protected_titles.delete().where(
-                    (db.protected_titles.c.pt_namespace == sa.bindparam("b_pt_namespace")) &
-                    (db.protected_titles.c.pt_title == sa.bindparam("b_pt_title"))),
+            ("insert", "protected_titles"): ins_pt.on_conflict_do_update(
+                index_elements=[
+                    db.protected_titles.c.pt_namespace,
+                    db.protected_titles.c.pt_title,
+                ],
+                set_={
+                    "pt_level": ins_pt.excluded.pt_level,
+                    "pt_expiry": ins_pt.excluded.pt_expiry,
+                },
+            ),
+            ("delete", "protected_titles"): db.protected_titles.delete().where(
+                (db.protected_titles.c.pt_namespace == sa.bindparam("b_pt_namespace")) & (db.protected_titles.c.pt_title == sa.bindparam("b_pt_title"))
+            ),
         }
 
     def gen_inserts_from_pt_or_page(self, page):
@@ -74,7 +70,7 @@ class GrabberProtectedTitles(GrabberBase):
             "list": "protectedtitles",
             "ptlimit": "max",
             # MW incompatibility: we don't store the timestamp, userid, comment fields in the protected_titles database
-#            "ptprop": "timestamp|userid|comment|expiry|level",
+            # "ptprop": "timestamp|userid|comment|expiry|level",
             "ptprop": "expiry|level",
         }
         for pt in self.api.list(pt_params):

@@ -1,28 +1,25 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 from .GrabberBase import GrabberBase
 
 
 class GrabberTags(GrabberBase):
-
     def __init__(self, api, db):
         super().__init__(api, db)
 
         ins_tag = sa.dialects.postgresql.insert(db.tag)
 
         self.sql = {
-            ("insert", "tag"):
-                ins_tag.on_conflict_do_update(
-                    index_elements=[db.tag.c.tag_name],
-                    set_={
-                        "tag_displayname": ins_tag.excluded.tag_displayname,
-                        "tag_description": ins_tag.excluded.tag_description,
-                        "tag_defined":     ins_tag.excluded.tag_defined,
-                        "tag_active":      ins_tag.excluded.tag_active,
-                        "tag_source":      ins_tag.excluded.tag_source,
-                    }),
+            ("insert", "tag"): ins_tag.on_conflict_do_update(
+                index_elements=[db.tag.c.tag_name],
+                set_={
+                    "tag_displayname": ins_tag.excluded.tag_displayname,
+                    "tag_description": ins_tag.excluded.tag_description,
+                    "tag_defined": ins_tag.excluded.tag_defined,
+                    "tag_active": ins_tag.excluded.tag_active,
+                    "tag_source": ins_tag.excluded.tag_source,
+                },
+            ),
         }
 
     def gen_insert(self):

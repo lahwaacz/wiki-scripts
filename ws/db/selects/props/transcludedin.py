@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
-
 from ..SelectBase import SelectBase
 
 __all__ = ["TranscludedIn"]
+
 
 class TranscludedIn(SelectBase):
     """
@@ -36,8 +35,10 @@ class TranscludedIn(SelectBase):
         src_page = self.db.page.alias()
         nss = self.db.namespace_starname.alias()
 
-        tail = tail.outerjoin(tl, (tl.c.tl_namespace == page.c.page_namespace) &
-                                  (tl.c.tl_title == page.c.page_title))
+        tail = tail.outerjoin(
+            tl,
+            (tl.c.tl_namespace == page.c.page_namespace) & (tl.c.tl_title == page.c.page_title),
+        )
         tail = tail.outerjoin(src_page, src_page.c.page_id == tl.c.tl_from)
         if "title" in params["prop"]:
             tail = tail.outerjoin(nss, src_page.c.page_namespace == nss.c.nss_id)

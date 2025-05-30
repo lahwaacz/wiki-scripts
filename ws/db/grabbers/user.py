@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import datetime
 import logging
 
@@ -14,8 +12,8 @@ from .GrabberBase import GrabberBase
 
 logger = logging.getLogger(__name__)
 
-class GrabberUsers(GrabberBase):
 
+class GrabberUsers(GrabberBase):
     # We never delete from the user table, otherwise FK constraints might kick in.
     # If we find out that MediaWiki sometimes deletes from the user table, it
     # should be handled differently.
@@ -28,43 +26,39 @@ class GrabberUsers(GrabberBase):
         ins_user_groups = sa.dialects.postgresql.insert(db.user_groups)
 
         self.sql = {
-            ("insert", "user"):
-                ins_user.on_conflict_do_update(
-                    index_elements=[db.user.c.user_id],
-                    set_={
-                        "user_name":         ins_user.excluded.user_name,
-                        "user_registration": ins_user.excluded.user_registration,
-                        "user_editcount":    ins_user.excluded.user_editcount,
-                    }),
-            ("update", "user"):
-                db.user.update()
-                    .where(db.user.c.user_name == sa.bindparam("b_olduser")),
-            ("insert", "user_groups"):
-                ins_user_groups.on_conflict_do_nothing(),
-            ("delete", "user_groups"):
-                db.user_groups.delete().where(
-                    db.user_groups.c.ug_user == sa.bindparam("b_ug_user")),
-            ("update", "logging"):
-                db.logging.update()
-                    .where(db.logging.c.log_user_text == sa.bindparam("b_olduser")),
-            ("update", "ipb"):
-                db.ipblocks.update()
-                    .where(db.ipblocks.c.ipb_by_text == sa.bindparam("b_olduser")),
-            ("update", "archive"):
-                db.archive.update()
-                    .where(db.archive.c.ar_user_text == sa.bindparam("b_olduser")),
-            ("update", "revision"):
-                db.revision.update()
-                    .where(db.revision.c.rev_user_text == sa.bindparam("b_olduser")),
+            ("insert", "user"): ins_user.on_conflict_do_update(
+                index_elements=[db.user.c.user_id],
+                set_={
+                    "user_name": ins_user.excluded.user_name,
+                    "user_registration": ins_user.excluded.user_registration,
+                    "user_editcount": ins_user.excluded.user_editcount,
+                },
+            ),
+            ("update", "user"): db.user.update().where(
+                db.user.c.user_name == sa.bindparam("b_olduser"),
+            ),
+            ("insert", "user_groups"): ins_user_groups.on_conflict_do_nothing(),
+            ("delete", "user_groups"): db.user_groups.delete().where(
+                db.user_groups.c.ug_user == sa.bindparam("b_ug_user"),
+            ),
+            ("update", "logging"): db.logging.update().where(
+                db.logging.c.log_user_text == sa.bindparam("b_olduser"),
+            ),
+            ("update", "ipb"): db.ipblocks.update().where(
+                db.ipblocks.c.ipb_by_text == sa.bindparam("b_olduser"),
+            ),
+            ("update", "archive"): db.archive.update().where(
+                db.archive.c.ar_user_text == sa.bindparam("b_olduser"),
+            ),
+            ("update", "revision"): db.revision.update().where(
+                db.revision.c.rev_user_text == sa.bindparam("b_olduser"),
+            ),
         }
-
 
     def gen_inserts_from_user(self, user):
         # skip invalid users (the logs might point to non-existing users)
         if "invalid" in user or "missing" in user:
-            logger.warning(
-                "Got an invalid username '{}' from the wiki server. "
-                "Skipping INSERT.".format(user["name"]))
+            logger.warning(f"Got an invalid username '{user['name']}' from the wiki server. Skipping INSERT.")
         else:
             db_entry = {
                 "user_id": user["userid"],
@@ -91,30 +85,29 @@ class GrabberUsers(GrabberBase):
                 }
                 yield self.sql["insert", "user_groups"], db_entry
 
-
     def gen_deletes_from_user(self, user):
         # skip invalid users (the logs might point to non-existing users)
         if "invalid" in user or "missing" in user:
             logger.warning(
-                "Got an invalid username '{}' from the wiki server. "
+                f"Got an invalid username '{user['name']}' from the wiki server. "
                 "The row will not be deleted locally, since this should have "
                 "never happened. Blame MediaWiki for not using foreign key "
-                "constraints in their database.".format(user["name"]))
+                "constraints in their database."
+            )
         else:
             extra_groups = set(user["groups"]) - implicit_groups
             if extra_groups:
                 # we need to check a tuple of arbitrary length (i.e. the groups
                 # to keep), so the queries can't be grouped
                 yield self.db.user_groups.delete().where(
-                        (self.db.user_groups.c.ug_user == user["userid"]) &
-                        self.db.user_groups.c.ug_group.notin_(extra_groups))
+                    (self.db.user_groups.c.ug_user == user["userid"]) & self.db.user_groups.c.ug_group.notin_(extra_groups)
+                )
             else:
                 # no groups - delete all rows with the userid
                 yield self.sql["delete", "user_groups"], {"b_ug_user": user["userid"]}
 
-
     def gen_insert(self):
-        # create a user with user_id=0 to satisfy FK contraints (used for
+        # create a user with user_id=0 to satisfy FK constraints (used for
         # anonymous edits, log events etc.)
         dummy = {
             "user_id": 0,
@@ -136,7 +129,6 @@ class GrabberUsers(GrabberBase):
         }
         for user in self.api.list(list_params):
             yield from self.gen_inserts_from_user(user)
-
 
     def gen_update(self, since):
         # Items in the recentchanges table are periodically purged according to
@@ -207,5 +199,5 @@ class GrabberUsers(GrabberBase):
 
         # delete expired group memberships
         yield self.db.user_groups.delete().where(
-                        self.db.user_groups.c.ug_expiry < datetime.datetime.now(datetime.UTC)
-                    )
+            self.db.user_groups.c.ug_expiry < datetime.datetime.now(datetime.UTC),
+        )

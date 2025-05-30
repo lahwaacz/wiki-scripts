@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 import logging
 from functools import lru_cache
 
@@ -18,11 +16,12 @@ from .selects.namespaces import get_namespaces
 
 logger = logging.getLogger(__name__)
 
+
 def get_normalized_extlinks(wikicode):
     # Pass 1: re-parse all external links, because "http://example.com/{{Dead link}}" was initially
     # parsed as one big URL, but the template transcludes tags which should terminate the URL.
-#    for el in wikicode.filter_external_links(recursive=True):
-#        wikicode.replace(el, str(el))
+    # for el in wikicode.filter_external_links(recursive=True):
+    #     wikicode.replace(el, str(el))
     # performance optimization, see https://github.com/earwig/mwparserfromhell/issues/195
     for parent, el in parented_ifilter(wikicode, forcetype=mwparserfromhell.nodes.external_link.ExternalLink, recursive=True):
         parent.replace(el, str(el), recursive=False)
@@ -51,6 +50,7 @@ def get_normalized_extlinks(wikicode):
 
     return filtered_extlinks
 
+
 class ParserCache:
     def __init__(self, db):
         self.db = db
@@ -69,16 +69,16 @@ class ParserCache:
             "externallinks": self.db.externallinks.insert(),
             "redirect": self.db.redirect.insert(),
             "section": self.db.section.insert(),
-            "ws_parser_cache_sync":
-                wspc_sync_ins.on_conflict_do_update(
-                    constraint=wspc_sync.primary_key,
-                    set_={"wspc_rev_id": wspc_sync_ins.excluded.wspc_rev_id}
-                )
+            "ws_parser_cache_sync": wspc_sync_ins.on_conflict_do_update(
+                constraint=wspc_sync.primary_key,
+                set_={"wspc_rev_id": wspc_sync_ins.excluded.wspc_rev_id},
+            ),
         }
 
     def _execute(self, conn, query, *, explain=False):
         if explain is True:
             from ws.db.database import explain
+
             with self.db.engine.connect() as conn:
                 result = conn.execute(explain(query))
                 print(query)
@@ -95,30 +95,35 @@ class ParserCache:
         # pages with older revisions
         # (note that we don't join the templatelinks table here because we want
         # to invalidate also pages which don't have any template links)
-        query = sa.select(page.c.page_id) \
-                .select_from(
-                    page.outerjoin(wspc, page.c.page_id == wspc.c.wspc_page_id)
-                ).where(
-                    ( wspc.c.wspc_rev_id.is_(None) ) |
-                    ( wspc.c.wspc_rev_id != page.c.page_latest )
-                )
+        query = (
+            sa.select(page.c.page_id)
+            .select_from(
+                page.outerjoin(wspc, page.c.page_id == wspc.c.wspc_page_id),
+            )
+            .where(
+                (wspc.c.wspc_rev_id.is_(None)) | (wspc.c.wspc_rev_id != page.c.page_latest),
+            )
+        )
         for row in self._execute(conn, query):
             self.invalidated_pageids.add(row.page_id)
 
         # pages transcluding older pages
         src_page = page.alias()
         target_page = page.alias()
-        query = sa.select(src_page.c.page_id) \
-                .select_from(
-                    src_page.join(tl, tl.c.tl_from == src_page.c.page_id)
-                    .join(target_page, ( tl.c.tl_namespace == target_page.c.page_namespace ) &
-                                       ( tl.c.tl_title == target_page.c.page_title )
-                    )
-                    .outerjoin(wspc, target_page.c.page_id == wspc.c.wspc_page_id)
-                ).where(
-                    ( wspc.c.wspc_rev_id.is_(None) ) |
-                    ( wspc.c.wspc_rev_id != target_page.c.page_latest )
+        query = (
+            sa.select(src_page.c.page_id)
+            .select_from(
+                src_page.join(tl, tl.c.tl_from == src_page.c.page_id)
+                .join(
+                    target_page,
+                    (tl.c.tl_namespace == target_page.c.page_namespace) & (tl.c.tl_title == target_page.c.page_title),
                 )
+                .outerjoin(wspc, target_page.c.page_id == wspc.c.wspc_page_id)
+            )
+            .where(
+                (wspc.c.wspc_rev_id.is_(None)) | (wspc.c.wspc_rev_id != target_page.c.page_latest),
+            )
+        )
         for row in self._execute(conn, query):
             self.invalidated_pageids.add(row.page_id)
 
@@ -158,7 +163,7 @@ class ParserCache:
             db_entries.append(entry)
 
         # drop duplicates
-        db_entries = list({ (v["pl_from"], v["pl_namespace"], v["pl_title"] ): v for v in db_entries}.values())
+        db_entries = list({(v["pl_from"], v["pl_namespace"], v["pl_title"]): v for v in db_entries}.values())
 
         if db_entries:
             conn.execute(self.sql_inserts["pagelinks"], db_entries)
@@ -173,7 +178,7 @@ class ParserCache:
             db_entries.append(entry)
 
         # drop duplicates
-        db_entries = list({ (v["il_from"], v["il_to"] ): v for v in db_entries}.values())
+        db_entries = list({(v["il_from"], v["il_to"]): v for v in db_entries}.values())
 
         if db_entries:
             conn.execute(self.sql_inserts["imagelinks"], db_entries)
@@ -203,7 +208,7 @@ class ParserCache:
             db_entries.append(entry)
 
         # drop duplicates
-        db_entries = list({ (v["cl_from"], v["cl_to"] ): v for v in db_entries}.values())
+        db_entries = list({(v["cl_from"], v["cl_to"]): v for v in db_entries}.values())
 
         if db_entries:
             conn.execute(self.sql_inserts["categorylinks"], db_entries)
@@ -226,7 +231,7 @@ class ParserCache:
             db_entries.append(entry)
 
         # drop duplicates
-        db_entries = list({ (v["ll_from"], v["ll_lang"] ): v for v in db_entries}.values())
+        db_entries = list({(v["ll_from"], v["ll_lang"]): v for v in db_entries}.values())
 
         if db_entries:
             conn.execute(self.sql_inserts["langlinks"], db_entries)
@@ -237,12 +242,12 @@ class ParserCache:
             entry = {
                 "iwl_from": pageid,
                 "iwl_prefix": title.iwprefix,
-                "iwl_title": "{}:{}".format(title.namespace, title.pagename) if title.namespace else title.pagename
+                "iwl_title": "{}:{}".format(title.namespace, title.pagename) if title.namespace else title.pagename,
             }
             db_entries.append(entry)
 
         # drop duplicates
-        db_entries = list({ (v["iwl_from"], v["iwl_prefix"], v["iwl_title"] ): v for v in db_entries}.values())
+        db_entries = list({(v["iwl_from"], v["iwl_prefix"], v["iwl_title"]): v for v in db_entries}.values())
 
         if db_entries:
             conn.execute(self.sql_inserts["iwlinks"], db_entries)
@@ -258,7 +263,7 @@ class ParserCache:
             db_entries.append(entry)
 
         # drop duplicates
-        db_entries = list({ (v["el_from"], v["el_to"] ): v for v in db_entries}.values())
+        db_entries = list({(v["el_from"], v["el_to"]): v for v in db_entries}.values())
 
         if db_entries:
             conn.execute(self.sql_inserts["externallinks"], db_entries)
@@ -364,8 +369,8 @@ class ParserCache:
             page_is_redirect = False
 
         # replace HTML entities like "&#61" or "&Sigma;" with their unicode equivalents
-#        for entity in wikicode.ifilter_html_entities(recursive=True):
-#            wikicode.replace(entity, entity.normalize())
+        # for entity in wikicode.ifilter_html_entities(recursive=True):
+        #     wikicode.replace(entity, entity.normalize())
         # performance optimization, see https://github.com/earwig/mwparserfromhell/issues/195
         for parent, entity in parented_ifilter(wikicode, forcetype=mwparserfromhell.nodes.html_entity.HTMLEntity, recursive=True):
             parent.replace(entity, entity.normalize(), recursive=False)
@@ -416,7 +421,7 @@ class ParserCache:
                 elif target.namespacenumber == 14 and not target.leading_colon:
                     # MW incompatibility: category links for automatic categories like
                     # "Pages with broken file links" are not supported
-                    categorylinks.append( (target, str(wl.text) if wl.text else "") )
+                    categorylinks.append((target, str(wl.text) if wl.text else ""))
                     continue
 
             # MediaWiki tracks same-page links iff they have both page and section name.
@@ -484,8 +489,8 @@ class ParserCache:
 
     def invalidate_pageids(self, pageids):
         with self.db.engine.begin() as conn:
-            conn.execute(self.db.ws_parser_cache_sync.delete()
-                    .where(
-                        self.db.ws_parser_cache_sync.c.wspc_page_id.in_(pageids)
-                    )
-                )
+            conn.execute(
+                self.db.ws_parser_cache_sync.delete().where(
+                    self.db.ws_parser_cache_sync.c.wspc_page_id.in_(pageids),
+                ),
+            )

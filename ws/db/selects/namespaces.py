@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 def get_namespaces(db):
     ns_sel = db.namespace.select()
     nss_sel = db.namespace_starname.select()
@@ -32,6 +30,7 @@ def get_namespaces(db):
             namespaces[row.nsc_id]["canonical"] = row.nsc_name
 
     return namespaces
+
 
 def get_namespacenames(db):
     namespacenames = {}

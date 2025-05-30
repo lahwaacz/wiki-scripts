@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 """
 Custom types with automatic convertors.
 
@@ -24,7 +22,7 @@ are much less operations and functions defined on bytea then in MySQL for
 binary strings. By using the textual types, we also benefit from native
 conversion functions in the sqlalchemy driver (e.g. psycopg).
 
-MediaWiki's PostgreSQL schema uses ``TEXT`` for just about everyting, i.e. no
+MediaWiki's PostgreSQL schema uses ``TEXT`` for just about everything, i.e. no
 ``VARCHAR``. `PostgreSQL manual`_ says that there is no performance difference
 between ``char(n)``, ``varchar(n)`` and ``text``.
 

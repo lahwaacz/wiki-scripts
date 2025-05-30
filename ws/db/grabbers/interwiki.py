@@ -1,12 +1,9 @@
-#!/usr/bin/env python3
-
 import sqlalchemy as sa
 
 from .GrabberBase import GrabberBase
 
 
 class GrabberInterwiki(GrabberBase):
-
     INSERT_PREDELETE_TABLES = ["interwiki"]
 
     def __init__(self, api, db):
@@ -15,17 +12,18 @@ class GrabberInterwiki(GrabberBase):
         ins_iw = sa.dialects.postgresql.insert(db.interwiki)
 
         self.sql = {
-            ("update", "interwiki"):
-                ins_iw.on_conflict_do_update(
-                    index_elements=[db.interwiki.c.iw_prefix],
-                    set_={
-                        "iw_url":   ins_iw.excluded.iw_url,
-                        "iw_api":   ins_iw.excluded.iw_api,
-                        "iw_local": ins_iw.excluded.iw_local,
-                        "iw_trans": ins_iw.excluded.iw_trans,
-                    }),
-            ("delete", "interwiki"):
-                db.interwiki.delete().where(db.interwiki.c.iw_prefix == sa.bindparam("b_iw_prefix")),
+            ("update", "interwiki"): ins_iw.on_conflict_do_update(
+                index_elements=[db.interwiki.c.iw_prefix],
+                set_={
+                    "iw_url": ins_iw.excluded.iw_url,
+                    "iw_api": ins_iw.excluded.iw_api,
+                    "iw_local": ins_iw.excluded.iw_local,
+                    "iw_trans": ins_iw.excluded.iw_trans,
+                },
+            ),
+            ("delete", "interwiki"): db.interwiki.delete().where(
+                db.interwiki.c.iw_prefix == sa.bindparam("b_iw_prefix"),
+            ),
         }
 
     def gen_insert(self):
@@ -66,7 +64,7 @@ class GrabberInterwiki(GrabberBase):
                 db_entry = self._transform_logevent_params(le["params"])
                 if le["action"] in {"iw_add", "iw_edit"}:
                     # the logevent params do not contain iw_api https://phabricator.wikimedia.org/T349427
-                    #yield self.sql["update", "interwiki"], db_entry
+                    # yield self.sql["update", "interwiki"], db_entry
                     updated_prefixes.add(db_entry["iw_prefix"])
                 elif le["action"] == "iw_delete":
                     yield self.sql["delete", "interwiki"], {"b_iw_prefix": db_entry["iw_prefix"]}
