@@ -1,11 +1,16 @@
-#! /usr/bin/env python3
-
 import re
+from typing import Iterable, Sequence
+
+from mwparserfromhell.wikicode import Wikicode
 
 
 class Wikitable:
     @staticmethod
-    def assemble(header_fields, rows, single_line_rows=False):
+    def assemble(
+        header_fields: Sequence[str],
+        rows: Iterable[Sequence[str]],
+        single_line_rows: bool = False,
+    ) -> str:
         """
         :param header_fields: list of strings representing the table header
         :param rows: list of tuples, represents the table cells in a matrix-like
@@ -14,8 +19,9 @@ class Wikitable:
             line, e.g. ``| cell1 || cell2 || cell3``.
         :returns: string containing the table formatted with MediaWiki markup
         """
-        header = '{{| class="wikitable sortable" border=1\n' + \
-                 "! {}\n" * len(header_fields)
+        header = '{{| class="wikitable sortable" border=1\n' + "! {}\n" * len(
+            header_fields
+        )
         if single_line_rows is True:
             rowtemplate = "|-\n| " + " || ".join(["{}"] * len(header_fields)) + "\n"
         else:
@@ -31,7 +37,7 @@ class Wikitable:
     # TODO: this is not general at all, it is able to parse only the table
     #       produced by Wikitable.assemble()
     @staticmethod
-    def parse(text):
+    def parse(text: str | Wikicode) -> tuple[tuple[str, ...], list[tuple[str, ...]]]:
         """
         :param text: string or a :py:class:`mwparserfromhell.wikicode.Wikicode`
                      object containing a table in MediaWiki format
@@ -40,7 +46,9 @@ class Wikitable:
                   matrix-like row-major format
         """
         # 1st group = header, 2nd group = rows
-        tablere = re.compile(r"^\{\|.*?(^.*?(?=\|\-))(.*?^\|\})", flags=re.MULTILINE | re.DOTALL)
+        tablere = re.compile(
+            r"^\{\|.*?(^.*?(?=\|\-))(.*?^\|\})", flags=re.MULTILINE | re.DOTALL
+        )
         # fields are the same as cells, but separated with ! instead of |
         # TODO: parse single-line field row
         fieldre = re.compile(r"^\!\s*(.*?)$", flags=re.MULTILINE)
@@ -63,6 +71,7 @@ class Wikitable:
             raise WikitableParseError
 
         return fields, rows
+
 
 class WikitableParseError(Exception):
     pass

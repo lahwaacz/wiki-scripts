@@ -1,10 +1,11 @@
-#! /usr/bin/env python3
-
 import datetime
 import logging
+from typing import Any, Iterable, cast
 
 import mwparserfromhell
+from mwparserfromhell.nodes import Tag
 
+from ws.client.api import API
 from ws.interactive import edit_interactive
 
 logger = logging.getLogger(__name__)
@@ -13,7 +14,6 @@ __all__ = ["AutoPage"]
 
 
 class AutoPage:
-
     """
     A quick interface for maintaining automatic content on wiki pages.
 
@@ -26,20 +26,25 @@ class AutoPage:
         ``fetch_titles`` defaults to ``[title]``.
     """
 
-    def __init__(self, api, title=None, fetch_titles=None):
+    def __init__(
+        self,
+        api: API,
+        title: str | None = None,
+        fetch_titles: Iterable[str] | None = None,
+    ):
         self.api = api
-        self.title = None
-        self.wikicode = ""
+        self.title: str | None = None
+        self.wikicode = mwparserfromhell.parse("")
 
         if fetch_titles is not None:
             self.fetch_pages(fetch_titles)
-        else:
+        elif title is not None:
             self.fetch_pages([title])
-
-        if title is not None:
             self.set_title(title)
+        else:
+            raise ValueError("one of `title` and `fetch_titles` must not be None")
 
-    def fetch_pages(self, titles):
+    def fetch_pages(self, titles: Iterable[str]) -> None:
         """
         Fetch content of given pages from the API. As an optimization, as many
         pages as possible should be fetched in a single query.
@@ -51,7 +56,13 @@ class AutoPage:
         self.pageids = {}
 
         # TODO: query-continuation (query might be split due to extra long pages hitting PHP limits)
-        result = self.api.call_api(action="query", prop="revisions", rvprop="content|timestamp", rvslots="main", titles="|".join(titles))
+        result = self.api.call_api(
+            action="query",
+            prop="revisions",
+            rvprop="content|timestamp",
+            rvslots="main",
+            titles="|".join(titles),
+        )
         for page in result["pages"].values():
             if "revisions" in page:
                 title = page["title"]
@@ -64,9 +75,11 @@ class AutoPage:
         titles = set(titles)
         retrieved = set(self.contents.keys())
         if retrieved != titles:
-            logger.error("unable to retrieve content of all pages: pages {} are missing, retrieved {}".format(titles - retrieved, retrieved))
+            logger.error(
+                f"unable to retrieve content of all pages: pages {titles - retrieved} are missing, retrieved {retrieved}"
+            )
 
-    def set_title(self, title):
+    def set_title(self, title: str) -> None:
         """
         Set current title to ``title`` and parse its content. Unsaved changes to
         previous page will be lost. The content of the page should have been
@@ -76,11 +89,11 @@ class AutoPage:
         :param str title: the page title
         """
         if title not in self.contents.keys():
-            raise ValueError("Content of page [[{}]] is not fetched.".format(title))
+            raise ValueError(f"Content of page [[{title}]] is not fetched.")
         self.title = title
         self.wikicode = mwparserfromhell.parse(self.contents[self.title])
 
-    def get_tag_by_id(self, tag, id):
+    def get_tag_by_id(self, tag: str, id: str) -> Tag | None:
         """
         Finds a tag in the wikicode of the current page with given ID.
 
@@ -93,14 +106,19 @@ class AutoPage:
             A :py:class:`mwparserfromhell.nodes.tag.Tag` instance if found,
             otherwise ``None``.
         """
-        for tag in self.wikicode.ifilter_tags(matches=lambda node: node.tag == tag):
-            if tag.has("id"):
-                id_ = tag.get("id")
+        ifilter = self.wikicode.ifilter_tags(matches=lambda node: node.tag == tag)
+        for tag_ in cast(Iterable[Tag], ifilter):
+            if tag_.has("id"):
+                id_ = tag_.get("id")
                 if id_.value == id:
-                    return tag
+                    return tag_
         return None
 
-    def is_old_enough(self, min_interval=datetime.timedelta(0), strip_time=False):
+    def is_old_enough(
+        self,
+        min_interval: datetime.timedelta = datetime.timedelta(0),
+        strip_time: bool = False,
+    ) -> bool:
         """
         Checks if the page on the wiki is old enough to be updated again.
 
@@ -116,9 +134,9 @@ class AutoPage:
             delta = now - self.timestamps[self.title]
         else:
             delta = now.date() - self.timestamps[self.title].date()
-        return delta >= min_interval
+        return cast(bool, delta >= min_interval)
 
-    def save(self, edit_summary, interactive=False, **kwargs):
+    def save(self, edit_summary: str, interactive: bool = False, **kwargs: Any) -> None:
         """
         Saves the updated wikicode of the page to the wiki.
 
@@ -129,6 +147,8 @@ class AutoPage:
             :py:meth:`API.edit <ws.client.api.API.edit>` directly.
         :param kwargs: Additional keyword arguments passed to the API query.
         """
+        assert self.title
+
         text_new = str(self.wikicode)
         if self.contents[self.title] != text_new:
             # use bot=1 iff it makes sense
@@ -137,8 +157,24 @@ class AutoPage:
                 del kwargs["bot"]
 
             if interactive is True:
-                edit_interactive(self.api, self.title, self.pageids[self.title], self.contents[self.title], text_new, self.timestamps[self.title], edit_summary, **kwargs)
+                edit_interactive(
+                    self.api,
+                    self.title,
+                    self.pageids[self.title],
+                    self.contents[self.title],
+                    text_new,
+                    self.timestamps[self.title],
+                    edit_summary,
+                    **kwargs,
+                )
             else:
-                self.api.edit(self.title, self.pageids[self.title], text_new, self.timestamps[self.title], edit_summary, **kwargs)
+                self.api.edit(
+                    self.title,
+                    self.pageids[self.title],
+                    text_new,
+                    self.timestamps[self.title],
+                    edit_summary,
+                    **kwargs,
+                )
         else:
-            logger.info("Page [[{}]] is already up to date.".format(self.title))
+            logger.info(f"Page [[{self.title}]] is already up to date.")
