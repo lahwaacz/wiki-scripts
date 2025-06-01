@@ -1,24 +1,25 @@
-#! /usr/bin/env python3
-
 # TODO:
 #   take the final title from "displaytitle" property (available from API) (would be necessary to check if it is valid)
 
 import itertools
 import logging
 import re
+from typing import Any, Generator, Iterable, Sequence
 
 import mwparserfromhell
+from mwparserfromhell.wikicode import Wikicode
 
 import ws.ArchWiki.header as header
 import ws.ArchWiki.lang as lang
 import ws.utils
-from ws.client import APIError
+from ws.client import API, APIError
 from ws.interactive import ask_yesno
 from ws.parser_helpers.title import canonicalize
 
 logger = logging.getLogger(__name__)
 
 __all__ = ["InterlanguageLinks"]
+
 
 class InterlanguageLinks:
     """
@@ -62,35 +63,51 @@ class InterlanguageLinks:
     content_namespaces = [0, 4, 10, 12, 14]
     edit_summary = "update interlanguage links"
 
-    def __init__(self, api):
+    def __init__(self, api: API):
         self.api = api
 
-        self.families = None
-        self.family_index = None
+        self.families: dict[str, list[dict[str, Any]]] = {}
+        self.family_index: dict[str, str] = {}
 
-    def _get_allpages(self):
+    def _get_allpages(self) -> list[dict[str, Any]]:
         logger.info("Fetching langlinks property of all pages...")
-        allpages = []
+        allpages: list[dict[str, Any]] = []
         # not necessary to wrap in each iteration since lists are mutable
         wrapped_titles = ws.utils.ListOfDictsAttrWrapper(allpages, "title")
 
         for ns in self.content_namespaces:
-            g = self.api.generator(generator="allpages", gapfilterredir="nonredirects", gapnamespace=ns, gaplimit="max", prop="langlinks", lllimit="max")
+            g = self.api.generator(
+                generator="allpages",
+                gapfilterredir="nonredirects",
+                gapnamespace=ns,
+                gaplimit="max",
+                prop="langlinks",
+                lllimit="max",
+            )
             for page in g:
                 # the same page may be yielded multiple times with different pieces
                 # of the information, hence the ws.utils.dmerge
                 try:
-                    db_page = ws.utils.bisect_find(allpages, page["title"], index_list=wrapped_titles)
+                    db_page = ws.utils.bisect_find(
+                        allpages, page["title"], index_list=wrapped_titles
+                    )
                     ws.utils.dmerge(page, db_page)
                 except IndexError:
-                    ws.utils.bisect_insert_or_replace(allpages, page["title"], data_element=page, index_list=wrapped_titles)
+                    ws.utils.bisect_insert_or_replace(
+                        allpages,
+                        page["title"],
+                        data_element=page,
+                        index_list=wrapped_titles,
+                    )
 
         # sort by title
         allpages.sort(key=lambda page: page["title"])
         return allpages
 
     @staticmethod
-    def _group_into_families(pages, case_sensitive=False):
+    def _group_into_families(
+        pages: Iterable[dict[str, Any]], case_sensitive: bool = False
+    ) -> dict[str, list[dict[str, Any]]]:
         """
         Takes list of pages and groups them based on their title. Returns a
         mapping of `family_key` to `family_pages`, where `family_key` is the
@@ -98,9 +115,12 @@ class InterlanguageLinks:
         "Some title (Česky)") and `family_pages` is a list of pages belonging
         to the family (have the same `family_key`).
         """
+
         # interlanguage links are not valid for all languages, the invalid
         # need to be dropped now
-        def _valid_interlanguage_pages(pages):
+        def _valid_interlanguage_pages(
+            pages: Iterable[dict[str, Any]]
+        ) -> Generator[dict[str, Any]]:
             for page in pages:
                 langname = lang.detect_language(page["title"])[1]
                 tag = lang.tag_for_langname(langname)
@@ -114,25 +134,32 @@ class InterlanguageLinks:
             return key
 
         pages = sorted(pages, key=_family_key)
-        families_groups = itertools.groupby(_valid_interlanguage_pages(pages), key=_family_key)
+        families_groups = itertools.groupby(
+            _valid_interlanguage_pages(pages), key=_family_key
+        )
 
         families = {}
         for family, pages in families_groups:
             pages = list(pages)
-            tags = set(lang.tag_for_langname(lang.detect_language(page["title"])[1]) for page in pages)
+            tags = set(
+                lang.tag_for_langname(lang.detect_language(page["title"])[1])
+                for page in pages
+            )
             if len(tags) == len(pages):
                 families[family] = pages
             elif case_sensitive is False:
                 # sometimes case-insensitive matching is not enough, e.g. [[fish]] is
                 # not [[FiSH]] (and neither is redirect)
-                families.update(InterlanguageLinks._group_into_families(pages, case_sensitive=True))
+                families.update(
+                    InterlanguageLinks._group_into_families(pages, case_sensitive=True)
+                )
             else:
                 # this should never happen
                 raise Exception
         return families
 
     @ws.utils.LazyProperty
-    def allpages(self):
+    def allpages(self) -> list[dict[str, Any]]:
         allpages = self._get_allpages()
         self.families = self._group_into_families(allpages)
 
@@ -145,27 +172,30 @@ class InterlanguageLinks:
         return allpages
 
     @property
-    def wrapped_titles(self):
+    def wrapped_titles(self) -> ws.utils.ListOfDictsAttrWrapper:
         return ws.utils.ListOfDictsAttrWrapper(self.allpages, "title")
-
 
     @staticmethod
     # check if interlanguage links are supported for the language of the given title
-    def _is_valid_interlanguage(full_title):
-        return lang.is_interlanguage_tag(lang.tag_for_langname(lang.detect_language(full_title)[1]))
+    def _is_valid_interlanguage(full_title: str) -> bool:
+        return lang.is_interlanguage_tag(
+            lang.tag_for_langname(lang.detect_language(full_title)[1])
+        )
 
     # check if given (tag, title) form a valid internal langlink
-    def _is_valid_internal(self, tag, title):
+    def _is_valid_internal(self, tag: str, title: str) -> bool:
         if not lang.is_internal_tag(tag):
             return False
         if "/" in title:
-            full_title = lang.format_title(title, lang.langname_for_tag(tag), augment_all_subpage_parts=False)
+            full_title = lang.format_title(
+                title, lang.langname_for_tag(tag), augment_all_subpage_parts=False
+            )
             if full_title in self.wrapped_titles:
                 return True
         full_title = lang.format_title(title, lang.langname_for_tag(tag))
         return full_title in self.wrapped_titles
 
-    def _title_from_langlink(self, langlink):
+    def _title_from_langlink(self, langlink: dict[str, str]) -> str:
         langname = lang.langname_for_tag(langlink["lang"])
         title = lang.format_title(langlink["*"], langname)
         if lang.is_internal_tag(langlink["lang"]):
@@ -176,7 +206,7 @@ class InterlanguageLinks:
                 title = resolved.split("#", maxsplit=1)[0]
         return title
 
-    def titles_in_family(self, master_title):
+    def titles_in_family(self, master_title: str) -> tuple[list[str], list[str]]:
         """
         Get the titles in the family corresponding to ``master_title``.
 
@@ -211,7 +241,7 @@ class InterlanguageLinks:
                 full_title = self._title_from_langlink(langlink)
                 title, langname = lang.detect_language(full_title)
                 # TODO: check if the resulting tag is equal to the original?
-#                tag = lang.tag_for_langname(langname)
+                #                tag = lang.tag_for_langname(langname)
                 if tag not in tags and condition(tag, title):
                     tags.append(tag)
                     titles.append(title)
@@ -219,7 +249,9 @@ class InterlanguageLinks:
         # Pull in internal langlinks from any page. This will pull in English page
         # if there is any.
         for page in family_pages:
-            _pull_from_page(page, condition=lambda tag, title: self._is_valid_internal(tag, title))
+            _pull_from_page(
+                page, condition=lambda tag, title: self._is_valid_internal(tag, title)
+            )
 
         # Make sure that external langlinks are pulled in only from the English page
         # when appropriate. For consistency, pull in also internal langlinks from the
@@ -227,11 +259,17 @@ class InterlanguageLinks:
         _pulled_from_english = False
         if "en" in tags:
             en_title = titles[tags.index("en")]
-            en_page = ws.utils.bisect_find(self.allpages, en_title, index_list=self.wrapped_titles)
+            en_page = ws.utils.bisect_find(
+                self.allpages, en_title, index_list=self.wrapped_titles
+            )
             # If the English page is present from the beginning, pull its langlinks.
             # This will take priority over other pages in the family.
             if master_tag == "en" or had_english_early:
-                _pull_from_page(en_page, condition=lambda tag, title: lang.is_external_tag(tag) or self._is_valid_internal(tag, title))
+                _pull_from_page(
+                    en_page,
+                    condition=lambda tag, title: lang.is_external_tag(tag)
+                    or self._is_valid_internal(tag, title),
+                )
                 _pulled_from_english = True
             else:
                 # Otherwise check if the family of the English page is the same as
@@ -239,22 +277,28 @@ class InterlanguageLinks:
                 # merge the families.
                 en_tags, en_titles = self.titles_in_family(en_title)
                 if master_title in en_titles or master_tag not in en_tags:
-                    _pull_from_page(en_page, condition=lambda tag, title: lang.is_external_tag(tag) or self._is_valid_internal(tag, title))
+                    _pull_from_page(
+                        en_page,
+                        condition=lambda tag, title: lang.is_external_tag(tag)
+                        or self._is_valid_internal(tag, title),
+                    )
                     _pulled_from_english = True
 
         if not _pulled_from_english:
             # Pull in external langlinks from any page. This completes the
             # inclusion in case pulling from English page was not done.
             for page in family_pages:
-                _pull_from_page(page, condition=lambda tag, title: lang.is_external_tag(tag))
+                _pull_from_page(
+                    page, condition=lambda tag, title: lang.is_external_tag(tag)
+                )
 
-        assert(master_tag in tags)
-        assert(master_title in titles)
-        assert(len(tags) == len(titles))
+        assert master_tag in tags
+        assert master_title in titles
+        assert len(tags) == len(titles)
 
         return tags, titles
 
-    def get_langlinks(self, full_title):
+    def get_langlinks(self, full_title: str) -> list[tuple[str, str]]:
         """
         Uses :py:meth:`self.titles_in_family` to get the titles of all pages in
         the family, removes the link to the passed title and sorts the list by
@@ -279,22 +323,29 @@ class InterlanguageLinks:
         langlinks.remove((tag, title))
 
         # transform to list, sort by the language tag
-        langlinks = sorted(langlinks, key=lambda t: t[0])
+        sorted_langlinks = sorted(langlinks, key=lambda t: t[0])
 
         # conversion back-and-forth is necessary to add the "(Language)" suffix into all subpage parts
         new_langlinks = []
-        for tag, title in langlinks:
+        for tag, title in sorted_langlinks:
             new_title = lang.format_title(title, lang.langname_for_tag(tag))
             # do it only when the new_title exists, otherwise the title without "(Language)" in
             # all subpage parts is still valid as per Help:i18n
             if self._page_exists(new_title):
-                title = lang.detect_language(new_title, strip_all_subpage_parts=False)[0]
+                title = lang.detect_language(new_title, strip_all_subpage_parts=False)[
+                    0
+                ]
             new_langlinks.append((tag, title))
 
         return new_langlinks
 
     @staticmethod
-    def update_page(title, text, langlinks, weak_update=True):
+    def update_page(
+        title: str,
+        text: str,
+        langlinks: list[tuple[str, str]],
+        weak_update: bool = True,
+    ) -> Wikicode | None:
         """
         :param str title: title of the page
         :param str text: wikitext of the page
@@ -311,25 +362,32 @@ class InterlanguageLinks:
         # (__NOTOC__ etc.) can be parsed by mwparserfromhell
         # NOTE: handling whitespace right will be hard: https://wiki.archlinux.org/index.php?title=Main_page&diff=383144&oldid=382787
         if re.search("__NOTOC__|__NOEDITSECTION__", text):
-            logger.warning("Skipping page '{}' (contains behavior switch(es))".format(title))
-            return text
+            logger.warning(f"Skipping page '{title}' (contains behavior switch(es))")
+            return None
 
         # format langlinks, in the prefix form
         # (e.g. "cs:Some title" for title="Some title" and tag="cs")
-        langlinks = ["[[{}:{}]]".format(tag, title) for tag, title in langlinks]
+        full_langlinks: Sequence[str | Wikicode]
+        full_langlinks = [f"[[{tag}:{title}]]" for tag, title in langlinks]
 
-        logger.info("Parsing page [[{}]] ...".format(title))
+        logger.info(f"Parsing page [[{title}]] ...")
         wikicode = mwparserfromhell.parse(text)
         if weak_update is True:
-            parent, magics, cats, langlinks = header.get_header_parts(wikicode, langlinks=langlinks, remove_from_parent=True)
+            parent, magics, cats, full_langlinks = header.get_header_parts(
+                wikicode, langlinks=full_langlinks, remove_from_parent=True
+            )
         else:
             # drop the extracted langlinks
-            parent, magics, cats, _ = header.get_header_parts(wikicode, remove_from_parent=True)
-        header.build_header(wikicode, parent, magics, cats, langlinks)
+            parent, magics, cats, _ = header.get_header_parts(
+                wikicode, remove_from_parent=True
+            )
+        header.build_header(wikicode, parent, magics, cats, full_langlinks)
         return wikicode
 
     @staticmethod
-    def _needs_update(page, langlinks_new):
+    def _needs_update(
+        page: dict[str, Any], langlinks_new: list[tuple[str, str]]
+    ) -> bool:
         langlinks_old = []
         try:
             for langlink in page["langlinks"]:
@@ -338,7 +396,7 @@ class InterlanguageLinks:
             pass
         return set(langlinks_new) != set(langlinks_old)
 
-    def update_allpages(self):
+    def update_allpages(self) -> None:
         # always start from scratch
         del self.allpages
 
@@ -347,17 +405,25 @@ class InterlanguageLinks:
                 title = page["title"]
                 # unsupported languages need to be skipped now
                 if not self._is_valid_interlanguage(title):
-                    logger.warning("Skipping page '{}' (unsupported language)".format(title))
+                    logger.warning(f"Skipping page '{title}' (unsupported language)")
                     continue
                 langlinks = self.get_langlinks(title)
                 if self._needs_update(page, langlinks):
                     yield page, langlinks
 
-        for chunk in ws.utils.iter_chunks(_updates_gen(self.allpages), self.api.max_ids_per_query):
+        for chunk in ws.utils.iter_chunks(
+            _updates_gen(self.allpages), self.api.max_ids_per_query
+        ):
             pages_props, pages_langlinks = zip(*list(chunk))
             pageids = [page["pageid"] for page in pages_props]
-            result = {}
-            for chunk in self.api.call_api_autoiter_ids(action="query", pageids=pageids, prop="revisions", rvprop="content|timestamp", rvslots="main"):
+            result: dict[str, Any] = {}
+            for chunk in self.api.call_api_autoiter_ids(
+                action="query",
+                pageids=pageids,
+                prop="revisions",
+                rvprop="content|timestamp",
+                rvslots="main",
+            ):
                 ws.utils.dmerge(chunk, result)
             pages = result["pages"]
 
@@ -368,19 +434,32 @@ class InterlanguageLinks:
                 timestamp = page["revisions"][0]["timestamp"]
                 text_old = page["revisions"][0]["slots"]["main"]["*"]
                 try:
-                    text_new = self.update_page(page["title"], text_old, langlinks, weak_update=False)
+                    text_new = self.update_page(
+                        page["title"], text_old, langlinks, weak_update=False
+                    )
                 except header.HeaderError:
-                    logger.error("Error: failed to extract header elements. Please investigate.")
+                    logger.error(
+                        "Error: failed to extract header elements. Please investigate."
+                    )
+                    continue
+                if text_new is None:
                     continue
 
                 if text_old != text_new:
                     try:
-#                        edit_interactive(self.api, page["title"], page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
-                        self.api.edit(page["title"], page["pageid"], text_new, timestamp, self.edit_summary, bot="")
+                        # edit_interactive(self.api, page["title"], page["pageid"], text_old, text_new, timestamp, self.edit_summary, bot="")
+                        self.api.edit(
+                            page["title"],
+                            page["pageid"],
+                            text_new,
+                            timestamp,
+                            self.edit_summary,
+                            bot="",
+                        )
                     except APIError:
                         pass
 
-    def find_orphans(self):
+    def find_orphans(self) -> list[str]:
         """
         Returns list of pages that are alone in their families.
         """
@@ -391,15 +470,18 @@ class InterlanguageLinks:
             if not self._is_valid_interlanguage(title):
                 continue
             langlinks = self.get_langlinks(title)
-            if lang.detect_language(title)[1] != lang.get_local_language() and len(langlinks) == 0:
+            if (
+                lang.detect_language(title)[1] != lang.get_local_language()
+                and len(langlinks) == 0
+            ):
                 orphans.append(title)
         return orphans
 
-    def _page_exists(self, title):
+    def _page_exists(self, title: str) -> bool:
         # self.allpages does not include redirects, but that's fine...
         return canonicalize(title) in set(page["title"] for page in self.allpages)
 
-    def rename_non_english(self):
+    def rename_non_english(self) -> None:
         del self.allpages
 
         # FIXME: starting with English pages is not very good:
@@ -408,18 +490,22 @@ class InterlanguageLinks:
         # Therefore we limit it only to categories...
         for page in self.allpages:
             title = page["title"]
-            if lang.detect_language(title)[1] == "English" and title.startswith("Category:"):
+            if lang.detect_language(title)[1] == "English" and title.startswith(
+                "Category:"
+            ):
                 langlinks = self.get_langlinks(title)
                 for tag, localized_title in langlinks:
-                    logger.info("Checking [[{}:{}]] for renaming...".format(tag, localized_title))
+                    logger.info(f"Checking [[{tag}:{localized_title}]] for renaming...")
                     if lang.is_internal_tag(tag) and localized_title != title:
-                        source = "{} ({})".format(localized_title, lang.langname_for_tag(tag))
-                        target = "{} ({})".format(title, lang.langname_for_tag(tag))
+                        source = f"{localized_title} ({lang.langname_for_tag(tag)})"
+                        target = f"{title} ({lang.langname_for_tag(tag)})"
                         if self._page_exists(target):
-                            logger.warning("Cannot move page [[{}]] to [[{}]]: target page already exists".format(source, target))
+                            logger.warning(
+                                f"Cannot move page [[{source}]] to [[{target}]]: target page already exists"
+                            )
                         else:
                             # interactive mode is necessary because this assumes that all English pages are named correctly
-                            ans = ask_yesno("Move page [[{}]] to [[{}]]?".format(source, target))
+                            ans = ask_yesno(f"Move page [[{source}]] to [[{target}]]?")
                             if ans is True:
                                 summary = "comply with [[Help:I18n#Page titles]] and match the title of the English page"
                                 self.api.move(source, target, summary)
