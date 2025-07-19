@@ -18,7 +18,7 @@ def plot_setup(title="", ylabel="edits"):
 
     # x-ticks formatting
     plt.gca().xaxis.set_major_formatter(mpl.dates.DateFormatter('%Y-%m-%d'))
-    plt.gca().xaxis.set_major_locator(mpl.dates.MonthLocator(interval=3))
+    plt.gca().xaxis.set_major_locator(mpl.dates.MonthLocator(interval=12))
     plt.tick_params(axis="x", which="both", direction="out")
 
     # y-ticks
