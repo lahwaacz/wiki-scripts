@@ -261,7 +261,11 @@ divided by the number of days between the user's first and last edits.
         rows = []
 
         for user in self.db_userprops:
-            if "invalid" in user or "missing" in user or "blockid" in user:
+            if "invalid" in user or "missing" in user:
+                continue
+            # Do not skip temporarily blocked users, see
+            # https://wiki.archlinux.org/index.php?title=ArchWiki_talk:Statistics&oldid=794884#Blocked_users
+            if "blockid" in user and user["blockexpiry"] == datetime.datetime.max:
                 continue
             name = user["name"]
             if user["editcount"] >= self.MINTOTEDITS or self.modules.recent_edit_count(name) >= self.MINRECEDITS:
