@@ -245,11 +245,14 @@ I.e, pages such that if A redirects to B, Talk:A redirects to Talk:C rather than
 
 def save_report(api, report_page, contents):
     page = AutoPage(api, report_page)
-    div = page.get_tag_by_id("div", "wiki-scripts-problems-report")
     if not page.is_old_enough(datetime.timedelta(days=0), strip_time=True):
         logger.info("The report page on the wiki has already been updated in the past 7 days, skipping today's update.")
         return
 
+    div = page.get_tag_by_id("div", "wiki-scripts-problems-report")
+    if div is None:
+        logger.error(f"Element div#wiki-scripts-problems-report not found on page [[{report_page}]].")
+        return
     div.contents = contents
     page.save("automatic update", False)
     logger.info("Saved report to the [[{}]] page on the wiki.".format(report_page))
