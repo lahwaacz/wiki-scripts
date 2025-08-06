@@ -66,10 +66,10 @@ class GrabberIPBlocks(GrabberBase):
                 "ipb_create_account": "nocreate" in block,
                 "ipb_enable_autoblock": "autoblock" in block,
                 "ipb_expiry": block["expiry"],
-                # FIXME: MW defect: per-user blocks have empty IP range populated as
+                # FIXME: MW defect: old per-user blocks have empty IP range populated as
                 # ipb_range_start == ipb_range_end == "0.0.0.0" -> should be NULL instead
-                "ipb_range_start": block["rangestart"],
-                "ipb_range_end": block["rangeend"],
+                "ipb_range_start": block.get("rangestart"),
+                "ipb_range_end": block.get("rangeend"),
                 "ipb_deleted": "hidden" in block,
                 "ipb_block_email": "noemail" in block,
                 "ipb_allow_usertalk": "allowusertalk" in block,
