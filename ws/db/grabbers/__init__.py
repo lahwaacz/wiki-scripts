@@ -20,13 +20,15 @@ logger = logging.getLogger(__name__)
 def synchronize(db, api, *, with_content=False, check_needs_update=True):
     time1 = time.time()
 
+    # this must be first because the recentchanges table depends on namespace
+    GrabberNamespaces(api, db).update()
+
     # if no recent change has been added, it's safe to assume that the other tables are up to date as well
     g = GrabberRecentChanges(api, db)
     if check_needs_update is True and g.needs_update() is False:
         logger.info("No new changes since the last database synchronization.")
         return
 
-    GrabberNamespaces(api, db).update()
     GrabberTags(api, db).update()
     GrabberRecentChanges(api, db).update()
     GrabberUsers(api, db).update()
