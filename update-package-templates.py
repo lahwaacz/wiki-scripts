@@ -2,6 +2,7 @@
 
 import argparse
 import datetime
+import gzip
 import json
 import logging
 import os.path
@@ -88,7 +89,9 @@ class PkgFinder:
     def aurpkgs_refresh(self, aurpkgs_url: str) -> None:
         response = HTTPXClient().get(aurpkgs_url)
         response.raise_for_status()
-        self.aurpkgs = set(line for line in response.text.splitlines() if not line.startswith("#"))
+        assert response.headers.get("content-type") == "application/gzip"
+        packages = gzip.decompress(response.content).decode("utf-8")
+        self.aurpkgs = set(line for line in packages.splitlines() if not line.startswith("#"))
 
     # sync databases like pacman -Sy
     def pacdb_refresh(self, pacdb: pyalpm.Handle, force: bool = False) -> None:
