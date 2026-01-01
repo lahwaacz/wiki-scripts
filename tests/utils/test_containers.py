@@ -6,50 +6,50 @@ from ws.utils import *
 
 
 def test_wrapper() -> None:
-    l = [
+    items = [
         {"name": "Betty", "id": 0},
         {"name": "Anne", "id": 2},
         {"name": "Cecilia", "id": 1},
     ]
-    wrapped_names = ListOfDictsAttrWrapper(l, "name")
-    wrapped_ids = ListOfDictsAttrWrapper(l, "id")
+    wrapped_names = ListOfDictsAttrWrapper(items, "name")
+    wrapped_ids = ListOfDictsAttrWrapper(items, "id")
     assert list(wrapped_names) == ["Betty", "Anne", "Cecilia"]
     assert list(wrapped_ids) == [0, 2, 1]
 
 
 class test_bisect_find:
     def test_id(self) -> None:
-        l = [
+        items = [
             {"name": "Betty", "id": 0},
             {"name": "Anne", "id": 1},
             {"name": "Cecilia", "id": 2},
         ]
-        wrapped_ids = ListOfDictsAttrWrapper(l, "id")
-        d = bisect_find(l, 1, index_list=wrapped_ids)
+        wrapped_ids = ListOfDictsAttrWrapper(items, "id")
+        d = bisect_find(items, 1, index_list=wrapped_ids)
         assert d == {"name": "Anne", "id": 1}
-        assert d == l[1]
+        assert d == items[1]
 
     def test_name(self) -> None:
-        l = [
+        items = [
             {"name": "Anne", "id": 0},
             {"name": "Betty", "id": 2},
             {"name": "Cecilia", "id": 1},
         ]
-        wrapped_names = ListOfDictsAttrWrapper(l, "name")
-        d = bisect_find(l, "Betty", index_list=wrapped_names)
+        wrapped_names = ListOfDictsAttrWrapper(items, "name")
+        d = bisect_find(items, "Betty", index_list=wrapped_names)
         assert d == {"name": "Betty", "id": 2}
-        assert d == l[1]
+        assert d == items[1]
 
     def test_fail_unordered_id(self) -> None:
-        l = [
+        items = [
             {"name": "Anne", "id": 0},
             {"name": "Betty", "id": 2},
             {"name": "Cecilia", "id": 1},
             {"name": "Daisy", "id": 3},
         ]
-        wrapped_ids = ListOfDictsAttrWrapper(l, "id")
+        wrapped_ids = ListOfDictsAttrWrapper(items, "id")
         with pytest.raises(IndexError):
-            d = bisect_find(l, 2, index_list=wrapped_ids)
+            bisect_find(items, 2, index_list=wrapped_ids)
 
 
 class test_bisect_insert_or_replace:
@@ -60,16 +60,16 @@ class test_bisect_insert_or_replace:
             {"name": "Cecilia", "id": 2},
             {"name": "Daisy", "id": 3},
         ]
-        l: list[dict[str, Any]] = []
+        items: list[dict[str, Any]] = []
         wrapped_names = ListOfDictsAttrWrapper(l, "name")
-        bisect_insert_or_replace(l, "Cecilia", {"name": "Cecilia", "id": 2}, wrapped_names)
-        bisect_insert_or_replace(l, "Daisy", {"name": "Daisy", "id": 3}, wrapped_names)
-        bisect_insert_or_replace(l, "Betty", {"name": "Betty", "id": 0}, wrapped_names)
-        bisect_insert_or_replace(l, "Anne", {"name": "Anne", "id": 1}, wrapped_names)
-        assert l == expected
+        bisect_insert_or_replace(items, "Cecilia", {"name": "Cecilia", "id": 2}, wrapped_names)
+        bisect_insert_or_replace(items, "Daisy", {"name": "Daisy", "id": 3}, wrapped_names)
+        bisect_insert_or_replace(items, "Betty", {"name": "Betty", "id": 0}, wrapped_names)
+        bisect_insert_or_replace(items, "Anne", {"name": "Anne", "id": 1}, wrapped_names)
+        assert items == expected
 
     def test_replace(self) -> None:
-        l = [
+        items = [
             {"name": "Anne", "id": 0},
             {"name": "Betty", "id": 1},
             {"name": "Cecilia", "id": 2},
@@ -81,12 +81,12 @@ class test_bisect_insert_or_replace:
             {"name": "Cecilia", "id": 3},
             {"name": "Daisy", "id": 2},
         ]
-        wrapped_names = ListOfDictsAttrWrapper(l, "name")
-        bisect_insert_or_replace(l, "Anne", {"name": "Anne", "id": 1}, wrapped_names)
-        bisect_insert_or_replace(l, "Betty", {"name": "Betty", "id": 0}, wrapped_names)
-        bisect_insert_or_replace(l, "Cecilia", {"name": "Cecilia", "id": 3}, wrapped_names)
+        wrapped_names = ListOfDictsAttrWrapper(items, "name")
+        bisect_insert_or_replace(items, "Anne", {"name": "Anne", "id": 1}, wrapped_names)
+        bisect_insert_or_replace(items, "Betty", {"name": "Betty", "id": 0}, wrapped_names)
+        bisect_insert_or_replace(items, "Cecilia", {"name": "Cecilia", "id": 3}, wrapped_names)
         bisect_insert_or_replace(l, "Daisy", {"name": "Daisy", "id": 2}, wrapped_names)
-        assert l == expected
+        assert items == expected
 
 
 class test_dmerge:
