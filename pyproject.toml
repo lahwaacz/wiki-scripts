@@ -58,9 +58,10 @@ test = [
 
 all = ["wiki-scripts[database,scripts,doc,lint,test]"]
 
-[tool.setuptools]
 # avoid ambiguity (Multiple top-level packages discovered in a flat-layout)
-packages = ["ws"]
+[tool.setuptools.packages.find]
+where = [""]
+include = ["ws*"]
 
 [tool.ruff]
 target-version = "py312"
