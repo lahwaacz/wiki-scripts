@@ -1,10 +1,12 @@
-from typing import Iterator
+from typing import TYPE_CHECKING, Iterator
 
 import pytest
-import pytest_docker
 import sqlalchemy as sa
 
 from ws.db.database import Database
+
+if TYPE_CHECKING:
+    import pytest_docker
 
 __all__ = [
     "wiki_scripts_database_url",
@@ -16,7 +18,7 @@ __all__ = [
 def wiki_scripts_database_url(
     containers_dotenv_values: dict[str, str | None],
     docker_ip: str,
-    docker_services: pytest_docker.Services,
+    docker_services: "pytest_docker.Services",
 ) -> sa.URL:
     """Ensure that MediaWiki's database is up and responsive."""
     # port_for takes a container port and returns the corresponding host port

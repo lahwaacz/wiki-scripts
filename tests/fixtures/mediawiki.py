@@ -1,11 +1,13 @@
-from typing import Iterator
+from typing import TYPE_CHECKING, Iterator
 
 import httpx
 import pytest
-import pytest_docker
 import sqlalchemy as sa
 
 from ws.client.api import API
+
+if TYPE_CHECKING:
+    import pytest_docker
 
 __all__ = [
     "mediawiki_service",
@@ -24,7 +26,7 @@ def is_responsive(url: str) -> bool:
 
 
 @pytest.fixture(scope="session")
-def mediawiki_service(docker_ip: str, docker_services: pytest_docker.Services) -> str:
+def mediawiki_service(docker_ip: str, docker_services: "pytest_docker.Services") -> str:
     """Ensure that MediaWiki service is up and responsive."""
     # port_for takes a container port and returns the corresponding host port
     port = docker_services.port_for("mediawiki", 80)
@@ -37,7 +39,7 @@ def mediawiki_service(docker_ip: str, docker_services: pytest_docker.Services) -
 def mediawiki_database_url(
     containers_dotenv_values: dict[str, str | None],
     docker_ip: str,
-    docker_services: pytest_docker.Services,
+    docker_services: "pytest_docker.Services",
 ) -> sa.URL:
     """Ensure that MediaWiki's database is up and responsive."""
     # port_for takes a container port and returns the corresponding host port

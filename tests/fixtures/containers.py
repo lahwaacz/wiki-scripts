@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterator
 
 import dotenv
 import pytest
@@ -6,10 +7,13 @@ import pytest
 __all__ = [
     "pytest_addoption",
     "keep_containers_running",
+    "docker_ip",
+    "docker_compose_command",
     "docker_compose_file",
     "docker_compose_project_name",
     "docker_setup",
     "docker_cleanup",
+    "docker_services",
     "containers_dotenv_values",
 ]
 
@@ -30,6 +34,18 @@ def keep_containers_running(request: pytest.FixtureRequest) -> bool:
     """
     value = request.config.getoption("--keep-containers-running")
     return bool(value)
+
+
+# Override the original fixture from pytest_docker to make it optional
+@pytest.fixture(scope="session")
+def docker_ip():
+    pytest_docker = pytest.importorskip("pytest_docker")
+    return pytest_docker.plugin.get_docker_ip()
+
+
+@pytest.fixture(scope="session")
+def docker_compose_command() -> str:
+    return "docker compose"
 
 
 @pytest.fixture(scope="session")
@@ -71,3 +87,23 @@ def containers_dotenv_values(docker_compose_file: str) -> dict[str, str | None]:
     dotenv_path = Path(docker_compose_file).parent / ".env"
     assert dotenv_path.is_file()
     return dotenv.dotenv_values(dotenv_path)
+
+
+# Override the original fixture from pytest_docker to make it optional
+@pytest.fixture(scope="session")
+def docker_services(
+    docker_compose_command: str,
+    docker_compose_file: list[str] | str,
+    docker_compose_project_name: str,
+    docker_setup: str,
+    docker_cleanup: str,
+) -> Iterator:
+    pytest_docker = pytest.importorskip("pytest_docker")
+    with pytest_docker.plugin.get_docker_services(
+        docker_compose_command,
+        docker_compose_file,
+        docker_compose_project_name,
+        docker_setup,
+        docker_cleanup,
+    ) as docker_service:
+        yield docker_service
