@@ -5,7 +5,13 @@ Version 2.0
 -----------
 
 Unreleased
-(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.4...master>`__)
+(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.5...master>`__)
+
+Version 1.5
+-----------
+
+`Released Jan 2, 2026 <https://github.com/lahwaacz/wiki-scripts/tree/1.5>`_
+(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.4...1.5>`__)
 
 - Project structure refactoring:
   - Added `pyproject.toml` and modern tooling (ruff, mypy)
