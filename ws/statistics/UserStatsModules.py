@@ -1,9 +1,8 @@
-#! /usr/bin/env python3
-
 import datetime
 import itertools
 
 __all__ = ["UserStatsModules"]
+
 
 class UserStatsModules:
     def __init__(self, db, *, round_to_midnight=False, active_days=30):
@@ -27,13 +26,17 @@ class UserStatsModules:
             self.today = datetime.datetime(*(self.today.timetuple()[:3]), tzinfo=datetime.UTC)
 
         revisions = list(db.query(list="allrevisions", arvlimit="max", arvdir="newer", arvend=self.today, arvprop={"ids", "timestamp", "user", "userid"}))
-        revisions += list(db.query(list="alldeletedrevisions", adrlimit="max", adrdir="newer", adrend=self.today, adrprop={"ids", "timestamp", "user", "userid"}))
+        revisions += list(
+            db.query(list="alldeletedrevisions", adrlimit="max", adrdir="newer", adrend=self.today, adrprop={"ids", "timestamp", "user", "userid"})
+        )
 
         # fetch recent changes from the recentchanges table
         # (does not include all revisions - "diffable" log events such as
         # page protection changes or page moves are omitted)
         firstday = self.today - datetime.timedelta(days=self.active_days)
-        self.recent_changes = list(self.db.query(list="recentchanges", rctype={"edit", "new"}, rcprop={"user", "timestamp"}, rclimit="max", rcstart=self.today, rcend=firstday))
+        self.recent_changes = list(
+            self.db.query(list="recentchanges", rctype={"edit", "new"}, rcprop={"user", "timestamp"}, rclimit="max", rcstart=self.today, rcend=firstday)
+        )
 
         # sort revisions by multiple keys: 1. user, 2. timestamp
         # this way we can group the list by users and iterate through user_revisions
@@ -62,9 +65,9 @@ class UserStatsModules:
                   recorded streak ended more than a day ago, ``current`` is ``None``. When there is
                   no streak recorded, both ``longest`` and ``current`` are ``None``.
         """
+
         def _streak(revision):
-            """ Return streak ID number for given revision.
-            """
+            """Return streak ID number for given revision."""
             date = revision["timestamp"].date()
 
             # check if new streak starts
@@ -81,8 +84,7 @@ class UserStatsModules:
         streak_groups = itertools.groupby(self.revisions_groups[user], key=_streak)
 
         def _length(streak):
-            """ Return the length of given streak in days.
-            """
+            """Return the length of given streak in days."""
             delta = streak[-1]["timestamp"] - streak[0]["timestamp"]
             return delta.days + 1
 
@@ -138,7 +140,7 @@ class UserStatsModules:
             or ``float('nan')`` if ``registration_timestamp`` is ``None``
         """
         if registration_timestamp is None:
-            return float('nan')
+            return float("nan")
         revisions = self.revisions_groups[user]
         delta = self.today - registration_timestamp
         return len(revisions) / (delta.days + 1)
@@ -204,6 +206,7 @@ class UserStatsModules:
 
     def format_last_date(self, *, format="%Y-%m-%d"):
         return self.today.strftime(format)
+
 
 if __name__ == "__main__":
     # this is only for testing...

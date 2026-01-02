@@ -44,7 +44,9 @@ def main(api):
             print("* %s" % title)
         print()
 
+
 if __name__ == "__main__":
     import ws.config
+
     api = ws.config.object_from_argparser(API, description="List unwatched wiki pages")
     main(api)

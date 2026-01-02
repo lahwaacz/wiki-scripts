@@ -8,6 +8,7 @@ from ws.client import API
 def get_transclusions(api, title):
     return set([page["title"] for page in api.list(list="embeddedin", eilimit="max", eititle=title, einamespace="0|4|12")])
 
+
 def main(api):
     # various "broken" pages
     # see https://wiki.archlinux.org/index.php/ArchWiki:Requests#General_requests
@@ -46,7 +47,9 @@ def main(api):
     print_heading("Flagged with any template")
     print_titles(all_)
 
+
 if __name__ == "__main__":
     import ws.config
+
     api = ws.config.object_from_argparser(API, description="List pages flagged with an article status template")
     main(api)

@@ -35,8 +35,8 @@ for user in users:
     delta = now - user["registration"]
     user["avgeditsperday"] = user["editcount"] / delta.days if delta.days != 0 else user["editcount"]
 
-#users.sort(key=lambda u: u["editcount"], reverse=True)
-#users.sort(key=lambda u: u["recenteditcount"], reverse=True)
+# users.sort(key=lambda u: u["editcount"], reverse=True)
+# users.sort(key=lambda u: u["recenteditcount"], reverse=True)
 users.sort(key=lambda u: u["avgeditsperday"], reverse=True)
 
 for user in users:

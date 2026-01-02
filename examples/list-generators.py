@@ -16,20 +16,20 @@ for page in api.generator(generator="allpages", gaplimit="max"):
 
 # allcategories
 # see list of parameters: https://www.mediawiki.org/wiki/API:Allcategories
-#for page in api.generator(generator="allcategories", gaclimit="max"):
+# for page in api.generator(generator="allcategories", gaclimit="max"):
 #    print(page["title"])
 
 # categorymembers
 # see list of parameters: https://www.mediawiki.org/wiki/API:Categorymembers
-#for page in api.generator(generator="categorymembers", gcmtitle="Category:English", gcmlimit="max"):
+# for page in api.generator(generator="categorymembers", gcmtitle="Category:English", gcmlimit="max"):
 #    print(page["title"])
 
 # transclusions
 # see list of parameters: https://www.mediawiki.org/wiki/API:Embeddedin
-#for page in api.generator(generator="embeddedin", geititle="Template:AUR", geilimit="max"):
+# for page in api.generator(generator="embeddedin", geititle="Template:AUR", geilimit="max"):
 #    print(page["title"])
 
 # backlinks
 # see list of parameters: https://www.mediawiki.org/wiki/API:Backlinks
-#for page in api.generator(generator="backlinks", gbltitle="Main page", gbllimit="max", gblnamespace=0, gblredirect=""):
+# for page in api.generator(generator="backlinks", gbltitle="Main page", gbllimit="max", gblnamespace=0, gblredirect=""):
 #    print(page["title"])

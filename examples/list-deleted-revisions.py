@@ -45,7 +45,9 @@ def main(api):
     for user, count in sorted(users_counts.items(), key=lambda t: t[1], reverse=True)[:20]:
         print(user, count)
 
+
 if __name__ == "__main__":
     import ws.config
+
     api = ws.config.object_from_argparser(API, description="List deleted revisions")
     main(api)

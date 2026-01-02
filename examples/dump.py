@@ -24,13 +24,14 @@ def dump(api, outfile, timestamp_start):
     chunk_size = 1024 * 1024
 
     # handle download stream
-    with open(outfile, 'wb') as fd:
+    with open(outfile, "wb") as fd:
         for chunk in response.iter_content(chunk_size):
             fd.write(chunk)
 
 
 if __name__ == "__main__":
     import ws.config
+
     api = ws.config.object_from_argparser(API, description="Check pages in the user namespace")
 
     # TODO: take parameters from command line and make sure that the timestamp is in the format '%Y-%m-%dT%H:%M:%SZ'
