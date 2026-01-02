@@ -5,7 +5,15 @@ Version 2.0
 -----------
 
 Unreleased
-(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.5...master>`__)
+(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.5.1...master>`__)
+
+Version 1.5.1
+-------------
+
+`Released Jan 2, 2026 <https://github.com/lahwaacz/wiki-scripts/tree/1.5.1>`_
+(`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.5...1.5.1>`__)
+
+- Allow to run tests without `pytest-docker` installed
 
 Version 1.5
 -----------

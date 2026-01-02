@@ -1,6 +1,6 @@
 [project]
 name = "wiki-scripts"
-version = "1.4"
+version = "1.5.1"
 description = "Framework for writing bots, maintenance scripts or performing data analysis on wikis powered by MediaWiki"
 readme = "README.rst"
 requires-python = ">=3.12"
