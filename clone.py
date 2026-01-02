@@ -146,7 +146,7 @@ if __name__ == "__main__":
     argparser = ws.config.getArgParser(description="Clone latest revisions of pages on the wiki")
     API.set_argparser(argparser)
 
-    # TODO: move to Dowloader.set_argparser()
+    # TODO: move to Downloader.set_argparser()
     _script = argparser.add_argument_group(title="script parameters")
     _script.add_argument(
         "--output-directory",

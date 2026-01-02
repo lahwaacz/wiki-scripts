@@ -61,7 +61,7 @@ class test_bisect_insert_or_replace:
             {"name": "Daisy", "id": 3},
         ]
         items: list[dict[str, Any]] = []
-        wrapped_names = ListOfDictsAttrWrapper(l, "name")
+        wrapped_names = ListOfDictsAttrWrapper(items, "name")
         bisect_insert_or_replace(items, "Cecilia", {"name": "Cecilia", "id": 2}, wrapped_names)
         bisect_insert_or_replace(items, "Daisy", {"name": "Daisy", "id": 3}, wrapped_names)
         bisect_insert_or_replace(items, "Betty", {"name": "Betty", "id": 0}, wrapped_names)
@@ -85,7 +85,7 @@ class test_bisect_insert_or_replace:
         bisect_insert_or_replace(items, "Anne", {"name": "Anne", "id": 1}, wrapped_names)
         bisect_insert_or_replace(items, "Betty", {"name": "Betty", "id": 0}, wrapped_names)
         bisect_insert_or_replace(items, "Cecilia", {"name": "Cecilia", "id": 3}, wrapped_names)
-        bisect_insert_or_replace(l, "Daisy", {"name": "Daisy", "id": 2}, wrapped_names)
+        bisect_insert_or_replace(items, "Daisy", {"name": "Daisy", "id": 2}, wrapped_names)
         assert items == expected
 
 
