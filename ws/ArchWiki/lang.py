@@ -38,6 +38,7 @@ __languages = [
     {"name": "日本語", "subtag": "ja", "english": "Japanese"},
     {"name": "한국어", "subtag": "ko", "english": "Korean"},
     {"name": "Lietuvių", "subtag": "lt", "english": "Lithuanian"},
+    {"name": "Latviešu", "subtag": "lv", "english": "Latvian"},
     {"name": "文言文", "subtag": "lzh", "english": "Chinese (Classical)"},
     {"name": "Norsk Bokmål", "subtag": "nb", "english": "Norwegian (Bokmål)"},
     {"name": "Nederlands", "subtag": "nl", "english": "Dutch"},
