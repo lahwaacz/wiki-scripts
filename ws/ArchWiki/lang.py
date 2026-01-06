@@ -80,6 +80,7 @@ __interlanguage_internal = [
     "it",
     "ko",
     "lt",
+    "lv",
     "nl",
     "pl",
     "pt",
