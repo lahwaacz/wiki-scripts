@@ -7,6 +7,8 @@ Version 2.0
 Unreleased
 (`changes <https://github.com/lahwaacz/wiki-scripts/compare/1.5.1...master>`__)
 
+- Added `lv` language tag
+
 Version 1.5.1
 -------------
 
