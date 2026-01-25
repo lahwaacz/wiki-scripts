@@ -75,20 +75,15 @@ def create_custom_tables(metadata):
         # namespace prefixes are case-insensitive, just like the VARCHAR type
         Column("nsn_name", UnicodeText, nullable=False),
     )
-    Index("nsn_id_name", namespace_name.c.nsn_id, namespace_name.c.nsn_name, unique=True)
+    Index("nsn_id", namespace_name.c.nsn_id, unique=True)
     Index("nsn_name", namespace_name.c.nsn_name, unique=True)
 
     # table for default ("*") namespace names
     namespace_starname = Table(
         "namespace_starname",
         metadata,
-        Column("nss_id", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        Column("nss_id", Integer, ForeignKey("namespace.ns_id"), ForeignKey("namespace_name.nsn_id", ondelete="CASCADE"), nullable=False),
         Column("nss_name", UnicodeText, nullable=False),
-        ForeignKeyConstraint(
-            ["nss_id", "nss_name"],
-            ["namespace_name.nsn_id", "namespace_name.nsn_name"],
-            ondelete="CASCADE",
-        ),
     )
     Index("ns_starname_id", namespace_starname.c.nss_id, unique=True)
 
@@ -96,13 +91,8 @@ def create_custom_tables(metadata):
     namespace_canonical = Table(
         "namespace_canonical",
         metadata,
-        Column("nsc_id", Integer, ForeignKey("namespace.ns_id"), nullable=False),
+        Column("nsc_id", Integer, ForeignKey("namespace.ns_id"), ForeignKey("namespace_name.nsn_id", ondelete="CASCADE"), nullable=False),
         Column("nsc_name", UnicodeText, nullable=False),
-        ForeignKeyConstraint(
-            ["nsc_id", "nsc_name"],
-            ["namespace_name.nsn_id", "namespace_name.nsn_name"],
-            ondelete="CASCADE",
-        ),
     )
     Index("ns_canonical_id", namespace_canonical.c.nsc_id, unique=True)
 
