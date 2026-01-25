@@ -45,8 +45,10 @@ class GrabberNamespaces(GrabberBase):
         }
 
     def gen_insert(self):
-        # entries for the namespace_name table must be deduplicated
-        nsn_id_to_name = {}
+        aliased_ids = {}
+
+        for alias in self.api.site.namespacealiases.values():
+            aliased_ids[alias["id"]] = alias["*"]
 
         for ns in self.api.site.namespaces.values():
             # don't store special namespaces in the database
@@ -65,7 +67,34 @@ class GrabberNamespaces(GrabberBase):
             }
             yield self.sql["insert", "namespace"], ns_entry
 
-            nsn_id_to_name[ns["id"]] = ns["*"]
+            # Entries for the namespace_name table must be deduplicated.
+            # Order of precedence for name (ascending): starname, canonical, alias.
+            # First, default to the starname:
+            nsn_name = ns["*"]
+
+            # Then, try canonical:
+            if "canonical" in ns:
+                nsn_name = ns["canonical"]
+                nsc_entry = {
+                    "nsc_id": ns["id"],
+                    "nsc_name": ns["canonical"],
+                }
+                # We need to defer this since NSC has a NSN fkey.
+                canonical_insert = self.sql["insert", "namespace_canonical"], nsc_entry
+
+            # Finally, look for an alias:
+            if ns["id"] in aliased_ids:
+                nsn_name = aliased_ids[ns["id"]]
+                del aliased_ids[ns["id"]]
+
+            nsn_entry = {
+                "nsn_id": ns["id"],
+                "nsn_name": nsn_name,
+            }
+            yield self.sql["insert", "namespace_name"], nsn_entry
+
+            if "canonical" in ns:
+                yield canonical_insert
 
             nss_entry = {
                 "nss_id": ns["id"],
@@ -73,24 +102,8 @@ class GrabberNamespaces(GrabberBase):
             }
             yield self.sql["insert", "namespace_starname"], nss_entry
 
-            if "canonical" in ns:
-                nsn_id_to_name[ns["id"]] = ns["canonical"]
-                nsc_entry = {
-                    "nsc_id": ns["id"],
-                    "nsc_name": ns["canonical"],
-                }
-                yield self.sql["insert", "namespace_canonical"], nsc_entry
-
-        for alias in self.api.site.namespacealiases.values():
-            nsn_id_to_name[alias["id"]] = alias["*"]
-
-        # insert deduplicated entries for the namespace_name table
-        for nsn_id, nsn_name in nsn_id_to_name.items():
-            nsn_entry = {
-                "nsn_id": nsn_id,
-                "nsn_name": nsn_name,
-            }
-            yield self.sql["insert", "namespace_name"], nsn_entry
+        if aliased_ids:
+            raise ValueError(f"Some alias(es) were not matched with namespaces: {aliased_ids}")
 
     def gen_update(self, since):
         yield from self.gen_insert()
