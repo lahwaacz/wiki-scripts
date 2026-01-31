@@ -46,7 +46,7 @@ class GrabberNamespaces(GrabberBase):
 
     def gen_insert(self):
         # entries for the namespace_name table must be deduplicated
-        nsn_id_to_name = {}
+        nsn_id_name: set[tuple[int, str]] = set()
 
         for ns in self.api.site.namespaces.values():
             # don't store special namespaces in the database
@@ -65,8 +65,25 @@ class GrabberNamespaces(GrabberBase):
             }
             yield self.sql["insert", "namespace"], ns_entry
 
-            nsn_id_to_name[ns["id"]] = ns["*"]
+            nsn_id_name.add((ns["id"], ns["*"]))
 
+            if "canonical" in ns:
+                nsn_id_name.add((ns["id"], ns["canonical"]))
+
+        # add namespace aliases to the mapping
+        for alias in self.api.site.namespacealiases.values():
+            nsn_id_name.add((alias["id"], alias["*"]))
+
+        # insert deduplicated entries for the namespace_name table
+        for nsn_id, nsn_name in sorted(nsn_id_name):
+            nsn_entry = {
+                "nsn_id": nsn_id,
+                "nsn_name": nsn_name,
+            }
+            yield self.sql["insert", "namespace_name"], nsn_entry
+
+        # namespace_starname and namespace_canonical depend on namespace_name
+        for ns in self.api.site.namespaces.values():
             nss_entry = {
                 "nss_id": ns["id"],
                 "nss_name": ns["*"],
@@ -74,23 +91,11 @@ class GrabberNamespaces(GrabberBase):
             yield self.sql["insert", "namespace_starname"], nss_entry
 
             if "canonical" in ns:
-                nsn_id_to_name[ns["id"]] = ns["canonical"]
                 nsc_entry = {
                     "nsc_id": ns["id"],
                     "nsc_name": ns["canonical"],
                 }
                 yield self.sql["insert", "namespace_canonical"], nsc_entry
-
-        for alias in self.api.site.namespacealiases.values():
-            nsn_id_to_name[alias["id"]] = alias["*"]
-
-        # insert deduplicated entries for the namespace_name table
-        for nsn_id, nsn_name in nsn_id_to_name.items():
-            nsn_entry = {
-                "nsn_id": nsn_id,
-                "nsn_name": nsn_name,
-            }
-            yield self.sql["insert", "namespace_name"], nsn_entry
 
     def gen_update(self, since):
         yield from self.gen_insert()
